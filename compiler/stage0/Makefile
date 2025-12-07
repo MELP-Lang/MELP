@@ -35,27 +35,42 @@ MODULE_OBJS = $(foreach dir,$(filter-out runtime_tto tto_runtime optimization_pa
 OBJS = main.o lexer.o \
        error/error_handler.o \
        cli/cli_parser.o \
-       pipeline/pipeline.o \
+       orchestrator.o helpers.o \
        $(MODULE_OBJS)
 
 # ========== ARCHITECTURE ENFORCEMENT ==========
 # These checks prevent AI agents from creating monolithic code
 
-# Rule #1: main.c cannot exceed 300 lines
+# Rule #1: main.c cannot exceed 50 lines
 check-main-size:
 	@lines=$$(wc -l < main.c); \
-	if [ $$lines -gt 300 ]; then \
+	if [ $$lines -gt 50 ]; then \
 		echo ""; \
-		echo "❌ ARCHITECTURE VIOLATION: main.c is $$lines lines (max: 300)"; \
-		echo "   Split logic into modules in modules/ directory"; \
-		echo "   Read ARCHITECTURE.md for rules"; \
+		echo "❌ ARCHITECTURE VIOLATION: main.c is $$lines lines (max: 50)"; \
+		echo "   main.c should ONLY have main() function"; \
+		echo "   Read RULES.md"; \
 		echo ""; \
 		exit 1; \
 	else \
-		echo "✅ main.c size OK ($$lines/300 lines)"; \
+		echo "✅ main.c size OK ($$lines/50 lines)"; \
 	fi
 
-# Rule #2: main.c cannot import module internals directly
+# Rule #2: orchestrator.c cannot exceed 200 lines
+check-orchestrator-size:
+	@lines=$$(wc -l < orchestrator.c); \
+	if [ $$lines -gt 200 ]; then \
+		echo ""; \
+		echo "❌ ARCHITECTURE VIOLATION: orchestrator.c is $$lines lines (max: 200)"; \
+		echo "   orchestrator.c should ONLY route to modules"; \
+		echo "   Extract logic to modules/"; \
+		echo "   Read RULES.md"; \
+		echo ""; \
+		exit 1; \
+	else \
+		echo "✅ orchestrator.c size OK ($$lines/200 lines)"; \
+	fi
+
+# Rule #3: main.c cannot import module internals directly
 check-coupling:
 	@if grep -E '^#include.*"modules/.*(parser|codegen)\.h"' main.c > /dev/null 2>&1; then \
 		echo ""; \
@@ -67,22 +82,6 @@ check-coupling:
 		exit 1; \
 	else \
 		echo "✅ Coupling check OK"; \
-	fi
-
-# Rule #3: Pipeline cannot exceed 800 lines (orchestration exception)
-check-pipeline-size:
-	@if [ -f pipeline/pipeline.c ]; then \
-		lines=$$(wc -l < pipeline/pipeline.c); \
-		if [ $$lines -gt 800 ]; then \
-			echo ""; \
-			echo "❌ ARCHITECTURE VIOLATION: pipeline.c is $$lines lines (max: 800)"; \
-			echo "   Split compilation logic into separate modules"; \
-			echo "   Read ARCHITECTURE.md for rules"; \
-			echo ""; \
-			exit 1; \
-		else \
-			echo "✅ pipeline.c size OK ($$lines/800 lines)"; \
-		fi \
 	fi
 
 # Rule #4: Check binary name (no versioned names like melpc_26)
@@ -98,8 +97,43 @@ check-binary-name:
 		echo "✅ Binary name check OK"; \
 	fi
 
+# Rule #5: CRITICAL - File Creation Lock 🔒
+check-forbidden-files:
+	@echo "🔍 Checking for forbidden file creation..."
+	@VIOLATIONS=0; \
+	FORBIDDEN_FILES=""; \
+	for file in *.c *.h; do \
+		if [ -f "$$file" ]; then \
+			case "$$file" in \
+				main.c|main_full.c|main_simple.c|orchestrator.c|orchestrator.h|helpers.c|helpers.h|lexer.c|lexer.h|parser.h|codegen.h) \
+					;; \
+				test_*.c|test_*.h) \
+					;; \
+				*) \
+					echo "❌ FORBIDDEN FILE: $$file"; \
+					echo "   Only modules/*, test_* allowed!"; \
+					FORBIDDEN_FILES="$$FORBIDDEN_FILES $$file"; \
+					VIOLATIONS=$$((VIOLATIONS + 1)); \
+					;; \
+			esac; \
+		fi; \
+	done; \
+	if [ $$VIOLATIONS -gt 0 ]; then \
+		echo ""; \
+		echo "╔════════════════════════════════════════════╗"; \
+		echo "║   ❌ BUILD REJECTED!                       ║"; \
+		echo "║   Forbidden files detected: $$VIOLATIONS           ║"; \
+		echo "║   Files:$$FORBIDDEN_FILES"; \
+		echo "║   Read ARCHITECTURE.md                     ║"; \
+		echo "╚════════════════════════════════════════════╝"; \
+		echo ""; \
+		exit 1; \
+	else \
+		echo "✅ File creation rules: PASSED"; \
+	fi
+
 # Run all architecture checks
-check-architecture: check-main-size check-coupling check-pipeline-size check-binary-name
+check-architecture: check-main-size check-orchestrator-size check-coupling check-binary-name check-forbidden-files
 	@echo ""
 	@echo "✅ All architecture checks passed"
 	@echo ""
@@ -149,8 +183,12 @@ error/error_handler.o: error/error_handler.c error/error_handler.h lexer.h
 cli/cli_parser.o: cli/cli_parser.c cli/cli_parser.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Pipeline module
-pipeline/pipeline.o: pipeline/pipeline.c pipeline/pipeline.h lexer.h parser.h codegen.h
+# Orchestrator module
+orchestrator.o: orchestrator.c orchestrator.h helpers.h lexer.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Helpers module
+helpers.o: helpers.c helpers.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Pattern rules for standard modules (with .o, _parser.o, _codegen.o)
@@ -192,4 +230,4 @@ test: $(TARGET)
 	@echo "=== Testing 26-module MELP compiler ==="
 	./$(TARGET) --version || echo "Compiler built successfully!"
 
-.PHONY: all clean test check-architecture check-main-size check-coupling
+.PHONY: all clean test check-architecture check-main-size check-orchestrator-size check-coupling check-binary-name check-forbidden-files
