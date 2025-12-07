@@ -1,0 +1,75 @@
+# MELP Language - Git Ignore File
+
+# Temporary files
+temp/
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Build artifacts
+*.o
+*.a
+*.so
+*.exe
+melpc
+melpc_*
+compiler/stage0/melpc
+compiler/stage0/melpc_*
+
+# Assembly and object files
+*.s
+*.asm
+!examples/**/*.s
+!compiler/stage0/demo_*.s
+
+# Test outputs
+test_*
+!test_*.mlp
+output
+output.o
+
+# Backup files
+*.backup
+*.bak
+main.c.backup*
+
+# IDE and editor files
+.vscode/
+.idea/
+*.code-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+*.desktop
+
+# Node modules (for editors)
+editors/**/node_modules/
+editors/**/dist/
+editors/**/build/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Logs
+*.log
+logs/
+
+# Runtime generated files
+runtime/tto/*.o
+runtime/tto/test_*
+runtime/tto/libtto_runtime.a
+
+# Documentation build
+docs/_build/
+docs/.doctrees/
+
+# Environment
+.env
+.env.local

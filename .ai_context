@@ -1,0 +1,228 @@
+# .ai_context - AI Assistant Context File
+**Last Updated:** 7 Aralık 2025
+
+⚠️ **READ THIS BEFORE ANY CODE CHANGE!** ⚠️
+
+---
+
+## 🔒 IMMUTABLE ARCHITECTURE RULES
+
+### Rule 1: File Size Limits
+- **main.c:** MAX 300 lines (STRICTLY ENFORCED)
+- **Module files:** MAX 500 lines each
+- **Pipeline files:** MAX 800 lines (orchestration exception)
+
+### Rule 2: Binary Naming
+- **Correct:** `melpc` (version-agnostic)
+- **FORBIDDEN:** `melpc_26`, `melpc_v1`, any versioned name
+
+### Rule 3: Modular Architecture
+- Each concern = separate module
+- No merging modules into main.c
+- No central orchestration >800 lines
+- Clear separation of responsibilities
+
+### Rule 4: Module Structure
+- 26 modules in `modules/` directory
+- Each module: `module.c`, `module.h`, `module_parser.c`, `module_codegen.c`
+- Exceptions documented in ARCHITECTURE.md
+
+---
+
+## 📊 CURRENT STATUS (7 Aralık 2025)
+
+### ✅ Architecture Clean!
+
+```
+main.c:               32 lines  ✅ (89% under limit)
+error_handler.c:      38 lines  ✅
+cli_parser.c:         44 lines  ✅
+pipeline.c:          710 lines  ✅ (orchestration exception)
+Binary name:         melpc      ✅
+Modules:             26 active  ✅
+Validation:          PASSING    ✅
+```
+
+### Recent Refactoring (7 Dec 2025)
+- ✅ Split monolithic 744-line main.c into modular structure
+- ✅ Created error/, cli/, pipeline/ modules
+- ✅ Removed versioned binary (melpc_26)
+- ✅ All tests passing
+- ✅ Architecture validation passing
+
+---
+
+## 🚫 FORBIDDEN ACTIONS
+
+### ❌ NEVER DO THIS:
+1. **Merge modules into main.c** - Destroys modular architecture
+2. **Create files >500 lines** (except pipeline.c orchestration)
+3. **Rename binary** to melpc_XX or any versioned name
+4. **Bypass architecture validation** - Validation is mandatory
+5. **Skip ARCHITECTURE.md** - Rules are immutable
+6. **Disable pre-commit hooks** - Safety net required
+
+### ⚠️ If Rule Violation Seems Necessary:
+```
+STOP! Don't proceed automatically.
+
+Ask user:
+"⚠️ This action violates ARCHITECTURE.md Rule X:
+[Explain which rule and why it's violated]
+
+Violation needed because: [Explain technical reason]
+
+User confirmation required to proceed.
+Continue? (yes/no)"
+```
+
+---
+
+## ✅ BEFORE ANY CODE CHANGE
+
+### Pre-Change Checklist:
+1. ✅ Read ARCHITECTURE.md
+2. ✅ Check current line counts: `wc -l compiler/stage0/main.c`
+3. ✅ Verify change doesn't violate rules
+4. ✅ Plan modular approach (split if needed)
+5. ✅ Run validation after change: `bash scripts/validate_architecture.sh`
+
+### After Every Change:
+```bash
+# Validate architecture
+cd /home/pardus/projeler/MLP/MLP
+bash ./scripts/validate_architecture.sh
+
+# If validation fails → STOP and fix!
+```
+
+---
+
+## 🏗️ MODULE RESPONSIBILITIES
+
+### Current Modular Structure:
+
+```
+compiler/stage0/
+├── main.c (32 lines)
+│   └── Entry point: CLI → Pipeline → Exit
+│
+├── error/
+│   └── Error reporting & syntax error messages
+│
+├── cli/
+│   └── Command-line argument parsing, help, version
+│
+├── pipeline/
+│   └── Compilation orchestration (lexer, parser, codegen)
+│
+└── modules/ (26 modules)
+    ├── arithmetic/
+    ├── comparison/
+    ├── logical/
+    ├── variable/
+    └── ... (22 more)
+```
+
+---
+
+## 🎯 CURRENT PHASE
+
+**Phase:** Post-Refactoring (Ready for Phase 3.5)
+
+**Status:** ✅ Architecture Clean
+
+**Next Steps:**
+- Phase 3.5: Expressions & Operators
+- TTO runtime integration for complex expressions
+- Expression codegen improvements
+
+**IMPORTANT:** Maintain modular architecture during Phase 3.5!
+- Don't inflate main.c
+- Add expression logic to modules/arithmetic/
+- Keep pipeline.c focused on orchestration
+
+---
+
+## 📋 VALIDATION COMMANDS
+
+```bash
+# Full architecture validation
+bash ./scripts/validate_architecture.sh
+
+# Quick line count check
+wc -l compiler/stage0/main.c
+wc -l compiler/stage0/pipeline/pipeline.c
+
+# Build with validation
+cd compiler/stage0 && make clean && make all
+
+# Test compilation
+cd compiler/stage0
+./melpc demo_melp.mlp test.s
+nasm -f elf64 test.s -o test.o
+ld test.o -o test
+./test
+```
+
+---
+
+## 🛡️ PROTECTION LAYERS ACTIVE
+
+1. ✅ **AI Context File** (this file) - Read before every change
+2. ✅ **ARCHITECTURE.md** - Immutable rules documentation
+3. ✅ **Validation Script** - `scripts/validate_architecture.sh`
+4. ⏳ **Makefile Guard** - Build-time validation (being added)
+5. ✅ **Git Pre-commit Hook** - Commit-time validation
+
+---
+
+## 📚 QUICK REFERENCE
+
+### Key Files:
+- `ARCHITECTURE.md` - Architecture rules
+- `scripts/validate_architecture.sh` - Validation script
+- `.git/hooks/pre-commit` - Pre-commit validation
+- `compiler/stage0/Makefile` - Build configuration
+
+### Key Limits:
+- main.c: 300 lines MAX
+- Module files: 500 lines MAX
+- Pipeline: 800 lines MAX (exception)
+
+### Key Commands:
+```bash
+# Validate
+bash ./scripts/validate_architecture.sh
+
+# Build
+cd compiler/stage0 && make
+
+# Test
+./melpc --version
+./melpc input.mlp output.s
+```
+
+---
+
+## 🆘 TROUBLESHOOTING
+
+### "main.c exceeds 300 lines"
+→ Split logic into error/, cli/, or pipeline/ modules
+→ Create new module in modules/ if needed
+→ NEVER inflate main.c!
+
+### "Versioned binary detected"
+→ Use `melpc` only, never `melpc_XX`
+→ Check Makefile TARGET variable
+
+### "Architecture validation fails"
+→ Read validation output carefully
+→ Fix violations before proceeding
+→ Re-run validation after fix
+
+---
+
+**REMEMBER:** Architecture is SACRED! 🛡️
+
+When in doubt → ASK USER before violating rules!
