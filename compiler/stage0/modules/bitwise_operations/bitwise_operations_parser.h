@@ -2,7 +2,7 @@
 #define BITWISE_OPERATIONS_PARSER_H
 
 #include "bitwise_operations.h"
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 // Parse bitwise operations
 // Syntax examples:

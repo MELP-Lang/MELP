@@ -2,7 +2,7 @@
 #define TYPE_SYSTEM_PARSER_H
 
 #include "type_system.h"
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 // Parse type annotations
 // Syntax examples:

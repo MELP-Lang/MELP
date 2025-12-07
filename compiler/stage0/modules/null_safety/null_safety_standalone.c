@@ -20,7 +20,7 @@
 #include "null_safety.h"
 #include "null_safety_parser.h"
 #include "null_safety_codegen.h"
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 // Only include what we need - avoid include conflicts
 #include "../variable/variable.h"

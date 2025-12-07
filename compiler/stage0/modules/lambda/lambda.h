@@ -2,7 +2,7 @@
 #define LAMBDA_H
 
 #include <stddef.h>
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 // Lambda/Closure tipi
 typedef enum LambdaType {

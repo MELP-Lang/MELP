@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 #include "struct.h"
 #include "struct_parser.h"
 #include "struct_codegen.h"

@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 #include "file_io.h"
 
 // =============================================================================

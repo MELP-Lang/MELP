@@ -1,7 +1,7 @@
 #ifndef FUNCTIONS_PARSER_H
 #define FUNCTIONS_PARSER_H
 
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 #include "functions.h"
 
 // Forward declarations

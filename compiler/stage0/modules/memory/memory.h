@@ -2,7 +2,7 @@
 #define MEMORY_H
 
 #include <stddef.h>
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 // Bellek ayırma stratejileri
 typedef enum AllocStrategy {

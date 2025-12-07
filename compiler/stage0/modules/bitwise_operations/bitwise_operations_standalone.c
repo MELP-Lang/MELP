@@ -4,7 +4,7 @@
 #include "bitwise_operations.h"
 #include "bitwise_operations_parser.h"
 #include "bitwise_operations_codegen.h"
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 int main(int argc, char** argv) {
     if (argc < 3) {

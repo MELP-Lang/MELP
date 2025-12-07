@@ -1,7 +1,7 @@
 #ifndef VARIABLE_PARSER_H
 #define VARIABLE_PARSER_H
 
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 #include "variable.h"
 
 // Variable parser structure

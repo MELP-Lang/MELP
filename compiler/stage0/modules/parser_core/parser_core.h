@@ -1,7 +1,7 @@
 #ifndef PARSER_CORE_H
 #define PARSER_CORE_H
 
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 // Parser core structure - minimal, modular design
 typedef struct {

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 #include "variable_parser.h"
 #include "variable_codegen.h"
 

@@ -2,7 +2,7 @@
 #define FILE_IO_PARSER_H
 
 #include "file_io.h"
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 // Parser fonksiyonları - Stage 1'de implement edilecek
 FileOp* parse_file_open(Lexer* lexer);

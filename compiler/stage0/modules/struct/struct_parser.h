@@ -2,7 +2,7 @@
 #define STRUCT_PARSER_H
 
 #include "struct.h"
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 // Parser fonksiyonları - Stage 1'de implement edilecek
 StructDef* parse_struct_definition(Lexer* lexer);

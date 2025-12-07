@@ -3,7 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 // Arithmetic expression structure
 typedef struct ArithExpr {

@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "functions_parser.h"
 #include "functions.h"
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 // Helper: Convert type keyword to FunctionParamType
 static FunctionParamType token_to_param_type(TokenType type) {

@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "string_operations_parser.h"
 #include "string_operations.h"
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 // Parse string concatenation
 StringOperation* parse_string_concat(Lexer* lexer) {

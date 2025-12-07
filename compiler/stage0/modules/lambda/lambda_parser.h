@@ -2,7 +2,7 @@
 #define LAMBDA_PARSER_H
 
 #include "lambda.h"
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 #include "../parser_core/parser_core.h"
 
 // Parser fonksiyonları - Stage 1'de implement edilecek

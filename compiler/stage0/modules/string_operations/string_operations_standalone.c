@@ -28,7 +28,7 @@
 #include "string_operations.h"
 #include "string_operations_parser.h"
 #include "string_operations_codegen.h"
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 #include "../variable/variable.h"
 #include "../variable/variable_parser.h"
 #include "../variable/variable_codegen.h"

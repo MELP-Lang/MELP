@@ -1,7 +1,7 @@
 #ifndef BITWISE_OPERATIONS_H
 #define BITWISE_OPERATIONS_H
 
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 // Bitwise operation types
 typedef enum {

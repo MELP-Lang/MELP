@@ -2,7 +2,7 @@
 #define LOGICAL_PARSER_H
 
 #include "logical.h"
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 // Logical parser structure
 typedef struct {

@@ -2,7 +2,7 @@
 #define STRUCT_H
 
 #include <stddef.h>
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 // Yapı üyesi tanımı
 typedef struct StructMember {

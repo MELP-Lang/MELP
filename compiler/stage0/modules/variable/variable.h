@@ -2,7 +2,7 @@
 #define VARIABLE_H
 
 #include <stdbool.h>
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 #include "../codegen_context/tto_types.h"
 
 typedef enum {

@@ -4,7 +4,7 @@
 #include "type_system.h"
 #include "type_system_parser.h"
 #include "type_system_codegen.h"
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 int main(int argc, char** argv) {
     if (argc < 3) {

@@ -2,7 +2,7 @@
 #define ARRAY_PARSER_H
 
 #include "array.h"
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 #include "../parser_core/parser_core.h"
 
 // Parser for arrays, lists, and tuples

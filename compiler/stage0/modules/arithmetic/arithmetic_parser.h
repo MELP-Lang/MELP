@@ -2,7 +2,7 @@
 #define ARITHMETIC_PARSER_H
 
 #include "arithmetic.h"
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 // Arithmetic parser structure
 typedef struct {

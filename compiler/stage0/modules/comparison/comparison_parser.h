@@ -2,7 +2,7 @@
 #define COMPARISON_PARSER_H
 
 #include "comparison.h"
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 // Comparison parser structure
 typedef struct {

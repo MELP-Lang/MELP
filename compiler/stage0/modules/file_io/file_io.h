@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <stddef.h>
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 // Dosya açma modları
 typedef enum FileMode {

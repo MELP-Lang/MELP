@@ -1,7 +1,7 @@
 #ifndef STRING_OPERATIONS_PARSER_H
 #define STRING_OPERATIONS_PARSER_H
 
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 #include "string_operations.h"
 
 // Parse string concatenation: str1 + str2

@@ -1,7 +1,7 @@
 #ifndef TYPE_SYSTEM_H
 #define TYPE_SYSTEM_H
 
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 #include <stdbool.h>
 
 // Base type kinds

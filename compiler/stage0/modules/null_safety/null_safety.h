@@ -2,7 +2,7 @@
 #define NULL_SAFETY_H
 
 #include <stddef.h>
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 // Optional tip durumu
 typedef enum OptionalState {

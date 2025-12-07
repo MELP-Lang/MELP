@@ -2,7 +2,7 @@
 #define NULL_SAFETY_PARSER_H
 
 #include "null_safety.h"
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 // Parser fonksiyonları - Stage 1'de implement edilecek
 Optional* parse_optional(Lexer* lexer);

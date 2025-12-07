@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 #include "array.h"
 #include "array_parser.h"
 #include "array_codegen.h"

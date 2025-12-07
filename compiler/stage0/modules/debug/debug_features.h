@@ -2,7 +2,7 @@
 #define DEBUG_FEATURES_H
 
 #include <stddef.h>
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 // Debug mode
 typedef enum DebugMode {

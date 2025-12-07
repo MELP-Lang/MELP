@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 #include "parser_core.h"
 
 typedef struct PCDecl { char* name; char* kind; struct PCDecl* next; } PCDecl;

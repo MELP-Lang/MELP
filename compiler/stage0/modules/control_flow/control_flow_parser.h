@@ -2,7 +2,7 @@
 #define CONTROL_FLOW_PARSER_H
 
 #include "control_flow.h"
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 typedef struct {
     Lexer* lexer;

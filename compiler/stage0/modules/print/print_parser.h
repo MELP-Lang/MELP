@@ -2,7 +2,7 @@
 #define PRINT_PARSER_H
 
 #include "print.h"
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 // Parse print statement: print <expression>
 PrintStatement* parse_print_statement(Lexer* lexer);

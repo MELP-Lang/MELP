@@ -19,7 +19,7 @@
 #include "lambda.h"
 #include "lambda_parser.h"
 #include "lambda_codegen.h"
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 #include "../parser_core/parser_core.h"
 #include "../variable/variable.h"
 #include "../variable/variable_parser.h"

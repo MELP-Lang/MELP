@@ -1,7 +1,7 @@
 #ifndef COMMENTS_PARSER_H
 #define COMMENTS_PARSER_H
 
-#include "../../lexer.h"
+#include "../lexer/lexer.h"
 
 // Comments are handled at lexer level, no parser needed
 // This file exists for consistency with modular architecture
