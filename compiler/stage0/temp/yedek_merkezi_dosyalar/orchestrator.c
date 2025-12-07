@@ -1,0 +1,190 @@
+// Orchestrator: Token routing only (MAX 200 lines!)
+// ALL LOGIC MUST BE IN modules/
+
+#include "orchestrator.h"
+#include "helpers.h"
+#include "lexer.h"
+#include "modules/print/print.h"
+#include "modules/print/print_parser.h"
+#include "modules/print/print_codegen.h"
+#include "modules/arithmetic/arithmetic_parser.h"
+#include "modules/arithmetic/arithmetic_codegen.h"
+#include "modules/comparison/comparison_parser.h"
+#include "modules/variable/variable.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_CODE 50000
+#define MAX_DATA 10000
+#define MAX_BSS 5000
+
+CompileResult orchestrate_compilation(const char* input_path, const char* output_path) {
+    CompileResult result = {0};
+    
+    printf("=== MLP Modular Compiler (Stage 0 Refactored) ===\n");
+    printf("Compiling: %s -> %s\n\n", input_path, output_path);
+    
+    // Read source
+    FILE* f = fopen(input_path, "r");
+    if (!f) {
+        fprintf(stderr, "Error: Cannot open '%s'\n", input_path);
+        result.exit_code = 1;
+        return result;
+    }
+    
+    fseek(f, 0, SEEK_END);
+    long size = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    char* source = malloc(size + 1);
+    fread(source, 1, size, f);
+    source[size] = '\0';
+    fclose(f);
+    
+    // Create lexer
+    Lexer* lexer = lexer_create(source);
+    
+    // Buffers
+    char* data_section = calloc(MAX_DATA, 1);
+    char* bss_section = calloc(MAX_BSS, 1);
+    char* code_section = calloc(MAX_CODE, 1);
+    int data_len = 0, bss_len = 0, code_len = 0;
+    int string_count = 0, var_count = 0;
+    
+    printf("Phase 1: Parsing\n");
+    
+    // Parse tokens and route to modules
+    Token* token = lexer_next_token(lexer);
+    
+    while (token && token->type != TOKEN_EOF) {
+        switch (token->type) {
+            case TOKEN_PRINT: {
+                // Route to print module
+                PrintStatement* stmt = print_parse_statement(lexer, token);
+                if (stmt) {
+                    print_generate_code(NULL, stmt, data_section, &data_len, 
+                                      &string_count, code_section, &code_len);
+                    print_statement_free(stmt);
+                }
+                token_free(token);
+                token = lexer_next_token(lexer);
+                break;
+            }
+            
+            case TOKEN_NUMERIC: {
+                // Variable declaration (will be moved to variable module)
+                VarType var_type = VAR_NUMERIC;
+                token_free(token);
+                token = lexer_next_token(lexer);
+                
+                if (!token || token->type != TOKEN_IDENTIFIER) {
+                    fprintf(stderr, "Error: Expected variable name\n");
+                    result.exit_code = 1;
+                    goto cleanup;
+                }
+                
+                char* var_name = strdup(token->value);
+                token_free(token);
+                token = lexer_next_token(lexer);
+                
+                if (!token || token->type != TOKEN_ASSIGN) {
+                    fprintf(stderr, "Error: Expected '='\n");
+                    free(var_name);
+                    result.exit_code = 1;
+                    goto cleanup;
+                }
+                token_free(token);
+                
+                // BSS section
+                bss_len += sprintf(bss_section + bss_len,
+                    "    %s resq 1    ; numeric variable\n", var_name);
+                
+                // Parse expression
+                ArithmeticParser* arith_parser = arithmetic_parser_create(lexer);
+                ArithmeticExpr* expr = arithmetic_parse_expression(arith_parser);
+                
+                if (expr && expr->is_literal) {
+                    code_len += sprintf(code_section + code_len,
+                        "    ; Initialize %s\n", var_name);
+                    code_len += sprintf(code_section + code_len,
+                        "    mov rax, %s\n", expr->value);
+                    code_len += sprintf(code_section + code_len,
+                        "    mov [%s], rax\n\n", var_name);
+                }
+                
+                if (expr) arithmetic_expr_free(expr);
+                token = arith_parser->current_token;
+                arith_parser->current_token = NULL;
+                arithmetic_parser_free(arith_parser);
+                free(var_name);
+                var_count++;
+                break;
+            }
+            
+            default:
+                token_free(token);
+                token = lexer_next_token(lexer);
+                break;
+        }
+    }
+    
+    if (token) token_free(token);
+    
+    printf("Phase 2: Code Generation\n");
+    
+    // Write output
+    FILE* out = fopen(output_path, "w");
+    if (!out) {
+        fprintf(stderr, "Error: Cannot create '%s'\n", output_path);
+        result.exit_code = 1;
+        goto cleanup;
+    }
+    
+    // Header
+    fprintf(out, "; Generated by MLP Modular Compiler\n");
+    fprintf(out, "global _start\n\n");
+    
+    // Data section
+    fprintf(out, "section .data\n");
+    if (data_len > 0) fprintf(out, "%s", data_section);
+    fprintf(out, "_print_minus: db '-'\n");
+    fprintf(out, "_print_newline: db 10\n\n");
+    
+    // BSS section
+    if (bss_len > 0) {
+        fprintf(out, "section .bss\n");
+        fprintf(out, "%s\n", bss_section);
+    }
+    
+    // Text section
+    fprintf(out, "section .text\n");
+    fprintf(out, "_start:\n");
+    if (code_len > 0) {
+        fprintf(out, "    ; Initialization\n");
+        fprintf(out, "%s", code_section);
+    }
+    
+    // Exit
+    fprintf(out, "    ; Exit\n");
+    fprintf(out, "    mov rax, 60\n");
+    fprintf(out, "    xor rdi, rdi\n");
+    fprintf(out, "    syscall\n\n");
+    
+    // Helper functions
+    generate_print_number_helper(out);
+    
+    fclose(out);
+    
+    printf("\n✅ Compilation successful!\n");
+    printf("   Variables: %d\n", var_count);
+    printf("   Output: %s\n", output_path);
+    
+cleanup:
+    free(data_section);
+    free(bss_section);
+    free(code_section);
+    free(source);
+    lexer_free(lexer);
+    
+    return result;
+}

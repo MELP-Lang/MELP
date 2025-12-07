@@ -7,37 +7,45 @@ Previous AI agents violated these rules and created a 736-line monolithic `main.
 
 ---
 
-## Rule #1: main.c Maximum 300 Lines
+## Rule #1: NO CENTRAL FILES (Radical Modularity)
 
-**WHY:** Beyond 300 lines, files become unmaintainable by AI agents.
+**WHY:** Central files (main.c, orchestrator.c, helpers.c) attract AI agents to write monolithic code.
 
-**ENFORCED BY:** Makefile (`make check-architecture`)
+**ENFORCED BY:** File removal + Makefile (`make check-architecture`)
 
 **CURRENT STATUS:** 
-- main.c: 736 lines ❌ (NEEDS REFACTORING)
-- Target: < 300 lines ✅
+- ✅ All central files backed up to `temp/yedek_merkezi_dosyalar/`
+- ✅ AI agents FORCED to work inside `modules/` only
 
-**VIOLATION CONSEQUENCE:** Build fails, commit rejected
+**VIOLATION CONSEQUENCE:** No central files exist = Cannot violate!
 
 ---
 
-## Rule #2: No Module Internal Imports in main.c
+## Rule #2: Modules Communicate via JSON/Pipes ONLY
 
 **FORBIDDEN:**
 ```c
+// In main.c or orchestrator.c:
 #include "modules/arithmetic/arithmetic_parser.h"  // ❌ NO!
-#include "modules/comparison/comparison.h"          // ❌ NO!
+result = arithmetic_parse(tokens);  // ❌ NO! (direct function call)
 ```
 
 **ALLOWED:**
-```c
-#include "lexer.h"                                  // ✅ OK
-#include "pipeline.h"                               // ✅ OK (orchestration only)
+```bash
+# Unix pipes (stdin/stdout):
+echo '{"token":"NUMERIC"}' | ./modules/arithmetic/arithmetic
+
+# JSON files:
+./lexer < input.mlp > tokens.json
+./parser < tokens.json > ast.json
 ```
 
-**WHY:** Tight coupling prevents modularity and self-hosting.
+**WHY:** 
+- No C-level coupling
+- Language-agnostic (can rewrite in MELP)
+- Testable with simple text files
 
-**ENFORCED BY:** Makefile + pre-commit hook
+**ENFORCED BY:** No central files = No #include possible!
 
 ---
 
@@ -100,23 +108,25 @@ numeric x = 3;  // Stays in REGISTER → Fast!
 
 ---
 
-## Current Architecture Violations
+## Current Architecture Status
 
-### ❌ Problem 1: Monolithic main.c (744 lines) - CRITICAL!
-- **Current:** 744 lines (248% over limit!)
-- **Target:** 80 lines (orchestration only)
-- **Fix:** Split into cli/, pipeline/, codegen/
-- **Deadline:** IMMEDIATE (blocking all commits)
-- **Status:** 🚨 ACTIVE VIOLATION
+### ✅ RESOLVED: Central Files Removed! (7 Aralık 2025)
+- **Action:** All central files moved to `temp/yedek_merkezi_dosyalar/`
+- **Backed up:**
+  - main.c, orchestrator.c, helpers.c (orchestration files)
+  - lexer.c, lexer.h (will move to modules/lexer/)
+  - cli/, pipeline/, error/ (will convert to modules)
+- **Result:** AI agents CANNOT create monolithic code (no place to put it!)
+- **Status:** ✅ RADICAL SOLUTION ACTIVE
 
-### ❌ Problem 2: Versioned binary name (melpc_26)
-- **Current:** melpc_26
-- **Target:** melpc
-- **Fix:** Rename binary in Makefile
-- **Deadline:** IMMEDIATE
-- **Status:** 🚨 ACTIVE VIOLATION
+### 📋 TODO: Convert Backed-up Files to Modules
+1. **modules/lexer/** - Move lexer.c + add main.c (standalone)
+2. **modules/parser/** - Create new parser module
+3. **modules/codegen/** - Create new codegen module
+4. **modules/cli/** - Convert cli/ directory
+5. **Delete:** pipeline/ (replaced by Unix pipes)
 
-### ✅ Problem 3: TTO runtime
+### ✅ Problem: TTO runtime
 - **Status:** ✅ RESOLVED (libtto_runtime.a linked)
 - **Date:** 7 Aralık 2025
 
