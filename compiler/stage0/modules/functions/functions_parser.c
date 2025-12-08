@@ -168,6 +168,7 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
     
     // Optional return type: -> numeric
     tok = lexer_next_token(lexer);
+    
     if (tok->type == TOKEN_MINUS) {
         token_free(tok);
         tok = lexer_next_token(lexer);
@@ -176,23 +177,29 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
             tok = lexer_next_token(lexer);
             func->return_type = token_to_return_type(tok->type);
             token_free(tok);
-            tok = lexer_next_token(lexer);
+            // Next token will be read by statement_parse
         }
     }
+    // If no return type, tok is the first body token - DON'T FREE IT!
+    // We'll pass it to parser via current_token
     
     // ✅ Function body - use statement parser (modular!)
+    // statement_parse() will return NULL when it hits 'end function'
     Parser* parser = parser_create(lexer);
+    
+    // If we have a lookahead token (no return type case), put it in parser
+    if (tok && tok->type != TOKEN_MINUS) {
+        parser->current_token = tok;  // Parser will use this first
+        tok = NULL;  // Don't double-free
+    }
+    
     Statement* body_head = NULL;
     Statement* body_tail = NULL;
     
-    tok = lexer_next_token(lexer);
-    while (tok && tok->type != TOKEN_EOF && tok->type != TOKEN_END) {
-        // Parse each statement in function body
+    while (1) {
         Statement* stmt = statement_parse(parser);
         if (!stmt) {
-            token_free(tok);
-            tok = lexer_next_token(lexer);
-            continue;
+            break;  // End of body (statement_parse detected 'end')
         }
         
         // Add to body linked list
@@ -203,24 +210,10 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
             body_tail->next = stmt;
             body_tail = stmt;
         }
-        
-        token_free(tok);
-        tok = lexer_next_token(lexer);
     }
     
     // Store body in function
     func->body = body_head;
-    
-    // Consume 'end function'
-    if (tok && tok->type == TOKEN_END) {
-        token_free(tok);
-        tok = lexer_next_token(lexer);
-        if (tok && tok->type == TOKEN_FUNCTION) {
-            token_free(tok);
-        }
-    } else if (tok) {
-        token_free(tok);
-    }
     
     parser_free(parser);
     return func;

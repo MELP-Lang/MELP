@@ -16,7 +16,16 @@ Statement* statement_parse(Parser* parser) {
         return NULL;
     }
     
-    Token* tok = lexer_next_token(parser->lexer);
+    // Check if we have a lookahead token
+    Token* tok = parser->current_token;
+    if (tok) {
+        // Use cached token and clear it
+        parser->current_token = NULL;
+    } else {
+        // Read next token from lexer
+        tok = lexer_next_token(parser->lexer);
+    }
+    
     if (!tok) return NULL;
     
     Statement* stmt = NULL;
@@ -42,10 +51,13 @@ Statement* statement_parse(Parser* parser) {
     
     // ✅ WHILE statement - use control_flow module
     if (tok->type == TOKEN_WHILE) {
-        token_free(tok);
+        // DON'T free tok - pass it to control_flow_parser via current_token
         
         // Create control flow parser
         ControlFlowParser* cfp = control_flow_parser_create(parser->lexer);
+        cfp->current_token = tok;  // Give "while" token to control_flow parser
+        tok = NULL;  // Don't double-free
+        
         WhileStatement* while_data = control_flow_parse_while(cfp);
         
         if (while_data) {
@@ -75,7 +87,6 @@ Statement* statement_parse(Parser* parser) {
         }
         
         control_flow_parser_free(cfp);
-        token_free(tok);
         return stmt;
     }
     
