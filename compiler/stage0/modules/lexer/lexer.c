@@ -1,5 +1,5 @@
 #include "lexer.h"
-#include "modules/comments/comments.h"
+#include "../comments/comments.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

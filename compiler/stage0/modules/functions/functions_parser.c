@@ -66,7 +66,19 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
     // Parse parameters
     tok = lexer_next_token(lexer);
     if (tok->type != TOKEN_RPAREN) {
-        // First parameter
+        // First parameter: type name
+        // MLP format: function name(numeric x, string y)
+        
+        // Read type first
+        FunctionParamType param_type = token_to_param_type(tok->type);
+        if (param_type == FUNC_PARAM_NUMERIC) {  // Valid type
+            token_free(tok);
+            tok = lexer_next_token(lexer);
+        } else {
+            param_type = FUNC_PARAM_NUMERIC;  // Default if no type
+        }
+        
+        // Then parameter name
         if (tok->type != TOKEN_IDENTIFIER) {
             fprintf(stderr, "Error: Expected parameter name\n");
             token_free(tok);
@@ -77,19 +89,8 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
         char* param_name = strdup(tok->value);
         token_free(tok);
         
-        // Optional type annotation: : numeric
         tok = lexer_next_token(lexer);
-        FunctionParamType param_type = FUNC_PARAM_NUMERIC;  // Default
-        void* default_value = NULL;
         int has_default = 0;
-        
-        if (tok->type == TOKEN_ASSIGN) {  // Using : but lexer might see =
-            token_free(tok);
-            tok = lexer_next_token(lexer);
-            param_type = token_to_param_type(tok->type);
-            token_free(tok);
-            tok = lexer_next_token(lexer);
-        }
         
         // Check for default value: = expr
         if (tok->type == TOKEN_ASSIGN) {
@@ -110,11 +111,22 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
         }
         free(param_name);
         
-        // Additional parameters
+        // Additional parameters: , type name
         while (tok->type == TOKEN_COMMA) {
             token_free(tok);
             
             tok = lexer_next_token(lexer);
+            
+            // Read type
+            param_type = token_to_param_type(tok->type);
+            if (param_type == FUNC_PARAM_NUMERIC) {  // Valid type
+                token_free(tok);
+                tok = lexer_next_token(lexer);
+            } else {
+                param_type = FUNC_PARAM_NUMERIC;  // Default
+            }
+            
+            // Then parameter name
             if (tok->type != TOKEN_IDENTIFIER) {
                 fprintf(stderr, "Error: Expected parameter name after ','\n");
                 token_free(tok);
@@ -126,16 +138,7 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
             token_free(tok);
             
             tok = lexer_next_token(lexer);
-            param_type = FUNC_PARAM_NUMERIC;  // Default
-            int has_default = 0;
-            
-            if (tok->type == TOKEN_ASSIGN) {
-                token_free(tok);
-                tok = lexer_next_token(lexer);
-                param_type = token_to_param_type(tok->type);
-                token_free(tok);
-                tok = lexer_next_token(lexer);
-            }
+            has_default = 0;
             
             // Check for default value
             if (tok->type == TOKEN_ASSIGN) {
@@ -166,19 +169,15 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
     }
     token_free(tok);
     
-    // Optional return type: -> numeric
+    // Optional return type: returns numeric
     tok = lexer_next_token(lexer);
     
-    if (tok->type == TOKEN_MINUS) {
+    if (tok->type == TOKEN_RETURNS) {
         token_free(tok);
         tok = lexer_next_token(lexer);
-        if (tok->type == TOKEN_GREATER) {  // ->
-            token_free(tok);
-            tok = lexer_next_token(lexer);
-            func->return_type = token_to_return_type(tok->type);
-            token_free(tok);
-            // Next token will be read by statement_parse
-        }
+        func->return_type = token_to_return_type(tok->type);
+        token_free(tok);
+        tok = NULL;  // Next token will be read by statement_parse
     }
     // If no return type, tok is the first body token - DON'T FREE IT!
     // We'll pass it to parser via current_token
@@ -188,7 +187,7 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
     Parser* parser = parser_create(lexer);
     
     // If we have a lookahead token (no return type case), put it in parser
-    if (tok && tok->type != TOKEN_MINUS) {
+    if (tok && tok->type != TOKEN_RETURNS) {
         parser->current_token = tok;  // Parser will use this first
         tok = NULL;  // Don't double-free
     }

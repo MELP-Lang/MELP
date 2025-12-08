@@ -1,0 +1,5 @@
+function hesapla(numeric x) returns numeric
+    numeric result
+    result = x * 2
+    return result
+end
