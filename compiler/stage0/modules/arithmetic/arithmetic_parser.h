@@ -26,4 +26,15 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser);     // numbe
 // Returns: variable name (caller must free), fills expr pointer
 char* arithmetic_parse_assignment(ArithmeticParser* parser, ArithmeticExpr** expr);
 
+// ✅ STATELESS API (New - Recommended)
+// Parse arithmetic expression - stateless template
+// first_token is borrowed from caller, function may read additional tokens
+// Caller must manage any lookahead token after parsing
+ArithmeticExpr* arithmetic_parse_expression_stateless(Lexer* lexer, Token* first_token);
+
+// Parse assignment stateless: varname = expression
+// first_token should be TOKEN_IDENTIFIER
+// Returns: variable name (caller must free), fills expr pointer
+char* arithmetic_parse_assignment_stateless(Lexer* lexer, Token* first_token, ArithmeticExpr** expr);
+
 #endif
