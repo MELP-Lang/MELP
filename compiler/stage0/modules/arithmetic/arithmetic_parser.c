@@ -4,6 +4,10 @@
 #include <string.h>
 #include <stdio.h>
 
+// ========================================
+// ❌ DEPRECATED STATEFUL API (Kept for test compatibility - will be removed)
+// ========================================
+
 // Helper: Advance to next token
 static void advance(ArithmeticParser* parser) {
     if (parser->current_token) {
