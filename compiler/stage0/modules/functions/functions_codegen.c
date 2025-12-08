@@ -5,6 +5,7 @@
 #include "../arithmetic/arithmetic_parser.h"
 #include "../arithmetic/arithmetic_codegen.h"
 #include "../statement/statement_codegen.h"  // ✅ Statement codegen import!
+#include "../variable/variable.h"  // ✅ VariableDeclaration type
 
 // Now we can use real expression codegen AND statement codegen!
 // arithmetic_parse_expression() and arithmetic_generate_code()
@@ -12,11 +13,11 @@
 
 // Temporary wrapper for expression codegen
 // In a full compiler, this would be handled by expression module
-static void expression_generate_code(FILE* output, void* expr) {
+static void expression_generate_code(FILE* output, void* expr, void* context) {
     // For now, assume expr is ArithmeticExpr*
     if (expr) {
         ArithmeticExpr* arith_expr = (ArithmeticExpr*)expr;
-        arithmetic_generate_code(output, arith_expr);
+        arithmetic_generate_code(output, arith_expr, context);
     } else {
         fprintf(output, "    # No expression to evaluate\n");
         fprintf(output, "    xor %%rax, %%rax  # Return 0\n");
@@ -49,11 +50,13 @@ void function_generate_prologue(FILE* output, FunctionDeclaration* func) {
     const char* param_regs[] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
     
     while (param && param_index < 6) {
-        fprintf(output, "    # Parameter %d: %s\n", param_index, param->name);
-        // Save parameter to stack location: -8*(param_index+1)(%rbp)
-        fprintf(output, "    movq %s, -%d(%%rbp)\n", 
-                param_regs[param_index], 
-                8 * (param_index + 1));
+        if (param->name) {
+            fprintf(output, "    # Parameter %d: %s\n", param_index, param->name);
+            // Save parameter to stack location: -8*(param_index+1)(%rbp)
+            fprintf(output, "    movq %s, -%d(%%rbp)\n", 
+                    param_regs[param_index], 
+                    8 * (param_index + 1));
+        }
         param = param->next;
         param_index++;
     }
@@ -73,10 +76,23 @@ void function_generate_epilogue(FILE* output, FunctionDeclaration* func) {
 void function_generate_declaration(FILE* output, FunctionDeclaration* func) {
     if (!func) return;
     
+    // ✅ FIRST: Process body statements to count local variables
+    Statement* stmt = func->body;
+    while (stmt) {
+        if (stmt->type == STMT_VARIABLE_DECL) {
+            VariableDeclaration* decl = (VariableDeclaration*)stmt->data;
+            if (decl && decl->name) {
+                function_register_local_var(func, decl->name);
+            }
+        }
+        stmt = stmt->next;
+    }
+    
+    // NOW generate prologue with correct count
     function_generate_prologue(output, func);
     
     // ✅ Function body - use statement codegen (modular!)
-    Statement* stmt = func->body;
+    stmt = func->body;
     while (stmt) {
         statement_generate_code(output, stmt, func);
         stmt = stmt->next;
@@ -99,7 +115,7 @@ void function_generate_call(FILE* output, FunctionCall* call) {
         fprintf(output, "    # Argument %d\n", i);
         // Evaluate argument expression and result will be in %rax
         if (call->arguments && call->arguments[i]) {
-            expression_generate_code(output, call->arguments[i]);
+            expression_generate_code(output, call->arguments[i], NULL);  // Arguments don't have local context
             // Move result from %rax to appropriate argument register
             fprintf(output, "    movq %%rax, %s\n", arg_regs[i]);
         } else {
@@ -113,7 +129,7 @@ void function_generate_call(FILE* output, FunctionCall* call) {
             fprintf(output, "    # Stack argument %d\n", i);
             // Evaluate argument expression
             if (call->arguments && call->arguments[i]) {
-                expression_generate_code(output, call->arguments[i]);
+                expression_generate_code(output, call->arguments[i], NULL);  // Arguments don't have local context
                 fprintf(output, "    pushq %%rax\n");
             } else {
                 fprintf(output, "    pushq $0  # Default: null argument\n");
@@ -139,13 +155,13 @@ void function_generate_call(FILE* output, FunctionCall* call) {
 }
 
 // Generate return statement
-void function_generate_return(FILE* output, ReturnStatement* ret) {
+void function_generate_return(FILE* output, ReturnStatement* ret, void* context) {
     if (!ret) return;
     
     if (ret->return_value) {
         fprintf(output, "    # Evaluate return value\n");
         // Evaluate return expression and result will be in %rax
-        expression_generate_code(output, ret->return_value);
+        expression_generate_code(output, ret->return_value, context);
     }
     
     // Jump to function epilogue (no label needed, fall through to epilogue)

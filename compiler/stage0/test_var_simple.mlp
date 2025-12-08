@@ -1,5 +1,0 @@
-function test() returns numeric
-    numeric x
-    x = 5
-    return x
-end function

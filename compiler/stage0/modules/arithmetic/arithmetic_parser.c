@@ -12,11 +12,18 @@ static void advance(ArithmeticParser* parser) {
     parser->current_token = lexer_next_token(parser->lexer);
 }
 
+// Ensure token is loaded (lazy loading)
+static void ensure_token(ArithmeticParser* parser) {
+    if (!parser->current_token) {
+        parser->current_token = lexer_next_token(parser->lexer);
+    }
+}
+
 // Create parser
 ArithmeticParser* arithmetic_parser_create(Lexer* lexer) {
     ArithmeticParser* parser = malloc(sizeof(ArithmeticParser));
     parser->lexer = lexer;
-    parser->current_token = lexer_next_token(lexer);
+    parser->current_token = NULL;  // Lazy loading - first token read on demand
     return parser;
 }
 
@@ -30,7 +37,14 @@ void arithmetic_parser_free(ArithmeticParser* parser) {
 
 // Parse primary expression (numbers, variables, parentheses)
 ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
-    if (!parser || !parser->current_token) {
+    if (!parser) {
+        return NULL;
+    }
+    
+    // Lazy load first token if needed
+    ensure_token(parser);
+    
+    if (!parser->current_token) {
         return NULL;
     }
     

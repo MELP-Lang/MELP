@@ -5,7 +5,7 @@
 Parser* parser_create(Lexer* lexer) {
     Parser* parser = malloc(sizeof(Parser));
     parser->lexer = lexer;
-    parser->current_token = lexer_next_token(lexer);
+    parser->current_token = NULL;  // Lazy loading - first token read on demand
     return parser;
 }
 
@@ -25,6 +25,10 @@ void parser_advance(Parser* parser) {
 }
 
 Token* parser_peek(Parser* parser) {
+    // Lazy load first token if needed
+    if (!parser->current_token) {
+        parser->current_token = lexer_next_token(parser->lexer);
+    }
     return parser->current_token;
 }
 

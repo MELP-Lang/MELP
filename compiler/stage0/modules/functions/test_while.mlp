@@ -1,19 +1,7 @@
--- MLP While Loop + Array Sum Test
--- Sum array elements using while loop
-
-function main()
-    numeric[] arr = [10, 20, 30, 40, 50]
-    
-    numeric sum = 0
-    numeric i = 0
-    
-    while i < 5
-        numeric val = arr[i]
-        sum = sum + val
-        i = i + 1
+function test() returns numeric
+    numeric x = 0
+    while x < 10
+        x = x + 1
     end while
-    
-    print sum
-    
-    return 0
+    return x
 end function

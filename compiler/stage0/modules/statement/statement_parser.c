@@ -15,6 +15,7 @@
 
 Statement* statement_parse(Parser* parser) {
     if (!parser || !parser->lexer) {
+        fprintf(stderr, "Error: statement_parse - NULL parser or lexer\n");
         return NULL;
     }
     
@@ -37,30 +38,50 @@ Statement* statement_parse(Parser* parser) {
         // Peek at next token to see what kind of end
         Token* next = lexer_next_token(parser->lexer);
         if (next && (next->type == TOKEN_WHILE || 
-                     next->type == TOKEN_IF || 
                      next->type == TOKEN_FOR ||
                      next->type == TOKEN_FUNCTION)) {
             // End of block - don't consume these tokens
-            // TODO: Need to put tokens back! For now, this is incomplete
             token_free(next);
             token_free(tok);
             return NULL;  // End of block
         }
-        if (next) token_free(next);
+        
+        // ✅ Special case: "end if" - consume "if" and check what's after
+        if (next && next->type == TOKEN_IF) {
+            token_free(next);  // Consume "if"
+            // Check if there's an "else" after "end if"
+            Token* after_if = lexer_next_token(parser->lexer);
+            if (after_if) {
+                parser->current_token = after_if;  // Save for parent parser
+            }
+            token_free(tok);
+            return NULL;  // End of "end if"
+        }
+        
+        // For other cases, put the next token back
+        if (next) {
+            parser->current_token = next;  // Save for parent parser
+        }
         token_free(tok);
+        return NULL;
+    }
+    
+    // ✅ ELSE keyword - not a statement, return NULL and keep token for parent if parser
+    if (tok->type == TOKEN_ELSE) {
+        parser->current_token = tok;  // Keep token for parent parser
         return NULL;
     }
     
     // ✅ WHILE statement - use control_flow module
     if (tok->type == TOKEN_WHILE) {
-        // DON'T free tok - pass it to control_flow_parser via current_token
         
-        // Create control flow parser
-        ControlFlowParser* cfp = control_flow_parser_create(parser->lexer);
-        cfp->current_token = tok;  // Give "while" token to control_flow parser
-        tok = NULL;  // Don't double-free
+        // ✅ NEW STATELESS PATTERN - No malloc/free!
+        // Call template function, passing token
+        WhileStatement* while_data = control_flow_parse_while(parser->lexer, tok);
         
-        WhileStatement* while_data = control_flow_parse_while(cfp);
+        // We still own tok - free it!
+        token_free(tok);
+        tok = NULL;
         
         if (while_data) {
             stmt = statement_create(STMT_WHILE);
@@ -73,7 +94,9 @@ Statement* statement_parse(Parser* parser) {
             
             while (1) {
                 Statement* body_stmt = statement_parse(parser);
-                if (!body_stmt) break;
+                if (!body_stmt) {
+                    break;
+                }
                 
                 if (!body_head) {
                     body_head = body_stmt;
@@ -88,28 +111,81 @@ Statement* statement_parse(Parser* parser) {
             while_data->body = body_head;
         }
         
-        control_flow_parser_free(cfp);
-        return stmt;
+        return stmt;  // ✅ No more control_flow_parser_free!
     }
     
-    // ✅ IF statement - use control_flow module
+    // ✅ IF statement - NEW STATELESS PATTERN!
     if (tok->type == TOKEN_IF) {
-        token_free(tok);
         
-        ControlFlowParser* cfp = control_flow_parser_create(parser->lexer);
-        IfStatement* if_data = control_flow_parse_if(cfp);
+        // ✅ NEW STATELESS PATTERN - No malloc/free!
+        IfStatement* if_data = control_flow_parse_if(parser->lexer, tok);
+        
+        // We still own tok - free it!
+        token_free(tok);
+        tok = NULL;
         
         if (if_data) {
             stmt = statement_create(STMT_IF);
             stmt->data = if_data;
             stmt->next = NULL;
             
-            // Parse then body
-            // TODO: Similar to while body parsing
+            // Parse then body recursively
+            Statement* body_head = NULL;
+            Statement* body_tail = NULL;
+            
+            while (1) {
+                Statement* body_stmt = statement_parse(parser);
+                if (!body_stmt) {
+                    break;
+                }
+                
+                if (!body_head) {
+                    body_head = body_stmt;
+                    body_tail = body_stmt;
+                } else {
+                    body_tail->next = body_stmt;
+                    body_tail = body_stmt;
+                }
+            }
+            
+            // ✅ Store then body in IfStatement
+            if_data->then_body = body_head;
+            
+            // ✅ Check for ELSE clause (this is the ONLY difference from while!)
+            // After "end if", statement_parser will have put next token in current_token
+            // This could be "else" or something else
+            Token* check_tok = parser->current_token;
+            if (check_tok && check_tok->type == TOKEN_ELSE) {
+                parser->current_token = NULL;  // Consume "else"
+                token_free(check_tok);
+                if_data->has_else = 1;
+                
+                // Parse else body recursively (SAME AS WHILE/THEN BODY PARSING!)
+                Statement* else_head = NULL;
+                Statement* else_tail = NULL;
+                
+                while (1) {
+                    Statement* body_stmt = statement_parse(parser);
+                    if (!body_stmt) {
+                        break;
+                    }
+                    
+                    if (!else_head) {
+                        else_head = body_stmt;
+                        else_tail = body_stmt;
+                    } else {
+                        else_tail->next = body_stmt;
+                        else_tail = body_stmt;
+                    }
+                }
+                
+                // ✅ Store else body in IfStatement
+                if_data->else_body = else_head;
+            }
+            // If no else, just continue
         }
         
-        control_flow_parser_free(cfp);
-        return stmt;
+        return stmt;  // ✅ No more control_flow_parser_free!
     }
     
     // ✅ PRINT statement - use print module
@@ -129,6 +205,13 @@ Statement* statement_parse(Parser* parser) {
         // Parse return expression using arithmetic module
         ArithmeticParser* arith_parser = arithmetic_parser_create(parser->lexer);
         ArithmeticExpr* expr = arithmetic_parse_expression(arith_parser);
+        
+        // Transfer any lookahead token back to main parser
+        if (arith_parser->current_token) {
+            parser->current_token = arith_parser->current_token;
+            arith_parser->current_token = NULL;
+        }
+        
         arithmetic_parser_free(arith_parser);
         
         // Create return statement with expression
@@ -153,6 +236,14 @@ Statement* statement_parse(Parser* parser) {
         
         // Parse variable declaration
         VariableDeclaration* decl = variable_parse_declaration(var_parser);
+        
+        // IMPORTANT: Transfer any lookahead token back to main parser
+        if (var_parser->current_token) {
+            // Variable parser read ahead but didn't consume - give it back to main parser
+            parser->current_token = var_parser->current_token;
+            var_parser->current_token = NULL;  // Don't free it in variable_parser_free
+        }
+        
         variable_parser_free(var_parser);
         
         if (decl) {
@@ -176,6 +267,13 @@ Statement* statement_parse(Parser* parser) {
             // Parse expression after '='
             ArithmeticParser* arith_parser = arithmetic_parser_create(parser->lexer);
             ArithmeticExpr* expr = arithmetic_parse_expression(arith_parser);
+            
+            // Transfer any lookahead token back to main parser
+            if (arith_parser->current_token) {
+                parser->current_token = arith_parser->current_token;
+                arith_parser->current_token = NULL;  // Don't free in arithmetic_parser_free
+            }
+            
             arithmetic_parser_free(arith_parser);
             
             if (expr) {

@@ -1,46 +1,87 @@
-# 🎯 NEXT AI START HERE - Lexer Bug Fix Required!
+# 🎯 NEXT STEPS - Phase 2: Enhancement & Testing
 
 **Date:** 8 Aralık 2025  
-**Status:** 🐛 **CRITICAL BUG BLOCKING PROGRESS**  
-**Priority:** Fix lexer duplicate token generation IMMEDIATELY
+**Status:** ✅ **Phase 1 COMPLETE** - If/Else + While + Architecture Refactoring Done  
+**Next Phase:** Cleanup, Testing, Logical Operations
 
 ---
 
-## 🚨 IMMEDIATE ISSUE: Lexer Duplicate Token Bug
+## ✅ COMPLETED (Phase 1)
 
-**What's broken:**
-```bash
-./test_lexer_debug test_var_simple.mlp
-# Output shows:
-7: type=0 value='numeric'
-8: type=3 value='x'
-9: type=3 value='x'  ← DUPLICATE! Should not exist
-10: type=4 value='='
-11: type=5 value='5'
-```
+### Core Control Flow
+- ✅ If/Else statements (with and without else)
+- ✅ While loops
+- ✅ Nested structures (tested working)
+- ✅ Variable declarations with complex expressions
+- ✅ Arithmetic expressions in all contexts
 
-**Impact:**
-- Variable assignments fail (only first statement parsed)
-- Multi-statement function bodies broken
-- Blocks all further progress
+### Architectural Refactoring
+- ✅ Stateless template pattern for parsers
+- ✅ Token borrowing (clear ownership rules)
+- ✅ Context passing for variable resolution
+- ✅ Memory leak prevention (no malloc/free per parse)
 
-**Test Case:**
+**All test cases passing:**
+- test_if.mlp (if with else)
+- test_if_no_else.mlp (if without else)
+- test_while.mlp (while loop)
+- test_complex.mlp (complex expressions)
+- test_return.mlp (return expressions)
+
+---
+
+## 🎯 PHASE 2: PRIORITIES
+
+### Priority 1: Code Cleanup (30 min)
+**Task:** Remove debug statements (82 found)
+- Keep: Error messages (fprintf stderr "Error:")
+- Remove: Debug flow prints (fprintf stderr "DEBUG")
+- Status: Partial cleanup done, ~40 statements remaining
+
+**Files to clean:**
+- comparison_parser.c (remaining debug prints)
+- Other parser modules
+
+### Priority 2: Nested Structure Testing (1 hour)
+**Test cases needed:**
 ```mlp
-# test_var_simple.mlp
-function test() returns numeric
-    numeric x
-    x = 5      ← Parser never reaches this line!
-    return x
-end function
+# test_nested_if.mlp
+if a > 5 then
+    if b > 10 then
+        x = 1
+    else
+        x = 2
+    end if
+else
+    x = 3
+end if
+
+# test_nested_while.mlp
+while i < 10
+    while j < 5
+        sum = sum + 1
+        j = j + 1
+    end while
+    i = i + 1
+end while
+
+# test_mixed.mlp
+while x < 10
+    if x > 5 then
+        y = 1
+    end if
+    x = x + 1
+end while
 ```
 
-**Debug Files:**
-- `test_lexer_debug.c` - Standalone lexer test (shows bug clearly)
-- `test_var_simple.mlp` - Minimal failing test case
+### Priority 3: Documentation Update (30 min)
+- ✅ ARCHITECTURE.md (DONE - added parser patterns)
+- ✅ IF_ELSE_IMPLEMENTATION.md (DONE - completion report)
+- ⏳ NEXT_STEPS.md (this file - being updated now)
 
 ---
 
-## ✅ What's Working (DON'T BREAK THIS!)
+## 🚀 PHASE 3: NEW FEATURES (Future)
 
 **Architecture:** Chained imports - NO central files!
 - ✅ functions → statement → control_flow → comparison
@@ -56,68 +97,53 @@ end function
 ```asm
 # return 10 + 5 * 2;
 mov r8, 10
-mov r9, 5
-mov r10, 2
-imul r9, r10
-add r8, r9
-movq %r8, %rax  # Return value in rax
+---
+
+## 🚀 PHASE 3: NEW FEATURES (Future)
+
+### Logical Operations (High Priority)
+**Syntax:** `and`, `or`, `not`
+```mlp
+if (x > 5) and (y < 10) then
+    # ...
+end if
+```
+
+**Implementation:**
+- Extend comparison_parser for logical operators
+- Add short-circuit evaluation in codegen
+- Test: compound conditions
+
+### For Loops (Medium Priority)
+**Syntax:**
+```mlp
+for i = 0 to 10
+    # ...
+end for
+```
+
+**Implementation:**
+- Similar to while loop structure
+- Initialize counter, test condition, increment
+- Reuse while loop codegen patterns
+
+### Function Parameters (Medium Priority)
+**Current:** Functions parse but don't use parameters
+**Needed:**
+- Parameter to stack offset mapping
+- Caller/callee register convention (rdi, rsi, rdx, rcx, r8, r9)
+- Parameter passing in function calls
+
+### Array Support (Low Priority)
+**Syntax:**
+```mlp
+numeric[] arr = [1, 2, 3]
+arr[0] = 5
 ```
 
 ---
 
-## 🔧 How to Fix the Lexer Bug
-
-**Step 1:** Investigate `modules/lexer/lexer.c`
-- Look for identifier/keyword tokenization logic
-- Check if buffer position advances correctly after identifier
-- Search for any double-read patterns
-
-**Step 2:** Test with `test_lexer_debug.c`
-```bash
-cd compiler/stage0
-gcc test_lexer_debug.c modules/lexer/lexer.c modules/comments/comments.c -I. -o test_lexer_debug
-./test_lexer_debug test_var_simple.mlp
-```
-
-**Expected output after fix:**
-```
-7: type=0 value='numeric'
-8: type=3 value='x'
-10: type=4 value='='      ← No duplicate 'x' here!
-11: type=5 value='5'
-12: type=0 value='return'
-13: type=3 value='x'
-```
-
-**Step 3:** Verify with full parser
-```bash
-cd modules/functions
-make clean && make
-./test_function_body ../test_var_simple.mlp
-```
-
-Should output: "Parsed 3 statements in function body" (not just 1!)
-
----
-
-## 📋 After Lexer Fix - Next Steps
-
-1. **Complete variable assignment codegen** (stub ready in `statement_codegen.c:59-71`)
-   - Evaluate expression to r8
-   - Store to variable's stack location: `movq %r8, -8(%rbp)`
-
-2. **Implement stack offset resolution** (TODO comments in place)
-   - Track local variables in function context
-   - Assign offsets: -8(%rbp), -16(%rbp), -24(%rbp), ...
-
-3. **Remove debug output** (after verifying fix works)
-   - `functions_parser.c` lines ~195-215
-   - `statement_parser.c` lines ~20-27, ~175-180
-   - `variable_parser.c` lines ~108-113
-
----
-
-## 🏗️ Architecture Reference (DON'T CHANGE!)
+## 🏗️ ARCHITECTURE REFERENCE (DON'T CHANGE!)
 
 **Chained Imports Pattern:**
 ```c
@@ -148,3 +174,17 @@ Should output: "Parsed 3 statements in function body" (not just 1!)
 - [ ] `test_var_simple.mlp` parses all 3 statements
 - [ ] Variable assignments compile to correct assembly
 - [ ] Architecture remains modular (no central files)
+
+## ⚠️ YAPILMAMASI GEREKENLER
+
+**ASLA YAPMA:**
+- ❌ Merkezi orchestrator.c oluşturma
+- ❌ helper.c, utils.c gibi genel dosyalar
+- ❌ Modülleri birleştirme
+- ❌ Zincirleme import'u bozma
+
+**YAP:**
+- ✅ Sadece lexer.c'yi düzelt
+- ✅ Mevcut mimariyi koru
+- ✅ Test sonuçlarını göster
+- ✅ Her değişiklik sonrası validate_architecture.sh çalıştır

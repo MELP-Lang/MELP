@@ -1,0 +1,3 @@
+DEBUG stmt_parser: Transferring token 'end' from cfp to parser
+DEBUG stmt_parser: Starting then body parse
+DEBUG stmt_parser: Then body parse ended

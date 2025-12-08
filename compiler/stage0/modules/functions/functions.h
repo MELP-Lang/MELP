@@ -26,6 +26,13 @@ typedef enum {
 
 typedef struct Statement Statement;
 
+// Local variable info for stack offset tracking
+typedef struct LocalVariable {
+    char* name;
+    int stack_offset;  // Offset from rbp (negative: -8, -16, -24...)
+    struct LocalVariable* next;
+} LocalVariable;
+
 typedef struct FunctionDeclaration {
     char* name;
     FunctionParam* params;
@@ -33,6 +40,7 @@ typedef struct FunctionDeclaration {
     Statement* body;           // Linked list of statements
     int param_count;
     int local_var_count;       // For stack frame calculation
+    LocalVariable* local_vars; // Local variable table for codegen
     struct FunctionDeclaration* next;  // Linked list of functions
 } FunctionDeclaration;
 
@@ -60,5 +68,9 @@ void function_call_free(FunctionCall* call);
 // Return statement
 ReturnStatement* return_statement_create(struct Expression* value);
 void return_statement_free(ReturnStatement* ret);
+
+// Local variable management
+void function_register_local_var(FunctionDeclaration* func, const char* name);
+int function_get_var_offset(FunctionDeclaration* func, const char* name);
 
 #endif

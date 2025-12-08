@@ -1,12 +1,15 @@
 # MLP COMPILER ARCHITECTURE
 
 **Last Updated:** 8 Aralık 2025  
-**Current Status:** ✅ Modular Architecture Operational (Chained Imports Working!)  
-**Architecture:** Radical Modular (Central files permanently deleted)
+**Current Status:** ✅ Modular Architecture + Stateless Parsers Operational  
+**Architecture:** Radical Modular (Central files permanently deleted)  
+**Parser Pattern:** Stateless Templates with Token Borrowing
 
 ---
 
-## 🎯 ARCHITECTURAL PHILOSOPHY: CHAINED IMPORTS
+## 🎯 ARCHITECTURAL PHILOSOPHY
+
+### 1. CHAINED IMPORTS (Module Organization)
 
 ### **Core Principle: No Central Orchestrator, Only Module Chains**
 
@@ -33,6 +36,115 @@ functions_standalone.c (102 lines)
         → #include "../comparison/comparison_parser.h"
         → ✅ WORKS!
 ```
+
+---
+
+## 🎯 PARSER ARCHITECTURE PATTERNS
+
+### 2. STATELESS TEMPLATE PATTERN (Memory Management)
+
+**Core Principle: Parsers are Functions, Not Objects**
+
+```c
+❌ OLD (Stateful - DEPRECATED):
+   ControlFlowParser* parser = malloc(sizeof(ControlFlowParser));
+   parser->lexer = lexer;
+   parser->current_token = lexer_next_token(lexer);
+   IfStatement* stmt = control_flow_parse_if(parser);
+   control_flow_parser_free(parser);  // ❌ malloc/free per parse call!
+   
+✅ NEW (Stateless Template):
+   Token* tok = lexer_next_token(lexer);
+   IfStatement* stmt = control_flow_parse_if(lexer, tok);  // ✅ Function, not object!
+   token_free(tok);  // Caller owns token
+```
+
+**Why Stateless?**
+- No malloc/free overhead per parse
+- No memory leak risk from forgotten frees
+- Parser is a pure function (lexer, token) → result
+- Follows functional programming principles
+- Templates: parser functions exist always, never "created"
+
+### 3. TOKEN OWNERSHIP (Borrowing Pattern)
+
+**Core Principle: Caller Owns, Function Borrows**
+
+```c
+// ✅ CORRECT Pattern:
+Statement* statement_parse(Parser* parser) {
+    Token* tok = lexer_next_token(parser->lexer);  // Caller creates token
+    
+    if (tok->type == TOKEN_IF) {
+        IfStatement* if_stmt = control_flow_parse_if(parser->lexer, tok);
+        token_free(tok);  // ✅ Caller frees token (we own it!)
+        return create_statement(STMT_IF, if_stmt);
+    }
+    
+    token_free(tok);  // Always free what we created
+    return NULL;
+}
+
+// ✅ Parser borrows token, doesn't free it:
+IfStatement* control_flow_parse_if(Lexer* lexer, Token* if_tok) {
+    // if_tok borrowed from caller - DON'T FREE!
+    // We can read additional tokens:
+    Token* next = lexer_next_token(lexer);
+    // ... parse ...
+    token_free(next);  // Free tokens WE created
+    return stmt;  // Don't free if_tok (caller will!)
+}
+```
+
+**Rules:**
+- Function parameter `Token*` = BORROWED (don't free)
+- `Token* t = lexer_next_token()` = OWNED (must free)
+- Clear ownership = no double-free, no leaks
+
+### 4. CONTEXT PASSING (Variable Resolution)
+
+**Core Principle: Pass Function Context for Stack Offsets**
+
+```c
+❌ OLD (Symbolic - Wrong!):
+   arithmetic_generate_code(output, expr);
+   // Generated: mov r8, [x]  ❌ Symbolic, won't assemble!
+
+✅ NEW (Context-aware):
+   arithmetic_generate_code(output, expr, context);
+   // context = FunctionDeclaration* with local_var_count
+   // Generated: movq -8(%rbp), %r8  ✅ Actual stack offset!
+```
+
+**Context Chain:**
+```c
+function_generate_declaration(FILE* output, FunctionDeclaration* func) {
+    Statement* stmt = func->body;
+    while (stmt) {
+        statement_generate_code(output, stmt, func);  // Pass func as context
+        stmt = stmt->next;
+    }
+}
+
+void statement_generate_code(FILE* output, Statement* stmt, void* context) {
+    if (stmt->type == STMT_ASSIGNMENT) {
+        ArithmeticExpr* expr = ...;
+        arithmetic_generate_code(output, expr, context);  // Context flows down
+    }
+}
+
+void arithmetic_generate_code(FILE* output, ArithmeticExpr* expr, void* context) {
+    FunctionDeclaration* func = (FunctionDeclaration*)context;
+    int offset = function_get_var_offset(func, expr->value);  // ✅ Real offset!
+    fprintf(output, "    movq %d(%%rbp), %%r8\n", offset);
+}
+```
+
+**Why Context?**
+- Variables are stack-relative: `numeric x` → `-8(%rbp)`
+- Need FunctionDeclaration to look up offsets
+- Passed as `void* context` to all codegen functions
+- Maintains separation: parser doesn't need context, only codegen
 
 ---
 
@@ -148,9 +260,21 @@ vim pipeline.c           # ❌ WRONG APPROACH!
 - ✅ modules/control_flow/control_flow_standalone.c (working)
 
 **Active Modules: 27**
-- ✅ Fully working: 12 modules
-- 🚧 Partial: 13 modules (chained imports being added)
+- ✅ Fully operational with stateless parsers: 6 modules
+  - statement (orchestrator)
+  - control_flow (if/else, while)
+  - comparison (>, <, ==, etc.)
+  - arithmetic (expressions with +, -, *, /)
+  - variable (declarations with init expressions)
+  - functions (declarations, calls, return)
+- 🚧 Partial: 19 modules (need stateless refactoring)
 - ⏳ Stub: 2 modules
+
+**Parser Pattern Status:**
+- ✅ Stateless: control_flow, comparison (NEW)
+- ✅ Context passing: arithmetic_codegen, statement_codegen, functions_codegen
+- 🔄 Token borrowing: Implemented in statement_parser, control_flow_parser
+- 📝 Debug cleanup: In progress (82 statements found, partial cleanup done)
 
 ### 🎯 Why This Rule?
 

@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../lexer/lexer.h"
+#include "../parser_core/parser_core.h"
 #include "functions.h"
 #include "functions_parser.h"
 #include "functions_codegen.h"
@@ -56,12 +57,21 @@ int main(int argc, char** argv) {
         return 1;
     }
     
+    // Create parser with lexer
+    Parser* parser = parser_create(lexer);
+    if (!parser) {
+        fprintf(stderr, "Failed to create parser\n");
+        lexer_free(lexer);
+        free(source);
+        return 1;
+    }
+    
     // Parse all functions
     FunctionDeclaration* functions = NULL;
     FunctionDeclaration* last_func = NULL;
     
     while (1) {
-        FunctionDeclaration* func = parse_function_declaration(lexer);
+        FunctionDeclaration* func = parse_function_declaration(parser);
         if (!func) break;
         
         if (!functions) {
@@ -72,7 +82,8 @@ int main(int argc, char** argv) {
         last_func = func;
     }
     
-    // Close lexer
+    // Close parser and lexer
+    parser_free(parser);
     lexer_free(lexer);
     free(source);
     

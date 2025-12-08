@@ -29,42 +29,42 @@ static FunctionReturnType token_to_return_type(TokenType type) {
 
 // Parse function declaration
 // Syntax: def func_name(param1: numeric, param2: text) -> numeric { ... }
-FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
-    Token* tok = lexer_next_token(lexer);
-    if (tok->type != TOKEN_FUNCTION) {
-        fprintf(stderr, "Error: Expected 'function' keyword\n");
-        token_free(tok);
+FunctionDeclaration* parse_function_declaration(Parser* parser) {
+    Token* tok = parser_peek(parser);
+    if (!tok || tok->type != TOKEN_FUNCTION) {
+        if (tok) fprintf(stderr, "Error: Expected 'function' keyword\n");
         return NULL;
     }
-    token_free(tok);
+    parser_advance(parser);  // Consume 'function'
     
     // Function name
-    tok = lexer_next_token(lexer);
-    if (tok->type != TOKEN_IDENTIFIER) {
+    tok = parser_peek(parser);
+    if (!tok || tok->type != TOKEN_IDENTIFIER) {
         fprintf(stderr, "Error: Expected function name\n");
-        token_free(tok);
         return NULL;
     }
     
     char* func_name = strdup(tok->value);
-    token_free(tok);
+    parser_advance(parser);  // Consume function name
     
     // Left paren
-    tok = lexer_next_token(lexer);
-    if (tok->type != TOKEN_LPAREN) {
+    tok = parser_peek(parser);
+    if (!tok || tok->type != TOKEN_LPAREN) {
         fprintf(stderr, "Error: Expected '(' after function name\n");
-        token_free(tok);
         free(func_name);
         return NULL;
     }
-    token_free(tok);
+    parser_advance(parser);  // Consume '('
     
     // Create function with default return type (will be updated if return type specified)
     FunctionDeclaration* func = function_create(func_name, FUNC_RETURN_VOID);
     free(func_name);
     
+    // Get lexer from parser for legacy code
+    Lexer* lexer = parser->lexer;
+    
     // Parse parameters
-    tok = lexer_next_token(lexer);
+    tok = parser_peek(parser);
     if (tok->type != TOKEN_RPAREN) {
         // First parameter: type name
         // MLP format: function name(numeric x, string y)
@@ -177,29 +177,31 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
         tok = lexer_next_token(lexer);
         func->return_type = token_to_return_type(tok->type);
         token_free(tok);
-        tok = NULL;  // Next token will be read by statement_parse
+        // Clear current_token - body's first token will be read fresh
+        parser->current_token = NULL;
     }
     // If no return type, tok is the first body token - DON'T FREE IT!
     // We'll pass it to parser via current_token
+    else {
+        // tok is first body token - cache it
+        parser->current_token = tok;
+    }
     
     // ✅ Function body - use statement parser (modular!)
     // statement_parse() will return NULL when it hits 'end function'
-    Parser* parser = parser_create(lexer);
-    
-    // If we have a lookahead token (no return type case), put it in parser
-    if (tok && tok->type != TOKEN_RETURNS) {
-        parser->current_token = tok;  // Parser will use this first
-        tok = NULL;  // Don't double-free
-    }
+    // Note: parser already exists as function parameter - no need to create again
     
     Statement* body_head = NULL;
     Statement* body_tail = NULL;
     
+    int stmt_count = 0;  // Counter
     while (1) {
         Statement* stmt = statement_parse(parser);
         if (!stmt) {
             break;  // End of body (statement_parse detected 'end')
         }
+        
+        stmt_count++;
         
         // Add to body linked list
         if (!body_head) {
@@ -214,7 +216,7 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
     // Store body in function
     func->body = body_head;
     
-    parser_free(parser);
+    // Note: Don't free parser - it's owned by caller
     return func;
 }
 

@@ -10,6 +10,7 @@ FunctionDeclaration* function_create(const char* name, FunctionReturnType return
     func->body = NULL;
     func->param_count = 0;
     func->local_var_count = 0;
+    func->local_vars = NULL;  // Initialize local variable table
     func->next = NULL;  // Initialize linked list pointer
     return func;
 }
@@ -88,4 +89,48 @@ void return_statement_free(ReturnStatement* ret) {
     if (!ret) return;
     // Note: return_value freed elsewhere in AST cleanup
     free(ret);
+}
+
+// Register a local variable in function's symbol table
+void function_register_local_var(FunctionDeclaration* func, const char* name) {
+    if (!func || !name) return;
+    
+    // Check if variable already exists
+    LocalVariable* existing = func->local_vars;
+    while (existing) {
+        if (strcmp(existing->name, name) == 0) {
+            return;  // Already registered
+        }
+        existing = existing->next;
+    }
+    
+    // Create new local variable entry
+    LocalVariable* var = malloc(sizeof(LocalVariable));
+    var->name = strdup(name);
+    
+    // Assign stack offset: -8, -16, -24, ...
+    func->local_var_count++;
+    var->stack_offset = -8 * func->local_var_count;
+    
+    printf("DEBUG register_var: '%s' registered at offset %d, count now %d\n",
+           name, var->stack_offset, func->local_var_count);
+    
+    // Add to front of list
+    var->next = func->local_vars;
+    func->local_vars = var;
+}
+
+// Lookup variable's stack offset
+int function_get_var_offset(FunctionDeclaration* func, const char* name) {
+    if (!func || !name) return 0;
+    
+    LocalVariable* var = func->local_vars;
+    while (var) {
+        if (strcmp(var->name, name) == 0) {
+            return var->stack_offset;
+        }
+        var = var->next;
+    }
+    
+    return 0;  // Not found
 }

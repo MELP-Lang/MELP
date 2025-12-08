@@ -1,0 +1,4 @@
+DEBUG stmt_parser: Created cfp manually, calling parse_while
+DEBUG stmt_parser: Transferring token 'return' from cfp to parser
+DEBUG stmt_parser: Starting body parse
+DEBUG stmt_parser: Body parse ended

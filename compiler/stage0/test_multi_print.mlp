@@ -1,4 +1,0 @@
-numeric x = 42
-print(x)
-numeric y = 100
-print(y)

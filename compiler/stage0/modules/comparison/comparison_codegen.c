@@ -1,10 +1,11 @@
 #include "comparison_codegen.h"
+#include "../functions/functions.h"  // For variable offset lookup
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 // Load value into register
-static void load_value(FILE* output, const char* value, int is_literal, int reg_num, int is_float) {
+static void load_value(FILE* output, const char* value, int is_literal, int reg_num, int is_float, void* context) {
     if (is_float) {
         if (is_literal) {
             fprintf(output, "    section .data\n");
@@ -18,22 +19,29 @@ static void load_value(FILE* output, const char* value, int is_literal, int reg_
         if (is_literal) {
             fprintf(output, "    mov r%d, %s\n", reg_num + 8, value);
         } else {
-            fprintf(output, "    mov r%d, [%s]\n", reg_num + 8, value);
+            // Variable - lookup offset
+            if (context) {
+                FunctionDeclaration* func = (FunctionDeclaration*)context;
+                int offset = function_get_var_offset(func, value);
+                fprintf(output, "    movq %d(%%rbp), %%r%d  ; Load %s\n", offset, reg_num + 8, value);
+            } else {
+                fprintf(output, "    mov r%d, [%s]\n", reg_num + 8, value);
+            }
         }
     }
 }
 
 // Generate comparison code
-void comparison_generate_code(FILE* output, ComparisonExpr* expr) {
+void comparison_generate_code(FILE* output, ComparisonExpr* expr, void* context) {
     if (!output || !expr) return;
     
     fprintf(output, "\n    ; Comparison expression\n");
     
     // Load left operand into r8 (or xmm0)
-    load_value(output, expr->left_value, expr->left_is_literal, 0, expr->is_float);
+    load_value(output, expr->left_value, expr->left_is_literal, 0, expr->is_float, context);
     
     // Load right operand into r9 (or xmm1)
-    load_value(output, expr->right_value, expr->right_is_literal, 1, expr->is_float);
+    load_value(output, expr->right_value, expr->right_is_literal, 1, expr->is_float, context);
     
     // Compare
     if (expr->is_float) {
@@ -70,14 +78,14 @@ void comparison_generate_code(FILE* output, ComparisonExpr* expr) {
 }
 
 // Generate conditional jump
-void comparison_generate_conditional_jump(FILE* output, ComparisonExpr* expr, const char* label) {
+void comparison_generate_conditional_jump(FILE* output, ComparisonExpr* expr, const char* label, void* context) {
     if (!output || !expr || !label) return;
     
     fprintf(output, "\n    ; Conditional jump\n");
     
     // Load operands
-    load_value(output, expr->left_value, expr->left_is_literal, 0, expr->is_float);
-    load_value(output, expr->right_value, expr->right_is_literal, 1, expr->is_float);
+    load_value(output, expr->left_value, expr->left_is_literal, 0, expr->is_float, context);
+    load_value(output, expr->right_value, expr->right_is_literal, 1, expr->is_float, context);
     
     // Compare
     if (expr->is_float) {

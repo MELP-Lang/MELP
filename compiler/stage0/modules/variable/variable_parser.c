@@ -18,7 +18,7 @@ static void advance(VariableParser* parser) {
 VariableParser* variable_parser_create(Lexer* lexer) {
     VariableParser* parser = malloc(sizeof(VariableParser));
     parser->lexer = lexer;
-    parser->current_token = lexer_next_token(lexer);
+    parser->current_token = NULL;  // Lazy loading - caller will set initial token
     return parser;
 }
 
@@ -115,109 +115,42 @@ VariableDeclaration* variable_parse_declaration(VariableParser* parser) {
     
     advance(parser);  // consume '='
     
-    // Parse value - check for arithmetic expression or array access
-    if (parser->current_token->type == TOKEN_IDENTIFIER) {
-        // Could be: variable reference (x), array access (arr[i]), or expression
-        char expr_buffer[256] = {0};
-        int expr_pos = 0;
+    // ✅ NEW: Parse init expression using arithmetic parser
+    if (parser->current_token->type == TOKEN_IDENTIFIER ||
+        parser->current_token->type == TOKEN_NUMBER ||
+        parser->current_token->type == TOKEN_LPAREN) {
         
-        // Copy identifier
-        strcpy(expr_buffer, parser->current_token->value);
-        expr_pos = strlen(expr_buffer);
-        advance(parser);
+        // Use arithmetic parser for proper expression parsing
+        ArithmeticParser* arith = malloc(sizeof(ArithmeticParser));
+        arith->lexer = parser->lexer;
+        arith->current_token = parser->current_token;
+        parser->current_token = NULL;  // Transfer token
         
-        // Check for array index access: identifier[...]
-        if (parser->current_token && parser->current_token->type == TOKEN_LBRACKET) {
-            expr_buffer[expr_pos++] = '[';
-            advance(parser);  // consume '['
-            
-            // Parse index (number or identifier)
-            while (parser->current_token && 
-                   parser->current_token->type != TOKEN_RBRACKET &&
-                   parser->current_token->type != TOKEN_EOF) {
-                int len = strlen(parser->current_token->value);
-                if (expr_pos + len + 1 < (int)sizeof(expr_buffer)) {
-                    strcpy(expr_buffer + expr_pos, parser->current_token->value);
-                    expr_pos += len;
-                }
-                advance(parser);
-            }
-            
-            if (parser->current_token && parser->current_token->type == TOKEN_RBRACKET) {
-                expr_buffer[expr_pos++] = ']';
-                expr_buffer[expr_pos] = '\0';
-                advance(parser);  // consume ']'
-            }
+        ArithmeticExpr* expr = arithmetic_parse_expression(arith);
+        
+        // Transfer token back
+        if (arith->current_token) {
+            parser->current_token = arith->current_token;
+            arith->current_token = NULL;
         }
+        free(arith);
         
-        decl->init_expr = strdup(expr_buffer);
-        decl->storage = STORAGE_BSS;  // Will be assigned at runtime
-        decl->tto_analyzed = false;
-    } else if (parser->current_token->type == TOKEN_NUMBER) {
-        // Collect the full expression - numbers and operators until end of statement
-        char expr_buffer[256] = {0};
-        int expr_pos = 0;
-        int token_count = 0;
-        
-        // Save start position to detect if expression or simple literal
-        while (parser->current_token->type == TOKEN_NUMBER ||
-               parser->current_token->type == TOKEN_PLUS ||
-               parser->current_token->type == TOKEN_MINUS ||
-               parser->current_token->type == TOKEN_MULTIPLY ||
-               parser->current_token->type == TOKEN_DIVIDE ||
-               parser->current_token->type == TOKEN_LPAREN ||
-               parser->current_token->type == TOKEN_RPAREN) {
-            
-            // Add token value to buffer
-            int len = strlen(parser->current_token->value);
-            if (expr_pos + len + 1 < (int)sizeof(expr_buffer)) {
-                strcpy(expr_buffer + expr_pos, parser->current_token->value);
-                expr_pos += len;
-                expr_buffer[expr_pos++] = ' ';  // Space between tokens
-            }
-            
-            token_count++;
-            advance(parser);
-        }
-        
-        // Trim trailing space
-        if (expr_pos > 0 && expr_buffer[expr_pos-1] == ' ') {
-            expr_buffer[expr_pos-1] = '\0';
-        }
-        
-        // Check if this was an expression (multiple tokens) or simple literal
-        if (token_count > 1) {
-            // Arithmetic expression
-            decl->init_expr = strdup(expr_buffer);
-            decl->storage = STORAGE_DATA;
-            decl->tto_analyzed = false;
-        } else {
-            // Simple numeric literal
-            decl->value = strdup(expr_buffer);
-            
-            // Phase 2: TTO analysis for numeric literals
-            TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
-            *tto = tto_infer_numeric_type(decl->value);
-            decl->tto_info = tto;
-            decl->tto_analyzed = true;
-            
-            // Update internal type based on TTO (backward compatibility)
-            if (tto->type == INTERNAL_TYPE_INT64) {
-                decl->internal_num_type = INTERNAL_INT64;
-                decl->has_decimal_point = 0;
-            } else if (tto->type == INTERNAL_TYPE_DOUBLE) {
-                decl->internal_num_type = INTERNAL_DOUBLE;
-                decl->has_decimal_point = 1;
-            } else if (tto->type == INTERNAL_TYPE_BIGDECIMAL) {
-                decl->internal_num_type = INTERNAL_BIGDECIMAL;
-            }
-            
-            // Check if overflow detection needed (for INT64)
-            if (tto->type == INTERNAL_TYPE_INT64) {
-                decl->needs_overflow_check = true;  // Enable runtime checks
+        if (expr) {
+            // Check if it's a simple literal
+            if (expr->is_literal && !expr->left && !expr->right) {
+                // Simple literal: numeric x = 5
+                decl->value = strdup(expr->value);
+                decl->storage = STORAGE_DATA;
+                arithmetic_expr_free(expr);
+            } else {
+                // Complex expression: numeric x = a + b
+                decl->init_expr = expr;  // ✅ Store ArithmeticExpr*
+                decl->storage = STORAGE_BSS;  // Runtime initialization
+                decl->tto_analyzed = false;
             }
         }
     } else if (parser->current_token->type == TOKEN_STRING) {
+        // String literal
         decl->value = strdup(parser->current_token->value);
         
         // Phase 2: TTO analysis for string literals

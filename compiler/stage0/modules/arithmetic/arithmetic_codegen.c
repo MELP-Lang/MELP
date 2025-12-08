@@ -9,11 +9,28 @@ static int reg_counter = 0;
 static int overflow_label_counter = 0;
 
 // Generate assembly for loading a value into register
-static void generate_load(FILE* output, const char* value, int reg_num, int is_float) {
-    if (is_float) {
-        fprintf(output, "    movsd xmm%d, [%s]\n", reg_num, value);
+static void generate_load(FILE* output, const char* value, int reg_num, int is_float, void* context) {
+    // If context provided, get actual stack offset
+    if (context) {
+        // context is FunctionDeclaration*
+        typedef struct FunctionDeclaration FunctionDeclaration;
+        extern int function_get_var_offset(FunctionDeclaration* func, const char* var_name);
+        
+        FunctionDeclaration* func = (FunctionDeclaration*)context;
+        int offset = function_get_var_offset(func, value);
+        
+        if (is_float) {
+            fprintf(output, "    movsd xmm%d, %d(%%rbp)\n", reg_num, offset);
+        } else {
+            fprintf(output, "    movq %d(%%rbp), %%r%d  ; Load %s\n", offset, reg_num + 8, value);
+        }
     } else {
-        fprintf(output, "    mov r%d, [%s]\n", reg_num + 8, value);
+        // Fallback: symbolic reference (old behavior)
+        if (is_float) {
+            fprintf(output, "    movsd xmm%d, [%s]\n", reg_num, value);
+        } else {
+            fprintf(output, "    mov r%d, [%s]\n", reg_num + 8, value);
+        }
     }
 }
 
@@ -26,12 +43,12 @@ static void generate_literal(FILE* output, const char* value, int reg_num, int i
         fprintf(output, "    section .text\n");
         fprintf(output, "    movsd xmm%d, [_float_%d]\n", reg_num, reg_counter - 1);
     } else {
-        fprintf(output, "    mov r%d, %s\n", reg_num + 8, value);
+        fprintf(output, "    mov r%d, %s\n", reg_num + 8, value);  // ✅ Intel syntax: mov reg, imm
     }
 }
 
 // Generate code recursively (postorder traversal)
-static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_reg) {
+static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_reg, void* context) {
     if (!expr) return;
     
     // Leaf node (literal or variable)
@@ -39,7 +56,7 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
         if (expr->is_literal) {
             generate_literal(output, expr->value, target_reg, expr->is_float);
         } else {
-            generate_load(output, expr->value, target_reg, expr->is_float);
+            generate_load(output, expr->value, target_reg, expr->is_float, context);
         }
         return;
     }
@@ -49,10 +66,10 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
     int right_reg = target_reg + 1;
     
     // Generate code for left subtree
-    generate_expr_code(output, expr->left, left_reg);
+    generate_expr_code(output, expr->left, left_reg, context);
     
     // Generate code for right subtree
-    generate_expr_code(output, expr->right, right_reg);
+    generate_expr_code(output, expr->right, right_reg, context);
     
     // Determine if we're dealing with floats
     int is_float = (expr->left && expr->left->is_float) || 
@@ -199,11 +216,11 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
 }
 
 // Generate assembly for arithmetic expression
-void arithmetic_generate_code(FILE* output, ArithmeticExpr* expr) {
+void arithmetic_generate_code(FILE* output, ArithmeticExpr* expr, void* context) {
     if (!output || !expr) return;
     
     fprintf(output, "\n    ; Arithmetic expression\n");
-    generate_expr_code(output, expr, 0);  // Start with register 0
+    generate_expr_code(output, expr, 0, context);  // Start with register 0
     fprintf(output, "    ; Result in r8 (integer) or xmm0 (float)\n");
 }
 
@@ -214,7 +231,7 @@ void arithmetic_generate_assignment(FILE* output, const char* var_name, Arithmet
     fprintf(output, "\n    ; Assignment: %s = <expression>\n", var_name);
     
     // Generate expression code (result in r8 or xmm0)
-    generate_expr_code(output, expr, 0);
+    generate_expr_code(output, expr, 0, NULL);  // No context for legacy function
     
     // Store result to variable
     int is_float = (expr->left && expr->left->is_float) || 

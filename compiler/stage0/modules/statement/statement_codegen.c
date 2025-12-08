@@ -39,19 +39,36 @@ void statement_generate_code(FILE* output, Statement* stmt, void* context) {
         }
         
         case STMT_VARIABLE_DECL: {
-            // ✅ Variable declaration - allocate stack space
+            // ✅ Variable declaration - already registered in pre-scan, just initialize
             VariableDeclaration* decl = (VariableDeclaration*)stmt->data;
             if (decl) {
                 FunctionDeclaration* func = (FunctionDeclaration*)context;
-                fprintf(output, "    # Variable: %s\n", decl->name);
                 
-                // For local variables in functions, allocate on stack
-                // Space already allocated in function prologue
-                // Just need to initialize if there's an initial value
+                // Get offset (already registered)
+                int offset = function_get_var_offset(func, decl->name);
                 
-                if (decl->value) {
-                    // TODO: Evaluate initial value and store
-                    fprintf(output, "    # Initialize %s\n", decl->name);
+                fprintf(output, "    # Variable: %s at %d(%%rbp)\n", decl->name, offset);
+                
+                // Initialize if there's an initial value
+                if (decl->init_expr) {
+                    // ✅ NEW: init_expr is ArithmeticExpr*
+                    ArithmeticExpr* expr = (ArithmeticExpr*)decl->init_expr;
+                    printf("DEBUG: Variable %s has init_expr (ArithmeticExpr)\n", decl->name);
+                    
+                    // Generate expression code
+                    arithmetic_generate_code(output, expr, context);
+                    
+                    // Store result to variable
+                    fprintf(output, "    movq %%r8, %d(%%rbp)  # Initialize %s\n", 
+                            offset, decl->name);
+                } else if (decl->value) {
+                    // Simple literal in value field
+                    printf("DEBUG: Variable %s value='%s' (simple literal)\n", decl->name, decl->value);
+                    fprintf(output, "    movq $%s, %%r8  # Literal value\n", decl->value);
+                    fprintf(output, "    movq %%r8, %d(%%rbp)  # Initialize %s\n", 
+                            offset, decl->name);
+                } else {
+                    printf("DEBUG: Variable %s has NO init_expr or value\n", decl->name);
                 }
             }
             break;
@@ -61,17 +78,19 @@ void statement_generate_code(FILE* output, Statement* stmt, void* context) {
             // ✅ Variable assignment - evaluate expression and store
             VariableAssignment* assign = (VariableAssignment*)stmt->data;
             if (assign) {
+                FunctionDeclaration* func = (FunctionDeclaration*)context;
+                int offset = function_get_var_offset(func, assign->name);
+                
                 fprintf(output, "    # Assignment: %s = ...\n", assign->name);
                 
                 // Evaluate expression
                 if (assign->value_expr) {
                     ArithmeticExpr* expr = (ArithmeticExpr*)assign->value_expr;
-                    arithmetic_generate_code(output, expr);
+                    arithmetic_generate_code(output, expr, context);  // ✅ Pass context!
                     
                     // Result is in r8, store to variable's stack location
-                    // For now, assume it's a local variable at offset from rbp
-                    // TODO: Look up variable's actual stack offset
-                    fprintf(output, "    # Store result to %s (TODO: resolve offset)\n", assign->name);
+                    fprintf(output, "    movq %%r8, %d(%%rbp)  # Store to %s\n", 
+                            offset, assign->name);
                 }
             }
             break;
@@ -81,9 +100,20 @@ void statement_generate_code(FILE* output, Statement* stmt, void* context) {
             // ✅ Return statement - evaluate expression and result in rax
             ReturnStatement* ret = (ReturnStatement*)stmt->data;
             if (ret && ret->return_value) {
-                // Evaluate expression, result goes to r8 (arithmetic convention)
                 ArithmeticExpr* expr = (ArithmeticExpr*)ret->return_value;
-                arithmetic_generate_code(output, expr);
+                
+                // Special case: simple variable reference
+                if (!expr->left && !expr->right && expr->value && !expr->is_literal) {
+                    // It's a variable reference - load from stack
+                    FunctionDeclaration* func = (FunctionDeclaration*)context;
+                    int offset = function_get_var_offset(func, expr->value);
+                    fprintf(output, "    movq %d(%%rbp), %%r8  # Load %s\n", 
+                            offset, expr->value);
+                } else {
+                    // Complex expression - use arithmetic codegen
+                    arithmetic_generate_code(output, expr, context);  // ✅ Pass context!
+                }
+                
                 // Move result from r8 to rax (x86-64 return convention)
                 fprintf(output, "    movq %%r8, %%rax  # Return value\n");
             } else {

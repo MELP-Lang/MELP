@@ -26,7 +26,7 @@ void control_flow_generate_if(FILE* output, IfStatement* stmt, void* context) {
     
     // Load and compare condition
     ComparisonExpr* cond = (ComparisonExpr*)stmt->condition;
-    comparison_generate_code(output, cond);
+    comparison_generate_code(output, cond, context);
     
     // Test result
     fprintf(output, "    test rax, rax\n");
@@ -36,13 +36,25 @@ void control_flow_generate_if(FILE* output, IfStatement* stmt, void* context) {
         fprintf(output, "    jz .if_end_%d\n", label_end);
     }
     
-    // Then body
+    // Then body - recursively generate statements
     fprintf(output, "    ; Then body\n");
+    Statement* then_stmt = stmt->then_body;
+    while (then_stmt) {
+        statement_generate_code(output, then_stmt, context);
+        then_stmt = then_stmt->next;
+    }
     
     if (stmt->has_else) {
         fprintf(output, "    jmp .if_end_%d\n", label_end);
         fprintf(output, ".if_else_%d:\n", label_else);
         fprintf(output, "    ; Else body\n");
+        
+        // Else body - recursively generate statements
+        Statement* else_stmt = stmt->else_body;
+        while (else_stmt) {
+            statement_generate_code(output, else_stmt, context);
+            else_stmt = else_stmt->next;
+        }
     }
     
     fprintf(output, ".if_end_%d:\n", label_end);
@@ -59,7 +71,7 @@ void control_flow_generate_while(FILE* output, WhileStatement* stmt, void* conte
     
     // Condition
     ComparisonExpr* cond = (ComparisonExpr*)stmt->condition;
-    comparison_generate_code(output, cond);
+    comparison_generate_code(output, cond, context);
     
     fprintf(output, "    test rax, rax\n");
     fprintf(output, "    jz .while_end_%d\n", label_end);

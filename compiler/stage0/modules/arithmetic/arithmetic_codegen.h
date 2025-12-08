@@ -6,7 +6,8 @@
 
 // Generate assembly code for an arithmetic expression
 // Result will be in r8 (for integers) or xmm0 (for floats)
-void arithmetic_generate_code(FILE* output, ArithmeticExpr* expr);
+// context: FunctionDeclaration* for variable offset lookup
+void arithmetic_generate_code(FILE* output, ArithmeticExpr* expr, void* context);
 
 // Generate assignment: variable = expression
 void arithmetic_generate_assignment(FILE* output, const char* var_name, ArithmeticExpr* expr);

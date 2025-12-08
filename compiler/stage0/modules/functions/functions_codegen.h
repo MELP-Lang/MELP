@@ -11,7 +11,7 @@ void function_generate_declaration(FILE* output, FunctionDeclaration* func);
 void function_generate_call(FILE* output, FunctionCall* call);
 
 // Generate assembly code for return statement
-void function_generate_return(FILE* output, ReturnStatement* ret);
+void function_generate_return(FILE* output, ReturnStatement* ret, void* context);
 
 // Helper: Generate function prologue (stack setup)
 void function_generate_prologue(FILE* output, FunctionDeclaration* func);
