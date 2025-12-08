@@ -1,5 +1,7 @@
 #include "variable_parser.h"
 #include "../codegen_context/codegen_context.h"
+#include "../arithmetic/arithmetic_parser.h"  // ✅ For expression parsing
+#include "../arithmetic/arithmetic.h"         // ✅ ArithmeticExpr
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -105,12 +107,10 @@ VariableDeclaration* variable_parse_declaration(VariableParser* parser) {
     
     advance(parser);  // consume identifier
     
-    // Expect '='
+    // Check for optional '=' initializer
     if (parser->current_token->type != TOKEN_ASSIGN) {
-        fprintf(stderr, "Error: Expected '=' after variable name\n");
-        free(decl->name);
-        free(decl);
-        return NULL;
+        // No initializer - just declaration
+        return decl;
     }
     
     advance(parser);  // consume '='
@@ -340,13 +340,25 @@ VariableAssignment* variable_parse_assignment(VariableParser* parser) {
     
     advance(parser);  // consume '='
     
-    // For now, we just store the token value
-    // In full implementation, we'd parse expression here
-    if (parser->current_token->type == TOKEN_NUMBER || 
-        parser->current_token->type == TOKEN_STRING ||
-        parser->current_token->type == TOKEN_IDENTIFIER) {
-        // Store as simple value for now
-        advance(parser);
+    // Parse expression using arithmetic module
+    ArithmeticParser* arith_parser = arithmetic_parser_create(parser->lexer);
+    
+    // If we have a current_token, pass it to arithmetic parser
+    if (parser->current_token) {
+        arith_parser->current_token = parser->current_token;
+        parser->current_token = NULL;  // Transfer ownership
+    }
+    
+    ArithmeticExpr* expr = arithmetic_parse_expression(arith_parser);
+    arithmetic_parser_free(arith_parser);
+    
+    if (expr) {
+        assign->value_expr = expr;
+    } else {
+        fprintf(stderr, "Error: Failed to parse assignment expression\n");
+        free(assign->name);
+        free(assign);
+        return NULL;
     }
     
     return assign;

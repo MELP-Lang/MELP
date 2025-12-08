@@ -142,11 +142,68 @@ Statement* statement_parse(Parser* parser) {
     
     // ✅ Variable declaration - use variable module
     if (tok->type == TOKEN_NUMERIC || tok->type == TOKEN_STRING || tok->type == TOKEN_BOOLEAN) {
-        // TODO: Use variable_parse() from variable module
-        token_free(tok);
-        stmt = statement_create(STMT_VARIABLE_DECL);
-        stmt->next = NULL;
-        return stmt;
+        // Create variable parser and set the type token we already read
+        VariableParser* var_parser = variable_parser_create(parser->lexer);
+        
+        // Free the token it read and set our type token instead
+        if (var_parser->current_token) {
+            token_free(var_parser->current_token);
+        }
+        var_parser->current_token = tok;  // Use the type token we already have
+        
+        // Parse variable declaration
+        VariableDeclaration* decl = variable_parse_declaration(var_parser);
+        variable_parser_free(var_parser);
+        
+        if (decl) {
+            stmt = statement_create(STMT_VARIABLE_DECL);
+            stmt->data = decl;
+            stmt->next = NULL;
+            return stmt;
+        }
+        
+        // If parse failed, token already freed by parser
+        return NULL;
+    }
+    
+    // ✅ Variable assignment - check if identifier followed by '='
+    if (tok->type == TOKEN_IDENTIFIER) {
+        // Need to look ahead for '='
+        Token* next_tok = lexer_next_token(parser->lexer);
+        if (next_tok && next_tok->type == TOKEN_ASSIGN) {
+            token_free(next_tok);  // We know it's '=', consume it
+            
+            // Parse expression after '='
+            ArithmeticParser* arith_parser = arithmetic_parser_create(parser->lexer);
+            ArithmeticExpr* expr = arithmetic_parse_expression(arith_parser);
+            arithmetic_parser_free(arith_parser);
+            
+            if (expr) {
+                VariableAssignment* assign = malloc(sizeof(VariableAssignment));
+                assign->name = strdup(tok->value);
+                assign->value_expr = expr;
+                assign->tto_info = NULL;
+                assign->tto_analyzed = false;
+                assign->needs_type_promotion = false;
+                
+                token_free(tok);
+                
+                stmt = statement_create(STMT_ASSIGNMENT);
+                stmt->data = assign;
+                stmt->next = NULL;
+                return stmt;
+            }
+            
+            token_free(tok);
+            return NULL;
+        } else {
+            // Not assignment, put token back and return NULL
+            if (next_tok) {
+                parser->current_token = next_tok;
+            }
+            token_free(tok);
+            return NULL;
+        }
     }
     
     // Unknown statement

@@ -2,8 +2,10 @@
 #include "../control_flow/control_flow_codegen.h"  // ✅ While/If codegen
 #include "../print/print_codegen.h"                 // ✅ Print codegen
 #include "../variable/variable_codegen.h"           // ✅ Variable codegen
+#include "../variable/variable.h"                   // ✅ VariableDeclaration, VariableAssignment
 #include "../arithmetic/arithmetic_codegen.h"       // ✅ Expression codegen
-#include "../functions/functions.h"                 // ✅ ReturnStatement definition
+#include "../arithmetic/arithmetic.h"               // ✅ ArithmeticExpr
+#include "../functions/functions.h"                 // ✅ ReturnStatement, FunctionDeclaration
 #include <stdio.h>
 
 // Statement code generation with modular imports
@@ -37,9 +39,41 @@ void statement_generate_code(FILE* output, Statement* stmt, void* context) {
         }
         
         case STMT_VARIABLE_DECL: {
-            // ✅ Use variable module
-            // TODO: variable_generate_declaration(output, stmt->data);
-            fprintf(output, "    # Variable declaration\n");
+            // ✅ Variable declaration - allocate stack space
+            VariableDeclaration* decl = (VariableDeclaration*)stmt->data;
+            if (decl) {
+                FunctionDeclaration* func = (FunctionDeclaration*)context;
+                fprintf(output, "    # Variable: %s\n", decl->name);
+                
+                // For local variables in functions, allocate on stack
+                // Space already allocated in function prologue
+                // Just need to initialize if there's an initial value
+                
+                if (decl->value) {
+                    // TODO: Evaluate initial value and store
+                    fprintf(output, "    # Initialize %s\n", decl->name);
+                }
+            }
+            break;
+        }
+        
+        case STMT_ASSIGNMENT: {
+            // ✅ Variable assignment - evaluate expression and store
+            VariableAssignment* assign = (VariableAssignment*)stmt->data;
+            if (assign) {
+                fprintf(output, "    # Assignment: %s = ...\n", assign->name);
+                
+                // Evaluate expression
+                if (assign->value_expr) {
+                    ArithmeticExpr* expr = (ArithmeticExpr*)assign->value_expr;
+                    arithmetic_generate_code(output, expr);
+                    
+                    // Result is in r8, store to variable's stack location
+                    // For now, assume it's a local variable at offset from rbp
+                    // TODO: Look up variable's actual stack offset
+                    fprintf(output, "    # Store result to %s (TODO: resolve offset)\n", assign->name);
+                }
+            }
             break;
         }
         
