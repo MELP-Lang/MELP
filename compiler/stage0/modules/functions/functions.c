@@ -10,6 +10,7 @@ FunctionDeclaration* function_create(const char* name, FunctionReturnType return
     func->body = NULL;
     func->param_count = 0;
     func->local_var_count = 0;
+    func->next = NULL;  // Initialize linked list pointer
     return func;
 }
 

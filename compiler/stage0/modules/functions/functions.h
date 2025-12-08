@@ -26,13 +26,14 @@ typedef enum {
 
 typedef struct Statement Statement;
 
-typedef struct {
+typedef struct FunctionDeclaration {
     char* name;
     FunctionParam* params;
     FunctionReturnType return_type;
     Statement* body;           // Linked list of statements
     int param_count;
     int local_var_count;       // For stack frame calculation
+    struct FunctionDeclaration* next;  // Linked list of functions
 } FunctionDeclaration;
 
 typedef struct {
