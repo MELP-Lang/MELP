@@ -13,16 +13,4 @@
 // Note: Reads additional tokens from lexer, frees only what it reads
 ComparisonExpr* comparison_parse_expression_stateless(Lexer* lexer, Token* first_token);
 
-// ============================================================================
-// DEPRECATED - Old stateful parser API
-// ============================================================================
-typedef struct {
-    Lexer* lexer;
-    Token* current_token;
-} ComparisonParser;
-
-ComparisonParser* comparison_parser_create(Lexer* lexer);
-void comparison_parser_free(ComparisonParser* parser);
-ComparisonExpr* comparison_parse_expression(ComparisonParser* parser);
-
 #endif // COMPARISON_PARSER_H

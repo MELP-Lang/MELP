@@ -29,15 +29,4 @@ ForStatement* control_flow_parse_for(Lexer* lexer, Token* for_token);
 // Parse expression-based if (Tier 1 feature)
 IfStatement* control_flow_parse_if_expr(Lexer* lexer, Token* current_token);
 
-// ============================================================================
-// DEPRECATED - Old stateful parser API (will be removed)
-// ============================================================================
-typedef struct {
-    Lexer* lexer;
-    Token* current_token;
-} ControlFlowParser;
-
-ControlFlowParser* control_flow_parser_create(Lexer* lexer);
-void control_flow_parser_free(ControlFlowParser* parser);
-
 #endif // CONTROL_FLOW_PARSER_H
