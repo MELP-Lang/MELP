@@ -68,6 +68,18 @@ CONTROL_FLOW_SOURCES = \
 	$(CONTROL_FLOW_DIR)/control_flow_parser.c \
 	$(CONTROL_FLOW_DIR)/control_flow_codegen.c
 
+# Statement modülü (Body parsing için)
+STATEMENT_DIR = ../statement
+STATEMENT_SOURCES = \
+	$(STATEMENT_DIR)/statement.c \
+	$(STATEMENT_DIR)/statement_parser.c \
+	$(STATEMENT_DIR)/statement_codegen.c
+
+# Parser Core modülü (Parser structure)
+PARSER_CORE_DIR = ../parser_core
+PARSER_CORE_SOURCES = \
+	$(PARSER_CORE_DIR)/parser_core.c
+
 # Lexer (merkezi)
 LEXER_SOURCES = ../lexer/lexer.c
 
@@ -85,6 +97,8 @@ SOURCES = \
 	$(COMPARISON_SOURCES) \
 	$(LOGICAL_SOURCES) \
 	$(CONTROL_FLOW_SOURCES) \
+	$(STATEMENT_SOURCES) \
+	$(PARSER_CORE_SOURCES) \
 	$(CODEGEN_CONTEXT_SOURCES) \
 	$(LEXER_SOURCES)
 

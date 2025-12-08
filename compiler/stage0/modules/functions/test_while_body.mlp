@@ -1,0 +1,8 @@
+function main()
+    numeric i = 0
+    while i < 3
+        print(i)
+        i = i + 1
+    end while
+    return 0
+end function

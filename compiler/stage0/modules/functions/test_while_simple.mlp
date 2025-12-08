@@ -1,0 +1,7 @@
+function test()
+    numeric x = 10
+    while x > 0 do
+        print("Loop")
+        x = x - 1
+    end while
+end function

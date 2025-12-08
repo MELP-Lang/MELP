@@ -4,6 +4,8 @@
 #include "functions_parser.h"
 #include "functions.h"
 #include "../lexer/lexer.h"
+#include "../statement/statement_parser.h"  // ✅ Statement parsing
+#include "../parser_core/parser_core.h"      // ✅ Parser structure
 
 // Helper: Convert type keyword to FunctionParamType
 static FunctionParamType token_to_param_type(TokenType type) {
@@ -178,23 +180,49 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
         }
     }
     
-    // Function body (statements until 'end')
-    // For now, we'll just skip to 'end' - actual statement parsing handled by statement parser
-    int depth = 0;
-    while (tok->type != TOKEN_EOF) {
-        if (tok->type == TOKEN_IF || tok->type == TOKEN_WHILE || tok->type == TOKEN_FOR || tok->type == TOKEN_FUNCTION) {
-            depth++;
-        } else if (tok->type == TOKEN_END) {
-            if (depth == 0) {
-                token_free(tok);
-                break;
-            }
-            depth--;
+    // ✅ Function body - use statement parser (modular!)
+    Parser* parser = parser_create(lexer);
+    Statement* body_head = NULL;
+    Statement* body_tail = NULL;
+    
+    tok = lexer_next_token(lexer);
+    while (tok && tok->type != TOKEN_EOF && tok->type != TOKEN_END) {
+        // Parse each statement in function body
+        Statement* stmt = statement_parse(parser);
+        if (!stmt) {
+            token_free(tok);
+            tok = lexer_next_token(lexer);
+            continue;
         }
+        
+        // Add to body linked list
+        if (!body_head) {
+            body_head = stmt;
+            body_tail = stmt;
+        } else {
+            body_tail->next = stmt;
+            body_tail = stmt;
+        }
+        
         token_free(tok);
         tok = lexer_next_token(lexer);
     }
     
+    // Store body in function
+    func->body = body_head;
+    
+    // Consume 'end function'
+    if (tok && tok->type == TOKEN_END) {
+        token_free(tok);
+        tok = lexer_next_token(lexer);
+        if (tok && tok->type == TOKEN_FUNCTION) {
+            token_free(tok);
+        }
+    } else if (tok) {
+        token_free(tok);
+    }
+    
+    parser_free(parser);
     return func;
 }
 

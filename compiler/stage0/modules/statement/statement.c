@@ -5,6 +5,7 @@ Statement* statement_create(StatementType type) {
     Statement* stmt = malloc(sizeof(Statement));
     stmt->type = type;
     stmt->data = NULL;
+    stmt->next = NULL;  // Initialize linked list pointer
     return stmt;
 }
 

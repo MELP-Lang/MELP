@@ -11,6 +11,7 @@ SOURCES = statement_standalone.c \
           statement.c \
           statement_parser.c \
           statement_codegen.c \
+          ../parser_core/parser_core.c \
           ../expression/expression.c \
           ../expression/expression_parser.c \
           ../expression/expression_codegen.c \
@@ -37,13 +38,15 @@ SOURCES = statement_standalone.c \
           ../print/print.c \
           ../print/print_parser.c \
           ../print/print_codegen.c \
-          ../../lexer.c
+          ../codegen_context/codegen_context.c \
+          ../lexer/lexer.c
 
 # Object files
 OBJECTS = statement_standalone.o \
           statement.o \
           statement_parser.o \
           statement_codegen.o \
+          ../parser_core/parser_core.o \
           ../expression/expression.o \
           ../expression/expression_parser.o \
           ../expression/expression_codegen.o \
@@ -70,7 +73,8 @@ OBJECTS = statement_standalone.o \
           ../print/print.o \
           ../print/print_parser.o \
           ../print/print_codegen.o \
-          ../../lexer.o
+          ../codegen_context/codegen_context.o \
+          ../lexer/lexer.o
 
 TARGET = statement_compiler
 

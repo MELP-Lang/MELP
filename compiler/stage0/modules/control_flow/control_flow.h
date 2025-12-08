@@ -11,16 +11,22 @@ typedef enum {
     CTRL_LOOP_LABELED  // TIER 1: 'outer: for ... break 'outer
 } ControlFlowType;
 
+// Forward declaration for Statement (to avoid circular dependency)
+typedef struct Statement Statement;
+
 // If statement structure
 typedef struct IfStatement {
     ControlFlowType type;      // TIER 1: Type of if statement (CTRL_IF, CTRL_IF_ELSE, CTRL_IF_EXPR)
     void* condition;           // Comparison or logical expression
     int has_else;
+    Statement* then_body;      // Then branch statements
+    Statement* else_body;      // Else branch statements (NULL if no else)
 } IfStatement;
 
 // While statement structure
 typedef struct WhileStatement {
     void* condition;
+    Statement* body;           // Loop body statements
 } WhileStatement;
 
 // For statement structure
@@ -29,6 +35,7 @@ typedef struct ForStatement {
     void* start;
     void* end;
     char* label;  // TIER 1: 'outer, 'inner for labeled loops
+    Statement* body;           // Loop body statements
 } ForStatement;
 
 // Free functions

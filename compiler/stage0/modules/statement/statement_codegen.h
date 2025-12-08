@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 // Generate code for statement
-void statement_generate_code(FILE* output, Statement* stmt);
+// context: FunctionDeclaration* or other context for variable scoping
+void statement_generate_code(FILE* output, Statement* stmt, void* context);
 
 #endif

@@ -1,0 +1,6 @@
+function main()
+    while 1 < 3
+        return 42
+    end while
+    return 0
+end function

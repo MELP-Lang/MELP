@@ -21,6 +21,7 @@ typedef enum {
 typedef struct Statement {
     StatementType type;
     void* data;  // Points to specific statement data (IfStatement, WhileStatement, etc.)
+    struct Statement* next;  // Linked list for statement sequences (bodies, blocks)
 } Statement;
 
 // Statement management

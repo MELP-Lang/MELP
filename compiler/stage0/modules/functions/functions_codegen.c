@@ -4,9 +4,11 @@
 #include "functions.h"
 #include "../arithmetic/arithmetic_parser.h"
 #include "../arithmetic/arithmetic_codegen.h"
+#include "../statement/statement_codegen.h"  // ✅ Statement codegen import!
 
-// Now we can use real expression codegen!
+// Now we can use real expression codegen AND statement codegen!
 // arithmetic_parse_expression() and arithmetic_generate_code()
+// statement_generate_code() for function bodies
 
 // Temporary wrapper for expression codegen
 // In a full compiler, this would be handled by expression module
@@ -73,9 +75,12 @@ void function_generate_declaration(FILE* output, FunctionDeclaration* func) {
     
     function_generate_prologue(output, func);
     
-    // Function body code generation would go here
-    // This is handled by statement codegen in main compilation loop
-    fprintf(output, "    # Function body goes here\n");
+    // ✅ Function body - use statement codegen (modular!)
+    Statement* stmt = func->body;
+    while (stmt) {
+        statement_generate_code(output, stmt, func);
+        stmt = stmt->next;
+    }
     
     function_generate_epilogue(output, func);
 }
