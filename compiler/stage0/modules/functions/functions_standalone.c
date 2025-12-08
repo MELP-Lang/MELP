@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../lexer/lexer.h"
+#include "../../lexer.h"
 
 // Function Parameter Structure
 typedef struct Parameter {
