@@ -2,9 +2,17 @@
 
 ## 🎯 Hedef
 
-**Modüler MLP Compiler** - Phase 3.5, 4, 5, 6 tamamlandı!
+**Modular MLP Compiler via Chained Imports** - Real working architecture!
 
-## 🎉 Son Güncellemeler (7 Aralık 2025)
+## 🎉 Son Güncellemeler (8 Aralık 2025)
+
+### ✅ Architectural Milestone:
+**Chained Imports Working!**
+- Functions → Statement → Control Flow → Comparison (all via #include)
+- Parser body fix: while loops + return statements now work
+- Central files DELETED (main.c, orchestrator.c, helpers.c - 7 Aralık)
+- Entry point: `functions_standalone.c` 102 lines (was 1244!)
+- Real proof: test_while_only.mlp generates correct assembly with labels
 
 ### ✅ Tamamlanan Phase'ler:
 
@@ -14,19 +22,20 @@
 - Variable references in expressions
 - TTO runtime integration
 
-**Phase 4: Functions** ✅ (Parsing)
-- Function declarations
+**Phase 4: Functions** ✅ (Parsing + Body)
+- Function declarations with body parsing
 - Parameter handling
-- Arithmetic module integration
+- Return statements working
+- Chained import to statement module
 
 **Phase 5: Arrays** ✅ (Basic)
 - Array declarations: `numeric[] arr`
 - Array literals: `[1, 2, 3, 4, 5]`
 - Memory allocation (.bss)
 
-**Phase 6: Control Flow** ✅
+**Phase 6: Control Flow** ✅ (Working!)
 - If/then/else statements
-- While/do loops
+- While/do loops (TESTED: generates correct labels!)
 - Condition evaluation
 - Label/jump generation
 
@@ -34,27 +43,29 @@
 
 - **Lexer**: Token analizi, UTF-8 desteği
 - **Expressions**: Complex arithmetic with precedence
-- **Control Flow**: If/While statements
+- **Control Flow**: If/While statements (WORKING via chained imports!)
 - **Variables**: Declaration and assignment
 - **Arrays**: Basic support
 - **TTO Runtime**: Overflow detection (BigDecimal)
 - **Code Generation**: x86-64 assembly with extern declarations
+- **Architecture**: Chained imports (no central orchestrator!)
 
-## 📦 Aktif Modüller (Tam Modüler Yapı)
+## 📦 Aktif Modüller (Chained Imports Yapısı)
 
 ### Core Modules ✅
-- `lexer/` - Tokenization (paylaşımlı)
-- `variable/` - Variable management
+- `lexer/` - Tokenization (shared)
+- `functions/` - Function declarations + body (imports statement)
+- `statement/` - Statement parsing (imports control_flow)
+- `control_flow/` - If/While statements (imports comparison)
+- `comparison/` - Comparison operators
 - `arithmetic/` - Expression parsing & codegen
-- `control_flow/` - If/While statements
+- `variable/` - Variable management
 - `array/` - Array basics
-- `functions/` - Function declarations
 - `print/` - Print statements
 - `codegen_context/` - Code generation state
 - `runtime_tto/` - TTO runtime (BigDecimal, overflow)
 
 ### Support Modules ✅
-- `comparison/` - Comparison operators
 - `logical/` - Logical operators (and, or, not)
 - `comments/` - Comment handling
 - `expression/` - Expression coordination
