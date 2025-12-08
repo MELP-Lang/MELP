@@ -53,7 +53,6 @@ void statement_generate_code(FILE* output, Statement* stmt, void* context) {
                 if (decl->init_expr) {
                     // ✅ NEW: init_expr is ArithmeticExpr*
                     ArithmeticExpr* expr = (ArithmeticExpr*)decl->init_expr;
-                    printf("DEBUG: Variable %s has init_expr (ArithmeticExpr)\n", decl->name);
                     
                     // Generate expression code
                     arithmetic_generate_code(output, expr, context);
@@ -63,12 +62,11 @@ void statement_generate_code(FILE* output, Statement* stmt, void* context) {
                             offset, decl->name);
                 } else if (decl->value) {
                     // Simple literal in value field
-                    printf("DEBUG: Variable %s value='%s' (simple literal)\n", decl->name, decl->value);
                     fprintf(output, "    movq $%s, %%r8  # Literal value\n", decl->value);
                     fprintf(output, "    movq %%r8, %d(%%rbp)  # Initialize %s\n", 
                             offset, decl->name);
                 } else {
-                    printf("DEBUG: Variable %s has NO init_expr or value\n", decl->name);
+                    // No initializer - default to 0
                 }
             }
             break;

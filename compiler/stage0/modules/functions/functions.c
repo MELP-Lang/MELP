@@ -112,9 +112,6 @@ void function_register_local_var(FunctionDeclaration* func, const char* name) {
     func->local_var_count++;
     var->stack_offset = -8 * func->local_var_count;
     
-    printf("DEBUG register_var: '%s' registered at offset %d, count now %d\n",
-           name, var->stack_offset, func->local_var_count);
-    
     // Add to front of list
     var->next = func->local_vars;
     func->local_vars = var;
