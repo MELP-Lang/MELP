@@ -28,6 +28,10 @@ Collection* parse_tuple_literal(ArrayParser* parser);
 // Parse array/list index access: arr[0] or list(0)
 struct Expression* parse_index_access(ArrayParser* parser);
 
+// Parse index access and return IndexAccess struct
+// Returns NULL if no index access found
+IndexAccess* parse_index_access_struct(ArrayParser* parser, const char* base_name);
+
 // Free collection
 void collection_free(Collection* coll);
 

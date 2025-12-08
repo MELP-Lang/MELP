@@ -43,6 +43,7 @@ typedef enum {
     // Function keywords
     TOKEN_FUNCTION,
     TOKEN_RETURN,
+    TOKEN_RETURNS,         // returns (for return type declaration)
     // Struct keywords
     TOKEN_STRUCT,
     // I/O keywords

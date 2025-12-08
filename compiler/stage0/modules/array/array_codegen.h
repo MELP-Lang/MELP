@@ -26,4 +26,11 @@ void codegen_array_index(FILE* output, const char* array_name, int index);
 // Generate list index access (with type checking)
 void codegen_list_index(FILE* output, const char* list_name, int index);
 
+// Generate index access from IndexAccess struct
+// Supports constant, variable, and expression indices
+void codegen_index_access(FILE* output, IndexAccess* access);
+
+// Generate index access with variable index (runtime)
+void codegen_array_index_var(FILE* output, const char* array_name, const char* index_var);
+
 #endif

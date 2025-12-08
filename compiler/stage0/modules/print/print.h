@@ -5,8 +5,15 @@
 
 typedef struct Expression Expression;
 
+typedef enum {
+    PRINT_STRING_LITERAL,   // "Hello"
+    PRINT_VARIABLE,         // x (variable name)
+    PRINT_EXPRESSION        // x + 5 (future)
+} PrintValueType;
+
 typedef struct {
-    Expression* value;  // Expression to print
+    PrintValueType type;
+    char* value;            // String literal or variable name
 } PrintStatement;
 
 // Create and free print statements

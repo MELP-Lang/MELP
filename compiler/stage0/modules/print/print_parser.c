@@ -23,20 +23,27 @@ PrintStatement* parse_print_statement(Lexer* lexer) {
     }
     token_free(tok);
     
-    // Expect string literal
+    // Expect string literal or identifier (variable)
     tok = lexer_next_token(lexer);
-    if (tok->type != TOKEN_STRING) {
-        fprintf(stderr, "Error: Expected string literal in print()\n");
+    
+    PrintStatement* stmt = malloc(sizeof(PrintStatement));
+    
+    if (tok->type == TOKEN_STRING) {
+        // String literal: print("Hello")
+        stmt->type = PRINT_STRING_LITERAL;
+        stmt->value = strdup(tok->value);
         token_free(tok);
+    } else if (tok->type == TOKEN_IDENTIFIER) {
+        // Variable name: print(x)
+        stmt->type = PRINT_VARIABLE;
+        stmt->value = strdup(tok->value);
+        token_free(tok);
+    } else {
+        fprintf(stderr, "Error: Expected string literal or variable name in print()\n");
+        token_free(tok);
+        free(stmt);
         return NULL;
     }
-    
-    // Create statement with string content
-    // For now, we'll store the string in the Expression* value field
-    // We need to create a simple expression structure
-    PrintStatement* stmt = malloc(sizeof(PrintStatement));
-    stmt->value = (Expression*)strdup(tok->value);  // Temporary: store string as pointer
-    token_free(tok);
     
     // Expect ')'
     tok = lexer_next_token(lexer);

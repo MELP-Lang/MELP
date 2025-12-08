@@ -38,10 +38,27 @@ bool tto_runtime_safe_sub(int64_t a, int64_t b, int64_t* result);
 bool tto_runtime_safe_mul(int64_t a, int64_t b, int64_t* result);
 
 // ============================================================================
-// Phase 3.2: BigDecimal Runtime (Placeholder)
+// Phase 3.5: Print Functions
 // ============================================================================
 
-// BigDecimal structure (opaque pointer for now)
+// Print INT64 to stdout with newline
+void tto_print_int64(int64_t value);
+
+// Print double to stdout with newline
+void tto_print_double(double value);
+
+// ============================================================================
+// Phase 3.2: BigDecimal Runtime
+// ============================================================================
+
+// BigDecimal structure - arbitrary precision decimal numbers
+struct BigDecimal {
+    char* digits;      // String representation of digits
+    int length;        // Number of digits
+    bool negative;     // Sign flag
+    int refcount;      // Reference counting for memory management
+};
+
 typedef struct BigDecimal BigDecimal;
 
 // Create BigDecimal from INT64
@@ -88,7 +105,51 @@ SSOString* tto_sso_create(const char* str);
 // Get string data (works for both SSO and heap)
 const char* tto_sso_data(SSOString* sso);
 
+// Get string length
+size_t tto_sso_length(SSOString* sso);
+
+// String concatenation
+SSOString* tto_sso_concat(SSOString* a, SSOString* b);
+
+// String comparison
+int tto_sso_compare(SSOString* a, SSOString* b);
+
+// String equality
+bool tto_sso_equals(SSOString* a, SSOString* b);
+
+// Substring extraction
+SSOString* tto_sso_substring(SSOString* str, size_t start, size_t length);
+
+// String/Integer conversions
+int64_t tto_sso_to_int64(SSOString* str);
+SSOString* tto_sso_from_int64(int64_t value);
+
+// String search
+int tto_sso_find(SSOString* haystack, const char* needle);
+
+// String copy
+SSOString* tto_sso_copy(SSOString* str);
+
+// Convert to C string (caller must free)
+char* tto_sso_to_cstring(SSOString* str);
+
+// String prefix/suffix checks
+bool tto_sso_starts_with(SSOString* str, const char* prefix);
+bool tto_sso_ends_with(SSOString* str, const char* suffix);
+
 // Free SSO string
 void tto_sso_free(SSOString* sso);
+
+// ============================================================================
+// Phase 3.4: Type Inference
+// ============================================================================
+
+// Infer numeric type from literal string (INT64 or BigDecimal)
+// Returns: 0 for INT64, 1 for BigDecimal
+int tto_infer_numeric_type(const char* literal);
+
+// Infer string storage type (SSO or heap)
+// Returns: 0 for SSO (≤23 bytes), 1 for heap (>23 bytes)
+int tto_infer_string_type(const char* literal);
 
 #endif

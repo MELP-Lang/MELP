@@ -1,0 +1,8 @@
+numeric[] numbers = [1, 2, 3, 4, 5]
+numeric sum = 0
+numeric i = 0
+
+while i < 5 do
+    sum = sum + numbers[i]
+    i = i + 1
+end while

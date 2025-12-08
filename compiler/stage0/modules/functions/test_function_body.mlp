@@ -1,0 +1,10 @@
+function add(numeric a, numeric b)
+    return a + b
+end function
+
+function subtract(numeric x, numeric y)
+    return x - y
+end function
+
+numeric result = add(10, 5)
+print result

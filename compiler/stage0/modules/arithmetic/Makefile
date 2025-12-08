@@ -2,8 +2,11 @@
 # =========================================
 
 CC = gcc
-CFLAGS = -Wall -g -I../..
+CFLAGS = -Wall -g -I../.. -I../../../../runtime/tto
 LDFLAGS = -lm
+
+# TTO Runtime library path
+TTO_LIB = ../../../../runtime/tto/libtto_runtime.a
 
 # Source files
 SOURCES = arithmetic_standalone.c \
@@ -14,7 +17,7 @@ SOURCES = arithmetic_standalone.c \
           ../variable/variable_parser.c \
           ../variable/variable_codegen.c \
           ../codegen_context/codegen_context.c \
-          ../../lexer.c \
+          ../lexer/lexer.c \
           ../comments/comments.c
 
 OBJECTS = $(SOURCES:.c=.o)
@@ -25,8 +28,9 @@ all: $(TARGET)
 	@echo "✅ Arithmetic module standalone compiler built!"
 	@echo "   Usage: ./$(TARGET) input.mlp output.s"
 
-$(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+$(TARGET): $(OBJECTS) $(TTO_LIB)
+	$(CC) $(CFLAGS) -o $@ $(OBJECTS) $(TTO_LIB) $(LDFLAGS)
+	@echo "   📦 Linked with TTO Runtime (BigDecimal + SSO)"
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@

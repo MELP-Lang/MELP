@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 
 // ============================================================================
 // Phase 3.1: Overflow Detection & Promotion
@@ -104,15 +105,10 @@ bool tto_runtime_safe_mul(int64_t a, int64_t b, int64_t* result) {
 }
 
 // ============================================================================
-// Phase 3.2: BigDecimal Runtime (Placeholder - minimal implementation)
+// Phase 3.2: BigDecimal Runtime
 // ============================================================================
-
-struct BigDecimal {
-    char* digits;
-    int length;
-    bool negative;
-    int refcount;
-};
+// Full implementation in bigdecimal.c
+// This file only contains basic creation functions
 
 // Create BigDecimal from INT64
 BigDecimal* tto_bigdec_from_int64(int64_t value) {
@@ -150,76 +146,6 @@ BigDecimal* tto_bigdec_from_string(const char* str) {
     bd->refcount = 1;
     
     return bd;
-}
-
-// BigDecimal operations (basic placeholders)
-BigDecimal* tto_bigdec_add(BigDecimal* a, BigDecimal* b) {
-    if (!a || !b) return NULL;
-    
-    // TODO: Proper arbitrary precision addition
-    // For now: Simple string concatenation approach (placeholder)
-    // Real implementation would need digit-by-digit addition with carry
-    
-    // Convert to integers, add, convert back (limited precision)
-    long long a_val = 0, b_val = 0;
-    sscanf(a->digits, "%lld", &a_val);
-    sscanf(b->digits, "%lld", &b_val);
-    
-    if (a->negative) a_val = -a_val;
-    if (b->negative) b_val = -b_val;
-    
-    long long result_val = a_val + b_val;
-    return tto_bigdec_from_int64(result_val);
-}
-
-BigDecimal* tto_bigdec_sub(BigDecimal* a, BigDecimal* b) {
-    if (!a || !b) return NULL;
-    
-    // Convert to integers, subtract, convert back (limited precision)
-    long long a_val = 0, b_val = 0;
-    sscanf(a->digits, "%lld", &a_val);
-    sscanf(b->digits, "%lld", &b_val);
-    
-    if (a->negative) a_val = -a_val;
-    if (b->negative) b_val = -b_val;
-    
-    long long result_val = a_val - b_val;
-    return tto_bigdec_from_int64(result_val);
-}
-
-BigDecimal* tto_bigdec_mul(BigDecimal* a, BigDecimal* b) {
-    if (!a || !b) return NULL;
-    
-    // Convert to integers, multiply, convert back (limited precision)
-    long long a_val = 0, b_val = 0;
-    sscanf(a->digits, "%lld", &a_val);
-    sscanf(b->digits, "%lld", &b_val);
-    
-    if (a->negative) a_val = -a_val;
-    if (b->negative) b_val = -b_val;
-    
-    long long result_val = a_val * b_val;
-    return tto_bigdec_from_int64(result_val);
-}
-
-BigDecimal* tto_bigdec_div(BigDecimal* a, BigDecimal* b) {
-    if (!a || !b) return NULL;
-    
-    // Convert to integers, divide, convert back (limited precision)
-    long long a_val = 0, b_val = 0;
-    sscanf(a->digits, "%lld", &a_val);
-    sscanf(b->digits, "%lld", &b_val);
-    
-    if (a->negative) a_val = -a_val;
-    if (b->negative) b_val = -b_val;
-    
-    if (b_val == 0) {
-        // Division by zero - return NULL or special value
-        return tto_bigdec_from_int64(0);
-    }
-    
-    long long result_val = a_val / b_val;
-    return tto_bigdec_from_int64(result_val);
 }
 
 // Convert BigDecimal to string
@@ -285,9 +211,6 @@ void tto_bigdec_free(BigDecimal* bd) {
         free(bd);
     }
 }
-
-// ============================================================================
-// Phase 3.3: SSO String (Placeholder - minimal implementation)
 // ============================================================================
 
 // Create SSO string from C string
@@ -344,4 +267,81 @@ void tto_sso_free(SSOString* sso) {
     // SSO string - nothing to free (inline storage)
     
     free(sso);
+}
+
+// ============================================================================
+// Phase 3.4: Type Inference
+// ============================================================================
+
+// Infer numeric type from literal string
+// Returns: 0 for INT64, 1 for BigDecimal
+int tto_infer_numeric_type(const char* literal) {
+    if (!literal) return 0;
+    
+    // Check for very long numbers (>19 digits = potential overflow)
+    size_t len = strlen(literal);
+    size_t digit_count = 0;
+    
+    for (size_t i = 0; i < len; i++) {
+        if (isdigit(literal[i])) {
+            digit_count++;
+        }
+    }
+    
+    // INT64_MAX = 9223372036854775807 (19 digits)
+    // If more than 19 digits, definitely BigDecimal
+    if (digit_count > 19) {
+        return 1;  // BigDecimal
+    }
+    
+    // If exactly 19 digits, check if > INT64_MAX
+    if (digit_count == 19) {
+        // Parse and compare
+        int64_t value = 0;
+        bool negative = (literal[0] == '-');
+        const char* start = negative ? literal + 1 : literal;
+        
+        for (size_t i = 0; i < strlen(start); i++) {
+            if (isdigit(start[i])) {
+                int64_t digit = start[i] - '0';
+                
+                // Check for overflow before multiplying
+                if (value > INT64_MAX / 10) {
+                    return 1;  // Will overflow, use BigDecimal
+                }
+                value *= 10;
+                
+                // Check for overflow before adding
+                if (value > INT64_MAX - digit) {
+                    return 1;  // Will overflow, use BigDecimal
+                }
+                value += digit;
+            }
+        }
+    }
+    
+    return 0;  // INT64 is sufficient
+}
+
+// Infer string storage type
+// Returns: 0 for SSO (≤23 bytes), 1 for heap (>23 bytes)
+int tto_infer_string_type(const char* literal) {
+    if (!literal) return 0;
+    
+    size_t len = strlen(literal);
+    return (len > 23) ? 1 : 0;
+}
+
+// ============================================================================
+// Phase 3.5: Print Functions
+// ============================================================================
+
+// Print INT64 to stdout with newline
+void tto_print_int64(int64_t value) {
+    printf("%lld\n", (long long)value);
+}
+
+// Print double to stdout with newline
+void tto_print_double(double value) {
+    printf("%g\n", value);
 }

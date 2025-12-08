@@ -44,4 +44,16 @@ typedef struct {
     } data;
 } Collection;
 
+// Index access: arr[i] or list(i)
+typedef struct {
+    char* collection_name;   // Name of array/list variable
+    int index_type;          // 0 = constant, 1 = variable, 2 = expression
+    union {
+        int const_index;     // Constant index value
+        char* var_index;     // Variable name for index
+        void* expr_index;    // Expression for index (cast to Expression*)
+    } index;
+    int is_list_access;      // 0 = array [], 1 = list ()
+} IndexAccess;
+
 #endif

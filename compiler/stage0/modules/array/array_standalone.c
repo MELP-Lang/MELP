@@ -290,6 +290,17 @@ int main(int argc, char** argv) {
     fprintf(output, "    mov rdx, msg_len\n");
     fprintf(output, "    syscall\n\n");
 
+    // Simple variable initialization (numeric literals)
+    fprintf(output, "    ; Simple variable initializations\n");
+    for (int i = 0; i < decl_count; i++) {
+        if (!declarations[i]->is_array && declarations[i]->value) {
+            // Simple numeric literal
+            fprintf(output, "    mov qword [%s], %s\n", 
+                    declarations[i]->name, declarations[i]->value);
+        }
+    }
+    fprintf(output, "\n");
+
     // Array initialization code
     fprintf(output, "    ; Array initialization\n");
     int str_count = 0;
@@ -347,6 +358,56 @@ int main(int argc, char** argv) {
             free(value_copy);
             fprintf(output, "    ; Array %s: %d elements initialized\n\n", 
                     declarations[i]->name, index);
+        }
+    }
+    
+    // Generate index access code for variables initialized from arrays
+    fprintf(output, "    ; Variable initializations from array access\n");
+    for (int i = 0; i < decl_count; i++) {
+        if (!declarations[i]->is_array && declarations[i]->init_expr) {
+            // Check if init_expr is an array access (contains '[')
+            char* init_str = (char*)declarations[i]->init_expr;
+            char* bracket = strchr(init_str, '[');
+            if (bracket) {
+                // Parse: array_name[index]
+                char array_name[64];
+                int name_len = bracket - init_str;
+                if (name_len > 63) name_len = 63;
+                strncpy(array_name, init_str, name_len);
+                array_name[name_len] = '\0';
+                
+                // Parse index
+                char* index_start = bracket + 1;
+                char* index_end = strchr(index_start, ']');
+                if (index_end) {
+                    char index_str[32];
+                    int idx_len = index_end - index_start;
+                    if (idx_len > 31) idx_len = 31;
+                    strncpy(index_str, index_start, idx_len);
+                    index_str[idx_len] = '\0';
+                    
+                    // Check if constant or variable index
+                    if (index_str[0] >= '0' && index_str[0] <= '9') {
+                        // Constant index
+                        int idx = atoi(index_str);
+                        fprintf(output, "    ; %s = %s[%d]\n", 
+                                declarations[i]->name, array_name, idx);
+                        fprintf(output, "    lea rbx, [%s]\n", array_name);
+                        fprintf(output, "    mov rax, [rbx + %d]  ; Get element at index %d\n", 
+                                idx * 8, idx);
+                        fprintf(output, "    mov [%s], rax\n\n", declarations[i]->name);
+                    } else {
+                        // Variable index
+                        fprintf(output, "    ; %s = %s[%s]\n", 
+                                declarations[i]->name, array_name, index_str);
+                        fprintf(output, "    lea rbx, [%s]\n", array_name);
+                        fprintf(output, "    mov rcx, [%s]  ; Load index\n", index_str);
+                        fprintf(output, "    shl rcx, 3  ; index * 8\n");
+                        fprintf(output, "    mov rax, [rbx + rcx]\n");
+                        fprintf(output, "    mov [%s], rax\n\n", declarations[i]->name);
+                    }
+                }
+            }
         }
     }
     

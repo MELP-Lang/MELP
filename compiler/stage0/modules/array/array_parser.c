@@ -379,3 +379,61 @@ Expression* parse_index_access(ArrayParser* parser) {
     // No index access, just return base expression
     return base;
 }
+
+// Parse index access and return IndexAccess struct
+IndexAccess* parse_index_access_struct(ArrayParser* parser, const char* base_name) {
+    if (!base_name) return NULL;
+    
+    // Check for '[' (array access) or '(' (list access)
+    int is_list = 0;
+    if (match(parser, TOKEN_LBRACKET)) {
+        advance(parser);  // consume '['
+        is_list = 0;
+    } else if (match(parser, TOKEN_LPAREN)) {
+        advance(parser);  // consume '('
+        is_list = 1;
+    } else {
+        return NULL;  // No index access
+    }
+    
+    // Create IndexAccess struct
+    IndexAccess* access = malloc(sizeof(IndexAccess));
+    access->collection_name = strdup(base_name);
+    access->is_list_access = is_list;
+    
+    // Check what kind of index we have
+    if (parser->current_token && parser->current_token->type == TOKEN_NUMBER) {
+        // Constant index
+        access->index_type = 0;
+        access->index.const_index = atoi(parser->current_token->value);
+        advance(parser);
+    } else if (parser->current_token && parser->current_token->type == TOKEN_IDENTIFIER) {
+        // Variable index
+        access->index_type = 1;
+        access->index.var_index = strdup(parser->current_token->value);
+        advance(parser);
+    } else {
+        // Expression index - for now just skip
+        access->index_type = 2;
+        access->index.expr_index = NULL;
+        // Skip until closing bracket/paren
+        while (parser->current_token && 
+               parser->current_token->type != TOKEN_RBRACKET &&
+               parser->current_token->type != TOKEN_RPAREN) {
+            advance(parser);
+        }
+    }
+    
+    // Expect closing bracket/paren
+    TokenType expected = is_list ? TOKEN_RPAREN : TOKEN_RBRACKET;
+    if (!match(parser, expected)) {
+        fprintf(stderr, "Error: Expected '%s' after index\n", is_list ? ")" : "]");
+        free(access->collection_name);
+        if (access->index_type == 1) free(access->index.var_index);
+        free(access);
+        return NULL;
+    }
+    advance(parser);
+    
+    return access;
+}

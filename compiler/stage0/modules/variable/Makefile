@@ -2,11 +2,11 @@
 # ======================================
 
 CC = gcc
-CFLAGS = -Wall -g -I../..
-LDFLAGS = 
+CFLAGS = -Wall -g -I../.. -I../../../../runtime/tto
+LDFLAGS = ../../../../runtime/tto/libtto_runtime.a
 
 # Source files
-SOURCES = variable_standalone.c variable.c variable_parser.c variable_codegen.c ../../lexer.c ../comments/comments.c ../codegen_context/codegen_context.c
+SOURCES = variable_standalone.c variable.c variable_parser.c variable_codegen.c ../lexer/lexer.c ../comments/comments.c
 OBJECTS = $(SOURCES:.c=.o)
 TARGET = variable_compiler
 

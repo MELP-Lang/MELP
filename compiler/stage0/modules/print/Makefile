@@ -1,10 +1,14 @@
 # ═══════════════════════════════════════════════════════════════
 # Print Module - Standalone Makefile
 # Modül #8 (P0 Critical)
+# TTO Support: BigDecimal, SSO String printing
 # ═══════════════════════════════════════════════════════════════
 
 CC = gcc
-CFLAGS = -Wall -Wextra -g -I../..
+CFLAGS = -Wall -Wextra -g -I../.. -I../../../../runtime/tto
+
+# TTO Runtime Library Path
+TTO_LIB = ../../../../runtime/tto/libtto_runtime.a
 
 # Source files
 SOURCES = print_standalone.c \
@@ -31,7 +35,7 @@ SOURCES = print_standalone.c \
           ../functions/functions.c \
           ../functions/functions_parser.c \
           ../functions/functions_codegen.c \
-          ../../lexer.c
+          ../lexer/lexer.c
 
 # Object files
 OBJECTS = print_standalone.o \
@@ -58,7 +62,7 @@ OBJECTS = print_standalone.o \
           ../functions/functions.o \
           ../functions/functions_parser.o \
           ../functions/functions_codegen.o \
-          ../../lexer.o
+          ../lexer/lexer.o
 
 TARGET = print_compiler
 
@@ -76,6 +80,7 @@ info:
 	@echo "=========================================="
 	@echo "  PRINT MODULE BUILD"
 	@echo "  Module #8 (P0 Critical)"
+	@echo "  TTO Support: BigDecimal, SSO String"
 	@echo "=========================================="
 	@echo "Dependencies:"
 	@echo "  • variable (Module #1)"
@@ -85,13 +90,14 @@ info:
 	@echo "  • logical (Module #5)"
 	@echo "  • control_flow (Module #6)"
 	@echo "  • functions (Module #7)"
+	@echo "  • TTO Runtime (libtto_runtime.a)"
 	@echo ""
 	@echo "Total source files: $$(echo $(SOURCES) | wc -w)"
 	@echo ""
 
-$(TARGET): $(OBJECTS)
-	@echo "🔗 Linking: $(TARGET)"
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJECTS)
+$(TARGET): $(OBJECTS) $(TTO_LIB)
+	@echo "🔗 Linking: $(TARGET) (with TTO runtime)"
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJECTS) $(TTO_LIB)
 
 %.o: %.c
 	@echo "  📦 Compiling: $<"

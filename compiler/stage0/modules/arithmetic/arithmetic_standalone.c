@@ -1,188 +1,131 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-#include <stdbool.h>
 #include "../lexer/lexer.h"
+#include "arithmetic_parser.h"
+#include "arithmetic_codegen.h"
+#include "../variable/variable.h"
+#include "../variable/variable_parser.h"
 
-// Arithmetic expression structure
-typedef struct ArithExpr {
-    char target[64];      // Variable to store result: "numeric c"
-    char expr_str[256];   // Full expression as string: "a + b * 2"
-    struct ArithExpr *next;
-} ArithExpr;
+// List of parsed assignments
+typedef struct AssignmentNode {
+    char* var_name;
+    ArithmeticExpr* expr;
+    struct AssignmentNode* next;
+} AssignmentNode;
 
-static ArithExpr *expr_list = NULL;
+static AssignmentNode* assignment_list = NULL;
 static int expr_count = 0;
 
-// Add arithmetic expression to list
-static void add_arithmetic_expr(const char *target, const char *expr) {
-    ArithExpr *new_expr = malloc(sizeof(ArithExpr));
-    strcpy(new_expr->target, target);
-    strcpy(new_expr->expr_str, expr);
-    new_expr->next = expr_list;
-    expr_list = new_expr;
+// Add assignment to list
+static void add_assignment(char* var_name, ArithmeticExpr* expr) {
+    AssignmentNode* node = malloc(sizeof(AssignmentNode));
+    node->var_name = var_name;
+    node->expr = expr;
+    node->next = assignment_list;
+    assignment_list = node;
     expr_count++;
 }
 
-// Parse arithmetic expressions: numeric c = a + b
-static void arithmetic_parse(Lexer *lexer) {
-    Token *prev_tokens[10];
-    int token_idx = 0;
+// Parse file and collect arithmetic assignments
+static void arithmetic_parse_file(Lexer* lexer) {
+    ArithmeticParser* parser = arithmetic_parser_create(lexer);
     
-    Token *token = lexer_next_token(lexer);
-    
-    while (token->type != TOKEN_EOF) {
-        // Look for pattern: NUMERIC IDENTIFIER ASSIGN
-        if (token_idx >= 2 &&
-            prev_tokens[token_idx - 2]->type == TOKEN_NUMERIC &&
-            prev_tokens[token_idx - 1]->type == TOKEN_IDENTIFIER &&
-            token->type == TOKEN_ASSIGN) {
+    while (parser->current_token && parser->current_token->type != TOKEN_EOF) {
+        // Check for variable declaration with assignment
+        if (parser->current_token->type == TOKEN_NUMERIC) {
+            token_free(parser->current_token);
+            parser->current_token = lexer_next_token(parser->lexer);
             
-            char target[64];
-            sprintf(target, "%s", prev_tokens[token_idx - 1]->value);
-            
-            // Collect expression tokens
-            char expr[256] = "";
-            token_free(token);
-            token = lexer_next_token(lexer);
-            
-            bool has_arithmetic = false;
-            while (token->type != TOKEN_EOF) {
-                // Check if this is an arithmetic operation
-                if (token->type == TOKEN_PLUS ||
-                    token->type == TOKEN_MINUS ||
-                    token->type == TOKEN_MULTIPLY ||
-                    token->type == TOKEN_DIVIDE ||
-                    token->type == TOKEN_MOD ||
-                    token->type == TOKEN_IDENTIFIER ||
-                    token->type == TOKEN_NUMBER ||
-                    token->type == TOKEN_LPAREN ||
-                    token->type == TOKEN_RPAREN) {
+            if (parser->current_token->type == TOKEN_IDENTIFIER) {
+                char* var_name = strdup(parser->current_token->value);
+                token_free(parser->current_token);
+                parser->current_token = lexer_next_token(parser->lexer);
+                
+                if (parser->current_token->type == TOKEN_ASSIGN) {
+                    token_free(parser->current_token);
+                    parser->current_token = lexer_next_token(parser->lexer);
                     
-                    if (strlen(expr) > 0) strcat(expr, " ");
-                    strcat(expr, token->value);
+                    // Parse the expression
+                    ArithmeticExpr* expr = arithmetic_parse_expression(parser);
                     
-                    if (token->type == TOKEN_PLUS ||
-                        token->type == TOKEN_MINUS ||
-                        token->type == TOKEN_MULTIPLY ||
-                        token->type == TOKEN_DIVIDE ||
-                        token->type == TOKEN_MOD) {
-                        has_arithmetic = true;
+                    if (expr) {
+                        add_assignment(var_name, expr);
+                        printf("  ✓ Parsed: %s = <expression>\n", var_name);
+                    } else {
+                        free(var_name);
                     }
-                    
-                    token_free(token);
-                    token = lexer_next_token(lexer);
                 } else {
-                    break;
+                    free(var_name);
                 }
             }
+        } else if (parser->current_token->type == TOKEN_IDENTIFIER) {
+            // Check for assignment to existing variable
+            char* var_name = strdup(parser->current_token->value);
+            token_free(parser->current_token);
+            parser->current_token = lexer_next_token(parser->lexer);
             
-            // Only add if we found arithmetic operators
-            if (has_arithmetic) {
-                add_arithmetic_expr(target, expr);
-                printf("  ✓ Arithmetic: %s = %s\n", target, expr);
+            if (parser->current_token->type == TOKEN_ASSIGN) {
+                token_free(parser->current_token);
+                parser->current_token = lexer_next_token(parser->lexer);
+                
+                ArithmeticExpr* expr = arithmetic_parse_expression(parser);
+                
+                if (expr) {
+                    add_assignment(var_name, expr);
+                    printf("  ✓ Parsed: %s = <expression>\n", var_name);
+                } else {
+                    free(var_name);
+                }
+            } else {
+                free(var_name);
             }
-            
-            // Reset token buffer
-            for (int i = 0; i < token_idx; i++) {
-                if (prev_tokens[i]) token_free(prev_tokens[i]);
-            }
-            token_idx = 0;
-            continue;
+        } else {
+            // Skip unknown tokens
+            token_free(parser->current_token);
+            parser->current_token = lexer_next_token(parser->lexer);
         }
-        
-        // Shift token buffer
-        if (token_idx >= 10) {
-            if (prev_tokens[0]) token_free(prev_tokens[0]);
-            for (int i = 0; i < 9; i++) {
-                prev_tokens[i] = prev_tokens[i + 1];
-            }
-            token_idx = 9;
-        }
-        prev_tokens[token_idx++] = token;
-        token = lexer_next_token(lexer);
     }
     
-    // Free remaining tokens
-    for (int i = 0; i < token_idx; i++) {
-        if (prev_tokens[i]) token_free(prev_tokens[i]);
-    }
-    if (token) token_free(token);
+    arithmetic_parser_free(parser);
 }
 
-// Generate assembly code for arithmetic expressions
-static void arithmetic_codegen(FILE *out) {
-    if (expr_count == 0) return;
+// Generate assembly code
+static void arithmetic_codegen_file(FILE* output) {
+    fprintf(output, "; Arithmetic expressions - Full parser/codegen\n");
     
-    fprintf(out, "; Arithmetic expressions generated by arithmetic module\n");
-    fprintf(out, "section .text\n");
+    // External TTO runtime functions
+    fprintf(output, "extern tto_bigdec_from_int64\n");
+    fprintf(output, "extern tto_bigdec_add\n");
+    fprintf(output, "extern tto_bigdec_sub\n");
+    fprintf(output, "extern tto_bigdec_mul\n");
+    fprintf(output, "extern tto_bigdec_div\n");
     
-    ArithExpr *expr = expr_list;
-    while (expr != NULL) {
-        fprintf(out, "; %s = %s\n", expr->target, expr->expr_str);
-        
-        // Simple codegen: load operands and perform operation
-        char *expr_copy = strdup(expr->expr_str);
-        char *token = strtok(expr_copy, " ");
-        char operands[10][64];
-        char operators[10][8];
-        int operand_count = 0;
-        int operator_count = 0;
-        
-        // Parse expression into operands and operators
-        while (token != NULL) {
-            if (strcmp(token, "+") == 0 || strcmp(token, "-") == 0 ||
-                strcmp(token, "*") == 0 || strcmp(token, "/") == 0 ||
-                strcmp(token, "%") == 0 || strcmp(token, "mod") == 0) {
-                strcpy(operators[operator_count++], token);
-            } else if (strcmp(token, "(") != 0 && strcmp(token, ")") != 0) {
-                strcpy(operands[operand_count++], token);
-            }
-            token = strtok(NULL, " ");
-        }
-        
-        // Generate assembly for simple binary operations
-        if (operand_count == 2 && operator_count == 1) {
-            fprintf(out, "  ; Load first operand\n");
-            
-            // Check if operand is a number or variable
-            if (isdigit(operands[0][0])) {
-                fprintf(out, "  mov rax, %s\n", operands[0]);
-            } else {
-                fprintf(out, "  mov rax, [%s]\n", operands[0]);
-            }
-            
-            fprintf(out, "  ; Load second operand\n");
-            if (isdigit(operands[1][0])) {
-                fprintf(out, "  mov rbx, %s\n", operands[1]);
-            } else {
-                fprintf(out, "  mov rbx, [%s]\n", operands[1]);
-            }
-            
-            if (strcmp(operators[0], "+") == 0) {
-                fprintf(out, "  add rax, rbx\n");
-            } else if (strcmp(operators[0], "-") == 0) {
-                fprintf(out, "  sub rax, rbx\n");
-            } else if (strcmp(operators[0], "*") == 0) {
-                fprintf(out, "  imul rax, rbx\n");
-            } else if (strcmp(operators[0], "/") == 0) {
-                fprintf(out, "  xor rdx, rdx\n");
-                fprintf(out, "  idiv rbx\n");
-            } else if (strcmp(operators[0], "%") == 0 || strcmp(operators[0], "mod") == 0) {
-                fprintf(out, "  xor rdx, rdx\n");
-                fprintf(out, "  idiv rbx\n");
-                fprintf(out, "  mov rax, rdx  ; remainder in rdx\n");
-            }
-            
-            fprintf(out, "  ; Store result\n");
-            fprintf(out, "  mov [%s], rax\n", expr->target);
-        }
-        
-        fprintf(out, "\n");
-        free(expr_copy);
-        expr = expr->next;
+    fprintf(output, "\nsection .data\n");
+    
+    // Declare variables
+    AssignmentNode* node = assignment_list;
+    while (node) {
+        fprintf(output, "    %s: dq 0  ; Variable\n", node->var_name);
+        node = node->next;
     }
+    
+    fprintf(output, "\nsection .text\n");
+    fprintf(output, "global _start\n");
+    fprintf(output, "_start:\n");
+    
+    // Generate code for each assignment
+    node = assignment_list;
+    while (node) {
+        arithmetic_generate_assignment(output, node->var_name, node->expr);
+        node = node->next;
+    }
+    
+    // Exit
+    fprintf(output, "\n    ; Exit program\n");
+    fprintf(output, "    mov rax, 60  ; sys_exit\n");
+    fprintf(output, "    xor rdi, rdi  ; exit code 0\n");
+    fprintf(output, "    syscall\n");
 }
 
 int main(int argc, char **argv) {
@@ -191,8 +134,8 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    printf("🔧 Arithmetic Module\n");
-    printf("===================\n");
+    printf("🔧 Arithmetic Module - Full Parser\n");
+    printf("====================================\n");
     printf("Input:  %s\n", argv[1]);
     printf("Output: %s\n\n", argv[2]);
 
@@ -214,10 +157,10 @@ int main(int argc, char **argv) {
 
     // Create lexer and parse
     Lexer *lexer = lexer_create(source);
-    arithmetic_parse(lexer);
+    arithmetic_parse_file(lexer);
     lexer_free(lexer);
 
-    printf("\n  ✓ Arithmetic expressions found: %d\n", expr_count);
+    printf("\n  ✓ Expressions parsed: %d\n", expr_count);
 
     // Generate output
     FILE *output = fopen(argv[2], "w");
@@ -227,9 +170,18 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    arithmetic_codegen(output);
+    arithmetic_codegen_file(output);
     fclose(output);
     free(source);
+
+    // Cleanup
+    while (assignment_list) {
+        AssignmentNode* node = assignment_list;
+        assignment_list = node->next;
+        free(node->var_name);
+        arithmetic_expr_free(node->expr);
+        free(node);
+    }
 
     printf("\n✅ Arithmetic module complete!\n");
     return 0;

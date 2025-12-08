@@ -1,0 +1,9 @@
+numeric x = 10
+
+if x > 5 then
+    numeric y = 20
+end if
+
+while x > 0 do
+    x = x - 1
+end while

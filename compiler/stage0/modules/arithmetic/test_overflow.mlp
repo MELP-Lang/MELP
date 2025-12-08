@@ -1,0 +1,7 @@
+numeric max_int = 9223372036854775807
+numeric result = max_int + 1
+yazdir("Result:", result)
+
+numeric big = 1000000000000000000
+numeric bigger = big * big
+yazdir("Big multiply:", bigger)

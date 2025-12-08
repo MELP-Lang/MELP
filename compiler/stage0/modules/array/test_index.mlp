@@ -1,0 +1,2 @@
+numeric[] numbers = [10, 20, 30]
+numeric x = numbers[1]

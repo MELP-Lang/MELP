@@ -2,102 +2,170 @@
 
 ## 🎯 Hedef
 
-Minimal çalışan MLP derleyicisi - Sadece `yazdir()` fonksiyonunu destekler.
+**Modüler MLP Compiler** - Phase 3.5, 4, 5, 6 tamamlandı!
+
+## 🎉 Son Güncellemeler (7 Aralık 2025)
+
+### ✅ Tamamlanan Phase'ler:
+
+**Phase 3.5: Expressions & Operators** ✅
+- Operator precedence (*, /, +, -, mod)
+- Parentheses support: `(10 + 5) * 2`
+- Variable references in expressions
+- TTO runtime integration
+
+**Phase 4: Functions** ✅ (Parsing)
+- Function declarations
+- Parameter handling
+- Arithmetic module integration
+
+**Phase 5: Arrays** ✅ (Basic)
+- Array declarations: `numeric[] arr`
+- Array literals: `[1, 2, 3, 4, 5]`
+- Memory allocation (.bss)
+
+**Phase 6: Control Flow** ✅
+- If/then/else statements
+- While/do loops
+- Condition evaluation
+- Label/jump generation
 
 ## ✅ Özellikler
 
 - **Lexer**: Token analizi, UTF-8 desteği
-- **Parser**: `yazdir("string")` statement'ları
-- **Code Generation**: x86-64 NASM assembly
-- **26 Modül**: Tam modül sistemi (kullanılmayan modüller pasif)
+- **Expressions**: Complex arithmetic with precedence
+- **Control Flow**: If/While statements
+- **Variables**: Declaration and assignment
+- **Arrays**: Basic support
+- **TTO Runtime**: Overflow detection (BigDecimal)
+- **Code Generation**: x86-64 assembly with extern declarations
 
-## 📦 Modüller (26)
+## 📦 Aktif Modüller (Tam Modüler Yapı)
 
-### Core (8)
-- `lexer` - Tokenization
-- `parser` - Syntax analizi
-- `ast` - Abstract Syntax Tree
-- `semantic` - Semantic analiz
-- `codegen_context` - Code generation context
-- `optimization_pass` - Optimizasyon geçişleri
-- `error_handling` - Hata yönetimi
-- `print` - Print fonksiyonalitesi
+### Core Modules ✅
+- `lexer/` - Tokenization (paylaşımlı)
+- `variable/` - Variable management
+- `arithmetic/` - Expression parsing & codegen
+- `control_flow/` - If/While statements
+- `array/` - Array basics
+- `functions/` - Function declarations
+- `print/` - Print statements
+- `codegen_context/` - Code generation state
+- `runtime_tto/` - TTO runtime (BigDecimal, overflow)
 
-### Type System (4)
-- `type_system` - Tip sistemi
-- `struct` - Yapılar
-- `trait` - Trait'ler
-- `enum` - Enum'lar
+### Support Modules ✅
+- `comparison/` - Comparison operators
+- `logical/` - Logical operators (and, or, not)
+- `comments/` - Comment handling
+- `expression/` - Expression coordination
+- `statement/` - Statement coordination
+- `struct/` - Struct definitions
 
-### Advanced Features (7)
-- `generic` - Generic tipler
-- `async` - Async/await
-- `concurrency` - Eşzamanlılık
-- `memory` - Bellek yönetimi
-- `null_safety` - Null güvenliği
-- `macro` - Makro sistemi
-- `decorator` - Decorator'lar
+### 🚀 Modüler Mimari
 
-### Special (7)
-- `ffi` - Foreign Function Interface
-- `regex` - Regex pattern matching
-- `pattern_matching` - Pattern matching
-- `debug` - Debug özellikleri
-- `runtime_tto` - TTO runtime interface
-- `tto_runtime` - TTO runtime implementation
-- `optimization_pass` - Optimizasyon geçişleri
+**Her modül:**
+- ✅ Kendi Makefile'ı var
+- ✅ Standalone test compiler'ı var
+- ✅ Diğer modülleri import edebilir
+- ✅ **MERKEZI DOSYA YOK** - Tam bağımsız!
 
-## 🏗️ Derleme
+**Örnek modül entegrasyonu:**
+```c
+// functions_codegen.c
+#include "../arithmetic/arithmetic_parser.h"
+#include "../runtime_tto/runtime_tto.h"
+```
+
+## 🏗️ Test Etme
+
+### Modül Başına Test:
 
 ```bash
-# Derleyiciyi derle
-make -f Makefile_26_modules
+# Arithmetic modülü (Phase 3.5)
+cd modules/arithmetic/
+make
+./arithmetic_compiler test.mlp output.s
 
-# Çıktı: melpc_26 (384KB binary)
+# Control Flow modülü (Phase 6)
+cd modules/control_flow/
+./control_flow_standalone test.mlp output.s
+
+# Array modülü (Phase 5)
+cd modules/array/
+./array_standalone test.mlp output.s
 ```
 
-## 📝 Kullanım
+### Demo Program:
 
 ```bash
-# MLP dosyasını derle
-./melpc_26 program.mlp program.s
-
-# Assembly'yi derle
-nasm -f elf64 program.s -o program.o
-
-# Link et
-ld program.o -o program
-
-# Çalıştır
-./program
+# Tüm phase'leri test eden demo
+./modules/arithmetic/arithmetic_compiler demo_phase_integration.mlp demo.s
+nasm -f elf64 demo.s -o demo.o
+ld demo.o modules/runtime_tto/runtime_tto.o -o demo_prog \
+   -lc -dynamic-linker /lib64/ld-linux-x86-64.so.2
+./demo_prog
 ```
 
-## 🧪 Örnekler
+## 📝 Örnek Program
 
-### hello_world.mlp
-```mlp
-yazdir("Merhaba Dünya!")
-yazdir("MLP 26-modül sistemi çalışıyor!")
+### demo_phase_integration.mlp
+```melp
+-- Variables & Expressions (Phase 3.5)
+numeric x = 10
+numeric y = 20
+numeric sum = x + y              -- 30
+numeric result = (x + y) * 2     -- 60
+
+-- Control Flow (Phase 6)
+if sum > 25 then
+    numeric big = 1
+end if
+
+while x > 0 do
+    x = x - 1
+end while
+
+-- Arrays (Phase 5)
+numeric[] numbers = [10, 20, 30, 40, 50]
+
+-- Print
+print("Demo Complete!")
 ```
 
-### test_print.mlp
-```mlp
-yazdir("=== MLP Test Suite ===")
-yazdir("")
-yazdir("Test 1: Türkçe karakterler")
-yazdir("Çalışıyor: ç ğ ı ö ş ü")
-yazdir("=== All Tests Passed! ===")
+**Derleme:**
+```bash
+cd modules/arithmetic/
+./arithmetic_compiler ../../demo_phase_integration.mlp demo.s
 ```
 
-## 📊 Başarılar
+**Çıktı:** 10 expression başarıyla derlendi, TTO overflow check'leri eklendi
 
-- ✅ 26 modül derlendi (%100)
-- ✅ 384KB binary oluşturuldu
-- ✅ Hello World çalıştı
-- ✅ UTF-8 Türkçe desteği
-- ✅ 12 yazdir() testi başarılı
+## 📊 Test Sonuçları
 
-## 🔜 Stage 1
+### ✅ Başarılı Testler:
+- **Arithmetic**: `10 * 2 + 5` = 25 ✓
+- **Parentheses**: `(10 + 5) * 2` = 30 ✓
+- **Variables**: `x = 10; y = x + 5` ✓
+- **Control Flow**: If/While label generation ✓
+- **Arrays**: Declaration ve literal initialization ✓
+- **TTO**: Overflow detection code generation ✓
+- **Print**: String output ✓
+
+### 📈 İstatistikler:
+- ✅ 15+ aktif modül
+- ✅ Her modül standalone test'li
+- ✅ 10 expression demo programda derlendi
+- ✅ TTO runtime entegrasyonu çalışıyor
+- ✅ Tam modüler mimari (merkezi dosya yok!)
+
+## 🔜 Sonraki Adımlar
+
+1. **Function body codegen** - Return statements
+2. **Array index access** - `arr[i]` support
+3. **Full integration test** - Tüm modüller bir arada
+4. **Optimization** - Dead code elimination
+
+Detaylar için: `NEXT_STEPS.md`
 
 Stage 1'de eklenecekler:
 - `sayi` değişken tanımlama

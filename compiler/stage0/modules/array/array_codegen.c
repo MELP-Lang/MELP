@@ -91,3 +91,49 @@ void codegen_list_index(FILE* output, const char* list_name, int index) {
     int type_offset = index * 4;
     fprintf(output, "    mov edx, [rcx + %d]  ; Element type\n", type_offset);
 }
+
+// Generate index access with variable index (runtime calculation)
+void codegen_array_index_var(FILE* output, const char* array_name, const char* index_var) {
+    fprintf(output, "    ; Array index access: %s[%s]\n", array_name, index_var);
+    
+    // Load array base address
+    fprintf(output, "    lea rbx, [%s]  ; Array base address\n", array_name);
+    
+    // Load index from variable
+    fprintf(output, "    mov rcx, [%s]  ; Load index value\n", index_var);
+    
+    // Calculate offset: index * 8 (assuming 8-byte elements)
+    fprintf(output, "    shl rcx, 3  ; index * 8\n");
+    
+    // Get element at calculated offset
+    fprintf(output, "    mov rax, [rbx + rcx]  ; Get element at index\n");
+}
+
+// Generate index access from IndexAccess struct
+void codegen_index_access(FILE* output, IndexAccess* access) {
+    if (!access || !access->collection_name) return;
+    
+    if (access->is_list_access) {
+        // List access: collection(index)
+        if (access->index_type == 0) {
+            codegen_list_index(output, access->collection_name, access->index.const_index);
+        } else {
+            // Variable/expression index for list - similar to array
+            fprintf(output, "    ; List index access with variable: %s(...)\n", access->collection_name);
+            fprintf(output, "    ; TODO: Runtime list index access\n");
+        }
+    } else {
+        // Array access: collection[index]
+        if (access->index_type == 0) {
+            // Constant index
+            codegen_array_index(output, access->collection_name, access->index.const_index);
+        } else if (access->index_type == 1) {
+            // Variable index
+            codegen_array_index_var(output, access->collection_name, access->index.var_index);
+        } else {
+            // Expression index - evaluate first then access
+            fprintf(output, "    ; Array index access with expression\n");
+            fprintf(output, "    ; TODO: Evaluate expression first\n");
+        }
+    }
+}

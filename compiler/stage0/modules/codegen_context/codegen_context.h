@@ -4,9 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "tto_types.h"  // TTO type definitions (must come before parser.h)
-#include "../../codegen.h"
-#include "../../parser.h"
+#include "tto_types.h"  // TTO type definitions
 
 // ============================================================================
 // Forward Declarations & Constants

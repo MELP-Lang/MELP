@@ -118,6 +118,7 @@ static Token* read_identifier(Lexer* lexer) {
     // Function keywords
     else if (strcmp(value, "function") == 0) type = TOKEN_FUNCTION;
     else if (strcmp(value, "return") == 0) type = TOKEN_RETURN;
+    else if (strcmp(value, "returns") == 0) type = TOKEN_RETURNS;
     // Struct keywords
     else if (strcmp(value, "struct") == 0) type = TOKEN_STRUCT;
     // Logical keywords (also bitwise for integers - VB.NET style)

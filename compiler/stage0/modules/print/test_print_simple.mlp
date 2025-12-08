@@ -1,3 +1,2 @@
-numeric x = 42
-numeric y = 100
-print x
+print("Hello, World!")
+print("MLP Print Module with TTO")

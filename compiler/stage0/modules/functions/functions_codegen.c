@@ -2,18 +2,24 @@
 #include <stdlib.h>
 #include "functions_codegen.h"
 #include "functions.h"
+#include "../arithmetic/arithmetic_parser.h"
+#include "../arithmetic/arithmetic_codegen.h"
 
-// Forward declaration for expression (Module #9, not yet available)
-// Using stub for now until expression module is integrated
-typedef struct Expression Expression;
+// Now we can use real expression codegen!
+// arithmetic_parse_expression() and arithmetic_generate_code()
 
-void expression_generate_code_stub(FILE* output, Expression* expr) {
-    (void)expr;  // Unused parameter
-    fprintf(output, "    # Expression code generation (stub - Module #9 not integrated yet)\n");
-    fprintf(output, "    movq $0, %%rax  # Placeholder: return 0\n");
+// Temporary wrapper for expression codegen
+// In a full compiler, this would be handled by expression module
+static void expression_generate_code(FILE* output, void* expr) {
+    // For now, assume expr is ArithmeticExpr*
+    if (expr) {
+        ArithmeticExpr* arith_expr = (ArithmeticExpr*)expr;
+        arithmetic_generate_code(output, arith_expr);
+    } else {
+        fprintf(output, "    # No expression to evaluate\n");
+        fprintf(output, "    xor %%rax, %%rax  # Return 0\n");
+    }
 }
-
-#define expression_generate_code expression_generate_code_stub
 
 // Generate function prologue
 void function_generate_prologue(FILE* output, FunctionDeclaration* func) {

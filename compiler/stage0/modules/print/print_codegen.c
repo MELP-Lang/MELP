@@ -2,22 +2,52 @@
 #include "print.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
 static int string_counter = 0;
 static int is_first_call = 1;
+static bool tto_declarations_emitted = false;
+
+// Emit TTO runtime function declarations (only once)
+static void emit_tto_declarations(FILE* f) {
+    if (tto_declarations_emitted) return;
+    
+    fprintf(f, "; TTO Runtime External Functions\n");
+    fprintf(f, "extern tto_bigdec_to_string\n");
+    fprintf(f, "extern tto_sso_data\n");
+    fprintf(f, "extern tto_print_int64\n");
+    fprintf(f, "extern printf\n");
+    fprintf(f, "extern free\n\n");
+    
+    tto_declarations_emitted = true;
+}
 
 void codegen_print_statement(FILE* f, PrintStatement* stmt) {
     if (!stmt || !stmt->value) return;
     
-    // Get string content (temporarily stored as Expression* pointer)
-    const char* string_content = (const char*)stmt->value;
-    
     // On first call, emit program header
     if (is_first_call) {
         fprintf(f, "; MLP Print Module - Generated Assembly\n");
-        fprintf(f, "; Target: x86-64 Linux\n\n");
+        fprintf(f, "; Target: x86-64 Linux\n");
+        fprintf(f, "; TTO Support: BigDecimal, SSO String\n\n");
+        emit_tto_declarations(f);
         is_first_call = 0;
     }
+    
+    // Handle variable printing
+    if (stmt->type == PRINT_VARIABLE) {
+        const char* var_name = stmt->value;
+        
+        fprintf(f, "\n    ; Print variable: %s\n", var_name);
+        fprintf(f, "    mov rdi, [var_%s]  ; Load INT64 value (first argument)\n", var_name);
+        fprintf(f, "    call tto_print_int64\n");
+        
+        string_counter++;
+        return;
+    }
+    
+    // String literal printing
+    const char* string_content = stmt->value;
     
     // Generate unique label for this string
     fprintf(f, "section .data\n");
@@ -25,15 +55,7 @@ void codegen_print_statement(FILE* f, PrintStatement* stmt) {
     fprintf(f, "    str_%d_len: equ $-str_%d-2  ; length without null terminator and newline\n\n", 
             string_counter, string_counter);
     
-    // If this is the first statement, emit _start label
-    if (string_counter == 0) {
-        fprintf(f, "section .text\n");
-        fprintf(f, "    global _start\n");
-        fprintf(f, "_start:\n");
-    } else {
-        fprintf(f, "section .text\n");
-    }
-    
+    fprintf(f, "section .text\n");
     fprintf(f, "    ; Print: %s\n", string_content);
     
     // sys_write(stdout=1, buffer=str_N, length=str_N_len+1)
@@ -45,6 +67,110 @@ void codegen_print_statement(FILE* f, PrintStatement* stmt) {
     fprintf(f, "    syscall\n\n");
     
     string_counter++;
+}
+
+// Generate code for printing BigDecimal
+// Expects: rdi = pointer to BigDecimal structure
+void codegen_print_bigdecimal(FILE* f, const char* bigdec_var) {
+    fprintf(f, "    ; Print BigDecimal: %s\n", bigdec_var);
+    fprintf(f, "    push rbp\n");
+    fprintf(f, "    mov rbp, rsp\n");
+    fprintf(f, "    sub rsp, 16\n");
+    
+    // Call tto_bigdec_to_string(bigdec_var)
+    fprintf(f, "    mov rdi, %s             ; BigDecimal pointer\n", bigdec_var);
+    fprintf(f, "    call tto_bigdec_to_string\n");
+    fprintf(f, "    mov [rbp-8], rax        ; Save string pointer\n");
+    
+    // Print the string using printf
+    fprintf(f, "    mov rdi, rax            ; String pointer\n");
+    fprintf(f, "    xor rax, rax            ; No floating point args\n");
+    fprintf(f, "    call printf\n");
+    
+    // Print newline
+    fprintf(f, "    mov rax, 1              ; sys_write\n");
+    fprintf(f, "    mov rdi, 1              ; stdout\n");
+    fprintf(f, "    lea rsi, [rel newline]  ; newline char\n");
+    fprintf(f, "    mov rdx, 1              ; length\n");
+    fprintf(f, "    syscall\n");
+    
+    // Free the string
+    fprintf(f, "    mov rdi, [rbp-8]        ; String pointer\n");
+    fprintf(f, "    call free\n");
+    
+    fprintf(f, "    mov rsp, rbp\n");
+    fprintf(f, "    pop rbp\n\n");
+}
+
+// Generate code for printing SSO string
+// Expects: rdi = pointer to SSOString structure
+void codegen_print_sso_string(FILE* f, const char* sso_var) {
+    fprintf(f, "    ; Print SSO String: %s\n", sso_var);
+    fprintf(f, "    push rbp\n");
+    fprintf(f, "    mov rbp, rsp\n");
+    fprintf(f, "    sub rsp, 16\n");
+    
+    // Call tto_sso_data(sso_var)
+    fprintf(f, "    mov rdi, %s             ; SSOString pointer\n", sso_var);
+    fprintf(f, "    call tto_sso_data\n");
+    fprintf(f, "    mov [rbp-8], rax        ; Save string pointer\n");
+    
+    // Print the string using printf
+    fprintf(f, "    mov rdi, rax            ; String pointer\n");
+    fprintf(f, "    xor rax, rax            ; No floating point args\n");
+    fprintf(f, "    call printf\n");
+    
+    // Print newline
+    fprintf(f, "    mov rax, 1              ; sys_write\n");
+    fprintf(f, "    mov rdi, 1              ; stdout\n");
+    fprintf(f, "    lea rsi, [rel newline]  ; newline char\n");
+    fprintf(f, "    mov rdx, 1              ; length\n");
+    fprintf(f, "    syscall\n");
+    
+    fprintf(f, "    mov rsp, rbp\n");
+    fprintf(f, "    pop rbp\n\n");
+}
+
+// Generate code for printing int64
+// Expects: value in specified register (default: rax)
+void codegen_print_int64(FILE* f, const char* register_name) {
+    static int format_string_emitted = 0;
+    
+    // Emit format string once
+    if (!format_string_emitted) {
+        fprintf(f, "section .data\n");
+        fprintf(f, "    int64_fmt: db \"%%ld\", 0\n");
+        fprintf(f, "    newline: db 10, 0\n\n");
+        fprintf(f, "section .text\n");
+        format_string_emitted = 1;
+    }
+    
+    fprintf(f, "    ; Print int64 from %s\n", register_name);
+    fprintf(f, "    push rbp\n");
+    fprintf(f, "    mov rbp, rsp\n");
+    fprintf(f, "    sub rsp, 16\n");
+    
+    // Save value if not already in rsi
+    if (strcmp(register_name, "rax") == 0) {
+        fprintf(f, "    mov rsi, rax            ; Value to print\n");
+    } else {
+        fprintf(f, "    mov rsi, %s             ; Value to print\n", register_name);
+    }
+    
+    // Call printf
+    fprintf(f, "    lea rdi, [rel int64_fmt]; Format string\n");
+    fprintf(f, "    xor rax, rax            ; No floating point args\n");
+    fprintf(f, "    call printf\n");
+    
+    // Print newline
+    fprintf(f, "    mov rax, 1              ; sys_write\n");
+    fprintf(f, "    mov rdi, 1              ; stdout\n");
+    fprintf(f, "    lea rsi, [rel newline]  ; newline char\n");
+    fprintf(f, "    mov rdx, 1              ; length\n");
+    fprintf(f, "    syscall\n");
+    
+    fprintf(f, "    mov rsp, rbp\n");
+    fprintf(f, "    pop rbp\n\n");
 }
 
 void codegen_print_finalize(FILE* f) {

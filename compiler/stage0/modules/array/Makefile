@@ -16,7 +16,7 @@ CC = gcc
 CFLAGS = -Wall -Wextra -g -I../..
 
 # Module paths
-LEXER_DIR = ../..
+LEXER_DIR = ../lexer
 VAR_DIR = ../variable
 COMMENT_DIR = ../comments
 ARITH_DIR = ../arithmetic
@@ -59,7 +59,9 @@ SOURCES = array_standalone.c \
           $(EXPR_DIR)/expression_parser.c \
           $(STRUCT_DIR)/struct.c \
           $(STRUCT_DIR)/struct_parser.c \
-          $(STRUCT_DIR)/struct_codegen.c
+          $(STRUCT_DIR)/struct_codegen.c \
+          ../codegen_context/codegen_context.c \
+          ../runtime_tto/runtime_tto.c
 
 # Object files
 OBJECTS = $(SOURCES:.c=.o)

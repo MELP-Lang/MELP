@@ -30,13 +30,17 @@ typedef enum {
     STMT_PRINT,
     STMT_RETURN,
     STMT_FUNCTION_CALL,
-    STMT_WHILE
+    STMT_WHILE,
+    STMT_IF,
+    STMT_FOR
 } StmtType;
 
 // Statement Structure
 typedef struct Statement {
     StmtType type;
-    char content[512];     // statement content
+    char content[512];     // statement content (condition for control flow)
+    struct Statement *body;      // nested body for while/if/for
+    struct Statement *else_body; // else branch for if
     struct Statement *next;
 } Statement;
 
@@ -61,6 +65,8 @@ void add_statement(FunctionDef *func, StmtType type, const char *content) {
     stmt->type = type;
     strncpy(stmt->content, content, 511);
     stmt->content[511] = '\0';
+    stmt->body = NULL;
+    stmt->else_body = NULL;
     stmt->next = NULL;
     
     // printf("    [DEBUG] Adding statement: type=%d content='%s'\n", type, content);

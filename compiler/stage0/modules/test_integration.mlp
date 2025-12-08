@@ -1,0 +1,3 @@
+-- Test: Variable + Print Integration
+numeric x = 42
+print(x)

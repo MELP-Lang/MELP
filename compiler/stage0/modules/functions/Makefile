@@ -69,7 +69,11 @@ CONTROL_FLOW_SOURCES = \
 	$(CONTROL_FLOW_DIR)/control_flow_codegen.c
 
 # Lexer (merkezi)
-LEXER_SOURCES = ../../lexer.c
+LEXER_SOURCES = ../lexer/lexer.c
+
+# Codegen Context (TTO desteği için)
+CODEGEN_CONTEXT_DIR = ../codegen_context
+CODEGEN_CONTEXT_SOURCES = $(CODEGEN_CONTEXT_DIR)/codegen_context.c
 
 # Tüm kaynak dosyalar
 SOURCES = \
@@ -81,6 +85,7 @@ SOURCES = \
 	$(COMPARISON_SOURCES) \
 	$(LOGICAL_SOURCES) \
 	$(CONTROL_FLOW_SOURCES) \
+	$(CODEGEN_CONTEXT_SOURCES) \
 	$(LEXER_SOURCES)
 
 # Object dosyaları

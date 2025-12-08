@@ -1,0 +1,26 @@
+-- Test nested if/else
+
+function classify(numeric x) returns numeric
+    if x > 0
+        if x > 100
+            return 2
+        else
+            return 1
+        end if
+    else
+        return 0
+    end if
+end function
+
+function main()
+    numeric r1 = classify(-5)
+    print r1
+    
+    numeric r2 = classify(50)
+    print r2
+    
+    numeric r3 = classify(200)
+    print r3
+    
+    return 0
+end function

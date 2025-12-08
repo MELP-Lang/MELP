@@ -2,6 +2,60 @@
 #include <stdlib.h>
 #include <string.h>
 
+// Simple arithmetic expression evaluator for compile-time constant folding
+static double simple_evaluate(const char* expr) {
+    // Very simple evaluator: "10 + 5" -> 15.0
+    // Parse first number
+    double result = 0;
+    const char* ptr = expr;
+    
+    // Skip whitespace
+    while (*ptr == ' ') ptr++;
+    
+    // Parse first number
+    char num_buf[64];
+    int num_pos = 0;
+    while ((*ptr >= '0' && *ptr <= '9') || *ptr == '.') {
+        if (num_pos < 63) num_buf[num_pos++] = *ptr;
+        ptr++;
+    }
+    num_buf[num_pos] = '\0';
+    result = atof(num_buf);
+    
+    // Process operations
+    while (*ptr) {
+        // Skip whitespace
+        while (*ptr == ' ') ptr++;
+        if (!*ptr) break;
+        
+        // Get operator
+        char op = *ptr++;
+        
+        // Skip whitespace
+        while (*ptr == ' ') ptr++;
+        
+        // Parse next number
+        num_pos = 0;
+        while ((*ptr >= '0' && *ptr <= '9') || *ptr == '.') {
+            if (num_pos < 63) num_buf[num_pos++] = *ptr;
+            ptr++;
+        }
+        num_buf[num_pos] = '\0';
+        double operand = atof(num_buf);
+        
+        // Apply operation
+        switch (op) {
+            case '+': result += operand; break;
+            case '-': result -= operand; break;
+            case '*': result *= operand; break;
+            case '/': result /= operand; break;
+            default: break;
+        }
+    }
+    
+    return result;
+}
+
 // Create codegen
 VariableCodegen* variable_codegen_create(FILE* output) {
     VariableCodegen* codegen = malloc(sizeof(VariableCodegen));
@@ -175,8 +229,24 @@ void variable_codegen_declaration(VariableCodegen* codegen, VariableDeclaration*
             fprintf(f, "\nsection .text\n");
             codegen->data_section_active = 0;
             codegen->bss_section_active = 0;
-            fprintf(f, "    mov rax, %s\n", decl->value);
-            fprintf(f, "    mov [var_%s], rax\n", decl->name);
+            
+            // Check if this is an expression or simple value
+            if (decl->init_expr) {
+                // Arithmetic expression - evaluate at compile-time
+                fprintf(f, "    ; Expression: %s\n", decl->init_expr);
+                
+                // Evaluate the expression
+                double result = simple_evaluate(decl->init_expr);
+                long long int_result = (long long)result;
+                
+                fprintf(f, "    ; Evaluated to: %lld\n", int_result);
+                fprintf(f, "    mov rax, %lld\n", int_result);
+                fprintf(f, "    mov [var_%s], rax\n", decl->name);
+            } else if (decl->value) {
+                // Simple literal value
+                fprintf(f, "    mov rax, %s\n", decl->value);
+                fprintf(f, "    mov [var_%s], rax\n", decl->name);
+            }
             
         } else if (decl->internal_num_type == INTERNAL_DOUBLE) {
             fprintf(f, "    ; TTO: DOUBLE optimization\n");
@@ -223,5 +293,60 @@ void variable_codegen_declaration(VariableCodegen* codegen, VariableDeclaration*
         
         int bool_val = strcmp(decl->value, "true") == 0 ? 1 : 0;
         fprintf(f, "    mov byte [var_%s], %d\n", decl->name, bool_val);
+    }
+}
+
+// Two-phase code generation: Declaration only (.bss section)
+void variable_codegen_declaration_only(VariableCodegen* codegen, VariableDeclaration* decl) {
+    if (!codegen || !decl) return;
+    
+    FILE* f = codegen->output;
+    
+    // Only emit .bss section declarations
+    if (decl->type == VAR_NUMERIC) {
+        if (decl->internal_num_type == INTERNAL_INT64) {
+            variable_codegen_bss_section(codegen);
+            fprintf(f, "    var_%s: resq 1  ; %s (INT64)\n", decl->name, decl->name);
+        } else if (decl->internal_num_type == INTERNAL_DOUBLE) {
+            variable_codegen_bss_section(codegen);
+            fprintf(f, "    var_%s: resq 1  ; %s (DOUBLE)\n", decl->name, decl->name);
+        } else {
+            variable_codegen_bss_section(codegen);
+            fprintf(f, "    var_%s: resq 2  ; %s (BIGDECIMAL)\n", decl->name, decl->name);
+        }
+    } else if (decl->type == VAR_STRING) {
+        variable_codegen_bss_section(codegen);
+        fprintf(f, "    var_%s: resq 1  ; %s (STRING)\n", decl->name, decl->name);
+    } else if (decl->type == VAR_BOOLEAN) {
+        variable_codegen_bss_section(codegen);
+        fprintf(f, "    var_%s: resb 1  ; %s (BOOLEAN)\n", decl->name, decl->name);
+    }
+}
+
+// Two-phase code generation: Initialization only (.text section)
+void variable_codegen_initialization_only(VariableCodegen* codegen, VariableDeclaration* decl) {
+    if (!codegen || !decl) return;
+    
+    FILE* f = codegen->output;
+    
+    // Emit initialization code
+    fprintf(f, "    ; Initialize: %s\n", decl->name);
+    
+    if (decl->type == VAR_NUMERIC) {
+        if (decl->internal_num_type == INTERNAL_INT64) {
+            // Check if this is an expression or simple value
+            if (decl->init_expr) {
+                // Arithmetic expression - evaluate at compile-time
+                double result = simple_evaluate(decl->init_expr);
+                long long int_result = (long long)result;
+                
+                fprintf(f, "    mov rax, %lld  ; %s = %s\n", int_result, decl->name, decl->init_expr);
+                fprintf(f, "    mov [var_%s], rax\n", decl->name);
+            } else if (decl->value) {
+                // Simple literal value
+                fprintf(f, "    mov rax, %s\n", decl->value);
+                fprintf(f, "    mov [var_%s], rax\n", decl->name);
+            }
+        }
     }
 }
