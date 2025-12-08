@@ -3,6 +3,8 @@
 #include "../print/print_parser.h"                 // ✅ Print parsing
 #include "../variable/variable_parser.h"           // ✅ Variable declarations
 #include "../arithmetic/arithmetic_parser.h"       // ✅ Expressions
+#include "../arithmetic/arithmetic.h"              // ✅ ArithmeticExpr
+#include "../functions/functions.h"                // ✅ ReturnStatement
 #include "../lexer/lexer.h"                        // ✅ Token operations
 #include <stdio.h>
 #include <stdlib.h>
@@ -124,8 +126,16 @@ Statement* statement_parse(Parser* parser) {
     if (tok->type == TOKEN_RETURN) {
         token_free(tok);
         
+        // Parse return expression using arithmetic module
+        ArithmeticParser* arith_parser = arithmetic_parser_create(parser->lexer);
+        ArithmeticExpr* expr = arithmetic_parse_expression(arith_parser);
+        arithmetic_parser_free(arith_parser);
+        
+        // Create return statement with expression
+        ReturnStatement* ret_stmt = return_statement_create((void*)expr);
+        
         stmt = statement_create(STMT_RETURN);
-        // TODO: Parse return expression using arithmetic module
+        stmt->data = ret_stmt;
         stmt->next = NULL;
         return stmt;
     }

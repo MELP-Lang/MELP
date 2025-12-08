@@ -44,13 +44,19 @@ void statement_generate_code(FILE* output, Statement* stmt, void* context) {
         }
         
         case STMT_RETURN: {
-            // ✅ Return statement
+            // ✅ Return statement - evaluate expression and result in rax
             ReturnStatement* ret = (ReturnStatement*)stmt->data;
             if (ret && ret->return_value) {
-                // Evaluate expression, result in rax
-                // expression_generate_code(output, ret->return_value);
+                // Evaluate expression, result goes to r8 (arithmetic convention)
+                ArithmeticExpr* expr = (ArithmeticExpr*)ret->return_value;
+                arithmetic_generate_code(output, expr);
+                // Move result from r8 to rax (x86-64 return convention)
+                fprintf(output, "    movq %%r8, %%rax  # Return value\n");
+            } else {
+                // No return value (void return)
+                fprintf(output, "    # Return (void)\n");
+                fprintf(output, "    xor %%rax, %%rax\n");
             }
-            fprintf(output, "    # Return\n");
             break;
         }
         

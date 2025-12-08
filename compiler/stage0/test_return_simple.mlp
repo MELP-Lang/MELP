@@ -1,0 +1,3 @@
+function get_five() returns numeric
+    return 5
+end function
