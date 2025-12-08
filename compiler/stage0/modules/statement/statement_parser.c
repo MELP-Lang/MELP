@@ -202,17 +202,15 @@ Statement* statement_parse(Parser* parser) {
     if (tok->type == TOKEN_RETURN) {
         token_free(tok);
         
-        // Parse return expression using arithmetic module
-        ArithmeticParser* arith_parser = arithmetic_parser_create(parser->lexer);
-        ArithmeticExpr* expr = arithmetic_parse_expression(arith_parser);
-        
-        // Transfer any lookahead token back to main parser
-        if (arith_parser->current_token) {
-            parser->current_token = arith_parser->current_token;
-            arith_parser->current_token = NULL;
+        // Parse return expression using stateless arithmetic API
+        Token* expr_tok = lexer_next_token(parser->lexer);
+        if (!expr_tok) {
+            fprintf(stderr, "Error: Expected expression after 'return'\n");
+            return NULL;
         }
         
-        arithmetic_parser_free(arith_parser);
+        ArithmeticExpr* expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok);
+        token_free(expr_tok);
         
         // Create return statement with expression
         ReturnStatement* ret_stmt = return_statement_create((void*)expr);
@@ -264,17 +262,16 @@ Statement* statement_parse(Parser* parser) {
         if (next_tok && next_tok->type == TOKEN_ASSIGN) {
             token_free(next_tok);  // We know it's '=', consume it
             
-            // Parse expression after '='
-            ArithmeticParser* arith_parser = arithmetic_parser_create(parser->lexer);
-            ArithmeticExpr* expr = arithmetic_parse_expression(arith_parser);
-            
-            // Transfer any lookahead token back to main parser
-            if (arith_parser->current_token) {
-                parser->current_token = arith_parser->current_token;
-                arith_parser->current_token = NULL;  // Don't free in arithmetic_parser_free
+            // Parse expression after '=' using stateless API
+            Token* expr_tok = lexer_next_token(parser->lexer);
+            if (!expr_tok) {
+                token_free(tok);
+                fprintf(stderr, "Error: Expected expression after '='\n");
+                return NULL;
             }
             
-            arithmetic_parser_free(arith_parser);
+            ArithmeticExpr* expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok);
+            token_free(expr_tok);
             
             if (expr) {
                 VariableAssignment* assign = malloc(sizeof(VariableAssignment));
