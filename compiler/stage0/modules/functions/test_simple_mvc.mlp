@@ -1,0 +1,6 @@
+function main()
+    numeric x = 42
+    numeric y = 8
+    numeric sum = x + y
+    return sum
+end function

@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../codegen_context/tto_types.h"
+#include "tto_types.h"
 
 // ============================================================================
 // TTO Runtime Support - Phase 3
@@ -147,5 +147,53 @@ typedef struct {
 } TTOMemStats;
 
 TTOMemStats tto_get_mem_stats(void);
+
+// ============================================================================
+// Phase 3.5: Array/List/Tuple Runtime Support
+// ============================================================================
+
+// Array structure (homogeneous, fixed size)
+typedef struct {
+    void* elements;       // Element data
+    size_t count;         // Number of elements
+    size_t elem_size;     // Size of each element (in bytes)
+    int refcount;         // Reference count for GC
+} TTOArray;
+
+// List structure (heterogeneous, dynamic)
+typedef struct {
+    void** elements;      // Array of pointers to elements
+    uint8_t* types;       // Array of element types (VarType)
+    size_t count;         // Current number of elements
+    size_t capacity;      // Allocated capacity
+    int refcount;         // Reference count for GC
+} TTOList;
+
+// Tuple structure (heterogeneous, immutable)
+typedef struct {
+    void** elements;      // Array of pointers to elements
+    uint8_t* types;       // Array of element types (VarType)
+    size_t count;         // Number of elements (fixed)
+    int refcount;         // Reference count for GC
+} TTOTuple;
+
+// Array operations
+void* tto_array_alloc(size_t count, size_t elem_size);
+void tto_array_set(TTOArray* array, size_t index, void* value);
+void* tto_array_get(TTOArray* array, size_t index);
+void tto_array_free(TTOArray* array);
+
+// List operations
+TTOList* tto_list_alloc(size_t capacity);
+void tto_list_set(TTOList* list, size_t index, void* value, uint8_t type);
+void* tto_list_get(TTOList* list, size_t index);
+void tto_list_append(TTOList* list, void* value, uint8_t type);
+void tto_list_free(TTOList* list);
+
+// Tuple operations
+TTOTuple* tto_tuple_alloc(size_t count);
+void tto_tuple_set(TTOTuple* tuple, size_t index, void* value, uint8_t type);
+void* tto_tuple_get(TTOTuple* tuple, size_t index);
+void tto_tuple_free(TTOTuple* tuple);
 
 #endif

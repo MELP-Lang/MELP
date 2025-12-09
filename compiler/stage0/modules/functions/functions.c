@@ -131,3 +131,17 @@ int function_get_var_offset(FunctionDeclaration* func, const char* name) {
     
     return 0;  // Not found
 }
+
+// Check if function is a builtin (stdlib function)
+int function_is_builtin(const char* name) {
+    if (!name) return 0;
+    
+    // I/O functions
+    if (strcmp(name, "println") == 0) return 1;
+    if (strcmp(name, "print") == 0) return 1;
+    
+    // Conversion functions
+    if (strcmp(name, "toString") == 0) return 1;
+    
+    return 0;
+}

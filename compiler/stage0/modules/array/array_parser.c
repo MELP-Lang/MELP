@@ -1,27 +1,21 @@
 #include "array_parser.h"
 #include "../arithmetic/arithmetic_parser.h"
-#include "../expression/expression.h"
-#include "../expression/expression_parser.h"
+#include "../error/error.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
-ArrayParser* array_parser_create(Lexer* lexer) {
-    ArrayParser* parser = malloc(sizeof(ArrayParser));
-    parser->lexer = lexer;
-    parser->current_token = lexer_next_token(lexer);
-    return parser;
-}
-
-void array_parser_free(ArrayParser* parser) {
-    if (parser->current_token) token_free(parser->current_token);
-    free(parser);
-}
+// ✅ STATELESS PARSER PATTERN
+// No ArrayParser struct, no create/free functions
+// Token ownership: Parameters are BORROWED, lexer_next_token() returns OWNED
 
 void collection_free(Collection* coll) {
     if (!coll) return;
     
     if (coll->type == COLL_ARRAY) {
         for (int i = 0; i < coll->data.array.length; i++) {
+            // Note: elements might be Expression* or ArithmeticExpr*
+            // For now we just free the pointer
             free(coll->data.array.elements[i]);
         }
         free(coll->data.array.elements);
@@ -42,170 +36,188 @@ void collection_free(Collection* coll) {
     free(coll);
 }
 
-// Helper: Advance to next token
-static void advance(ArrayParser* parser) {
-    if (parser->current_token) {
-        token_free(parser->current_token);
-    }
-    parser->current_token = lexer_next_token(parser->lexer);
-}
-
-// Helper: Check if current token matches expected type
-static int match(ArrayParser* parser, TokenType type) {
-    return parser->current_token && parser->current_token->type == type;
-}
-
-// Helper: Expect a specific token or error
-static int expect(ArrayParser* parser, TokenType type, const char* msg) {
-    if (!match(parser, type)) {
-        fprintf(stderr, "Error: %s\n", msg);
-        return 0;
-    }
-    advance(parser);
-    return 1;
-}
-
 // Parse array literal: [1, 2, 3, 4]
 // Homogeneous, comma-separated
-Collection* parse_array_literal(ArrayParser* parser) {
-    if (!expect(parser, TOKEN_LBRACKET, "Expected '[' to start array")) {
+// lbracket_token: BORROWED (must be '[')
+Collection* array_parse_literal(Lexer* lexer, Token* lbracket_token) {
+    if (!lbracket_token || lbracket_token->type != TOKEN_LBRACKET) {
+        error_parser(lbracket_token ? lbracket_token->line : 0, 
+                    "Expected '[' to start array");
         return NULL;
     }
+    // lbracket_token is borrowed - don't free!
     
     // Parse elements
     int capacity = 4;
     int length = 0;
-    Expression** elements = malloc(sizeof(Expression*) * capacity);
+    ArithmeticExpr** elements = malloc(sizeof(ArithmeticExpr*) * capacity);
     
-    // Convert to common Parser
-    Parser temp_parser;
-    temp_parser.lexer = parser->lexer;
-    temp_parser.current_token = parser->current_token;
-    
-    // Parse first element (if not empty array)
-    if (!match(parser, TOKEN_RBRACKET)) {
-        elements[0] = expression_parse(&temp_parser);
-        parser->current_token = temp_parser.current_token;
-        
-        if (!elements[0]) {
-            fprintf(stderr, "Error: Failed to parse array element\n");
-            free(elements);
-            return NULL;
-        }
-        length = 1;
-        
-        // Parse remaining elements
-        while (match(parser, TOKEN_COMMA)) {
-            advance(parser);  // consume ','
-            
-            // Check for capacity
-            if (length >= capacity) {
-                capacity *= 2;
-                elements = realloc(elements, sizeof(Expression*) * capacity);
-            }
-            
-            temp_parser.current_token = parser->current_token;
-            elements[length] = expression_parse(&temp_parser);
-            parser->current_token = temp_parser.current_token;
-            
-            if (!elements[length]) {
-                fprintf(stderr, "Error: Failed to parse array element\n");
-                for (int i = 0; i < length; i++) {
-                    expression_free(elements[i]);
-                }
-                free(elements);
-                return NULL;
-            }
-            length++;
-        }
-    }
-    
-    // Expect ']'
-    if (!expect(parser, TOKEN_RBRACKET, "Expected ']' to close array")) {
-        for (int i = 0; i < length; i++) {
-            expression_free(elements[i]);
-        }
+    // Check if empty array []
+    Token* tok = lexer_next_token(lexer);  // OWNED
+    if (!tok) {
+        error_parser(0, "Unexpected EOF in array literal");
         free(elements);
         return NULL;
     }
     
+    if (tok->type == TOKEN_RBRACKET) {
+        // Empty array
+        token_free(tok);
+        
+        Collection* coll = malloc(sizeof(Collection));
+        coll->type = COLL_ARRAY;
+        coll->data.array.element_type = VAR_NUMERIC;
+        coll->data.array.capacity = capacity;
+        coll->data.array.length = 0;
+        coll->data.array.elements = (void**)elements;
+        coll->data.array.is_dynamic = 1;
+        return coll;
+    }
+    
+    // Parse first element using stateless arithmetic parser
+    ArithmeticExpr* first_elem = arithmetic_parse_expression_stateless(lexer, tok);
+    if (!first_elem) {
+        error_parser(tok->line, "Failed to parse array element");
+        token_free(tok);
+        free(elements);
+        return NULL;
+    }
+    elements[0] = first_elem;
+    length = 1;
+    
+    // Parse remaining elements (comma-separated)
+    tok = lexer_next_token(lexer);  // OWNED
+    while (tok && tok->type == TOKEN_COMMA) {
+        token_free(tok);  // Free comma
+        
+        // Check capacity
+        if (length >= capacity) {
+            capacity *= 2;
+            elements = realloc(elements, sizeof(ArithmeticExpr*) * capacity);
+        }
+        
+        // Parse next element
+        tok = lexer_next_token(lexer);  // OWNED
+        if (!tok) {
+            error_parser(0, "Unexpected EOF in array literal");
+            for (int i = 0; i < length; i++) {
+                arithmetic_expr_free(elements[i]);
+            }
+            free(elements);
+            return NULL;
+        }
+        
+        ArithmeticExpr* elem = arithmetic_parse_expression_stateless(lexer, tok);
+        if (!elem) {
+            error_parser(tok->line, "Failed to parse array element");
+            token_free(tok);
+            for (int i = 0; i < length; i++) {
+                arithmetic_expr_free(elements[i]);
+            }
+            free(elements);
+            return NULL;
+        }
+        elements[length++] = elem;
+        
+        tok = lexer_next_token(lexer);  // OWNED - next token (comma or ])
+    }
+    
+    // Expect ']'
+    if (!tok || tok->type != TOKEN_RBRACKET) {
+        error_parser(tok ? tok->line : 0, "Expected ']' to close array");
+        if (tok) token_free(tok);
+        for (int i = 0; i < length; i++) {
+            arithmetic_expr_free(elements[i]);
+        }
+        free(elements);
+        return NULL;
+    }
+    token_free(tok);  // Free ']'
+    
     // Build array collection
     Collection* coll = malloc(sizeof(Collection));
     coll->type = COLL_ARRAY;
-    coll->data.array.element_type = VAR_NUMERIC;  // Default, should be inferred
+    coll->data.array.element_type = VAR_NUMERIC;
     coll->data.array.capacity = capacity;
     coll->data.array.length = length;
     coll->data.array.elements = (void**)elements;
-    coll->data.array.is_dynamic = 1;  // Heap allocated
+    coll->data.array.is_dynamic = 1;
     
     return coll;
 }
 
 // Parse list literal: (10; 20; 30;)
 // Heterogeneous, semicolon-separated, trailing semicolon REQUIRED
-Collection* parse_list_literal(ArrayParser* parser) {
-    if (!expect(parser, TOKEN_LPAREN, "Expected '(' to start list")) {
+// lparen_token: BORROWED (must be '(')
+Collection* array_parse_list_literal(Lexer* lexer, Token* lparen_token) {
+    if (!lparen_token || lparen_token->type != TOKEN_LPAREN) {
+        error_parser(lparen_token ? lparen_token->line : 0,
+                    "Expected '(' to start list");
         return NULL;
     }
+    // lparen_token is borrowed - don't free!
     
     // Parse elements
     int capacity = 4;
     int length = 0;
-    Expression** elements = malloc(sizeof(Expression*) * capacity);
+    ArithmeticExpr** elements = malloc(sizeof(ArithmeticExpr*) * capacity);
     VarType* types = malloc(sizeof(VarType) * capacity);
     
-    // Convert to common Parser
-    Parser temp_parser;
-    temp_parser.lexer = parser->lexer;
-    temp_parser.current_token = parser->current_token;
-    
     // Parse elements until we hit ')'
-    while (!match(parser, TOKEN_RPAREN)) {
-        // Check for capacity
+    Token* tok = lexer_next_token(lexer);  // OWNED
+    while (tok && tok->type != TOKEN_RPAREN) {
+        // Check capacity
         if (length >= capacity) {
             capacity *= 2;
-            elements = realloc(elements, sizeof(Expression*) * capacity);
+            elements = realloc(elements, sizeof(ArithmeticExpr*) * capacity);
             types = realloc(types, sizeof(VarType) * capacity);
         }
         
         // Parse element
-        temp_parser.current_token = parser->current_token;
-        elements[length] = expression_parse(&temp_parser);
-        parser->current_token = temp_parser.current_token;
-        
-        if (!elements[length]) {
-            fprintf(stderr, "Error: Failed to parse list element\n");
+        ArithmeticExpr* elem = arithmetic_parse_expression_stateless(lexer, tok);
+        if (!elem) {
+            error_parser(tok->line, "Failed to parse list element");
+            token_free(tok);
             for (int i = 0; i < length; i++) {
-                expression_free(elements[i]);
+                arithmetic_expr_free(elements[i]);
             }
             free(elements);
             free(types);
             return NULL;
         }
-        
+        elements[length] = elem;
         types[length] = VAR_NUMERIC;  // Default, should be inferred
         length++;
         
         // Expect ';' after each element (including last)
-        if (!expect(parser, TOKEN_SEMICOLON, "Expected ';' after list element")) {
+        tok = lexer_next_token(lexer);  // OWNED
+        if (!tok || tok->type != TOKEN_SEMICOLON) {
+            error_parser(tok ? tok->line : 0, "Expected ';' after list element");
+            if (tok) token_free(tok);
             for (int i = 0; i < length; i++) {
-                expression_free(elements[i]);
+                arithmetic_expr_free(elements[i]);
             }
             free(elements);
             free(types);
             return NULL;
         }
+        token_free(tok);  // Free ';'
+        
+        tok = lexer_next_token(lexer);  // OWNED - next element or ')'
     }
     
     // Expect ')'
-    if (!expect(parser, TOKEN_RPAREN, "Expected ')' to close list")) {
+    if (!tok || tok->type != TOKEN_RPAREN) {
+        error_parser(tok ? tok->line : 0, "Expected ')' to close list");
+        if (tok) token_free(tok);
         for (int i = 0; i < length; i++) {
-            expression_free(elements[i]);
+            arithmetic_expr_free(elements[i]);
         }
         free(elements);
         free(types);
         return NULL;
     }
+    token_free(tok);  // Free ')'
     
     // Build list collection
     Collection* coll = malloc(sizeof(Collection));
@@ -220,77 +232,109 @@ Collection* parse_list_literal(ArrayParser* parser) {
 
 // Parse tuple literal: <"name", 25, true>
 // Heterogeneous, immutable, comma-separated
-Collection* parse_tuple_literal(ArrayParser* parser) {
-    // Note: '<' and '>' are TOKEN_LESS and TOKEN_GREATER
-    if (!expect(parser, TOKEN_LESS, "Expected '<' to start tuple")) {
+// less_token: BORROWED (must be '<')
+Collection* array_parse_tuple_literal(Lexer* lexer, Token* less_token) {
+    if (!less_token || less_token->type != TOKEN_LESS) {
+        error_parser(less_token ? less_token->line : 0,
+                    "Expected '<' to start tuple");
         return NULL;
     }
+    // less_token is borrowed - don't free!
     
     // Parse elements
     int capacity = 4;
     int length = 0;
-    Expression** elements = malloc(sizeof(Expression*) * capacity);
+    ArithmeticExpr** elements = malloc(sizeof(ArithmeticExpr*) * capacity);
     VarType* types = malloc(sizeof(VarType) * capacity);
     
-    // Convert to common Parser
-    Parser temp_parser;
-    temp_parser.lexer = parser->lexer;
-    temp_parser.current_token = parser->current_token;
+    // Check if empty tuple <>
+    Token* tok = lexer_next_token(lexer);  // OWNED
+    if (!tok) {
+        error_parser(0, "Unexpected EOF in tuple literal");
+        free(elements);
+        free(types);
+        return NULL;
+    }
+    
+    if (tok->type == TOKEN_GREATER) {
+        // Empty tuple
+        token_free(tok);
+        
+        Collection* coll = malloc(sizeof(Collection));
+        coll->type = COLL_TUPLE;
+        coll->data.tuple.length = 0;
+        coll->data.tuple.elements = (void**)elements;
+        coll->data.tuple.element_types = types;
+        return coll;
+    }
     
     // Parse first element
-    if (!match(parser, TOKEN_GREATER)) {
-        elements[0] = expression_parse(&temp_parser);
-        parser->current_token = temp_parser.current_token;
+    ArithmeticExpr* first_elem = arithmetic_parse_expression_stateless(lexer, tok);
+    if (!first_elem) {
+        error_parser(tok->line, "Failed to parse tuple element");
+        token_free(tok);
+        free(elements);
+        free(types);
+        return NULL;
+    }
+    elements[0] = first_elem;
+    types[0] = VAR_NUMERIC;
+    length = 1;
+    
+    // Parse remaining elements (comma-separated)
+    tok = lexer_next_token(lexer);  // OWNED
+    while (tok && tok->type == TOKEN_COMMA) {
+        token_free(tok);  // Free comma
         
-        if (!elements[0]) {
-            fprintf(stderr, "Error: Failed to parse tuple element\n");
+        // Check capacity
+        if (length >= capacity) {
+            capacity *= 2;
+            elements = realloc(elements, sizeof(ArithmeticExpr*) * capacity);
+            types = realloc(types, sizeof(VarType) * capacity);
+        }
+        
+        // Parse next element
+        tok = lexer_next_token(lexer);  // OWNED
+        if (!tok) {
+            error_parser(0, "Unexpected EOF in tuple literal");
+            for (int i = 0; i < length; i++) {
+                arithmetic_expr_free(elements[i]);
+            }
             free(elements);
             free(types);
             return NULL;
         }
         
-        types[0] = VAR_NUMERIC;  // Default, should be inferred
-        length = 1;
-        
-        // Parse remaining elements
-        while (match(parser, TOKEN_COMMA)) {
-            advance(parser);  // consume ','
-            
-            // Check for capacity
-            if (length >= capacity) {
-                capacity *= 2;
-                elements = realloc(elements, sizeof(Expression*) * capacity);
-                types = realloc(types, sizeof(VarType) * capacity);
+        ArithmeticExpr* elem = arithmetic_parse_expression_stateless(lexer, tok);
+        if (!elem) {
+            error_parser(tok->line, "Failed to parse tuple element");
+            token_free(tok);
+            for (int i = 0; i < length; i++) {
+                arithmetic_expr_free(elements[i]);
             }
-            
-            temp_parser.current_token = parser->current_token;
-            elements[length] = expression_parse(&temp_parser);
-            parser->current_token = temp_parser.current_token;
-            
-            if (!elements[length]) {
-                fprintf(stderr, "Error: Failed to parse tuple element\n");
-                for (int i = 0; i < length; i++) {
-                    expression_free(elements[i]);
-                }
-                free(elements);
-                free(types);
-                return NULL;
-            }
-            
-            types[length] = VAR_NUMERIC;  // Default, should be inferred
-            length++;
+            free(elements);
+            free(types);
+            return NULL;
         }
+        elements[length] = elem;
+        types[length] = VAR_NUMERIC;
+        length++;
+        
+        tok = lexer_next_token(lexer);  // OWNED - next token (comma or >)
     }
     
     // Expect '>'
-    if (!expect(parser, TOKEN_GREATER, "Expected '>' to close tuple")) {
+    if (!tok || tok->type != TOKEN_GREATER) {
+        error_parser(tok ? tok->line : 0, "Expected '>' to close tuple");
+        if (tok) token_free(tok);
         for (int i = 0; i < length; i++) {
-            expression_free(elements[i]);
+            arithmetic_expr_free(elements[i]);
         }
         free(elements);
         free(types);
         return NULL;
     }
+    token_free(tok);  // Free '>'
     
     // Build tuple collection
     Collection* coll = malloc(sizeof(Collection));
@@ -302,138 +346,82 @@ Collection* parse_tuple_literal(ArrayParser* parser) {
     return coll;
 }
 
-// Parse index access
-// Array: arr[0] - bracket notation
-// List: list(0) - parenthesis notation (NO SPACE between identifier and paren)
-Expression* parse_index_access(ArrayParser* parser) {
-    // This should be called when we have an identifier followed by '[' or '('
-    // For now, return a placeholder expression
-    
-    // Convert to common Parser
-    Parser temp_parser;
-    temp_parser.lexer = parser->lexer;
-    temp_parser.current_token = parser->current_token;
-    
-    // Parse base expression (identifier)
-    Expression* base = expression_parse(&temp_parser);
-    parser->current_token = temp_parser.current_token;
-    
-    if (!base) {
-        fprintf(stderr, "Error: Failed to parse base expression for index access\n");
-        return NULL;
-    }
-    
-    // Check for '[' (array access) or '(' (list access)
-    if (match(parser, TOKEN_LBRACKET)) {
-        advance(parser);  // consume '['
-        
-        // Parse index expression
-        temp_parser.current_token = parser->current_token;
-        Expression* index = expression_parse(&temp_parser);
-        parser->current_token = temp_parser.current_token;
-        
-        if (!index) {
-            fprintf(stderr, "Error: Failed to parse array index\n");
-            expression_free(base);
-            return NULL;
-        }
-        
-        // Expect ']'
-        if (!expect(parser, TOKEN_RBRACKET, "Expected ']' after array index")) {
-            expression_free(base);
-            expression_free(index);
-            return NULL;
-        }
-        
-        // Build index access expression (simplified for now)
-        // In real implementation, this would be a proper IndexAccess AST node
-        expression_free(index);  // Cleanup for placeholder
-        return base;
-        
-    } else if (match(parser, TOKEN_LPAREN)) {
-        advance(parser);  // consume '('
-        
-        // Parse index expression
-        temp_parser.current_token = parser->current_token;
-        Expression* index = expression_parse(&temp_parser);
-        parser->current_token = temp_parser.current_token;
-        
-        if (!index) {
-            fprintf(stderr, "Error: Failed to parse list index\n");
-            expression_free(base);
-            return NULL;
-        }
-        
-        // Expect ')'
-        if (!expect(parser, TOKEN_RPAREN, "Expected ')' after list index")) {
-            expression_free(base);
-            expression_free(index);
-            return NULL;
-        }
-        
-        // Build index access expression (simplified for now)
-        expression_free(index);  // Cleanup for placeholder
-        return base;
-    }
-    
-    // No index access, just return base expression
-    return base;
-}
-
 // Parse index access and return IndexAccess struct
-IndexAccess* parse_index_access_struct(ArrayParser* parser, const char* base_name) {
-    if (!base_name) return NULL;
+// base_name: identifier name
+// index_token: BORROWED (must be '[' for array or '(' for list)
+IndexAccess* array_parse_index_access(Lexer* lexer, const char* base_name, Token* index_token) {
+    if (!base_name || !index_token) return NULL;
     
     // Check for '[' (array access) or '(' (list access)
     int is_list = 0;
-    if (match(parser, TOKEN_LBRACKET)) {
-        advance(parser);  // consume '['
+    if (index_token->type == TOKEN_LBRACKET) {
         is_list = 0;
-    } else if (match(parser, TOKEN_LPAREN)) {
-        advance(parser);  // consume '('
+    } else if (index_token->type == TOKEN_LPAREN) {
         is_list = 1;
     } else {
-        return NULL;  // No index access
+        error_parser(index_token->line, "Expected '[' or '(' for index access");
+        return NULL;
     }
+    // index_token is borrowed - don't free!
     
     // Create IndexAccess struct
     IndexAccess* access = malloc(sizeof(IndexAccess));
     access->collection_name = strdup(base_name);
     access->is_list_access = is_list;
     
+    // Parse index expression
+    Token* tok = lexer_next_token(lexer);  // OWNED
+    if (!tok) {
+        error_parser(0, "Unexpected EOF in index access");
+        free(access->collection_name);
+        free(access);
+        return NULL;
+    }
+    
     // Check what kind of index we have
-    if (parser->current_token && parser->current_token->type == TOKEN_NUMBER) {
+    if (tok->type == TOKEN_NUMBER) {
         // Constant index
         access->index_type = 0;
-        access->index.const_index = atoi(parser->current_token->value);
-        advance(parser);
-    } else if (parser->current_token && parser->current_token->type == TOKEN_IDENTIFIER) {
+        access->index.const_index = atoi(tok->value);
+        token_free(tok);
+        
+        tok = lexer_next_token(lexer);  // OWNED - closing bracket/paren
+    } else if (tok->type == TOKEN_IDENTIFIER) {
         // Variable index
         access->index_type = 1;
-        access->index.var_index = strdup(parser->current_token->value);
-        advance(parser);
+        access->index.var_index = strdup(tok->value);
+        token_free(tok);
+        
+        tok = lexer_next_token(lexer);  // OWNED - closing bracket/paren
     } else {
-        // Expression index - for now just skip
-        access->index_type = 2;
-        access->index.expr_index = NULL;
-        // Skip until closing bracket/paren
-        while (parser->current_token && 
-               parser->current_token->type != TOKEN_RBRACKET &&
-               parser->current_token->type != TOKEN_RPAREN) {
-            advance(parser);
+        // Expression index - use arithmetic parser
+        ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok);
+        if (!expr) {
+            error_parser(tok->line, "Failed to parse index expression");
+            token_free(tok);
+            free(access->collection_name);
+            free(access);
+            return NULL;
         }
+        access->index_type = 2;
+        access->index.expr_index = expr;
+        
+        tok = lexer_next_token(lexer);  // OWNED - closing bracket/paren
     }
     
     // Expect closing bracket/paren
     TokenType expected = is_list ? TOKEN_RPAREN : TOKEN_RBRACKET;
-    if (!match(parser, expected)) {
-        fprintf(stderr, "Error: Expected '%s' after index\n", is_list ? ")" : "]");
+    if (!tok || tok->type != expected) {
+        error_parser(tok ? tok->line : 0, 
+                    is_list ? "Expected ')' after list index" : "Expected ']' after array index");
+        if (tok) token_free(tok);
         free(access->collection_name);
         if (access->index_type == 1) free(access->index.var_index);
+        if (access->index_type == 2) arithmetic_expr_free(access->index.expr_index);
         free(access);
         return NULL;
     }
-    advance(parser);
+    token_free(tok);  // Free closing bracket/paren
     
     return access;
 }

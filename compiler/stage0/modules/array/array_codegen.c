@@ -1,5 +1,142 @@
 #include "array_codegen.h"
+#include "../arithmetic/arithmetic_codegen.h"
 #include <stdio.h>
+#include <string.h>
+
+// Static counter for array labels
+static int array_label_counter = 0;
+
+// Generate code for Collection literal (main entry point)
+void codegen_collection(FILE* output, Collection* coll) {
+    if (!coll) return;
+    
+    switch (coll->type) {
+        case COLL_ARRAY:
+            codegen_array_literal(output, &coll->data.array);
+            break;
+        case COLL_LIST:
+            codegen_list_literal(output, &coll->data.list);
+            break;
+        case COLL_TUPLE:
+            codegen_tuple_literal(output, &coll->data.tuple);
+            break;
+    }
+}
+
+// Generate array literal: [1, 2, 3]
+void codegen_array_literal(FILE* output, Array* arr) {
+    if (!arr) return;
+    
+    fprintf(output, "    ; Array literal: %d elements, type=%d\n", arr->length, arr->element_type);
+    
+    // Label for this array
+    int arr_id = array_label_counter++;
+    
+    // Allocate on heap using TTO
+    fprintf(output, "    ; Allocate array on heap\n");
+    fprintf(output, "    mov rdi, %d  ; Number of elements\n", arr->length);
+    fprintf(output, "    mov rsi, 8   ; Element size (8 bytes)\n");
+    fprintf(output, "    call tto_array_alloc  ; Returns pointer in rax\n");
+    fprintf(output, "    mov [array_%d], rax  ; Save array pointer\n", arr_id);
+    
+    // Initialize elements
+    if (arr->length > 0 && arr->elements) {
+        fprintf(output, "    ; Initialize array elements\n");
+        for (int i = 0; i < arr->length; i++) {
+            ArithmeticExpr* elem = (ArithmeticExpr*)arr->elements[i];
+            if (elem) {
+                // Generate code for element expression
+                fprintf(output, "    ; Element %d\n", i);
+                arithmetic_generate_code(output, elem, NULL);  // Result in r8 or xmm0
+                
+                // Move result to rax (arithmetic puts int in r8, float in xmm0)
+                fprintf(output, "    mov rax, r8  ; Move result to rax\n");
+                
+                // Store in array
+                fprintf(output, "    mov rbx, [array_%d]  ; Load array pointer\n", arr_id);
+                fprintf(output, "    mov [rbx + %d], rax  ; Store element at index %d\n", i * 8, i);
+            }
+        }
+    }
+    
+    // Final array pointer in rax
+    fprintf(output, "    mov rax, [array_%d]  ; Array pointer result\n", arr_id);
+}
+
+// Generate list literal: (1; "text"; 3.14;)
+void codegen_list_literal(FILE* output, List* list) {
+    if (!list) return;
+    
+    fprintf(output, "    ; List literal: %d elements (heterogeneous)\n", list->length);
+    
+    int list_id = array_label_counter++;
+    
+    // Allocate list structure
+    fprintf(output, "    ; Allocate list\n");
+    fprintf(output, "    mov rdi, %d  ; Capacity\n", list->capacity);
+    fprintf(output, "    call tto_list_alloc  ; Returns list pointer in rax\n");
+    fprintf(output, "    mov [list_%d], rax  ; Save list pointer\n", list_id);
+    
+    // Initialize elements with type info
+    if (list->length > 0 && list->elements && list->element_types) {
+        fprintf(output, "    ; Initialize list elements\n");
+        for (int i = 0; i < list->length; i++) {
+            ArithmeticExpr* elem = (ArithmeticExpr*)list->elements[i];
+            if (elem) {
+                fprintf(output, "    ; List element %d (type=%d)\n", i, list->element_types[i]);
+                arithmetic_generate_code(output, elem, NULL);  // Result in r8/xmm0
+                fprintf(output, "    mov rdx, r8  ; Move result to rdx\n");
+                
+                // Store element and type
+                fprintf(output, "    mov rbx, [list_%d]  ; Load list pointer\n", list_id);
+                fprintf(output, "    mov rdi, rbx\n");
+                fprintf(output, "    mov rsi, %d  ; Index\n", i);
+                // rdx already has value
+                fprintf(output, "    mov rcx, %d  ; Type\n", list->element_types[i]);
+                fprintf(output, "    call tto_list_set  ; Set element with type\n");
+            }
+        }
+    }
+    
+    fprintf(output, "    mov rax, [list_%d]  ; List pointer result\n", list_id);
+}
+
+// Generate tuple literal: <42, "text">
+void codegen_tuple_literal(FILE* output, Tuple* tuple) {
+    if (!tuple) return;
+    
+    fprintf(output, "    ; Tuple literal: %d elements (immutable)\n", tuple->length);
+    
+    int tuple_id = array_label_counter++;
+    
+    // Tuples are stack-allocated (fixed size, immutable)
+    fprintf(output, "    ; Allocate tuple on stack\n");
+    int bytes = tuple->length * 8 + tuple->length * 4;  // Elements + types
+    fprintf(output, "    sub rsp, %d  ; Allocate %d bytes\n", bytes, bytes);
+    fprintf(output, "    mov [tuple_%d], rsp  ; Save tuple pointer\n", tuple_id);
+    
+    // Initialize tuple elements
+    if (tuple->length > 0 && tuple->elements && tuple->element_types) {
+        for (int i = 0; i < tuple->length; i++) {
+            ArithmeticExpr* elem = (ArithmeticExpr*)tuple->elements[i];
+            if (elem) {
+                fprintf(output, "    ; Tuple element %d (type=%d)\n", i, tuple->element_types[i]);
+                arithmetic_generate_code(output, elem, NULL);  // Result in r8/xmm0
+                fprintf(output, "    mov rax, r8  ; Move result to rax\n");
+                
+                // Store in tuple (immutable after creation)
+                fprintf(output, "    mov rbx, [tuple_%d]  ; Load tuple pointer\n", tuple_id);
+                fprintf(output, "    mov [rbx + %d], rax  ; Store element\n", i * 8);
+                
+                // Store type info
+                fprintf(output, "    mov dword [rbx + %d], %d  ; Store type\n", 
+                       tuple->length * 8 + i * 4, tuple->element_types[i]);
+            }
+        }
+    }
+    
+    fprintf(output, "    mov rax, [tuple_%d]  ; Tuple pointer result\n", tuple_id);
+}
 
 // Generate stack-based array (fixed size)
 void codegen_array_stack(FILE* output, Array* arr) {

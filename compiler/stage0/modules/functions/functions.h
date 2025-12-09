@@ -73,4 +73,7 @@ void return_statement_free(ReturnStatement* ret);
 void function_register_local_var(FunctionDeclaration* func, const char* name);
 int function_get_var_offset(FunctionDeclaration* func, const char* name);
 
+// Builtin function recognition
+int function_is_builtin(const char* name);
+
 #endif

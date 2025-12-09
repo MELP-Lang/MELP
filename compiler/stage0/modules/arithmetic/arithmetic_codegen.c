@@ -71,8 +71,39 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
             fprintf(stderr, "Warning: Functions with >6 parameters not yet supported\n");
         }
         
+        // Check if builtin stdlib function
+        const char* actual_function = call->function_name;
+        if (strcmp(call->function_name, "println") == 0) {
+            // TTO-aware: Pass pointer to value + type
+            // Value is in %rdi, need to save to stack and pass pointer
+            fprintf(output, "    subq $16, %%rsp      # Allocate temp space\n");
+            fprintf(output, "    movq %%rdi, (%%rsp)  # Store value\n");
+            fprintf(output, "    movq %%rsp, %%rdi    # arg1: pointer to value\n");
+            fprintf(output, "    movq $0, %%rsi       # arg2: TTO_TYPE_INT64\n");
+            actual_function = "mlp_println_numeric";
+        } else if (strcmp(call->function_name, "print") == 0) {
+            fprintf(output, "    subq $16, %%rsp      # Allocate temp space\n");
+            fprintf(output, "    movq %%rdi, (%%rsp)  # Store value\n");
+            fprintf(output, "    movq %%rsp, %%rdi    # arg1: pointer to value\n");
+            fprintf(output, "    movq $0, %%rsi       # arg2: TTO_TYPE_INT64\n");
+            actual_function = "mlp_print_numeric";
+        } else if (strcmp(call->function_name, "toString") == 0) {
+            fprintf(output, "    subq $16, %%rsp      # Allocate temp space\n");
+            fprintf(output, "    movq %%rdi, (%%rsp)  # Store value\n");
+            fprintf(output, "    movq %%rsp, %%rdi    # arg1: pointer to value\n");
+            fprintf(output, "    movq $0, %%rsi       # arg2: TTO_TYPE_INT64\n");
+            actual_function = "mlp_toString_numeric";
+        }
+        
         // Call the function
-        fprintf(output, "    call %s\n", call->function_name);
+        fprintf(output, "    call %s\n", actual_function);
+        
+        // Clean up temp space for TTO calls
+        if (strcmp(call->function_name, "println") == 0 ||
+            strcmp(call->function_name, "print") == 0 ||
+            strcmp(call->function_name, "toString") == 0) {
+            fprintf(output, "    addq $16, %%rsp      # Clean up temp space\n");
+        }
         
         // Return value is in rax, move to target register
         fprintf(output, "    movq %%rax, %%r%d  # Function return value\n", target_reg + 8);
@@ -83,7 +114,18 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
     // Leaf node (literal or variable)
     if (expr->is_literal || (!expr->left && !expr->right)) {
         if (expr->is_literal) {
-            generate_literal(output, expr->value, target_reg, expr->is_float);
+            if (expr->is_string) {
+                // String literal - define in .rodata and load pointer
+                static int string_counter = 0;
+                fprintf(output, "    .section .rodata\n");
+                fprintf(output, "    _str_%d: .asciz %s\n", string_counter, expr->value);
+                fprintf(output, "    .section .text\n");
+                fprintf(output, "    leaq _str_%d(%%rip), %%r%d  # Load string pointer\n", 
+                        string_counter, target_reg + 8);
+                string_counter++;
+            } else {
+                generate_literal(output, expr->value, target_reg, expr->is_float);
+            }
         } else {
             generate_load(output, expr->value, target_reg, expr->is_float, func);
         }
@@ -100,9 +142,21 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
     // Generate code for right subtree
     generate_expr_code(output, expr->right, right_reg, func);
     
-    // Determine if we're dealing with floats
+    // Determine if we're dealing with floats or strings
     int is_float = (expr->left && expr->left->is_float) || 
                    (expr->right && expr->right->is_float);
+    int is_string = (expr->left && expr->left->is_string) || 
+                    (expr->right && expr->right->is_string);
+    
+    // Handle string concatenation
+    if (is_string && expr->op == ARITH_ADD) {
+        fprintf(output, "    # String concatenation\n");
+        fprintf(output, "    movq %%r%d, %%rdi  # First string\n", left_reg + 8);
+        fprintf(output, "    movq %%r%d, %%rsi  # Second string\n", right_reg + 8);
+        fprintf(output, "    call tto_sso_concat\n");
+        fprintf(output, "    movq %%rax, %%r%d  # Result string pointer\n", left_reg + 8);
+        return;
+    }
     
     // Generate operation
     if (is_float) {

@@ -1,0 +1,8 @@
+function main()
+    numeric[] numbers = [10, 20, 30]
+    numeric x = numbers[0]
+    numeric y = numbers[1]
+    numeric sum = x + y
+    println(sum)
+    return 0
+end function

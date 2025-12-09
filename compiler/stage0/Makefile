@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -Wall -g -Wno-unused-function -Wno-unused-variable -I../../runtime/tto
-LDFLAGS = -L../../runtime/tto -ltto_runtime
+CFLAGS = -Wall -g -Wno-unused-function -Wno-unused-variable -I../../runtime/tto -I../../runtime/stdlib
+LDFLAGS = -L../../runtime/tto -ltto_runtime -L../../runtime/stdlib -lmlp_stdlib
 TARGET = melpc
 
 # 26 Core Modules (22 documented core + 4 essential extras)
@@ -155,13 +155,18 @@ validate-before-build:
 
 all: validate-before-build $(TARGET)
 
-$(TARGET): $(OBJS) ../../runtime/tto/libtto_runtime.a
+$(TARGET): $(OBJS) ../../runtime/tto/libtto_runtime.a ../../runtime/stdlib/libmlp_stdlib.a
 	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LDFLAGS) -lm
 
 # Build TTO runtime if needed
 ../../runtime/tto/libtto_runtime.a:
 	@echo "Building TTO runtime library..."
 	$(MAKE) -C ../../runtime/tto
+
+# Build stdlib if needed
+../../runtime/stdlib/libmlp_stdlib.a:
+	@echo "Building MLP stdlib library..."
+	$(MAKE) -C ../../runtime/stdlib
 
 main.o: main.c cli/cli_parser.h pipeline/pipeline.h
 	@echo "Compiling main.c with size check..."

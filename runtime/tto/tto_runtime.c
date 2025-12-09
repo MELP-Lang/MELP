@@ -292,3 +292,281 @@ void tto_runtime_cleanup(void) {
 TTOMemStats tto_get_mem_stats(void) {
     return mem_stats;
 }
+
+// ============================================================================
+// Phase 3.5: Array/List/Tuple Runtime Support
+// ============================================================================
+
+/**
+ * Allocate a homogeneous array with fixed size elements
+ * 
+ * @param count Number of elements
+ * @param elem_size Size of each element in bytes
+ * @return Pointer to TTOArray structure
+ * 
+ * Note: Returns raw pointer for direct assembly access.
+ * Assembly code can store elements directly at base_ptr + (index * elem_size)
+ */
+void* tto_array_alloc(size_t count, size_t elem_size) {
+    if (count == 0 || elem_size == 0) {
+        return NULL;
+    }
+    
+    TTOArray* array = malloc(sizeof(TTOArray));
+    if (!array) {
+        fprintf(stderr, "ERROR: Failed to allocate array structure\n");
+        exit(1);
+    }
+    
+    // Allocate contiguous memory for elements
+    array->elements = calloc(count, elem_size);
+    if (!array->elements) {
+        fprintf(stderr, "ERROR: Failed to allocate array elements\n");
+        free(array);
+        exit(1);
+    }
+    
+    array->count = count;
+    array->elem_size = elem_size;
+    array->refcount = 1;
+    
+    mem_stats.total_allocations++;
+    
+    // Return pointer to elements for direct access from assembly
+    return array->elements;
+}
+
+/**
+ * Set an array element (for bounds-checked access)
+ * 
+ * @param array Pointer to TTOArray
+ * @param index Element index
+ * @param value Pointer to value to copy
+ */
+void tto_array_set(TTOArray* array, size_t index, void* value) {
+    if (!array || !value) return;
+    if (index >= array->count) {
+        fprintf(stderr, "ERROR: Array index out of bounds: %zu >= %zu\n", 
+                index, array->count);
+        exit(1);
+    }
+    
+    void* dest = (char*)array->elements + (index * array->elem_size);
+    memcpy(dest, value, array->elem_size);
+}
+
+/**
+ * Get an array element
+ * 
+ * @param array Pointer to TTOArray
+ * @param index Element index
+ * @return Pointer to element
+ */
+void* tto_array_get(TTOArray* array, size_t index) {
+    if (!array) return NULL;
+    if (index >= array->count) {
+        fprintf(stderr, "ERROR: Array index out of bounds: %zu >= %zu\n", 
+                index, array->count);
+        exit(1);
+    }
+    
+    return (char*)array->elements + (index * array->elem_size);
+}
+
+/**
+ * Free an array
+ */
+void tto_array_free(TTOArray* array) {
+    if (array) {
+        free(array->elements);
+        free(array);
+    }
+}
+
+/**
+ * Allocate a heterogeneous list (dynamic, type-tracked)
+ * 
+ * @param capacity Initial capacity
+ * @return Pointer to TTOList
+ */
+TTOList* tto_list_alloc(size_t capacity) {
+    if (capacity == 0) capacity = 4;  // Default capacity
+    
+    TTOList* list = malloc(sizeof(TTOList));
+    if (!list) {
+        fprintf(stderr, "ERROR: Failed to allocate list structure\n");
+        exit(1);
+    }
+    
+    list->elements = calloc(capacity, sizeof(void*));
+    list->types = calloc(capacity, sizeof(uint8_t));
+    
+    if (!list->elements || !list->types) {
+        fprintf(stderr, "ERROR: Failed to allocate list storage\n");
+        free(list->elements);
+        free(list->types);
+        free(list);
+        exit(1);
+    }
+    
+    list->count = 0;
+    list->capacity = capacity;
+    list->refcount = 1;
+    
+    mem_stats.total_allocations++;
+    
+    return list;
+}
+
+/**
+ * Set a list element at a specific index
+ * 
+ * @param list Pointer to TTOList
+ * @param index Element index
+ * @param value Pointer to value (copied to heap)
+ * @param type VarType of the element
+ */
+void tto_list_set(TTOList* list, size_t index, void* value, uint8_t type) {
+    if (!list || !value) return;
+    
+    // Grow if needed
+    if (index >= list->capacity) {
+        size_t new_capacity = (index + 1) * 2;
+        void** new_elements = realloc(list->elements, new_capacity * sizeof(void*));
+        uint8_t* new_types = realloc(list->types, new_capacity * sizeof(uint8_t));
+        
+        if (!new_elements || !new_types) {
+            fprintf(stderr, "ERROR: Failed to grow list\n");
+            exit(1);
+        }
+        
+        // Zero out new slots
+        memset(new_elements + list->capacity, 0, 
+               (new_capacity - list->capacity) * sizeof(void*));
+        memset(new_types + list->capacity, 0, 
+               (new_capacity - list->capacity) * sizeof(uint8_t));
+        
+        list->elements = new_elements;
+        list->types = new_types;
+        list->capacity = new_capacity;
+    }
+    
+    // Copy value to heap (8 bytes for int64/double)
+    int64_t* heap_value = malloc(8);
+    memcpy(heap_value, value, 8);
+    
+    list->elements[index] = heap_value;
+    list->types[index] = type;
+    
+    if (index >= list->count) {
+        list->count = index + 1;
+    }
+}
+
+/**
+ * Get a list element
+ */
+void* tto_list_get(TTOList* list, size_t index) {
+    if (!list || index >= list->count) {
+        fprintf(stderr, "ERROR: List index out of bounds: %zu >= %zu\n", 
+                index, list->count);
+        exit(1);
+    }
+    
+    return list->elements[index];
+}
+
+/**
+ * Append to list
+ */
+void tto_list_append(TTOList* list, void* value, uint8_t type) {
+    tto_list_set(list, list->count, value, type);
+}
+
+/**
+ * Free a list
+ */
+void tto_list_free(TTOList* list) {
+    if (list) {
+        // Free all element data
+        for (size_t i = 0; i < list->count; i++) {
+            free(list->elements[i]);
+        }
+        free(list->elements);
+        free(list->types);
+        free(list);
+    }
+}
+
+/**
+ * Allocate a tuple (immutable, heterogeneous)
+ */
+TTOTuple* tto_tuple_alloc(size_t count) {
+    if (count == 0) return NULL;
+    
+    TTOTuple* tuple = malloc(sizeof(TTOTuple));
+    if (!tuple) {
+        fprintf(stderr, "ERROR: Failed to allocate tuple\n");
+        exit(1);
+    }
+    
+    tuple->elements = calloc(count, sizeof(void*));
+    tuple->types = calloc(count, sizeof(uint8_t));
+    
+    if (!tuple->elements || !tuple->types) {
+        fprintf(stderr, "ERROR: Failed to allocate tuple storage\n");
+        free(tuple->elements);
+        free(tuple->types);
+        free(tuple);
+        exit(1);
+    }
+    
+    tuple->count = count;
+    tuple->refcount = 1;
+    
+    mem_stats.total_allocations++;
+    
+    return tuple;
+}
+
+/**
+ * Set a tuple element (only during initialization)
+ */
+void tto_tuple_set(TTOTuple* tuple, size_t index, void* value, uint8_t type) {
+    if (!tuple || !value || index >= tuple->count) return;
+    
+    // Copy value to heap
+    int64_t* heap_value = malloc(8);
+    memcpy(heap_value, value, 8);
+    
+    tuple->elements[index] = heap_value;
+    tuple->types[index] = type;
+}
+
+/**
+ * Get a tuple element
+ */
+void* tto_tuple_get(TTOTuple* tuple, size_t index) {
+    if (!tuple || index >= tuple->count) {
+        fprintf(stderr, "ERROR: Tuple index out of bounds: %zu >= %zu\n", 
+                index, tuple->count);
+        exit(1);
+    }
+    
+    return tuple->elements[index];
+}
+
+/**
+ * Free a tuple
+ */
+void tto_tuple_free(TTOTuple* tuple) {
+    if (tuple) {
+        // Free all element data
+        for (size_t i = 0; i < tuple->count; i++) {
+            free(tuple->elements[i]);
+        }
+        free(tuple->elements);
+        free(tuple->types);
+        free(tuple);
+    }
+}

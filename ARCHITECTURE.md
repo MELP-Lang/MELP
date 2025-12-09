@@ -1,5 +1,37 @@
 # MELP Architecture Rules - IMMUTABLE
 
+## 🚨 CRITICAL: AI AGENT WORKFLOW (NEW - 9 Aralık 2025) 🚨
+
+**EVERY AI AGENT MUST:**
+
+1. **Read this file FIRST** before making any changes
+2. **Create a numbered branch**: `git checkout -b feature-name_YZ_XX`
+   - YZ_01 = First AI agent (this session)
+   - YZ_02 = Second AI agent
+   - YZ_03 = Third AI agent, etc.
+3. **Work on your branch**, make commits with clear messages
+4. **Before finishing**: `git push origin feature-name_YZ_XX`
+5. **Leave a handoff note** in `/NEXT_AI_START_HERE.md`
+
+**Example:**
+```bash
+git checkout -b tto-cleanup_YZ_01
+# ... work ...
+git add .
+git commit -m "TTO: Remove legacy int/float API, pure numeric only"
+git push origin tto-cleanup_YZ_01
+```
+
+**WHY:** 
+- Track each AI's contribution clearly
+- Prevent overwriting previous AI's work
+- Easy rollback if needed
+- Clear audit trail
+
+**CURRENT AI:** YZ_01 (9 Aralık 2025 - TTO Tutarlılık Temizliği)
+
+---
+
 ## ⚠️ FOR AI AGENTS: READ THIS FIRST ⚠️
 
 Previous AI agents violated these rules and created a 736-line monolithic `main.c`.

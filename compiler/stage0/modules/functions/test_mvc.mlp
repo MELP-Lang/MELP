@@ -1,0 +1,7 @@
+function main() returns numeric
+    numeric x = 42
+    numeric y = 8
+    numeric sum = x + y
+    println(sum)
+    return 0
+end function

@@ -59,9 +59,11 @@ compiler/stage0/
 │   │   └── variable_parser.c
 │   ├── logical/             ← ✅ Stateless (Phase 4.4.2)
 │   │   └── logical_parser.c
-│   ├── array/               ← ⏳ DEFERRED (see STATELESS_TODO.md)
-│   │   ├── array_parser.c   (still stateful - not used yet)
-│   │   └── STATELESS_TODO.md
+│   ├── array/               ← ✅ Parser Stateless (9 Aralık)
+│   │   ├── array_parser.c   (✅ stateless - 470 lines)
+│   │   ├── STATELESS_TODO.md (marked complete)
+│   │   ├── ARRAY_STATELESS_CONVERSION.md (full report)
+│   │   └── array_standalone.c (⏳ needs stateless update)
 │   ├── arithmetic/          ← ✅ Has _stateless version
 │   ├── comparison/          ← ✅ Has _stateless version
 │   ├── control_flow/        ← ✅ Uses stateless
@@ -77,7 +79,7 @@ compiler/stage0/
 ## 📋 Current Status Summary
 
 ### ✅ What Works
-- **Stateless Parsers:** functions, variable, logical
+- **Stateless Parsers:** functions, variable, logical, **array** ✨
 - **Features:** Function declarations, parameters, return types
 - **Control Flow:** if/else, while, for loops
 - **Expressions:** Arithmetic, comparison (with overflow detection)
@@ -85,11 +87,12 @@ compiler/stage0/
 - **Error Handling:** Clean messages with line numbers
 - **TTO (Trapped Type Overflow):** BigDec support for safe arithmetic
 
-### ⏳ What's Deferred
-- **array_parser:** Stateful, not used yet
-  - See: `modules/array/STATELESS_TODO.md`
-  - Convert when arrays become needed feature
-  - Estimated: 14-20 hours (requires expression_parser refactor)
+### ⏳ What's In Progress
+- **array module:** Parser ✅ converted, entry point needs update
+  - See: `modules/array/ARRAY_STATELESS_CONVERSION.md`
+  - Parser: 470 lines, fully stateless with token borrowing
+  - Entry point: Needs rewrite (30-45 min work)
+  - Pattern: Same as functions_standalone.c (102 lines)
 
 ### 🐛 Known Issues
 - Some TTO link errors in complex expressions (BigDec functions)

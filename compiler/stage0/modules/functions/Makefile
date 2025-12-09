@@ -155,6 +155,11 @@ $(TARGET): $(OBJECTS)
 	@echo "🔗 Linking: $(TARGET)"
 	$(CC) $(CFLAGS) -o $@ $^
 
+# Standalone executable (simplified build)
+functions_standalone: functions_standalone.o $(filter-out functions_standalone.o,$(OBJECTS))
+	@echo "🔗 Linking: functions_standalone"
+	$(CC) $(CFLAGS) -o $@ $^
+
 # C dosyalarını derle
 %.o: %.c
 	@echo "  📦 Compiling: $<"

@@ -62,11 +62,33 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
     expr->tto_analyzed = false;
     expr->needs_overflow_check = false;
     
+    // String literal
+    if (parser->current_token->type == TOKEN_STRING) {
+        expr->is_literal = 1;
+        expr->value = strdup(parser->current_token->value);
+        expr->is_float = 0;
+        expr->is_string = 1;
+        
+        // TTO analysis for string literal
+        TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+        tto->type = INTERNAL_TYPE_SSO_STRING;  // Small String Optimization
+        tto->is_constant = true;  // String literals are constant
+        tto->needs_promotion = false;
+        tto->mem_location = MEM_RODATA;  // String literals in .rodata
+        expr->tto_info = tto;
+        expr->tto_analyzed = true;
+        expr->needs_overflow_check = false;
+        
+        advance(parser);
+        return expr;
+    }
+    
     // Number literal
     if (parser->current_token->type == TOKEN_NUMBER) {
         expr->is_literal = 1;
         expr->value = strdup(parser->current_token->value);
         expr->is_float = (strchr(expr->value, '.') != NULL);
+        expr->is_string = 0;
         
         // Phase 2.3: TTO analysis for numeric literal
         TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
@@ -172,6 +194,7 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
         expr->is_literal = 0;
         expr->value = identifier;
         expr->is_float = 0;
+        expr->is_string = 0;  // TODO: Infer from variable type
         expr->is_function_call = 0;
         expr->func_call = NULL;
         
@@ -231,6 +254,7 @@ ArithmeticExpr* arithmetic_parse_power(ArithmeticParser* parser) {
         binary->is_literal = 0;
         binary->value = NULL;
         binary->is_float = 0;
+        binary->is_string = 0;
         
         // Phase 2.3: TTO type propagation for binary operation
         binary->tto_info = NULL;

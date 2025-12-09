@@ -1,0 +1,10 @@
+-- Array literals test
+[1, 2, 3]
+[10, 20, 30, 40]
+
+-- List literal
+(1; 2; 3;)
+
+-- Tuple literal
+<42, 99>
+<1, 2, 3>

@@ -1,10 +1,10 @@
 # MLP COMPILER ARCHITECTURE
 
 **Last Updated:** 9 Aralık 2025  
-**Current Status:** ✅ Phase 4.4 COMPLETE - All Active Parsers Now Stateless  
+**Current Status:** ✅ Phase 4.4 COMPLETE + Array Parser Stateless ✅  
 **Architecture:** Radical Modular (Central files permanently deleted)  
 **Parser Pattern:** Stateless Templates with Token Borrowing (ALL active parsers stateless)  
-**Stateless Modules:** functions ✅ variable ✅ logical ✅ (array deferred - see TODO)  
+**Stateless Modules:** functions ✅ variable ✅ logical ✅ array ✅ (entry point pending)  
 **Assembly:** AT&T Syntax (GCC-compatible)  
 **Feature Status:** Control flow, logical ops, for loops, function params, function calls WORKING
 

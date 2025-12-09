@@ -1,0 +1,12 @@
+function add(numeric a, numeric b)
+    numeric result = a + b
+    return result
+end function
+
+function main()
+    numeric x = 10
+    numeric y = 32
+    numeric sum = add(x, y)
+    println(sum)
+    return 0
+end function

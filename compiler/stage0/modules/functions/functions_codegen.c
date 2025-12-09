@@ -115,6 +115,78 @@ void function_generate_call(FILE* output, FunctionCall* call) {
     
     fprintf(output, "    # Call function: %s\n", call->function_name);
     
+    // Check if this is a builtin stdlib function
+    int is_builtin = function_is_builtin(call->function_name);
+    
+    if (is_builtin) {
+        // Handle builtin stdlib functions
+        
+        // println(value) - determine type and call appropriate function
+        if (strcmp(call->function_name, "println") == 0) {
+            if (call->arg_count != 1) {
+                fprintf(output, "    # ERROR: println requires exactly 1 argument\n");
+                return;
+            }
+            
+            // Evaluate argument expression
+            fprintf(output, "    # Evaluate println argument\n");
+            if (call->arguments && call->arguments[0]) {
+                expression_generate_code(output, call->arguments[0], NULL);
+                
+                // TTO-aware call: save value to stack, pass pointer
+                fprintf(output, "    subq $16, %%rsp      # Allocate temp space\n");
+                fprintf(output, "    movq %%r8, (%%rsp)   # Store value\n");
+                fprintf(output, "    movq %%rsp, %%rdi    # arg1: pointer to value\n");
+                fprintf(output, "    movq $0, %%rsi       # arg2: TTO_TYPE_INT64\n");
+                fprintf(output, "    call mlp_println_numeric\n");
+                fprintf(output, "    addq $16, %%rsp      # Clean up temp space\n");
+            }
+            return;
+        }
+        
+        // print(value) - print without newline
+        if (strcmp(call->function_name, "print") == 0) {
+            if (call->arg_count != 1) {
+                fprintf(output, "    # ERROR: print requires exactly 1 argument\n");
+                return;
+            }
+            
+            fprintf(output, "    # Evaluate print argument\n");
+            if (call->arguments && call->arguments[0]) {
+                expression_generate_code(output, call->arguments[0], NULL);
+                fprintf(output, "    subq $16, %%rsp      # Allocate temp space\n");
+                fprintf(output, "    movq %%r8, (%%rsp)   # Store value\n");
+                fprintf(output, "    movq %%rsp, %%rdi    # arg1: pointer to value\n");
+                fprintf(output, "    movq $0, %%rsi       # arg2: TTO_TYPE_INT64\n");
+                fprintf(output, "    call mlp_print_numeric\n");
+                fprintf(output, "    addq $16, %%rsp      # Clean up\n");
+            }
+            return;
+        }
+        
+        // toString(value) - convert to string
+        if (strcmp(call->function_name, "toString") == 0) {
+            if (call->arg_count != 1) {
+                fprintf(output, "    # ERROR: toString requires exactly 1 argument\n");
+                return;
+            }
+            
+            fprintf(output, "    # Evaluate toString argument\n");
+            if (call->arguments && call->arguments[0]) {
+                expression_generate_code(output, call->arguments[0], NULL);
+                fprintf(output, "    subq $16, %%rsp      # Allocate temp space\n");
+                fprintf(output, "    movq %%r8, (%%rsp)   # Store value\n");
+                fprintf(output, "    movq %%rsp, %%rdi    # arg1: pointer to value\n");
+                fprintf(output, "    movq $0, %%rsi       # arg2: TTO_TYPE_INT64\n");
+                fprintf(output, "    call mlp_toString_numeric\n");
+                fprintf(output, "    addq $16, %%rsp      # Clean up\n");
+                // Return value (string pointer) is in %rax
+            }
+            return;
+        }
+    }
+    
+    // Standard user-defined function call
     // Evaluate arguments and place in registers/stack
     // x86-64 calling convention: rdi, rsi, rdx, rcx, r8, r9
     const char* arg_regs[] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
