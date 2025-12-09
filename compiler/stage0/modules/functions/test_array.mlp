@@ -1,0 +1,9 @@
+function main() returns numeric
+    numeric[] arr = [10, 20, 30]
+    numeric x = arr[0]
+    numeric y = arr[1]
+    numeric z = arr[2]
+    numeric sum = x + y + z
+    numeric result = println(sum)
+    return 0
+end function

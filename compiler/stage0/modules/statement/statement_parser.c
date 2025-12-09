@@ -265,7 +265,7 @@ Statement* statement_parse(Parser* parser) {
     }
     
     // ✅ Variable declaration - use variable module (STATELESS)
-    if (tok->type == TOKEN_NUMERIC || tok->type == TOKEN_STRING || tok->type == TOKEN_BOOLEAN) {
+    if (tok->type == TOKEN_NUMERIC || tok->type == TOKEN_STRING_TYPE || tok->type == TOKEN_BOOLEAN) {
         // Call stateless version - tok is borrowed by variable_parse_declaration
         VariableDeclaration* decl = variable_parse_declaration(parser->lexer, tok);
         
