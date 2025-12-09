@@ -1,9 +1,10 @@
 # MLP COMPILER ARCHITECTURE
 
 **Last Updated:** 9 Aralık 2025  
-**Current Status:** ✅ Phase 3.5 COMPLETE - Function Calls Working  
+**Current Status:** ✅ Phase 4.2 COMPLETE - Type-Safe Context + AT&T Syntax  
 **Architecture:** Radical Modular (Central files permanently deleted)  
 **Parser Pattern:** Stateless Templates with Token Borrowing  
+**Assembly:** AT&T Syntax (GCC-compatible)  
 **Feature Status:** Control flow, logical ops, for loops, function params, function calls WORKING
 
 ---
@@ -540,7 +541,6 @@ All linked naturally. No coordinator needed.
 - Parsing: Extended arithmetic module to recognize `identifier(args...)`
 - Code generation: Arguments passed via x86-64 calling convention (rdi, rsi, rdx, rcx, r8, r9)
 - Return values: Function result captured from rax
-- Known Issue: Assembly syntax mixing (AT&T vs Intel) - to be fixed in Phase 4
 
 **Example:**
 ```mlp
@@ -558,59 +558,43 @@ end function
 
 ---
 
-### 🔧 Phase 4: Code Quality Refactoring
-**Status:** Not yet started  
+### ✅ Phase 4: Code Quality Refactoring (COMPLETED - 9 Aralık 2025)
+**Status:** Major improvements completed  
 **Priority:** High (critical for maintainability)  
-**Suggested by:** Claude Sonnet (previous session)
 
-**Refactoring items:**
+**✅ Phase 4.1: Assembly Syntax Standardization (COMPLETED)**
+- Standardized all assembly to AT&T syntax (GCC-compatible)
+- Fixed operand order: source, destination
+- All registers with % prefix, immediates with $ prefix
+- Eliminated Intel/AT&T syntax mixing
+- All binary operations (ADD, SUB, MUL, DIV, MOD, POW, AND, OR, XOR) working
 
-1. **Assembly Syntax Standardization:** ⭐ HIGH PRIORITY
-   - Current issue: Mixed AT&T and Intel syntax causing errors
-   - Solution: Choose one syntax (recommend AT&T for GCC compatibility)
-   - Update all codegen modules consistently
-   - Remove `.intel_syntax noprefix` directive
+**✅ Phase 4.2: Type-Safe Context Passing (COMPLETED)**
+- Replaced unsafe void* context with FunctionDeclaration* throughout
+- Type-safe function signatures in all codegen modules
+- Better compile-time type checking
+- Eliminated dangerous casts
 
-2. **Type-safe context passing:**
-   ```c
-   // ❌ Current: void* context (type-unsafe)
-   void arithmetic_generate_code(FILE* output, ArithmeticExpr* expr, void* context);
-   
-   // ✅ Proposed: CodegenContext struct
-   typedef struct {
-       FunctionDeclaration* current_function;
-       int label_counter;
-       // ... other context
-   } CodegenContext;
-   
-   void arithmetic_generate_code(FILE* output, ArithmeticExpr* expr, CodegenContext* ctx);
-   ```
+**⏳ Phase 4.3: Error Handling Standardization (TODO)**
+```c
+// ❌ Current: fprintf(stderr, ...) everywhere
+// ✅ Proposed: ErrorContext + error codes
 
-3. **Error handling standardization:**
-   ```c
-   // ❌ Current: fprintf(stderr, ...) everywhere
-   // ✅ Proposed: ErrorContext + error codes
-   
-   typedef enum {
-       ERR_PARSE_EXPECTED_TOKEN,
-       ERR_PARSE_UNEXPECTED_EOF,
-       ERR_CODEGEN_UNKNOWN_VAR,
-       // ...
-   } ErrorCode;
-   
-   typedef struct {
-       ErrorCode code;
-       int line;
-       char* message;
-   } ErrorContext;
-   ```
+typedef enum {
+    ERR_PARSE_EXPECTED_TOKEN,
+    ERR_PARSE_UNEXPECTED_EOF,
+    ERR_CODEGEN_UNKNOWN_VAR,
+    // ...
+} ErrorCode;
 
-4. **Module consistency:**
-   - Ensure all modules follow stateless parser pattern
-   - Standardize function naming: `module_parse_X()`, `module_generate_X()`
-   - Consistent error handling across modules
+typedef struct {
+    ErrorCode code;
+    int line;
+    char* message;
+} ErrorContext;
+```
 
-**Impact:** Better code quality, easier debugging, type safety
+**Impact:** Better code quality, type safety, consistent assembly generation
 
 ---
 
@@ -638,14 +622,14 @@ Potential features:
 - Comparison: >, <, ==, !=, >=, <=
 - Variables: numeric type with stack allocation
 - Functions: declarations, parameters (up to 6), return values
-- **Function calls:** Caller-side argument passing, return value capture ⭐ NEW
+- **Function calls:** Caller-side argument passing, return value capture
 - Modular architecture with chained imports
-- x86-64 assembly generation (AT&T syntax)
+- **x86-64 assembly generation (AT&T syntax)** ⭐ NEW
+- **Type-safe context passing** ⭐ NEW
 
 ### ⏳ Partially Implemented:
-- Assembly syntax: Mixed AT&T/Intel (needs Phase 4 cleanup)
 - Type system (numeric only, needs string/boolean)
-- Error handling (works but needs standardization)
+- Error handling (works but needs standardization - Phase 4.3)
 
 ### 🚧 Not Yet Implemented:
 - Arrays
