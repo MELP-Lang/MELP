@@ -79,11 +79,101 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
         return expr;
     }
     
-    // Variable
+    // Variable or Function Call
     if (parser->current_token->type == TOKEN_IDENTIFIER) {
+        char* identifier = strdup(parser->current_token->value);
+        advance(parser);
+        
+        // Phase 3.5: Check for function call
+        if (parser->current_token && parser->current_token->type == TOKEN_LPAREN) {
+            // It's a function call: identifier(args...)
+            advance(parser);  // consume '('
+            
+            // Parse arguments
+            ArithmeticExpr** arguments = NULL;
+            int arg_count = 0;
+            int arg_capacity = 4;
+            
+            if (parser->current_token->type != TOKEN_RPAREN) {
+                arguments = malloc(sizeof(ArithmeticExpr*) * arg_capacity);
+                
+                // Parse first argument
+                ArithmeticExpr* arg = arithmetic_parse_expression(parser);
+                if (!arg) {
+                    free(identifier);
+                    free(arguments);
+                    free(expr);
+                    return NULL;
+                }
+                arguments[arg_count++] = arg;
+                
+                // Parse remaining arguments (comma-separated)
+                while (parser->current_token && parser->current_token->type == TOKEN_COMMA) {
+                    advance(parser);  // consume ','
+                    
+                    // Resize array if needed
+                    if (arg_count >= arg_capacity) {
+                        arg_capacity *= 2;
+                        arguments = realloc(arguments, sizeof(ArithmeticExpr*) * arg_capacity);
+                    }
+                    
+                    arg = arithmetic_parse_expression(parser);
+                    if (!arg) {
+                        for (int i = 0; i < arg_count; i++) {
+                            arithmetic_expr_free(arguments[i]);
+                        }
+                        free(identifier);
+                        free(arguments);
+                        free(expr);
+                        return NULL;
+                    }
+                    arguments[arg_count++] = arg;
+                }
+            }
+            
+            if (!parser->current_token || parser->current_token->type != TOKEN_RPAREN) {
+                fprintf(stderr, "Error: Expected ')' after function arguments\n");
+                for (int i = 0; i < arg_count; i++) {
+                    arithmetic_expr_free(arguments[i]);
+                }
+                free(identifier);
+                free(arguments);
+                free(expr);
+                return NULL;
+            }
+            advance(parser);  // consume ')'
+            
+            // Create function call expression
+            FunctionCallExpr* func_call = malloc(sizeof(FunctionCallExpr));
+            func_call->function_name = identifier;
+            func_call->arguments = arguments;
+            func_call->arg_count = arg_count;
+            
+            expr->is_literal = 0;
+            expr->value = NULL;
+            expr->is_float = 0;
+            expr->is_function_call = 1;
+            expr->func_call = func_call;
+            
+            // TTO info: assume INT64 return value
+            TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+            tto->type = INTERNAL_TYPE_INT64;
+            tto->is_constant = false;
+            tto->needs_promotion = true;
+            tto->mem_location = MEM_REGISTER;
+            expr->tto_info = tto;
+            expr->tto_analyzed = true;
+            expr->needs_overflow_check = true;
+            
+            return expr;
+        }
+        
+        // It's a variable
         expr->is_literal = 0;
-        expr->value = strdup(parser->current_token->value);
+        expr->value = identifier;
         expr->is_float = 0;
+        expr->is_function_call = 0;
+        expr->func_call = NULL;
         
         // Phase 2.3: TTO info for variables (unknown at parse time)
         // We assume INT64 initially, will be refined at runtime
@@ -96,7 +186,6 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
         expr->tto_analyzed = true;
         expr->needs_overflow_check = true;
         
-        advance(parser);
         return expr;
     }
     
@@ -392,6 +481,8 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
     expr->tto_info = NULL;
     expr->tto_analyzed = false;
     expr->needs_overflow_check = false;
+    expr->is_function_call = 0;
+    expr->func_call = NULL;
     
     // Number literal
     if ((*current)->type == TOKEN_NUMBER) {
@@ -409,10 +500,98 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         return expr;
     }
     
-    // Variable
+    // Variable or Function Call
     if ((*current)->type == TOKEN_IDENTIFIER) {
+        char* identifier = strdup((*current)->value);
+        advance_stateless(lexer, current);
+        
+        // Phase 3.5: Check for function call
+        if (*current && (*current)->type == TOKEN_LPAREN) {
+            // It's a function call: identifier(args...)
+            advance_stateless(lexer, current);  // consume '('
+            
+            // Parse arguments
+            ArithmeticExpr** arguments = NULL;
+            int arg_count = 0;
+            int arg_capacity = 4;
+            
+            if ((*current)->type != TOKEN_RPAREN) {
+                arguments = malloc(sizeof(ArithmeticExpr*) * arg_capacity);
+                
+                // Parse first argument
+                ArithmeticExpr* arg = parse_bitwise_stateless(lexer, current);
+                if (!arg) {
+                    free(identifier);
+                    free(arguments);
+                    free(expr);
+                    return NULL;
+                }
+                arguments[arg_count++] = arg;
+                
+                // Parse remaining arguments (comma-separated)
+                while (*current && (*current)->type == TOKEN_COMMA) {
+                    advance_stateless(lexer, current);  // consume ','
+                    
+                    // Resize array if needed
+                    if (arg_count >= arg_capacity) {
+                        arg_capacity *= 2;
+                        arguments = realloc(arguments, sizeof(ArithmeticExpr*) * arg_capacity);
+                    }
+                    
+                    arg = parse_bitwise_stateless(lexer, current);
+                    if (!arg) {
+                        for (int i = 0; i < arg_count; i++) {
+                            arithmetic_expr_free(arguments[i]);
+                        }
+                        free(identifier);
+                        free(arguments);
+                        free(expr);
+                        return NULL;
+                    }
+                    arguments[arg_count++] = arg;
+                }
+            }
+            
+            if (!*current || (*current)->type != TOKEN_RPAREN) {
+                fprintf(stderr, "Error: Expected ')' after function arguments\n");
+                for (int i = 0; i < arg_count; i++) {
+                    arithmetic_expr_free(arguments[i]);
+                }
+                free(identifier);
+                free(arguments);
+                free(expr);
+                return NULL;
+            }
+            advance_stateless(lexer, current);  // consume ')'
+            
+            // Create function call expression
+            FunctionCallExpr* func_call = malloc(sizeof(FunctionCallExpr));
+            func_call->function_name = identifier;
+            func_call->arguments = arguments;
+            func_call->arg_count = arg_count;
+            
+            expr->is_literal = 0;
+            expr->value = NULL;
+            expr->is_float = 0;
+            expr->is_function_call = 1;
+            expr->func_call = func_call;
+            
+            // TTO info: assume INT64 return value
+            TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+            tto->type = INTERNAL_TYPE_INT64;
+            tto->is_constant = false;
+            tto->needs_promotion = true;
+            tto->mem_location = MEM_REGISTER;
+            expr->tto_info = tto;
+            expr->tto_analyzed = true;
+            expr->needs_overflow_check = true;
+            
+            return expr;
+        }
+        
+        // It's a variable
         expr->is_literal = 0;
-        expr->value = strdup((*current)->value);
+        expr->value = identifier;
         expr->is_float = 0;
         
         TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
@@ -424,7 +603,6 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         expr->tto_analyzed = true;
         expr->needs_overflow_check = true;
         
-        advance_stateless(lexer, current);
         return expr;
     }
     

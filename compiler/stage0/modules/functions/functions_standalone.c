@@ -95,7 +95,8 @@ int main(int argc, char** argv) {
     }
     
     // Generate assembly header
-    fprintf(output, ".intel_syntax noprefix\n");
+    // Generate AT&T syntax assembly (default for GCC)
+    // fprintf(output, ".intel_syntax noprefix\n");  // Disabled: using AT&T
     fprintf(output, ".text\n\n");
     
     // Generate code for each function

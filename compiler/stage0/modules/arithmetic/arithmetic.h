@@ -18,6 +18,9 @@ typedef enum {
     ARITH_XOR        // ^ (bitwise XOR)
 } ArithmeticOp;
 
+// Forward declaration for function calls
+typedef struct FunctionCallExpr FunctionCallExpr;
+
 // Arithmetic expression structure
 typedef struct ArithmeticExpr {
     ArithmeticOp op;              // Operation type
@@ -29,11 +32,22 @@ typedef struct ArithmeticExpr {
     char* value;                  // Literal value or variable name
     int is_float;                 // 1 if floating point number
     
+    // ========== Phase 3.5: Function Calls ==========
+    int is_function_call;         // 1 if this is a function call
+    FunctionCallExpr* func_call;  // Function call details (if is_function_call)
+    
     // ========== Phase 2.3: TTO Type Propagation ==========
     TTOTypeInfo* tto_info;        // TTO analysis result (heap allocated)
     bool tto_analyzed;            // Has TTO analysis been performed?
     bool needs_overflow_check;    // Runtime overflow detection needed?
 } ArithmeticExpr;
+
+// ========== Phase 3.5: Function Call Expression ==========
+typedef struct FunctionCallExpr {
+    char* function_name;           // Name of function being called
+    ArithmeticExpr** arguments;    // Array of argument expressions
+    int arg_count;                 // Number of arguments
+} FunctionCallExpr;
 
 // Free arithmetic expression
 void arithmetic_expr_free(ArithmeticExpr* expr);

@@ -14,6 +14,20 @@ void arithmetic_expr_free(ArithmeticExpr* expr) {
     if (expr->right) arithmetic_expr_free(expr->right);
     if (expr->value) free(expr->value);
     
+    // Phase 3.5: Free function call
+    if (expr->func_call) {
+        if (expr->func_call->function_name) {
+            free(expr->func_call->function_name);
+        }
+        if (expr->func_call->arguments) {
+            for (int i = 0; i < expr->func_call->arg_count; i++) {
+                arithmetic_expr_free(expr->func_call->arguments[i]);
+            }
+            free(expr->func_call->arguments);
+        }
+        free(expr->func_call);
+    }
+    
     // Phase 2.3: Free TTO info
     if (expr->tto_info) free(expr->tto_info);
     

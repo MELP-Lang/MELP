@@ -1,0 +1,12 @@
+function add(numeric a, numeric b) returns numeric
+    numeric result
+    result = a + b
+    return result
+end function
+
+function main() returns numeric
+    numeric x = 10
+    numeric y = 5
+    numeric sum = add(x, y)
+    return sum
+end function

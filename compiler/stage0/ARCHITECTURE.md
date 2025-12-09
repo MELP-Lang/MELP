@@ -1,10 +1,10 @@
 # MLP COMPILER ARCHITECTURE
 
 **Last Updated:** 9 Aralık 2025  
-**Current Status:** ✅ Phase 3 COMPLETE - Full Control Flow + Parameters  
+**Current Status:** ✅ Phase 3.5 COMPLETE - Function Calls Working  
 **Architecture:** Radical Modular (Central files permanently deleted)  
 **Parser Pattern:** Stateless Templates with Token Borrowing  
-**Feature Status:** Control flow, logical ops, for loops, function params WORKING
+**Feature Status:** Control flow, logical ops, for loops, function params, function calls WORKING
 
 ---
 
@@ -306,6 +306,14 @@ vim pipeline.c           # ❌ WRONG APPROACH!
 - Parameters usable in function body
 - Correct stack layout: params first (-8, -16, -24...), then locals
 
+**Phase 3.5: Function Calls (9 Aralık 2025)** ⭐ NEW
+- Parse function call expressions: `result = add(x, y)`
+- Caller-side argument passing to registers
+- Assembly: Evaluate arguments, move to rdi/rsi/rdx/etc, call function
+- Return value captured from rax
+- Supports up to 6 parameters (register-based)
+- Note: Assembly syntax needs refactoring (Phase 4 task)
+
 **Working Code Examples:**
 ```mlp
 # Logical operations
@@ -320,8 +328,17 @@ end
 
 # Function parameters
 function add(numeric a, numeric b) returns numeric
+    numeric result
     result = a + b
     return result
+end function
+
+# Function calls (Phase 3.5)
+function main() returns numeric
+    numeric x = 10
+    numeric y = 5
+    numeric sum = add(x, y)  # ← Function call!
+    return sum
 end function
 ```
 
@@ -517,47 +534,44 @@ All linked naturally. No coordinator needed.
 
 ## 📋 NEXT DEVELOPMENT PHASES
 
-### ⏳ Phase 3.5: Function Calls (Optional Enhancement)
-**Status:** Not yet implemented  
-**Priority:** Medium (nice-to-have for real programs)
+### ✅ Phase 3.5: Function Calls (COMPLETED - 9 Aralık 2025)
+**Status:** Implemented and working  
+**Implementation:**
+- Parsing: Extended arithmetic module to recognize `identifier(args...)`
+- Code generation: Arguments passed via x86-64 calling convention (rdi, rsi, rdx, rcx, r8, r9)
+- Return values: Function result captured from rax
+- Known Issue: Assembly syntax mixing (AT&T vs Intel) - to be fixed in Phase 4
 
-**What's needed:**
-1. Parse function call expressions: `result = add(x, y)`
-2. Implement caller-side argument passing
-3. Move arguments to registers (rdi, rsi, rdx...) before call
-4. Generate `call` instruction
-5. Retrieve return value from rax
-
-**Example code to support:**
+**Example:**
 ```mlp
 function add(numeric a, numeric b) returns numeric
-    return a + b
-end function
-
-function main()
-    numeric x = 10
-    numeric y = 5
-    numeric result = add(x, y)  # ← This needs Phase 3.5
+    numeric result
+    result = a + b
     return result
 end function
-```
 
-**Implementation notes:**
-- Function calls are expressions (integrate with arithmetic module)
-- Need to evaluate arguments left-to-right
-- Save caller-saved registers if needed
-- Follow x86-64 System V ABI
+function main() returns numeric
+    numeric sum = add(10, 5)  # Works!
+    return sum
+end function
+```
 
 ---
 
 ### 🔧 Phase 4: Code Quality Refactoring
 **Status:** Not yet started  
-**Priority:** High (improves maintainability)  
+**Priority:** High (critical for maintainability)  
 **Suggested by:** Claude Sonnet (previous session)
 
 **Refactoring items:**
 
-1. **Type-safe context passing:**
+1. **Assembly Syntax Standardization:** ⭐ HIGH PRIORITY
+   - Current issue: Mixed AT&T and Intel syntax causing errors
+   - Solution: Choose one syntax (recommend AT&T for GCC compatibility)
+   - Update all codegen modules consistently
+   - Remove `.intel_syntax noprefix` directive
+
+2. **Type-safe context passing:**
    ```c
    // ❌ Current: void* context (type-unsafe)
    void arithmetic_generate_code(FILE* output, ArithmeticExpr* expr, void* context);
@@ -572,7 +586,7 @@ end function
    void arithmetic_generate_code(FILE* output, ArithmeticExpr* expr, CodegenContext* ctx);
    ```
 
-2. **Error handling standardization:**
+3. **Error handling standardization:**
    ```c
    // ❌ Current: fprintf(stderr, ...) everywhere
    // ✅ Proposed: ErrorContext + error codes
@@ -591,7 +605,7 @@ end function
    } ErrorContext;
    ```
 
-3. **Module consistency:**
+4. **Module consistency:**
    - Ensure all modules follow stateless parser pattern
    - Standardize function naming: `module_parse_X()`, `module_generate_X()`
    - Consistent error handling across modules
@@ -624,11 +638,12 @@ Potential features:
 - Comparison: >, <, ==, !=, >=, <=
 - Variables: numeric type with stack allocation
 - Functions: declarations, parameters (up to 6), return values
+- **Function calls:** Caller-side argument passing, return value capture ⭐ NEW
 - Modular architecture with chained imports
-- x86-64 assembly generation
+- x86-64 assembly generation (AT&T syntax)
 
 ### ⏳ Partially Implemented:
-- Function calls (parameters work, calls not yet)
+- Assembly syntax: Mixed AT&T/Intel (needs Phase 4 cleanup)
 - Type system (numeric only, needs string/boolean)
 - Error handling (works but needs standardization)
 
