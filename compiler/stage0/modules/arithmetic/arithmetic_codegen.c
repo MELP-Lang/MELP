@@ -1,5 +1,6 @@
 #include "arithmetic_codegen.h"
 #include "../../../../runtime/tto/runtime_tto.h"
+#include "../functions/functions.h"  // For FunctionDeclaration type
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,18 +10,13 @@ static int reg_counter = 0;
 static int overflow_label_counter = 0;
 
 // Generate assembly for loading a value into register
-static void generate_load(FILE* output, const char* value, int reg_num, int is_float, void* context) {
-    // If context provided, get actual stack offset
-    if (context) {
-        // context is FunctionDeclaration*
-        typedef struct FunctionDeclaration FunctionDeclaration;
-        extern int function_get_var_offset(FunctionDeclaration* func, const char* var_name);
-        
-        FunctionDeclaration* func = (FunctionDeclaration*)context;
+static void generate_load(FILE* output, const char* value, int reg_num, int is_float, FunctionDeclaration* func) {
+    // If func provided, get actual stack offset
+    if (func) {
         int offset = function_get_var_offset(func, value);
         
         if (is_float) {
-            fprintf(output, "    movsd xmm%d, %d(%%rbp)\n", reg_num, offset);
+            fprintf(output, "    movsd %d(%%rbp), %%xmm%d\n", offset, reg_num);
         } else {
             fprintf(output, "    movq %d(%%rbp), %%r%d  # Load %s\n", offset, reg_num + 8, value);
         }
@@ -48,7 +44,7 @@ static void generate_literal(FILE* output, const char* value, int reg_num, int i
 }
 
 // Generate code recursively (postorder traversal)
-static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_reg, void* context) {
+static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_reg, FunctionDeclaration* func) {
     if (!expr) return;
     
     // Phase 3.5: Function call
@@ -64,7 +60,7 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
         // Evaluate and move arguments to appropriate registers
         for (int i = 0; i < call->arg_count && i < max_reg_params; i++) {
             // Evaluate argument expression to r10 (temporary)
-            generate_expr_code(output, call->arguments[i], 2, context);  // Use r10 (reg 2)
+            generate_expr_code(output, call->arguments[i], 2, func);  // Use r10 (reg 2)
             
             // Move result from r10 to parameter register
             fprintf(output, "    movq %%r10, %s  # Argument %d\n", param_regs[i], i + 1);
@@ -89,7 +85,7 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
         if (expr->is_literal) {
             generate_literal(output, expr->value, target_reg, expr->is_float);
         } else {
-            generate_load(output, expr->value, target_reg, expr->is_float, context);
+            generate_load(output, expr->value, target_reg, expr->is_float, func);
         }
         return;
     }
@@ -99,10 +95,10 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
     int right_reg = target_reg + 1;
     
     // Generate code for left subtree
-    generate_expr_code(output, expr->left, left_reg, context);
+    generate_expr_code(output, expr->left, left_reg, func);
     
     // Generate code for right subtree
-    generate_expr_code(output, expr->right, right_reg, context);
+    generate_expr_code(output, expr->right, right_reg, func);
     
     // Determine if we're dealing with floats
     int is_float = (expr->left && expr->left->is_float) || 
@@ -249,11 +245,11 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
 }
 
 // Generate assembly for arithmetic expression
-void arithmetic_generate_code(FILE* output, ArithmeticExpr* expr, void* context) {
+void arithmetic_generate_code(FILE* output, ArithmeticExpr* expr, FunctionDeclaration* func) {
     if (!output || !expr) return;
     
     fprintf(output, "\n    # Arithmetic expression\n");
-    generate_expr_code(output, expr, 0, context);  // Start with register 0
+    generate_expr_code(output, expr, 0, func);  // Start with register 0
     fprintf(output, "    # Result in r8 (integer) or xmm0 (float)\n");
 }
 

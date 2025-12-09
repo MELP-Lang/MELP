@@ -4,8 +4,11 @@
 #include "statement.h"
 #include <stdio.h>
 
+// Forward declaration
+typedef struct FunctionDeclaration FunctionDeclaration;
+
 // Generate code for statement
-// context: FunctionDeclaration* or other context for variable scoping
-void statement_generate_code(FILE* output, Statement* stmt, void* context);
+// func: FunctionDeclaration* for variable scoping (type-safe)
+void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration* func);
 
 #endif

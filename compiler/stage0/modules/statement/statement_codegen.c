@@ -10,7 +10,7 @@
 #include <stdio.h>
 
 // Statement code generation with modular imports
-void statement_generate_code(FILE* output, Statement* stmt, void* context) {
+void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration* func) {
     if (!stmt) return;
     
     switch (stmt->type) {
@@ -18,7 +18,7 @@ void statement_generate_code(FILE* output, Statement* stmt, void* context) {
             // ✅ Use control_flow module for while codegen
             WhileStatement* while_stmt = (WhileStatement*)stmt->data;
             if (while_stmt) {
-                control_flow_generate_while(output, while_stmt, context);
+                control_flow_generate_while(output, while_stmt, func);
             }
             break;
         }
@@ -27,7 +27,7 @@ void statement_generate_code(FILE* output, Statement* stmt, void* context) {
             // ✅ Use control_flow module for if codegen
             IfStatement* if_stmt = (IfStatement*)stmt->data;
             if (if_stmt) {
-                control_flow_generate_if(output, if_stmt, context);
+                control_flow_generate_if(output, if_stmt, func);
             }
             break;
         }
@@ -36,7 +36,7 @@ void statement_generate_code(FILE* output, Statement* stmt, void* context) {
             // ✅ Use for_loop module for codegen
             ForLoop* for_loop = (ForLoop*)stmt->data;
             if (for_loop) {
-                for_loop_generate_code(output, for_loop, context);
+                for_loop_generate_code(output, for_loop, func);
             }
             break;
         }
@@ -52,8 +52,6 @@ void statement_generate_code(FILE* output, Statement* stmt, void* context) {
             // ✅ Variable declaration - already registered in pre-scan, just initialize
             VariableDeclaration* decl = (VariableDeclaration*)stmt->data;
             if (decl) {
-                FunctionDeclaration* func = (FunctionDeclaration*)context;
-                
                 // Get offset (already registered)
                 int offset = function_get_var_offset(func, decl->name);
                 
@@ -65,7 +63,7 @@ void statement_generate_code(FILE* output, Statement* stmt, void* context) {
                     ArithmeticExpr* expr = (ArithmeticExpr*)decl->init_expr;
                     
                     // Generate expression code
-                    arithmetic_generate_code(output, expr, context);
+                    arithmetic_generate_code(output, expr, func);
                     
                     // Store result to variable
                     fprintf(output, "    movq %%r8, %d(%%rbp)  # Initialize %s\n", 
@@ -86,7 +84,6 @@ void statement_generate_code(FILE* output, Statement* stmt, void* context) {
             // ✅ Variable assignment - evaluate expression and store
             VariableAssignment* assign = (VariableAssignment*)stmt->data;
             if (assign) {
-                FunctionDeclaration* func = (FunctionDeclaration*)context;
                 int offset = function_get_var_offset(func, assign->name);
                 
                 fprintf(output, "    # Assignment: %s = ...\n", assign->name);
@@ -94,7 +91,7 @@ void statement_generate_code(FILE* output, Statement* stmt, void* context) {
                 // Evaluate expression
                 if (assign->value_expr) {
                     ArithmeticExpr* expr = (ArithmeticExpr*)assign->value_expr;
-                    arithmetic_generate_code(output, expr, context);  // ✅ Pass context!
+                    arithmetic_generate_code(output, expr, func);
                     
                     // Result is in r8, store to variable's stack location
                     fprintf(output, "    movq %%r8, %d(%%rbp)  # Store to %s\n", 
@@ -113,13 +110,12 @@ void statement_generate_code(FILE* output, Statement* stmt, void* context) {
                 // Special case: simple variable reference
                 if (!expr->left && !expr->right && expr->value && !expr->is_literal) {
                     // It's a variable reference - load from stack
-                    FunctionDeclaration* func = (FunctionDeclaration*)context;
                     int offset = function_get_var_offset(func, expr->value);
                     fprintf(output, "    movq %d(%%rbp), %%r8  # Load %s\n", 
                             offset, expr->value);
                 } else {
                     // Complex expression - use arithmetic codegen
-                    arithmetic_generate_code(output, expr, context);  // ✅ Pass context!
+                    arithmetic_generate_code(output, expr, func);
                 }
                 
                 // Move result from r8 to rax (x86-64 return convention)
