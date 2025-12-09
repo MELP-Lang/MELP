@@ -1,0 +1,7 @@
+function main() returns numeric
+    text greeting = "Hello"
+    text target = "World"
+    text message = greeting + " " + target
+    println(message)
+    return 0
+end function

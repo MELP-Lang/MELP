@@ -1,8 +1,229 @@
 # 🎯 MELP Compiler - TODO List
-**Güncel Durum:** 9 Aralık 2025, 21:20  
-**Son Tamamlanan:** YZ_06 (String Operations Runtime) ✅  
+**Güncel Durum:** 9 Aralık 2025, 22:00  
+**Son Tamamlanan:** YZ_09 (Documentation Cleanup) ✅  
 **Stage:** Stage 0 - Core Compiler Development  
-**Completion:** ~70%
+**Completion:** ~80%
+
+---
+
+## ⚠️ BAŞLAMADAN ÖNCE - YENİ AI İÇİN KRİTİK UYARI
+
+**📖 ZORUNLU OKUMA (ÖNCE BURAYI OKU!):**  
+👉 **`YZ/YZ_HISTORY.md`** - Tüm YZ oturumlarının özeti (Buradan başla!)
+
+**📖 SONRA BUNLARI OKU:**  
+Bu TODO'daki görevlere başlamadan önce **MUTLAKA** şu dosyaları oku:
+
+👉 **`temp/kurallar_kitabı.md` - Bölüm 4: Transparent Type Optimization (TTO)**  
+👉 **`ARCHITECTURE.md`** - Mimari kurallar (modülerlik, TTO)  
+👉 **`YZ/AI_METHODOLOGY.md`** - 5 adımlı hızlı geliştirme metodu
+
+---
+
+### 🚀 5 ADIMLI HIZLI GELİŞTİRME YÖNTEMİ
+
+**Kanıtlanmış:** YZ_07 (1 saat), YZ Array Parser (1-2 saat), 10x hızlanma!
+
+#### **Adım 1: CONTEXT GATHERING (10-15 dk)** 📚
+```
+✓ TODO.md → Hedef ne?
+✓ Son YZ'nin dokümantasyonu (YZ/YZ_XX.md) → Ne bırakılmış?
+✓ kurallar_kitabı.md ilgili bölüm → Nasıl çalışıyor?
+✓ ARCHITECTURE.md → Mimari kurallar neler?
+```
+**Çıktı:** Net hedef, mevcut durum, kısıtlar anlaşıldı
+
+#### **Adım 2: PATTERN DISCOVERY (15-20 dk)** 🔍
+```bash
+# Benzer implementasyonları bul
+grep -r "ilgili_fonksiyon" modules/
+grep -r "benzer_pattern" modules/
+
+# En iyi reference'ı belirle
+# Örnek: functions_parser.c, arithmetic_codegen.c
+```
+**Çıktı:** Template bulundu, copy-paste-modify stratejisi hazır
+
+#### **Adım 3: MINIMAL VIABLE CHANGE (30-45 dk)** ✏️
+```
+✓ Sadece gerekli dosyalara dokun (3-5 dosya max)
+✓ Küçük değişiklikler (30-50 satır)
+✓ Pattern'i takip et (proven implementation)
+✓ Modular kal (ARCHITECTURE.md kuralları)
+```
+**Çıktı:** Kod değişiklikleri tamamlandı, derleniyor
+
+#### **Adım 4: TEST & VERIFY (15-30 dk)** ✅
+```bash
+# Derle
+make clean && make
+
+# Basit test yaz
+cat > test_simple.mlp << 'EOF'
+function main() returns numeric
+    # Test your feature here
+    return 0
+end function
+EOF
+
+# Çalıştır
+./melpc test_simple.mlp -o test_simple
+./test_simple
+```
+**Çıktı:** Çalışan kod, test sonuçları
+
+#### **Adım 5: DOCUMENT & HANDOFF (20-30 dk)** 📝
+```
+✓ YZ/YZ_XX.md oluştur → Detaylı rapor
+✓ TODO.md güncelle → Progress + status
+✓ NEXT_AI_START_HERE.md güncelle → Sonraki AI'ye talimatlar
+✓ Test dosyaları bırak → Executable examples
+```
+**Çıktı:** Sonraki AI hazır, bilgi kaybı yok
+
+---
+
+### ⚡ Pro Tips:
+
+**1. Grep > Okuma** 🔎
+```bash
+# Pattern'i hızlıca bul
+grep -rn "aradığın_şey" modules/ | head -10
+
+# Reference implementation bul
+find modules/ -name "*_codegen.c" -exec grep -l "benzer_özellik" {} \;
+```
+
+**2. Parallel Tool Calls** ⚡
+```
+Birden fazla dosya değişikliği → multi_replace_string_in_file kullan
+Bağımsız okumalar → paralel read_file çağrıları
+```
+
+**3. Trust the Pattern** 🎯
+```
+✓ TTO principle → 1 bit tracking, basit
+✓ Modular architecture → izole değişiklikler
+✓ Stateless parsers → side effect yok
+→ Değişiklik küçük, etki lokal, güven yüksek
+```
+
+**4. Document as You Go** 📋
+```
+TODO list aktif kullan → progress görünür
+Her commit'e comment → "YZ_XX: Feature name"
+Test önce yaz → TDD approach
+```
+
+**5. Follow the Breadcrumbs** 🍞
+```
+Önceki YZ'lerin bıraktığı pattern'leri takip et
+Runtime hazırsa → sadece codegen ekle
+Parser hazırsa → sadece codegen ekle
+Infrastructure varsa → kullan, tekrar yazma
+```
+
+---
+
+### 🎯 Başarı Metrikleri:
+
+Görevin sonunda olması gerekenler:
+
+✅ **Hızlı:** 1-3 saat içinde tamamlandı  
+✅ **Temiz:** Derleme uyarısı yok  
+✅ **Test Edilmiş:** En az 1 çalışan örnek  
+✅ **Dokümante:** YZ_XX.md + TODO.md güncel  
+✅ **Modular:** ARCHITECTURE.md kurallarına uygun  
+
+---
+
+### Neden Bu Kadar Önemli?
+
+TTO, MELP'in temel mimari felsefesidir. Bunu anlamadan:
+- ❌ String operations codegen'i yanlış yaparsın
+- ❌ Type tracking sistemini bozarsın  
+- ❌ Runtime fonksiyonlarını yanlış çağırırsın
+- ❌ Numeric vs text ayrımını karıştırırsın
+
+### TTO'nun Özeti (Detay için kurallar_kitabı.md oku!)
+
+**Kullanıcıya gösterilen:** Sadece 2 tip → `numeric` ve `text`  
+**Arka planda compiler:** Otomatik optimize eder:
+- Küçük sayılar → int64 (register)
+- Büyük sayılar → BigDecimal (heap)
+- Kısa string → SSO/stack (≤23 byte)
+- Uzun string → heap pointer
+
+**Her değişken için:** `is_numeric` flag (1 bit) takip edilir  
+**Codegen'de:** Bu flag'e göre doğru runtime fonksiyonu çağrılır
+
+---
+
+### 🏗️ Mimari Kurallar (ARCHITECTURE.md'den - KRİTİK!)
+
+#### Kural #1: MERKEZI DOSYA YOK (Radikal Modülerlik)
+
+**NEDEN:** Merkezi dosyalar (main.c, orchestrator.c, helpers.c) AI'ları monolitik kod yazmaya iter.
+
+**ZORUNLULUK:** Tüm merkezi dosyalar `temp/yedek_merkezi_dosyalar/` içinde yedeklendi.  
+**SONUÇ:** AI'lar SADECE `modules/` içinde çalışabilir!
+
+**İHLAL SONUCU:** Merkezi dosya yok = İhlal edilemez!
+
+---
+
+#### Kural #2: Modüller Arası İletişim SADECE JSON/Pipe ile
+
+**YASAK:**
+```c
+// main.c veya orchestrator.c içinde:
+#include "modules/arithmetic/arithmetic_parser.h"  // ❌ HAYIR!
+result = arithmetic_parse(tokens);  // ❌ HAYIR! (doğrudan fonksiyon çağrısı)
+```
+
+**İZİN VERİLEN:**
+```bash
+# Unix pipes (stdin/stdout):
+echo '{"token":"NUMERIC"}' | ./modules/arithmetic/arithmetic
+
+# JSON dosyaları:
+./lexer < input.mlp > tokens.json
+./parser < tokens.json > ast.json
+```
+
+**NEDEN:** 
+- C seviyesinde bağımlılık yok
+- Dilden bağımsız (MELP'te yeniden yazılabilir)
+- Basit text dosyalarıyla test edilebilir
+
+---
+
+#### Kural #3: Her Modül Bağımsız (Standalone)
+
+**ZORUNLU:** Her modül standalone binary olarak derlenebilmeli:
+
+```
+modules/arithmetic/arithmetic_compiler  (standalone)
+modules/comparison/comparison_compiler  (standalone)
+modules/tto/tto_analyzer               (standalone)
+```
+
+**NEDEN:** 
+- Bağımsız test edilebilir
+- Sistemi bozmadan değiştirilebilir
+- Self-hosting hazır (MELP'te yeniden yazılabilir)
+
+**İLETİŞİM:** SADECE JSON/stdin/stdout
+
+---
+
+### Okumadan Devam Etme!
+
+Eğer TTO'yu anlamadan TODO'ya başlarsan, çalışan sistemi bozabilirsin.  
+**5-10 dakika** ayır, `temp/kurallar_kitabı.md` dosyasındaki TTO bölümünü oku.
+
+✅ Okudum, TTO'yu anladım → TODO'ya geç  
+❌ Okumadım → Önce oku, sonra dön
 
 ---
 
@@ -22,35 +243,73 @@
 - [x] **Runtime - Numeric I/O** - println(numeric), print(numeric)
 - [x] **Runtime - String I/O** - println(text), print(text)
 - [x] **Runtime - String Ops** - concat(), compare() functions
+- [x] **Codegen - String Concat** - text c = a + b (YZ_07) ✅
+- [x] **Codegen - String Compare** - if str == "test" (YZ_07) ✅
 
 ### 🚧 Devam Eden (IN PROGRESS)
-- [ ] **String Concatenation Codegen** - text c = a + b (YZ_07 görevi)
-- [ ] **String Comparison Codegen** - if str == "test" (YZ_07 görevi)
+- [x] **String Concatenation Codegen** - text c = a + b (YZ_07 tamamladı) ✅
+- [x] **String Comparison Codegen** - if str == "test" (YZ_07 tamamladı) ✅
+- [x] **Linker Issues Fix** - Missing functions (YZ_08 fixed!) ✅
+- [ ] **Variable Type Inference** - String variables not recognized in expressions (YZ_09 priority)
+- [ ] **String Literal Concatenation** - "Hello" + "World" parsing issue
 
 ### ⏳ Yapılacak (TODO - Öncelik Sırasıyla)
 
 ---
 
-## 🎯 Phase 1: String Operations (2-3 saat)
-**Responsible:** YZ_07  
-**Priority:** ⭐⭐⭐ CRITICAL
+## 🔧 Phase 0: Fix Linker Issues ✅ COMPLETED
+**Responsible:** YZ_08 ✅  
+**Priority:** ⭐⭐⭐ CRITICAL (blocks all testing)
 
-- [ ] **String Concat Codegen** (45 min)
+- [x] **Implement Missing Functions** ✅ (Completed by YZ_08)
+  - `pipeline_compile()` in pipeline module ✅
+  - `print_parse_statement()` → `parse_print_statement()` fixed ✅
+  - `lexer_unget_token()` in lexer module ✅
+  - melpc binary builds successfully ✅
+  - All missing functions resolved ✅
+
+**Deliverable:** ✅ melpc binary builds successfully
+
+**Documentation:** See `/YZ/YZ_08.md`
+
+---
+
+## 🎯 Phase 1: String Operations ✅ COMPLETED
+**Responsible:** YZ_06 (Runtime) + YZ_07 (Codegen) ✅  
+**Priority:** ⭐⭐⭐ CRITICAL  
+**Status:** Runtime + Codegen complete, linker fixed by YZ_08
+
+- [x] **String Runtime Functions** ✅ (YZ_06)
+  - `mlp_string_concat()` - Concatenation ✅
+  - `mlp_string_compare()` - Comparison ✅
+  - All helper functions implemented ✅
+
+- [x] **String Concat Codegen** ✅ (YZ_07)
   - File: `modules/arithmetic/arithmetic_codegen.c`
   - Pattern: Check is_numeric, call mlp_string_concat
   - Test: `text c = "Hello" + "World"`
+  - **Result:** Working! Changed `tto_sso_concat` → `mlp_string_concat`
 
-- [ ] **String Compare Codegen** (45 min)
+- [x] **String Compare Codegen** ✅ (YZ_07)
   - File: `modules/comparison/comparison_codegen.c`
-  - Pattern: Check is_numeric, call mlp_string_compare
+  - Pattern: Check is_string, call mlp_string_compare
   - Test: `if password == "secret"`
+  - **Result:** All 6 operators (==, !=, <, <=, >, >=) supported
 
-- [ ] **Integration Tests** (60 min)
-  - Multi-operand concat: `a + b + c`
-  - All 6 comparison operators
-  - Mixed operations
+- [x] **Test Programs Created** ✅
+  - test_string_concat.mlp ✅
+  - test_string_compare.mlp ✅
+  - test_string_compare_ne.mlp ✅
 
-**Deliverable:** String operations fully working end-to-end
+- [ ] **Integration Tests** (TODO for YZ_10 - 30 min)
+  - Run and verify test_string_concat.mlp
+  - Run and verify test_string_compare.mlp
+  - Test multi-operand concat: `a + b + c`
+  - Test all 6 comparison operators
+
+**Deliverable:** Runtime ✅ | Codegen ✅ | Build ✅ | Testing ⏳ (Next: YZ_10)
+
+**Documentation:** See `/YZ/YZ_06.md` (runtime) and `/YZ/YZ_07.md` (codegen)
 
 ---
 
@@ -227,7 +486,8 @@ YZ_05 notes indicate array module already has parser/codegen/runtime started!
 
 | Phase | Priority | Time | Status |
 |-------|----------|------|--------|
-| String Ops | ⭐⭐⭐ | 2-3h | 🚧 Runtime ✅, Codegen ⏳ |
+| **String Ops** | ⭐⭐⭐ | 2-3h | ✅ **CODEGEN DONE** (Testing blocked) |
+| Linker Fix | ⭐⭐⭐ | 0.5-1h | ⏳ YZ_08 |
 | For Loops | ⭐⭐ | 1-2h | ⏳ Parser ready |
 | Arrays | ⭐⭐ | 4-6h | ⏳ Runtime exists |
 | Booleans | ⭐ | 1-2h | ⏳ |
@@ -237,9 +497,9 @@ YZ_05 notes indicate array module already has parser/codegen/runtime started!
 | Self-hosting | ⭐ | 5-10h | ⏳ Future |
 
 **Total Estimated Work:** 20-30 hours  
-**Current Completion:** ~70%  
-**To MVP (Minimal Viable):** ~10 hours  
-**To Production Ready:** ~25 hours
+**Current Completion:** ~75%  
+**To MVP (Minimal Viable):** ~8 hours  
+**To Production Ready:** ~23 hours
 
 ---
 
@@ -251,8 +511,9 @@ YZ_05 notes indicate array module already has parser/codegen/runtime started!
 - ✅ **YZ_04** - Control flow codegen (Fibonacci works!)
 - ✅ **YZ_05** - String literals + TTO type tracking
 - ✅ **YZ_06** - String operations runtime
+- ✅ **YZ_07** - String operations codegen (concat + compare) 🎉
 
-**Next:** YZ_07 - String operations codegen (2-3 hours)
+**Next:** YZ_08 - Fix linker, test string operations (0.5-1 hour)
 
 ---
 

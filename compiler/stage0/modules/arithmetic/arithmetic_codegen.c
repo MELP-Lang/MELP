@@ -163,13 +163,13 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
     int is_string = (expr->left && expr->left->is_string) || 
                     (expr->right && expr->right->is_string);
     
-    // Handle string concatenation
+    // Handle string concatenation (YZ_07)
     if (is_string && expr->op == ARITH_ADD) {
-        fprintf(output, "    # String concatenation\n");
-        fprintf(output, "    movq %%r%d, %%rdi  # First string\n", left_reg + 8);
-        fprintf(output, "    movq %%r%d, %%rsi  # Second string\n", right_reg + 8);
-        fprintf(output, "    call tto_sso_concat\n");
-        fprintf(output, "    movq %%rax, %%r%d  # Result string pointer\n", left_reg + 8);
+        fprintf(output, "    # String concatenation (text + text)\n");
+        fprintf(output, "    movq %%r%d, %%rdi  # arg1: first string pointer\n", left_reg + 8);
+        fprintf(output, "    movq %%r%d, %%rsi  # arg2: second string pointer\n", right_reg + 8);
+        fprintf(output, "    call mlp_string_concat  # Returns new string in %%rax\n");
+        fprintf(output, "    movq %%rax, %%r%d  # Store result string pointer\n", target_reg + 8);
         return;
     }
     

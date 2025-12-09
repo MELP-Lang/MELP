@@ -23,6 +23,7 @@ ComparisonExpr* comparison_parse_expression_stateless(Lexer* lexer, Token* first
     expr->left_value = NULL;
     expr->right_value = NULL;
     expr->is_float = 0;
+    expr->is_string = 0;  // YZ_07: Initialize string flag
     
     // ✅ Phase 3.2: Initialize logical chaining fields
     expr->chain_op = LOG_NONE;
@@ -34,9 +35,14 @@ ComparisonExpr* comparison_parse_expression_stateless(Lexer* lexer, Token* first
         expr->left_value = strdup(first_token->value);
         expr->left_is_literal = 1;
         expr->is_float = (strchr(expr->left_value, '.') != NULL);
+    } else if (first_token->type == TOKEN_STRING) {  // YZ_07: String literal support
+        expr->left_value = strdup(first_token->value);
+        expr->left_is_literal = 1;
+        expr->is_string = 1;
     } else if (first_token->type == TOKEN_IDENTIFIER) {
         expr->left_value = strdup(first_token->value);
         expr->left_is_literal = 0;
+        // TODO: Check variable type from symbol table for is_string
     } else {
         free(expr);
         return NULL;
@@ -82,9 +88,14 @@ ComparisonExpr* comparison_parse_expression_stateless(Lexer* lexer, Token* first
         if (!expr->is_float) {
             expr->is_float = (strchr(expr->right_value, '.') != NULL);
         }
+    } else if (right_tok->type == TOKEN_STRING) {  // YZ_07: String literal support
+        expr->right_value = strdup(right_tok->value);
+        expr->right_is_literal = 1;
+        expr->is_string = 1;
     } else if (right_tok->type == TOKEN_IDENTIFIER) {
         expr->right_value = strdup(right_tok->value);
         expr->right_is_literal = 0;
+        // TODO: Check variable type from symbol table for is_string
     } else {
         token_free(right_tok);
         free(expr->left_value);

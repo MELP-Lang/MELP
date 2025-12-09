@@ -46,8 +46,17 @@ void comparison_generate_code(FILE* output, ComparisonExpr* expr, void* context)
     // Load right operand into r9 (or xmm1)
     load_value(output, expr->right_value, expr->right_is_literal, 1, expr->is_float, context);
     
+    // YZ_07: Handle string comparison
+    if (expr->is_string) {
+        fprintf(output, "    # String comparison (text vs text)\n");
+        fprintf(output, "    movq %%r8, %%rdi  # arg1: first string\n");
+        fprintf(output, "    movq %%r9, %%rsi  # arg2: second string\n");
+        fprintf(output, "    call mlp_string_compare  # Returns <0, 0, or >0\n");
+        fprintf(output, "    # Compare result: <0 (less), 0 (equal), >0 (greater)\n");
+        fprintf(output, "    cmpq $0, %%rax\n");
+    }
     // Compare
-    if (expr->is_float) {
+    else if (expr->is_float) {
         fprintf(output, "    ucomisd %%xmm1, %%xmm0\n");
     } else {
         fprintf(output, "    cmpq %%r9, %%r8\n");
@@ -90,8 +99,16 @@ void comparison_generate_conditional_jump(FILE* output, ComparisonExpr* expr, co
     load_value(output, expr->left_value, expr->left_is_literal, 0, expr->is_float, context);
     load_value(output, expr->right_value, expr->right_is_literal, 1, expr->is_float, context);
     
+    // YZ_07: Handle string comparison
+    if (expr->is_string) {
+        fprintf(output, "    # String comparison for conditional\n");
+        fprintf(output, "    movq %%r8, %%rdi  # arg1: first string\n");
+        fprintf(output, "    movq %%r9, %%rsi  # arg2: second string\n");
+        fprintf(output, "    call mlp_string_compare\n");
+        fprintf(output, "    cmpq $0, %%rax  # Compare result with 0\n");
+    }
     // Compare
-    if (expr->is_float) {
+    else if (expr->is_float) {
         fprintf(output, "    ucomisd %%xmm1, %%xmm0\n");
     } else {
         fprintf(output, "    cmpq %%r9, %%r8\n");
