@@ -4,21 +4,17 @@
 #include "logical.h"
 #include "../lexer/lexer.h"
 
-// Logical parser structure
-typedef struct {
-    Lexer* lexer;
-    Token* current_token;
-} LogicalParser;
+// STATELESS PATTERN: Parse functions take Lexer and Token directly
+// No parser struct needed (follows ARCHITECTURE.md pattern)
 
-// Create/free parser
-LogicalParser* logical_parser_create(Lexer* lexer);
-void logical_parser_free(LogicalParser* parser);
+// Parse logical expression (entry point)
+// first_token is BORROWED - don't free inside function
+LogicalExpr* logical_parse_expression_stateless(Lexer* lexer, Token* first_token);
 
-// Parse logical expression
-LogicalExpr* logical_parse_expression(LogicalParser* parser);
-LogicalExpr* logical_parse_or(LogicalParser* parser);
-LogicalExpr* logical_parse_and(LogicalParser* parser);
-LogicalExpr* logical_parse_not(LogicalParser* parser);
-LogicalExpr* logical_parse_primary(LogicalParser* parser);
+// Internal parsing functions (not typically called directly)
+LogicalExpr* logical_parse_or_stateless(Lexer* lexer, Token** current);
+LogicalExpr* logical_parse_and_stateless(Lexer* lexer, Token** current);
+LogicalExpr* logical_parse_not_stateless(Lexer* lexer, Token** current);
+LogicalExpr* logical_parse_primary_stateless(Lexer* lexer, Token** current);
 
 #endif // LOGICAL_PARSER_H

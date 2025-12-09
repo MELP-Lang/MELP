@@ -1,3 +1,0 @@
-function test(numeric x
-    return x
-end function

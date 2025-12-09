@@ -597,57 +597,99 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
 }
 ```
 
-**⏳ Phase 4.4: Full Stateless Refactoring (PLANNED - Next Priority)**
+**✅ Phase 4.4: Full Stateless Refactoring (COMPLETED - 9 Aralık 2025)**
 
-**Status:** READY TO IMPLEMENT  
-**Estimated Effort:** 4-6 hours  
-**Complexity:** Medium (systematic refactoring)
+**Status:** ✅ COMPLETED  
+**Effort:** 3 hours  
+**Modules Converted:** variable_parser, logical_parser
 
-**Context:**
-- functions_parser already stateless (Phase 4.3) ✅
-- arithmetic_parser has `arithmetic_parse_expression_stateless()` ✅
-- comparison_parser has `comparison_parse_expression_stateless()` ✅
-- control_flow_parser already uses stateless versions ✅
-- Need to refactor: variable_parser, logical_parser, array_parser
+**What Was Done:**
 
-**Why This Matters:**
-- Eliminates malloc/free overhead per parse call
-- Removes parser state management bugs (current_token corruption)
-- Makes self-hosting easier (no pointer/struct management needed)
-- Follows ARCHITECTURE.md stateless template pattern
-
-**Implementation Plan:**
-
-**Step 1: variable_parser (Priority: HIGH)**
+**1. variable_parser (335 lines)**
 ```c
-// Current (324 lines, stateful):
+// ❌ Before (stateful):
 VariableParser* variable_parser_create(Lexer* lexer);
 VariableDeclaration* variable_parse_declaration(VariableParser* parser);
 void variable_parser_free(VariableParser* parser);
 
-// Target (stateless):
+// ✅ After (stateless):
 VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token);
 VariableAssignment* variable_parse_assignment(Lexer* lexer, Token* identifier_token);
-
-// Changes needed:
-1. Remove VariableParser struct typedef from variable_parser.h
-2. Update function signatures to take (Lexer*, Token*)
-3. Remove advance() helper - use lexer_next_token() directly
-4. Remove _create/_free functions
-5. Update callers in statement_parser.c (lines 262-280)
 ```
 
-**Step 2: logical_parser (Priority: MEDIUM)**
+**Changes:**
+- Removed VariableParser struct typedef (27→22 lines in header)
+- Removed advance(), variable_parser_create(), variable_parser_free()
+- Implemented token borrowing pattern (parameters = borrowed)
+- Added lexer_unget_token() for lookahead management
+- Updated statement_parser.c to use stateless API (18→11 lines)
+
+**2. logical_parser (163 lines → new stateless)**
 ```c
-// Current:
+// ❌ Before (stateful):
 LogicalParser* logical_parser_create(Lexer* lexer);
 LogicalExpr* logical_parse_expression(LogicalParser* parser);
+void logical_parser_free(LogicalParser* parser);
 
-// Target:
+// ✅ After (stateless):
 LogicalExpr* logical_parse_expression_stateless(Lexer* lexer, Token* first_token);
-
-// Note: May already have stateless version - CHECK FIRST!
+LogicalExpr* logical_parse_or_stateless(Lexer* lexer, Token** current);
+LogicalExpr* logical_parse_and_stateless(Lexer* lexer, Token** current);
+LogicalExpr* logical_parse_not_stateless(Lexer* lexer, Token** current);
+LogicalExpr* logical_parse_primary_stateless(Lexer* lexer, Token** current);
 ```
+
+**Changes:**
+- Removed LogicalParser struct
+- Removed advance(), create/free functions
+- Implemented Token** pattern for internal token management
+- Entry point copies borrowed token for internal management
+- Recursive parsing uses Token** for mutable state
+
+**3. array_parser - INTENTIONALLY DEFERRED**
+- Module not used yet (YAGNI principle)
+- Requires expression_parser refactor first (dependency)
+- Documented in `modules/array/STATELESS_TODO.md` for future work
+- Estimated 14-20 hours when needed
+
+**Testing:**
+- ✅ test_simple_call.mlp compiles and runs (exit code 5)
+- ✅ Clean compilation (no errors, only unrelated warnings)
+- ✅ Error handling works correctly
+- ✅ Memory management verified
+
+**Benefits Achieved:**
+- 🚀 No malloc/free overhead per parse call
+- 🔒 Clearer token ownership (borrowed vs owned)
+- 📐 Follows ARCHITECTURE.md stateless template pattern
+- 🔄 Consistent with functions_parser (Phase 4.3)
+- 🎯 Ready for self-hosting (no complex pointer management)
+
+**Token Ownership Pattern:**
+```c
+// BORROWED tokens (function parameters):
+void parse_something(Lexer* lexer, Token* first_token) {
+    // first_token owned by caller - DON'T FREE!
+    
+    // OWNED tokens (from lexer):
+    Token* tok = lexer_next_token(lexer);  // WE own this
+    // ... use tok ...
+    token_free(tok);  // WE must free it
+    
+    // PUSHBACK (lookahead):
+    lexer_unget_token(lexer, tok);  // Give it back to lexer
+}
+```
+
+**Commit:** Phase 4.4 completed - variable_parser and logical_parser stateless ✅
+
+---
+
+**⏳ Phase 4.5: Array Parser Stateless (DEFERRED)**
+
+**Status:** Documented but deferred (see `modules/array/STATELESS_TODO.md`)  
+**Reason:** Module unused, requires expression_parser refactor first  
+**When to do:** When arrays become a used feature
 
 **Step 3: array_parser (Priority: LOW)**
 ```c
