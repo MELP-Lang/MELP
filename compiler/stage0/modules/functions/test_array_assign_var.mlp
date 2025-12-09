@@ -1,0 +1,9 @@
+function main() returns numeric
+    numeric[] arr = [5, 10, 15]
+    numeric i = 1
+    numeric old = arr[i]
+    arr[i] = 50
+    numeric new = arr[i]
+    numeric result = new - old
+    return result
+end function

@@ -202,48 +202,49 @@ void codegen_tuple_create(FILE* output, Tuple* tuple) {
 
 // Generate array index access
 void codegen_array_index(FILE* output, const char* array_name, int index) {
-    fprintf(output, "    ; Array index access: %s[%d]\n", array_name, index);
+    fprintf(output, "    # Array index access: %s[%d]\n", array_name, index);
     
-    // Load array base address
-    fprintf(output, "    mov rbx, [%s]  ; Array base address\n", array_name);
+    // Array is stored on stack, load the heap pointer first
+    // Note: array_name should be stack offset like "-8(%rbp)" not symbol name
+    fprintf(output, "    movq %s, %%rbx  # Load array pointer from stack\n", array_name);
     
     // Calculate offset: index * 8 (assuming 8-byte elements)
     int offset = index * 8;
-    fprintf(output, "    mov rax, [rbx + %d]  ; Get element at index %d\n", offset, index);
+    fprintf(output, "    movq %d(%%rbx), %%rax  # Get element at index %d\n", offset, index);
 }
 
 // Generate list index access (with runtime type info)
 void codegen_list_index(FILE* output, const char* list_name, int index) {
-    fprintf(output, "    ; List index access: %s(%d)\n", list_name, index);
+    fprintf(output, "    # List index access: %s(%d)\n", list_name, index);
     
-    // Load list structure
-    fprintf(output, "    mov rbx, [%s]  ; List element array\n", list_name);
-    fprintf(output, "    mov rcx, [%s+8]  ; List type array\n", list_name);
+    // Load list structure (AT&T syntax)
+    fprintf(output, "    movq %s(%%rip), %%rbx  # List element array\n", list_name);
+    fprintf(output, "    movq 8+%s(%%rip), %%rcx  # List type array\n", list_name);
     
     // Get element
     int offset = index * 8;
-    fprintf(output, "    mov rax, [rbx + %d]  ; Element pointer\n", offset);
+    fprintf(output, "    movq %d(%%rbx), %%rax  # Element pointer\n", offset);
     
     // Get type info
     int type_offset = index * 4;
-    fprintf(output, "    mov edx, [rcx + %d]  ; Element type\n", type_offset);
+    fprintf(output, "    movl %d(%%rcx), %%edx  # Element type\n", type_offset);
 }
 
 // Generate index access with variable index (runtime calculation)
 void codegen_array_index_var(FILE* output, const char* array_name, const char* index_var) {
-    fprintf(output, "    ; Array index access: %s[%s]\n", array_name, index_var);
+    fprintf(output, "    # Array index access: %s[%s]\n", array_name, index_var);
     
-    // Load array base address
-    fprintf(output, "    lea rbx, [%s]  ; Array base address\n", array_name);
+    // Load array base address (AT&T syntax)
+    fprintf(output, "    leaq %s(%%rip), %%rbx  # Array base address\n", array_name);
     
     // Load index from variable
-    fprintf(output, "    mov rcx, [%s]  ; Load index value\n", index_var);
+    fprintf(output, "    movq %s(%%rip), %%rcx  # Load index value\n", index_var);
     
     // Calculate offset: index * 8 (assuming 8-byte elements)
-    fprintf(output, "    shl rcx, 3  ; index * 8\n");
+    fprintf(output, "    shlq $3, %%rcx  # index * 8\n");
     
     // Get element at calculated offset
-    fprintf(output, "    mov rax, [rbx + rcx]  ; Get element at index\n");
+    fprintf(output, "    movq (%%rbx,%%rcx), %%rax  # Get element at index\n");
 }
 
 // Generate index access from IndexAccess struct

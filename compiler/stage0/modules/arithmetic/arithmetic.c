@@ -1,5 +1,6 @@
 #include "arithmetic.h"
 #include "../codegen_context/codegen_context.h"
+#include "../array/array.h"  // YZ_14: For IndexAccess
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -26,6 +27,20 @@ void arithmetic_expr_free(ArithmeticExpr* expr) {
             free(expr->func_call->arguments);
         }
         free(expr->func_call);
+    }
+    
+    // YZ_14: Free array access
+    if (expr->array_access) {
+        if (expr->array_access->collection_name) {
+            free(expr->array_access->collection_name);
+        }
+        if (expr->array_access->index_type == 1 && expr->array_access->index.var_index) {
+            free(expr->array_access->index.var_index);
+        }
+        if (expr->array_access->index_type == 2 && expr->array_access->index.expr_index) {
+            arithmetic_expr_free((ArithmeticExpr*)expr->array_access->index.expr_index);
+        }
+        free(expr->array_access);
     }
     
     // Phase 2.3: Free TTO info

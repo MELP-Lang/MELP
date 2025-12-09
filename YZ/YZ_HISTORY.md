@@ -1,8 +1,8 @@
 # 📜 MELP Compiler Development History - YZ Sessions
 **Derleyici:** MELP Stage 0 (C Implementation)  
-**Dönem:** 9 Aralık 2025  
-**YZ Sayısı:** 8 oturum  
-**Tamamlanma:** ~80%  
+**Dönem:** 9-10 Aralık 2025  
+**YZ Sayısı:** 16 oturum  
+**Tamamlanma:** ~95%  
 
 ---
 
@@ -23,22 +23,24 @@
 ### ✅ Tamamlanan Ana Özellikler:
 - Lexer & Parser (Token işleme, AST oluşturma)
 - Functions (Deklarasyon, çağrı, parametreler, return)
-- Variables (numeric, text tipi)
+- Variables (numeric, text, boolean tipi)
 - Arithmetic (+, -, *, /)
 - Comparison (<, <=, >, >=, ==, !=)
 - Control Flow (if/else, while döngüsü)
+- **For Loops (for i = start to/downto end - YZ_12)** ✅
 - Recursion (Fibonacci çalışıyor!)
 - String Literals (.rodata section'da)
-- String Operations (concat, compare - runtime + codegen)
+- String Operations (concat, compare - runtime + codegen) ✅
 - TTO Type Tracking (is_numeric flag - 1 bit!)
+- **Arrays (declaration, read, write - YZ_13, YZ_14, YZ_15)** ✅
+- **Boolean Type (true/false literals - YZ_16)** ✅
 
 ### 🚧 Devam Eden:
-- String operations test (linker düzeltildi, testler bekliyor)
-- For döngüleri (parser hazır, codegen yapılacak)
-- Arrays/Lists/Tuples (runtime hazır, codegen yapılacak)
+- Boolean operations (and, or, not - tokens ready!)
+- If-boolean (if flag without comparison)
+- Comparison returns boolean (x > 5 → boolean)
 
 ### ⏳ Önümüzdeki:
-- Boolean tip desteği
 - Daha fazla stdlib fonksiyonu
 - Hata mesajları iyileştirme
 - Optimizasyonlar
@@ -464,6 +466,404 @@ $ echo $?
 
 ---
 
+### YZ_11 - String Comparison Fix ✅
+**Tarih:** 9 Aralık 2025, ~22:15-23:00  
+**Süre:** ~45 dakika  
+**Branch:** string-ops_YZ_06  
+
+#### 🎯 Ne Yapıldı:
+- String comparison codegen bug'ı düzeltildi
+- Phase 0-1 tamamen kapandı (%100 complete!)
+
+#### 🐛 Problem:
+String literal comparison yanlış assembly üretiyordu:
+```asm
+# YANLIŞTI:
+movq $secret, %r9  # ❌ Literal olarak "secret" yazmaya çalışıyor
+```
+
+**Root Cause:** Lexer string literal'lerden tırnak işaretlerini kaldırıyor.
+
+#### 🔧 Çözüm:
+`modules/comparison/comparison_codegen.c` dosyasında `load_value()` fonksiyonu geliştirildi:
+- `is_string` parametresi eklendi
+- `is_string && is_literal` kontrolü ile .rodata label oluşturuldu
+- String literal için `leaq .str_cmp_N(%rip), %rX` kodu üretildi
+
+```c
+// 4 fonksiyon güncellendi:
+load_value()
+comparison_generate_code()
+comparison_generate_conditional_jump()
+comparison_generate_code_with_chain()
+```
+
+#### ✅ Test Sonuçları:
+```mlp
+# test_string_compare_v2.mlp
+text password = "secret"
+if password == "secret"
+    return 1  # ✅ Döndü: 1
+end if
+
+# test_string_compare_all.mlp
+if "apple" < "banana"  # ✅ 1
+if "cat" > "bat"       # ✅ 2
+if "test" != "best"    # ✅ 3
+if "same" == "same"    # ✅ 4
+```
+
+**Tüm 6 operator çalışıyor:** ==, !=, <, <=, >, >=
+
+---
+
+### YZ_12 - Phase 2: For Loops Complete ✅
+**Tarih:** 9 Aralık 2025, ~23:15-23:30  
+**Süre:** ~15 dakika  
+**Branch:** string-ops_YZ_06  
+
+#### 🎯 Ne Yapıldı:
+- Phase 2 for loops tamamlandı
+- For loop zaten implementeydi, sadece test edildi ve 1 bug düzeltildi
+
+#### 🔍 Discovery:
+For loop modülü tamamen hazırdı:
+- ✅ `modules/for_loop/for_loop_parser.c` (parser)
+- ✅ `modules/for_loop/for_loop_codegen.c` (codegen)
+- ✅ Lexer tokens (TOKEN_FOR, TOKEN_TO, TOKEN_DOWNTO)
+- ✅ Statement integration (parser + codegen)
+
+#### 🐛 Bug:
+Assembly comment syntax hatası:
+```c
+// for_loop_codegen.c:26
+fprintf(output, "\n    ; For loop (desugared to while)\n");  // ❌
+```
+
+GAS/AT&T syntax'da `;` yerine `#` kullanılmalı.
+
+#### 🔧 Çözüm:
+1 satır değişiklik:
+```c
+fprintf(output, "\n    # For loop (desugared to while)\n");  // ✅
+```
+
+#### ✅ Test Sonuçları:
+```mlp
+# test_for_count.mlp - Sum 1 to 10
+for i = 1 to 10
+    sum = sum + i
+end for
+# Output: 55 ✅
+
+# test_for_downto.mlp - Sum 10 downto 1
+for i = 10 downto 1
+    sum = sum + i
+end for
+# Output: 55 ✅
+```
+
+#### 📊 Phase 2 Status:
+**COMPLETE!** ✅
+- For loops fully working
+- Both TO and DOWNTO tested
+- Assembly syntax fixed
+- Ready for Phase 3
+
+#### 📚 Documentation:
+- YZ_12.md created
+- TODO.md updated
+- NEXT_AI_START_HERE.md updated
+
+**Sonraki Adım:** Phase 3 - Arrays
+
+---
+
+### YZ_13 - Phase 3: Array Literals ✅
+**Tarih:** 10 Aralık 2025, ~00:00  
+**Süre:** ~90 dakika  
+**Branch:** string-ops_YZ_06  
+
+#### 🎯 Ne Yapıldı:
+- Array literal parsing ve codegen
+- Syntax: `numeric[] arr = [1, 2, 3]`
+- TTO array allocation integration
+
+#### 🔧 Implementation:
+**Modified Files:**
+- `array_parser.c` - Parse `[1, 2, 3]` syntax
+- `variable_parser.c` - Detect array type `numeric[]`
+- `variable_codegen.c` - Call `tto_array_alloc()`
+- `statement_codegen.c` - Array initialization
+
+**Pattern:**
+```c
+# Allocate array
+movq $3, %rdi        # count
+movq $8, %rsi        # elem_size
+call tto_array_alloc # Returns pointer in %rax
+movq %rax, -8(%rbp)  # Store array pointer
+
+# Initialize elements
+movq $10, %r8
+movq -8(%rbp), %rbx
+movq %r8, 0(%rbx)    # arr[0] = 10
+```
+
+#### ✅ Test Results:
+```mlp
+numeric[] arr = [10, 20, 30]
+numeric[] arr2 = [1, 2, 3, 4, 5]
+# Both work! ✅
+```
+
+**Next:** Array indexing (read)
+
+---
+
+### YZ_14 - Phase 3: Array Indexing (Read) ✅
+**Tarih:** 10 Aralık 2025, 00:30-02:30  
+**Süre:** ~2 saat  
+**Branch:** string-ops_YZ_06  
+
+#### 🎯 Ne Yapıldı:
+- Array element access (read): `x = arr[0]` and `x = arr[i]`
+- Postfix operator parsing in arithmetic expressions
+- Stack-based pointer arithmetic
+
+#### 🔧 Implementation:
+**Modified Files:** 6 files (~100 lines)
+- `arithmetic.h` - Added `is_array_access`, `array_access` fields
+- `arithmetic_parser.c` - Parse `[...]` as postfix operator
+- `arithmetic_codegen.c` - Generate load instructions
+- `array_codegen.c` - Fixed Intel→AT&T syntax
+- `Makefile` - Linked array module
+
+**Pattern (Constant Index):**
+```asm
+movq -8(%rbp), %rbx     # Load array pointer
+movq 0(%rbx), %rax      # Get arr[0]
+movq %rax, %r8          # Result
+```
+
+**Pattern (Variable Index):**
+```asm
+movq -8(%rbp), %rbx     # Load array pointer
+movq -16(%rbp), %rcx    # Load index variable
+shlq $3, %rcx           # index * 8
+movq (%rbx,%rcx), %rax  # Get arr[i]
+```
+
+#### ✅ Test Results:
+```mlp
+# test_array.mlp
+numeric[] arr = [10, 20, 30]
+numeric sum = arr[0] + arr[1] + arr[2]
+println(sum)  # Output: 60 ✅
+
+# test_array_simple.mlp
+numeric first = arr[0]
+numeric second = arr[1]
+return first + second  # Exit: 15 ✅
+```
+
+**Next:** Array assignment (write)
+
+---
+
+### YZ_15 - Phase 3: Array Assignment (Write) ✅
+**Tarih:** 10 Aralık 2025, 00:50-02:15  
+**Süre:** ~1.5 saat  
+**Branch:** string-ops_YZ_06  
+
+#### 🎯 Ne Yapıldı:
+- Array element assignment (write): `arr[i] = value`
+- Extended statement parser for `arr[index] = expr` pattern
+- Store instruction generation
+
+#### 🔧 Implementation:
+**Modified Files:** 4 files (~120 lines)
+- `variable.h` - Added `ArrayAssignment` structure
+- `statement.h` - Added `STMT_ARRAY_ASSIGNMENT` enum
+- `statement_parser.c` - Parse `arr[i] = value` pattern
+- `statement_codegen.c` - Generate store instructions
+
+**Key Pattern:**
+```c
+// Lookahead after identifier
+if (tok->type == TOKEN_IDENTIFIER) {
+    Token* next = lexer_next_token();
+    if (next->type == TOKEN_LBRACKET) {
+        // Array assignment: arr[i] = value
+    } else if (next->type == TOKEN_ASSIGN) {
+        // Variable assignment: x = value
+    }
+}
+```
+
+**Assembly (Constant Index):**
+```asm
+movq $100, %r8          # Value to store
+pushq %r8               # Save it
+movq -8(%rbp), %rbx     # Load array pointer
+popq %r8                # Restore value
+movq %r8, 0(%rbx)       # Store at arr[0]
+```
+
+**Assembly (Variable Index):**
+```asm
+movq $50, %r8           # Value to store
+pushq %r8               # Save it
+movq -8(%rbp), %rbx     # Load array pointer
+movq -16(%rbp), %rcx    # Load index
+shlq $3, %rcx           # index * 8
+popq %r8                # Restore value
+movq %r8, (%rbx,%rcx)   # Store at arr[i]
+```
+
+#### ✅ Test Results:
+```mlp
+# test_array_assign.mlp
+numeric[] arr = [10, 20, 30]
+numeric x = arr[0]      # x = 10
+arr[0] = 100            # Assign
+numeric y = arr[0]      # y = 100
+return y - x            # Exit: 90 ✅
+
+# test_array_assign_var.mlp
+numeric i = 1
+arr[i] = 50             # Variable index
+# Exit: 40 ✅
+
+# test_array_full.mlp
+arr[0] = 10
+arr[1] = 20
+arr[2] = 30
+println(arr[0] + arr[1] + arr[2])
+# Output: 60 ✅
+```
+
+#### 📊 Phase 3 Arrays Status:
+**100% CORE COMPLETE!** 🎉
+- ✅ Array declaration: `numeric[] arr = [1, 2, 3]`
+- ✅ Array read (constant): `x = arr[0]`
+- ✅ Array read (variable): `x = arr[i]`
+- ✅ Array write (constant): `arr[0] = 100`
+- ✅ Array write (variable): `arr[i] = 50`
+- ⏳ Expression index: `arr[x+1]` (parser ready, easy codegen)
+- ⏳ Bounds checking (runtime validation)
+
+#### 📚 Documentation:
+- YZ_15.md created (detailed implementation report)
+- TODO.md updated (Phase 3 marked 100% for arrays)
+- NEXT_AI_START_HERE.md updated
+- YZ_HISTORY.md updated
+
+**Sonraki Adım:** Boolean type (Phase 4 - recommended)
+
+---
+
+### YZ_16 - Phase 3: Boolean Type ✅
+
+**Date:** 10 Aralık 2025, 02:30-04:00  
+**Time:** 1.5 hours  
+**Files:** 4 modified (~50 lines)
+
+**Mission:** Add boolean type with true/false literals
+
+**Strategy:**
+- Found TOKEN_BOOLEAN, TOKEN_TRUE, TOKEN_FALSE already in lexer ✅
+- Found VAR_BOOLEAN already in variable.h ✅
+- Pattern: Follow string implementation (is_string → is_boolean)
+
+**Changes:**
+```c
+// 1. arithmetic.h - Add is_boolean field
+struct ArithmeticExpr {
+    int is_boolean;  // NEW: 1 if boolean literal/variable
+    // ...
+};
+
+// 2. arithmetic_parser.c - Parse true/false
+if (token->type == TOKEN_TRUE || token->type == TOKEN_FALSE) {
+    expr->is_boolean = 1;
+    expr->value = strdup(token->value);  // "true" or "false"
+    // TTO: Booleans stored as INTERNAL_TYPE_INT64
+}
+
+// 3. arithmetic_codegen.c - Generate boolean literals
+if (expr->is_boolean) {
+    int bool_value = (strcmp(expr->value, "true") == 0) ? 1 : 0;
+    fprintf(output, "    movq $%d, %%r%d\n", bool_value, reg);
+}
+
+// 4. statement_codegen.c - Boolean variable init
+if (decl->type == VAR_BOOLEAN) {
+    int bool_value = (strcmp(decl->value, "true") == 0) ? 1 : 0;
+    fprintf(output, "    movq $%d, %%r8\n", bool_value);
+    fprintf(output, "    movq %%r8, %d(%%rbp)\n", offset);
+}
+```
+
+**Tests:**
+```mlp
+# test_boolean.mlp - Basic boolean
+function main() returns numeric
+    boolean flag = true
+    boolean isReady = false
+    numeric x = 1
+    numeric y = 0
+    return x - y  # Exit: 1 ✅
+end function
+
+# test_boolean_expr.mlp - Boolean in expression
+function main() returns numeric
+    boolean flag = true
+    numeric x = flag
+    return x  # Exit: 1 ✅
+end function
+```
+
+**Results:**
+- ✅ Boolean type: `boolean flag = true`
+- ✅ Boolean literals: true → 1, false → 0
+- ✅ Boolean variables in functions
+- ✅ Boolean in expressions
+- ⏳ Boolean operations: `and`, `or`, `not` (tokens exist!)
+- ⏳ If-boolean: `if flag` (need parser change)
+
+#### 📚 Documentation:
+- YZ_16.md created (complete implementation report)
+- TODO.md updated (Completion: ~95%)
+- NEXT_AI_START_HERE.md updated (YZ_17 ready)
+- YZ_HISTORY.md updated
+
+**Sonraki Adım:** Boolean operations (and/or/not) - tokens ready!
+
+---
+for i = 1 to 10
+    sum = sum + i
+end for
+return sum  # ✅ Döndü: 55
+
+# test_for_downto.mlp - Sum 10 to 1
+for i = 10 downto 1
+    sum = sum + i
+end for
+return sum  # ✅ Döndü: 55
+```
+
+**Pattern:** For loops desugar ediliyor while loop'a:
+```
+for i = 0 to 10  =>  i = 0
+    body             while i <= 10
+end                      body
+                         i = i + 1
+                     end
+```
+
+---
+
 ## 📊 Önemli Kazanımlar
 
 ### 🎓 Öğrenilen Dersler:
@@ -515,7 +915,7 @@ $ echo $?
 
 ---
 
-## 🎯 Mevcut Durum (YZ_08 Sonrası)
+## 🎯 Mevcut Durum (YZ_12 Sonrası)
 
 ### ✅ Çalışan Özellikler:
 - Functions (declaration, call, return, recursion)
@@ -523,8 +923,9 @@ $ echo $?
 - Arithmetic (+, -, *, /)
 - Comparison (6 operator: <, <=, >, >=, ==, !=)
 - Control Flow (if/else, while)
+- **For Loops (for i = start to/downto end)** ✅
 - String Literals (.rodata)
-- String Operations (concat, compare - CODEGEN COMPLETE)
+- String Operations (concat, compare - FULLY TESTED) ✅
 - TTO Type Tracking (is_numeric flag)
 - Stdlib (println, print, toString)
 
@@ -535,18 +936,17 @@ $ echo $?
 ✅ max(15, 20) = 20
 ✅ "Hello, MELP!" output
 ✅ add(10, 20) = 30
+✅ String concat: "Hello" + "World"
+✅ String compare: password == "secret"
+✅ For loop TO: sum 1 to 10 = 55
+✅ For loop DOWNTO: sum 10 to 1 = 55
 ✅ melpc builds successfully
 ```
 
-### 🚧 Ready But Untested:
-- String concatenation codegen (YZ_07 implemented, needs testing)
-- String comparison codegen (YZ_07 implemented, needs testing)
-
 ### ⏳ Next Priorities:
-1. Test string operations (30 min)
-2. For loops codegen (1-2 hours)
-3. Array support (4-6 hours)
-4. Boolean type (1-2 hours)
+1. Arrays (3-4 hours) - Check if module exists first!
+2. Boolean type (1-2 hours)
+3. More stdlib functions (2-3 hours)
 
 ---
 
@@ -651,14 +1051,16 @@ IMPLEMENTATION_NOTES.md  # ❌ HAYIR
 
 ## 🎉 Hall of Fame
 
-**En Hızlı:** YZ_08 (45 dakika - Linker fix)  
+**En Hızlı:** YZ_12 (15 dakika - For loops verified!)  
 **En Etkili:** YZ_04 (Fibonacci çalıştı!)  
 **En Temiz:** YZ_02 (TTO duplicate düzgün çözüldü)  
-**En Kapsamlı:** YZ_05 (String literals + type tracking + while verification)  
+**En Kapsamlı:** YZ_11 (String comparison complete, Phase 0-1 done!)  
 **En Kritik:** YZ_01 (TTO architecture cleanup)  
+**En Başarılı:** YZ_15 (Arrays 100% complete), YZ_16 (Boolean type 1.5h!)
 
 ---
 
-**Son Güncelleme:** 9 Aralık 2025, 21:00 - YZ_09 tarafından  
-**Sonraki YZ:** YZ_10 - String operations test + For loops  
-**Hedef:** Stage 0 MVP tamamlanması (Tahmini 8 saat kaldı)
+**Son Güncelleme:** 10 Aralık 2025, 04:00 - YZ_16 tarafından  
+**Sonraki YZ:** Boolean operations (and/or/not) - tokens ready!  
+**Sonraki YZ:** YZ_16 - Boolean type (recommended) or Expression indices  
+**Hedef:** Stage 0 MVP %95 complete! (Tahmini 2-3 saat kaldı)

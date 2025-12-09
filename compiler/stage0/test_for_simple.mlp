@@ -1,4 +1,6 @@
 function main() returns numeric
-    numeric[] arr = [1, 2, 3]
+    for i = 0 to 5
+        println(i)
+    end for
     return 0
 end function

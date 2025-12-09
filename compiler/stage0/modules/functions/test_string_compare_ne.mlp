@@ -1,0 +1,9 @@
+function main() returns numeric
+    text password = "wrong"
+    if password == "secret" then
+        numeric out = println(1)
+    else
+        numeric out = println(0)
+    end if
+    return 0
+end function

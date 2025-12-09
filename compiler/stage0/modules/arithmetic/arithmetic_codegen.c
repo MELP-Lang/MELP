@@ -1,6 +1,7 @@
 #include "arithmetic_codegen.h"
 #include "../../../../runtime/tto/runtime_tto.h"
 #include "../functions/functions.h"  // For FunctionDeclaration type
+#include "../array/array_codegen.h"  // YZ_14: For array access codegen
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -126,10 +127,49 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
         return;
     }
     
+    // YZ_14: Array index access
+    if (expr->is_array_access && expr->array_access) {
+        IndexAccess* access = expr->array_access;
+        fprintf(output, "    # Array index access: %s\n", access->collection_name);
+        
+        // Get stack offset for array variable
+        if (func) {
+            int offset = function_get_var_offset(func, access->collection_name);
+            
+            if (access->index_type == 0) {
+                // Constant index
+                fprintf(output, "    movq %d(%%rbp), %%rbx  # Load array pointer from stack\n", offset);
+                int elem_offset = access->index.const_index * 8;
+                fprintf(output, "    movq %d(%%rbx), %%rax  # Get element at index %d\n", elem_offset, access->index.const_index);
+            } else if (access->index_type == 1) {
+                // Variable index
+                int idx_offset = function_get_var_offset(func, access->index.var_index);
+                fprintf(output, "    movq %d(%%rbp), %%rbx  # Load array pointer\n", offset);
+                fprintf(output, "    movq %d(%%rbp), %%rcx  # Load index value\n", idx_offset);
+                fprintf(output, "    shlq $3, %%rcx  # index * 8\n");
+                fprintf(output, "    movq (%%rbx,%%rcx), %%rax  # Get element\n");
+            } else {
+                // Expression index - TODO
+                fprintf(output, "    # TODO: Expression index\n");
+            }
+        } else {
+            fprintf(output, "    # Error: No function context for array access\n");
+        }
+        
+        // Result is in %rax, move to target register
+        fprintf(output, "    movq %%rax, %%r%d  # Array element value\n", target_reg + 8);
+        return;
+    }
+    
     // Leaf node (literal or variable)
     if (expr->is_literal || (!expr->left && !expr->right)) {
         if (expr->is_literal) {
-            if (expr->is_string) {
+            if (expr->is_boolean) {
+                // Boolean literal - convert true/false to 1/0
+                int bool_value = (strcmp(expr->value, "true") == 0) ? 1 : 0;
+                fprintf(output, "    movq $%d, %%r%d  # Boolean literal: %s\n", 
+                        bool_value, target_reg + 8, expr->value);
+            } else if (expr->is_string) {
                 // String literal - define in .rodata and load pointer
                 static int string_counter = 0;
                 fprintf(output, "    .section .rodata\n");

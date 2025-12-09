@@ -7,8 +7,12 @@
 // ✅ Phase 3.2: Label counter for logical short-circuit
 static int logical_label_counter = 0;
 
+// YZ_11: Label counter for string literals in comparisons
+static int string_literal_counter = 0;
+
 // Load value into register
-static void load_value(FILE* output, const char* value, int is_literal, int reg_num, int is_float, void* context) {
+// YZ_11: Enhanced to handle string literals properly (added is_string parameter)
+static void load_value(FILE* output, const char* value, int is_literal, int reg_num, int is_float, int is_string, void* context) {
     if (is_float) {
         if (is_literal) {
             fprintf(output, "    .section .data\n");
@@ -18,8 +22,18 @@ static void load_value(FILE* output, const char* value, int is_literal, int reg_
         } else {
             fprintf(output, "    movsd (%s), %%xmm%d\n", value, reg_num);
         }
+    } else if (is_string && is_literal) {
+        // YZ_11: String literal - create .rodata label and load address
+        // Note: lexer strips quotes, so value is just the content (e.g., "secret" -> secret)
+        int str_id = string_literal_counter++;
+        fprintf(output, "\n.section .rodata\n");
+        fprintf(output, ".str_cmp_%d:\n", str_id);
+        fprintf(output, "    .string \"%s\"\n", value);  // Add quotes back
+        fprintf(output, ".text\n");
+        fprintf(output, "    leaq .str_cmp_%d(%%rip), %%r%d  # Load string address\n", str_id, reg_num + 8);
     } else {
         if (is_literal) {
+            // Numeric literal
             fprintf(output, "    movq $%s, %%r%d  # Literal\n", value, reg_num + 8);
         } else {
             // Variable - lookup offset
@@ -41,10 +55,10 @@ void comparison_generate_code(FILE* output, ComparisonExpr* expr, void* context)
     fprintf(output, "\n    ; Comparison expression\n");
     
     // Load left operand into r8 (or xmm0)
-    load_value(output, expr->left_value, expr->left_is_literal, 0, expr->is_float, context);
+    load_value(output, expr->left_value, expr->left_is_literal, 0, expr->is_float, expr->is_string, context);
     
     // Load right operand into r9 (or xmm1)
-    load_value(output, expr->right_value, expr->right_is_literal, 1, expr->is_float, context);
+    load_value(output, expr->right_value, expr->right_is_literal, 1, expr->is_float, expr->is_string, context);
     
     // YZ_07: Handle string comparison
     if (expr->is_string) {
@@ -96,8 +110,8 @@ void comparison_generate_conditional_jump(FILE* output, ComparisonExpr* expr, co
     fprintf(output, "\n    ; Conditional jump\n");
     
     // Load operands
-    load_value(output, expr->left_value, expr->left_is_literal, 0, expr->is_float, context);
-    load_value(output, expr->right_value, expr->right_is_literal, 1, expr->is_float, context);
+    load_value(output, expr->left_value, expr->left_is_literal, 0, expr->is_float, expr->is_string, context);
+    load_value(output, expr->right_value, expr->right_is_literal, 1, expr->is_float, expr->is_string, context);
     
     // YZ_07: Handle string comparison
     if (expr->is_string) {
@@ -138,6 +152,7 @@ void comparison_generate_conditional_jump(FILE* output, ComparisonExpr* expr, co
 }
 
 // ✅ Phase 3.2: Generate comparison with logical chaining and short-circuit evaluation
+// YZ_11: Enhanced with string comparison support
 void comparison_generate_code_with_chain(FILE* output, ComparisonExpr* expr, void* context) {
     if (!output || !expr) return;
     
@@ -145,10 +160,20 @@ void comparison_generate_code_with_chain(FILE* output, ComparisonExpr* expr, voi
     fprintf(output, "\n    # Comparison with logical chaining\n");
     
     // Load and compare first expression
-    load_value(output, expr->left_value, expr->left_is_literal, 0, expr->is_float, context);
-    load_value(output, expr->right_value, expr->right_is_literal, 1, expr->is_float, context);
+    load_value(output, expr->left_value, expr->left_is_literal, 0, expr->is_float, expr->is_string, context);
+    load_value(output, expr->right_value, expr->right_is_literal, 1, expr->is_float, expr->is_string, context);
     
-    if (expr->is_float) {
+    // YZ_11: Handle string comparison (same as comparison_generate_code)
+    if (expr->is_string) {
+        fprintf(output, "    # String comparison (text vs text)\n");
+        fprintf(output, "    movq %%r8, %%rdi  # arg1: first string\n");
+        fprintf(output, "    movq %%r9, %%rsi  # arg2: second string\n");
+        fprintf(output, "    call mlp_string_compare  # Returns <0, 0, or >0\n");
+        fprintf(output, "    # Compare result: <0 (less), 0 (equal), >0 (greater)\n");
+        fprintf(output, "    cmpq $0, %%rax\n");
+    }
+    // Compare numeric values
+    else if (expr->is_float) {
         fprintf(output, "    ucomisd %%xmm1, %%xmm0\n");
     } else {
         fprintf(output, "    cmpq %%r9, %%r8\n");
