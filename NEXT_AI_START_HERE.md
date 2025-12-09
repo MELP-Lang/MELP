@@ -7,6 +7,24 @@
 
 ---
 
+## ⚠️ IMPORTANT: Git Branch Instructions
+
+**Your branch name MUST be:** `boolean_YZ_17` (or feature name + YZ number)
+
+**Steps:**
+1. Create your branch: `git checkout -b boolean_YZ_17`
+2. Do your work (commit frequently)
+3. Push: `git push -u origin boolean_YZ_17`
+
+**DO NOT MERGE!** Each YZ works in their own branch. No merge needed.
+
+**Pattern:**
+- YZ_16 → `boolean_YZ_16` branch ✅
+- YZ_17 → `boolean_YZ_17` branch (you)
+- YZ_18 → `arrays_YZ_18` branch (next)
+
+---
+
 ## 📖 WHAT YZ_16 DID (1.5 hours)
 
 ### 🎯 Mission: Implement Boolean Type
