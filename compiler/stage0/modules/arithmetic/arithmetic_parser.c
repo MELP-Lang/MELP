@@ -92,7 +92,7 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
         
         // Phase 2.3: TTO analysis for numeric literal
         TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
-        *tto = tto_infer_numeric_type(expr->value);
+        *tto = codegen_tto_infer_numeric_type(expr->value);
         expr->tto_info = tto;
         expr->tto_analyzed = true;
         expr->needs_overflow_check = (tto->type == INTERNAL_TYPE_INT64);
@@ -515,7 +515,7 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         expr->is_float = (strchr(expr->value, '.') != NULL);
         
         TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
-        *tto = tto_infer_numeric_type(expr->value);
+        *tto = codegen_tto_infer_numeric_type(expr->value);
         expr->tto_info = tto;
         expr->tto_analyzed = true;
         expr->needs_overflow_check = (tto->type == INTERNAL_TYPE_INT64);

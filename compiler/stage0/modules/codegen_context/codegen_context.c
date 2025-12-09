@@ -133,8 +133,9 @@ FunctionContext* codegen_context_get_function(CodegenContext* ctx) {
 // TTO (Transparent Type Optimization) IMPLEMENTATION
 // ============================================================================
 
-// Infer internal type for numeric literal
-TTOTypeInfo tto_infer_numeric_type(const char* literal) {
+// Infer internal type for numeric literal (compile-time)
+// Renamed to avoid clash with runtime TTO library
+TTOTypeInfo codegen_tto_infer_numeric_type(const char* literal) {
     TTOTypeInfo info = {0};
     info.is_constant = true;
     info.needs_promotion = false;
@@ -181,7 +182,7 @@ TTOTypeInfo tto_infer_numeric_type(const char* literal) {
 }
 
 // Infer internal type for string literal
-TTOTypeInfo tto_infer_string_type(const char* literal, bool is_constant) {
+TTOTypeInfo codegen_tto_infer_string_type(const char* literal, bool is_constant) {
     TTOTypeInfo info = {0};
     info.is_constant = is_constant;
     

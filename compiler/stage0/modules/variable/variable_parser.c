@@ -150,7 +150,7 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
         
         // Phase 2: TTO analysis for string literals
         TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
-        *tto = tto_infer_string_type(decl->value, true);  // true = is constant
+        *tto = codegen_tto_infer_string_type(decl->value, true);  // true = is constant
         decl->tto_info = tto;
         decl->tto_analyzed = true;
         

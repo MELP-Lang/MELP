@@ -109,9 +109,9 @@ FunctionContext* codegen_context_get_function(CodegenContext* ctx);
 // TTO Functions
 // ============================================================================
 
-// Type inference
-TTOTypeInfo tto_infer_numeric_type(const char* literal);
-TTOTypeInfo tto_infer_string_type(const char* literal, bool is_constant);
+// Type inference (compile-time, renamed to avoid clash with runtime TTO)
+TTOTypeInfo codegen_tto_infer_numeric_type(const char* literal);
+TTOTypeInfo codegen_tto_infer_string_type(const char* literal, bool is_constant);
 
 // Variable tracking
 void tto_add_var(CodegenContext* ctx, const char* name, TTOTypeInfo info);
