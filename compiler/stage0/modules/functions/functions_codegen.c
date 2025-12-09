@@ -44,18 +44,16 @@ void function_generate_prologue(FILE* output, FunctionDeclaration* func) {
     // rdi, rsi, rdx, rcx, r8, r9 for first 6 parameters
     // Additional parameters on stack
     
-    // For now, save register parameters to stack if needed
+    // Save register parameters to their stack locations
     int param_index = 0;
     FunctionParam* param = func->params;
     const char* param_regs[] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
     
     while (param && param_index < 6) {
         if (param->name) {
-            fprintf(output, "    # Parameter %d: %s\n", param_index, param->name);
-            // Save parameter to stack location: -8*(param_index+1)(%rbp)
-            fprintf(output, "    movq %s, -%d(%%rbp)\n", 
-                    param_regs[param_index], 
-                    8 * (param_index + 1));
+            int offset = function_get_var_offset(func, param->name);
+            fprintf(output, "    # Parameter: %s at %d(%%rbp)\n", param->name, offset);
+            fprintf(output, "    movq %s, %d(%%rbp)\n", param_regs[param_index], offset);
         }
         param = param->next;
         param_index++;
@@ -76,7 +74,17 @@ void function_generate_epilogue(FILE* output, FunctionDeclaration* func) {
 void function_generate_declaration(FILE* output, FunctionDeclaration* func) {
     if (!func) return;
     
-    // ✅ FIRST: Process body statements to count local variables
+    // ✅ FIRST: Register parameters as local variables
+    // Parameters occupy first N stack slots: -8, -16, -24...
+    FunctionParam* param = func->params;
+    while (param) {
+        if (param->name) {
+            function_register_local_var(func, param->name);
+        }
+        param = param->next;
+    }
+    
+    // ✅ SECOND: Process body statements to count local variables
     Statement* stmt = func->body;
     while (stmt) {
         if (stmt->type == STMT_VARIABLE_DECL) {
