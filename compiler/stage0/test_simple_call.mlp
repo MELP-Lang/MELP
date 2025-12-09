@@ -1,0 +1,11 @@
+function square(numeric x) returns numeric
+    numeric result
+    result = x
+    return result
+end function
+
+function main() returns numeric
+    numeric value = 5
+    numeric output = square(value)
+    return output
+end function

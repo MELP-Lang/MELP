@@ -27,9 +27,9 @@ static void generate_load(FILE* output, const char* value, int reg_num, int is_f
     } else {
         // Fallback: symbolic reference (old behavior)
         if (is_float) {
-            fprintf(output, "    movsd xmm%d, [%s]\n", reg_num, value);
+            fprintf(output, "    movsd %s(%%rip), %%xmm%d\n", value, reg_num);
         } else {
-            fprintf(output, "    mov r%d, [%s]\n", reg_num + 8, value);
+            fprintf(output, "    movq %s(%%rip), %%r%d\n", value, reg_num + 8);
         }
     }
 }
@@ -38,12 +38,12 @@ static void generate_load(FILE* output, const char* value, int reg_num, int is_f
 static void generate_literal(FILE* output, const char* value, int reg_num, int is_float) {
     if (is_float) {
         // For floats, we need to define data and load it
-        fprintf(output, "    section .data\n");
-        fprintf(output, "    _float_%d: dq %s\n", reg_counter++, value);
-        fprintf(output, "    section .text\n");
-        fprintf(output, "    movsd xmm%d, [_float_%d]\n", reg_num, reg_counter - 1);
+        fprintf(output, "    .section .data\n");
+        fprintf(output, "    _float_%d: .quad %s\n", reg_counter++, value);
+        fprintf(output, "    .section .text\n");
+        fprintf(output, "    movsd _float_%d(%%rip), %%xmm%d\n", reg_counter - 1, reg_num);
     } else {
-        fprintf(output, "    mov r%d, %s\n", reg_num + 8, value);  // ✅ Intel syntax: mov reg, imm
+        fprintf(output, "    movq $%s, %%r%d  # Literal\n", value, reg_num + 8);
     }
 }
 
@@ -164,85 +164,85 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
                 fprintf(output, ".no_overflow_%d:\n", overflow_label);
                 break;
             case ARITH_SUB:
-                fprintf(output, "    sub r%d, r%d\n", left_reg + 8, right_reg + 8);
+                fprintf(output, "    subq %%r%d, %%r%d\n", right_reg + 8, left_reg + 8);  // AT&T: src, dest
                 // Check overflow flag
                 fprintf(output, "    jo .overflow_detected_%d\n", overflow_label);
                 fprintf(output, "    jmp .no_overflow_%d\n", overflow_label);
                 fprintf(output, ".overflow_detected_%d:\n", overflow_label);
                 fprintf(output, "    # Overflow detected - promote to BigDecimal\n");
-                fprintf(output, "    push rdi\n");
-                fprintf(output, "    push rsi\n");
-                fprintf(output, "    mov rdi, r%d\n", left_reg + 8);
+                fprintf(output, "    pushq %%rdi\n");
+                fprintf(output, "    pushq %%rsi\n");
+                fprintf(output, "    movq %%r%d, %%rdi\n", left_reg + 8);
                 fprintf(output, "    call tto_bigdec_from_int64\n");
-                fprintf(output, "    mov rdi, rax\n");
-                fprintf(output, "    mov rsi, r%d\n", right_reg + 8);
+                fprintf(output, "    movq %%rax, %%rdi # First BigDecimal\n");
+                fprintf(output, "    movq %%r%d, %%rsi\n", right_reg + 8);
                 fprintf(output, "    call tto_bigdec_from_int64\n");
-                fprintf(output, "    mov rsi, rax\n");
+                fprintf(output, "    movq %%rax, %%rsi # Second BigDecimal\n");
                 fprintf(output, "    call tto_bigdec_sub\n");
-                fprintf(output, "    pop rsi\n");
-                fprintf(output, "    pop rdi\n");
-                fprintf(output, "    mov r%d, rax\n", left_reg + 8);
+                fprintf(output, "    popq %%rsi\n");
+                fprintf(output, "    popq %%rdi\n");
+                fprintf(output, "    movq %%rax, %%r%d # BigDecimal pointer in result register\n", left_reg + 8);
                 fprintf(output, ".no_overflow_%d:\n", overflow_label);
                 break;
             case ARITH_MUL:
-                fprintf(output, "    imul r%d, r%d\n", left_reg + 8, right_reg + 8);
+                fprintf(output, "    imulq %%r%d, %%r%d\n", right_reg + 8, left_reg + 8);  // AT&T: src, dest
                 // Check overflow flag
                 fprintf(output, "    jo .overflow_detected_%d\n", overflow_label);
                 fprintf(output, "    jmp .no_overflow_%d\n", overflow_label);
                 fprintf(output, ".overflow_detected_%d:\n", overflow_label);
                 fprintf(output, "    # Overflow detected - promote to BigDecimal\n");
-                fprintf(output, "    push rdi\n");
-                fprintf(output, "    push rsi\n");
-                fprintf(output, "    mov rdi, r%d\n", left_reg + 8);
+                fprintf(output, "    pushq %%rdi\n");
+                fprintf(output, "    pushq %%rsi\n");
+                fprintf(output, "    movq %%r%d, %%rdi\n", left_reg + 8);
                 fprintf(output, "    call tto_bigdec_from_int64\n");
-                fprintf(output, "    mov rdi, rax\n");
-                fprintf(output, "    mov rsi, r%d\n", right_reg + 8);
+                fprintf(output, "    movq %%rax, %%rdi # First BigDecimal\n");
+                fprintf(output, "    movq %%r%d, %%rsi\n", right_reg + 8);
                 fprintf(output, "    call tto_bigdec_from_int64\n");
-                fprintf(output, "    mov rsi, rax\n");
+                fprintf(output, "    movq %%rax, %%rsi # Second BigDecimal\n");
                 fprintf(output, "    call tto_bigdec_mul\n");
-                fprintf(output, "    pop rsi\n");
-                fprintf(output, "    pop rdi\n");
-                fprintf(output, "    mov r%d, rax\n", left_reg + 8);
+                fprintf(output, "    popq %%rsi\n");
+                fprintf(output, "    popq %%rdi\n");
+                fprintf(output, "    movq %%rax, %%r%d # BigDecimal pointer in result register\n", left_reg + 8);
                 fprintf(output, ".no_overflow_%d:\n", overflow_label);
                 break;
             case ARITH_DIV:
                 // Division requires rax/rdx setup
-                fprintf(output, "    mov rax, r%d\n", left_reg + 8);
+                fprintf(output, "    movq %%r%d, %%rax\n", left_reg + 8);
                 fprintf(output, "    cqo\n");  // Sign extend rax to rdx:rax
-                fprintf(output, "    idiv r%d\n", right_reg + 8);
-                fprintf(output, "    mov r%d, rax\n", left_reg + 8);
+                fprintf(output, "    idivq %%r%d\n", right_reg + 8);
+                fprintf(output, "    movq %%rax, %%r%d\n", left_reg + 8);
                 break;
             case ARITH_MOD:
                 // Modulo is remainder from division
-                fprintf(output, "    mov rax, r%d\n", left_reg + 8);
+                fprintf(output, "    movq %%r%d, %%rax\n", left_reg + 8);
                 fprintf(output, "    cqo\n");
-                fprintf(output, "    idiv r%d\n", right_reg + 8);
-                fprintf(output, "    mov r%d, rdx\n", left_reg + 8);  // Remainder in rdx
+                fprintf(output, "    idivq %%r%d\n", right_reg + 8);
+                fprintf(output, "    movq %%rdx, %%r%d  # Remainder\n", left_reg + 8);
                 break;
             case ARITH_POW:
                 // Power - repeated multiplication (base^exponent)
                 // Save registers and use rcx as counter
-                fprintf(output, "    push rcx\n");
-                fprintf(output, "    mov rcx, r%d\n", right_reg + 8);  // exponent in rcx
-                fprintf(output, "    mov rax, 1\n");  // result starts at 1
-                fprintf(output, "    test rcx, rcx\n");  // check if exponent is 0
+                fprintf(output, "    pushq %%rcx\n");
+                fprintf(output, "    movq %%r%d, %%rcx\n", right_reg + 8);  // exponent in rcx
+                fprintf(output, "    movq $1, %%rax\n");  // result starts at 1
+                fprintf(output, "    testq %%rcx, %%rcx\n");  // check if exponent is 0
                 fprintf(output, "    jz .pow_done_%d\n", left_reg);
                 fprintf(output, ".pow_loop_%d:\n", left_reg);
-                fprintf(output, "    imul rax, r%d\n", left_reg + 8);  // result *= base
-                fprintf(output, "    dec rcx\n");
+                fprintf(output, "    imulq %%r%d, %%rax\n", left_reg + 8);  // result *= base
+                fprintf(output, "    decq %%rcx\n");
                 fprintf(output, "    jnz .pow_loop_%d\n", left_reg);
                 fprintf(output, ".pow_done_%d:\n", left_reg);
-                fprintf(output, "    mov r%d, rax\n", left_reg + 8);
-                fprintf(output, "    pop rcx\n");
+                fprintf(output, "    movq %%rax, %%r%d\n", left_reg + 8);
+                fprintf(output, "    popq %%rcx\n");
                 break;
             case ARITH_AND:
-                fprintf(output, "    and r%d, r%d\n", left_reg + 8, right_reg + 8);
+                fprintf(output, "    andq %%r%d, %%r%d\n", right_reg + 8, left_reg + 8);  // AT&T: src, dest
                 break;
             case ARITH_OR:
-                fprintf(output, "    or r%d, r%d\n", left_reg + 8, right_reg + 8);
+                fprintf(output, "    orq %%r%d, %%r%d\n", right_reg + 8, left_reg + 8);  // AT&T: src, dest
                 break;
             case ARITH_XOR:
-                fprintf(output, "    xor r%d, r%d\n", left_reg + 8, right_reg + 8);
+                fprintf(output, "    xorq %%r%d, %%r%d\n", right_reg + 8, left_reg + 8);  // AT&T: src, dest
                 break;
         }
     }
@@ -272,8 +272,8 @@ void arithmetic_generate_assignment(FILE* output, const char* var_name, Arithmet
                    (expr->is_literal && expr->is_float);
     
     if (is_float) {
-        fprintf(output, "    movsd [%s], xmm0\n", var_name);
+        fprintf(output, "    movsd %%xmm0, %s(%%rip)\n", var_name);
     } else {
-        fprintf(output, "    mov [%s], r8\n", var_name);
+        fprintf(output, "    movq %%r8, %s(%%rip)\n", var_name);
     }
 }
