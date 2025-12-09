@@ -1,9 +1,10 @@
 # MLP COMPILER ARCHITECTURE
 
-**Last Updated:** 8 Aralık 2025  
-**Current Status:** ✅ Modular Architecture + Stateless Parsers Operational  
+**Last Updated:** 9 Aralık 2025  
+**Current Status:** ✅ Phase 3 COMPLETE - Full Control Flow + Parameters  
 **Architecture:** Radical Modular (Central files permanently deleted)  
-**Parser Pattern:** Stateless Templates with Token Borrowing
+**Parser Pattern:** Stateless Templates with Token Borrowing  
+**Feature Status:** Control flow, logical ops, for loops, function params WORKING
 
 ---
 
@@ -246,7 +247,7 @@ vim pipeline.c           # ❌ WRONG APPROACH!
 - ✅ Module files <300 lines (focused modules)
 - ✅ Chained import patterns (#include "../other/")
 
-### 📋 Current Architecture Status (8 Aralık 2025)
+### 📋 Current Architecture Status (9 Aralık 2025)
 
 **Deleted Files (Backed up in temp/yedek_merkezi_dosyalar/):**
 - ❌ main.c (801 bytes)
@@ -259,22 +260,70 @@ vim pipeline.c           # ❌ WRONG APPROACH!
 - ✅ modules/statement/statement_standalone.c (working)
 - ✅ modules/control_flow/control_flow_standalone.c (working)
 
-**Active Modules: 27**
-- ✅ Fully operational with stateless parsers: 6 modules
+**Active Modules: 28** (NEW: for_loop added in Phase 3.3)
+- ✅ Fully operational with stateless parsers: 8 modules
   - statement (orchestrator)
   - control_flow (if/else, while)
-  - comparison (>, <, ==, etc.)
+  - for_loop (to/downto) ⭐ NEW
+  - comparison (>, <, ==, !=, <=, >=)
   - arithmetic (expressions with +, -, *, /)
   - variable (declarations with init expressions)
-  - functions (declarations, calls, return)
-- 🚧 Partial: 19 modules (need stateless refactoring)
+  - functions (declarations, parameters, return) ⭐ ENHANCED
+  - logical (and, or with short-circuit) ⭐ NEW
+- 🚧 Partial: 18 modules (need stateless refactoring)
 - ⏳ Stub: 2 modules
 
 **Parser Pattern Status:**
-- ✅ Stateless: control_flow, comparison (NEW)
-- ✅ Context passing: arithmetic_codegen, statement_codegen, functions_codegen
-- 🔄 Token borrowing: Implemented in statement_parser, control_flow_parser
-- 📝 Debug cleanup: In progress (82 statements found, partial cleanup done)
+- ✅ Stateless: control_flow, comparison, for_loop, logical
+- ✅ Context passing: arithmetic_codegen, statement_codegen, functions_codegen, for_loop_codegen
+- ✅ Token borrowing: Implemented in statement_parser, control_flow_parser, for_loop_parser
+- ✅ Token coordination: lexer_unget_token() working (Phase 3.1)
+
+**🎯 Phase 3 Achievements (7-9 Aralık 2025):**
+
+**Phase 3.1: Token Coordination & Nested Structures**
+- Added lexer_unget_token() for parser cooperation
+- Fixed nested if/if, while/while, while/if structures
+- Proper token handling between parsers
+
+**Phase 3.2: Logical Operations with Short-Circuit**
+- Extended ComparisonExpr with logical chaining (LogicalChainOp)
+- Implemented AND/OR operators with short-circuit evaluation
+- Assembly: "jz .logical_and_false_X" for AND, "jnz .logical_or_true_X" for OR
+- Test verified: Both operators working correctly
+
+**Phase 3.3: For Loops (TO/DOWNTO)**
+- New for_loop module with parser and codegen
+- Syntax: `for i = 1 to 10` and `for i = 10 downto 0`
+- Auto-registers loop variable (no explicit declaration needed)
+- Desugars to while loop: init + condition + increment/decrement
+- Assembly: setge for TO, setle for DOWNTO
+
+**Phase 3.4: Function Parameters**
+- x86-64 calling convention: rdi, rsi, rdx, rcx, r8, r9
+- Parameters registered as local variables
+- Prologue saves register params to stack
+- Parameters usable in function body
+- Correct stack layout: params first (-8, -16, -24...), then locals
+
+**Working Code Examples:**
+```mlp
+# Logical operations
+if x > 5 and y < 10 then
+    print "valid"
+end if
+
+# For loops
+for i = 1 to 10
+    sum = sum + i
+end
+
+# Function parameters
+function add(numeric a, numeric b) returns numeric
+    result = a + b
+    return result
+end function
+```
 
 ### 🎯 Why This Rule?
 
@@ -466,38 +515,139 @@ All linked naturally. No coordinator needed.
 
 ---
 
-## 📏 File Size Limits
+## 📋 NEXT DEVELOPMENT PHASES
 
-### Existing Files (FROZEN)
+### ⏳ Phase 3.5: Function Calls (Optional Enhancement)
+**Status:** Not yet implemented  
+**Priority:** Medium (nice-to-have for real programs)
 
-| File | Current | Max | Status |
-|------|---------|-----|--------|
-| `main.c` | 32 lines | 50 lines | ✅ FROZEN |
-| `orchestrator.c` | 190 lines | 200 lines | ⚠️ FROZEN |
-| `helpers.c` | 72 lines | 100 lines | ✅ FROZEN |
+**What's needed:**
+1. Parse function call expressions: `result = add(x, y)`
+2. Implement caller-side argument passing
+3. Move arguments to registers (rdi, rsi, rdx...) before call
+4. Generate `call` instruction
+5. Retrieve return value from rax
 
-**FROZEN means:**
-- Can be modified (bug fixes)
-- CANNOT grow beyond limit
-- If limit reached → Extract to module
+**Example code to support:**
+```mlp
+function add(numeric a, numeric b) returns numeric
+    return a + b
+end function
 
-### Module Files (FLEXIBLE)
+function main()
+    numeric x = 10
+    numeric y = 5
+    numeric result = add(x, y)  # ← This needs Phase 3.5
+    return result
+end function
+```
 
-- No hard limit
-- Recommended: ≤500 lines per file
-- Split into multiple files if needed
+**Implementation notes:**
+- Function calls are expressions (integrate with arithmetic module)
+- Need to evaluate arguments left-to-right
+- Save caller-saved registers if needed
+- Follow x86-64 System V ABI
 
 ---
 
-## 🔒 Enforcement Mechanisms
+### 🔧 Phase 4: Code Quality Refactoring
+**Status:** Not yet started  
+**Priority:** High (improves maintainability)  
+**Suggested by:** Claude Sonnet (previous session)
 
-1. **Pre-commit Hook** - Blocks forbidden file creation
-2. **Makefile Check** - `make check-forbidden-files`
-3. **Architecture Validation** - `make check-architecture`
-4. **Manual Review** - PR reviewers enforce rules
+**Refactoring items:**
+
+1. **Type-safe context passing:**
+   ```c
+   // ❌ Current: void* context (type-unsafe)
+   void arithmetic_generate_code(FILE* output, ArithmeticExpr* expr, void* context);
+   
+   // ✅ Proposed: CodegenContext struct
+   typedef struct {
+       FunctionDeclaration* current_function;
+       int label_counter;
+       // ... other context
+   } CodegenContext;
+   
+   void arithmetic_generate_code(FILE* output, ArithmeticExpr* expr, CodegenContext* ctx);
+   ```
+
+2. **Error handling standardization:**
+   ```c
+   // ❌ Current: fprintf(stderr, ...) everywhere
+   // ✅ Proposed: ErrorContext + error codes
+   
+   typedef enum {
+       ERR_PARSE_EXPECTED_TOKEN,
+       ERR_PARSE_UNEXPECTED_EOF,
+       ERR_CODEGEN_UNKNOWN_VAR,
+       // ...
+   } ErrorCode;
+   
+   typedef struct {
+       ErrorCode code;
+       int line;
+       char* message;
+   } ErrorContext;
+   ```
+
+3. **Module consistency:**
+   - Ensure all modules follow stateless parser pattern
+   - Standardize function naming: `module_parse_X()`, `module_generate_X()`
+   - Consistent error handling across modules
+
+**Impact:** Better code quality, easier debugging, type safety
 
 ---
 
-**Last Updated:** 7 Aralık 2025  
+### 🚀 Phase 5: Advanced Features (Future)
+**Status:** Planning  
+**Priority:** Low (after Phase 4)
+
+Potential features:
+- Arrays and indexing
+- String operations
+- Struct types
+- Pointers and references
+- Function overloading
+- Lambda expressions
+- Advanced error recovery
+
+---
+
+## 📊 COMPILER STATUS SUMMARY
+
+### ✅ Working Features (Production Ready):
+- Control flow: if/else, while, for (to/downto)
+- Logical operations: and, or (with short-circuit)
+- Arithmetic: +, -, *, / (with TTO overflow handling)
+- Comparison: >, <, ==, !=, >=, <=
+- Variables: numeric type with stack allocation
+- Functions: declarations, parameters (up to 6), return values
+- Modular architecture with chained imports
+- x86-64 assembly generation
+
+### ⏳ Partially Implemented:
+- Function calls (parameters work, calls not yet)
+- Type system (numeric only, needs string/boolean)
+- Error handling (works but needs standardization)
+
+### 🚧 Not Yet Implemented:
+- Arrays
+- Strings as first-class type
+- Structs
+- Pointers
+- Advanced control flow (break, continue, exit)
+
+### 📈 Code Quality Metrics:
+- **Module count:** 28 active modules
+- **Largest file:** ~280 lines (functions_parser.c)
+- **Average module size:** <200 lines
+- **Architecture violations:** 0 (enforced by pre-commit hook)
+- **Test coverage:** Manual testing with .mlp files
+
+---
+
+**Last Updated:** 9 Aralık 2025  
 **Enforcement:** ACTIVE (pre-commit hook + Makefile)  
 **Zero Tolerance:** No exceptions!
