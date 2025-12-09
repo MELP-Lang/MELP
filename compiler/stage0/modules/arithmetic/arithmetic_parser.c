@@ -363,6 +363,10 @@ ArithmeticExpr* arithmetic_parse_factor(ArithmeticParser* parser) {
         binary->value = NULL;
         binary->is_float = 0;
         
+        // String type propagation: If either operand is string, result is string
+        // This enables: text + text (concat), text + numeric (would need runtime conversion)
+        binary->is_string = (left->is_string || right->is_string);
+        
         // Phase 2.3: TTO type propagation
         binary->tto_info = NULL;
         binary->tto_analyzed = false;
@@ -513,12 +517,34 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         expr->is_literal = 1;
         expr->value = strdup((*current)->value);
         expr->is_float = (strchr(expr->value, '.') != NULL);
+        expr->is_string = 0;  // YZ_10: Not a string
         
         TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
         *tto = codegen_tto_infer_numeric_type(expr->value);
         expr->tto_info = tto;
         expr->tto_analyzed = true;
         expr->needs_overflow_check = (tto->type == INTERNAL_TYPE_INT64);
+        
+        advance_stateless(lexer, current);
+        return expr;
+    }
+    
+    // YZ_10: String literal
+    if ((*current)->type == TOKEN_STRING) {
+        expr->is_literal = 1;
+        expr->value = strdup((*current)->value);
+        expr->is_float = 0;
+        expr->is_string = 1;  // YZ_10: This is a string!
+        
+        // TTO analysis for string literal
+        TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+        tto->type = INTERNAL_TYPE_SSO_STRING;  // Small String Optimization
+        tto->is_constant = true;  // String literals are constant
+        tto->needs_promotion = false;
+        tto->mem_location = MEM_RODATA;  // String literals in .rodata
+        expr->tto_info = tto;
+        expr->tto_analyzed = true;
+        expr->needs_overflow_check = false;
         
         advance_stateless(lexer, current);
         return expr;
@@ -617,6 +643,7 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         expr->is_literal = 0;
         expr->value = identifier;
         expr->is_float = 0;
+        expr->is_string = 0;  // YZ_10: TODO - Infer from variable type in symbol table
         
         TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
         tto->type = INTERNAL_TYPE_INT64;
@@ -771,6 +798,7 @@ static ArithmeticExpr* parse_factor_stateless(Lexer* lexer, Token** current) {
         binary->is_literal = 0;
         binary->value = NULL;
         binary->is_float = 0;
+        binary->is_string = (left->is_string || right->is_string);  // YZ_10: String propagation
         binary->tto_info = NULL;
         binary->tto_analyzed = false;
         binary->needs_overflow_check = false;

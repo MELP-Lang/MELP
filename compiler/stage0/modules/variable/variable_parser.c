@@ -120,6 +120,7 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
     // ✅ Parse init expression using arithmetic parser
     if (tok->type == TOKEN_IDENTIFIER ||
         tok->type == TOKEN_NUMBER ||
+        tok->type == TOKEN_STRING ||
         tok->type == TOKEN_LPAREN) {
         
         // Use stateless arithmetic parser for expression parsing

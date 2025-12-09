@@ -133,7 +133,7 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
                 // String literal - define in .rodata and load pointer
                 static int string_counter = 0;
                 fprintf(output, "    .section .rodata\n");
-                fprintf(output, "    _str_%d: .asciz %s\n", string_counter, expr->value);
+                fprintf(output, "    _str_%d: .asciz \"%s\"\n", string_counter, expr->value);
                 fprintf(output, "    .section .text\n");
                 fprintf(output, "    leaq _str_%d(%%rip), %%r%d  # Load string pointer\n", 
                         string_counter, target_reg + 8);
