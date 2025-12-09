@@ -28,8 +28,8 @@ git push origin tto-cleanup_YZ_01
 - Easy rollback if needed
 - Clear audit trail
 
-**CURRENT AI:** YZ_04 (Control Flow Codegen - Fibonacci Success!) ✅ COMPLETED
-**PREVIOUS AI:** YZ_03 (9 Aralık 2025 - MVC Completion) ✅ COMPLETED
+**CURRENT AI:** YZ_05 (String Support + TTO Type Tracking) ✅ COMPLETED
+**PREVIOUS AI:** YZ_04 (9 Aralık 2025 - Control Flow Codegen) ✅ COMPLETED
 
 ---
 
@@ -37,6 +37,82 @@ git push origin tto-cleanup_YZ_01
 
 Previous AI agents violated these rules and created a 736-line monolithic `main.c`.
 **DO NOT REPEAT THIS MISTAKE.**
+
+---
+
+## Rule #0: TTO (Transparent Type Optimization) - CORE PRINCIPLE
+
+### 🎯 The Philosophy
+
+**User sees only 2 types:**
+- `numeric` - All numbers (integers, decimals, big numbers)
+- `text` - All strings (short, long, constant)
+
+**Compiler optimizes behind the scenes.** User never knows, never cares.
+
+### 📊 Why This Approach?
+
+**Key Insights:**
+1. In other languages, BigDecimal is actually string-based
+2. MLP has only `numeric` and `text` → essentially one concept: "data"
+3. "Ali" and a 10,000-page book shouldn't use same memory strategy
+4. User doesn't see pragmatic layer → backend optimization possible
+
+### 🔄 How TTO Works
+
+**User writes:**
+```mlp
+numeric small = 42
+numeric decimal = 3.14159
+numeric huge = 10 ^ 1000
+
+text short = "Ali"
+text long = read_file("book.txt")
+```
+
+**Compiler decides internally:**
+
+| User Type | Value | Internal Type | Location | Speed |
+|-----------|-------|---------------|----------|-------|
+| `numeric` | 42 | int64 | register/stack | ⚡ Fastest |
+| `numeric` | 3.14 | double | xmm register | ⚡ Fast |
+| `numeric` | 10^100 | BigDecimal | heap | 🐢 Safe |
+| `text` | "Ali" | SSO (inline) | stack | ⚡ Fastest |
+| `text` | long... | heap pointer | heap | 🔄 Normal |
+| `text` | constant | .rodata | readonly | ⚡ Shared |
+
+### ⚠️ CRITICAL FOR AI AGENTS
+
+**DO:**
+- ✅ Track minimal type info (1 bit: `is_numeric` flag)
+- ✅ Read `temp/kurallar_kitabı.md` TTO section for full details
+- ✅ Keep user API simple (only `numeric` and `text`)
+
+**DON'T:**
+- ❌ Create complex type enums (VarType with 10 variants)
+- ❌ Expose internal types to user
+- ❌ Add type tracking beyond what's needed for codegen
+
+**Example (YZ_05):**
+```c
+// ✅ CORRECT: Simple flag
+typedef struct LocalVariable {
+    char* name;
+    int stack_offset;
+    int is_numeric;    // 1=numeric, 0=text (2 types, 1 bit!)
+    struct LocalVariable* next;
+} LocalVariable;
+
+// ❌ WRONG: Complex enum
+typedef enum { VAR_INT, VAR_FLOAT, VAR_BIGDEC, VAR_STRING, ... } VarType;
+```
+
+**Key Principle:** "2 types, 1 bit, simple!" - Keep it minimal.
+
+### 📚 Full TTO Documentation
+
+For complete implementation details, algorithms, and memory strategies:
+→ See **`temp/kurallar_kitabı.md`** Section 4: "Transparent Type Optimization (TTO)"
 
 ---
 
@@ -123,21 +199,23 @@ melp_lexer (standalone)
 
 ---
 
-## Rule #5: TTO is Non-Negotiable
+## Rule #5: MELP Value Proposition
 
-**WITHOUT TTO:**
-```c
-numeric x = 3;  // Goes to HEAP → Performance disaster!
+**Core Principle:** Transparent optimization without user complexity
+
+**User Experience:**
+```mlp
+numeric x = 3        # Simple syntax
+text msg = "Hello"   # No type annotations needed
 ```
 
-**WITH TTO:**
-```c
-numeric x = 3;  // Stays in REGISTER → Fast!
-```
+**Behind The Scenes:**
+- Compiler automatically chooses optimal representation
+- Small values → registers (fast)
+- Large values → heap with safety (correct)
+- User never sees complexity
 
-**WHY:** MELP's core value proposition is transparent optimization.
-
-**STATUS:** TTO runtime needs implementation (Phase 3.5 priority)
+**See Rule #0 (TTO) for full architecture details.**
 
 ---
 
