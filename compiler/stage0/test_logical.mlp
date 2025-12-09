@@ -1,0 +1,42 @@
+-- Test logical operations: and, or
+-- Tests short-circuit evaluation
+
+function test_and() returns numeric
+    numeric x = 10
+    numeric y = 5
+    numeric result = 0
+    
+    -- Simple AND
+    if x > 5 and y > 3 then
+        result = 1
+    end if
+    
+    return result
+end function
+
+function test_or() returns numeric
+    numeric x = 10
+    numeric y = 2
+    numeric result = 0
+    
+    -- Simple OR
+    if x > 15 or y > 1 then
+        result = 1
+    end if
+    
+    return result
+end function
+
+function test_complex() returns numeric
+    numeric x = 10
+    numeric y = 5
+    numeric z = 3
+    numeric result = 0
+    
+    -- Multiple conditions with AND
+    if x > 5 and y > 3 and z > 2 then
+        result = 1
+    end if
+    
+    return result
+end function

@@ -24,6 +24,11 @@ ComparisonExpr* comparison_parse_expression_stateless(Lexer* lexer, Token* first
     expr->right_value = NULL;
     expr->is_float = 0;
     
+    // ✅ Phase 3.2: Initialize logical chaining fields
+    expr->chain_op = LOG_NONE;
+    expr->next = NULL;
+    expr->is_negated = 0;
+    
     // Parse left operand (use first_token)
     if (first_token->type == TOKEN_NUMBER) {
         expr->left_value = strdup(first_token->value);
@@ -88,6 +93,34 @@ ComparisonExpr* comparison_parse_expression_stateless(Lexer* lexer, Token* first
     }
     
     token_free(right_tok);  // Done with right operand
+    
+    // ✅ Phase 3.2: Check for logical operators (and, or)
+    Token* chain_tok = lexer_next_token(lexer);
+    if (chain_tok && (chain_tok->type == TOKEN_AND || chain_tok->type == TOKEN_OR)) {
+        // Set chain operator
+        if (chain_tok->type == TOKEN_AND) {
+            expr->chain_op = LOG_AND;
+        } else {
+            expr->chain_op = LOG_OR;
+        }
+        token_free(chain_tok);
+        
+        // Parse next comparison recursively
+        Token* next_first = lexer_next_token(lexer);
+        if (next_first) {
+            expr->next = comparison_parse_expression_stateless(lexer, next_first);
+            token_free(next_first);
+            
+            if (!expr->next) {
+                // Failed to parse next comparison
+                comparison_expr_free(expr);
+                return NULL;
+            }
+        }
+    } else if (chain_tok) {
+        // Not a logical operator, push it back
+        lexer_unget_token(lexer, chain_tok);
+    }
     
     return expr;
 }

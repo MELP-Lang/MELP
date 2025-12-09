@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+// ✅ Phase 3.2: Label counter for logical short-circuit
+static int logical_label_counter = 0;
+
 // Load value into register
 static void load_value(FILE* output, const char* value, int is_literal, int reg_num, int is_float, void* context) {
     if (is_float) {
@@ -114,5 +117,65 @@ void comparison_generate_conditional_jump(FILE* output, ComparisonExpr* expr, co
         case CMP_GREATER_EQUAL:
             fprintf(output, "    jge %s\n", label);
             break;
+    }
+}
+
+// ✅ Phase 3.2: Generate comparison with logical chaining and short-circuit evaluation
+void comparison_generate_code_with_chain(FILE* output, ComparisonExpr* expr, void* context) {
+    if (!output || !expr) return;
+    
+    // Generate first comparison
+    fprintf(output, "\n    ; Comparison with logical chaining\n");
+    
+    // Load and compare first expression
+    load_value(output, expr->left_value, expr->left_is_literal, 0, expr->is_float, context);
+    load_value(output, expr->right_value, expr->right_is_literal, 1, expr->is_float, context);
+    
+    if (expr->is_float) {
+        fprintf(output, "    ucomisd xmm0, xmm1\n");
+    } else {
+        fprintf(output, "    cmp r8, r9\n");
+    }
+    
+    // Set result for first comparison
+    fprintf(output, "    mov rax, 0\n");
+    switch (expr->op) {
+        case CMP_EQUAL:       fprintf(output, "    sete al\n"); break;
+        case CMP_NOT_EQUAL:   fprintf(output, "    setne al\n"); break;
+        case CMP_LESS:        fprintf(output, "    setl al\n"); break;
+        case CMP_LESS_EQUAL:  fprintf(output, "    setle al\n"); break;
+        case CMP_GREATER:     fprintf(output, "    setg al\n"); break;
+        case CMP_GREATER_EQUAL: fprintf(output, "    setge al\n"); break;
+    }
+    
+    // Handle logical chaining
+    if (expr->chain_op != LOG_NONE && expr->next) {
+        int label_id = logical_label_counter++;
+        
+        if (expr->chain_op == LOG_AND) {
+            // AND: Short-circuit if first is false
+            fprintf(output, "    test rax, rax       ; Check first result\n");
+            fprintf(output, "    jz .logical_and_false_%d  ; Skip if false (short-circuit)\n", label_id);
+            
+            // First was true, evaluate second
+            comparison_generate_code_with_chain(output, expr->next, context);
+            
+            // Second result already in rax
+            fprintf(output, ".logical_and_false_%d:\n", label_id);
+            fprintf(output, "    ; AND result in rax\n");
+            
+        } else if (expr->chain_op == LOG_OR) {
+            // OR: Short-circuit if first is true
+            fprintf(output, "    test rax, rax       ; Check first result\n");
+            fprintf(output, "    jnz .logical_or_true_%d  ; Skip if true (short-circuit)\n", label_id);
+            
+            // First was false, evaluate second
+            comparison_generate_code_with_chain(output, expr->next, context);
+            
+            fprintf(output, ".logical_or_true_%d:\n", label_id);
+            fprintf(output, "    ; OR result in rax\n");
+        }
+    } else {
+        fprintf(output, "    ; Single comparison result in rax\n");
     }
 }

@@ -11,6 +11,14 @@ typedef enum {
     CMP_GREATER_EQUAL // >=
 } ComparisonOp;
 
+// Logical operators for chaining comparisons
+typedef enum {
+    LOG_NONE,  // No logical operator (single comparison)
+    LOG_AND,   // AND / &&
+    LOG_OR,    // OR / ||
+    LOG_NOT    // NOT / ! (unary, applied to next comparison)
+} LogicalChainOp;
+
 // Comparison expression structure
 typedef struct ComparisonExpr {
     ComparisonOp op;
@@ -21,6 +29,11 @@ typedef struct ComparisonExpr {
     char* left_value;
     char* right_value;
     int is_float;
+    
+    // ✅ Phase 3.2: Logical chaining
+    LogicalChainOp chain_op;           // AND/OR to connect to next comparison
+    struct ComparisonExpr* next;       // Next comparison in chain
+    int is_negated;                    // True if NOT applied to this comparison
 } ComparisonExpr;
 
 // Free comparison expression

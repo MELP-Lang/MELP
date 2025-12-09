@@ -24,9 +24,9 @@ void control_flow_generate_if(FILE* output, IfStatement* stmt, void* context) {
     
     fprintf(output, "\n    ; If statement\n");
     
-    // Load and compare condition
+    // ✅ Phase 3.2: Use chained comparison generator for logical ops support
     ComparisonExpr* cond = (ComparisonExpr*)stmt->condition;
-    comparison_generate_code(output, cond, context);
+    comparison_generate_code_with_chain(output, cond, context);
     
     // Test result
     fprintf(output, "    test rax, rax\n");
@@ -69,9 +69,9 @@ void control_flow_generate_while(FILE* output, WhileStatement* stmt, void* conte
     fprintf(output, "\n    ; While loop\n");
     fprintf(output, ".while_start_%d:\n", label_start);
     
-    // Condition
+    // ✅ Phase 3.2: Use chained comparison generator for logical ops support
     ComparisonExpr* cond = (ComparisonExpr*)stmt->condition;
-    comparison_generate_code(output, cond, context);
+    comparison_generate_code_with_chain(output, cond, context);
     
     fprintf(output, "    test rax, rax\n");
     fprintf(output, "    jz .while_end_%d\n", label_end);
