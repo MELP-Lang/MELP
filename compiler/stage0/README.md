@@ -1,189 +1,242 @@
-# MLP Stage 0 Compiler
+# 🚀 START HERE - New AI Agent Onboarding
 
-## 🎯 Hedef
-
-**Modular MLP Compiler via Chained Imports** - Real working architecture!
-
-## 🎉 Son Güncellemeler (8 Aralık 2025)
-
-### ✅ Architectural Milestone:
-**Chained Imports Working!**
-- Functions → Statement → Control Flow → Comparison (all via #include)
-- Parser body fix: while loops + return statements now work
-- Central files DELETED (main.c, orchestrator.c, helpers.c - 7 Aralık)
-- Entry point: `functions_standalone.c` 102 lines (was 1244!)
-- Real proof: test_while_only.mlp generates correct assembly with labels
-
-### ✅ Tamamlanan Phase'ler:
-
-**Phase 3.5: Expressions & Operators** ✅
-- Operator precedence (*, /, +, -, mod)
-- Parentheses support: `(10 + 5) * 2`
-- Variable references in expressions
-- TTO runtime integration
-
-**Phase 4: Functions** ✅ (Parsing + Body)
-- Function declarations with body parsing
-- Parameter handling
-- Return statements working
-- Chained import to statement module
-
-**Phase 5: Arrays** ✅ (Basic)
-- Array declarations: `numeric[] arr`
-- Array literals: `[1, 2, 3, 4, 5]`
-- Memory allocation (.bss)
-
-**Phase 6: Control Flow** ✅ (Working!)
-- If/then/else statements
-- While/do loops (TESTED: generates correct labels!)
-- Condition evaluation
-- Label/jump generation
-
-## ✅ Özellikler
-
-- **Lexer**: Token analizi, UTF-8 desteği
-- **Expressions**: Complex arithmetic with precedence
-- **Control Flow**: If/While statements (WORKING via chained imports!)
-- **Variables**: Declaration and assignment
-- **Arrays**: Basic support
-- **TTO Runtime**: Overflow detection (BigDecimal)
-- **Code Generation**: x86-64 assembly with extern declarations
-- **Architecture**: Chained imports (no central orchestrator!)
-
-## 📦 Aktif Modüller (Chained Imports Yapısı)
-
-### Core Modules ✅
-- `lexer/` - Tokenization (shared)
-- `functions/` - Function declarations + body (imports statement)
-- `statement/` - Statement parsing (imports control_flow)
-- `control_flow/` - If/While statements (imports comparison)
-- `comparison/` - Comparison operators
-- `arithmetic/` - Expression parsing & codegen
-- `variable/` - Variable management
-- `array/` - Array basics
-- `print/` - Print statements
-- `codegen_context/` - Code generation state
-- `runtime_tto/` - TTO runtime (BigDecimal, overflow)
-
-### Support Modules ✅
-- `logical/` - Logical operators (and, or, not)
-- `comments/` - Comment handling
-- `expression/` - Expression coordination
-- `statement/` - Statement coordination
-- `struct/` - Struct definitions
-
-### 🚀 Modüler Mimari
-
-**Her modül:**
-- ✅ Kendi Makefile'ı var
-- ✅ Standalone test compiler'ı var
-- ✅ Diğer modülleri import edebilir
-- ✅ **MERKEZI DOSYA YOK** - Tam bağımsız!
-
-**Örnek modül entegrasyonu:**
-```c
-// functions_codegen.c
-#include "../arithmetic/arithmetic_parser.h"
-#include "../runtime_tto/runtime_tto.h"
-```
-
-## 🏗️ Test Etme
-
-### Modül Başına Test:
-
-```bash
-# Arithmetic modülü (Phase 3.5)
-cd modules/arithmetic/
-make
-./arithmetic_compiler test.mlp output.s
-
-# Control Flow modülü (Phase 6)
-cd modules/control_flow/
-./control_flow_standalone test.mlp output.s
-
-# Array modülü (Phase 5)
-cd modules/array/
-./array_standalone test.mlp output.s
-```
-
-### Demo Program:
-
-```bash
-# Tüm phase'leri test eden demo
-./modules/arithmetic/arithmetic_compiler demo_phase_integration.mlp demo.s
-nasm -f elf64 demo.s -o demo.o
-ld demo.o modules/runtime_tto/runtime_tto.o -o demo_prog \
-   -lc -dynamic-linker /lib64/ld-linux-x86-64.so.2
-./demo_prog
-```
-
-## 📝 Örnek Program
-
-### demo_phase_integration.mlp
-```melp
--- Variables & Expressions (Phase 3.5)
-numeric x = 10
-numeric y = 20
-numeric sum = x + y              -- 30
-numeric result = (x + y) * 2     -- 60
-
--- Control Flow (Phase 6)
-if sum > 25 then
-    numeric big = 1
-end if
-
-while x > 0 do
-    x = x - 1
-end while
-
--- Arrays (Phase 5)
-numeric[] numbers = [10, 20, 30, 40, 50]
-
--- Print
-print("Demo Complete!")
-```
-
-**Derleme:**
-```bash
-cd modules/arithmetic/
-./arithmetic_compiler ../../demo_phase_integration.mlp demo.s
-```
-
-**Çıktı:** 10 expression başarıyla derlendi, TTO overflow check'leri eklendi
-
-## 📊 Test Sonuçları
-
-### ✅ Başarılı Testler:
-- **Arithmetic**: `10 * 2 + 5` = 25 ✓
-- **Parentheses**: `(10 + 5) * 2` = 30 ✓
-- **Variables**: `x = 10; y = x + 5` ✓
-- **Control Flow**: If/While label generation ✓
-- **Arrays**: Declaration ve literal initialization ✓
-- **TTO**: Overflow detection code generation ✓
-- **Print**: String output ✓
-
-### 📈 İstatistikler:
-- ✅ 15+ aktif modül
-- ✅ Her modül standalone test'li
-- ✅ 10 expression demo programda derlendi
-- ✅ TTO runtime entegrasyonu çalışıyor
-- ✅ Tam modüler mimari (merkezi dosya yok!)
-
-## 🔜 Sonraki Adımlar
-
-1. **Function body codegen** - Return statements
-2. **Array index access** - `arr[i]` support
-3. **Full integration test** - Tüm modüller bir arada
-4. **Optimization** - Dead code elimination
-
-Detaylar için: `NEXT_STEPS.md`
-
-Stage 1'de eklenecekler:
-- `sayi` değişken tanımlama
-- Aritmetik işlemler (+, -, *, /)
-- Sayıları yazdırma
-- Basit ifadeler
+**Welcome!** You're taking over the MLP compiler development.  
+**Last Session:** 9 Aralık 2025 - Phase 4.4 completed  
+**Status:** All active parsers now stateless ✅
 
 ---
 
-*Stage 0 Complete: 6 Aralık 2025*
+## 📖 Quick Start (5 minutes)
+
+### 1️⃣ Read This First
+**File:** `ARCHITECTURE.md` (Lines 1-150)
+- Understand the stateless parser pattern
+- Token ownership rules (BORROWED vs OWNED)
+- Module chain architecture (no central orchestrator)
+
+**Key Sections:**
+- Lines 1-50: Current status & philosophy
+- Lines 50-150: Stateless template pattern & examples
+- Lines 575-700: Phase 4.4 completion details
+
+### 2️⃣ Build & Test
+```bash
+cd compiler/stage0/modules/functions
+make clean && make
+
+# Test compilation
+cat > test.mlp << 'EOF'
+function main() returns numeric
+    return 42
+end function
+EOF
+
+./functions_compiler test.mlp test.s
+gcc -no-pie test.s -o test
+./test
+echo $?  # Should output: 42
+```
+
+### 3️⃣ Explore the Code
+**Reference Implementation:**
+- `modules/functions/functions_parser.c` - Perfect stateless example
+- `modules/variable/variable_parser.c` - With lexer_unget_token()
+- `modules/logical/logical_parser.c` - Token** recursive pattern
+
+---
+
+## 🗺️ Project Structure
+
+```
+compiler/stage0/
+├── ARCHITECTURE.md          ← 📖 READ THIS FIRST!
+├── START_HERE.md            ← You are here
+├── modules/
+│   ├── functions/           ← ✅ Stateless (Phase 4.3)
+│   │   ├── functions_parser.c
+│   │   └── functions_standalone.c  (102 lines entry point)
+│   ├── variable/            ← ✅ Stateless (Phase 4.4.1)
+│   │   └── variable_parser.c
+│   ├── logical/             ← ✅ Stateless (Phase 4.4.2)
+│   │   └── logical_parser.c
+│   ├── array/               ← ⏳ DEFERRED (see STATELESS_TODO.md)
+│   │   ├── array_parser.c   (still stateful - not used yet)
+│   │   └── STATELESS_TODO.md
+│   ├── arithmetic/          ← ✅ Has _stateless version
+│   ├── comparison/          ← ✅ Has _stateless version
+│   ├── control_flow/        ← ✅ Uses stateless
+│   ├── for_loop/            ← ✅ Uses stateless
+│   ├── statement/           ← ✅ Updated to use stateless APIs
+│   └── lexer/               ← Core (lexer_next_token, lexer_unget_token)
+└── docs/
+    └── PHASE_4_4_GUIDE.md   ← Detailed guide (now marked COMPLETED)
+```
+
+---
+
+## 📋 Current Status Summary
+
+### ✅ What Works
+- **Stateless Parsers:** functions, variable, logical
+- **Features:** Function declarations, parameters, return types
+- **Control Flow:** if/else, while, for loops
+- **Expressions:** Arithmetic, comparison (with overflow detection)
+- **Variables:** Declarations, assignments, initialization
+- **Error Handling:** Clean messages with line numbers
+- **TTO (Trapped Type Overflow):** BigDec support for safe arithmetic
+
+### ⏳ What's Deferred
+- **array_parser:** Stateful, not used yet
+  - See: `modules/array/STATELESS_TODO.md`
+  - Convert when arrays become needed feature
+  - Estimated: 14-20 hours (requires expression_parser refactor)
+
+### 🐛 Known Issues
+- Some TTO link errors in complex expressions (BigDec functions)
+- Some tests have syntax that doesn't match current parser
+
+---
+
+## 🎯 Recommended Next Steps
+
+### Option A: New Features (Recommended)
+1. **String Operations** - Add string concatenation, length
+2. **Array Support** - Now that parser is clean, add runtime
+3. **Struct Support** - Basic struct parsing and codegen
+4. **Standard Library** - File I/O, math functions
+
+### Option B: Polish & Testing
+1. **Fix TTO Link Issues** - Complete BigDec integration
+2. **Test Suite** - More comprehensive .mlp test files
+3. **Error Recovery** - Better parser error handling
+4. **Documentation** - Language spec, examples
+
+### Option C: Self-Hosting Prep
+1. **Bootstrap Compiler** - Write parser in MLP
+2. **Type System** - Formalize type checking
+3. **Optimizer** - Basic peephole optimization
+
+**Suggestion:** Go with **Option A** - add features that make the language useful!
+
+---
+
+## 🔑 Key Concepts You Need to Know
+
+### Stateless Parser Pattern
+```c
+// ❌ OLD (stateful):
+Parser* p = parser_create(lexer);
+AST* node = parse_something(p);
+parser_free(p);
+
+// ✅ NEW (stateless):
+Token* tok = lexer_next_token(lexer);
+AST* node = parse_something(lexer, tok);  // tok is BORROWED
+token_free(tok);  // Caller owns token
+```
+
+### Token Ownership
+- **BORROWED:** Function parameter tokens (don't free!)
+- **OWNED:** Tokens from `lexer_next_token()` (must free!)
+- **PUSHBACK:** `lexer_unget_token(lexer, tok)` for lookahead
+
+### Module Chain (No Orchestrator)
+```c
+// Entry point includes what it needs:
+#include "functions_parser.h"
+
+// functions_parser includes what IT needs:
+#include "../statement/statement_parser.h"
+
+// statement_parser includes what IT needs:
+#include "../control_flow/control_flow_parser.h"
+
+// Natural dependency chain → linker handles it
+```
+
+---
+
+## 📞 Getting Help
+
+### When Stuck
+1. **Read ARCHITECTURE.md** - Most questions answered there
+2. **Look at functions_parser.c** - Reference implementation
+3. **Check git history:** `git log --oneline --graph`
+4. **Read commit messages:** They explain WHY decisions were made
+
+### Understanding Decisions
+- **Why stateless?** → ARCHITECTURE.md lines 47-75
+- **Why no central orchestrator?** → ARCHITECTURE.md lines 13-45
+- **Why defer array_parser?** → modules/array/STATELESS_TODO.md
+- **Token borrowing pattern?** → ARCHITECTURE.md lines 76-120
+
+---
+
+## 🧪 Testing Checklist
+
+Before making changes:
+```bash
+# 1. Build
+cd modules/functions && make clean && make
+
+# 2. Test basic function
+./functions_compiler test_minimal.mlp test.s
+gcc -no-pie test.s -o test && ./test
+echo $?  # Verify exit code
+
+# 3. Test variables
+cat > test_var.mlp << 'EOF'
+function main() returns numeric
+    numeric x = 10
+    numeric y = 20
+    return x
+end function
+EOF
+./functions_compiler test_var.mlp test.s
+gcc -no-pie test.s -o test && ./test
+echo $?  # Should be 10
+```
+
+After making changes:
+- ✅ Code compiles with no errors
+- ✅ Existing tests still pass
+- ✅ New test for your feature passes
+- ✅ No memory leaks (valgrind if available)
+- ✅ Commit message explains WHY, not just WHAT
+
+---
+
+## 💡 Pro Tips
+
+1. **Don't Refactor Unused Code** - YAGNI principle (see array_parser decision)
+2. **Document Deferrals** - Create TODO.md files for future work
+3. **Pragmatic > Perfect** - Working features > theoretical completeness
+4. **Test Incrementally** - Don't build for hours without testing
+5. **Read Commits** - Previous AI explained decisions thoroughly
+
+---
+
+## 🎓 Philosophy Reminders
+
+From ARCHITECTURE.md:
+1. **Stateless > Stateful** - Parsers are functions, not objects
+2. **Borrowed > Owned** - Clear token ownership prevents bugs
+3. **Chain > Orchestrator** - Natural dependencies via #include
+4. **Pragmatic > Dogmatic** - YAGNI, ROI, incremental progress
+
+---
+
+## 🚦 You're Ready!
+
+**Checklist before starting:**
+- [ ] Read ARCHITECTURE.md (at least first 150 lines)
+- [ ] Built and tested current compiler
+- [ ] Understand stateless parser pattern
+- [ ] Know token ownership rules
+- [ ] Reviewed functions_parser.c example
+
+**Now go build something awesome!** 🚀
+
+**Questions?** Check ARCHITECTURE.md first. Most answers are there.
+
+**Good luck!** The previous AI left you a solid foundation. 💪
