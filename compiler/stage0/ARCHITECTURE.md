@@ -597,18 +597,132 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
 }
 ```
 
-**⏳ Phase 4.4: Full Stateless Refactoring (PLANNED - Future Work)**
-- Apply stateless pattern to ALL remaining modules:
-  * variable_parser → `variable_parse_declaration(Lexer*, Token*)`
-  * arithmetic_parser → `arithmetic_parse_expression(Lexer*, Token*)`
-  * logical_parser → `logical_parse_expression(Lexer*, Token*)`
-  * array_parser → `array_parse_declaration(Lexer*, Token*)`
-- Remove module-specific parser structs (VariableParser, ArithmeticParser, etc.)
-- Keep Parser struct as lightweight wrapper for compatibility
-- Priority: LOW (defer until after self-hosting)
-- Strategy: Convert modules incrementally when touched for other reasons
+**⏳ Phase 4.4: Full Stateless Refactoring (PLANNED - Next Priority)**
 
-**Impact:** Better code quality, type safety, consistent assembly generation, improved error handling
+**Status:** READY TO IMPLEMENT  
+**Estimated Effort:** 4-6 hours  
+**Complexity:** Medium (systematic refactoring)
+
+**Context:**
+- functions_parser already stateless (Phase 4.3) ✅
+- arithmetic_parser has `arithmetic_parse_expression_stateless()` ✅
+- comparison_parser has `comparison_parse_expression_stateless()` ✅
+- control_flow_parser already uses stateless versions ✅
+- Need to refactor: variable_parser, logical_parser, array_parser
+
+**Why This Matters:**
+- Eliminates malloc/free overhead per parse call
+- Removes parser state management bugs (current_token corruption)
+- Makes self-hosting easier (no pointer/struct management needed)
+- Follows ARCHITECTURE.md stateless template pattern
+
+**Implementation Plan:**
+
+**Step 1: variable_parser (Priority: HIGH)**
+```c
+// Current (324 lines, stateful):
+VariableParser* variable_parser_create(Lexer* lexer);
+VariableDeclaration* variable_parse_declaration(VariableParser* parser);
+void variable_parser_free(VariableParser* parser);
+
+// Target (stateless):
+VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token);
+VariableAssignment* variable_parse_assignment(Lexer* lexer, Token* identifier_token);
+
+// Changes needed:
+1. Remove VariableParser struct typedef from variable_parser.h
+2. Update function signatures to take (Lexer*, Token*)
+3. Remove advance() helper - use lexer_next_token() directly
+4. Remove _create/_free functions
+5. Update callers in statement_parser.c (lines 262-280)
+```
+
+**Step 2: logical_parser (Priority: MEDIUM)**
+```c
+// Current:
+LogicalParser* logical_parser_create(Lexer* lexer);
+LogicalExpr* logical_parse_expression(LogicalParser* parser);
+
+// Target:
+LogicalExpr* logical_parse_expression_stateless(Lexer* lexer, Token* first_token);
+
+// Note: May already have stateless version - CHECK FIRST!
+```
+
+**Step 3: array_parser (Priority: LOW)**
+```c
+// Current:
+ArrayParser* array_parser_create(Lexer* lexer);
+// ... array parsing functions
+
+// Target:
+ArrayDeclaration* array_parse_declaration(Lexer* lexer, Token* type_token);
+IndexAccess* array_parse_index_access(Lexer* lexer, Token* identifier_token);
+```
+
+**Step 4: Update Callers**
+Files to update:
+- `statement_parser.c` (main caller)
+  * Line 262-280: variable_parser usage
+  * Line 90, 131, 162, 205: recursive statement_parse calls (OK to keep)
+- `for_loop_parser.c` (may use variable_parser)
+- Any other modules that create parser structs
+
+**Step 5: Clean Up**
+- Remove unused _create/_free functions
+- Remove Parser struct typedefs from headers
+- Keep `parser_core/Parser` struct (lightweight wrapper, OK to keep)
+- Update documentation
+
+**Testing Strategy:**
+1. After each module conversion:
+   ```bash
+   cd modules/functions && make clean && make
+   ./functions_compiler ../../test_simple_call.mlp test.s
+   gcc -no-pie test.s -o test && ./test
+   # Should still output: Exit code 5
+   ```
+
+2. Test error handling:
+   ```bash
+   ./functions_compiler ../../test_error1.mlp out.s
+   # Should show clean error, no segfault
+   ```
+
+**Success Criteria:**
+- ✅ No VariableParser*, ArithmeticParser*, LogicalParser*, ArrayParser* mallocs
+- ✅ All parse functions take (Lexer*, Token*) parameters
+- ✅ test_simple_call.mlp still works (exit code 5)
+- ✅ Error handling still clean (no segfaults)
+- ✅ Code compiles with no warnings
+- ✅ Architecture validation passes
+
+**Gotchas to Avoid:**
+1. **Token Ownership:** First token is BORROWED (don't free), additional tokens are OWNED (must free)
+2. **Recursive Calls:** statement_parse() calls itself - this is OK with Parser wrapper
+3. **variable_parser Complexity:** 324 lines with TTO integration - needs careful refactoring
+4. **Backward Compatibility:** Some modules may still need Parser wrapper for statement_parse()
+
+**Files to Modify:**
+```
+modules/variable/variable_parser.h    (20 lines → 15 lines)
+modules/variable/variable_parser.c    (324 lines → ~280 lines)
+modules/logical/logical_parser.h      (check if needed)
+modules/logical/logical_parser.c      (check if needed)
+modules/array/array_parser.h          (check if needed)
+modules/array/array_parser.c          (check if needed)
+modules/statement/statement_parser.c  (update variable_parser usage)
+```
+
+**Reference Implementation:**
+See `functions_parser.c` (Phase 4.3) for perfect stateless example:
+- Line 33: `FunctionDeclaration* parse_function_declaration(Lexer* lexer)`
+- No malloc/free, pure function
+- Clean error handling with error_parser()
+
+**Priority:** DEFER until after self-hosting attempt
+**Reason:** Working compiler > perfect architecture (for now)
+**Strategy:** Convert incrementally when modules touched for other reasons
 
 ---
 
