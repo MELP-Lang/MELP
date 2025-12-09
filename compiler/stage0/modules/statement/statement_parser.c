@@ -1,5 +1,6 @@
 #include "statement_parser.h"
 #include "../control_flow/control_flow_parser.h"  // ✅ While/If parsing
+#include "../for_loop/for_loop_parser.h"           // ✅ For loop parsing
 #include "../print/print_parser.h"                 // ✅ Print parsing
 #include "../variable/variable_parser.h"           // ✅ Variable declarations
 #include "../arithmetic/arithmetic_parser.h"       // ✅ Expressions
@@ -186,6 +187,47 @@ Statement* statement_parse(Parser* parser) {
         }
         
         return stmt;  // ✅ No more control_flow_parser_free!
+    }
+    
+    // ✅ FOR statement - use for_loop module
+    if (tok->type == TOKEN_FOR) {
+        
+        // ✅ NEW STATELESS PATTERN - No malloc/free!
+        ForLoop* for_data = for_loop_parse(parser->lexer, tok);
+        
+        // We still own tok - free it!
+        token_free(tok);
+        tok = NULL;
+        
+        if (for_data) {
+            stmt = statement_create(STMT_FOR);
+            stmt->data = for_data;
+            stmt->next = NULL;
+            
+            // Parse body recursively (like while loop)
+            Statement* body_head = NULL;
+            Statement* body_tail = NULL;
+            
+            while (1) {
+                Statement* body_stmt = statement_parse(parser);
+                if (!body_stmt) {
+                    break;
+                }
+                
+                if (!body_head) {
+                    body_head = body_stmt;
+                    body_tail = body_stmt;
+                } else {
+                    body_tail->next = body_stmt;
+                    body_tail = body_stmt;
+                }
+            }
+            
+            // ✅ Store body in ForLoop
+            for_data->body = body_head;
+        }
+        
+        return stmt;
     }
     
     // ✅ PRINT statement - use print module

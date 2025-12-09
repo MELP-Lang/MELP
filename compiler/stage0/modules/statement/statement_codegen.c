@@ -1,5 +1,6 @@
 #include "statement_codegen.h"
 #include "../control_flow/control_flow_codegen.h"  // ✅ While/If codegen
+#include "../for_loop/for_loop_codegen.h"           // ✅ For loop codegen
 #include "../print/print_codegen.h"                 // ✅ Print codegen
 #include "../variable/variable_codegen.h"           // ✅ Variable codegen
 #include "../variable/variable.h"                   // ✅ VariableDeclaration, VariableAssignment
@@ -27,6 +28,15 @@ void statement_generate_code(FILE* output, Statement* stmt, void* context) {
             IfStatement* if_stmt = (IfStatement*)stmt->data;
             if (if_stmt) {
                 control_flow_generate_if(output, if_stmt, context);
+            }
+            break;
+        }
+        
+        case STMT_FOR: {
+            // ✅ Use for_loop module for codegen
+            ForLoop* for_loop = (ForLoop*)stmt->data;
+            if (for_loop) {
+                for_loop_generate_code(output, for_loop, context);
             }
             break;
         }

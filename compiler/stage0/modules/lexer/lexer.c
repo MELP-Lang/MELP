@@ -128,6 +128,7 @@ static Token* read_identifier(Lexer* lexer) {
     else if (strcmp(value, "do") == 0) type = TOKEN_DO;
     else if (strcmp(value, "for") == 0) type = TOKEN_FOR;
     else if (strcmp(value, "to") == 0) type = TOKEN_TO;
+    else if (strcmp(value, "downto") == 0) type = TOKEN_DOWNTO;
     else if (strcmp(value, "exit") == 0) type = TOKEN_EXIT;
     // Function keywords
     else if (strcmp(value, "function") == 0) type = TOKEN_FUNCTION;

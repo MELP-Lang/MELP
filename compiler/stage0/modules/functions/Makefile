@@ -68,6 +68,13 @@ CONTROL_FLOW_SOURCES = \
 	$(CONTROL_FLOW_DIR)/control_flow_parser.c \
 	$(CONTROL_FLOW_DIR)/control_flow_codegen.c
 
+# For Loop modülü (Modül #7 - Phase 3.3)
+FOR_LOOP_DIR = ../for_loop
+FOR_LOOP_SOURCES = \
+	$(FOR_LOOP_DIR)/for_loop.c \
+	$(FOR_LOOP_DIR)/for_loop_parser.c \
+	$(FOR_LOOP_DIR)/for_loop_codegen.c
+
 # Statement modülü (Body parsing için)
 STATEMENT_DIR = ../statement
 STATEMENT_SOURCES = \
@@ -97,6 +104,7 @@ SOURCES = \
 	$(COMPARISON_SOURCES) \
 	$(LOGICAL_SOURCES) \
 	$(CONTROL_FLOW_SOURCES) \
+	$(FOR_LOOP_SOURCES) \
 	$(STATEMENT_SOURCES) \
 	$(PARSER_CORE_SOURCES) \
 	$(CODEGEN_CONTEXT_SOURCES) \

@@ -12,6 +12,7 @@ TARGET = melpc
 # Essential +4: async, debug, runtime_tto, tto_runtime
 
 MODULE_DIRS = parser_core expression statement comments control_flow \
+              for_loop \
               arithmetic comparison logical bitwise_operations variable \
               array string_operations functions lambda type_system \
               null_safety optimization_pass memory file_io codegen_context \

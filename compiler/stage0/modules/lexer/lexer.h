@@ -39,6 +39,7 @@ typedef enum {
     TOKEN_DO,
     TOKEN_FOR,
     TOKEN_TO,
+    TOKEN_DOWNTO,
     TOKEN_EXIT,            // exit for, exit while, exit if, exit function
     // Function keywords
     TOKEN_FUNCTION,
