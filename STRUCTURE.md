@@ -38,16 +38,24 @@ move/
 
 ## 🎯 Stage Planı
 
-### Stage 0 - TAMAMLANDI ✅
-**Tarih**: 6 Aralık 2025  
-**Durum**: %100 Çalışıyor
+### Stage 0 - MVC TAMAMLANDI ✅
+**Tarih**: 9 Aralık 2025 (YZ_03)  
+**Durum**: MVC %100 Çalışıyor (Overall ~80%)
 
-**Özellikler**:
-- Lexer (UTF-8, Türkçe)
-- Parser (yazdir() only)
-- Code Generator (x86-64 NASM)
-- 26 modül entegrasyonu
-- 384KB binary
+**MVC Özellikleri**:
+- ✅ Functions (declaration + calls + return)
+- ✅ Variables (numeric, local in functions)
+- ✅ Arithmetic (all operations)
+- ✅ Stdlib (println via libmlp_stdlib.a)
+- ✅ Comprehensive test passing
+
+**Parsers Hazır (Codegen Gerekli)**:
+- ✅ Control Flow (if/else, while, for)
+- ✅ Comparison (>, <, ==, !=)
+- ✅ Logical (AND, OR, NOT)
+- ✅ Array (literal, access)
+
+**Sonraki Adım**: YZ_04 - Control flow codegen (3-5 saat)
 
 **Test Sonuçları**:
 - ✅ hello_world.mlp (3 yazdir)

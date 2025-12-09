@@ -1,47 +1,57 @@
-# 🚀 START HERE - New AI Agent Onboarding
+# 🚀 START HERE - New AI Agent Onboarding (YZ Series)
 
-**Welcome!** You're taking over the MLP compiler development.  
-**Last Session:** 9 Aralık 2025 - Phase 4.4 completed  
-**Status:** All active parsers now stateless ✅
+**Welcome YZ_04!** You're taking over from YZ_03.  
+**Last Session:** 9 Aralık 2025 - YZ_03: MVC 100% Complete! 🎉  
+**Status:** Minimum Viable Compiler DONE, Control Flow Codegen Next
 
 ---
 
 ## 📖 Quick Start (5 minutes)
 
 ### 1️⃣ Read This First
-**File:** `ARCHITECTURE.md` (Lines 1-150)
-- Understand the stateless parser pattern
-- Token ownership rules (BORROWED vs OWNED)
-- Module chain architecture (no central orchestrator)
+**File:** `/NEXT_AI_START_HERE.md` (Your mission from YZ_03)
+- Current status: MVC 100%
+- Your goal: Control flow codegen
+- Time estimate: 3-5 hours
 
-**Key Sections:**
-- Lines 1-50: Current status & philosophy
-- Lines 50-150: Stateless template pattern & examples
-- Lines 575-700: Phase 4.4 completion details
+**File:** `/ARCHITECTURE.md` (Critical rules)
+- YZ workflow (branch, commit, handoff)
+- Modular architecture (no central files)
+- AI agent progress log
 
-### 2️⃣ Build & Test
+**File:** `/YZ/YZ_03.md` (Previous session details)
+- What was fixed (text keyword, token type)
+- Test results (30, 30, 60 ✅)
+- Lessons learned
+
+### 2️⃣ Build & Test MVC
 ```bash
 cd compiler/stage0/modules/functions
 make clean && make
 
-# Test compilation
-cat > test.mlp << 'EOF'
-function main() returns numeric
-    return 42
-end function
-EOF
+# Test MVC (should work!)
+./test_mvc
+# Output: 30, 30, 60 ✅
 
-./functions_compiler test.mlp test.s
-gcc -no-pie test.s -o test
-./test
-echo $?  # Should output: 42
+# Or compile manually
+./functions_compiler test_mvc.mlp test_mvc.s
+gcc -no-pie test_mvc.s \
+    -L../../../../runtime/stdlib -lmlp_stdlib \
+    -L../../../../runtime/tto -ltto_runtime -lm \
+    -o test_mvc
+./test_mvc
 ```
 
-### 3️⃣ Explore the Code
-**Reference Implementation:**
-- `modules/functions/functions_parser.c` - Perfect stateless example
-- `modules/variable/variable_parser.c` - With lexer_unget_token()
-- `modules/logical/logical_parser.c` - Token** recursive pattern
+### 3️⃣ Explore Control Flow
+**Control Flow Parsers (Already Done!):**
+- `modules/control_flow/control_flow_parser.c` - if/else, while
+- `modules/for_loop/for_loop_parser.c` - for loops
+- `modules/comparison/comparison_parser.c` - >, <, ==, !=
+
+**What You Need to Implement:**
+- `modules/control_flow/control_flow_codegen.c` - if/else assembly
+- `modules/comparison/comparison_codegen.c` - comparison assembly
+- `modules/for_loop/for_loop_codegen.c` - for loop assembly
 
 ---
 
@@ -76,27 +86,50 @@ compiler/stage0/
 
 ---
 
-## 📋 Current Status Summary
+## 📋 Current Status Summary (YZ_03 Completion)
 
-### ✅ What Works
-- **Stateless Parsers:** functions, variable, logical, **array** ✨
-- **Features:** Function declarations, parameters, return types
-- **Control Flow:** if/else, while, for loops
-- **Expressions:** Arithmetic, comparison (with overflow detection)
-- **Variables:** Declarations, assignments, initialization
-- **Error Handling:** Clean messages with line numbers
-- **TTO (Trapped Type Overflow):** BigDec support for safe arithmetic
+### ✅ MVC (Minimum Viable Compiler) - 100% Complete!
+- **Functions:** Declaration + calls + return values ✅
+- **Variables:** Numeric type (local in functions) ✅
+- **Arithmetic:** All operations (+, -, *, /) ✅
+- **Stdlib:** println() integrated (libmlp_stdlib.a) ✅
+- **Test:** Comprehensive multi-function test passing ✅
 
-### ⏳ What's In Progress
-- **array module:** Parser ✅ converted, entry point needs update
-  - See: `modules/array/ARRAY_STATELESS_CONVERSION.md`
-  - Parser: 470 lines, fully stateless with token borrowing
-  - Entry point: Needs rewrite (30-45 min work)
-  - Pattern: Same as functions_standalone.c (102 lines)
+**Example Working Program:**
+```mlp
+function add(numeric a, numeric b) returns numeric
+    numeric result = a + b
+    return result
+end function
 
-### 🐛 Known Issues
-- Some TTO link errors in complex expressions (BigDec functions)
-- Some tests have syntax that doesn't match current parser
+function main() returns numeric
+    numeric sum = add(10, 20)
+    numeric result = println(sum)  # Outputs: 30
+    return 0
+end function
+```
+
+### ⏳ Next Priority (YZ_04)
+- **Control Flow Codegen:** if/else, while, for
+  - Parsers exist ✅ (`control_flow_parser.c`, `for_loop_parser.c`)
+  - Codegen needed ❌ (assembly generation)
+  - Time estimate: 3-5 hours
+  
+- **Comparison Codegen:** >, <, ==, !=
+  - Parser exists ✅ (`comparison_parser.c`)
+  - Codegen partial ❌
+  - Time estimate: 1 hour
+
+**Goal:** Fibonacci and factorial programs working!
+
+### 📊 Stage 0 Progress
+```
+MVC:              ████████████████████ 100% ✅
+Parsers:          ████████████████████ 100% ✅
+Codegen (Core):   ████████████████░░░░  80% 🟢
+Codegen (Flow):   ████░░░░░░░░░░░░░░░░  20% 🟡
+Overall:          ████████████████░░░░  80% 🟢
+```
 
 ---
 

@@ -2,24 +2,45 @@
 
 Modern, type-safe, and efficient programming language with transparent type optimization (TTO).
 
-> **For New AI Assistant**: Read "Development Notes" section at bottom for current implementation status, file locations, and next steps. All features listed as ✅ in roadmap are working. Project uses VB.NET-style syntax with `exit` instead of `break/continue`.
+> **For New AI Assistant (YZ Series)**: Read `/NEXT_AI_START_HERE.md` for current status and your mission. Then read `/ARCHITECTURE.md` for critical rules. All YZ sessions documented in `/YZ/` folder.
 > 
-> **⚠️ CRITICAL: Read `ARCHITECTURE.md` BEFORE coding!** Previous AI agents created a monolithic 736-line main.c by violating modularity rules. Architecture checks are now enforced by Makefile.
+> **⚠️ CRITICAL: Read `ARCHITECTURE.md` BEFORE coding!** Previous AI agents created monolithic code by violating modularity rules. Follow the YZ workflow: branch naming, commits, handoff docs.
 > 
-> **If stuck or unclear about language rules**: Check `temp/kurallar_kitabı.md` (rules book) for detailed language specifications and design decisions.
+> **Current Status**: YZ_03 completed MVC (Minimum Viable Compiler). YZ_04 should implement control flow codegen.
 
-## ✨ Recent Updates (7 Aralık 2025)
+## 🎉 MAJOR MILESTONE: MVC 100% Complete! (9 Aralık 2025)
 
-**Phase 3.5 In Progress! 🚀**
-- ✅ **Expression Parsing**: Arithmetic, comparison, logical operators fully parsed
-- ✅ **Variable Initialization**: Numeric literals work (`numeric x = 42`)
-- 🚧 **Complex Expressions**: Parser works, TTO runtime linking needed for execution
-- 🚧 **If Conditions**: Need expression integration
+**YZ_03 Achievement: Minimum Viable Compiler is DONE! 🎊**
+- ✅ **Functions**: Declaration, calls, return values
+- ✅ **Variables**: Numeric type, local in functions
+- ✅ **Arithmetic**: All operations (+, -, *, /)
+- ✅ **Stdlib**: println() working via libmlp_stdlib.a
+- ✅ **Comprehensive Test**: Multi-function program passing!
+- ✅ **Real Programs**: Can write actual MLP code now!
 
-**Phase 3 Complete! 🎉**
-- ✅ **Control Flow**: if/then/else, while/do, for/to loops
-- ✅ **Variable Declarations**: numeric, string, boolean types
-- ✅ **Print Statements**: Full support with string literals
+**Test Results**:
+```mlp
+function add(numeric a, numeric b) returns numeric
+    numeric result = a + b
+    return result
+end function
+
+function main() returns numeric
+    numeric x = 10
+    numeric y = 20
+    numeric sum = add(x, y)
+    numeric result = println(sum)  # Output: 30
+    return 0
+end function
+```
+
+**YZ Series Progress**:
+- ✅ YZ_01: TTO Runtime + Architecture enforcement
+- ✅ YZ_02: Stdlib integration (println)
+- ✅ YZ_03: MVC completion (text keyword fix)
+- ⏳ YZ_04: Control flow codegen (if/while/for)
+
+**Stage 0 Status**: ~80% (MVC ✅, Control Flow Parsers ✅, Codegen needed)
 
 **Previous Updates:**
 - ✅ **Full English Conversion**: Converted from Turkish (`yazdir`) to English (`print`)
@@ -74,26 +95,33 @@ MLP/
 
 ## 🎯 Language Features
 
-### Current (Stage 0)
-- ✅ **English Keywords**: `print`, `numeric`, `string`, `boolean`, `if`, `while`, `function`
-- ✅ **Print Statement**: `print("Hello, World!")`
-- ✅ **VB.NET Style Comments**: `-- This is a comment`
-- ✅ **Smart Parser**: Rejects invalid syntax at parse time
-- ✅ **UTF-8 Safe**: Handles international characters correctly
-- ✅ **26 Feature Modules**: Variables, functions, async, memory, etc.
+### Current (Stage 0 - MVC Complete!)
+- ✅ **Functions**: Declaration + calls + return values
+- ✅ **Variables**: Numeric type (local in functions)
+- ✅ **Arithmetic**: All operations (+, -, *, /)
+- ✅ **Stdlib**: println() integrated
+- ✅ **Keywords**: `function`, `numeric`, `text`, `boolean`, `if`, `while`, `for`, `return`
+- ✅ **Parsers**: All control flow parsers ready (codegen needed)
+- ✅ **Modular Architecture**: No central files, Unix pipes
+- ✅ **Test Suite**: Comprehensive MVC test passing
 
 ### Type System
 - **Type Keywords**: 
-  - `numeric` - Integer and floating-point numbers
-  - `string` - UTF-8 strings (not `text` - removed for consistency)
+  - `numeric` - Integer and floating-point numbers (TTO optimized)
+  - `text` - UTF-8 strings (MLP standard, SSO optimization)
   - `boolean` - True/false values
-- **TOKEN_STRING_TYPE**: Internal token for type keywords
-- **TOKEN_STRING**: Internal token for string literals
+- **TOKEN_STRING_TYPE**: Internal token for type keywords (`text`, `numeric`, `boolean`)
+- **TOKEN_STRING**: Internal token for string literals ("...")
 
-### Planned Features
-- Variables and expressions
-- Control flow (if/while/for)
-- Functions and lambdas
+### Next Features (YZ_04 Priority)
+- ⏳ **Control Flow Codegen**: if/else, while, for (parsers ready!)
+- ⏳ **Comparison Operations**: >, <, ==, != code generation
+- ⏳ **Boolean Logic**: AND, OR, NOT
+- ⏳ **String Operations**: Concatenation, comparison
+- ⏳ **Array Access**: Index operations
+
+### Future Features
+- Functions with multiple types
 - Struct types
 - Async/await
 - Memory management
