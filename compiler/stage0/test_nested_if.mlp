@@ -1,0 +1,18 @@
+-- Test nested if statements
+-- Outer if contains inner if - tests label management
+
+function test_nested() returns numeric
+    numeric x = 10
+    numeric y = 5
+    numeric result = 0
+    
+    if x > 5 then
+        result = 1
+        -- Inner if statement
+        if y > 3 then
+            result = 2
+        end if
+    end if
+    
+    return result
+end function

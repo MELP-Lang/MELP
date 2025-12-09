@@ -141,6 +141,9 @@ VariableDeclaration* variable_parse_declaration(VariableParser* parser) {
                 decl->tto_analyzed = false;
             }
         }
+        
+        // DON'T read next token - arithmetic parser already did and freed it
+        // Statement parser will read fresh token
     } else if (parser->current_token->type == TOKEN_STRING) {
         // String literal
         decl->value = strdup(parser->current_token->value);

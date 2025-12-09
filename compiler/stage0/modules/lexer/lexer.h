@@ -72,11 +72,13 @@ typedef struct {
     const char* source;
     int pos;
     int line;
+    Token* pushback_token;  // ✅ For parser coordination: last read token can be "ungot"
 } Lexer;
 
 Lexer* lexer_create(const char* source);
 void lexer_free(Lexer* lexer);
 Token* lexer_next_token(Lexer* lexer);
+void lexer_unget_token(Lexer* lexer, Token* token);  // ✅ Push token back
 void token_free(Token* token);
 
 #endif

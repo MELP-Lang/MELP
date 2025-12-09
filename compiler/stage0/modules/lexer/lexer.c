@@ -10,16 +10,30 @@ Lexer* lexer_create(const char* source) {
     lexer->source = source;
     lexer->pos = 0;
     lexer->line = 1;
+    lexer->pushback_token = NULL;  // ✅ Initialize pushback
     return lexer;
 }
 
 void lexer_free(Lexer* lexer) {
+    if (lexer->pushback_token) {
+        token_free(lexer->pushback_token);  // ✅ Free pushback if any
+    }
     free(lexer);
 }
 
 void token_free(Token* token) {
     if (token->value) free(token->value);
     free(token);
+}
+
+// ✅ Push token back - next lexer_next_token() will return this
+void lexer_unget_token(Lexer* lexer, Token* token) {
+    if (lexer->pushback_token) {
+        // Already have pushback! This shouldn't happen
+        fprintf(stderr, "Warning: lexer_unget_token overwriting existing pushback!\n");
+        token_free(lexer->pushback_token);
+    }
+    lexer->pushback_token = token;
 }
 
 static void skip_whitespace(Lexer* lexer) {
@@ -137,6 +151,13 @@ static Token* read_identifier(Lexer* lexer) {
 }
 
 Token* lexer_next_token(Lexer* lexer) {
+    // ✅ Check for pushback token first
+    if (lexer->pushback_token) {
+        Token* tok = lexer->pushback_token;
+        lexer->pushback_token = NULL;  // Clear pushback
+        return tok;
+    }
+    
     while (1) {
         skip_whitespace(lexer);
         

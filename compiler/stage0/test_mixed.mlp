@@ -1,0 +1,17 @@
+-- Test mixed nested structures
+-- While loop containing if statement
+
+function test_mixed() returns numeric
+    numeric i = 0
+    numeric sum = 0
+    
+    while i < 5 do
+        -- If inside while
+        if i > 2 then
+            sum = sum + i
+        end if
+        i = i + 1
+    end while
+    
+    return sum
+end function

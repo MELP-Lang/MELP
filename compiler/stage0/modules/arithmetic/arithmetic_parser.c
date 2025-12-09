@@ -651,9 +651,10 @@ ArithmeticExpr* arithmetic_parse_expression_stateless(Lexer* lexer, Token* first
     
     ArithmeticExpr* result = parse_bitwise_stateless(lexer, &current);
     
-    // Free any remaining token we own
+    // ✅ FIX: Don't free remaining token, push it back to lexer
+    // This token is the first NON-expression token (e.g. "if", newline, etc)
     if (current) {
-        token_free(current);
+        lexer_unget_token(lexer, current);  // ✅ Give it back!
     }
     
     return result;

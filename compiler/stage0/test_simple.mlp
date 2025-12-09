@@ -1,0 +1,4 @@
+function simple() returns numeric
+    numeric x = 10
+    return x
+end function

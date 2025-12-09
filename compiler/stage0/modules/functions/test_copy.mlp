@@ -1,0 +1,9 @@
+function test() returns numeric
+    numeric x = 5
+    if x > 3 then
+        x = 10
+    else
+        x = 1
+    end if
+    return x
+end function
