@@ -11,24 +11,24 @@ static int logical_label_counter = 0;
 static void load_value(FILE* output, const char* value, int is_literal, int reg_num, int is_float, void* context) {
     if (is_float) {
         if (is_literal) {
-            fprintf(output, "    section .data\n");
-            fprintf(output, "    _cmp_float_%d: dq %s\n", reg_num, value);
-            fprintf(output, "    section .text\n");
-            fprintf(output, "    movsd xmm%d, [_cmp_float_%d]\n", reg_num, reg_num);
+            fprintf(output, "    .section .data\n");
+            fprintf(output, "    _cmp_float_%d: .quad %s\n", reg_num, value);
+            fprintf(output, "    .section .text\n");
+            fprintf(output, "    movsd _cmp_float_%d(%%rip), %%xmm%d\n", reg_num, reg_num);
         } else {
-            fprintf(output, "    movsd xmm%d, [%s]\n", reg_num, value);
+            fprintf(output, "    movsd (%s), %%xmm%d\n", value, reg_num);
         }
     } else {
         if (is_literal) {
-            fprintf(output, "    mov r%d, %s\n", reg_num + 8, value);
+            fprintf(output, "    movq $%s, %%r%d  # Literal\n", value, reg_num + 8);
         } else {
             // Variable - lookup offset
             if (context) {
                 FunctionDeclaration* func = (FunctionDeclaration*)context;
                 int offset = function_get_var_offset(func, value);
-                fprintf(output, "    movq %d(%%rbp), %%r%d  ; Load %s\n", offset, reg_num + 8, value);
+                fprintf(output, "    movq %d(%%rbp), %%r%d  # Load %s\n", offset, reg_num + 8, value);
             } else {
-                fprintf(output, "    mov r%d, [%s]\n", reg_num + 8, value);
+                fprintf(output, "    movq (%s), %%r%d\n", value, reg_num + 8);
             }
         }
     }
@@ -48,36 +48,36 @@ void comparison_generate_code(FILE* output, ComparisonExpr* expr, void* context)
     
     // Compare
     if (expr->is_float) {
-        fprintf(output, "    ucomisd xmm0, xmm1\n");
+        fprintf(output, "    ucomisd %%xmm1, %%xmm0\n");
     } else {
-        fprintf(output, "    cmp r8, r9\n");
+        fprintf(output, "    cmpq %%r9, %%r8\n");
     }
     
     // Set result based on comparison
-    fprintf(output, "    mov rax, 0          ; Default false\n");
+    fprintf(output, "    movq $0, %%rax          # Default false\n");
     
     switch (expr->op) {
         case CMP_EQUAL:
-            fprintf(output, "    sete al             ; Set if equal\n");
+            fprintf(output, "    sete %%al             # Set if equal\n");
             break;
         case CMP_NOT_EQUAL:
-            fprintf(output, "    setne al            ; Set if not equal\n");
+            fprintf(output, "    setne %%al            # Set if not equal\n");
             break;
         case CMP_LESS:
-            fprintf(output, "    setl al             ; Set if less\n");
+            fprintf(output, "    setl %%al             # Set if less\n");
             break;
         case CMP_LESS_EQUAL:
-            fprintf(output, "    setle al            ; Set if less or equal\n");
+            fprintf(output, "    setle %%al            # Set if less or equal\n");
             break;
         case CMP_GREATER:
-            fprintf(output, "    setg al             ; Set if greater\n");
+            fprintf(output, "    setg %%al             # Set if greater\n");
             break;
         case CMP_GREATER_EQUAL:
-            fprintf(output, "    setge al            ; Set if greater or equal\n");
+            fprintf(output, "    setge %%al            # Set if greater or equal\n");
             break;
     }
     
-    fprintf(output, "    ; Result in rax (0=false, 1=true)\n");
+    fprintf(output, "    # Result in rax (0=false, 1=true)\n");
 }
 
 // Generate conditional jump
@@ -92,9 +92,9 @@ void comparison_generate_conditional_jump(FILE* output, ComparisonExpr* expr, co
     
     // Compare
     if (expr->is_float) {
-        fprintf(output, "    ucomisd xmm0, xmm1\n");
+        fprintf(output, "    ucomisd %%xmm1, %%xmm0\n");
     } else {
-        fprintf(output, "    cmp r8, r9\n");
+        fprintf(output, "    cmpq %%r9, %%r8\n");
     }
     
     // Jump based on condition
@@ -125,27 +125,27 @@ void comparison_generate_code_with_chain(FILE* output, ComparisonExpr* expr, voi
     if (!output || !expr) return;
     
     // Generate first comparison
-    fprintf(output, "\n    ; Comparison with logical chaining\n");
+    fprintf(output, "\n    # Comparison with logical chaining\n");
     
     // Load and compare first expression
     load_value(output, expr->left_value, expr->left_is_literal, 0, expr->is_float, context);
     load_value(output, expr->right_value, expr->right_is_literal, 1, expr->is_float, context);
     
     if (expr->is_float) {
-        fprintf(output, "    ucomisd xmm0, xmm1\n");
+        fprintf(output, "    ucomisd %%xmm1, %%xmm0\n");
     } else {
-        fprintf(output, "    cmp r8, r9\n");
+        fprintf(output, "    cmpq %%r9, %%r8\n");
     }
     
     // Set result for first comparison
-    fprintf(output, "    mov rax, 0\n");
+    fprintf(output, "    movq $0, %%rax\n");
     switch (expr->op) {
-        case CMP_EQUAL:       fprintf(output, "    sete al\n"); break;
-        case CMP_NOT_EQUAL:   fprintf(output, "    setne al\n"); break;
-        case CMP_LESS:        fprintf(output, "    setl al\n"); break;
-        case CMP_LESS_EQUAL:  fprintf(output, "    setle al\n"); break;
-        case CMP_GREATER:     fprintf(output, "    setg al\n"); break;
-        case CMP_GREATER_EQUAL: fprintf(output, "    setge al\n"); break;
+        case CMP_EQUAL:       fprintf(output, "    sete %%al\n"); break;
+        case CMP_NOT_EQUAL:   fprintf(output, "    setne %%al\n"); break;
+        case CMP_LESS:        fprintf(output, "    setl %%al\n"); break;
+        case CMP_LESS_EQUAL:  fprintf(output, "    setle %%al\n"); break;
+        case CMP_GREATER:     fprintf(output, "    setg %%al\n"); break;
+        case CMP_GREATER_EQUAL: fprintf(output, "    setge %%al\n"); break;
     }
     
     // Handle logical chaining
@@ -154,28 +154,28 @@ void comparison_generate_code_with_chain(FILE* output, ComparisonExpr* expr, voi
         
         if (expr->chain_op == LOG_AND) {
             // AND: Short-circuit if first is false
-            fprintf(output, "    test rax, rax       ; Check first result\n");
-            fprintf(output, "    jz .logical_and_false_%d  ; Skip if false (short-circuit)\n", label_id);
+            fprintf(output, "    test %%rax, %%rax       # Check first result\n");
+            fprintf(output, "    jz .logical_and_false_%d  # Skip if false (short-circuit)\n", label_id);
             
             // First was true, evaluate second
             comparison_generate_code_with_chain(output, expr->next, context);
             
             // Second result already in rax
             fprintf(output, ".logical_and_false_%d:\n", label_id);
-            fprintf(output, "    ; AND result in rax\n");
+            fprintf(output, "    # AND result in rax\n");
             
         } else if (expr->chain_op == LOG_OR) {
             // OR: Short-circuit if first is true
-            fprintf(output, "    test rax, rax       ; Check first result\n");
-            fprintf(output, "    jnz .logical_or_true_%d  ; Skip if true (short-circuit)\n", label_id);
+            fprintf(output, "    test %%rax, %%rax       # Check first result\n");
+            fprintf(output, "    jnz .logical_or_true_%d  # Skip if true (short-circuit)\n", label_id);
             
             // First was false, evaluate second
             comparison_generate_code_with_chain(output, expr->next, context);
             
             fprintf(output, ".logical_or_true_%d:\n", label_id);
-            fprintf(output, "    ; OR result in rax\n");
+            fprintf(output, "    # OR result in rax\n");
         }
     } else {
-        fprintf(output, "    ; Single comparison result in rax\n");
+        fprintf(output, "    # Single comparison result in rax\n");
     }
 }

@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "functions_codegen.h"
 #include "functions.h"
 #include "../arithmetic/arithmetic_parser.h"
 #include "../arithmetic/arithmetic_codegen.h"
 #include "../statement/statement_codegen.h"  // ✅ Statement codegen import!
 #include "../variable/variable.h"  // ✅ VariableDeclaration type
+#include "../control_flow/control_flow.h"  // ✅ IfStatement, WhileStatement, ForStatement
 
 // Now we can use real expression codegen AND statement codegen!
 // arithmetic_parse_expression() and arithmetic_generate_code()
@@ -70,6 +72,61 @@ void function_generate_epilogue(FILE* output, FunctionDeclaration* func) {
     fprintf(output, "    ret\n");
 }
 
+// Forward declaration for recursive scan
+static void scan_statement_for_variables(FunctionDeclaration* func, Statement* stmt);
+
+// Recursively scan statement tree for variable declarations
+static void scan_statement_for_variables(FunctionDeclaration* func, Statement* stmt) {
+    if (!stmt) return;
+    
+    // Register variable declaration
+    if (stmt->type == STMT_VARIABLE_DECL) {
+        VariableDeclaration* decl = (VariableDeclaration*)stmt->data;
+        if (decl && decl->name) {
+            function_register_local_var(func, decl->name);
+        }
+    }
+    
+    // Recursively scan nested blocks (if/else/while bodies)
+    if (stmt->type == STMT_IF) {
+        IfStatement* if_stmt = (IfStatement*)stmt->data;
+        if (if_stmt) {
+            // Scan then body
+            Statement* nested = if_stmt->then_body;
+            while (nested) {
+                scan_statement_for_variables(func, nested);
+                nested = nested->next;
+            }
+            // Scan else body
+            nested = if_stmt->else_body;
+            while (nested) {
+                scan_statement_for_variables(func, nested);
+                nested = nested->next;
+            }
+        }
+    }
+    else if (stmt->type == STMT_WHILE) {
+        WhileStatement* while_stmt = (WhileStatement*)stmt->data;
+        if (while_stmt) {
+            Statement* nested = while_stmt->body;
+            while (nested) {
+                scan_statement_for_variables(func, nested);
+                nested = nested->next;
+            }
+        }
+    }
+    else if (stmt->type == STMT_FOR) {
+        ForStatement* for_stmt = (ForStatement*)stmt->data;
+        if (for_stmt) {
+            Statement* nested = for_stmt->body;
+            while (nested) {
+                scan_statement_for_variables(func, nested);
+                nested = nested->next;
+            }
+        }
+    }
+}
+
 // Generate function declaration
 void function_generate_declaration(FILE* output, FunctionDeclaration* func) {
     if (!func) return;
@@ -84,15 +141,10 @@ void function_generate_declaration(FILE* output, FunctionDeclaration* func) {
         param = param->next;
     }
     
-    // ✅ SECOND: Process body statements to count local variables
+    // ✅ SECOND: Recursively scan ALL statements (including nested blocks)
     Statement* stmt = func->body;
     while (stmt) {
-        if (stmt->type == STMT_VARIABLE_DECL) {
-            VariableDeclaration* decl = (VariableDeclaration*)stmt->data;
-            if (decl && decl->name) {
-                function_register_local_var(func, decl->name);
-            }
-        }
+        scan_statement_for_variables(func, stmt);
         stmt = stmt->next;
     }
     
