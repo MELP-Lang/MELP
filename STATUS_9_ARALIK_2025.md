@@ -1,6 +1,27 @@
-# 🎯 PROJECT STATUS - 9 Aralık 2025 (YZ_03 Update)
+# 🎯 PROJECT STATUS - 9 Aralık 2025 (YZ_04 Update)
 
-## 🎉 BÜYÜK DÖNÜM NOKTASI: MVC %100 COMPLETE!
+## 🎉 BÜYÜK DÖNÜM NOKTASI: FIBONACCI ÇALIŞIYOR! 🎊
+
+### ✅ YZ_04 Achievements (Bugün - Akşam)
+
+**1. Control Flow Codegen Complete:**
+- ✅ If/else assembly generation working
+- ✅ AT&T syntax migration (comparison + control_flow)
+- ✅ Recursive function calls verified
+- ✅ **Fibonacci(10) = 55 SUCCESS!** 🎉
+
+**2. Critical Bug Fix - Nested Variables:**
+- ✅ Stack offset collision fixed
+- ✅ Recursive statement scanning implemented
+- ✅ Variables in if/else blocks now properly registered
+
+**Test Results:**
+- test_if_max.mlp: max(15,20) = 20 ✅
+- test_fibonacci.mlp: fib(10) = 55 ✅ (recursive!)
+
+**Stage 0 Completion: ~85%** 🚀
+
+---
 
 ### ✅ YZ_03 Achievements (Bugün - Son 2 Saat)
 
