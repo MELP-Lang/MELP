@@ -264,28 +264,13 @@ Statement* statement_parse(Parser* parser) {
         return stmt;
     }
     
-    // ✅ Variable declaration - use variable module
+    // ✅ Variable declaration - use variable module (STATELESS)
     if (tok->type == TOKEN_NUMERIC || tok->type == TOKEN_STRING || tok->type == TOKEN_BOOLEAN) {
-        // Create variable parser and set the type token we already read
-        VariableParser* var_parser = variable_parser_create(parser->lexer);
+        // Call stateless version - tok is borrowed by variable_parse_declaration
+        VariableDeclaration* decl = variable_parse_declaration(parser->lexer, tok);
         
-        // Free the token it read and set our type token instead
-        if (var_parser->current_token) {
-            token_free(var_parser->current_token);
-        }
-        var_parser->current_token = tok;  // Use the type token we already have
-        
-        // Parse variable declaration
-        VariableDeclaration* decl = variable_parse_declaration(var_parser);
-        
-        // IMPORTANT: Transfer any lookahead token back to main parser
-        if (var_parser->current_token) {
-            // Variable parser read ahead but didn't consume - give it back to main parser
-            parser->current_token = var_parser->current_token;
-            var_parser->current_token = NULL;  // Don't free it in variable_parser_free
-        }
-        
-        variable_parser_free(var_parser);
+        // We own tok, so we must free it
+        token_free(tok);
         
         if (decl) {
             stmt = statement_create(STMT_VARIABLE_DECL);

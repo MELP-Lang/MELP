@@ -4,21 +4,16 @@
 #include "../lexer/lexer.h"
 #include "variable.h"
 
-// Variable parser structure
-typedef struct {
-    Lexer* lexer;
-    Token* current_token;
-} VariableParser;
-
-// Create/free parser
-VariableParser* variable_parser_create(Lexer* lexer);
-void variable_parser_free(VariableParser* parser);
+// STATELESS PATTERN: Parse functions take Lexer and Token directly
+// No parser struct needed (follows ARCHITECTURE.md pattern)
 
 // Parse variable declaration: numeric x = 10
-VariableDeclaration* variable_parse_declaration(VariableParser* parser);
+// type_token is BORROWED - don't free inside function
+VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token);
 
 // Parse variable assignment: x = 20
-VariableAssignment* variable_parse_assignment(VariableParser* parser);
+// identifier_token is BORROWED - don't free inside function
+VariableAssignment* variable_parse_assignment(Lexer* lexer, Token* identifier_token);
 
 // Free structures
 void variable_declaration_free(VariableDeclaration* decl);

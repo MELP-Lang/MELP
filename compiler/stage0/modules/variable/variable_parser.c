@@ -6,49 +6,31 @@
 #include <string.h>
 #include <stdio.h>
 
-// Helper: Advance to next token
-static void advance(VariableParser* parser) {
-    if (parser->current_token) {
-        token_free(parser->current_token);
-    }
-    parser->current_token = lexer_next_token(parser->lexer);
-}
-
-// Create parser
-VariableParser* variable_parser_create(Lexer* lexer) {
-    VariableParser* parser = malloc(sizeof(VariableParser));
-    parser->lexer = lexer;
-    parser->current_token = NULL;  // Lazy loading - caller will set initial token
-    return parser;
-}
-
-// Free parser
-void variable_parser_free(VariableParser* parser) {
-    if (parser->current_token) {
-        token_free(parser->current_token);
-    }
-    free(parser);
-}
+// STATELESS PATTERN: No parser struct, no advance() helper
+// Token ownership: type_token is BORROWED, other tokens are OWNED
 
 // Parse variable declaration: numeric x = 10
-VariableDeclaration* variable_parse_declaration(VariableParser* parser) {
-    if (!parser || !parser->current_token) {
+// type_token is BORROWED from caller - don't free it!
+VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token) {
+    if (!lexer || !type_token) {
         return NULL;
     }
     
-    // Check for type keyword
+    // Check for type keyword (type_token is BORROWED)
     VarType base_type;
-    if (parser->current_token->type == TOKEN_NUMERIC) {
+    if (type_token->type == TOKEN_NUMERIC) {
         base_type = VAR_NUMERIC;
-    } else if (parser->current_token->type == TOKEN_STRING_TYPE) {
+    } else if (type_token->type == TOKEN_STRING_TYPE) {
         base_type = VAR_STRING;
-    } else if (parser->current_token->type == TOKEN_BOOLEAN) {
+    } else if (type_token->type == TOKEN_BOOLEAN) {
         base_type = VAR_BOOLEAN;
     } else {
         return NULL;  // Not a variable declaration
     }
     
-    advance(parser);  // consume type
+    // type_token consumed by reading, read next token (OWNED)
+    Token* tok = lexer_next_token(lexer);
+    if (!tok) return NULL;
     
     // Check for pointer (*) or array ([])
     int is_pointer = 0;
@@ -56,38 +38,48 @@ VariableDeclaration* variable_parse_declaration(VariableParser* parser) {
     int array_size = 0;
     VarType actual_type = base_type;
     
-    if (parser->current_token->type == TOKEN_MULTIPLY) {
+    if (tok->type == TOKEN_MULTIPLY) {
         // Pointer type: numeric*
         is_pointer = 1;
         actual_type = VAR_POINTER;
-        advance(parser);  // consume '*'
-    } else if (parser->current_token->type == TOKEN_LBRACKET) {
+        token_free(tok);
+        tok = lexer_next_token(lexer);  // consume '*'
+        if (!tok) return NULL;
+    } else if (tok->type == TOKEN_LBRACKET) {
         // Array type: numeric[10] or numeric[]
         is_array = 1;
         actual_type = VAR_ARRAY;
-        advance(parser);  // consume '['
+        token_free(tok);
+        tok = lexer_next_token(lexer);  // consume '['
+        if (!tok) return NULL;
         
         // Check for array size
-        if (parser->current_token->type == TOKEN_NUMBER) {
-            array_size = atoi(parser->current_token->value);
-            advance(parser);  // consume size
+        if (tok->type == TOKEN_NUMBER) {
+            array_size = atoi(tok->value);
+            token_free(tok);
+            tok = lexer_next_token(lexer);  // consume size
+            if (!tok) return NULL;
         }
         
-        if (parser->current_token->type != TOKEN_RBRACKET) {
+        if (tok->type != TOKEN_RBRACKET) {
             fprintf(stderr, "Error: Expected ']' in array declaration\n");
+            token_free(tok);
             return NULL;
         }
-        advance(parser);  // consume ']'
+        token_free(tok);
+        tok = lexer_next_token(lexer);  // consume ']'
+        if (!tok) return NULL;
     }
     
     // Expect identifier
-    if (parser->current_token->type != TOKEN_IDENTIFIER) {
+    if (tok->type != TOKEN_IDENTIFIER) {
         fprintf(stderr, "Error: Expected identifier after type\n");
+        token_free(tok);
         return NULL;
     }
     
     VariableDeclaration* decl = malloc(sizeof(VariableDeclaration));
-    decl->name = strdup(parser->current_token->value);
+    decl->name = strdup(tok->value);
     decl->type = actual_type;
     decl->base_type = base_type;
     decl->is_pointer = is_pointer;
@@ -105,27 +97,35 @@ VariableDeclaration* variable_parse_declaration(VariableParser* parser) {
     decl->tto_analyzed = false;
     decl->needs_overflow_check = false;
     
-    advance(parser);  // consume identifier
+    token_free(tok);  // consume identifier
+    tok = lexer_next_token(lexer);  // read next
+    if (!tok) return decl;  // EOF, no initializer
     
     // Check for optional '=' initializer
-    if (parser->current_token->type != TOKEN_ASSIGN) {
+    if (tok->type != TOKEN_ASSIGN) {
         // No initializer - just declaration
+        // Push back the token we read so caller can use it
+        lexer_unget_token(lexer, tok);
         return decl;
     }
     
-    advance(parser);  // consume '='
+    token_free(tok);  // consume '='
+    tok = lexer_next_token(lexer);  // read value
+    if (!tok) {
+        fprintf(stderr, "Error: Expected value after '='\n");
+        variable_declaration_free(decl);
+        return NULL;
+    }
     
-    // ✅ NEW: Parse init expression using arithmetic parser
-    if (parser->current_token->type == TOKEN_IDENTIFIER ||
-        parser->current_token->type == TOKEN_NUMBER ||
-        parser->current_token->type == TOKEN_LPAREN) {
+    // ✅ Parse init expression using arithmetic parser
+    if (tok->type == TOKEN_IDENTIFIER ||
+        tok->type == TOKEN_NUMBER ||
+        tok->type == TOKEN_LPAREN) {
         
         // Use stateless arithmetic parser for expression parsing
-        Token* expr_tok = parser->current_token;
-        parser->current_token = NULL;  // We're consuming this token
-        
-        ArithmeticExpr* expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok);
-        token_free(expr_tok);
+        // tok is OWNED by us and will be consumed by arithmetic parser
+        ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok);
+        token_free(tok);  // arithmetic parser borrowed it, we still own it
         
         if (expr) {
             // Check if it's a simple literal
@@ -142,11 +142,11 @@ VariableDeclaration* variable_parse_declaration(VariableParser* parser) {
             }
         }
         
-        // DON'T read next token - arithmetic parser already did and freed it
-        // Statement parser will read fresh token
-    } else if (parser->current_token->type == TOKEN_STRING) {
+        // DON'T read next token - caller will do it
+        return decl;
+    } else if (tok->type == TOKEN_STRING) {
         // String literal
-        decl->value = strdup(parser->current_token->value);
+        decl->value = strdup(tok->value);
         
         // Phase 2: TTO analysis for string literals
         TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
@@ -163,92 +163,98 @@ VariableDeclaration* variable_parse_declaration(VariableParser* parser) {
             decl->internal_str_type = INTERNAL_RODATA;
         }
         
-        advance(parser);
-    } else if (parser->current_token->type == TOKEN_TRUE) {
+        token_free(tok);
+        return decl;
+    } else if (tok->type == TOKEN_TRUE) {
         decl->value = strdup("true");
-        advance(parser);
-    } else if (parser->current_token->type == TOKEN_FALSE) {
+        token_free(tok);
+        return decl;
+    } else if (tok->type == TOKEN_FALSE) {
         decl->value = strdup("false");
-        advance(parser);
-    } else if (parser->current_token->type == TOKEN_LBRACKET) {
+        token_free(tok);
+        return decl;
+    } else if (tok->type == TOKEN_LBRACKET) {
         // Array literal: [1, 2, 3]
         // For now, store the literal string representation
         // Full parsing happens in array module
         char array_literal[1024] = "[";
         int pos = 1;
         
-        advance(parser);  // consume '['
+        token_free(tok);  // consume '['
+        tok = lexer_next_token(lexer);
         
-        while (parser->current_token && 
-               parser->current_token->type != TOKEN_RBRACKET &&
-               parser->current_token->type != TOKEN_EOF) {
+        while (tok && 
+               tok->type != TOKEN_RBRACKET &&
+               tok->type != TOKEN_EOF) {
             
             // Append current token value
-            if (parser->current_token->type == TOKEN_NUMBER ||
-                parser->current_token->type == TOKEN_STRING ||
-                parser->current_token->type == TOKEN_IDENTIFIER) {
-                int len = strlen(parser->current_token->value);
+            if (tok->type == TOKEN_NUMBER ||
+                tok->type == TOKEN_STRING ||
+                tok->type == TOKEN_IDENTIFIER) {
+                int len = strlen(tok->value);
                 if (pos + len + 5 < 1024) {
-                    if (parser->current_token->type == TOKEN_STRING) {
+                    if (tok->type == TOKEN_STRING) {
                         array_literal[pos++] = '"';
                     }
-                    strcpy(array_literal + pos, parser->current_token->value);
+                    strcpy(array_literal + pos, tok->value);
                     pos += len;
-                    if (parser->current_token->type == TOKEN_STRING) {
+                    if (tok->type == TOKEN_STRING) {
                         array_literal[pos++] = '"';
                     }
                 }
             }
             
-            advance(parser);
+            token_free(tok);
+            tok = lexer_next_token(lexer);
             
             // Check for comma
-            if (parser->current_token && parser->current_token->type == TOKEN_COMMA) {
+            if (tok && tok->type == TOKEN_COMMA) {
                 if (pos + 2 < 1024) {
                     array_literal[pos++] = ',';
                     array_literal[pos++] = ' ';
                 }
-                advance(parser);  // consume ','
+                token_free(tok);  // consume ','
+                tok = lexer_next_token(lexer);
             }
         }
         
-        if (parser->current_token && parser->current_token->type == TOKEN_RBRACKET) {
+        if (tok && tok->type == TOKEN_RBRACKET) {
             if (pos + 2 < 1024) {
                 array_literal[pos++] = ']';
                 array_literal[pos] = '\0';
             }
-            advance(parser);  // consume ']'
+            token_free(tok);  // consume ']'
             
             decl->value = strdup(array_literal);
+            return decl;
         } else {
             fprintf(stderr, "Error: Expected ']' in array literal\n");
-            free(decl->name);
-            free(decl);
+            if (tok) token_free(tok);
+            variable_declaration_free(decl);
             return NULL;
         }
     } else {
         fprintf(stderr, "Error: Expected value after '='\n");
-        free(decl->name);
-        free(decl);
+        token_free(tok);
+        variable_declaration_free(decl);
         return NULL;
     }
-    
-    return decl;
 }
 
 // Parse variable assignment: x = 20
-VariableAssignment* variable_parse_assignment(VariableParser* parser) {
-    if (!parser || !parser->current_token) {
+// identifier_token is BORROWED from caller - don't free it!
+VariableAssignment* variable_parse_assignment(Lexer* lexer, Token* identifier_token) {
+    if (!lexer || !identifier_token) {
         return NULL;
     }
     
     // Check for identifier
-    if (parser->current_token->type != TOKEN_IDENTIFIER) {
+    if (identifier_token->type != TOKEN_IDENTIFIER) {
         return NULL;
     }
     
     VariableAssignment* assign = malloc(sizeof(VariableAssignment));
-    assign->name = strdup(parser->current_token->value);
+    assign->name = strdup(identifier_token->value);
     assign->value_expr = NULL;
     
     // Phase 2: Initialize TTO fields
@@ -256,33 +262,38 @@ VariableAssignment* variable_parse_assignment(VariableParser* parser) {
     assign->tto_analyzed = false;
     assign->needs_type_promotion = false;
     
-    advance(parser);  // consume identifier
-    
-    // Expect '='
-    if (parser->current_token->type != TOKEN_ASSIGN) {
+    // identifier_token is BORROWED, read next token (OWNED)
+    Token* tok = lexer_next_token(lexer);
+    if (!tok) {
         fprintf(stderr, "Error: Expected '=' in assignment\n");
         free(assign->name);
         free(assign);
         return NULL;
     }
     
-    advance(parser);  // consume '='
-    
-    // Parse expression using stateless arithmetic API
-    Token* expr_tok = parser->current_token ? parser->current_token : lexer_next_token(parser->lexer);
-    if (parser->current_token) {
-        parser->current_token = NULL;  // We're consuming it
+    // Expect '='
+    if (tok->type != TOKEN_ASSIGN) {
+        fprintf(stderr, "Error: Expected '=' in assignment\n");
+        token_free(tok);
+        free(assign->name);
+        free(assign);
+        return NULL;
     }
     
-    if (!expr_tok) {
+    token_free(tok);  // consume '='
+    tok = lexer_next_token(lexer);  // read expression
+    
+    if (!tok) {
         fprintf(stderr, "Error: Expected expression after '='\n");
         free(assign->name);
         free(assign);
         return NULL;
     }
     
-    ArithmeticExpr* expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok);
-    token_free(expr_tok);
+    // Parse expression using stateless arithmetic API
+    // tok is OWNED and will be consumed
+    ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok);
+    token_free(tok);  // We own it, arithmetic parser borrowed it
     
     if (expr) {
         assign->value_expr = expr;
