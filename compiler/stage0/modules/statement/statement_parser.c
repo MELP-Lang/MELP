@@ -7,6 +7,7 @@
 #include "../arithmetic/arithmetic.h"              // ✅ ArithmeticExpr
 #include "../functions/functions.h"                // ✅ ReturnStatement
 #include "../lexer/lexer.h"                        // ✅ Token operations
+#include "../error/error.h"                        // ✅ Error handling system
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,7 +17,7 @@
 
 Statement* statement_parse(Parser* parser) {
     if (!parser || !parser->lexer) {
-        fprintf(stderr, "Error: statement_parse - NULL parser or lexer\n");
+        error_fatal("statement_parse - NULL parser or lexer");
         return NULL;
     }
     
@@ -247,7 +248,7 @@ Statement* statement_parse(Parser* parser) {
         // Parse return expression using stateless arithmetic API
         Token* expr_tok = lexer_next_token(parser->lexer);
         if (!expr_tok) {
-            fprintf(stderr, "Error: Expected expression after 'return'\n");
+            error_parser(0, "Expected expression after 'return'");
             return NULL;
         }
         
@@ -308,7 +309,7 @@ Statement* statement_parse(Parser* parser) {
             Token* expr_tok = lexer_next_token(parser->lexer);
             if (!expr_tok) {
                 token_free(tok);
-                fprintf(stderr, "Error: Expected expression after '='\n");
+                error_parser(0, "Expected expression after '='");
                 return NULL;
             }
             

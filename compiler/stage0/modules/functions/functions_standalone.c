@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../lexer/lexer.h"
-#include "../parser_core/parser_core.h"
+#include "../error/error.h"
 #include "functions.h"
 #include "functions_parser.h"
 #include "functions_codegen.h"
@@ -34,8 +34,11 @@ static char* read_file(const char* path) {
 }
 
 int main(int argc, char** argv) {
+    // Initialize error handling system
+    error_init();
+    
     if (argc != 3) {
-        fprintf(stderr, "Usage: %s <input.mlp> <output.s>\n", argv[0]);
+        error_io("Usage: %s <input.mlp> <output.s>", argv[0]);
         return 1;
     }
     
@@ -52,40 +55,45 @@ int main(int argc, char** argv) {
     // Create lexer
     Lexer* lexer = lexer_create(source);
     if (!lexer) {
-        fprintf(stderr, "Failed to create lexer\n");
+        error_fatal("Failed to create lexer");
         free(source);
         return 1;
     }
     
-    // Create parser with lexer
-    Parser* parser = parser_create(lexer);
-    if (!parser) {
-        fprintf(stderr, "Failed to create parser\n");
-        lexer_free(lexer);
-        free(source);
-        return 1;
-    }
-    
-    // Parse all functions
+    // Parse all functions (STATELESS - no Parser struct needed)
     FunctionDeclaration* functions = NULL;
     FunctionDeclaration* last_func = NULL;
     
     while (1) {
-        FunctionDeclaration* func = parse_function_declaration(parser);
-        if (!func) break;
+        FunctionDeclaration* func = parse_function_declaration(lexer);
+        if (!func) {
+            break;  // Stop on first error or EOF
+        }
         
         if (!functions) {
             functions = func;
+            last_func = func;
         } else {
             last_func->next = func;
+            last_func = func;
         }
-        last_func = func;
     }
     
-    // Close parser and lexer
-    parser_free(parser);
+    // Close lexer
     lexer_free(lexer);
     free(source);
+    
+    // Check if we have any errors
+    if (error_has_errors()) {
+        error_warning(0, "Compilation stopped due to errors");
+        return 1;
+    }
+    
+    // Check if we parsed any functions
+    if (!functions) {
+        error_warning(0, "No functions found in input file");
+        return 0;  // Not an error, just nothing to do
+    }
     
     // Open output file
     FILE* output = fopen(output_file, "w");

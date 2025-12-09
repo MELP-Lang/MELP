@@ -10,6 +10,7 @@ TARGET = melpc
 #          null_safety, optimization_pass, memory, file_io, codegen_context,
 #          print, struct
 # Essential +4: async, debug, runtime_tto, tto_runtime
+# Error: error (error handling system)
 
 MODULE_DIRS = parser_core expression statement comments control_flow \
               for_loop \
@@ -17,7 +18,7 @@ MODULE_DIRS = parser_core expression statement comments control_flow \
               array string_operations functions lambda type_system \
               null_safety optimization_pass memory file_io codegen_context \
               print struct \
-              async debug runtime_tto tto_runtime
+              async debug runtime_tto tto_runtime error
 
 # Generate object file lists
 # Most modules have: module.o, module_parser.o, module_codegen.o
@@ -26,12 +27,14 @@ MODULE_DIRS = parser_core expression statement comments control_flow \
 #   - tto_runtime: only tto_runtime.o
 #   - optimization_pass: only optimization_pass.o (no parser/codegen)
 #   - debug: uses debug_features.* naming instead of debug.*
-MODULE_OBJS = $(foreach dir,$(filter-out runtime_tto tto_runtime optimization_pass debug,$(MODULE_DIRS)),\
+#   - error: only error.o (no parser/codegen)
+MODULE_OBJS = $(foreach dir,$(filter-out runtime_tto tto_runtime optimization_pass debug error,$(MODULE_DIRS)),\
               modules/$(dir)/$(dir).o modules/$(dir)/$(dir)_parser.o modules/$(dir)/$(dir)_codegen.o) \
               modules/runtime_tto/runtime_tto.o \
               modules/tto_runtime/tto_runtime.o \
               modules/optimization_pass/optimization_pass.o \
-              modules/debug/debug_features.o modules/debug/debug_features_parser.o modules/debug/debug_features_codegen.o
+              modules/debug/debug_features.o modules/debug/debug_features_parser.o modules/debug/debug_features_codegen.o \
+              modules/error/error.o
 
 OBJS = main.o lexer.o \
        error/error_handler.o \

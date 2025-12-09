@@ -5,7 +5,8 @@
 #include "functions.h"
 #include "../lexer/lexer.h"
 #include "../statement/statement_parser.h"  // ✅ Statement parsing
-#include "../parser_core/parser_core.h"      // ✅ Parser structure
+#include "../parser_core/parser_core.h"      // ✅ Parser structure (temp wrapper)
+#include "../error/error.h"                  // ✅ Error handling system
 
 // Helper: Convert type keyword to FunctionParamType
 static FunctionParamType token_to_param_type(TokenType type) {
@@ -27,44 +28,49 @@ static FunctionReturnType token_to_return_type(TokenType type) {
     }
 }
 
-// Parse function declaration
+// Parse function declaration (STATELESS PATTERN)
 // Syntax: def func_name(param1: numeric, param2: text) -> numeric { ... }
-FunctionDeclaration* parse_function_declaration(Parser* parser) {
-    Token* tok = parser_peek(parser);
-    if (!tok || tok->type != TOKEN_FUNCTION) {
-        if (tok) fprintf(stderr, "Error: Expected 'function' keyword\n");
+FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
+    // Peek first - check if 'function' keyword exists
+    Token* tok = lexer_next_token(lexer);
+    if (!tok) return NULL;  // EOF
+    
+    if (tok->type != TOKEN_FUNCTION) {
+        if (tok->type != TOKEN_EOF) {
+            error_parser(tok->line, "Expected 'function' keyword");
+        }
+        token_free(tok);
         return NULL;
     }
-    parser_advance(parser);  // Consume 'function'
+    token_free(tok);
     
     // Function name
-    tok = parser_peek(parser);
+    tok = lexer_next_token(lexer);
     if (!tok || tok->type != TOKEN_IDENTIFIER) {
-        fprintf(stderr, "Error: Expected function name\n");
+        error_parser(tok ? tok->line : 0, "Expected function name");
+        if (tok) token_free(tok);
         return NULL;
     }
     
     char* func_name = strdup(tok->value);
-    parser_advance(parser);  // Consume function name
+    token_free(tok);
     
     // Left paren
-    tok = parser_peek(parser);
+    tok = lexer_next_token(lexer);
     if (!tok || tok->type != TOKEN_LPAREN) {
-        fprintf(stderr, "Error: Expected '(' after function name\n");
+        error_parser(tok ? tok->line : 0, "Expected '(' after function name");
         free(func_name);
+        if (tok) token_free(tok);
         return NULL;
     }
-    parser_advance(parser);  // Consume '('
+    token_free(tok);
     
     // Create function with default return type (will be updated if return type specified)
     FunctionDeclaration* func = function_create(func_name, FUNC_RETURN_VOID);
     free(func_name);
     
-    // Get lexer from parser for legacy code
-    Lexer* lexer = parser->lexer;
-    
     // Parse parameters
-    tok = parser_peek(parser);
+    tok = lexer_next_token(lexer);
     if (tok->type != TOKEN_RPAREN) {
         // First parameter: type name
         // MLP format: function name(numeric x, string y)
@@ -80,7 +86,7 @@ FunctionDeclaration* parse_function_declaration(Parser* parser) {
         
         // Then parameter name
         if (tok->type != TOKEN_IDENTIFIER) {
-            fprintf(stderr, "Error: Expected parameter name\n");
+            error_parser(tok->line, "Expected parameter name");
             token_free(tok);
             function_free(func);
             return NULL;
@@ -128,7 +134,7 @@ FunctionDeclaration* parse_function_declaration(Parser* parser) {
             
             // Then parameter name
             if (tok->type != TOKEN_IDENTIFIER) {
-                fprintf(stderr, "Error: Expected parameter name after ','\n");
+                error_parser(tok->line, "Expected parameter name after ','");
                 token_free(tok);
                 function_free(func);
                 return NULL;
@@ -162,7 +168,7 @@ FunctionDeclaration* parse_function_declaration(Parser* parser) {
     
     // Right paren
     if (tok->type != TOKEN_RPAREN) {
-        fprintf(stderr, "Error: Expected ')' after parameters\n");
+        error_parser(tok->line, "Expected ')' after parameters");
         token_free(tok);
         function_free(func);
         return NULL;
@@ -177,19 +183,13 @@ FunctionDeclaration* parse_function_declaration(Parser* parser) {
         tok = lexer_next_token(lexer);
         func->return_type = token_to_return_type(tok->type);
         token_free(tok);
-        // Clear current_token - body's first token will be read fresh
-        parser->current_token = NULL;
-    }
-    // If no return type, tok is the first body token - DON'T FREE IT!
-    // We'll pass it to parser via current_token
-    else {
-        // tok is first body token - cache it
-        parser->current_token = tok;
+        tok = NULL;  // Will read fresh for body
     }
     
     // ✅ Function body - use statement parser (modular!)
-    // statement_parse() will return NULL when it hits 'end function'
-    // Note: parser already exists as function parameter - no need to create again
+    // Create temporary Parser wrapper for statement_parse compatibility
+    Parser temp_parser = { .lexer = lexer, .current_token = tok };
+    Parser* parser = &temp_parser;
     
     Statement* body_head = NULL;
     Statement* body_tail = NULL;
@@ -215,8 +215,6 @@ FunctionDeclaration* parse_function_declaration(Parser* parser) {
     
     // Store body in function
     func->body = body_head;
-    
-    // Note: Don't free parser - it's owned by caller
     return func;
 }
 
@@ -226,7 +224,7 @@ FunctionCall* parse_function_call(Lexer* lexer, const char* func_name) {
     
     Token* tok = lexer_next_token(lexer);
     if (tok->type != TOKEN_LPAREN) {
-        fprintf(stderr, "Error: Expected '(' after function name\n");
+        error_parser(tok->line, "Expected '(' after function name");
         token_free(tok);
         function_call_free(call);
         return NULL;
@@ -258,7 +256,7 @@ FunctionCall* parse_function_call(Lexer* lexer, const char* func_name) {
 ReturnStatement* parse_return_statement(Lexer* lexer) {
     Token* tok = lexer_next_token(lexer);
     if (tok->type != TOKEN_RETURN) {
-        fprintf(stderr, "Error: Expected 'return' keyword\n");
+        error_parser(tok->line, "Expected 'return' keyword");
         token_free(tok);
         return NULL;
     }

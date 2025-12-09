@@ -1,15 +1,15 @@
 #ifndef FUNCTIONS_PARSER_H
 #define FUNCTIONS_PARSER_H
 
-#include "../parser_core/parser_core.h"
+#include "../lexer/lexer.h"
 #include "functions.h"
 
 // Forward declarations
 typedef struct Expression Expression;
 typedef struct Statement Statement;
 
-// Parse function declaration: def func_name(param1, param2) { ... }
-FunctionDeclaration* parse_function_declaration(Parser* parser);
+// Parse function declaration: def func_name(param1, param2) { ... } (STATELESS)
+FunctionDeclaration* parse_function_declaration(Lexer* lexer);
 
 // Parse function call: func_name(arg1, arg2)
 FunctionCall* parse_function_call(Lexer* lexer, const char* func_name);

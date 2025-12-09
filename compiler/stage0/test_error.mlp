@@ -1,0 +1,4 @@
+function test_error_handling(numeric x)
+    numeric y = 10
+    return x +   # Syntax error: incomplete expression
+end

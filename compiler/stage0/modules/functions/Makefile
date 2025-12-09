@@ -94,6 +94,10 @@ LEXER_SOURCES = ../lexer/lexer.c
 CODEGEN_CONTEXT_DIR = ../codegen_context
 CODEGEN_CONTEXT_SOURCES = $(CODEGEN_CONTEXT_DIR)/codegen_context.c
 
+# Error Handling modülü
+ERROR_DIR = ../error
+ERROR_SOURCES = $(ERROR_DIR)/error.c
+
 # Tüm kaynak dosyalar
 SOURCES = \
 	$(MAIN_SRC) \
@@ -108,6 +112,7 @@ SOURCES = \
 	$(STATEMENT_SOURCES) \
 	$(PARSER_CORE_SOURCES) \
 	$(CODEGEN_CONTEXT_SOURCES) \
+	$(ERROR_SOURCES) \
 	$(LEXER_SOURCES)
 
 # Object dosyaları

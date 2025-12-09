@@ -1,0 +1,12 @@
+function test1(numeric x
+    return x + 5  # Error: Missing closing paren
+end
+
+function test2(numeric y)
+    numeric z =   # Error: Missing expression
+    return z
+end
+
+function (numeric a)  # Error: Missing function name
+    return a
+end
