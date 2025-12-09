@@ -92,7 +92,7 @@ void return_statement_free(ReturnStatement* ret) {
 }
 
 // Register a local variable in function's symbol table
-void function_register_local_var(FunctionDeclaration* func, const char* name) {
+void function_register_local_var_with_type(FunctionDeclaration* func, const char* name, int is_numeric) {
     if (!func || !name) return;
     
     // Check if variable already exists
@@ -107,6 +107,7 @@ void function_register_local_var(FunctionDeclaration* func, const char* name) {
     // Create new local variable entry
     LocalVariable* var = malloc(sizeof(LocalVariable));
     var->name = strdup(name);
+    var->is_numeric = is_numeric;  // TTO: 1=numeric, 0=text
     
     // Assign stack offset: -8, -16, -24, ...
     func->local_var_count++;
@@ -115,6 +116,11 @@ void function_register_local_var(FunctionDeclaration* func, const char* name) {
     // Add to front of list
     var->next = func->local_vars;
     func->local_vars = var;
+}
+
+// Backward compatibility wrapper
+void function_register_local_var(FunctionDeclaration* func, const char* name) {
+    function_register_local_var_with_type(func, name, 1);  // Default to numeric
 }
 
 // Lookup variable's stack offset
@@ -130,6 +136,21 @@ int function_get_var_offset(FunctionDeclaration* func, const char* name) {
     }
     
     return 0;  // Not found
+}
+
+// Lookup variable's type (1 = numeric, 0 = text)
+int function_get_var_is_numeric(FunctionDeclaration* func, const char* name) {
+    if (!func || !name) return 1;
+    
+    LocalVariable* var = func->local_vars;
+    while (var) {
+        if (strcmp(var->name, name) == 0) {
+            return var->is_numeric;
+        }
+        var = var->next;
+    }
+    
+    return 1;  // Not found, assume numeric
 }
 
 // Check if function is a builtin (stdlib function)

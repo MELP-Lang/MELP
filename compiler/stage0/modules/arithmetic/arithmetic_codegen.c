@@ -74,13 +74,28 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
         // Check if builtin stdlib function
         const char* actual_function = call->function_name;
         if (strcmp(call->function_name, "println") == 0) {
-            // TTO-aware: Pass pointer to value + type
-            // Value is in %rdi, need to save to stack and pass pointer
-            fprintf(output, "    subq $16, %%rsp      # Allocate temp space\n");
-            fprintf(output, "    movq %%rdi, (%%rsp)  # Store value\n");
-            fprintf(output, "    movq %%rsp, %%rdi    # arg1: pointer to value\n");
-            fprintf(output, "    movq $0, %%rsi       # arg2: TTO_TYPE_INT64\n");
-            actual_function = "mlp_println_numeric";
+            // TTO: Check if argument is numeric by looking up in function context
+            int is_numeric_arg = 1;  // Default: numeric
+            if (call->arg_count > 0 && call->arguments[0] && func) {
+                ArithmeticExpr* arg_expr = call->arguments[0];
+                if (arg_expr && !arg_expr->left && !arg_expr->right && arg_expr->value && !arg_expr->is_literal) {
+                    // Variable reference - lookup type from function context
+                    is_numeric_arg = function_get_var_is_numeric(func, arg_expr->value);
+                }
+            }
+            
+            if (is_numeric_arg) {
+                // Numeric argument - TTO-aware: Pass pointer to value + type
+                // Value is in %rdi, need to save to stack and pass pointer
+                fprintf(output, "    subq $16, %%rsp      # Allocate temp space\n");
+                fprintf(output, "    movq %%rdi, (%%rsp)  # Store value\n");
+                fprintf(output, "    movq %%rsp, %%rdi    # arg1: pointer to value\n");
+                fprintf(output, "    movq $0, %%rsi       # arg2: TTO_TYPE_INT64\n");
+                actual_function = "mlp_println_numeric";
+            } else {
+                // Text argument - direct call
+                actual_function = "mlp_println_string";
+            }
         } else if (strcmp(call->function_name, "print") == 0) {
             fprintf(output, "    subq $16, %%rsp      # Allocate temp space\n");
             fprintf(output, "    movq %%rdi, (%%rsp)  # Store value\n");

@@ -30,6 +30,7 @@ typedef struct Statement Statement;
 typedef struct LocalVariable {
     char* name;
     int stack_offset;  // Offset from rbp (negative: -8, -16, -24...)
+    int is_numeric;    // 1=numeric, 0=text (TTO: only 2 types, 1 bit is enough!)
     struct LocalVariable* next;
 } LocalVariable;
 
@@ -71,7 +72,9 @@ void return_statement_free(ReturnStatement* ret);
 
 // Local variable management
 void function_register_local_var(FunctionDeclaration* func, const char* name);
+void function_register_local_var_with_type(FunctionDeclaration* func, const char* name, int is_numeric);
 int function_get_var_offset(FunctionDeclaration* func, const char* name);
+int function_get_var_is_numeric(FunctionDeclaration* func, const char* name);
 
 // Builtin function recognition
 int function_is_builtin(const char* name);

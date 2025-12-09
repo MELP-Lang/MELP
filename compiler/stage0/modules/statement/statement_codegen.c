@@ -8,6 +8,10 @@
 #include "../arithmetic/arithmetic.h"               // ✅ ArithmeticExpr
 #include "../functions/functions.h"                 // ✅ ReturnStatement, FunctionDeclaration
 #include <stdio.h>
+#include <string.h>
+
+// Global counter for string literals
+static int string_literal_counter = 0;
 
 // Statement code generation with modular imports
 void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration* func) {
@@ -69,10 +73,25 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
                     fprintf(output, "    movq %%r8, %d(%%rbp)  # Initialize %s\n", 
                             offset, decl->name);
                 } else if (decl->value) {
-                    // Simple literal in value field
-                    fprintf(output, "    movq $%s, %%r8  # Literal value\n", decl->value);
-                    fprintf(output, "    movq %%r8, %d(%%rbp)  # Initialize %s\n", 
-                            offset, decl->name);
+                    // Check if this is a string variable (not a numeric literal)
+                    if (decl->type == VAR_STRING) {
+                        // String literal - create .rodata entry
+                        // Note: lexer strips quotes, so value is raw string
+                        fprintf(output, "\n.section .rodata\n");
+                        fprintf(output, ".str_%d:\n", string_literal_counter);
+                        fprintf(output, "    .string \"%s\"\n", decl->value);  // Add quotes back
+                        fprintf(output, ".text\n");
+                        fprintf(output, "    leaq .str_%d(%%rip), %%r8  # Load string address\n", 
+                                string_literal_counter);
+                        fprintf(output, "    movq %%r8, %d(%%rbp)  # Initialize %s\n", 
+                                offset, decl->name);
+                        string_literal_counter++;
+                    } else {
+                        // Numeric literal
+                        fprintf(output, "    movq $%s, %%r8  # Literal value\n", decl->value);
+                        fprintf(output, "    movq %%r8, %d(%%rbp)  # Initialize %s\n", 
+                                offset, decl->name);
+                    }
                 } else {
                     // No initializer - default to 0
                 }

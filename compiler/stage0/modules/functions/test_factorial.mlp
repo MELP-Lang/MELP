@@ -1,0 +1,16 @@
+function factorial(numeric n) returns numeric
+    numeric result = 1
+    numeric i = 1
+    while i <= n
+        result = result * i
+        i = i + 1
+    end while
+    return result
+end function
+
+function main() returns numeric
+    numeric n = 5
+    numeric result = factorial(n)
+    numeric output = println(result)
+    return 0
+end function

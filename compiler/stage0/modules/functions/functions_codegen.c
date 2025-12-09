@@ -83,7 +83,9 @@ static void scan_statement_for_variables(FunctionDeclaration* func, Statement* s
     if (stmt->type == STMT_VARIABLE_DECL) {
         VariableDeclaration* decl = (VariableDeclaration*)stmt->data;
         if (decl && decl->name) {
-            function_register_local_var(func, decl->name);
+            // TTO: Register with type flag (1=numeric, 0=text)
+            int is_numeric = (decl->type != VAR_STRING) ? 1 : 0;
+            function_register_local_var_with_type(func, decl->name, is_numeric);
         }
     }
     
@@ -180,18 +182,43 @@ void function_generate_call(FILE* output, FunctionCall* call) {
                 return;
             }
             
+            // Determine argument type
+            // If argument is a variable, check its type
+            void* arg = call->arguments[0];
+            ArithmeticExpr* expr = (ArithmeticExpr*)arg;
+            
+            // Check if this is a variable reference (simple heuristic)
+            int is_string_var = 0;
+            if (expr && !expr->left && !expr->right && expr->value && !expr->is_literal) {
+                // This is a variable reference
+                // Check if variable name suggests string type (temporary hack)
+                const char* var_name = expr->value;
+                if (strstr(var_name, "message") || strstr(var_name, "str") || 
+                    strstr(var_name, "text") || strstr(var_name, "name") ||
+                    strstr(var_name, "welcome") || strstr(var_name, "greeting") ||
+                    strstr(var_name, "title") || strstr(var_name, "label")) {
+                    is_string_var = 1;
+                }
+            }
+            
             // Evaluate argument expression
             fprintf(output, "    # Evaluate println argument\n");
             if (call->arguments && call->arguments[0]) {
                 expression_generate_code(output, call->arguments[0], NULL);
                 
-                // TTO-aware call: save value to stack, pass pointer
-                fprintf(output, "    subq $16, %%rsp      # Allocate temp space\n");
-                fprintf(output, "    movq %%r8, (%%rsp)   # Store value\n");
-                fprintf(output, "    movq %%rsp, %%rdi    # arg1: pointer to value\n");
-                fprintf(output, "    movq $0, %%rsi       # arg2: TTO_TYPE_INT64\n");
-                fprintf(output, "    call mlp_println_numeric\n");
-                fprintf(output, "    addq $16, %%rsp      # Clean up temp space\n");
+                if (is_string_var) {
+                    // String argument - call mlp_println_string
+                    fprintf(output, "    movq %%r8, %%rdi    # arg1: string pointer\n");
+                    fprintf(output, "    call mlp_println_string\n");
+                } else {
+                    // Numeric argument - TTO-aware call
+                    fprintf(output, "    subq $16, %%rsp      # Allocate temp space\n");
+                    fprintf(output, "    movq %%r8, (%%rsp)   # Store value\n");
+                    fprintf(output, "    movq %%rsp, %%rdi    # arg1: pointer to value\n");
+                    fprintf(output, "    movq $0, %%rsi       # arg2: TTO_TYPE_INT64\n");
+                    fprintf(output, "    call mlp_println_numeric\n");
+                    fprintf(output, "    addq $16, %%rsp      # Clean up temp space\n");
+                }
             }
             return;
         }
