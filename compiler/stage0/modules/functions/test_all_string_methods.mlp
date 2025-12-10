@@ -1,0 +1,23 @@
+function main() returns numeric
+    string msg = "hello world"
+    string upper = toUpperCase(msg)
+    numeric d1 = println(upper)
+    
+    string loud = "HELLO WORLD"
+    string lower = toLowerCase(loud)
+    numeric d2 = println(lower)
+    
+    string messy = "  hello  "
+    string clean = trim(messy)
+    numeric d3 = println(clean)
+    
+    string padded = "   start"
+    string ts = trimStart(padded)
+    numeric d4 = println(ts)
+    
+    string trailing = "end   "
+    string te = trimEnd(trailing)
+    numeric d5 = println(te)
+    
+    return 0
+end function

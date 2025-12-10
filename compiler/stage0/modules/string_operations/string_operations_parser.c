@@ -47,10 +47,16 @@ StringOperation* parse_string_function(Lexer* lexer, const char* func_name) {
         op = string_op_create(STRING_OP_INDEXOF);
     } else if (strcmp(func_name, "charAt") == 0) {
         op = string_op_create(STRING_OP_CHARAT);
-    } else if (strcmp(func_name, "toUpper") == 0) {
+    } else if (strcmp(func_name, "toUpperCase") == 0) {
         op = string_op_create(STRING_OP_UPPER);
-    } else if (strcmp(func_name, "toLower") == 0) {
+    } else if (strcmp(func_name, "toLowerCase") == 0) {
         op = string_op_create(STRING_OP_LOWER);
+    } else if (strcmp(func_name, "trim") == 0) {
+        op = string_op_create(STRING_OP_TRIM);
+    } else if (strcmp(func_name, "trimStart") == 0) {
+        op = string_op_create(STRING_OP_TRIM_START);
+    } else if (strcmp(func_name, "trimEnd") == 0) {
+        op = string_op_create(STRING_OP_TRIM_END);
     } else {
         fprintf(stderr, "Error: Unknown string function '%s'\n", func_name);
         return NULL;

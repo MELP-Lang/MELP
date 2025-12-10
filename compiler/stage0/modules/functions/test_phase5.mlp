@@ -1,0 +1,15 @@
+function main() returns numeric
+    string msg = "hello world"
+    string upper = toUpperCase(msg)
+    println(upper)
+    
+    string loud = "HELLO WORLD"
+    string lower = toLowerCase(loud)
+    println(lower)
+    
+    string messy = "  hello  "
+    string clean = trim(messy)
+    println(clean)
+    
+    return 0
+end function

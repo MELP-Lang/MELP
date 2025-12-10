@@ -1,0 +1,5 @@
+function main() returns numeric
+    string msg = "hello"
+    string upper = toUpperCase(msg)
+    return 0
+end function

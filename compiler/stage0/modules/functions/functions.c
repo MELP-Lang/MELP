@@ -412,5 +412,12 @@ int function_is_builtin(const char* name) {
     if (strcmp(name, "substring") == 0) return 1;
     if (strcmp(name, "indexOf") == 0) return 1;
     
+    // YZ_29: Phase 5 - String case conversion & trimming
+    if (strcmp(name, "toUpperCase") == 0) return 1;
+    if (strcmp(name, "toLowerCase") == 0) return 1;
+    if (strcmp(name, "trim") == 0) return 1;
+    if (strcmp(name, "trimStart") == 0) return 1;
+    if (strcmp(name, "trimEnd") == 0) return 1;
+    
     return 0;
 }

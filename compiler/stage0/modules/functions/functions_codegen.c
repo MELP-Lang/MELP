@@ -265,6 +265,93 @@ void function_generate_call(FILE* output, FunctionCall* call) {
             }
             return;
         }
+        
+        // YZ_29: Phase 5 - String case conversion & trimming
+        
+        // toUpperCase(string) - convert to uppercase
+        if (strcmp(call->function_name, "toUpperCase") == 0) {
+            if (call->arg_count != 1) {
+                fprintf(output, "    # ERROR: toUpperCase requires exactly 1 argument\n");
+                return;
+            }
+            
+            fprintf(output, "    # toUpperCase: convert string to uppercase\n");
+            if (call->arguments && call->arguments[0]) {
+                expression_generate_code(output, call->arguments[0], NULL);
+                fprintf(output, "    movq %%r8, %%rdi     # arg1: string pointer\n");
+                fprintf(output, "    call mlp_string_toUpperCase\n");
+                fprintf(output, "    movq %%rax, %%r8     # Result in %%r8\n");
+            }
+            return;
+        }
+        
+        // toLowerCase(string) - convert to lowercase
+        if (strcmp(call->function_name, "toLowerCase") == 0) {
+            if (call->arg_count != 1) {
+                fprintf(output, "    # ERROR: toLowerCase requires exactly 1 argument\n");
+                return;
+            }
+            
+            fprintf(output, "    # toLowerCase: convert string to lowercase\n");
+            if (call->arguments && call->arguments[0]) {
+                expression_generate_code(output, call->arguments[0], NULL);
+                fprintf(output, "    movq %%r8, %%rdi     # arg1: string pointer\n");
+                fprintf(output, "    call mlp_string_toLowerCase\n");
+                fprintf(output, "    movq %%rax, %%r8     # Result in %%r8\n");
+            }
+            return;
+        }
+        
+        // trim(string) - remove leading/trailing whitespace
+        if (strcmp(call->function_name, "trim") == 0) {
+            if (call->arg_count != 1) {
+                fprintf(output, "    # ERROR: trim requires exactly 1 argument\n");
+                return;
+            }
+            
+            fprintf(output, "    # trim: remove whitespace from both ends\n");
+            if (call->arguments && call->arguments[0]) {
+                expression_generate_code(output, call->arguments[0], NULL);
+                fprintf(output, "    movq %%r8, %%rdi     # arg1: string pointer\n");
+                fprintf(output, "    call mlp_string_trim\n");
+                fprintf(output, "    movq %%rax, %%r8     # Result in %%r8\n");
+            }
+            return;
+        }
+        
+        // trimStart(string) - remove leading whitespace
+        if (strcmp(call->function_name, "trimStart") == 0) {
+            if (call->arg_count != 1) {
+                fprintf(output, "    # ERROR: trimStart requires exactly 1 argument\n");
+                return;
+            }
+            
+            fprintf(output, "    # trimStart: remove leading whitespace\n");
+            if (call->arguments && call->arguments[0]) {
+                expression_generate_code(output, call->arguments[0], NULL);
+                fprintf(output, "    movq %%r8, %%rdi     # arg1: string pointer\n");
+                fprintf(output, "    call mlp_string_trimStart\n");
+                fprintf(output, "    movq %%rax, %%r8     # Result in %%r8\n");
+            }
+            return;
+        }
+        
+        // trimEnd(string) - remove trailing whitespace
+        if (strcmp(call->function_name, "trimEnd") == 0) {
+            if (call->arg_count != 1) {
+                fprintf(output, "    # ERROR: trimEnd requires exactly 1 argument\n");
+                return;
+            }
+            
+            fprintf(output, "    # trimEnd: remove trailing whitespace\n");
+            if (call->arguments && call->arguments[0]) {
+                expression_generate_code(output, call->arguments[0], NULL);
+                fprintf(output, "    movq %%r8, %%rdi     # arg1: string pointer\n");
+                fprintf(output, "    call mlp_string_trimEnd\n");
+                fprintf(output, "    movq %%rax, %%r8     # Result in %%r8\n");
+            }
+            return;
+        }
     }
     
     // Standard user-defined function call
