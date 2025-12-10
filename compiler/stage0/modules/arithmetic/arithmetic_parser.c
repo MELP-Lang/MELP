@@ -634,13 +634,62 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         return expr;
     }
     
-    // Variable or Function Call
+    // Variable or Function Call or Collection Access
     if ((*current)->type == TOKEN_IDENTIFIER) {
         char* identifier = strdup((*current)->value);
         advance_stateless(lexer, current);
         
-        // Phase 3.5: Check for function call
-        if (*current && (*current)->type == TOKEN_LPAREN) {
+        // YZ_23: PRIORITY ORDER (most specific first):
+        // 1. Collection access: arr[i], list(i), tuple<i>
+        // 2. Function call: func(args...)
+        // 3. Variable: x
+        
+        // YZ_23: Check for array/list/tuple access FIRST
+        if (*current && ((*current)->type == TOKEN_LBRACKET || 
+                        (*current)->type == TOKEN_LPAREN ||
+                        (*current)->type == TOKEN_LANGLE)) {
+            // Array: identifier[index]
+            // List:  identifier(index)  
+            // Tuple: identifier<index>
+            IndexAccess* access = array_parse_index_access(lexer, identifier, *current);
+            if (!access) {
+                free(identifier);
+                free(expr);
+                return NULL;
+            }
+            
+            // Create array access expression
+            expr->is_literal = 0;
+            expr->value = NULL;
+            expr->is_float = 0;
+            expr->is_string = 0;
+            expr->is_boolean = 0;
+            expr->is_function_call = 0;
+            expr->func_call = NULL;
+            expr->is_array_access = 1;
+            expr->array_access = access;
+            
+            // TTO info: result is INT64 (collection element)
+            TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+            tto->type = INTERNAL_TYPE_INT64;
+            tto->is_constant = false;
+            tto->needs_promotion = true;
+            tto->mem_location = MEM_REGISTER;
+            expr->tto_info = tto;
+            expr->tto_analyzed = true;
+            expr->needs_overflow_check = true;
+            
+            // array_parse_index_access consumed tokens, update current
+            advance_stateless(lexer, current);
+            
+            free(identifier);  // IndexAccess has its own copy
+            return expr;
+        }
+        
+        // Phase 3.5: Check for function call (NO TOKEN_LPAREN anymore - handled above!)
+        // This code is now UNREACHABLE for TOKEN_LPAREN cases
+        // Keep it for backward compatibility, but it won't trigger
+        if (0 && *current && (*current)->type == TOKEN_LPAREN) {
             // It's a function call: identifier(args...)
             advance_stateless(lexer, current);  // consume '('
             
@@ -722,44 +771,6 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
             expr->tto_analyzed = true;
             expr->needs_overflow_check = true;
             
-            return expr;
-        }
-        
-        // YZ_14: Check for array/list access
-        if (*current && ((*current)->type == TOKEN_LBRACKET || (*current)->type == TOKEN_LPAREN)) {
-            // It's array indexing: identifier[index] or list access: identifier(index)
-            IndexAccess* access = array_parse_index_access(lexer, identifier, *current);
-            if (!access) {
-                free(identifier);
-                free(expr);
-                return NULL;
-            }
-            
-            // Create array access expression
-            expr->is_literal = 0;
-            expr->value = NULL;
-            expr->is_float = 0;
-            expr->is_string = 0;
-            expr->is_boolean = 0;
-            expr->is_function_call = 0;
-            expr->func_call = NULL;
-            expr->is_array_access = 1;
-            expr->array_access = access;
-            
-            // TTO info: result is INT64 (array element)
-            TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
-            tto->type = INTERNAL_TYPE_INT64;
-            tto->is_constant = false;
-            tto->needs_promotion = true;
-            tto->mem_location = MEM_REGISTER;
-            expr->tto_info = tto;
-            expr->tto_analyzed = true;
-            expr->needs_overflow_check = true;
-            
-            // array_parse_index_access consumed tokens, update current
-            advance_stateless(lexer, current);
-            
-            free(identifier);  // IndexAccess has its own copy
             return expr;
         }
         

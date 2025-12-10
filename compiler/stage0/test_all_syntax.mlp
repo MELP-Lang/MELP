@@ -1,0 +1,12 @@
+function main() returns numeric
+    numeric[] arr = [100, 200, 300]
+    list myList = (10; 20; 30;)
+    tuple myPair = <42, 99>
+    
+    numeric a = arr[2]      -- 300
+    numeric b = myList(1)   -- 20
+    numeric c = myPair<0>   -- 42
+    
+    numeric result = a + b + c  -- 300 + 20 + 42 = 362
+    return result
+end function

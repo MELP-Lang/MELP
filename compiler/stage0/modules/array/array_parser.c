@@ -352,14 +352,38 @@ Collection* array_parse_tuple_literal(Lexer* lexer, Token* less_token) {
 IndexAccess* array_parse_index_access(Lexer* lexer, const char* base_name, Token* index_token) {
     if (!base_name || !index_token) return NULL;
     
-    // Check for '[' (array access) or '(' (list access)
+    // YZ_23: Determine collection type by bracket style
+    // Array: arr[i]   - TOKEN_LBRACKET
+    // List:  lst(i)   - TOKEN_LPAREN (bitişik, no space!)
+    // Tuple: tpl<i>   - TOKEN_LANGLE
     int is_list = 0;
+    int is_tuple = 0;
+    TokenType closing_type;
+    
     if (index_token->type == TOKEN_LBRACKET) {
+        // Array access: arr[i]
         is_list = 0;
+        is_tuple = 0;
+        closing_type = TOKEN_RBRACKET;
     } else if (index_token->type == TOKEN_LPAREN) {
+        // List access: liste(i) - bitişik yazım zorunlu!
         is_list = 1;
+        is_tuple = 0;
+        closing_type = TOKEN_RPAREN;
+        
+        // YZ_24: Whitespace validation (bitişik yazım enforcement)
+        if (index_token->has_leading_whitespace) {
+            error_parser(index_token->line, 
+                "Syntax error: List index must be bitişik (no space before '('). Use 'liste(i)' not 'liste (i)'");
+            return NULL;
+        }
+    } else if (index_token->type == TOKEN_LANGLE) {
+        // Tuple access: tuple<i>
+        is_list = 0;
+        is_tuple = 1;
+        closing_type = TOKEN_GREATER;
     } else {
-        error_parser(index_token->line, "Expected '[' or '(' for index access");
+        error_parser(index_token->line, "Expected '[', '(', or '<' for index access");
         return NULL;
     }
     // index_token is borrowed - don't free!
@@ -368,6 +392,7 @@ IndexAccess* array_parse_index_access(Lexer* lexer, const char* base_name, Token
     IndexAccess* access = malloc(sizeof(IndexAccess));
     access->collection_name = strdup(base_name);
     access->is_list_access = is_list;
+    access->is_tuple_access = is_tuple;  // YZ_23: Add tuple support
     
     // Parse index expression
     Token* tok = lexer_next_token(lexer);  // OWNED
@@ -427,11 +452,12 @@ IndexAccess* array_parse_index_access(Lexer* lexer, const char* base_name, Token
         tok = lexer_next_token(lexer);  // OWNED - closing bracket/paren
     }
     
-    // Expect closing bracket/paren
-    TokenType expected = is_list ? TOKEN_RPAREN : TOKEN_RBRACKET;
-    if (!tok || tok->type != expected) {
-        error_parser(tok ? tok->line : 0, 
-                    is_list ? "Expected ')' after list index" : "Expected ']' after array index");
+    // Expect closing bracket/paren/angle
+    if (!tok || tok->type != closing_type) {
+        const char* expected_msg = is_tuple ? "Expected '>' after tuple index" :
+                                   is_list ? "Expected ')' after list index" :
+                                   "Expected ']' after array index";
+        error_parser(tok ? tok->line : 0, expected_msg);
         if (tok) token_free(tok);
         free(access->collection_name);
         if (access->index_type == 1) free(access->index.var_index);
@@ -439,7 +465,7 @@ IndexAccess* array_parse_index_access(Lexer* lexer, const char* base_name, Token
         free(access);
         return NULL;
     }
-    token_free(tok);  // Free closing bracket/paren
+    token_free(tok);  // Free closing bracket/paren/angle
     
     return access;
 }

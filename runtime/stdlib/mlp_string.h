@@ -26,6 +26,8 @@ int mlp_string_is_empty(const char* str);
 
 // String manipulation
 char* mlp_string_duplicate(const char* str);
+char* mlp_string_substring(const char* str, size_t start, size_t length);  // YZ_22
+int mlp_string_indexOf(const char* str, const char* substr);  // YZ_22
 
 // Memory management
 void mlp_string_free(char* str);

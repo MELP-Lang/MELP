@@ -109,6 +109,15 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
             fprintf(output, "    movq %%rsp, %%rdi    # arg1: pointer to value\n");
             fprintf(output, "    movq $0, %%rsi       # arg2: TTO_TYPE_INT64\n");
             actual_function = "mlp_toString_numeric";
+        } else if (strcmp(call->function_name, "length") == 0) {
+            // YZ_22: length(text) -> mlp_string_length(char*)
+            actual_function = "mlp_string_length";
+        } else if (strcmp(call->function_name, "substring") == 0) {
+            // YZ_22: substring(text, start, len) -> mlp_string_substring(char*, size_t, size_t)
+            actual_function = "mlp_string_substring";
+        } else if (strcmp(call->function_name, "indexOf") == 0) {
+            // YZ_22: indexOf(text, substr) -> mlp_string_indexOf(char*, char*)
+            actual_function = "mlp_string_indexOf";
         }
         
         // Call the function
@@ -127,9 +136,81 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
         return;
     }
     
-    // YZ_14: Array index access
+    // YZ_14: Array/Tuple/List index access
     if (expr->is_array_access && expr->array_access) {
         IndexAccess* access = expr->array_access;
+        
+        // YZ_21: Check if this is a tuple access (must check BEFORE array handling)
+        if (func && function_is_tuple(func, access->collection_name)) {
+            fprintf(output, "    # Tuple index access: %s[...]\n", access->collection_name);
+            
+            // Get stack offset for tuple variable
+            int offset = function_get_var_offset(func, access->collection_name);
+            fprintf(output, "    movq %d(%%rbp), %%rdi  # Load tuple pointer (arg1)\n", offset);
+            
+            // Load index into rsi (arg2)
+            if (access->index_type == 0) {
+                // Constant index
+                fprintf(output, "    movq $%d, %%rsi  # Constant index (arg2)\n", access->index.const_index);
+            } else if (access->index_type == 1) {
+                // Variable index
+                int idx_offset = function_get_var_offset(func, access->index.var_index);
+                fprintf(output, "    movq %d(%%rbp), %%rsi  # Variable index (arg2)\n", idx_offset);
+            } else if (access->index_type == 2) {
+                // Expression index
+                ArithmeticExpr* idx_expr = (ArithmeticExpr*)access->index.expr_index;
+                fprintf(output, "    # Evaluate expression index\n");
+                generate_expr_code(output, idx_expr, 0, func);  // result in r8
+                fprintf(output, "    movq %%r8, %%rsi  # Expression index (arg2)\n");
+            }
+            
+            // Call tto_tuple_get(tuple_ptr, index)
+            fprintf(output, "    call tto_tuple_get  # Returns element pointer in rax\n");
+            
+            // Dereference to get actual value (assuming numeric for now)
+            fprintf(output, "    movq (%%rax), %%rax  # Dereference to get value\n");
+            
+            // Result is in %rax, move to target register
+            fprintf(output, "    movq %%rax, %%r%d  # Tuple element value\n", target_reg + 8);
+            return;
+        }
+        
+        // YZ_22: Check if this is a list access
+        if (func && function_is_list(func, access->collection_name)) {
+            fprintf(output, "    # List index access: %s[...]\n", access->collection_name);
+            
+            // Get stack offset for list variable
+            int offset = function_get_var_offset(func, access->collection_name);
+            fprintf(output, "    movq %d(%%rbp), %%rdi  # Load list pointer (arg1)\n", offset);
+            
+            // Load index into rsi (arg2)
+            if (access->index_type == 0) {
+                // Constant index
+                fprintf(output, "    movq $%d, %%rsi  # Constant index (arg2)\n", access->index.const_index);
+            } else if (access->index_type == 1) {
+                // Variable index
+                int idx_offset = function_get_var_offset(func, access->index.var_index);
+                fprintf(output, "    movq %d(%%rbp), %%rsi  # Variable index (arg2)\n", idx_offset);
+            } else if (access->index_type == 2) {
+                // Expression index
+                ArithmeticExpr* idx_expr = (ArithmeticExpr*)access->index.expr_index;
+                fprintf(output, "    # Evaluate expression index\n");
+                generate_expr_code(output, idx_expr, 0, func);  // result in r8
+                fprintf(output, "    movq %%r8, %%rsi  # Expression index (arg2)\n");
+            }
+            
+            // Call tto_list_get(list_ptr, index)
+            fprintf(output, "    call tto_list_get  # Returns element pointer in rax\n");
+            
+            // Dereference to get actual value (assuming numeric for now)
+            fprintf(output, "    movq (%%rax), %%rax  # Dereference to get value\n");
+            
+            // Result is in %rax, move to target register
+            fprintf(output, "    movq %%rax, %%r%d  # List element value\n", target_reg + 8);
+            return;
+        }
+        
+        // Regular array access
         fprintf(output, "    # Array index access: %s\n", access->collection_name);
         
         // Get stack offset for array variable

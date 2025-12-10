@@ -22,7 +22,8 @@ Collection* array_parse_list_literal(Lexer* lexer, Token* lparen_token);
 Collection* array_parse_tuple_literal(Lexer* lexer, Token* less_token);
 
 // Parse index access and return IndexAccess struct
-// base_name: identifier name, index_token: '[' for array or '(' for list (BORROWED)
+// base_name: identifier name
+// index_token: '[' for array, '(' for list, or '<' for tuple (BORROWED)
 // Returns NULL if parse fails
 IndexAccess* array_parse_index_access(Lexer* lexer, const char* base_name, Token* index_token);
 

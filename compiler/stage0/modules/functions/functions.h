@@ -33,6 +33,10 @@ typedef struct LocalVariable {
     int is_numeric;    // 1=numeric, 0=text (TTO: only 2 types, 1 bit is enough!)
     int is_array;      // 1=array, 0=scalar
     int array_length;  // Array element count (for bounds checking)
+    int is_tuple;      // YZ_21: 1=tuple, 0=other
+    int tuple_length;  // YZ_21: Tuple element count
+    int is_list;       // YZ_22: 1=list, 0=other
+    int list_length;   // YZ_22: List element count
     struct LocalVariable* next;
 } LocalVariable;
 
@@ -76,9 +80,15 @@ void return_statement_free(ReturnStatement* ret);
 void function_register_local_var(FunctionDeclaration* func, const char* name);
 void function_register_local_var_with_type(FunctionDeclaration* func, const char* name, int is_numeric);
 void function_register_array_var(FunctionDeclaration* func, const char* name, int length, int is_numeric);
+void function_register_tuple_var(FunctionDeclaration* func, const char* name, int length);  // YZ_21
+void function_register_list_var(FunctionDeclaration* func, const char* name, int length);  // YZ_22
 int function_get_var_offset(FunctionDeclaration* func, const char* name);
 int function_get_var_is_numeric(FunctionDeclaration* func, const char* name);
 int function_get_array_length(FunctionDeclaration* func, const char* name);
+int function_is_tuple(FunctionDeclaration* func, const char* name);  // YZ_21
+int function_get_tuple_length(FunctionDeclaration* func, const char* name);  // YZ_21
+int function_is_list(FunctionDeclaration* func, const char* name);  // YZ_22
+int function_get_list_length(FunctionDeclaration* func, const char* name);  // YZ_22
 
 // Builtin function recognition
 int function_is_builtin(const char* name);

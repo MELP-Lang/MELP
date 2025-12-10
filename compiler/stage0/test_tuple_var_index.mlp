@@ -1,0 +1,6 @@
+function main() returns numeric
+    tuple coords = <10, 20, 30>
+    numeric i = 1
+    numeric val = coords[i]
+    return val
+end function
