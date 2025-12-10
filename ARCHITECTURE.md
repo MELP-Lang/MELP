@@ -118,23 +118,47 @@ For complete implementation details, algorithms, and memory strategies:
 
 ## Rule #0.5: Stateless Architecture
 
-### 🎯 Two Meanings of "Stateless"
+### 🎯 MELP is Stateless by Default
 
-MELP uses "stateless" in two different contexts:
+**Core Philosophy:** MELP is a **stateless language by default**. All variables are function-scoped (local) and do not persist between function calls.
 
-#### 1. Compiler Stateless (Internal Implementation)
+#### 1. Language Level: Stateless by Default
+- **No global variables** - All variables are local to functions
+- **No implicit state** - Functions are pure by default
+- **Explicit state when needed** - Use `import state` module for persistence
+- **Predictable behavior** - Same inputs always produce same outputs
+
+```mlp
+-- ✅ Default: Stateless (no state persists)
+function counter() returns numeric
+    numeric x = 0    -- Always starts at 0
+    x = x + 1
+    return x         -- Always returns 1
+end function
+
+-- ✅ Explicit state: Import state module when needed
+import state
+state.set("counter", 0)
+
+function counter_with_state() returns numeric
+    numeric x = state.get("counter")
+    x = x + 1
+    state.set("counter", x)
+    return x         -- Returns 1, 2, 3, 4...
+end function
+```
+
+#### 2. Compiler Level: Stateless Implementation
 - Parser functions are stateless (`*_stateless()` pattern)
 - No global state between modules
 - Token ownership/borrowing pattern for memory management
 - Pipeline: Lexer → Parser → Codegen are separate, independent stages
 
-#### 2. Runtime Stateful (User Code)
-- `state` keyword allows runtime state variables
-- Global/shared variables are supported
-- Mutable variables work (`x = x + 1`)
-
-**This separation is intentional:** A stateless compiler is easier to test and debug,
-but doesn't restrict the language user from managing state.
+**Why Stateless by Default?**
+- Easier to test and debug
+- Predictable, deterministic behavior
+- Better for parallel execution
+- State is opt-in, not opt-out
 
 ---
 
