@@ -1,7 +1,9 @@
-function test() returns numeric
-    numeric x = 0
-    while x < 10
-        x = x + 1
+function main() returns numeric
+    numeric i = 0
+    numeric sum = 0
+    while i < 5 do
+        sum = sum + i
+        i = i + 1
     end while
-    return x
+    return sum
 end function

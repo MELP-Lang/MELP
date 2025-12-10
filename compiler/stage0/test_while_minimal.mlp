@@ -1,0 +1,7 @@
+function main() returns numeric
+    numeric sayi = 0
+    while sayi < 5 do
+        sayi = sayi + 1
+    end while
+    return sayi
+end function

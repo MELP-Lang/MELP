@@ -1,0 +1,5 @@
+function main() returns numeric
+    while 1 < 2 do
+    end while
+    return 0
+end function
