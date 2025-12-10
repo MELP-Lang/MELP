@@ -1,0 +1,9 @@
+function main() returns numeric
+    numeric sum = 0
+    
+    for each x in arr
+        sum = sum + 1
+    end for
+    
+    return sum
+end function

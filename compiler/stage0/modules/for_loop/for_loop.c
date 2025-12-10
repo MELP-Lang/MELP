@@ -9,6 +9,11 @@ void for_loop_free(ForLoop* loop) {
         free(loop->var_name);
     }
     
+    // YZ_28: Free collection name for for-each loops
+    if (loop->collection_name) {
+        free(loop->collection_name);
+    }
+    
     // Free body statements
     if (loop->body) {
         Statement* current = loop->body;

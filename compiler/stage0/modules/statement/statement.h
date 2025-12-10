@@ -15,7 +15,9 @@ typedef enum {
     STMT_RETURN,
     STMT_PRINT,
     STMT_FUNCTION,
-    STMT_BLOCK
+    STMT_BLOCK,
+    STMT_BREAK,             // YZ_28: break from loop
+    STMT_CONTINUE           // YZ_28: continue to next iteration
 } StatementType;
 
 // Statement structure (simplified)

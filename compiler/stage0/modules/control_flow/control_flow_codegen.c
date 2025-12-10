@@ -2,10 +2,8 @@
 #include "../comparison/comparison.h"
 #include "../comparison/comparison_codegen.h"
 #include "../statement/statement.h"  // ✅ Full Statement definition for ->next
+#include "../statement/statement_codegen.h"  // YZ_28: For loop_push/loop_pop
 #include <stdio.h>
-
-// Forward declaration for statement codegen (avoid circular dependency)
-extern void statement_generate_code(FILE* output, Statement* stmt, void* context);
 
 static int label_counter = 0;
 
@@ -63,18 +61,20 @@ void control_flow_generate_if(FILE* output, IfStatement* stmt, void* context) {
 void control_flow_generate_while(FILE* output, WhileStatement* stmt, void* context) {
     if (!output || !stmt) return;
     
-    int label_start = label_counter++;
-    int label_end = label_counter++;
+    int loop_id = label_counter++;
+    
+    // YZ_28: Push loop context for break/continue
+    loop_push(loop_id, loop_id);
     
     fprintf(output, "\n    # While loop\n");
-    fprintf(output, ".while_start_%d:\n", label_start);
+    fprintf(output, ".while_start_%d:\n", loop_id);
     
     // ✅ Phase 3.2: Use chained comparison generator for logical ops support
     ComparisonExpr* cond = (ComparisonExpr*)stmt->condition;
     comparison_generate_code_with_chain(output, cond, context);
     
     fprintf(output, "    test %%rax, %%rax\n");
-    fprintf(output, "    jz .while_end_%d\n", label_end);
+    fprintf(output, "    jz .loop_end_%d\n", loop_id);
     
     // ✅ Body - recursively generate statements
     fprintf(output, "    # Loop body\n");
@@ -84,8 +84,13 @@ void control_flow_generate_while(FILE* output, WhileStatement* stmt, void* conte
         body_stmt = body_stmt->next;
     }
     
-    fprintf(output, "    jmp .while_start_%d\n", label_start);
-    fprintf(output, ".while_end_%d:\n", label_end);
+    // YZ_28: Continue label
+    fprintf(output, ".loop_continue_%d:\n", loop_id);
+    fprintf(output, "    jmp .while_start_%d\n", loop_id);
+    fprintf(output, ".loop_end_%d:\n", loop_id);
+    
+    // YZ_28: Pop loop context
+    loop_pop();
 }
 
 void control_flow_generate_for(FILE* output, ForStatement* stmt, void* context) {

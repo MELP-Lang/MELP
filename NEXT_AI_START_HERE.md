@@ -64,37 +64,38 @@ Oturumu bitirmeden önce:
 
 ## 🔢 Son YZ Numarası
 
-**YZ_27** - While loop düzeltildi ✅ + Tasarım felsefesi belgelendi
+**YZ_28** - Phase 4 tamamlandı ✅ (For-each loop + Break/Continue)
 
 ---
 
-## 🎯 Sonraki Görevler (Phase 4)
+## 🎯 Sonraki Görevler (Phase 5)
 
-### Öncelikli: For-Each Loop
+### Öncelikli: String Methods
 ```mlp
-for each item in collection
-    print item
-end for
+string upper = toUpperCase("hello")  # "HELLO"
+string lower = toLowerCase("HELLO")  # "hello"
+string trimmed = trim("  hello  ")   # "hello"
 ```
-- Lexer: TOKEN_EACH, TOKEN_IN ekle
-- Parser: for_loop_parser.c güncelle
-- Codegen: Counter + bounds checking
 
-### Diğer Phase 4 görevleri için `TODO.md` bak
+### Diğer görevler için `TODO.md` bak
 
 ---
 
-## ✅ Son Düzeltmeler (YZ_27)
+## ✅ Son Düzeltmeler (YZ_28)
 
-1. **While Loop Düzeltildi**
-   - Bug: Lexer `<` için TOKEN_LANGLE döndürüyordu (tuple için)
-   - Fix: Boşluk bazlı heuristic (`x < 3` → TOKEN_LESS)
-   - `do` keyword kaldırıldı: `while condition ... end while`
+1. **For-Each Loop** ✅
+   - Syntax: `for each item in collection ... end for`
+   - Arrays, Lists, Tuples destekleniyor
+   - Test: `[10,20,30]` → sum = 60 ✅
 
-2. **Tasarım Felsefesi Belgelendi**
-   - ARCHITECTURE.md: Stateless Architecture + Design Philosophy
-   - docs/language/melp_syntax.md: Design Philosophy bölümü
-   - docs_tr/language/melp_syntax.md: Tasarım Felsefesi bölümü
+2. **Break/Continue** ✅
+   - `break` - Döngüden erken çık
+   - `continue` - Sonraki iterasyona atla
+   - For loops ve While loops için çalışıyor
+
+3. **Lexer Keywords** ✅
+   - TOKEN_EACH, TOKEN_IN
+   - TOKEN_BREAK, TOKEN_CONTINUE
 
 ---
 
