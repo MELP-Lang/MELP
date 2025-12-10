@@ -67,43 +67,70 @@ Oturumu bitirmeden önce:
 
 ## 🔢 Son YZ Numarası
 
-**YZ_29** - Phase 5 tamamlandı ✅ (String Methods: toUpperCase, toLowerCase, trim, trimStart, trimEnd)
+**YZ_30** - Phase 6 tamamlandı (70%) 🎉 (Compiler Error Messages & Diagnostics)
 
 ---
 
-## 🎯 Sonraki Görevler (Phase 6)
+## 🎯 Mevcut Durum (11 Aralık 2025)
 
-### Öncelikli: Compiler Error Messages & Diagnostics
-- Better Error Messages (line numbers, helpful suggestions, colored output)
-- Runtime Errors (division by zero, null pointer checks)
-- Error Recovery (continue parsing after error, show multiple errors)
+### Tamamlanan Phase'ler:
+- ✅ **Phase 1-3**: Strings, For Loops, Collections, Booleans (100%)
+- ✅ **Phase 4**: While loops, For-each, Exit system (100%)
+- ✅ **Phase 5**: String methods - toUpperCase, toLowerCase, trim, etc. (100%)
+- ✅ **Phase 6**: Error messages, "Did you mean", Division by zero (70%)
+
+### Sonraki Görevler (YZ_31 için):
+
+**A) Phase 6 Tamamlama (Opsiyonel):**
+- [ ] Error recovery (ilk hatadan sonra parse'a devam)
+- [ ] Daha fazla parser hatasına öneri ekleme
+- [ ] Warning sistemi geliştirme
+
+**B) Yeni Özellikler (Öneri):**
+- [ ] Input fonksiyonları: `input()`, `input_numeric()`
+- [ ] File I/O: `read_file()`, `write_file()`
+- [ ] replace(), split() string metodları
+
+**C) Phase 7 - Optimization:**
+- [ ] Constant folding: `x = 2 + 3` → `x = 5`
+- [ ] Dead code elimination
 
 ### Diğer görevler için `TODO.md` bak
 
 ---
 
-## ✅ Son Düzeltmeler (YZ_29)
+## ✅ YZ_30 Tamamlananlar (Phase 6 - Hata Sistemi)
 
-1. **String Methods** ✅ (Phase 5 Complete!)
-   - `toUpperCase(str)` - "hello" → "HELLO"
-   - `toLowerCase(str)` - "HELLO" → "hello"
-   - `trim(str)` - "  hello  " → "hello"
-   - `trimStart(str)` - "   start" → "start"
-   - `trimEnd(str)` - "end   " → "end"
+1. **Enhanced Error Module** ✅
+   - `error.h` ve `error.c` tamamen yeniden yazıldı
+   - Renkli çıktı desteği (terminal auto-detect)
+   - `error_set_source()` ile kaynak kod gösterimi
+   - `error_report_with_suggestion()` ile "Did you mean" önerileri
 
-2. **Parser Fix** ✅
-   - Builtin fonksiyon listesi eklendi (list erişimi ile karışmasın)
-   - `toUpperCase(msg)` artık fonksiyon çağrısı olarak doğru parse ediliyor
+2. **Levenshtein Distance** ✅
+   - `error_levenshtein_distance()` fonksiyonu
+   - `error_find_similar()` ile benzer keyword bulma
+   - `MELP_KEYWORDS[]` dizisi ile öneri havuzu
 
-3. **Runtime Functions** ✅
-   - `mlp_string_toUpperCase`, `mlp_string_toLowerCase`
-   - `mlp_string_trim`, `mlp_string_trimStart`, `mlp_string_trimEnd`
-   - Dosya: `runtime/stdlib/mlp_string.c`
+3. **Runtime Error Handling** ✅
+   - `mlp_runtime_error()` fonksiyonu eklendi
+   - Division by zero kontrolü (codegen seviyesinde)
+   - Modulo by zero kontrolü
+   - Exit code 43 for runtime errors
 
-4. **Codegen** ✅
-   - `arithmetic_codegen.c` - Yeni fonksiyon mapping'leri
-   - `functions.c` - Builtin listesi güncellendi
-   - TOKEN_BREAK, TOKEN_CONTINUE
+---
+
+## 📊 Proje Özeti
+
+| Phase | Durum | Tamamlanma |
+|-------|-------|------------|
+| Phase 1-3 | ✅ | 100% |
+| Phase 4 | ✅ | 100% |
+| Phase 5 | ✅ | 100% |
+| Phase 6 | ✅ | 70% |
+| Phase 7+ | ⏳ | 0% |
+
+**Toplam**: ~99% core language features complete!
 
 ---
 

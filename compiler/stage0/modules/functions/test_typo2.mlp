@@ -1,0 +1,3 @@
+funtion main() returns numeric
+    return 0
+end function

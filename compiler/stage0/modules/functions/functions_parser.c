@@ -37,7 +37,19 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
     
     if (tok->type != TOKEN_FUNCTION) {
         if (tok->type != TOKEN_EOF) {
-            error_parser(tok->line, "Expected 'function' keyword");
+            // Phase 6: Check if it's a misspelled keyword
+            if (tok->type == TOKEN_IDENTIFIER && tok->value) {
+                const char* suggestion = error_find_similar(tok->value, MELP_KEYWORDS, MELP_KEYWORD_COUNT, 3);
+                if (suggestion) {
+                    error_report_with_suggestion(ERROR_LEVEL_ERROR, ERROR_CAT_PARSER,
+                        tok->line, 1, strlen(tok->value), suggestion,
+                        "Expected 'function' keyword, got '%s'", tok->value);
+                } else {
+                    error_parser(tok->line, "Expected 'function' keyword");
+                }
+            } else {
+                error_parser(tok->line, "Expected 'function' keyword");
+            }
         }
         token_free(tok);
         return NULL;
