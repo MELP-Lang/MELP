@@ -225,11 +225,27 @@ Token* lexer_next_token(Lexer* lexer) {
     
     if (c == '<') {
         lexer->pos++;
+        // Lookahead: Tuple literal <x,y> vs comparison x < y
+        // Tuple context: < followed by identifier, number, string, or >
+        char next = lexer->source[lexer->pos];
+        // Skip whitespace to peek at next meaningful character
+        int saved_pos = lexer->pos;
+        while (next == ' ' || next == '\t') {
+            saved_pos++;
+            next = lexer->source[saved_pos];
+        }
+        // If next is identifier/number/string/> → tuple literal
+        if (isalpha(next) || isdigit(next) || next == '"' || next == '_' || next == '>') {
+            return make_token(TOKEN_LANGLE, "<", lexer->line);
+        }
+        // Otherwise: comparison operator
         return make_token(TOKEN_LESS, "<", lexer->line);
     }
     
     if (c == '>') {
         lexer->pos++;
+        // Always TOKEN_GREATER for comparison
+        // Parser converts to tuple close if needed
         return make_token(TOKEN_GREATER, ">", lexer->line);
     }
     

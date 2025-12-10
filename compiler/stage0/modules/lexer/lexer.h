@@ -56,6 +56,8 @@ typedef enum {
     TOKEN_RPAREN,          // )
     TOKEN_LBRACKET,        // [
     TOKEN_RBRACKET,        // ]
+    TOKEN_LANGLE,          // < (tuple literal, not comparison)
+    TOKEN_RANGLE,          // > (tuple literal, not comparison)
     TOKEN_COMMA,           // ,
     TOKEN_COLON,           // :
     TOKEN_SEMICOLON,       // ;

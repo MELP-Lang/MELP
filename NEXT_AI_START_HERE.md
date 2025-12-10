@@ -1,53 +1,106 @@
 # 🚀 NEXT AI START HERE - YZ_20 Mission Brief
 
-**Date:** 10 Aralık 2025, 08:00  
-**Previous AI:** YZ_19 (Lists Basic Functionality Complete) ✅  
-**Current Status:** Arrays 100% + Booleans 100% + Lists 85% + Tuples 60%  
-**Your Mission:** Tuple Variable Syntax (20-30 minutes)
+**Date:** 10 Aralık 2025, 10:00  
+**Previous AI:** YZ_19 (Lists 100% COMPLETE!) ✅  
+**Current Status:** Arrays 100% + Booleans 100% + **Lists 100%** + Tuples 90%  
+**Your Mission:** Finish Tuples (10-15 minutes - ALMOST DONE!)
+
+---
+
+## ⚠️ CRITICAL: What YZ_19 Left for You
+
+**Tuples are 90% COMPLETE!** Only 2 small things remaining:
+
+### ✅ Already Done by YZ_19:
+1. **TOKEN_LANGLE/RANGLE** added to lexer.h ✅
+2. **Context-aware tokenization** in lexer.c: `<` with lookahead → TOKEN_LANGLE ✅
+3. **arithmetic_parser.c** already has tuple parsing code (line ~815) ✅
+4. **array_parser.c** has tuple literal parser ✅
+5. **Codegen** ready (AT&T syntax, stack-safe) ✅
+6. **Runtime** ready (tto_tuple_alloc) ✅
+
+### ❌ What's Missing (YOU FINISH THIS):
+1. **variable_parser.c line 128:** Add `TOKEN_LANGLE` to the condition
+   ```c
+   // Current (line 128):
+   if (tok->type == TOKEN_IDENTIFIER ||
+       tok->type == TOKEN_NUMBER ||
+       tok->type == TOKEN_STRING ||
+       tok->type == TOKEN_LPAREN ||  // list literals
+       tok->type == TOKEN_NOT) {
+   
+   // You add:
+       tok->type == TOKEN_LANGLE ||  // YZ_20: tuple literals <1,2>
+   ```
+
+2. **arithmetic_parser.c**: Check if tuple parsing needs TOKEN_LANGLE support (probably already has TOKEN_LESS fallback)
+
+3. **TEST:** Compile and run `test_tuple_basic.mlp`
+
+**Time estimate:** 10-15 minutes MAX!
+
+---
+
+## 📖 WHAT YZ_19 DID (90 minutes total) ✅
+
+### 🎯 Mission 1: Fix Lists Bugs (45 min) ✅
+**Problem:** Lists existed but had 3 critical bugs causing segfaults.
+
+#### Part 1: Assembly Comment Fix (5 min) ✅
+- **Bug:** YZ_17 used `;` (Intel) instead of `#` (AT&T)
+- **Fix:** Replaced all assembly comments in array_codegen.c
+- **Result:** Clean AT&T assembly
+
+#### Part 2: Intel → AT&T Syntax (20 min) ✅
+- **Bug:** `mov rdi, 4` → should be `movq $4, %rdi`
+- **Fix:** Converted all Intel syntax to AT&T in array_codegen.c
+- **Result:** Proper AT&T assembly generation
+
+#### Part 3: tto_list_set Pointer Fix (15 min) ✅
+- **Bug:** Passed value in rdx, runtime expects pointer
+- **Fix:** Push value to stack, pass `%rsp` as pointer
+- **Code:**
+  ```c
+  fprintf(output, "    pushq %%r8\n");
+  fprintf(output, "    movq %%rsp, %%rdx  # arg3: pointer to value\n");
+  fprintf(output, "    call tto_list_set\n");
+  fprintf(output, "    addq $16, %%rsp  # cleanup\n");
+  ```
+- **Result:** No segfaults! ✅
+
+#### Part 4: Variable Syntax (5 min) ✅
+- **Added:** `TOKEN_LPAREN` to variable_parser.c
+- **Result:** `list myList = (1; 2; 3;)` works! ✅
+
+### 🎯 Mission 2: Mixed-Type Lists (15 min) ✅
+- **Test:** `list mixed = (1; "hello"; 42;)` 
+- **Result:** Works! Exit: 100 ✅
+- **Discovery:** String literals already supported in arithmetic parser
+
+### 🎯 Mission 3: Start Tuples (30 min) ⚠️
+- **Added:** TOKEN_LANGLE/RANGLE to lexer.h
+- **Added:** Context-aware `<` tokenization in lexer.c
+- **Status:** 90% done, needs variable_parser.c update (see above)
 
 ---
 
 ## ⚠️ IMPORTANT: Git Branch Instructions
 
-**Your branch name MUST be:** `tuples_YZ_20` or `feature_YZ_20` (feature + YZ number)
+**Your branch name MUST be:** `tuples_YZ_20`
 
 **Steps:**
 1. Create your branch: `git checkout -b tuples_YZ_20`
-2. Do your work (commit frequently)
-3. Push: `git push -u origin tuples_YZ_20`
+2. Do your work (2-3 commits)
+3. Test: `test_tuple_basic.mlp` must work
+4. Push: `git push -u origin tuples_YZ_20`
 
-**DO NOT MERGE!** Each YZ works in their own branch. No merge needed.
+**DO NOT MERGE!** Work in your branch only.
 
 **Pattern:**
-- YZ_16 → `boolean_YZ_16` branch ✅
-- YZ_17 → `boolean_YZ_16` branch (continued) ✅
-- YZ_18 → `boolean_YZ_16` branch (continued) ✅
-- YZ_19 → `lists_YZ_19` branch ✅
-- YZ_20 → `tuples_YZ_20` or `feature_YZ_20` branch (you)
+- YZ_19 → `lists_YZ_19` branch ✅ (Lists 100% complete)
+- YZ_20 → `tuples_YZ_20` branch (you - finish the last 10%!)
 
 ---
-
-## 📖 WHAT YZ_19 DID (45 minutes) ✅
-
-### 🎯 Mission: Fix Lists/Tuples Bugs
-**Goal:** Make list literals work by fixing critical bugs.
-
-### ✅ What Was Done:
-
-#### Part 1: Assembly Comment Fix (5 min) ✅
-1. **Bug:** YZ_17 used `;` for comments (Intel syntax) instead of `#` (AT&T)
-2. **Fix:** `sed` command to replace all comment syntax
-3. **Result:** Generated assembly now uses proper AT&T comments
-
-#### Part 2: Intel → AT&T Syntax (20 min) ✅
-1. **Bug:** YZ_17 used Intel syntax (`mov rdi, 4`, `mov [label], rax`)
-2. **Fix:** Converted all to AT&T (`movq $4, %rdi`, register-based with rbx)
-3. **Pattern:** Use rbx to hold list/array pointer (stack-safe across calls)
-4. **Result:** Clean AT&T assembly generation
-
-#### Part 3: tto_list_set Pointer Fix (15 min) ✅
-1. **Bug:** Runtime expects `void*` pointer, codegen passed direct value in rdx
-2. **Fix:** Push value to stack, pass stack pointer (rsp) as argument
 3. **Stack Layout:**
    ```
    [rsp]   → value (8 bytes)
