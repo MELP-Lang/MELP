@@ -1,0 +1,12 @@
+# Test: Basic while loop
+# Expected: Returns 5
+
+function main() returns numeric
+    sayi := 0
+    
+    while sayi < 5 do
+        sayi := sayi + 1
+    end
+    
+    return sayi
+end function

@@ -1,0 +1,9 @@
+function test1() returns numeric
+    numeric x = 5
+    return x
+end function
+
+function test2() returns numeric
+    numeric y = 10
+    return y
+end function

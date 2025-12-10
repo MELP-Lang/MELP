@@ -1,0 +1,12 @@
+function test1() returns numeric
+    numeric x = 5
+    return x
+end function
+
+function test_while() returns numeric
+    numeric sayi = 0
+    while sayi < 5 do
+        sayi = sayi + 1
+    end
+    return sayi
+end function
