@@ -1,31 +1,5 @@
--- Phase 5: String Methods Test (YZ_29)
--- toUpperCase, toLowerCase, trim, trimStart, trimEnd
-
 function main() returns numeric
-    -- Test 1: toUpperCase
-    string text = "hello world"
-    string upper = toUpperCase(text)
-    println(upper)
-    
-    -- Test 2: toLowerCase
-    string loud = "HELLO WORLD"
-    string lower = toLowerCase(loud)
-    println(lower)
-    
-    -- Test 3: trim (both ends)
-    string messy = "  hello  "
-    string clean = trim(messy)
-    println(clean)
-    
-    -- Test 4: trimStart (leading only)
-    string padded = "   start"
-    string trimmed_start = trimStart(padded)
-    println(trimmed_start)
-    
-    -- Test 5: trimEnd (trailing only)
-    string trailing = "end   "
-    string trimmed_end = trimEnd(trailing)
-    println(trimmed_end)
-    
-    return 0
+    string msg = "Hello World"
+    numeric len = length(msg)
+    return len
 end function

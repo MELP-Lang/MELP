@@ -473,6 +473,24 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
                 fprintf(output, ".no_overflow_%d:\n", overflow_label);
                 break;
             case ARITH_DIV:
+                // Phase 6: Division by zero check
+                {
+                    static int div_check_label = 0;
+                    int current_label = div_check_label++;
+                    fprintf(output, "    # Division with zero check\n");
+                    fprintf(output, "    testq %%r%d, %%r%d  # Check divisor\n", right_reg + 8, right_reg + 8);
+                    fprintf(output, "    jnz .div_ok_%d\n", current_label);
+                    fprintf(output, "    # Division by zero! Call runtime error\n");
+                    fprintf(output, "    pushq %%r8\n");   // Save registers
+                    fprintf(output, "    pushq %%r9\n");
+                    fprintf(output, "    subq $8, %%rsp\n");  // Align stack to 16 bytes
+                    fprintf(output, "    leaq .div_zero_msg(%%rip), %%rdi\n");
+                    fprintf(output, "    call mlp_runtime_error\n");
+                    fprintf(output, "    addq $8, %%rsp\n");  // Restore stack (won't reach here)
+                    fprintf(output, "    popq %%r9\n");
+                    fprintf(output, "    popq %%r8\n");
+                    fprintf(output, ".div_ok_%d:\n", current_label);
+                }
                 // Division requires rax/rdx setup
                 fprintf(output, "    movq %%r%d, %%rax\n", left_reg + 8);
                 fprintf(output, "    cqo\n");  // Sign extend rax to rdx:rax
@@ -480,6 +498,24 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
                 fprintf(output, "    movq %%rax, %%r%d\n", left_reg + 8);
                 break;
             case ARITH_MOD:
+                // Phase 6: Division by zero check for modulo
+                {
+                    static int mod_check_label = 0;
+                    int current_label = mod_check_label++;
+                    fprintf(output, "    # Modulo with zero check\n");
+                    fprintf(output, "    testq %%r%d, %%r%d  # Check divisor\n", right_reg + 8, right_reg + 8);
+                    fprintf(output, "    jnz .mod_ok_%d\n", current_label);
+                    fprintf(output, "    # Modulo by zero! Call runtime error\n");
+                    fprintf(output, "    pushq %%r8\n");
+                    fprintf(output, "    pushq %%r9\n");
+                    fprintf(output, "    subq $8, %%rsp\n");  // Align stack
+                    fprintf(output, "    leaq .div_zero_msg(%%rip), %%rdi\n");
+                    fprintf(output, "    call mlp_runtime_error\n");
+                    fprintf(output, "    addq $8, %%rsp\n");
+                    fprintf(output, "    popq %%r9\n");
+                    fprintf(output, "    popq %%r8\n");
+                    fprintf(output, ".mod_ok_%d:\n", current_label);
+                }
                 // Modulo is remainder from division
                 fprintf(output, "    movq %%r%d, %%rax\n", left_reg + 8);
                 fprintf(output, "    cqo\n");

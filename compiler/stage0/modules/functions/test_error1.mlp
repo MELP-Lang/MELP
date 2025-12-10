@@ -1,0 +1,5 @@
+function main() returns numeric
+    numeric x = 10
+    numeric y = 
+    return x
+end function

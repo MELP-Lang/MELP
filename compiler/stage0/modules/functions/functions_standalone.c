@@ -52,6 +52,9 @@ int main(int argc, char** argv) {
         return 1;
     }
     
+    // Phase 6: Set source code for enhanced error messages
+    error_set_source(source, input_file);
+    
     // Create lexer
     Lexer* lexer = lexer_create(source);
     if (!lexer) {
@@ -81,17 +84,18 @@ int main(int argc, char** argv) {
     
     // Close lexer
     lexer_free(lexer);
-    free(source);
     
     // Check if we have any errors
     if (error_has_errors()) {
-        error_warning(0, "Compilation stopped due to errors");
+        error_print_summary();
+        free(source);
         return 1;
     }
     
     // Check if we parsed any functions
     if (!functions) {
         error_warning(0, "No functions found in input file");
+        free(source);
         return 0;  // Not an error, just nothing to do
     }
     
@@ -103,6 +107,12 @@ int main(int argc, char** argv) {
     }
     
     // Generate assembly header
+    // Phase 6: Add .rodata section for runtime error messages
+    fprintf(output, ".section .rodata\n");
+    fprintf(output, ".div_zero_msg:\n");
+    fprintf(output, "    .string \"Division by zero is not allowed!\"\n");
+    fprintf(output, "\n");
+    
     // Generate AT&T syntax assembly (default for GCC)
     // fprintf(output, ".intel_syntax noprefix\n");  // Disabled: using AT&T
     fprintf(output, ".text\n\n");
@@ -116,6 +126,9 @@ int main(int argc, char** argv) {
     
     // Close output
     fclose(output);
+    
+    // Free source code
+    free(source);
     
     printf("✅ Compiled %s -> %s\n", input_file, output_file);
     return 0;

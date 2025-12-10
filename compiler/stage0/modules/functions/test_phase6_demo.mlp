@@ -1,0 +1,6 @@
+function main() returns numeric
+    numeric a = 100
+    numeric b = 20
+    numeric result = a / b
+    return result
+end function
