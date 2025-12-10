@@ -44,9 +44,7 @@ typedef enum {
     TOKEN_DOWNTO,
     TOKEN_EACH,            // for each item in collection
     TOKEN_IN,              // for each item in collection
-    TOKEN_BREAK,           // break (exit loop)
-    TOKEN_CONTINUE,        // continue (skip to next iteration)
-    TOKEN_EXIT,            // exit for, exit while, exit if, exit function
+    TOKEN_EXIT,            // exit, exit for, exit while, exit if, exit function
     // Function keywords
     TOKEN_FUNCTION,
     TOKEN_RETURN,
