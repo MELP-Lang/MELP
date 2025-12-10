@@ -8,16 +8,45 @@
 
 ## Table of Contents
 
-1. [Comments](#comments)
-2. [Variables](#variables)
-3. [Data Types](#data-types)
-4. [Operators](#operators)
-5. [Control Flow](#control-flow)
-6. [Functions](#functions)
-7. [Collections](#collections)
-8. [Structs](#structs)
-9. [Exception Handling](#exception-handling)
-10. [Advanced Features](#advanced-features)
+1. [Design Philosophy](#design-philosophy)
+2. [Comments](#comments)
+3. [Variables](#variables)
+4. [Data Types](#data-types)
+5. [Operators](#operators)
+6. [Control Flow](#control-flow)
+7. [Functions](#functions)
+8. [Collections](#collections)
+9. [Structs](#structs)
+10. [Exception Handling](#exception-handling)
+11. [Advanced Features](#advanced-features)
+
+---
+
+## Design Philosophy
+
+### MELP = VB.NET Readability + Python Simplicity
+
+MELP combines the best aspects of both languages:
+
+| Decision | MELP Choice | Reason |
+|----------|-------------|--------|
+| Assignment vs Equality | `=` assignment, `==` comparison | Explicit, prevents bugs |
+| Function keyword | Single `function`, no `Sub` | Python-like simplicity |
+| Variable declaration | `numeric x = 5` | Type-first, no verbose `Dim` |
+| String type | `string` keyword | Universal, understood everywhere |
+| Collection iteration | `for each item in collection` | VB.NET compatible, readable |
+| Block endings | `end if`, `end while` | Self-documenting code |
+
+### Key Principles
+
+1. **Readability over brevity** - `end if` instead of `}`
+2. **Explicit over implicit** - `==` for comparison, not context-dependent
+3. **One way to do things** - Single `function` keyword for all
+4. **Type-first declarations** - `numeric x`, not `Dim x As Integer`
+
+> **Note:** The `state` keyword is for runtime state management. MELP's compiler
+> is internally stateless (modular, no global state), but this doesn't restrict
+> the language user from using stateful programming.
 
 ---
 
@@ -197,7 +226,7 @@ end if
 ### While Loop
 
 ```mlp
-while condition do
+while condition
     -- code
 end while
 ```

@@ -8,16 +8,45 @@
 
 ## İçindekiler
 
-1. [Yorumlar](#yorumlar)
-2. [Değişkenler](#değişkenler)
-3. [Veri Tipleri](#veri-tipleri)
-4. [Operatörler](#operatörler)
-5. [Kontrol Akışı](#kontrol-akışı)
-6. [Fonksiyonlar](#fonksiyonlar)
-7. [Koleksiyonlar](#koleksiyonlar)
-8. [Struct'lar](#structlar)
-9. [Exception İşleme](#exception-işleme)
-10. [Gelişmiş Özellikler](#gelişmiş-özellikler)
+1. [Tasarım Felsefesi](#tasarım-felsefesi)
+2. [Yorumlar](#yorumlar)
+3. [Değişkenler](#değişkenler)
+4. [Veri Tipleri](#veri-tipleri)
+5. [Operatörler](#operatörler)
+6. [Kontrol Akışı](#kontrol-akışı)
+7. [Fonksiyonlar](#fonksiyonlar)
+8. [Koleksiyonlar](#koleksiyonlar)
+9. [Struct'lar](#structlar)
+10. [Exception İşleme](#exception-işleme)
+11. [Gelişmiş Özellikler](#gelişmiş-özellikler)
+
+---
+
+## Tasarım Felsefesi
+
+### MELP = VB.NET Okunabilirliği + Python Sadeliği
+
+MELP her iki dilin en iyi yönlerini birleştirir:
+
+| Karar | MELP Seçimi | Neden |
+|-------|-------------|-------|
+| Atama vs Eşitlik | `=` atama, `==` karşılaştırma | Açık, hata önler |
+| Fonksiyon keyword | Tek `function`, `Sub` yok | Python tarzı sadelik |
+| Değişken bildirimi | `numeric x = 5` | Tip önce, `Dim` gereksiz |
+| String tipi | `string` keyword | Evrensel, her yerde anlaşılır |
+| Koleksiyon iterasyonu | `for each item in collection` | VB.NET uyumlu, okunabilir |
+| Blok sonları | `end if`, `end while` | Kendi kendini belgeleyen kod |
+
+### Temel Prensipler
+
+1. **Kısalıktan çok okunabilirlik** - `}` yerine `end if`
+2. **Örtükten çok açık** - Bağlama bağlı değil, `==` karşılaştırma için
+3. **Tek yol** - Tüm fonksiyonlar için tek `function` keyword
+4. **Tip-önce bildirimler** - `Dim x As Integer` değil `numeric x`
+
+> **Not:** `state` keyword'ü runtime state yönetimi içindir. MELP derleyicisi
+> dahili olarak stateless'tır (modüler, global state yok), ama bu dil kullanıcısının
+> stateful programlama yapmasını kısıtlamaz.
 
 ---
 
@@ -200,7 +229,7 @@ end if
 ### While Döngüsü
 
 ```mlp
-while kosul do
+while kosul
     -- kod
 end while
 ```

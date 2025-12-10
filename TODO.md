@@ -490,17 +490,16 @@ Eğer TTO'yu anlamadan TODO'ya başlarsan, çalışan sistemi bozabilirsin.
 **Next Steps:** See NEXT_AI_START_HERE.md for options!
 
 ### Option A: Loop Enhancements (⭐⭐⭐ Recommended)
-- [ ] **For-Each Loop** (~2 hours)
+- [ ] **For-Each Loop** (~2 hours) ⭐ NEXT PRIORITY
   - Syntax: `for each item in collection`
   - Iterate over arrays/lists/tuples
   - Parser: New keywords (TOKEN_EACH, TOKEN_IN)
   - Codegen: Counter + bounds checking
 
-- [ ] **While Loop** (~1-2 hours)
-  - Syntax: `while condition do ... end while`
+- [x] **While Loop** ✅ (YZ_27 - Fixed!)
+  - Syntax: `while condition ... end while` (no `do` keyword)
   - Condition-based iteration
-  - Parser: TOKEN_WHILE, TOKEN_DO (already exist!)
-  - Codegen: Label-based jumps
+  - Bug fixed: Lexer was returning TOKEN_LANGLE instead of TOKEN_LESS for `<`
 
 - [ ] **Break/Continue** (~1 hour)
   - Keywords: `break`, `continue`

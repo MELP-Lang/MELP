@@ -254,20 +254,25 @@ Token* lexer_next_token(Lexer* lexer) {
     if (c == '<') {
         lexer->pos++;
         // Lookahead: Tuple literal <x,y> vs comparison x < y
-        // Tuple context: < followed by identifier, number, string, or >
+        // Key insight: In comparison "x < 3", there's whitespace AFTER <
+        // In tuple "<3,4>", there's NO whitespace after <
         char next = lexer->source[lexer->pos];
-        // Skip whitespace to peek at next meaningful character
-        int saved_pos = lexer->pos;
-        while (next == ' ' || next == '\t') {
-            saved_pos++;
-            next = lexer->source[saved_pos];
+        
+        // If there's whitespace immediately after <, it's a comparison operator
+        // e.g., "x < 3" has space after <
+        if (next == ' ' || next == '\t') {
+            return make_token_ws(TOKEN_LESS, "<", lexer->line, had_whitespace);
         }
-        // If next is identifier/number/string/> → tuple literal
-        if (isalpha(next) || isdigit(next) || next == '"' || next == '_' || next == '>') {
-            return make_token_ws(TOKEN_LANGLE, "<", lexer->line, had_whitespace);
+        
+        // If there's whitespace BEFORE < (had_whitespace), it's likely comparison
+        // e.g., "x < 3" - the < has whitespace before it
+        if (had_whitespace) {
+            return make_token_ws(TOKEN_LESS, "<", lexer->line, had_whitespace);
         }
-        // Otherwise: comparison operator
-        return make_token_ws(TOKEN_LESS, "<", lexer->line, had_whitespace);
+        
+        // No whitespace before or after - likely tuple literal <x,y>
+        // or could be <> empty tuple
+        return make_token_ws(TOKEN_LANGLE, "<", lexer->line, had_whitespace);
     }
     
     if (c == '>') {
