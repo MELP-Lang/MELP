@@ -27,90 +27,108 @@ void codegen_collection(FILE* output, Collection* coll) {
 void codegen_array_literal(FILE* output, Array* arr) {
     if (!arr) return;
     
-    fprintf(output, "    ; Array literal: %d elements, type=%d\n", arr->length, arr->element_type);
+    fprintf(output, "    # Array literal: %d elements, type=%d\n", arr->length, arr->element_type);
     
     // Label for this array
     int arr_id = array_label_counter++;
     
     // Allocate on heap using TTO
-    fprintf(output, "    ; Allocate array on heap\n");
-    fprintf(output, "    mov rdi, %d  ; Number of elements\n", arr->length);
-    fprintf(output, "    mov rsi, 8   ; Element size (8 bytes)\n");
-    fprintf(output, "    call tto_array_alloc  ; Returns pointer in rax\n");
-    fprintf(output, "    mov [array_%d], rax  ; Save array pointer\n", arr_id);
+    fprintf(output, "    # Allocate array on heap\n");
+    fprintf(output, "    movq $%d, %%rdi  # Number of elements\n", arr->length);
+    fprintf(output, "    movq $8, %%rsi   # Element size (8 bytes)\n");
+    fprintf(output, "    call tto_array_alloc  # Returns pointer in rax\n");
+    fprintf(output, "    movq %%rax, %%rbx  # Save array pointer in rbx\n");
     
     // Initialize elements
     if (arr->length > 0 && arr->elements) {
-        fprintf(output, "    ; Initialize array elements\n");
+        fprintf(output, "    # Initialize array elements\n");
         for (int i = 0; i < arr->length; i++) {
             ArithmeticExpr* elem = (ArithmeticExpr*)arr->elements[i];
             if (elem) {
                 // Generate code for element expression
-                fprintf(output, "    ; Element %d\n", i);
+                fprintf(output, "    # Element %d\n", i);
+                
+                // Save array pointer on stack
+                fprintf(output, "    pushq %%rbx\n");
+                
                 arithmetic_generate_code(output, elem, NULL);  // Result in r8 or xmm0
                 
-                // Move result to rax (arithmetic puts int in r8, float in xmm0)
-                fprintf(output, "    mov rax, r8  ; Move result to rax\n");
+                // Move result to rax
+                fprintf(output, "    movq %%r8, %%rax  # Move result to rax\n");
+                
+                // Restore array pointer
+                fprintf(output, "    popq %%rbx\n");
                 
                 // Store in array
-                fprintf(output, "    mov rbx, [array_%d]  ; Load array pointer\n", arr_id);
-                fprintf(output, "    mov [rbx + %d], rax  ; Store element at index %d\n", i * 8, i);
+                fprintf(output, "    movq %%rax, %d(%%rbx)  # Store element at index %d\n", i * 8, i);
             }
         }
     }
     
     // Final array pointer in rax
-    fprintf(output, "    mov rax, [array_%d]  ; Array pointer result\n", arr_id);
+    fprintf(output, "    movq %%rbx, %%rax  # Array pointer result\n");
 }
 
 // Generate list literal: (1; "text"; 3.14;)
 void codegen_list_literal(FILE* output, List* list) {
     if (!list) return;
     
-    fprintf(output, "    ; List literal: %d elements (heterogeneous)\n", list->length);
+    fprintf(output, "    # List literal: %d elements (heterogeneous)\n", list->length);
     
     int list_id = array_label_counter++;
     
     // Allocate list structure
-    fprintf(output, "    ; Allocate list\n");
-    fprintf(output, "    mov rdi, %d  ; Capacity\n", list->capacity);
-    fprintf(output, "    call tto_list_alloc  ; Returns list pointer in rax\n");
-    fprintf(output, "    mov [list_%d], rax  ; Save list pointer\n", list_id);
+    fprintf(output, "    # Allocate list\n");
+    fprintf(output, "    movq $%d, %%rdi  # Capacity\n", list->capacity);
+    fprintf(output, "    call tto_list_alloc  # Returns list pointer in rax\n");
+    fprintf(output, "    movq %%rax, %%rbx  # Save list pointer in rbx\n");
     
     // Initialize elements with type info
     if (list->length > 0 && list->elements && list->element_types) {
-        fprintf(output, "    ; Initialize list elements\n");
+        fprintf(output, "    # Initialize list elements\n");
         for (int i = 0; i < list->length; i++) {
             ArithmeticExpr* elem = (ArithmeticExpr*)list->elements[i];
             if (elem) {
-                fprintf(output, "    ; List element %d (type=%d)\n", i, list->element_types[i]);
-                arithmetic_generate_code(output, elem, NULL);  // Result in r8/xmm0
-                fprintf(output, "    mov rdx, r8  ; Move result to rdx\n");
+                fprintf(output, "    # List element %d (type=%d)\n", i, list->element_types[i]);
                 
-                // Store element and type
-                fprintf(output, "    mov rbx, [list_%d]  ; Load list pointer\n", list_id);
-                fprintf(output, "    mov rdi, rbx\n");
-                fprintf(output, "    mov rsi, %d  ; Index\n", i);
-                // rdx already has value
-                fprintf(output, "    mov rcx, %d  ; Type\n", list->element_types[i]);
-                fprintf(output, "    call tto_list_set  ; Set element with type\n");
+                // Save list pointer on stack
+                fprintf(output, "    pushq %%rbx\n");
+                
+                arithmetic_generate_code(output, elem, NULL);  // Result in r8/xmm0
+                
+                // Value must be a pointer for tto_list_set - push to stack
+                fprintf(output, "    pushq %%r8  # Push value to stack\n");
+                fprintf(output, "    movq %%rsp, %%rdx  # arg3: pointer to value on stack\n");
+                
+                // Restore list pointer
+                fprintf(output, "    movq 8(%%rsp), %%rbx  # Load list pointer (skipping value)\n");
+                
+                // Call tto_list_set(list, index, value_ptr, type)
+                fprintf(output, "    movq %%rbx, %%rdi  # arg1: list pointer\n");
+                fprintf(output, "    movq $%d, %%rsi  # arg2: index\n", i);
+                // rdx already has pointer to value (arg3)
+                fprintf(output, "    movq $%d, %%rcx  # arg4: type\n", list->element_types[i]);
+                fprintf(output, "    call tto_list_set  # Set element with type\n");
+                
+                // Clean up stack (value + saved rbx)
+                fprintf(output, "    addq $16, %%rsp  # Pop value and saved list pointer\n");
             }
         }
     }
     
-    fprintf(output, "    mov rax, [list_%d]  ; List pointer result\n", list_id);
+    fprintf(output, "    movq %%rbx, %%rax  # List pointer result\n");
 }
 
 // Generate tuple literal: <42, "text">
 void codegen_tuple_literal(FILE* output, Tuple* tuple) {
     if (!tuple) return;
     
-    fprintf(output, "    ; Tuple literal: %d elements (immutable)\n", tuple->length);
+    fprintf(output, "    # Tuple literal: %d elements (immutable)\n", tuple->length);
     
     int tuple_id = array_label_counter++;
     
     // Tuples are stack-allocated (fixed size, immutable)
-    fprintf(output, "    ; Allocate tuple on stack\n");
+    fprintf(output, "    # Allocate tuple on stack\n");
     int bytes = tuple->length * 8 + tuple->length * 4;  // Elements + types
     fprintf(output, "    sub rsp, %d  ; Allocate %d bytes\n", bytes, bytes);
     fprintf(output, "    mov [tuple_%d], rsp  ; Save tuple pointer\n", tuple_id);
@@ -120,7 +138,7 @@ void codegen_tuple_literal(FILE* output, Tuple* tuple) {
         for (int i = 0; i < tuple->length; i++) {
             ArithmeticExpr* elem = (ArithmeticExpr*)tuple->elements[i];
             if (elem) {
-                fprintf(output, "    ; Tuple element %d (type=%d)\n", i, tuple->element_types[i]);
+                fprintf(output, "    # Tuple element %d (type=%d)\n", i, tuple->element_types[i]);
                 arithmetic_generate_code(output, elem, NULL);  // Result in r8/xmm0
                 fprintf(output, "    mov rax, r8  ; Move result to rax\n");
                 
@@ -140,64 +158,64 @@ void codegen_tuple_literal(FILE* output, Tuple* tuple) {
 
 // Generate stack-based array (fixed size)
 void codegen_array_stack(FILE* output, Array* arr) {
-    fprintf(output, "    ; Stack array: %d elements\n", arr->length);
+    fprintf(output, "    # Stack array: %d elements\n", arr->length);
     
     // Allocate space on stack
     int bytes = arr->length * 8;  // 8 bytes per element (pointer or numeric)
     fprintf(output, "    sub rsp, %d\n", bytes);
     
     // TODO: Initialize elements
-    fprintf(output, "    ; TODO: Initialize array elements\n");
+    fprintf(output, "    # TODO: Initialize array elements\n");
 }
 
 // Generate heap-based array (dynamic size)
 void codegen_array_heap(FILE* output, Array* arr) {
-    fprintf(output, "    ; Heap array: capacity %d\n", arr->capacity);
+    fprintf(output, "    # Heap array: capacity %d\n", arr->capacity);
     
     // Call malloc for array allocation
     int bytes = arr->capacity * 8;
     fprintf(output, "    mov rdi, %d  ; Size in bytes\n", bytes);
     fprintf(output, "    extern malloc\n");
     fprintf(output, "    call malloc\n");
-    fprintf(output, "    ; Array pointer in rax\n");
+    fprintf(output, "    # Array pointer in rax\n");
     
     // TODO: Initialize elements and store pointer
 }
 
 // Generate list creation (always heap)
 void codegen_list_create(FILE* output, List* list) {
-    fprintf(output, "    ; List creation: capacity %d\n", list->capacity);
+    fprintf(output, "    # List creation: capacity %d\n", list->capacity);
     
     // Lists need two allocations:
     // 1. Array of element pointers
     // 2. Array of element types
     
-    fprintf(output, "    ; Allocate element pointer array\n");
+    fprintf(output, "    # Allocate element pointer array\n");
     int bytes_elements = list->capacity * 8;
     fprintf(output, "    mov rdi, %d\n", bytes_elements);
     fprintf(output, "    extern malloc\n");
     fprintf(output, "    call malloc\n");
     fprintf(output, "    push rax  ; Save element array pointer\n");
     
-    fprintf(output, "    ; Allocate type array\n");
+    fprintf(output, "    # Allocate type array\n");
     int bytes_types = list->capacity * 4;  // 4 bytes per VarType enum
     fprintf(output, "    mov rdi, %d\n", bytes_types);
     fprintf(output, "    call malloc\n");
-    fprintf(output, "    ; Type array in rax, element array on stack\n");
+    fprintf(output, "    # Type array in rax, element array on stack\n");
     
     // TODO: Store both pointers in List struct
 }
 
 // Generate tuple creation (stack allocation)
 void codegen_tuple_create(FILE* output, Tuple* tuple) {
-    fprintf(output, "    ; Tuple creation: %d elements (immutable)\n", tuple->length);
+    fprintf(output, "    # Tuple creation: %d elements (immutable)\n", tuple->length);
     
     // Allocate on stack (like struct)
     int bytes = tuple->length * 8 + tuple->length * 4;  // Elements + types
     fprintf(output, "    sub rsp, %d\n", bytes);
     
     // TODO: Initialize tuple elements
-    fprintf(output, "    ; TODO: Initialize tuple elements (immutable)\n");
+    fprintf(output, "    # TODO: Initialize tuple elements (immutable)\n");
 }
 
 // Generate array index access
@@ -257,8 +275,8 @@ void codegen_index_access(FILE* output, IndexAccess* access) {
             codegen_list_index(output, access->collection_name, access->index.const_index);
         } else {
             // Variable/expression index for list - similar to array
-            fprintf(output, "    ; List index access with variable: %s(...)\n", access->collection_name);
-            fprintf(output, "    ; TODO: Runtime list index access\n");
+            fprintf(output, "    # List index access with variable: %s(...)\n", access->collection_name);
+            fprintf(output, "    # TODO: Runtime list index access\n");
         }
     } else {
         // Array access: collection[index]
@@ -270,8 +288,8 @@ void codegen_index_access(FILE* output, IndexAccess* access) {
             codegen_array_index_var(output, access->collection_name, access->index.var_index);
         } else {
             // Expression index - evaluate first then access
-            fprintf(output, "    ; Array index access with expression\n");
-            fprintf(output, "    ; TODO: Evaluate expression first\n");
+            fprintf(output, "    # Array index access with expression\n");
+            fprintf(output, "    # TODO: Evaluate expression first\n");
         }
     }
 }

@@ -118,6 +118,8 @@ static Token* read_identifier(Lexer* lexer) {
     else if (strcmp(value, "string") == 0) type = TOKEN_STRING_TYPE;  // STRING type keyword (legacy)
     else if (strcmp(value, "text") == 0) type = TOKEN_STRING_TYPE;    // TEXT type keyword (MLP standard)
     else if (strcmp(value, "boolean") == 0) type = TOKEN_BOOLEAN;
+    else if (strcmp(value, "list") == 0) type = TOKEN_LIST;
+    else if (strcmp(value, "tuple") == 0) type = TOKEN_TUPLE;
     else if (strcmp(value, "true") == 0) type = TOKEN_TRUE;
     else if (strcmp(value, "false") == 0) type = TOKEN_FALSE;
     // Control flow keywords

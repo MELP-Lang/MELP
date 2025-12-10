@@ -5,6 +5,8 @@ typedef enum {
     TOKEN_NUMERIC,
     TOKEN_STRING_TYPE,     // string keyword (type declaration)
     TOKEN_BOOLEAN,
+    TOKEN_LIST,            // list keyword (type declaration)
+    TOKEN_TUPLE,           // tuple keyword (type declaration)
     TOKEN_IDENTIFIER,
     TOKEN_ASSIGN,
     TOKEN_NUMBER,

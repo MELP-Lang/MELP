@@ -1,0 +1,16 @@
+function main() returns numeric
+    numeric[] arr = [10, 20, 30, 40, 50]
+    
+    numeric i = 1
+    numeric offset = 1
+    
+    numeric x = arr[i + offset]
+    
+    arr[i + offset] = 99
+    
+    numeric y = arr[2]
+    
+    numeric result = y - x
+    
+    return result
+end function

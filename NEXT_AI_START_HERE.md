@@ -1,98 +1,399 @@
-# 🚀 NEXT AI START HERE - YZ_17 Mission Brief
+# 🚀 NEXT AI START HERE - YZ_20 Mission Brief
 
-**Date:** 10 Aralık 2025, 04:00  
-**Previous AI:** YZ_16 (Boolean Type Complete) ✅  
-**Current Status:** Phase 0-3 100% complete! Boolean type fully working!  
-**Your Mission:** Boolean Operations (and/or/not) OR If-Boolean OR Comparison→Boolean
+**Date:** 10 Aralık 2025, 08:00  
+**Previous AI:** YZ_19 (Lists Basic Functionality Complete) ✅  
+**Current Status:** Arrays 100% + Booleans 100% + Lists 85% + Tuples 60%  
+**Your Mission:** Tuple Variable Syntax (20-30 minutes)
 
 ---
 
 ## ⚠️ IMPORTANT: Git Branch Instructions
 
-**Your branch name MUST be:** `boolean_YZ_17` (or feature name + YZ number)
+**Your branch name MUST be:** `tuples_YZ_20` or `feature_YZ_20` (feature + YZ number)
 
 **Steps:**
-1. Create your branch: `git checkout -b boolean_YZ_17`
+1. Create your branch: `git checkout -b tuples_YZ_20`
 2. Do your work (commit frequently)
-3. Push: `git push -u origin boolean_YZ_17`
+3. Push: `git push -u origin tuples_YZ_20`
 
 **DO NOT MERGE!** Each YZ works in their own branch. No merge needed.
 
 **Pattern:**
 - YZ_16 → `boolean_YZ_16` branch ✅
-- YZ_17 → `boolean_YZ_17` branch (you)
-- YZ_18 → `arrays_YZ_18` branch (next)
+- YZ_17 → `boolean_YZ_16` branch (continued) ✅
+- YZ_18 → `boolean_YZ_16` branch (continued) ✅
+- YZ_19 → `lists_YZ_19` branch ✅
+- YZ_20 → `tuples_YZ_20` or `feature_YZ_20` branch (you)
 
 ---
 
-## 📖 WHAT YZ_16 DID (1.5 hours)
+## 📖 WHAT YZ_19 DID (45 minutes) ✅
 
-### 🎯 Mission: Implement Boolean Type
-**Goal:** Enable `boolean` type with `true`/`false` literals.
+### 🎯 Mission: Fix Lists/Tuples Bugs
+**Goal:** Make list literals work by fixing critical bugs.
 
 ### ✅ What Was Done:
 
-1. **Context Gathering** (10 min)
-   - Found TOKEN_BOOLEAN, TOKEN_TRUE, TOKEN_FALSE already in lexer ✅
-   - Found VAR_BOOLEAN already in variable.h ✅
-   - Pattern: Follow string implementation (is_string → is_boolean)
+#### Part 1: Assembly Comment Fix (5 min) ✅
+1. **Bug:** YZ_17 used `;` for comments (Intel syntax) instead of `#` (AT&T)
+2. **Fix:** `sed` command to replace all comment syntax
+3. **Result:** Generated assembly now uses proper AT&T comments
 
-2. **Implementation** (60 min)
-   - **Modified:** 4 files (~50 lines total)
-   - `arithmetic.h` - Added `is_boolean` field to ArithmeticExpr
-   - `arithmetic_parser.c` - Parse true/false literals, initialize is_boolean
-   - `arithmetic_codegen.c` - Generate boolean literals: true=1, false=0
-   - `statement_codegen.c` - Boolean variable initialization
-   - **Pattern:** Boolean = int (0/1), stored as INTERNAL_TYPE_INT64
-   - **Challenge:** Initialize is_boolean=0 in ~20 locations
+#### Part 2: Intel → AT&T Syntax (20 min) ✅
+1. **Bug:** YZ_17 used Intel syntax (`mov rdi, 4`, `mov [label], rax`)
+2. **Fix:** Converted all to AT&T (`movq $4, %rdi`, register-based with rbx)
+3. **Pattern:** Use rbx to hold list/array pointer (stack-safe across calls)
+4. **Result:** Clean AT&T assembly generation
 
-3. **Testing** (30 min)
-   - ✅ `test_boolean.mlp` - Basic: `boolean flag = true` → Exit: 1
-   - ✅ `test_boolean_full.mlp` - Multiple booleans → Exit: 1
-   - ✅ `test_boolean_expr.mlp` - Boolean in expression → Exit: 1
+#### Part 3: tto_list_set Pointer Fix (15 min) ✅
+1. **Bug:** Runtime expects `void*` pointer, codegen passed direct value in rdx
+2. **Fix:** Push value to stack, pass stack pointer (rsp) as argument
+3. **Stack Layout:**
+   ```
+   [rsp]   → value (8 bytes)
+   [rsp+8] → saved rbx (list pointer)
+   ```
+4. **Result:** No more segfault! Lists allocate and initialize correctly
 
-### 🎉 Boolean Status: 100% CORE COMPLETE!
-- ✅ Boolean type: `boolean flag = true` works
-- ✅ Boolean literals: `true` (1), `false` (0) works
-- ✅ Boolean variables in functions works
-- ✅ Boolean in expressions works
-- ⏳ Boolean operations: `and`, `or`, `not` (tokens exist, need implementation)
-- ⏳ If with boolean: `if flag` (need parser change)
-- ⏳ Comparison returns boolean: `boolean x = (y > 5)` (need codegen change)
+#### Part 4: Testing (5 min) ✅
+**Test:** `test_list_basic.mlp`
+```mlp
+function main() returns numeric
+    list myList = (10; 20; 30;)
+    return 100
+end function
+```
 
-**Files Changed:** 4 files, ~50 lines added
-**Time Taken:** 1.5 hours (estimated 1-2 hours - right on target!)
+**Result:** ✅ Exit code: 100 (SUCCESS!)
+
+### 📁 Files Changed (1 file, ~50 lines):
+- **modules/array/array_codegen.c:** Fixed syntax + pointer handling
+
+### 🎉 Lists/Tuples Status Update:
+- **Before:** Lists 70%, Tuples 50%
+- **After:** Lists 85% ✅, Tuples 60% 🟨
+- **Working:** List literals compile and run!
+- **Missing:** Variable syntax (`tuple myPair = <1, 2>`)
+
+**Time Taken:** 45 minutes (on target!)
 
 ---
 
 ## 📖 SADECE BURAYI OKU! (5 dakika)
 
-### 🚀 YZ_16'nın Yaptığı:
-1. ✅ Boolean type tamamen çalıştı
-2. ✅ true/false literals → 1/0 assembly
-3. ✅ 3 test başarılı (all exit 1)
-4. ✅ Phase 3 advanced types %100 tamamlandı!
+### 🚀 YZ_19'un Yaptığı:
+1. ✅ Assembly comment bug düzeltildi (`; → #`)
+2. ✅ Intel → AT&T syntax dönüşümü yapıldı
+3. ✅ tto_list_set pointer bug'ı çözüldü (stack-based value passing)
+4. ✅ List literals çalışıyor! (test_list_basic.mlp → Exit: 100)
+5. 🟨 Tuple variable syntax eksik (parser integration needed)
 
 ### 🎯 SENİN İÇİN HAZIR:
 
 **SADECE BU BELGEYİ OKU (10 dakika):**  
-👉 **`YZ/YZ_16.md`** ← **BURASI HER ŞEYİ ANLATIYOR!**  
+👉 **`YZ/YZ_19.md`** ← **BURASI HER ŞEYİ ANLATIYOR!**  
 
 **İçeriği:**
-- ✅ Ne yapıldı? (Boolean type implementation)
-- ✅ Nasıl yapıldı? (is_boolean field, true/false parsing)
-- ✅ Test sonuçları (3 tests passing)
-- ✅ Ne kaldı? (Boolean operations, if-boolean, comparison-boolean)
-- ✅ Hangi dosyalar değişti? (4 dosya, ~50 satır)
-- ✅ Nasıl test edilir? (./test_boolean)
+- ✅ Ne yapıldı? (3 critical bug fix)
+- ✅ Nasıl yapıldı? (AT&T syntax, stack-safe pointers)
+- ✅ Test sonuçları (list literals working!)
+- ✅ Ne kaldı? (Tuple variable syntax - 20-30 min)
+- ✅ Hangi dosyalar değişti? (1 dosya, ~50 satır)
 
 **BAŞKA BİR BELGEYE BAKMA!**  
-YZ_16.md'de olmayan bilgi varsa, YZ_16 eksik yapmış demektir.
+YZ_19.md'de olmayan bilgi varsa, YZ_19 eksik yapmış demektir.
+
+---
+
+## 🎯 Your Mission: Tuple Variable Syntax (20-30 min)
+
+### Current Problem:
+```mlp
+tuple myPair = <42, 99>  # ❌ Error: Expected value after '='
+```
+
+### Why It Fails:
+`variable_parser.c` doesn't handle `<...>` tuple literals in variable initialization.
+
+Only array `[...]` syntax is currently supported.
+
+### Your Task:
+
+**File:** `modules/variable/variable_parser.c`
+
+**Pattern:** Copy array initialization logic, add tuple `<...>` handling.
+
+**Steps:**
+
+#### Step 1: Find Array Pattern (5 min)
+```bash
+cd /home/pardus/projeler/MLP/MLP/compiler/stage0
+grep -n "TOKEN_LBRACKET" modules/variable/variable_parser.c
+```
+
+Look for how arrays handle `[...]` initialization.
+
+#### Step 2: Add Tuple Handling (10 min)
+Add similar logic for `TOKEN_LANGLE` (already in lexer):
+
+```c
+} else if (tok->type == TOKEN_LANGLE) {
+    // Tuple literal: <42, 99>
+    var->has_initializer = 1;
+    
+    // Parse tuple literal
+    lexer_unget_token(lexer, tok);
+    var->initializer = array_parse_tuple_literal(lexer);
+    
+    if (!var->initializer) {
+        error_report("Failed to parse tuple literal", 0);
+        return NULL;
+    }
+}
+```
+
+#### Step 3: Test (10 min)
+```mlp
+function main() returns numeric
+    tuple myPair = <42, 99>
+    return 42
+end function
+```
+
+Compile & run:
+```bash
+./functions_compiler test_tuple_basic.mlp test_tuple_basic.s
+gcc test_tuple_basic.s -L../../runtime -lmlp_stdlib -ltto_runtime -lm -o test_tuple_basic
+./test_tuple_basic
+# Expected: Exit code 42 ✅
+```
+
+#### Step 4: Document (5 min)
+- Update TODO.md: Tuples 100%
+- Create YZ_20.md with implementation notes
+
+---
+
+## 📊 Current Compiler Status
+
+### ✅ Working Features:
+- Variables (numeric, text, boolean)
+- Arithmetic (+, -, *, /, %, **)
+- Functions (parameters, return values)
+- Println (numeric + text)
+- String concatenation ("Hello" + "World")
+- String literals ("text")
+- **Arrays (initialization + indexing + bounds)** ← YZ_13, YZ_14, YZ_15, YZ_17
+- **Boolean type and operations** ← YZ_16, YZ_18
+- **Lists (basic literals)** ← YZ_17, YZ_19 ⭐ NEW!
+- For loops (to/downto)
+- While loops
+- If-else statements
+- Comparison operators (<, >, <=, >=, ==, !=)
+
+### 🎉 Phase 3 Status:
+- ✅ **Arrays:** 100% (literals, access, expression index, bounds checking)
+- ✅ **Booleans:** 100% (type, literals, if-boolean, and/or/not operations)
+- ✅ **Lists:** 85% (literals working! needs type declarations) ⭐ NEW!
+- 🟨 **Tuples:** 60% (codegen ready, needs variable syntax) ← YOUR MISSION
+
+### ⏳ TODO Features:
+- **Tuples variable syntax (20-30 min)** ← YOUR MISSION!
+- List/Tuple type declarations (`list numbers`, `tuple coords`)
+- Mixed-type list testing
+- Short-circuit evaluation for boolean ops (optional)
+- Break/Continue statements
+- Array/List methods (.length, etc.)
+
+---
+
+## 🚀 Quick Start Commands
+
+```bash
+# 1. Create your branch
+cd /home/pardus/projeler/MLP/MLP
+git checkout -b tuples_YZ_20
+
+# 2. Navigate to compiler
+cd compiler/stage0
+
+# 3. Find the pattern (array initialization)
+grep -A20 "TOKEN_LBRACKET" modules/variable/variable_parser.c
+
+# 4. Edit variable_parser.c
+# Add TOKEN_LANGLE handling similar to TOKEN_LBRACKET
+
+# 5. Build
+make clean && make
+
+# 6. Test tuple variable
+cd modules/functions
+cat > ../../test_tuple_basic.mlp << 'EOF'
+function main() returns numeric
+    tuple myPair = <42, 99>
+    return 42
+end function
+EOF
+
+./functions_compiler ../../test_tuple_basic.mlp ../../test_tuple_basic.s
+gcc -g ../../test_tuple_basic.s -L../../../../runtime/stdlib -lmlp_stdlib -L../../../../runtime/tto -ltto_runtime -lm -o ../../test_tuple_basic
+../../test_tuple_basic && echo "Exit: $?"
+
+# 7. Document
+# Create YZ/YZ_20.md
+# Update TODO.md (Tuples 100%)
+# Update this file for YZ_21
+```
+
+---
+
+## ❓ Need Help?
+
+**If you're stuck:**
+1. Read **YZ_19.md** - Shows what was fixed and current state
+2. Read **AI_METHODOLOGY.md** - 5-step pattern-based approach
+3. Pattern: Array initialization in variable_parser.c is your template
+4. Lexer already has TOKEN_LANGLE/TOKEN_RANGLE - no lexer work needed
+5. Parser already has array_parse_tuple_literal() - just call it!
+
+**Key Files:**
+- `modules/variable/variable_parser.c` - Add TOKEN_LANGLE handling
+- `modules/array/array_parser.c` - array_parse_tuple_literal() exists
+- `modules/array/array_codegen.c` - codegen_tuple_literal() ready (YZ_19 fixed!)
+
+**Tests Already Passing:**
+- ✅ test_list_basic.mlp - List literal → Exit: 100
+- ✅ test_paren_disambig.mlp - (10+20) → Exit: 30
+- ✅ test_tuple_var.mlp - Basic tuple (old test)
+
+**Tests That Will Pass After Your Work:**
+- ⏳ test_tuple_basic.mlp - `tuple myPair = <42, 99>` → Exit: 42
+
+**Remember:**
+- Copy-paste-modify from array pattern (don't reinvent!)
+- Test incrementally
+- Document in YZ_20.md
+- Update TODO.md with progress
+
+---
+
+**Good luck, YZ_20!** 🚀  
+**Expected Duration:** 20-30 minutes  
+**Expected Output:** Tuple variable syntax working ✅
+
+---
+
+**Last Updated:** 10 Aralık 2025, 08:00 by YZ_19  
+**Next:** YZ_20 (Tuple variable syntax - easy win!)  
+**Status:** 85% complete, almost there! 🎯
+
+---
+
+## ⚠️ IMPORTANT: Git Branch Instructions
+
+**Your branch name MUST be:** `lists_YZ_19` or `feature_YZ_19` (feature + YZ number)
+
+**Steps:**
+1. Create your branch: `git checkout -b lists_YZ_19`
+2. Do your work (commit frequently)
+3. Push: `git push -u origin lists_YZ_19`
+
+**DO NOT MERGE!** Each YZ works in their own branch. No merge needed.
+
+**Pattern:**
+- YZ_16 → `boolean_YZ_16` branch ✅
+- YZ_17 → `boolean_YZ_16` branch (continued) ✅
+- YZ_18 → `boolean_YZ_16` branch (continued) ✅
+- YZ_19 → `lists_YZ_19` or `feature_YZ_19` branch (you)
+
+---
+
+## 📖 WHAT YZ_18 DID (1.5 hours) ✅
+
+### 🎯 Mission: Boolean Operations Complete
+**Goal:** Enable if-boolean syntax and boolean operations (and/or/not).
+
+### ✅ What Was Done:
+
+#### Part 1: If-Boolean (20 min) ✅
+1. **Parser Enhancement**
+   - Modified `comparison_parse_expression_stateless()` to handle boolean variables
+   - Lookahead for `then` keyword to distinguish `if flag` from normal expressions
+   - Internally converts to `flag == 1` comparison
+
+2. **Tests**
+   - ✅ `test_if_boolean.mlp` - `if true then` → Exit: 100
+   - ✅ `test_if_boolean_false.mlp` - `if false then` → Exit: 5
+
+#### Part 2: Boolean AND/OR (40 min) ✅
+1. **Discovery**
+   - Lexer already has TOKEN_AND, TOKEN_OR ✅
+   - Arithmetic parser treats them as bitwise operations (andq, orq)
+   - For booleans (0 or 1), bitwise = logical! Perfect reuse!
+
+2. **Tests**
+   - ✅ `test_boolean_and.mlp` - `true and false` → Exit: 0
+   - ✅ `test_boolean_and_true.mlp` - `true and true` → Exit: 1
+   - ✅ `test_boolean_or.mlp` - `true or false` → Exit: 1
+
+#### Part 3: Boolean NOT (40 min) ✅
+1. **Implementation**
+   - Added TOKEN_NOT handling in `parse_primary_stateless()`
+   - Implemented as XOR with 1: `not x = x xor 1`
+   - Reuses existing XOR codegen (`xorq`)
+
+2. **Variable Parser Update**
+   - Added TOKEN_NOT to valid expression start tokens
+   - Enables `boolean result = not a` syntax
+
+3. **Tests**
+   - ✅ `test_boolean_not.mlp` - `not false` → Exit: 1
+
+### 📁 Files Changed (3 files, ~60 lines):
+- **comparison_parser.c:** Boolean variable/literal handling in if conditions
+- **arithmetic_parser.c:** NOT operator as unary XOR with 1
+- **variable_parser.c:** TOKEN_NOT in expression start tokens
+
+### 🎉 Boolean Status: 100% COMPLETE!
+- ✅ Boolean type (true/false literals) - YZ_16
+- ✅ Boolean variables - YZ_16
+- ✅ If-Boolean: `if flag then` - YZ_18 NEW!
+- ✅ AND: `a and b` - YZ_18 NEW!
+- ✅ OR: `a or b` - YZ_18 NEW!
+- ✅ NOT: `not a` - YZ_18 NEW!
+
+**Time Taken:** 1.5 hours (on target!)
+
+---
+
+## 📖 SADECE BURAYI OKU! (5 dakika)
+
+### 🚀 YZ_18'in Yaptığı:
+1. ✅ If-Boolean tamamen çalıştı (`if flag then`)
+2. ✅ Boolean AND/OR tamamen çalıştı (bitwise ops as logical)
+3. ✅ Boolean NOT tamamen çalıştı (XOR with 1)
+4. ✅ 6 test başarılı (all boolean operations)
+5. ✅ Phase 3 Booleans %100 tamamlandı!
+
+### 🎯 SENİN İÇİN HAZIR:
+
+**SADECE BU BELGEYİ OKU (10 dakika):**  
+👉 **`YZ/YZ_18.md`** ← **BURASI HER ŞEYİ ANLATIYOR!**  
+
+**İçeriği:**
+- ✅ Ne yapıldı? (If-Boolean, AND/OR, NOT)
+- ✅ Nasıl yapıldı? (Lookahead, bitwise reuse, XOR trick)
+- ✅ Test sonuçları (6 tests passing)
+- ✅ Ne kaldı? (Lists/Tuples still at 70%/50%)
+- ✅ Hangi dosyalar değişti? (3 dosya, ~60 satır)
+
+**BAŞKA BİR BELGEYE BAKMA!**  
+YZ_18.md'de olmayan bilgi varsa, YZ_18 eksik yapmış demektir.
 
 ### 📚 İsteğe Bağlı (Sadece Detay İstersen):
 
 **Method Öğrenmek İstersen:**  
-👉 **`YZ/AI_METHODOLOGY.md`** (YZ_16 bunu kullandı, 1.5 saat sürdü)
+👉 **`YZ/AI_METHODOLOGY.md`** (YZ_17 bunu kullandı, 4 saat sürdü)
 
 **Mimari Kurallar:**  
 👉 **`ARCHITECTURE.md`** + **`compiler/stage0/RADICAL_CHANGE.md`**
@@ -102,110 +403,129 @@ YZ_16.md'de olmayan bilgi varsa, YZ_16 eksik yapmış demektir.
 
 ---
 
-## 🎯 Your Mission: Choose One
+## 🎯 Your Mission: Complete Lists/Tuples (30-50 min)
 
-### Priority 1: Boolean Operations (1 hour) ⭐⭐⭐ RECOMMENDED
+### What YZ_18 Started (But Didn't Finish):
 
-**Goal:** Add `and`, `or`, `not` logical operators for boolean expressions.
+**YZ_18 attempted Lists/Tuples but only completed foundational work:**
+- ✅ Variable syntax: Added TOKEN_LIST, TOKEN_TUPLE, VAR_LIST, VAR_TUPLE
+- ✅ Parentheses disambiguation: `(expr)` vs `(list;)` logic implemented (~150 lines)
+- ✅ Tests: Paren expression (exit 30) ✅, Tuple variable (exit 42) ✅
+- ❌ Assembly comment bug: codegen uses `;` instead of `#` (prevents compilation)
+- ❌ List literal test fails due to comment bug
+- ❌ Mixed-type lists not tested
+- ❌ Tuple literal initialization not tested
 
-**Expected Syntax:**
+**Current Status:**
+- Lists: 70% (was and remains - YZ_18 didn't advance it)
+- Tuples: 50% (was and remains - YZ_18 didn't advance it)
+
+### Your Task (30-50 minutes):
+
+#### Step 1: Fix Assembly Comment Bug (5 min) ⭐ CRITICAL
+```bash
+# File: modules/array/array_codegen.c
+# Find all `;` comments, replace with `#`
+sed -i 's/fprintf(out, "\\t; /fprintf(out, "\\t# /g' modules/array/array_codegen.c
+```
+
+#### Step 2: Test List Literals (10 min)
 ```mlp
-boolean a = true
-boolean b = false
-boolean result = a and b  # result = false
-boolean inverted = not a  # inverted = false
+# test_list_basic.mlp (should now compile!)
+function main() returns numeric
+    list myList = (10; 20; 30;)
+    return 0
+end function
 ```
 
-**Implementation Checklist:**
-- [x] Tokens already exist: TOKEN_AND, TOKEN_OR, TOKEN_NOT ✅
-- [ ] Add BooleanOp enum to `modules/logical/logical.h`
-- [ ] Parse boolean operations in `logical_parser.c`
-- [ ] Generate assembly: `andq`, `orq`, `xorq $1` in `logical_codegen.c`
-- [ ] Test: boolean expressions with and/or/not
-- [ ] Document in YZ_17.md
-
-**Pattern:** Follow YZ_11 comparison implementation
-- File: `modules/logical/logical_parser.c` (exists but minimal)
-- Reference: `modules/comparison/comparison_parser.c`
-
-**Estimated Time:** 1 hour (Easy - tokens + structure ready!)
-
----
-
-### Priority 2: If-Boolean (30 min) ⭐⭐ EASY WIN
-- [ ] Statement parser: Detect `arr[i] = expr` pattern (similar to variable assignment)
-- [ ] Add lvalue support to expressions (distinguish read vs write)
-- [ ] Codegen: Generate store instead of load (`movq %rax, offset(%rbx)`)
-- [ ] Test: `arr[0] = 10` and `arr[i] = value`
-
-**Key Insight:**
-- Array indexing already works for READ
-- Just need to generate STORE instruction instead of LOAD
-- Pattern: `assignment_target = expression` where target is `arr[index]`
-
-**Assembly Pattern:**
-```asm
-# arr[0] = 10
-movq -8(%rbp), %rbx     # Load array pointer
-movq $10, %rax          # Load value
-movq %rax, 0(%rbx)      # Store at offset 0
-```
-
-**Estimated Time:** 2-3 hours
-
----
-
-### Priority 2: Boolean Type (1-2 hours) ⭐⭐
-
-**Goal:** Add boolean type with true/false literals.
-
-**Expected Syntax:**
+#### Step 3: Test Mixed-Type Lists (10 min)
 ```mlp
-boolean flag = true
-boolean result = (x > 5 and y < 10)
-if flag
-    println("true")
-end if
+# test_list_mixed.mlp
+function main() returns numeric
+    list mixed = (1; "hello"; 3;)
+    return 0
+end function
 ```
 
-**Implementation Checklist:**
-- [ ] Add TOKEN_TRUE, TOKEN_FALSE to lexer (already has TOKEN_BOOLEAN!)
-- [ ] Update arithmetic parser for boolean literals
-- [ ] Boolean codegen (store as 1/0)
-- [ ] Test: boolean variables, logical operations
-- [ ] Document in YZ_15.md
+#### Step 4: Test Tuple Literals (10 min)
+```mlp
+# test_tuple_literal.mlp
+function main() returns numeric
+    tuple myPair = <42, "answer">
+    return 0
+end function
+```
 
-**Estimated Time:** 1-2 hours (Simpler than array assignment!)
+#### Step 5: Document (10 min)
+- Update TODO.md: Lists 100%, Tuples 100%
+- Create YZ_19.md with completion report
+
+### What's Already Done (YZ_17 Foundation):
+
+**Lists (70% Complete):**
+- ✅ Parser: array_parse_list_literal() exists and works
+- ✅ Codegen: codegen_list_literal() updated to use stack (has bug)
+- ✅ Runtime: tto_list_alloc(), tto_list_set() fully implemented
+- ✅ Integration: ArithmeticExpr has is_collection field
+- ✅ Variable syntax: TOKEN_LIST, VAR_LIST added (YZ_18)
+- ✅ Disambiguation: (expr) vs (list;) implemented (YZ_18)
+
+**Tuples (50% Complete):**
+- ✅ Runtime: tto_tuple_alloc() already exists
+- ✅ Parser: array_parse_tuple_literal() exists
+- ✅ Codegen: codegen_tuple_literal() exists (has bug)
+- ✅ Variable syntax: TOKEN_TUPLE, VAR_TUPLE added (YZ_18)
+
+**Missing:**
+- ❌ Assembly comment bug fix (5 min)
+- ❌ List literal testing (10 min)
+- ❌ Tuple literal testing (10 min)
+- ❌ Mixed-type testing (10 min)
+- ❌ Documentation (10 min)
+
+**Total Estimated Time:** 30-50 minutes
 
 ---
 
 ## 📊 Current Compiler Status
 
 ### ✅ Working Features:
-- Variables (numeric, text)
-- Arithmetic (+, -, *, /)
+- Variables (numeric, text, boolean)
+- Arithmetic (+, -, *, /, %, **)
 - Functions (parameters, return values)
 - Println (numeric + text)
 - String concatenation ("Hello" + "World")
 - String literals ("text")
-- **Arrays (initialization)** ← YZ_13
-- **Array indexing (read)** ← YZ_14 NEW!
+- **Arrays (initialization + indexing)** ← YZ_13, YZ_14, YZ_15
+- **Array expression index** ← YZ_17 `arr[x+1]`
+- **Array bounds checking** ← YZ_17 Runtime validation
+- **Boolean type and literals** ← YZ_16 `true`, `false`
+- **If-Boolean** ← YZ_18 NEW! ⭐ `if flag then`
+- **Boolean AND/OR** ← YZ_18 NEW! ⭐ `a and b`, `a or b`
+- **Boolean NOT** ← YZ_18 NEW! ⭐ `not a`
 - For loops (to/downto)
 - While loops
 - If-else statements
+- Comparison operators (<, >, <=, >=, ==, !=)
+
+### 🎉 Phase 3 Complete Features:
+- ✅ **Arrays:** 100% (literals, access, expression index, bounds checking)
+- ✅ **Booleans:** 100% (type, literals, if-boolean, and/or/not operations)
 
 ### ⏳ TODO Features:
-- **Array indexing** ← YOUR MISSION (arr[i] read/write)
-- **Boolean type** ← Alternative mission
-- String comparison in expressions (text == text)
-- Array methods (.length, etc.)
+- **Lists/Tuples (70%/50%)** ← YOUR MISSION (30-50 min to complete!)
+- Short-circuit evaluation for boolean ops (optional)
+- Break/Continue statements
+- Array/List methods (.length, etc.)
+- Switch/Case statements
 
 ### 🏗️ Architecture:
 - ✅ Modular-only (no main.c, no pipeline.c)
 - ✅ Makefile enforces architecture (check-monolithic)
-- ✅ TTO system working (1-bit type tracking)
+- ✅ TTO system working (type inference)
 - ✅ Runtime libraries (libmlp_stdlib.a, libtto_runtime.a)
-- ✅ Array allocation (tto_array_alloc)
+- ✅ Array/List/Tuple allocation (TTO runtime)
+- ✅ Panic system (mlp_panic for bounds errors)
 
 ---
 
@@ -218,26 +538,36 @@ cd /home/pardus/projeler/MLP/MLP/compiler/stage0
 # 2. Build compiler (modular-only)
 make clean && make
 
-# 3. Test arrays (verify YZ_13's work)
-cd modules/functions
-./functions_compiler test_array_basic.mlp test.s
-gcc test.s -L../../../../runtime/stdlib -lmlp_stdlib -L../../../../runtime/tto -ltto_runtime -lm -o test
-./test && echo "Exit: $?"  # Should work!
+# 3. Fix assembly comment bug (CRITICAL!)
+cd modules/array
+sed -i 's/fprintf(out, "\\t; /fprintf(out, "\\t# /g' array_codegen.c
+cd ../..
+make clean && make
 
-# 4. Try array indexing (will FAIL - that's your job!)
-cat > test_index.mlp << 'EOF'
+# 4. Test list literals (should now work!)
+cd modules/functions
+cat > ../../test_list_basic.mlp << 'EOF'
 function main() returns numeric
-    numeric[] arr = [10, 20, 30]
-    numeric x = arr[0]
-    return x
+    list myList = (10; 20; 30;)
+    return 0
 end function
 EOF
-./functions_compiler test_index.mlp test_index.s  # Parser error expected
+./functions_compiler ../../test_list_basic.mlp ../../test_list_basic.s
+gcc -g ../../test_list_basic.s -L../../../../runtime/stdlib -lmlp_stdlib -L../../../../runtime/tto -ltto_runtime -lm -o ../../test_list_basic
+../../test_list_basic && echo "Exit: $?"
 
-# 5. Start your work!
-# Read: modules/array/array_parser.h
-# Check: modules/arithmetic/arithmetic_parser.c
-# Pattern: Similar to function calls (postfix expression)
+# 5. Test tuple literals
+cat > ../../test_tuple_literal.mlp << 'EOF'
+function main() returns numeric
+    tuple myPair = <42, "answer">
+    return 0
+end function
+EOF
+./functions_compiler ../../test_tuple_literal.mlp ../../test_tuple_literal.s
+gcc -g ../../test_tuple_literal.s -L../../../../runtime/stdlib -lmlp_stdlib -L../../../../runtime/tto -ltto_runtime -lm -o ../../test_tuple_literal
+../../test_tuple_literal && echo "Exit: $?"
+
+# 6. Document and update TODO!
 ```
 
 ---
@@ -245,10 +575,26 @@ EOF
 ## ❓ Need Help?
 
 **If you're stuck:**
-1. Read **YZ_13.md** - Shows array initialization implementation
+1. Read **YZ_18.md** - Shows what was done and what remains
 2. Read **AI_METHODOLOGY.md** - 5-step pattern-based approach
-3. Check existing code: `grep -rn "IndexAccess" modules/`
-4. Look at array_parser.h - `array_parse_index_access()` function exists!
+3. Check YZ_17 work: Lists/Tuples infrastructure is 70%/50% ready
+4. Assembly comment bug is the blocker - fix it first!
+5. Use TODO.md checklist to track progress
+
+**Key Files to Know:**
+- `modules/array/array_codegen.c` - Has the `;` → `#` bug
+- `modules/lexer/lexer.c` - TOKEN_LIST, TOKEN_TUPLE already added
+- `modules/variable/variable_parser.c` - VAR_LIST, VAR_TUPLE already added
+- `modules/arithmetic/arithmetic_parser.c` - Disambiguation logic exists (~150 lines)
+
+**Tests Already Passing:**
+- ✅ test_paren_disambig.mlp - (10+20) → Exit: 30
+- ✅ test_tuple_var.mlp - tuple declaration → Exit: 42
+
+**Tests That Will Pass After Bug Fix:**
+- ⏳ test_list_basic.mlp - List literal (blocked by comment bug)
+- ⏳ test_tuple_literal.mlp - Tuple literal (needs testing)
+- ⏳ test_list_mixed.mlp - Mixed-type list (needs creation)
 
 **Remember:**
 - YZ_13.md has everything about arrays

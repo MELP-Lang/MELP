@@ -88,6 +88,9 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
                         if (*ptr == ',') ptr++;
                     }
                     
+                    // Register array with length for bounds checking
+                    function_register_array_var(func, decl->name, element_count, 1);
+                    
                     // Allocate array via TTO runtime
                     fprintf(output, "    # Allocate array with %d elements\n", element_count);
                     fprintf(output, "    movq $%d, %%rdi      # count\n", element_count);
@@ -216,6 +219,24 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
                 // Step 3: Compute element offset based on index type
                 if (access->index_type == 0) {
                     // Constant index: arr[0] = value
+                    // Bounds check (compile-time known)
+                    int arr_length = function_get_array_length(func, access->collection_name);
+                    if (arr_length > 0 && access->index.const_index >= arr_length) {
+                        fprintf(output, "    # COMPILE ERROR: Index %d >= length %d\n", 
+                                access->index.const_index, arr_length);
+                    } else if (arr_length > 0) {
+                        // Runtime bounds check for safety
+                        fprintf(output, "    # Bounds check: index=%d, length=%d\n", 
+                                access->index.const_index, arr_length);
+                        fprintf(output, "    movq $%d, %%rcx      # Load index to register\n", access->index.const_index);
+                        fprintf(output, "    cmpq $%d, %%rcx      # Compare index with length\n", arr_length);
+                        fprintf(output, "    jl .bounds_ok_%p     # Jump if within bounds\n", (void*)access);
+                        fprintf(output, "    movq $%d, %%rdi      # index\n", access->index.const_index);
+                        fprintf(output, "    movq $%d, %%rsi      # length\n", arr_length);
+                        fprintf(output, "    leaq .str_arr_%s(%%rip), %%rdx # array name\n", access->collection_name);
+                        fprintf(output, "    call mlp_panic_array_bounds\n");
+                        fprintf(output, ".bounds_ok_%p:\n", (void*)access);
+                    }
                     int elem_offset = access->index.const_index * 8;
                     fprintf(output, "    popq %%r8            # Restore value\n");
                     fprintf(output, "    movq %%r8, %d(%%rbx)  # Store at index %d\n", 
@@ -223,14 +244,50 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
                 } else if (access->index_type == 1) {
                     // Variable index: arr[i] = value
                     int idx_offset = function_get_var_offset(func, access->index.var_index);
+                    int arr_length = function_get_array_length(func, access->collection_name);
+                    
                     fprintf(output, "    movq %d(%%rbp), %%rcx # Load index variable\n", idx_offset);
+                    
+                    // Runtime bounds check
+                    if (arr_length > 0) {
+                        fprintf(output, "    # Bounds check: index variable vs length=%d\n", arr_length);
+                        fprintf(output, "    cmpq $%d, %%rcx      # Compare index with length\n", arr_length);
+                        fprintf(output, "    jl .bounds_ok_%p     # Jump if within bounds\n", (void*)access);
+                        fprintf(output, "    movq %%rcx, %%rdi    # index (already in rcx)\n");
+                        fprintf(output, "    movq $%d, %%rsi      # length\n", arr_length);
+                        fprintf(output, "    leaq .str_arr_%s(%%rip), %%rdx # array name\n", access->collection_name);
+                        fprintf(output, "    call mlp_panic_array_bounds\n");
+                        fprintf(output, ".bounds_ok_%p:\n", (void*)access);
+                    }
+                    
                     fprintf(output, "    shlq $3, %%rcx       # index * 8\n");
                     fprintf(output, "    popq %%r8            # Restore value\n");
                     fprintf(output, "    movq %%r8, (%%rbx,%%rcx) # Store at computed offset\n");
                 } else if (access->index_type == 2) {
-                    // Expression index: arr[x+1] = value (TODO)
-                    fprintf(output, "    # TODO: Expression index not yet supported\n");
-                    fprintf(output, "    popq %%r8            # Clean stack\n");
+                    // Expression index: arr[x+1] = value
+                    ArithmeticExpr* idx_expr = (ArithmeticExpr*)access->index.expr_index;
+                    int arr_length = function_get_array_length(func, access->collection_name);
+                    
+                    fprintf(output, "    # Expression index: evaluate to get offset\n");
+                    arithmetic_generate_code(output, idx_expr, func);
+                    // Index result in %r8
+                    fprintf(output, "    movq %%r8, %%rcx     # Move index to rcx\n");
+                    
+                    // Runtime bounds check
+                    if (arr_length > 0) {
+                        fprintf(output, "    # Bounds check: expression index vs length=%d\n", arr_length);
+                        fprintf(output, "    cmpq $%d, %%rcx      # Compare index with length\n", arr_length);
+                        fprintf(output, "    jl .bounds_ok_%p     # Jump if within bounds\n", (void*)access);
+                        fprintf(output, "    movq %%rcx, %%rdi    # index\n");
+                        fprintf(output, "    movq $%d, %%rsi      # length\n", arr_length);
+                        fprintf(output, "    leaq .str_arr_%s(%%rip), %%rdx # array name\n", access->collection_name);
+                        fprintf(output, "    call mlp_panic_array_bounds\n");
+                        fprintf(output, ".bounds_ok_%p:\n", (void*)access);
+                    }
+                    
+                    fprintf(output, "    shlq $3, %%rcx       # index * 8\n");
+                    fprintf(output, "    popq %%r8            # Restore value\n");
+                    fprintf(output, "    movq %%r8, (%%rbx,%%rcx) # Store at computed offset\n");
                 }
             }
             break;

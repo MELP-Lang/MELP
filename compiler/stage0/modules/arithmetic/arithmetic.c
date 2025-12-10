@@ -1,6 +1,7 @@
 #include "arithmetic.h"
 #include "../codegen_context/codegen_context.h"
 #include "../array/array.h"  // YZ_14: For IndexAccess
+#include "../array/array_parser.h"  // YZ_17: For collection_free
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -41,6 +42,11 @@ void arithmetic_expr_free(ArithmeticExpr* expr) {
             arithmetic_expr_free((ArithmeticExpr*)expr->array_access->index.expr_index);
         }
         free(expr->array_access);
+    }
+    
+    // YZ_17: Free collection
+    if (expr->collection) {
+        collection_free(expr->collection);
     }
     
     // Phase 2.3: Free TTO info

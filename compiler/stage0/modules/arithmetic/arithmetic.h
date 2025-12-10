@@ -43,6 +43,10 @@ typedef struct ArithmeticExpr {
     int is_array_access;          // 1 if this is array indexing (arr[i])
     IndexAccess* array_access;    // Array access details (if is_array_access)
     
+    // ========== YZ_17: Collection Literals (Array/List/Tuple) ==========
+    int is_collection;            // 1 if this is a collection literal
+    Collection* collection;       // Collection details (if is_collection)
+    
     // ========== Phase 2.3: TTO Type Propagation ==========
     TTOTypeInfo* tto_info;        // TTO analysis result (heap allocated)
     bool tto_analyzed;            // Has TTO analysis been performed?

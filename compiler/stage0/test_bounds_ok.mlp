@@ -1,0 +1,5 @@
+function main() returns numeric
+    numeric[] arr = [10, 20, 30]
+    numeric x = arr[2]
+    return x
+end function

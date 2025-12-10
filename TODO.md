@@ -345,53 +345,98 @@ Eğer TTO'yu anlamadan TODO'ya başlarsan, çalışan sistemi bozabilirsin.
 
 ---
 
-## 🎯 Phase 3: Array/List/Tuple Support 100% COMPLETE!
-**Responsible:** YZ_13, YZ_14, YZ_15   
+## 🎯 Phase 3: Array/List/Tuple Support & Boolean Operations 🎉
+**Responsible:** YZ_13, YZ_14, YZ_15, YZ_16, YZ_17   
 **Priority:** ⭐⭐ HIGH  
-**Status:**  FULLY COMPLETE - All core array features working!
+**Status:** ARRAYS 100% ✅ | BOOLEANS 100% ✅ | LISTS/TUPLES 70%/50% 🟨
+
+**Arrays:** FULLY COMPLETE - All core array features working!
+**Booleans:** FULLY COMPLETE - All boolean operations working! ⭐ NEW!
 
 **Note:** YZ_05 notes indicated array module already had parser/codegen/runtime started!
 
-- [x] **Array Literals**  (YZ_13 completed - 90 min)
+- [x] **Array Literals** ✅ (YZ_13 completed - 90 min)
   - Syntax: `numeric[] arr = [1, 2, 3]`
   - Codegen: Call tto_array_alloc()
   - Test: Create arrays with multiple elements
   - **Status:** Working! Multiple arrays tested 
 
-- [x] **Array Access (Read)**  (YZ_14 completed - 2 hours)
+- [x] **Array Access (Read)** ✅ (YZ_14 completed - 2 hours)
   - Syntax: `x = arr[0]` and `x = arr[i]`
   - Parser: Postfix `[...]` operator in arithmetic_parser.c
   - Codegen: Stack-based pointer access with offsets
   - Test: Constant and variable indices working
   - **Status:** Working! `arr[0]`, `arr[i]` both tested 
 
-- [x] **Array Access (Write)**  (YZ_15 completed - 1.5 hours)
+- [x] **Array Access (Write)** ✅ (YZ_15 completed - 1.5 hours)
   - Syntax: `arr[i] = value`
   - Parser: Extended statement_parser.c for assignment pattern
   - Codegen: Store instruction generation in statement_codegen.c
   - Test: Constant (`arr[0] = 100`) and variable (`arr[i] = 50`) ✅
   - **Status:** COMPLETE! All tests passing! 🎉
 
-- [ ] **Expression Index** (1 hour) ⏳ OPTIONAL
-  - Syntax: `arr[x+1] = value`
-  - Parser: Already supports it
-  - Codegen: Easy addition to statement_codegen.c
+- [x] **Expression Index** ✅ (YZ_17 completed - 1.5 hours)
+  - Syntax: `arr[x+1] = value`, `y = arr[i+j]`
+  - Parser: Lookahead disambiguation (variable vs expression)
+  - Codegen: Evaluate expression, then use as offset
+  - Tests: Read (`arr[i+1]`), Write (`arr[i+1] = 100`), Full test ✅
+  - **Status:** COMPLETE! All expression indices working! 🎉
 
-- [ ] **Bounds Checking** (2 hours) ⏳ SAFETY FEATURE
+- [x] **Bounds Checking** ✅ (YZ_17 completed - 2 hours)
   - Runtime validation of array indices
   - Prevent segmentation faults
+  - Panic with exit code 42 on out-of-bounds access
+  - Tests: `arr[5]` with length 3 → Panic ✅, `arr[2]` with length 3 → OK ✅
+  - **Status:** COMPLETE! Safe array access! 🎉
 
-- [ ] **Lists (Heterogeneous)** (2 hours) ⏳ LOWER PRIORITY
+- [x] **Boolean Type** ✅ (YZ_16 completed)
+  - Syntax: `boolean flag = true`
+  - Literals: `true`, `false`
+  - Variables: Boolean type support in parser/codegen
+  - **Status:** COMPLETE! Boolean type working! 🎉
+
+- [x] **If-Boolean** ✅ (YZ_18 completed - 20 min) ⭐ NEW!
+  - Syntax: `if flag then` (boolean variable as condition)
+  - Parser: Lookahead for `then` keyword in comparison_parser.c
+  - Codegen: Internally converts to `flag == 1`
+  - Tests: `if true then`, `if flag then` ✅
+  - **Status:** COMPLETE! Boolean conditions working! 🎉
+
+- [x] **Boolean AND/OR** ✅ (YZ_18 completed - 40 min) ⭐ NEW!
+  - Syntax: `result = a and b`, `result = a or b`
+  - Method: Bitwise operations (andq, orq)
+  - Works: Reused arithmetic parser's existing bitwise support
+  - Tests: `true and false → 0`, `true or false → 1` ✅
+  - **Status:** COMPLETE! Boolean operations working! 🎉
+
+- [x] **Boolean NOT** ✅ (YZ_18 completed - 40 min) ⭐ NEW!
+  - Syntax: `result = not a`
+  - Method: XOR with 1 (x xor 1 flips boolean)
+  - Parser: Unary operator in arithmetic_parser.c
+  - Tests: `not false → 1`, `not true → 0` ✅
+  - **Status:** COMPLETE! NOT operation working! 🎉
+
+- [x] **Lists (Heterogeneous)** (2 hours) ✅ 85% COMPLETE (YZ_17 + YZ_19)
   - Syntax: `(1; "hello"; 3.14;)`
-  - Runtime: tto_list_alloc() already exists
-  - Test: Mixed-type collections
+  - ✅ Parser: array_parse_list_literal() exists and works
+  - ✅ Codegen: codegen_list_literal() uses AT&T syntax + stack-safe (YZ_19 fixed!)
+  - ✅ Runtime: tto_list_alloc(), tto_list_set() fully implemented
+  - ✅ Integration: Added to ArithmeticExpr (is_collection field), can parse in expressions
+  - ✅ Testing: test_list_basic.mlp works! (Exit: 100) ✅
+  - ❌ Missing: Variable type syntax (like `list numbers`)
+  - ❌ Missing: Mixed-type testing (infrastructure ready)
+  - **Status:** 85% complete - Basic lists working! Just needs type declarations
 
-- [ ] **Tuples (Immutable)** (1 hour) ⏳ LOWER PRIORITY
+- [ ] **Tuples (Immutable)** (1 hour) ⏳ 60% COMPLETE (YZ_17 + YZ_19)
   - Syntax: `<x, y>`
-  - Runtime: tto_tuple_alloc() already exists
-  - Test: Pair and triple tuples
+  - ✅ Runtime: tto_tuple_alloc() already exists
+  - ✅ Parser: array_parse_tuple_literal() exists
+  - ✅ Codegen: codegen_tuple_literal() AT&T syntax ready (YZ_19 fixed!)
+  - ❌ Missing: Variable initialization syntax (`tuple myPair = <1, 2>`)
+  - ❌ Missing: Integration into variable_parser
+  - **Status:** 60% complete - Codegen ready, needs variable parser (20-30 min)
 
-**Deliverable:** Core Arrays ✅ COMPLETE! Lists/Tuples optional.
+**Deliverable:** Core Arrays ✅ COMPLETE! Lists 85% ✅, Tuples 60% 🟨 - almost there!
 
 ---
 
@@ -410,11 +455,12 @@ Eğer TTO'yu anlamadan TODO'ya başlarsan, çalışan sistemi bozabilirsin.
   - Codegen: Store as 1/0 (movq $1 / movq $0)
   - Test: `boolean flag = true` → Exit: 1 ✅
 
-- [ ] **Boolean Operations** (60 min) ⏳ NEXT PRIORITY
-  - Logical: `and`, `or`, `not`
-  - Tokens exist: TOKEN_AND, TOKEN_OR, TOKEN_NOT
-  - Need: logical_parser.c + logical_codegen.c
-  - Test: `boolean result = a and b`
+- [x] **Boolean Operations** ✅ (YZ_18 completed - 1.5 hours) 🎉
+  - If-Boolean: `if flag then` works (lookahead for `then`)
+  - AND/OR: Bitwise operations (andq, orq) - `a and b`, `a or b`
+  - NOT: XOR with 1 implementation - `not a`
+  - Tests: All 6 boolean tests passing ✅
+  - **Result:** Complete boolean support working!
 
 **Tests:**
 - ✅ test_boolean.mlp - Basic boolean → Exit: 1
@@ -539,8 +585,8 @@ Eğer TTO'yu anlamadan TODO'ya başlarsan, çalışan sistemi bozabilirsin.
 | **Linker Fix** | ⭐⭐⭐ | 0.5-1h | ✅ **COMPLETE** (YZ_08) |
 | **For Loops** | ⭐⭐ | 1-2h | ✅ **COMPLETE** (YZ_12) |
 | **Arrays** | ⭐⭐ | 4-6h | ✅ **COMPLETE** (YZ_13, YZ_14, YZ_15) |
-| **Booleans** | ⭐⭐ | 1-2h | ✅ **COMPLETE** (YZ_16 - Type done, Ops next) |
-| Boolean Ops | ⭐ | 1h | ⏳ Next (and/or/not) |
+| **Booleans** | ⭐⭐ | 1-2h | ✅ **COMPLETE** (YZ_16 + YZ_18) |
+| Lists/Tuples | ⭐ | 2-3h | ⏳ Next (70%/50% done) |
 | Stdlib | ⭐ | 2-3h | 🚧 Partial |
 | Errors | ⭐ | 2-3h | ⏳ |
 | Optimization | ⭐ | 3-5h | ⏳ |
@@ -571,8 +617,11 @@ Eğer TTO'yu anlamadan TODO'ya başlarsan, çalışan sistemi bozabilirsin.
 - ✅ **YZ_14** - Array indexing (read) 🎉
 - ✅ **YZ_15** - Array assignment (write) 🎉
 - ✅ **YZ_16** - Boolean type (true/false literals) 🎉
+- ✅ **YZ_17** - Array expression index (arr[i+1]) + Bounds checking 🎉
+- ✅ **YZ_18** - Boolean operations (if-boolean, and/or/not) 🎉
+- ✅ **YZ_19** - Lists basic functionality (literals working!) 🎉
 
-**Next:** YZ_17 - Boolean operations (and/or/not) - 1 hour
+**Next:** YZ_20 - Tuple variable syntax OR other features
 
 ---
 
@@ -608,6 +657,6 @@ Eğer TTO'yu anlamadan TODO'ya başlarsan, çalışan sistemi bozabilirsin.
 
 ---
 
-**Last Updated:** 10 Aralık 2025, 04:00 by YZ_16  
-**Next AI:** YZ_17 (Boolean operations - and/or/not)  
-**Estimated Completion:** Stage 0 MVP ✅ ACHIEVED! Production ready in ~8 hours
+**Last Updated:** 10 Aralık 2025, 08:00 by YZ_19  
+**Next AI:** YZ_20 (Tuple variable syntax or other features)  
+**Estimated Completion:** Stage 0 MVP ✅ ACHIEVED! Production ready in ~6 hours

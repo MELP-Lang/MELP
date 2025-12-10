@@ -138,19 +138,76 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
             
             if (access->index_type == 0) {
                 // Constant index
+                int arr_length = function_get_array_length(func, access->collection_name);
                 fprintf(output, "    movq %d(%%rbp), %%rbx  # Load array pointer from stack\n", offset);
+                
+                // Bounds check
+                if (arr_length > 0) {
+                    fprintf(output, "    # Bounds check: index=%d, length=%d\n", 
+                            access->index.const_index, arr_length);
+                    if (access->index.const_index >= arr_length) {
+                        fprintf(output, "    # COMPILE ERROR: Index %d >= length %d!\n", 
+                                access->index.const_index, arr_length);
+                    }
+                    fprintf(output, "    movq $%d, %%rcx      # Load index to register\n", access->index.const_index);
+                    fprintf(output, "    cmpq $%d, %%rcx      # Compare index with length\n", arr_length);
+                    fprintf(output, "    jl .bounds_ok_read_%p  # Jump if within bounds\n", (void*)access);
+                    fprintf(output, "    movq $%d, %%rdi      # index\n", access->index.const_index);
+                    fprintf(output, "    movq $%d, %%rsi      # length\n", arr_length);
+                    fprintf(output, "    xorq %%rdx, %%rdx    # NULL for array name\n");
+                    fprintf(output, "    call mlp_panic_array_bounds\n");
+                    fprintf(output, ".bounds_ok_read_%p:\n", (void*)access);
+                }
+                
                 int elem_offset = access->index.const_index * 8;
                 fprintf(output, "    movq %d(%%rbx), %%rax  # Get element at index %d\n", elem_offset, access->index.const_index);
             } else if (access->index_type == 1) {
                 // Variable index
                 int idx_offset = function_get_var_offset(func, access->index.var_index);
+                int arr_length = function_get_array_length(func, access->collection_name);
+                
                 fprintf(output, "    movq %d(%%rbp), %%rbx  # Load array pointer\n", offset);
                 fprintf(output, "    movq %d(%%rbp), %%rcx  # Load index value\n", idx_offset);
+                
+                // Bounds check
+                if (arr_length > 0) {
+                    fprintf(output, "    # Bounds check: variable index vs length=%d\n", arr_length);
+                    fprintf(output, "    cmpq $%d, %%rcx      # Compare index with length\n", arr_length);
+                    fprintf(output, "    jl .bounds_ok_read_%p  # Jump if within bounds\n", (void*)access);
+                    fprintf(output, "    movq %%rcx, %%rdi    # index\n");
+                    fprintf(output, "    movq $%d, %%rsi      # length\n", arr_length);
+                    fprintf(output, "    xorq %%rdx, %%rdx    # NULL for array name\n");
+                    fprintf(output, "    call mlp_panic_array_bounds\n");
+                    fprintf(output, ".bounds_ok_read_%p:\n", (void*)access);
+                }
+                
                 fprintf(output, "    shlq $3, %%rcx  # index * 8\n");
                 fprintf(output, "    movq (%%rbx,%%rcx), %%rax  # Get element\n");
-            } else {
-                // Expression index - TODO
-                fprintf(output, "    # TODO: Expression index\n");
+            } else if (access->index_type == 2) {
+                // Expression index: arr[x+1]
+                ArithmeticExpr* idx_expr = (ArithmeticExpr*)access->index.expr_index;
+                int arr_length = function_get_array_length(func, access->collection_name);
+                
+                fprintf(output, "    # Expression index: evaluate to get offset\n");
+                fprintf(output, "    movq %d(%%rbp), %%rbx  # Load array pointer\n", offset);
+                // Evaluate index expression to r8
+                generate_expr_code(output, idx_expr, 0, func);  // target_reg=0 → r8
+                fprintf(output, "    movq %%r8, %%rcx     # Move index to rcx\n");
+                
+                // Bounds check
+                if (arr_length > 0) {
+                    fprintf(output, "    # Bounds check: expression index vs length=%d\n", arr_length);
+                    fprintf(output, "    cmpq $%d, %%rcx      # Compare index with length\n", arr_length);
+                    fprintf(output, "    jl .bounds_ok_read_%p  # Jump if within bounds\n", (void*)access);
+                    fprintf(output, "    movq %%rcx, %%rdi    # index\n");
+                    fprintf(output, "    movq $%d, %%rsi      # length\n", arr_length);
+                    fprintf(output, "    xorq %%rdx, %%rdx    # NULL for array name\n");
+                    fprintf(output, "    call mlp_panic_array_bounds\n");
+                    fprintf(output, ".bounds_ok_read_%p:\n", (void*)access);
+                }
+                
+                fprintf(output, "    shlq $3, %%rcx       # index * 8\n");
+                fprintf(output, "    movq (%%rbx,%%rcx), %%rax  # Get element\n");
             }
         } else {
             fprintf(output, "    # Error: No function context for array access\n");
@@ -158,6 +215,15 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
         
         // Result is in %rax, move to target register
         fprintf(output, "    movq %%rax, %%r%d  # Array element value\n", target_reg + 8);
+        return;
+    }
+    
+    // YZ_17: Collection literals (Array, List, Tuple)
+    if (expr->is_collection && expr->collection) {
+        fprintf(output, "    # Collection literal\n");
+        codegen_collection(output, expr->collection);
+        // Result is in rax, move to target register
+        fprintf(output, "    movq %%rax, %%r%d  # Collection pointer\n", target_reg + 8);
         return;
     }
     

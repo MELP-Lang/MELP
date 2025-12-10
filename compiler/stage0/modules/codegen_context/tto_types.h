@@ -26,6 +26,8 @@ typedef enum {
     // Other types
     INTERNAL_TYPE_BOOLEAN,
     INTERNAL_TYPE_ARRAY,
+    INTERNAL_TYPE_LIST,         // YZ_17: Heterogeneous collection
+    INTERNAL_TYPE_TUPLE,        // YZ_17: Immutable pair/triple
     INTERNAL_TYPE_STRUCT,
     INTERNAL_TYPE_FUNCTION
 } InternalType;

@@ -10,7 +10,9 @@ typedef enum {
     VAR_STRING,
     VAR_BOOLEAN,
     VAR_POINTER,     // Pointer type (numeric*, text*)
-    VAR_ARRAY        // Array type (numeric[], text[])
+    VAR_ARRAY,       // Array type (numeric[], text[])
+    VAR_LIST,        // List type () - heterogeneous, mutable
+    VAR_TUPLE        // Tuple type <> - heterogeneous, immutable
 } VarType;
 
 // Internal numeric representation (transparent to user)

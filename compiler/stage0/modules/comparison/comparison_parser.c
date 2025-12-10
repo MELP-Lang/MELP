@@ -30,6 +30,35 @@ ComparisonExpr* comparison_parse_expression_stateless(Lexer* lexer, Token* first
     expr->next = NULL;
     expr->is_negated = 0;
     
+    // YZ_18: Handle boolean literals and variables (if flag syntax)
+    if (first_token->type == TOKEN_TRUE || first_token->type == TOKEN_FALSE) {
+        // Boolean literal: if true or if false
+        expr->left_value = strdup(first_token->value);
+        expr->left_is_literal = 1;
+        expr->op = CMP_EQUAL;  // Treat as "boolean == 1" implicitly
+        expr->right_value = strdup("1");
+        expr->right_is_literal = 1;
+        return expr;  // Single boolean, no comparison operator
+    } else if (first_token->type == TOKEN_IDENTIFIER) {
+        // Check if this is a boolean variable without comparison operator
+        Token* lookahead = lexer_next_token(lexer);
+        if (lookahead && (lookahead->type == TOKEN_THEN || lookahead->type == TOKEN_AND || 
+                          lookahead->type == TOKEN_OR || lookahead->type == TOKEN_RPAREN)) {
+            // Boolean variable: if flag then...
+            lexer_unget_token(lexer, lookahead);
+            expr->left_value = strdup(first_token->value);
+            expr->left_is_literal = 0;
+            expr->op = CMP_EQUAL;  // Treat as "flag == 1" implicitly
+            expr->right_value = strdup("1");
+            expr->right_is_literal = 1;
+            return expr;
+        }
+        // Not a boolean condition, continue with normal comparison
+        if (lookahead) {
+            lexer_unget_token(lexer, lookahead);
+        }
+    }
+    
     // Parse left operand (use first_token)
     if (first_token->type == TOKEN_NUMBER) {
         expr->left_value = strdup(first_token->value);

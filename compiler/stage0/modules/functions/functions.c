@@ -108,6 +108,8 @@ void function_register_local_var_with_type(FunctionDeclaration* func, const char
     LocalVariable* var = malloc(sizeof(LocalVariable));
     var->name = strdup(name);
     var->is_numeric = is_numeric;  // TTO: 1=numeric, 0=text
+    var->is_array = 0;             // Default: not an array
+    var->array_length = 0;         // Default: no length
     
     // Assign stack offset: -8, -16, -24, ...
     func->local_var_count++;
@@ -151,6 +153,53 @@ int function_get_var_is_numeric(FunctionDeclaration* func, const char* name) {
     }
     
     return 1;  // Not found, assume numeric
+}
+
+// Register array variable with length
+void function_register_array_var(FunctionDeclaration* func, const char* name, int length, int is_numeric) {
+    if (!func || !name) return;
+    
+    // Check if variable already exists
+    LocalVariable* existing = func->local_vars;
+    while (existing) {
+        if (strcmp(existing->name, name) == 0) {
+            // Update array info
+            existing->is_array = 1;
+            existing->array_length = length;
+            return;
+        }
+        existing = existing->next;
+    }
+    
+    // Create new array variable entry
+    LocalVariable* var = malloc(sizeof(LocalVariable));
+    var->name = strdup(name);
+    var->is_numeric = is_numeric;
+    var->is_array = 1;
+    var->array_length = length;
+    
+    // Assign stack offset
+    func->local_var_count++;
+    var->stack_offset = -8 * func->local_var_count;
+    
+    // Add to front
+    var->next = func->local_vars;
+    func->local_vars = var;
+}
+
+// Get array length
+int function_get_array_length(FunctionDeclaration* func, const char* name) {
+    if (!func || !name) return 0;
+    
+    LocalVariable* var = func->local_vars;
+    while (var) {
+        if (strcmp(var->name, name) == 0 && var->is_array) {
+            return var->array_length;
+        }
+        var = var->next;
+    }
+    
+    return 0;  // Not found or not an array
 }
 
 // Check if function is a builtin (stdlib function)

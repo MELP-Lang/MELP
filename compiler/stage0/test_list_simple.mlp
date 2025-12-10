@@ -1,0 +1,16 @@
+function main() returns numeric
+    # List literal test (heterogeneous)
+    # Syntax: (element1; element2; element3;)
+    # Note: trailing semicolon required
+    
+    # For now, let's just test with numeric values
+    # Future: support mixed types like (1; "hello"; 3.14;)
+    
+    numeric x = 10
+    numeric y = 20
+    numeric z = 30
+    
+    # Will implement: list my_list = (x; y; z;)
+    # For now, just return a value
+    return 42
+end function

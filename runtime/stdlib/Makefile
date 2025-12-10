@@ -9,7 +9,7 @@ ARFLAGS = rcs
 LIB = libmlp_stdlib.a
 
 # Sources
-SOURCES = mlp_io.c mlp_string.c
+SOURCES = mlp_io.c mlp_string.c mlp_panic.c
 OBJECTS = $(SOURCES:.c=.o)
 
 all: $(LIB)
