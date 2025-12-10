@@ -11,6 +11,7 @@ SOURCES = statement_standalone.c \
           statement.c \
           statement_parser.c \
           statement_codegen.c \
+          statement_optimize.c \
           ../parser_core/parser_core.c \
           ../expression/expression.c \
           ../expression/expression_parser.c \
@@ -46,6 +47,7 @@ OBJECTS = statement_standalone.o \
           statement.o \
           statement_parser.o \
           statement_codegen.o \
+          statement_optimize.o \
           ../parser_core/parser_core.o \
           ../expression/expression.o \
           ../expression/expression_parser.o \

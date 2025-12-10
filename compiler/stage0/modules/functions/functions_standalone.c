@@ -33,6 +33,48 @@ static char* read_file(const char* path) {
     return content;
 }
 
+// Error Recovery: Skip tokens until we find a synchronization point
+// Returns 1 if sync point found, 0 if EOF reached
+static int skip_to_sync_point(Lexer* lexer) {
+    Token* tok;
+    int depth = 0;  // Track nesting depth
+    
+    while ((tok = lexer_next_token(lexer)) != NULL) {
+        TokenType type = tok->type;
+        token_free(tok);
+        
+        if (type == TOKEN_EOF) {
+            return 0;  // No more input
+        }
+        
+        // Track function nesting
+        if (type == TOKEN_FUNCTION) {
+            if (depth == 0) {
+                // Found start of new function - unget and return
+                // We can't really "unget" so we'll handle this differently
+                return 1;
+            }
+            depth++;
+        } else if (type == TOKEN_END) {
+            // Peek next token to see if it's "function"
+            Token* next = lexer_next_token(lexer);
+            if (next && next->type == TOKEN_FUNCTION) {
+                token_free(next);
+                if (depth > 0) depth--;
+                if (depth == 0) {
+                    // We've finished a function block, next should be clean
+                    return 1;
+                }
+            } else if (next) {
+                // Not "end function", just some other "end"
+                token_free(next);
+            }
+        }
+    }
+    
+    return 0;  // EOF reached
+}
+
 int main(int argc, char** argv) {
     // Initialize error handling system
     error_init();
@@ -63,14 +105,40 @@ int main(int argc, char** argv) {
         return 1;
     }
     
-    // Parse all functions (STATELESS - no Parser struct needed)
+    // Parse all functions with ERROR RECOVERY
     FunctionDeclaration* functions = NULL;
     FunctionDeclaration* last_func = NULL;
     
     while (1) {
+        // Check if we should stop due to too many errors
+        if (error_should_stop()) {
+            error_hint("Too many errors, stopping compilation");
+            break;
+        }
+        
         FunctionDeclaration* func = parse_function_declaration(lexer);
+        
         if (!func) {
-            break;  // Stop on first error or EOF
+            // Parse failed - check if we should try to recover
+            if (error_should_recover() && !error_should_stop()) {
+                // Enter recovery mode
+                error_enter_recovery();
+                
+                // Skip to next synchronization point (next 'function' or EOF)
+                if (skip_to_sync_point(lexer)) {
+                    // Found sync point, mark recovery and continue
+                    error_mark_recovered();
+                    error_note("Attempting to continue parsing after error...");
+                    continue;
+                }
+            }
+            // No recovery possible or EOF
+            break;
+        }
+        
+        // Successfully parsed a function
+        if (error_in_recovery_mode()) {
+            error_exit_recovery();
         }
         
         if (!functions) {

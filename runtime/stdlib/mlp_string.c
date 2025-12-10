@@ -409,3 +409,193 @@ char* mlp_string_trimEnd(const char* str) {
     
     return result;
 }
+
+// ============================================================================
+// YZ_31: Replace & Split Functions
+// ============================================================================
+
+/**
+ * Replace first occurrence of substring
+ * 
+ * @param str Source string
+ * @param old_substr Substring to find and replace
+ * @param new_substr Replacement string
+ * @return New heap-allocated string with replacement (caller must free)
+ * 
+ * Example:
+ *   string result = replace("hello world", "world", "MELP")  -- "hello MELP"
+ */
+char* mlp_string_replace(const char* str, const char* old_substr, const char* new_substr) {
+    if (!str) return NULL;
+    if (!old_substr || old_substr[0] == '\0') return strdup(str);
+    if (!new_substr) new_substr = "";
+    
+    // Find first occurrence
+    const char* found = strstr(str, old_substr);
+    if (!found) return strdup(str);  // Not found, return copy
+    
+    size_t old_len = strlen(old_substr);
+    size_t new_len = strlen(new_substr);
+    size_t str_len = strlen(str);
+    
+    // Calculate new string length
+    size_t result_len = str_len - old_len + new_len;
+    char* result = malloc(result_len + 1);
+    if (!result) return NULL;
+    
+    // Copy: prefix + new_substr + suffix
+    size_t prefix_len = found - str;
+    memcpy(result, str, prefix_len);
+    memcpy(result + prefix_len, new_substr, new_len);
+    memcpy(result + prefix_len + new_len, found + old_len, str_len - prefix_len - old_len);
+    result[result_len] = '\0';
+    
+    return result;
+}
+
+/**
+ * Replace all occurrences of substring
+ * 
+ * @param str Source string
+ * @param old_substr Substring to find and replace
+ * @param new_substr Replacement string
+ * @return New heap-allocated string with all replacements (caller must free)
+ * 
+ * Example:
+ *   string result = replaceAll("a-b-c", "-", "_")  -- "a_b_c"
+ */
+char* mlp_string_replaceAll(const char* str, const char* old_substr, const char* new_substr) {
+    if (!str) return NULL;
+    if (!old_substr || old_substr[0] == '\0') return strdup(str);
+    if (!new_substr) new_substr = "";
+    
+    size_t old_len = strlen(old_substr);
+    size_t new_len = strlen(new_substr);
+    size_t str_len = strlen(str);
+    
+    // Count occurrences first
+    int count = 0;
+    const char* p = str;
+    while ((p = strstr(p, old_substr)) != NULL) {
+        count++;
+        p += old_len;
+    }
+    
+    if (count == 0) return strdup(str);  // Not found
+    
+    // Calculate new string length
+    size_t result_len = str_len + count * (new_len - old_len);
+    char* result = malloc(result_len + 1);
+    if (!result) return NULL;
+    
+    // Build result string
+    char* dest = result;
+    const char* src = str;
+    while ((p = strstr(src, old_substr)) != NULL) {
+        // Copy prefix
+        size_t prefix_len = p - src;
+        memcpy(dest, src, prefix_len);
+        dest += prefix_len;
+        
+        // Copy replacement
+        memcpy(dest, new_substr, new_len);
+        dest += new_len;
+        
+        src = p + old_len;
+    }
+    
+    // Copy remainder
+    strcpy(dest, src);
+    
+    return result;
+}
+
+/**
+ * Split string by delimiter
+ * 
+ * @param str Source string
+ * @param delimiter Delimiter to split by
+ * @param count Output: number of parts
+ * @return Array of heap-allocated strings (caller must free with mlp_string_split_free)
+ * 
+ * Example:
+ *   int count;
+ *   char** parts = split("a,b,c", ",", &count);  -- ["a", "b", "c"], count=3
+ */
+char** mlp_string_split(const char* str, const char* delimiter, int* count) {
+    if (!str || !delimiter || !count) {
+        if (count) *count = 0;
+        return NULL;
+    }
+    
+    *count = 0;
+    size_t delim_len = strlen(delimiter);
+    
+    // Handle empty delimiter - return whole string as single element
+    if (delim_len == 0) {
+        char** result = malloc(sizeof(char*));
+        if (!result) return NULL;
+        result[0] = strdup(str);
+        *count = 1;
+        return result;
+    }
+    
+    // Count parts first
+    int parts = 1;
+    const char* p = str;
+    while ((p = strstr(p, delimiter)) != NULL) {
+        parts++;
+        p += delim_len;
+    }
+    
+    // Allocate array
+    char** result = malloc(parts * sizeof(char*));
+    if (!result) return NULL;
+    
+    // Split the string
+    int idx = 0;
+    const char* start = str;
+    p = str;
+    
+    while ((p = strstr(start, delimiter)) != NULL) {
+        size_t part_len = p - start;
+        result[idx] = malloc(part_len + 1);
+        if (!result[idx]) {
+            // Cleanup on failure
+            for (int i = 0; i < idx; i++) free(result[i]);
+            free(result);
+            *count = 0;
+            return NULL;
+        }
+        memcpy(result[idx], start, part_len);
+        result[idx][part_len] = '\0';
+        idx++;
+        start = p + delim_len;
+    }
+    
+    // Last part (after final delimiter)
+    result[idx] = strdup(start);
+    if (!result[idx]) {
+        for (int i = 0; i < idx; i++) free(result[i]);
+        free(result);
+        *count = 0;
+        return NULL;
+    }
+    
+    *count = parts;
+    return result;
+}
+
+/**
+ * Free split result
+ * 
+ * @param parts Array returned by mlp_string_split
+ * @param count Number of parts
+ */
+void mlp_string_split_free(char** parts, int count) {
+    if (!parts) return;
+    for (int i = 0; i < count; i++) {
+        free(parts[i]);
+    }
+    free(parts);
+}

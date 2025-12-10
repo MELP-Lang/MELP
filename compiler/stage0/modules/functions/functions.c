@@ -404,6 +404,10 @@ int function_is_builtin(const char* name) {
     if (strcmp(name, "println") == 0) return 1;
     if (strcmp(name, "print") == 0) return 1;
     
+    // YZ_31: Input functions
+    if (strcmp(name, "input") == 0) return 1;
+    if (strcmp(name, "input_numeric") == 0) return 1;
+    
     // Conversion functions
     if (strcmp(name, "toString") == 0) return 1;
     
@@ -418,6 +422,11 @@ int function_is_builtin(const char* name) {
     if (strcmp(name, "trim") == 0) return 1;
     if (strcmp(name, "trimStart") == 0) return 1;
     if (strcmp(name, "trimEnd") == 0) return 1;
+    
+    // YZ_31: Replace & Split
+    if (strcmp(name, "replace") == 0) return 1;
+    if (strcmp(name, "replaceAll") == 0) return 1;
+    if (strcmp(name, "split") == 0) return 1;
     
     return 0;
 }

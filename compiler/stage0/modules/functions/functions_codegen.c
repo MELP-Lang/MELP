@@ -352,6 +352,52 @@ void function_generate_call(FILE* output, FunctionCall* call) {
             }
             return;
         }
+        
+        // YZ_31: Input functions
+        
+        // input() - read string from stdin (no arguments)
+        if (strcmp(call->function_name, "input") == 0) {
+            if (call->arg_count == 0) {
+                // No prompt - just call mlp_input()
+                fprintf(output, "    # input: read string from stdin\n");
+                fprintf(output, "    call mlp_input\n");
+                fprintf(output, "    movq %%rax, %%r8     # Result (string pointer) in %%r8\n");
+            } else if (call->arg_count == 1) {
+                // With prompt - call mlp_input_prompt(prompt)
+                fprintf(output, "    # input: read string with prompt\n");
+                if (call->arguments && call->arguments[0]) {
+                    expression_generate_code(output, call->arguments[0], NULL);
+                    fprintf(output, "    movq %%r8, %%rdi     # arg1: prompt string\n");
+                    fprintf(output, "    call mlp_input_prompt\n");
+                    fprintf(output, "    movq %%rax, %%r8     # Result (string pointer) in %%r8\n");
+                }
+            } else {
+                fprintf(output, "    # ERROR: input() accepts 0 or 1 arguments\n");
+            }
+            return;
+        }
+        
+        // input_numeric() - read numeric from stdin
+        if (strcmp(call->function_name, "input_numeric") == 0) {
+            if (call->arg_count == 0) {
+                // No prompt - just call mlp_input_numeric()
+                fprintf(output, "    # input_numeric: read number from stdin\n");
+                fprintf(output, "    call mlp_input_numeric\n");
+                fprintf(output, "    movq %%rax, %%r8     # Result (int64) in %%r8\n");
+            } else if (call->arg_count == 1) {
+                // With prompt - call mlp_input_numeric_prompt(prompt)
+                fprintf(output, "    # input_numeric: read number with prompt\n");
+                if (call->arguments && call->arguments[0]) {
+                    expression_generate_code(output, call->arguments[0], NULL);
+                    fprintf(output, "    movq %%r8, %%rdi     # arg1: prompt string\n");
+                    fprintf(output, "    call mlp_input_numeric_prompt\n");
+                    fprintf(output, "    movq %%rax, %%r8     # Result (int64) in %%r8\n");
+                }
+            } else {
+                fprintf(output, "    # ERROR: input_numeric() accepts 0 or 1 arguments\n");
+            }
+            return;
+        }
     }
     
     // Standard user-defined function call

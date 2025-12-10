@@ -149,3 +149,55 @@ void mlp_print_bool(int value) {
 char* mlp_toString_bool(int value) {
     return strdup(value ? "true" : "false");
 }
+
+// ============================================================================
+// Input Functions (YZ_31 - Phase 6 completion)
+// ============================================================================
+
+// Read a line of text from stdin
+// Returns: dynamically allocated string (caller must free)
+char* mlp_input(void) {
+    char buffer[1024];
+    
+    if (fgets(buffer, sizeof(buffer), stdin) == NULL) {
+        return strdup("");  // EOF or error
+    }
+    
+    // Remove trailing newline if present
+    size_t len = strlen(buffer);
+    if (len > 0 && buffer[len - 1] == '\n') {
+        buffer[len - 1] = '\0';
+    }
+    
+    return strdup(buffer);
+}
+
+// Read a line with prompt
+char* mlp_input_prompt(const char* prompt) {
+    if (prompt) {
+        printf("%s", prompt);
+        fflush(stdout);
+    }
+    return mlp_input();
+}
+
+// Read a numeric value from stdin
+int64_t mlp_input_numeric(void) {
+    char buffer[64];
+    
+    if (fgets(buffer, sizeof(buffer), stdin) == NULL) {
+        return 0;  // EOF or error
+    }
+    
+    // Parse as integer
+    return atoll(buffer);
+}
+
+// Read a numeric with prompt
+int64_t mlp_input_numeric_prompt(const char* prompt) {
+    if (prompt) {
+        printf("%s", prompt);
+        fflush(stdout);
+    }
+    return mlp_input_numeric();
+}

@@ -1,4 +1,5 @@
 #include "arithmetic_parser.h"
+#include "arithmetic_optimize.h"  // YZ_32: Constant folding
 #include "../codegen_context/codegen_context.h"
 #include "../array/array_parser.h"  // YZ_14: For array index access
 #include <stdlib.h>
@@ -659,7 +660,14 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
             strcmp(identifier, "toLowerCase") == 0 ||
             strcmp(identifier, "trim") == 0 ||
             strcmp(identifier, "trimStart") == 0 ||
-            strcmp(identifier, "trimEnd") == 0) {
+            strcmp(identifier, "trimEnd") == 0 ||
+            // YZ_31: Input functions
+            strcmp(identifier, "input") == 0 ||
+            strcmp(identifier, "input_numeric") == 0 ||
+            // YZ_31: Replace & Split
+            strcmp(identifier, "replace") == 0 ||
+            strcmp(identifier, "replaceAll") == 0 ||
+            strcmp(identifier, "split") == 0) {
             is_builtin_func = 1;
         }
         
@@ -1326,6 +1334,11 @@ ArithmeticExpr* arithmetic_parse_expression_stateless(Lexer* lexer, Token* first
     current->line = first_token->line;
     
     ArithmeticExpr* result = parse_bitwise_stateless(lexer, &current);
+    
+    // ✅ YZ_32: Apply constant folding optimization
+    if (result) {
+        result = arithmetic_optimize_constant_fold(result);
+    }
     
     // ✅ FIX: Don't free remaining token, push it back to lexer
     // This token is the first NON-expression token (e.g. "if", newline, etc)

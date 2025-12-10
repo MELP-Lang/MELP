@@ -43,4 +43,27 @@ void mlp_print_bool(int value);
 char* mlp_toString_numeric(void* value, uint8_t tto_type);
 char* mlp_toString_bool(int value);
 
+// ============================================================================
+// Input Functions (YZ_31 - Phase 6 completion)
+// ============================================================================
+
+// Read a line of text from stdin
+// Returns: dynamically allocated string (caller must free)
+// If EOF or error, returns empty string ""
+char* mlp_input(void);
+
+// Read a line and prompt first
+// prompt: Text to display before reading input
+// Returns: dynamically allocated string (caller must free)
+char* mlp_input_prompt(const char* prompt);
+
+// Read a numeric value from stdin
+// Returns: int64_t value (0 on error)
+int64_t mlp_input_numeric(void);
+
+// Read a numeric with prompt
+// prompt: Text to display before reading input
+// Returns: int64_t value (0 on error)
+int64_t mlp_input_numeric_prompt(const char* prompt);
+
 #endif
