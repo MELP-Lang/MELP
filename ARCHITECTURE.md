@@ -54,7 +54,7 @@ Previous AI agents violated these rules and created a 736-line monolithic `main.
 
 **Key Insights:**
 1. In other languages, BigDecimal is actually string-based
-2. MLP has only `numeric` and `text` → essentially one concept: "data"
+2. MLP has only `numeric` and `string` → essentially one concept: "data"
 3. "Ali" and a 10,000-page book shouldn't use same memory strategy
 4. User doesn't see pragmatic layer → backend optimization possible
 
@@ -86,7 +86,7 @@ text long = read_file("book.txt")
 **DO:**
 - ✅ Track minimal type info (1 bit: `is_numeric` flag)
 - ✅ Read `temp/kurallar_kitabı.md` TTO section for full details
-- ✅ Keep user API simple (only `numeric` and `text`)
+- ✅ Keep user API simple (only `numeric` and `string`)
 
 **DON'T:**
 - ❌ Create complex type enums (VarType with 10 variants)
@@ -99,7 +99,7 @@ text long = read_file("book.txt")
 typedef struct LocalVariable {
     char* name;
     int stack_offset;
-    int is_numeric;    // 1=numeric, 0=text (2 types, 1 bit!)
+    int is_numeric;    // 1=numeric, 0=string (2 types, 1 bit!)
     struct LocalVariable* next;
 } LocalVariable;
 

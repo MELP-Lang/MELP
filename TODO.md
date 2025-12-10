@@ -146,11 +146,11 @@ TTO, MELP'in temel mimari felsefesidir. Bunu anlamadan:
 - ❌ String operations codegen'i yanlış yaparsın
 - ❌ Type tracking sistemini bozarsın  
 - ❌ Runtime fonksiyonlarını yanlış çağırırsın
-- ❌ Numeric vs text ayrımını karıştırırsın
+- ❌ Numeric vs string ayrımını karıştırırsın
 
 ### TTO'nun Özeti (Detay için kurallar_kitabı.md oku!)
 
-**Kullanıcıya gösterilen:** Sadece 2 tip → `numeric` ve `text`  
+**Kullanıcıya gösterilen:** Sadece 2 tip → `numeric` ve `string`  
 **Arka planda compiler:** Otomatik optimize eder:
 - Küçük sayılar → int64 (register)
 - Büyük sayılar → BigDecimal (heap)
@@ -236,7 +236,7 @@ Eğer TTO'yu anlamadan TODO'ya başlarsan, çalışan sistemi bozabilirsin.
 - [x] **Lexer** - Token parsing (keywords, literals, operators)
 - [x] **Parser** - Statement ve expression parsing
 - [x] **Functions** - Declaration, calls, parameters, return values
-- [x] **Variables** - Numeric ve text declarations
+- [x] **Variables** - Numeric ve string declarations
 - [x] **Arithmetic** - +, -, *, / operations
 - [x] **Comparison** - <, <=, >, >=, ==, != operators
 - [x] **Control Flow** - if/else, while loops
