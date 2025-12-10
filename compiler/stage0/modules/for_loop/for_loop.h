@@ -9,12 +9,20 @@ typedef enum {
     FOR_DOWNTO    // for i = 10 downto 0
 } ForDirection;
 
+// For loop type
+typedef enum {
+    FOR_TYPE_RANGE,     // for i = 0 to 10
+    FOR_TYPE_EACH       // for each item in collection
+} ForLoopType;
+
 // For loop structure
 typedef struct ForLoop {
-    char* var_name;              // Loop variable (e.g., "i")
-    int start_value;             // Starting value
-    int end_value;               // Ending value
-    ForDirection direction;       // TO or DOWNTO
+    ForLoopType loop_type;       // YZ_28: Range or each
+    char* var_name;              // Loop variable (e.g., "i" or "item")
+    int start_value;             // Starting value (range loop)
+    int end_value;               // Ending value (range loop)
+    ForDirection direction;       // TO or DOWNTO (range loop)
+    char* collection_name;       // YZ_28: Collection variable name (for-each)
     struct Statement* body;      // Loop body statements
 } ForLoop;
 

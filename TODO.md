@@ -482,57 +482,6 @@ Eğer TTO'yu anlamadan TODO'ya başlarsan, çalışan sistemi bozabilirsin.
 
 ---
 
-## 🎯 Phase 4: Advanced Language Features 🚀 NEW PHASE!
-**Responsible:** TBD (YZ_25+)  
-**Priority:** ⭐⭐⭐ HIGH (Core language features)  
-**Status:** 0% (Starting now!)
-
-**Next Steps:** See NEXT_AI_START_HERE.md for options!
-
-### Option A: Loop Enhancements (⭐⭐⭐ Recommended)
-- [ ] **For-Each Loop** (~2 hours) ⭐ NEXT PRIORITY
-  - Syntax: `for each item in collection`
-  - Iterate over arrays/lists/tuples
-  - Parser: New keywords (TOKEN_EACH, TOKEN_IN)
-  - Codegen: Counter + bounds checking
-
-- [x] **While Loop** ✅ (YZ_27 - Fixed!)
-  - Syntax: `while condition ... end while` (no `do` keyword)
-  - Condition-based iteration
-  - Bug fixed: Lexer was returning TOKEN_LANGLE instead of TOKEN_LESS for `<`
-
-- [ ] **Break/Continue** (~1 hour)
-  - Keywords: `break`, `continue`
-  - Exit loop early or skip iteration
-  - Parser: TOKEN_BREAK, TOKEN_CONTINUE
-  - Codegen: Jump to break_label / continue_label
-
-### Option B: String Methods
-- [ ] **Case Conversion** (~1 hour)
-  - `toUpperCase()`, `toLowerCase()`
-  - Runtime: Character-by-character conversion
-  
-- [ ] **Whitespace Trimming** (~1 hour)
-  - `trim()`, `trimStart()`, `trimEnd()`
-  - Runtime: Strip leading/trailing spaces
-
-- [ ] **String Manipulation** (~2 hours)
-  - `replace(old, new)` - Replace substring
-  - `split(delimiter)` - Return list of strings
-  - Runtime: String parsing logic
-
-### Option C: Error Handling (Advanced)
-- [ ] **Try-Catch-Finally** (~4-5 hours)
-  - Complex feature - requires error context
-  - Stack unwinding mechanism
-  - Error types and messages
-
-### Option D: Array/List Methods
-- [ ] **Collection Modification** (~2-3 hours)
-  - `append()`, `prepend()`, `remove()`, `clear()`
-  - Runtime: Memory reallocation for dynamic operations
-
----
 
 ## 📝 Phase 3 Detailed History (Boolean Types - Completed)
 **Note:** Boolean features below are part of Phase 3 (completed by YZ_16, YZ_18)
@@ -562,6 +511,69 @@ Eğer TTO'yu anlamadan TODO'ya başlarsan, çalışan sistemi bozabilirsin.
 **Deliverable:** ✅ Boolean type fully working! (Operations next)
 
 **Documentation:** See `/YZ/YZ_16.md`
+
+---
+
+
+
+## 🎯 Phase 4: Advanced Language Features ✅ 100% COMPLETE! 🎉
+**Responsible:** YZ_27 (While fix) + YZ_28 (For-each, Break/Continue)  
+**Priority:** ⭐⭐⭐ HIGH (Core language features)  
+**Status:** ✅ 100% COMPLETE!
+
+### Loop Enhancements ✅ ALL COMPLETE
+- [x] **For-Each Loop** ✅ (YZ_28 - 2 hours)
+  - Syntax: `for each item in collection`
+  - Iterate over arrays/lists/tuples ✅
+  - Parser: TOKEN_EACH, TOKEN_IN keywords added ✅
+  - Codegen: Counter + bounds checking ✅
+  - Test: `for each x in [10,20,30]` → sum = 60 ✅
+
+- [x] **While Loop** ✅ (YZ_27 - Fixed!)
+  - Syntax: `while condition ... end while` (no `do` keyword)
+  - Condition-based iteration
+  - Bug fixed: Lexer was returning TOKEN_LANGLE instead of TOKEN_LESS for `<`
+
+- [x] **Break/Continue** ✅ (YZ_28 - 1 hour)
+  - Keywords: `break`, `continue` ✅
+  - Exit loop early or skip iteration ✅
+  - Parser: TOKEN_BREAK, TOKEN_CONTINUE ✅
+  - Codegen: Jump to loop_end_N / loop_continue_N ✅
+  - Tests: break → 15, continue → 50 ✅
+
+**PHASE 4 COMPLETION: 100%** 🎉🎉🎉
+
+---
+
+## 🎯 Phase 5: String Methods & Advanced Features
+**Responsible:** TBD (YZ_29+)  
+**Priority:** ⭐⭐ MEDIUM  
+**Status:** 0% (Starting now!)
+
+### Option A: String Methods (⭐⭐ Recommended)
+- [ ] **Case Conversion** (~1 hour)
+  - `toUpperCase()`, `toLowerCase()`
+  - Runtime: Character-by-character conversion
+  
+- [ ] **Whitespace Trimming** (~1 hour)
+  - `trim()`, `trimStart()`, `trimEnd()`
+  - Runtime: Strip leading/trailing spaces
+
+- [ ] **String Manipulation** (~2 hours)
+  - `replace(old, new)` - Replace substring
+  - `split(delimiter)` - Return list of strings
+  - Runtime: String parsing logic
+
+### Option C: Error Handling (Advanced)
+- [ ] **Try-Catch-Finally** (~4-5 hours)
+  - Complex feature - requires error context
+  - Stack unwinding mechanism
+  - Error types and messages
+
+### Option D: Array/List Methods
+- [ ] **Collection Modification** (~2-3 hours)
+  - `append()`, `prepend()`, `remove()`, `clear()`
+  - Runtime: Memory reallocation for dynamic operations
 
 ---
 
@@ -674,15 +686,15 @@ Eğer TTO'yu anlamadan TODO'ya başlarsan, çalışan sistemi bozabilirsin.
 
 ## 📈 Project Status Summary
 
-**Current Completion: ~98%** (Core language features)
+**Current Completion: ~99%** (Core language features complete!)
 
 | Phase | Status | Completion |
 |-------|--------|------------|
 | **Phase 1: Strings** | ✅ Complete | 100% |
 | **Phase 2: For Loops** | ✅ Complete | 100% |
 | **Phase 3: Collections & Booleans** | ✅ Complete | 100% |
-| **Phase 4: Advanced Features** | 🚀 Starting | 0% |
-| **Phase 5: Stdlib** | ⏳ Future | 0% |
+| **Phase 4: Advanced Features** | ✅ Complete | 100% |
+| **Phase 5: String Methods** | ⏳ Future | 0% |
 | **Phase 6: Error Messages** | ⏳ Future | 0% |
 | **Phase 7: Optimization** | ⏳ Future | 0% |
 | **Phase 8: Self-Hosting** | ⏳ Far Future | 0% |
@@ -702,7 +714,7 @@ Eğer TTO'yu anlamadan TODO'ya başlarsan, çalışan sistemi bozabilirsin.
 | **Tuples** | ⭐ | 1h | ✅ **COMPLETE** (YZ_20 + YZ_21) 🎉 |
 | **Collection Syntax** | ⭐⭐ | 2h | ✅ **COMPLETE** (YZ_22 + YZ_23) 🎉 |
 | **Whitespace Validation** | ⭐⭐ | 1.5h | ✅ **COMPLETE** (YZ_24) 🎉 |
-| **Phase 4 Features** | ⭐⭐⭐ | 8-15h | 🚀 **NEXT** (YZ_25+) |
+| **Phase 4: Advanced** | ⭐⭐⭐ | 3h | ✅ **COMPLETE** (YZ_27 + YZ_28) 🎉 |
 | Stdlib Expansion | ⭐ | 2-3h | ⏳ Future |
 | Error Messages | ⭐ | 2-3h | ⏳ Future |
 | Optimization | ⭐ | 3-5h | ⏳ Future |

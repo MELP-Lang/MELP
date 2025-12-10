@@ -232,6 +232,24 @@ Statement* statement_parse(Parser* parser) {
         return stmt;
     }
     
+    // ✅ YZ_28: BREAK statement - exit loop
+    if (tok->type == TOKEN_BREAK) {
+        token_free(tok);
+        stmt = statement_create(STMT_BREAK);
+        stmt->data = NULL;
+        stmt->next = NULL;
+        return stmt;
+    }
+    
+    // ✅ YZ_28: CONTINUE statement - skip to next iteration
+    if (tok->type == TOKEN_CONTINUE) {
+        token_free(tok);
+        stmt = statement_create(STMT_CONTINUE);
+        stmt->data = NULL;
+        stmt->next = NULL;
+        return stmt;
+    }
+    
     // ✅ PRINT statement - use print module
     if (tok->type == TOKEN_PRINT) {
         token_free(tok);

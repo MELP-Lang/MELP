@@ -8,6 +8,7 @@
 #include "../statement/statement_codegen.h"  // ✅ Statement codegen import!
 #include "../variable/variable.h"  // ✅ VariableDeclaration type
 #include "../control_flow/control_flow.h"  // ✅ IfStatement, WhileStatement, ForStatement
+#include "../for_loop/for_loop.h"  // YZ_28: ForLoop type
 
 // Now we can use real expression codegen AND statement codegen!
 // arithmetic_parse_expression() and arithmetic_generate_code()
@@ -118,9 +119,10 @@ static void scan_statement_for_variables(FunctionDeclaration* func, Statement* s
         }
     }
     else if (stmt->type == STMT_FOR) {
-        ForStatement* for_stmt = (ForStatement*)stmt->data;
-        if (for_stmt) {
-            Statement* nested = for_stmt->body;
+        // ForLoop from for_loop module (not ForStatement)
+        ForLoop* for_loop = (ForLoop*)stmt->data;
+        if (for_loop) {
+            Statement* nested = for_loop->body;
             while (nested) {
                 scan_statement_for_variables(func, nested);
                 nested = nested->next;

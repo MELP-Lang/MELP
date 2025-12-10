@@ -4,28 +4,94 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Parse: for i = 0 to 10 ... end
-// or:    for i = 10 downto 0 ... end
-ForLoop* for_loop_parse(Lexer* lexer, Token* for_token) {
-    // for_token is borrowed, don't free!
-    
+// YZ_28: Parse for-each loop: for each item in collection
+// Returns ForLoop with loop_type = FOR_TYPE_EACH
+static ForLoop* for_each_parse(Lexer* lexer, Token* for_token, Token* each_token) {
     ForLoop* loop = (ForLoop*)malloc(sizeof(ForLoop));
+    loop->loop_type = FOR_TYPE_EACH;
     loop->var_name = NULL;
+    loop->collection_name = NULL;
     loop->start_value = 0;
     loop->end_value = 0;
     loop->direction = FOR_TO;
     loop->body = NULL;
     
-    // Expect: identifier (loop variable)
+    // each_token is TOKEN_EACH, already consumed
+    // Don't free it - caller manages it
+    
+    // Expect: identifier (loop variable - e.g., "item")
     Token* var_tok = lexer_next_token(lexer);
     if (var_tok->type != TOKEN_IDENTIFIER) {
-        fprintf(stderr, "Error: Expected variable name after 'for' at line %d\n", for_token->line);
+        fprintf(stderr, "Error: Expected variable name after 'for each' at line %d\n", for_token->line);
         token_free(var_tok);
         for_loop_free(loop);
         return NULL;
     }
     loop->var_name = strdup(var_tok->value);
     token_free(var_tok);
+    
+    // Expect: 'in' keyword
+    Token* in_tok = lexer_next_token(lexer);
+    if (in_tok->type != TOKEN_IN) {
+        fprintf(stderr, "Error: Expected 'in' after variable name at line %d\n", for_token->line);
+        token_free(in_tok);
+        for_loop_free(loop);
+        return NULL;
+    }
+    token_free(in_tok);
+    
+    // Expect: identifier (collection name - e.g., "arr")
+    Token* coll_tok = lexer_next_token(lexer);
+    if (coll_tok->type != TOKEN_IDENTIFIER) {
+        fprintf(stderr, "Error: Expected collection name after 'in' at line %d\n", for_token->line);
+        token_free(coll_tok);
+        for_loop_free(loop);
+        return NULL;
+    }
+    loop->collection_name = strdup(coll_tok->value);
+    token_free(coll_tok);
+    
+    // Body will be parsed by statement_parser (like while loop)
+    loop->body = NULL;
+    
+    return loop;
+}
+
+// Parse: for i = 0 to 10 ... end
+// or:    for i = 10 downto 0 ... end
+// or:    for each item in collection ... end (YZ_28)
+ForLoop* for_loop_parse(Lexer* lexer, Token* for_token) {
+    // for_token is borrowed, don't free!
+    
+    // Peek next token to check for "each" keyword (for-each loop)
+    Token* next_tok = lexer_next_token(lexer);
+    if (next_tok->type == TOKEN_EACH) {
+        // YZ_28: for each item in collection
+        ForLoop* loop = for_each_parse(lexer, for_token, next_tok);
+        token_free(next_tok);  // We consumed TOKEN_EACH
+        return loop;
+    }
+    
+    // Not for-each, continue with range for loop
+    // next_tok should be the loop variable identifier
+    ForLoop* loop = (ForLoop*)malloc(sizeof(ForLoop));
+    loop->loop_type = FOR_TYPE_RANGE;
+    loop->var_name = NULL;
+    loop->collection_name = NULL;
+    loop->start_value = 0;
+    loop->end_value = 0;
+    loop->direction = FOR_TO;
+    loop->body = NULL;
+    
+    // next_tok should be identifier (loop variable)
+    if (next_tok->type != TOKEN_IDENTIFIER) {
+        fprintf(stderr, "Error: Expected variable name after 'for' at line %d\n", for_token->line);
+        token_free(next_tok);
+        for_loop_free(loop);
+        return NULL;
+    }
+    loop->var_name = strdup(next_tok->value);
+    token_free(next_tok);
     
     // Expect: =
     Token* assign_tok = lexer_next_token(lexer);

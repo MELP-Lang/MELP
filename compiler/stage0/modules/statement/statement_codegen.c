@@ -15,6 +15,38 @@
 // Global counter for string literals
 static int string_literal_counter = 0;
 
+// YZ_28: Loop stack for break/continue support
+LoopContext loop_stack[MAX_LOOP_DEPTH];
+int loop_stack_top = -1;
+
+void loop_push(int break_label, int continue_label) {
+    if (loop_stack_top < MAX_LOOP_DEPTH - 1) {
+        loop_stack_top++;
+        loop_stack[loop_stack_top].break_label = break_label;
+        loop_stack[loop_stack_top].continue_label = continue_label;
+    }
+}
+
+void loop_pop(void) {
+    if (loop_stack_top >= 0) {
+        loop_stack_top--;
+    }
+}
+
+int get_break_label(void) {
+    if (loop_stack_top >= 0) {
+        return loop_stack[loop_stack_top].break_label;
+    }
+    return -1;  // No loop context
+}
+
+int get_continue_label(void) {
+    if (loop_stack_top >= 0) {
+        return loop_stack[loop_stack_top].continue_label;
+    }
+    return -1;  // No loop context
+}
+
 // Statement code generation with modular imports
 void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration* func) {
     if (!stmt) return;
@@ -365,6 +397,31 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
                 // No return value (void return)
                 fprintf(output, "    # Return (void)\n");
                 fprintf(output, "    xor %%rax, %%rax\n");
+            }
+            break;
+        }
+        
+        // YZ_28: Break statement - jump to loop end
+        // Note: Loop labels are managed by for_loop_codegen and control_flow_codegen
+        case STMT_BREAK: {
+            int break_label = get_break_label();
+            if (break_label >= 0) {
+                fprintf(output, "    # Break - jump to loop end\n");
+                fprintf(output, "    jmp .loop_end_%d\n", break_label);
+            } else {
+                fprintf(output, "    # Error: break outside loop\n");
+            }
+            break;
+        }
+        
+        // YZ_28: Continue statement - jump to loop start/continue
+        case STMT_CONTINUE: {
+            int continue_label = get_continue_label();
+            if (continue_label >= 0) {
+                fprintf(output, "    # Continue - jump to loop continue\n");
+                fprintf(output, "    jmp .loop_continue_%d\n", continue_label);
+            } else {
+                fprintf(output, "    # Error: continue outside loop\n");
             }
             break;
         }
