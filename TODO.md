@@ -424,7 +424,7 @@ Eğer TTO'yu anlamadan TODO'ya başlarsan, çalışan sistemi bozabilirsin.
   - ✅ Integration: Added to ArithmeticExpr (is_collection field), can parse in expressions
   - ✅ Testing: test_list_basic.mlp works! (Exit: 100) ✅
   - ✅ Variable type syntax: `list myList = (1; 2; 3;)` works! (YZ_19 completed!)
-  - ❌ Missing: Mixed-type testing (deferred - needs string literal support)
+  - ✅ Mixed-type lists: `list mixed = (1; "hello"; 42;)` works! (YZ_19 completed!)
   - **Status:** 100% COMPLETE - Lists fully working! 🎉
 
 - [ ] **Tuples (Immutable)** (1 hour) ⏳ 60% COMPLETE (YZ_17 + YZ_19)
