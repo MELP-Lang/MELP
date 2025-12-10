@@ -64,7 +64,16 @@ Oturumu bitirmeden önce:
 
 ## 🔢 Son YZ Numarası
 
-**YZ_25** - Tip çıkarımı ve `;` işareti ile değişken bildirimi
+**YZ_26** - Dokümantasyon düzeltmeleri (text→string) + While loop sorunu tespit edildi
+
+---
+
+## 🔴 ACİL: While Loop Sorunu
+
+While loop parser'da çalışmıyor. Lexer doğru token üretiyor ama `statement_parser.c` işlemiyor.
+
+**Sorun:** `statement_parser.c` satır 40-86 arası - TOKEN_WHILE case'ine girilmiyor  
+**Detay:** `YZ/YZ_26.md` dosyasına bak
 
 ---
 
