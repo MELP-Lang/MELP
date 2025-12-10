@@ -1,0 +1,11 @@
+function main() returns numeric
+    if false then
+        numeric x = 100
+        println(x)
+    end if
+    
+    numeric y = 5
+    return y
+    
+    numeric z = 10
+end function

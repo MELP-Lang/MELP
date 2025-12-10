@@ -1,0 +1,6 @@
+function main() returns numeric
+    numeric x = input_numeric()
+    numeric y = input_numeric()
+    numeric result = x + y
+    return result
+end function

@@ -36,6 +36,12 @@ char* mlp_string_trim(const char* str);
 char* mlp_string_trimStart(const char* str);
 char* mlp_string_trimEnd(const char* str);
 
+// YZ_31: Replace & Split
+char* mlp_string_replace(const char* str, const char* old_substr, const char* new_substr);
+char* mlp_string_replaceAll(const char* str, const char* old_substr, const char* new_substr);
+char** mlp_string_split(const char* str, const char* delimiter, int* count);
+void mlp_string_split_free(char** parts, int count);
+
 // Memory management
 void mlp_string_free(char* str);
 

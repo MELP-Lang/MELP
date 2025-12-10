@@ -133,6 +133,30 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
         } else if (strcmp(call->function_name, "trimEnd") == 0) {
             // YZ_29: trimEnd(text) -> mlp_string_trimEnd(char*)
             actual_function = "mlp_string_trimEnd";
+        } else if (strcmp(call->function_name, "input") == 0) {
+            // YZ_31: input() or input(prompt) -> mlp_input() or mlp_input_prompt()
+            if (call->arg_count == 0) {
+                actual_function = "mlp_input";
+            } else {
+                actual_function = "mlp_input_prompt";
+            }
+        } else if (strcmp(call->function_name, "input_numeric") == 0) {
+            // YZ_31: input_numeric() or input_numeric(prompt) -> mlp_input_numeric() or mlp_input_numeric_prompt()
+            if (call->arg_count == 0) {
+                actual_function = "mlp_input_numeric";
+            } else {
+                actual_function = "mlp_input_numeric_prompt";
+            }
+        } else if (strcmp(call->function_name, "replace") == 0) {
+            // YZ_31: replace(str, old, new) -> mlp_string_replace(char*, char*, char*)
+            actual_function = "mlp_string_replace";
+        } else if (strcmp(call->function_name, "replaceAll") == 0) {
+            // YZ_31: replaceAll(str, old, new) -> mlp_string_replaceAll(char*, char*, char*)
+            actual_function = "mlp_string_replaceAll";
+        } else if (strcmp(call->function_name, "split") == 0) {
+            // YZ_31: split(str, delimiter) -> mlp_string_split(char*, char*, int*)
+            // Note: split returns array, need special handling for list
+            actual_function = "mlp_string_split";
         }
         
         // Call the function

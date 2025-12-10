@@ -19,6 +19,10 @@ static ErrorState global_error_state = {
     .filename = NULL
 };
 
+// Recovery state
+static int recovery_mode = 0;      // Are we in recovery mode?
+static int recovery_count = 0;     // How many times have we recovered?
+
 // Category names for display
 static const char* category_names[] = {
     "Lexer",
@@ -533,6 +537,8 @@ int error_should_stop(void) {
 void error_reset(void) {
     global_error_state.error_count = 0;
     global_error_state.warning_count = 0;
+    recovery_mode = 0;
+    recovery_count = 0;
 }
 
 void error_print_summary(void) {
@@ -558,6 +564,14 @@ void error_print_summary(void) {
         fprintf(out, ", %s%d warning(s)%s",
                 get_color(COLOR_BOLD_YELLOW),
                 global_error_state.warning_count,
+                get_color(COLOR_RESET));
+    }
+    
+    // Show recovery information if we attempted recovery
+    if (recovery_count > 0) {
+        fprintf(out, " (%s%d recovery attempt(s)%s)",
+                get_color(COLOR_CYAN),
+                recovery_count,
                 get_color(COLOR_RESET));
     }
     
@@ -665,4 +679,42 @@ const char* error_find_similar(const char* input, const char** candidates, int c
     }
     
     return best_match;
+}
+
+// ============================================================================
+// Phase 6: Error Recovery Functions
+// ============================================================================
+
+int error_in_recovery_mode(void) {
+    return recovery_mode;
+}
+
+void error_enter_recovery(void) {
+    recovery_mode = 1;
+}
+
+void error_exit_recovery(void) {
+    recovery_mode = 0;
+}
+
+int error_should_recover(void) {
+    // Don't try to recover if we've had too many errors
+    if (global_error_state.max_errors > 0 && 
+        global_error_state.error_count >= global_error_state.max_errors) {
+        return 0;
+    }
+    // Limit recovery attempts to prevent infinite loops
+    if (recovery_count >= 20) {
+        return 0;
+    }
+    return 1;
+}
+
+void error_mark_recovered(void) {
+    recovery_count++;
+    recovery_mode = 0;
+}
+
+int error_get_recovery_count(void) {
+    return recovery_count;
 }

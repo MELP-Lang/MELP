@@ -1,0 +1,6 @@
+function main() returns numeric
+    numeric x = 2 + 3
+    numeric y = 10 * 5
+    numeric z = x + y
+    return z
+end function

@@ -46,7 +46,8 @@ ARITHMETIC_DIR = ../arithmetic
 ARITHMETIC_SOURCES = \
 	$(ARITHMETIC_DIR)/arithmetic.c \
 	$(ARITHMETIC_DIR)/arithmetic_parser.c \
-	$(ARITHMETIC_DIR)/arithmetic_codegen.c
+	$(ARITHMETIC_DIR)/arithmetic_codegen.c \
+	$(ARITHMETIC_DIR)/arithmetic_optimize.c
 
 # Comparison modülü (Modül #4)
 COMPARISON_DIR = ../comparison
@@ -87,7 +88,8 @@ STATEMENT_DIR = ../statement
 STATEMENT_SOURCES = \
 	$(STATEMENT_DIR)/statement.c \
 	$(STATEMENT_DIR)/statement_parser.c \
-	$(STATEMENT_DIR)/statement_codegen.c
+	$(STATEMENT_DIR)/statement_codegen.c \
+	$(STATEMENT_DIR)/statement_optimize.c
 
 # Parser Core modülü (Parser structure)
 PARSER_CORE_DIR = ../parser_core

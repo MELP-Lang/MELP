@@ -5,6 +5,7 @@
 #include "functions.h"
 #include "../lexer/lexer.h"
 #include "../statement/statement_parser.h"  // ✅ Statement parsing
+#include "../statement/statement_optimize.h" // ✅ YZ_32: Dead code elimination
 #include "../parser_core/parser_core.h"      // ✅ Parser structure (temp wrapper)
 #include "../error/error.h"                  // ✅ Error handling system
 
@@ -227,6 +228,12 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
     
     // Store body in function
     func->body = body_head;
+    
+    // ✅ YZ_32: Apply optimizations
+    // Constant folding already done in arithmetic_parser
+    // Dead code elimination on statement level
+    func->body = statement_optimize_dead_code(func->body);
+    
     return func;
 }
 

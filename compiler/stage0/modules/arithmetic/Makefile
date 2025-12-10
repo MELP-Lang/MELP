@@ -13,6 +13,7 @@ SOURCES = arithmetic_standalone.c \
           arithmetic.c \
           arithmetic_parser.c \
           arithmetic_codegen.c \
+          arithmetic_optimize.c \
           ../variable/variable.c \
           ../variable/variable_parser.c \
           ../variable/variable_codegen.c \

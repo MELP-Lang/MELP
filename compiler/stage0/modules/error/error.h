@@ -198,4 +198,26 @@ const char* error_find_similar(const char* input, const char** candidates, int c
 extern const char* MELP_KEYWORDS[];
 extern const int MELP_KEYWORD_COUNT;
 
+// ============================================================================
+// Phase 6: Error Recovery
+// ============================================================================
+
+// Recovery mode flag - when set, parser should try to continue
+int error_in_recovery_mode(void);
+
+// Enter recovery mode (after an error, attempting to continue parsing)
+void error_enter_recovery(void);
+
+// Exit recovery mode (successful sync point found)
+void error_exit_recovery(void);
+
+// Check if we should attempt recovery (not too many errors)
+int error_should_recover(void);
+
+// Mark that parser has recovered (for summary reporting)
+void error_mark_recovered(void);
+
+// Get recovery statistics
+int error_get_recovery_count(void);
+
 #endif // ERROR_H

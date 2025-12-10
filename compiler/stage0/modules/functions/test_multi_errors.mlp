@@ -1,0 +1,25 @@
+-- Test file with multiple errors for error recovery
+-- Error 1: Misspelled 'functio' (typo)
+functio broken1() returns numeric
+    return 1
+end function
+
+-- Error 2: This function is correct
+function working1() returns numeric
+    return 42
+end function
+
+-- Error 3: Missing parameter type
+function broken2(x) returns numeric
+    return x
+end function
+
+-- Error 4: Another correct function
+function working2() returns numeric
+    return 100
+end function
+
+-- Main function
+function main() returns numeric
+    return 0
+end function
