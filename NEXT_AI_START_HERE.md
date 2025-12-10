@@ -41,9 +41,12 @@ LD_LIBRARY_PATH=../../../../runtime/stdlib:../../../../runtime/tto ./test
 ## 📜 Kurallar
 
 1. **Türkçe iletişim** (kod ve teknik terimler İngilizce kalabilir)
-2. **Her YZ kendi dalına commit ve push eder** (dal adı: `*_YZ_XX` formatında, yedekler GitHub'da tutulur)
-3. **Her değişikliği test edin**
-4. **Belgeleri güncel tutun**
+2. **Bilgi sahibi ol** ilgilendiğin konu ne ise önce onun ile ilgili bilgiye docs_tr/language/melp_syntax.md
+dosyasından ulaş. söz dizimini öğren. Kullanıcıya, şu an ki görevim (örneğin list() listeler) "melp_syntax.md" belgesinin listeler bölümünü okudum, söz dizimine hakimim. ilgili bölüm şöyle diyor, benim görevim list() içinde şunları yapmaktır, diye bilgi ver.
+3. **Her YZ kendi dalına commit ve push eder** (dal adı: `*_YZ_XX` formatında, yedekler GitHub'da tutulur)
+4. **Her değişikliği test edin**
+5. **Belgeleri güncel tutun**
+
 
 ## ✅ Oturum Sonu Kontrol Listesi
 
@@ -64,37 +67,42 @@ Oturumu bitirmeden önce:
 
 ## 🔢 Son YZ Numarası
 
-**YZ_28** - Phase 4 tamamlandı ✅ (For-each loop + Break/Continue)
+**YZ_29** - Phase 5 tamamlandı ✅ (String Methods: toUpperCase, toLowerCase, trim, trimStart, trimEnd)
 
 ---
 
-## 🎯 Sonraki Görevler (Phase 5)
+## 🎯 Sonraki Görevler (Phase 6)
 
-### Öncelikli: String Methods
-```mlp
-string upper = toUpperCase("hello")  # "HELLO"
-string lower = toLowerCase("HELLO")  # "hello"
-string trimmed = trim("  hello  ")   # "hello"
-```
+### Öncelikli: Compiler Error Messages & Diagnostics
+- Better Error Messages (line numbers, helpful suggestions, colored output)
+- Runtime Errors (division by zero, null pointer checks)
+- Error Recovery (continue parsing after error, show multiple errors)
 
 ### Diğer görevler için `TODO.md` bak
 
 ---
 
-## ✅ Son Düzeltmeler (YZ_28)
+## ✅ Son Düzeltmeler (YZ_29)
 
-1. **For-Each Loop** ✅
-   - Syntax: `for each item in collection ... end for`
-   - Arrays, Lists, Tuples destekleniyor
-   - Test: `[10,20,30]` → sum = 60 ✅
+1. **String Methods** ✅ (Phase 5 Complete!)
+   - `toUpperCase(str)` - "hello" → "HELLO"
+   - `toLowerCase(str)` - "HELLO" → "hello"
+   - `trim(str)` - "  hello  " → "hello"
+   - `trimStart(str)` - "   start" → "start"
+   - `trimEnd(str)` - "end   " → "end"
 
-2. **Break/Continue** ✅
-   - `break` - Döngüden erken çık
-   - `continue` - Sonraki iterasyona atla
-   - For loops ve While loops için çalışıyor
+2. **Parser Fix** ✅
+   - Builtin fonksiyon listesi eklendi (list erişimi ile karışmasın)
+   - `toUpperCase(msg)` artık fonksiyon çağrısı olarak doğru parse ediliyor
 
-3. **Lexer Keywords** ✅
-   - TOKEN_EACH, TOKEN_IN
+3. **Runtime Functions** ✅
+   - `mlp_string_toUpperCase`, `mlp_string_toLowerCase`
+   - `mlp_string_trim`, `mlp_string_trimStart`, `mlp_string_trimEnd`
+   - Dosya: `runtime/stdlib/mlp_string.c`
+
+4. **Codegen** ✅
+   - `arithmetic_codegen.c` - Yeni fonksiyon mapping'leri
+   - `functions.c` - Builtin listesi güncellendi
    - TOKEN_BREAK, TOKEN_CONTINUE
 
 ---

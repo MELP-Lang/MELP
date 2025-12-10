@@ -118,6 +118,21 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
         } else if (strcmp(call->function_name, "indexOf") == 0) {
             // YZ_22: indexOf(text, substr) -> mlp_string_indexOf(char*, char*)
             actual_function = "mlp_string_indexOf";
+        } else if (strcmp(call->function_name, "toUpperCase") == 0) {
+            // YZ_29: toUpperCase(text) -> mlp_string_toUpperCase(char*)
+            actual_function = "mlp_string_toUpperCase";
+        } else if (strcmp(call->function_name, "toLowerCase") == 0) {
+            // YZ_29: toLowerCase(text) -> mlp_string_toLowerCase(char*)
+            actual_function = "mlp_string_toLowerCase";
+        } else if (strcmp(call->function_name, "trim") == 0) {
+            // YZ_29: trim(text) -> mlp_string_trim(char*)
+            actual_function = "mlp_string_trim";
+        } else if (strcmp(call->function_name, "trimStart") == 0) {
+            // YZ_29: trimStart(text) -> mlp_string_trimStart(char*)
+            actual_function = "mlp_string_trimStart";
+        } else if (strcmp(call->function_name, "trimEnd") == 0) {
+            // YZ_29: trimEnd(text) -> mlp_string_trimEnd(char*)
+            actual_function = "mlp_string_trimEnd";
         }
         
         // Call the function

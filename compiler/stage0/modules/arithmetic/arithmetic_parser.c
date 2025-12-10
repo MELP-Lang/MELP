@@ -644,9 +644,28 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         // 2. Function call: func(args...)
         // 3. Variable: x
         
-        // YZ_23: Check for array/list/tuple access FIRST
+        // YZ_29: For TOKEN_LPAREN, we need to distinguish between:
+        //   - Function call: toUpperCase(msg), println(x)
+        //   - List access: mylist(0)
+        // Solution: Check if identifier is a known builtin function
+        int is_builtin_func = 0;
+        if (strcmp(identifier, "println") == 0 ||
+            strcmp(identifier, "print") == 0 ||
+            strcmp(identifier, "toString") == 0 ||
+            strcmp(identifier, "length") == 0 ||
+            strcmp(identifier, "substring") == 0 ||
+            strcmp(identifier, "indexOf") == 0 ||
+            strcmp(identifier, "toUpperCase") == 0 ||
+            strcmp(identifier, "toLowerCase") == 0 ||
+            strcmp(identifier, "trim") == 0 ||
+            strcmp(identifier, "trimStart") == 0 ||
+            strcmp(identifier, "trimEnd") == 0) {
+            is_builtin_func = 1;
+        }
+        
+        // YZ_23: Check for array/list/tuple access FIRST (but NOT for builtin functions!)
         if (*current && ((*current)->type == TOKEN_LBRACKET || 
-                        (*current)->type == TOKEN_LPAREN ||
+                        ((*current)->type == TOKEN_LPAREN && !is_builtin_func) ||
                         (*current)->type == TOKEN_LANGLE)) {
             // Array: identifier[index]
             // List:  identifier(index)  
@@ -686,10 +705,9 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
             return expr;
         }
         
-        // Phase 3.5: Check for function call (NO TOKEN_LPAREN anymore - handled above!)
-        // This code is now UNREACHABLE for TOKEN_LPAREN cases
-        // Keep it for backward compatibility, but it won't trigger
-        if (0 && *current && (*current)->type == TOKEN_LPAREN) {
+        // Phase 3.5: Check for function call
+        // YZ_29: Now this code is reachable for builtin functions!
+        if (*current && (*current)->type == TOKEN_LPAREN && is_builtin_func) {
             // It's a function call: identifier(args...)
             advance_stateless(lexer, current);  // consume '('
             

@@ -1,0 +1,6 @@
+function main() returns numeric
+    string msg = "hello"
+    string upper = toUpperCase(msg)
+    numeric dummy = println(upper)
+    return 0
+end function

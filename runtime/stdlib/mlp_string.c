@@ -254,3 +254,158 @@ void mlp_string_free(char* str) {
         free(str);
     }
 }
+
+// ============================================================================
+// Phase 5: String Case Conversion & Trimming (YZ_29)
+// ============================================================================
+
+/**
+ * Convert string to uppercase
+ * 
+ * @param str Source string
+ * @return New heap-allocated uppercase string (caller must free)
+ * 
+ * Example:
+ *   string upper = toUpperCase("hello")  -- "HELLO"
+ */
+char* mlp_string_toUpperCase(const char* str) {
+    if (!str) return NULL;
+    
+    size_t len = strlen(str);
+    char* result = malloc(len + 1);
+    if (!result) return NULL;
+    
+    for (size_t i = 0; i < len; i++) {
+        unsigned char c = (unsigned char)str[i];
+        if (c >= 'a' && c <= 'z') {
+            result[i] = c - 32;  // 'a' - 'A' = 32
+        } else {
+            result[i] = c;
+        }
+    }
+    result[len] = '\0';
+    
+    return result;
+}
+
+/**
+ * Convert string to lowercase
+ * 
+ * @param str Source string
+ * @return New heap-allocated lowercase string (caller must free)
+ * 
+ * Example:
+ *   string lower = toLowerCase("HELLO")  -- "hello"
+ */
+char* mlp_string_toLowerCase(const char* str) {
+    if (!str) return NULL;
+    
+    size_t len = strlen(str);
+    char* result = malloc(len + 1);
+    if (!result) return NULL;
+    
+    for (size_t i = 0; i < len; i++) {
+        unsigned char c = (unsigned char)str[i];
+        if (c >= 'A' && c <= 'Z') {
+            result[i] = c + 32;  // 'A' + 32 = 'a'
+        } else {
+            result[i] = c;
+        }
+    }
+    result[len] = '\0';
+    
+    return result;
+}
+
+/**
+ * Trim whitespace from both ends of string
+ * 
+ * @param str Source string
+ * @return New heap-allocated trimmed string (caller must free)
+ * 
+ * Example:
+ *   string clean = trim("  hello  ")  -- "hello"
+ */
+char* mlp_string_trim(const char* str) {
+    if (!str) return NULL;
+    
+    // Find start (skip leading whitespace)
+    const char* start = str;
+    while (*start && (*start == ' ' || *start == '\t' || *start == '\n' || *start == '\r')) {
+        start++;
+    }
+    
+    // If string is all whitespace
+    if (*start == '\0') {
+        return strdup("");
+    }
+    
+    // Find end (skip trailing whitespace)
+    const char* end = str + strlen(str) - 1;
+    while (end > start && (*end == ' ' || *end == '\t' || *end == '\n' || *end == '\r')) {
+        end--;
+    }
+    
+    // Calculate length and copy
+    size_t len = end - start + 1;
+    char* result = malloc(len + 1);
+    if (!result) return NULL;
+    
+    memcpy(result, start, len);
+    result[len] = '\0';
+    
+    return result;
+}
+
+/**
+ * Trim whitespace from start of string
+ * 
+ * @param str Source string
+ * @return New heap-allocated trimmed string (caller must free)
+ * 
+ * Example:
+ *   string clean = trimStart("  hello  ")  -- "hello  "
+ */
+char* mlp_string_trimStart(const char* str) {
+    if (!str) return NULL;
+    
+    // Skip leading whitespace
+    const char* start = str;
+    while (*start && (*start == ' ' || *start == '\t' || *start == '\n' || *start == '\r')) {
+        start++;
+    }
+    
+    return strdup(start);
+}
+
+/**
+ * Trim whitespace from end of string
+ * 
+ * @param str Source string
+ * @return New heap-allocated trimmed string (caller must free)
+ * 
+ * Example:
+ *   string clean = trimEnd("  hello  ")  -- "  hello"
+ */
+char* mlp_string_trimEnd(const char* str) {
+    if (!str) return NULL;
+    
+    size_t len = strlen(str);
+    if (len == 0) return strdup("");
+    
+    // Find end (skip trailing whitespace)
+    const char* end = str + len - 1;
+    while (end >= str && (*end == ' ' || *end == '\t' || *end == '\n' || *end == '\r')) {
+        end--;
+    }
+    
+    // Calculate length and copy
+    size_t new_len = end - str + 1;
+    char* result = malloc(new_len + 1);
+    if (!result) return NULL;
+    
+    memcpy(result, str, new_len);
+    result[new_len] = '\0';
+    
+    return result;
+}

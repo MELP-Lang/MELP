@@ -8,8 +8,11 @@ typedef enum {
     STRING_OP_COMPARE,     // string1 == string2
     STRING_OP_INDEXOF,     // indexOf(string, substring)
     STRING_OP_CHARAT,      // charAt(string, index)
-    STRING_OP_UPPER,       // toUpper(string)
-    STRING_OP_LOWER,       // toLower(string)
+    STRING_OP_UPPER,       // toUpperCase(string)
+    STRING_OP_LOWER,       // toLowerCase(string)
+    STRING_OP_TRIM,        // trim(string) - YZ_29
+    STRING_OP_TRIM_START,  // trimStart(string) - YZ_29
+    STRING_OP_TRIM_END,    // trimEnd(string) - YZ_29
     STRING_OP_INTERPOLATE, // "Hello ${name}!"  ← TIER 1
     STRING_OP_MULTILINE    // """multi\nline"""  ← TIER 1
 } StringOperationType;

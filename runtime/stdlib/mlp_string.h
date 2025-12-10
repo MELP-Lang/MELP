@@ -29,6 +29,13 @@ char* mlp_string_duplicate(const char* str);
 char* mlp_string_substring(const char* str, size_t start, size_t length);  // YZ_22
 int mlp_string_indexOf(const char* str, const char* substr);  // YZ_22
 
+// Phase 5: Case Conversion & Trimming (YZ_29)
+char* mlp_string_toUpperCase(const char* str);
+char* mlp_string_toLowerCase(const char* str);
+char* mlp_string_trim(const char* str);
+char* mlp_string_trimStart(const char* str);
+char* mlp_string_trimEnd(const char* str);
+
 // Memory management
 void mlp_string_free(char* str);
 
