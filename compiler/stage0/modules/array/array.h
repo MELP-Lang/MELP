@@ -44,9 +44,9 @@ typedef struct {
     } data;
 } Collection;
 
-// Index access: arr[i] or list(i)
+// Index access: arr[i] or list(i) or tuple[i]
 typedef struct {
-    char* collection_name;   // Name of array/list variable
+    char* collection_name;   // Name of array/list/tuple variable
     int index_type;          // 0 = constant, 1 = variable, 2 = expression
     union {
         int const_index;     // Constant index value
@@ -54,6 +54,7 @@ typedef struct {
         void* expr_index;    // Expression for index (cast to Expression*)
     } index;
     int is_list_access;      // 0 = array [], 1 = list ()
+    int is_tuple_access;     // YZ_21: 1 if tuple[i]
 } IndexAccess;
 
 #endif

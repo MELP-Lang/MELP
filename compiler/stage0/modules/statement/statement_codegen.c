@@ -9,6 +9,7 @@
 #include "../functions/functions.h"                 // ✅ ReturnStatement, FunctionDeclaration
 #include "../array/array.h"                         // ✅ YZ_15: IndexAccess, ArrayAssignment
 #include <stdio.h>
+#include <stdlib.h>   // YZ_21: For free()
 #include <string.h>
 
 // Global counter for string literals
@@ -134,6 +135,22 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
                 else if (decl->init_expr) {
                     // ✅ NEW: init_expr is ArithmeticExpr*
                     ArithmeticExpr* expr = (ArithmeticExpr*)decl->init_expr;
+                    
+                    // YZ_21: Register tuple variables for indexing support
+                    // YZ_22: Register list variables for indexing support
+                    if (expr->is_collection && expr->collection) {
+                        if (expr->collection->type == COLL_TUPLE) {
+                            int tuple_len = expr->collection->data.tuple.length;
+                            function_register_tuple_var(func, decl->name, tuple_len);
+                            fprintf(output, "    # Tuple %s registered: %d elements\n", 
+                                    decl->name, tuple_len);
+                        } else if (expr->collection->type == COLL_LIST) {
+                            int list_len = expr->collection->data.list.length;
+                            function_register_list_var(func, decl->name, list_len);
+                            fprintf(output, "    # List %s registered: %d elements\n", 
+                                    decl->name, list_len);
+                        }
+                    }
                     
                     // Generate expression code
                     arithmetic_generate_code(output, expr, func);

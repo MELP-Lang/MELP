@@ -1,0 +1,99 @@
+# YZ/AI_METHODOLOGY_SUM.md Güncelleme Özeti
+
+**Tarih:** 10 Aralık 2025, 22:30
+**Güncelleme Sebebi:** YZ_23 deneyimleri
+
+## Yapılan Değişiklikler
+
+### 1. BÖLÜM 0 Eklendi: "BAŞLAMADAN ÖNCE"
+- ⭐ NEXT_AI_START_HERE.md önceliği vurgulandı
+- Okuma sırası netleştirildi:
+  1. NEXT_AI_START_HERE.md (güncel görev)
+  2. AI_METHODOLOGY_SUM.md (genel yöntem)
+  3. Diğer dökümanlar (detaylar)
+
+### 2. Devir Teslim Kuralları Detaylandırıldı
+- YZ/YZ_XX.md formatı örneklendirildi
+- NEXT_AI_START_HERE.md için gereksinimler netleşti
+- TODO.md güncelleme kriterleri eklendi
+- YZ_23 örneği eklendi (iyi devir teslim)
+
+### 3. Beş Adımlı Method Güncellendi
+
+**Adım 1 - Context:**
+- NEXT_AI_START_HERE.md önceliklendirildi
+- Okuma sırası: NEXT → TODO → YZ_XX → kurallar → ARCH
+
+**Adım 2 - Pattern Discovery:**
+- YZ_23 parser precedence örneği eklendi
+- arithmetic_parser.c reference olarak eklendi
+- Syntax fix pattern'leri eklendi
+
+**Adım 3 - Minimal Code:**
+- Precedence-based implementation stratejisi eklendi
+- YZ_23 örneği: ~60 satır, precedence fix
+- "Sırayı değiştir, özellik ekle" yaklaşımı
+
+**Adım 4 - Test:**
+- Test seviyeleri örneklendirildi
+- YZ_23 test stratejisi: basit → mixed
+- Exit code kontrolü vurgulandı
+
+### 4. Anti-Pattern Tablosu Genişletildi
+- YZ_23 metrikleri eklendi
+- "Parser'ı baştan yaz vs Precedence düzelt" eklendi
+- "MVP → Extend" stratejisi örneklendi
+
+### 5. Yeni Bölümler Eklendi
+
+**2.6 Debugging & Problem Çözme:**
+- Compile error strategy
+- Runtime error strategy
+- YZ_23 debug örneği (myList → function call)
+
+**4.1 Syntax Fix Pattern:**
+- YZ_23'ün kullandığı yaklaşım
+- Precedence düzeltme adımları
+- Minimal değişiklik stratejisi
+
+**4.2 Known Limitations Pattern:**
+- Nasıl dokümante edilir
+- Priority belirleme
+- YZ_23 whitespace örneği
+
+### 6. Checklist Güncellendi
+- Başlangıç checklist'e NEXT_AI_START_HERE.md eklendi
+- Geliştirme checklist eklendi (süreç içi kontroller)
+- Bitiş checklist detaylandırıldı
+
+### 7. Başarı Metrikleri Örneklendi
+- YZ_23 metrikleri eklendi:
+  - 2 saat (tahmini 3-4)
+  - 4 test passing
+  - 300+ satır dokümantasyon
+
+## Toplam Değişiklik
+
+**Dosya boyutu:** 253 → 470 satır (+217 satır)
+**Yeni bölümler:** 3 (Bölüm 0, 2.6, Bölüm 4)
+**Güncellenmiş bölümler:** 6
+
+## Neden Bu Değişiklikler Önemli?
+
+1. **NEXT_AI_START_HERE.md önceliği:** Her AI doğru yerden başlasın
+2. **YZ_23 pattern'leri:** Syntax fix gibi özel durumlar için rehber
+3. **Known Limitations:** Eksik işleri net dokümante etme
+4. **Debugging:** Problem çözme stratejileri
+5. **Detaylı örnekler:** Soyut kurallar → somut uygulamalar
+
+## Sonuç
+
+Metodoloji artık YZ_23'ün deneyimlerini içeriyor:
+- ✅ Precedence fix pattern'i
+- ✅ Minimal değişiklik stratejisi
+- ✅ Known limitations yönetimi
+- ✅ Debugging yaklaşımları
+- ✅ Test stratejileri
+
+**Versiyon:** 3.0 → 3.1
+**Statü:** Production-ready, YZ_24+ için hazır

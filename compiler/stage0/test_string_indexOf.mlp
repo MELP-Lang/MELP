@@ -1,0 +1,5 @@
+function main() returns numeric
+    text name = "World"
+    numeric pos = indexOf(name, "or")
+    return pos
+end function

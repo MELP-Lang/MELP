@@ -1,0 +1,5 @@
+function main() returns numeric
+    list myList = (10; 20; 30;)
+    numeric x = myList (1)   -- SHOULD BE SYNTAX ERROR (space before paren)
+    return x
+end function

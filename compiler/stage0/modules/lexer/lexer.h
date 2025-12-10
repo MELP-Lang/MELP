@@ -71,6 +71,7 @@ typedef struct {
     TokenType type;
     char* value;
     int line;
+    int has_leading_whitespace;  // YZ_24: 1 if whitespace precedes token, 0 otherwise
 } Token;
 
 typedef struct {

@@ -1,0 +1,5 @@
+function main() returns numeric
+    text greeting = "Hello"
+    numeric len = length(greeting)
+    return len
+end function

@@ -191,6 +191,52 @@ char* mlp_string_duplicate(const char* str) {
     return str ? strdup(str) : NULL;
 }
 
+/**
+ * YZ_22: Extract substring
+ * 
+ * @param str Source string
+ * @param start Starting index (0-based)
+ * @param length Number of characters to extract
+ * @return New heap-allocated substring (caller must free)
+ */
+char* mlp_string_substring(const char* str, size_t start, size_t length) {
+    if (!str) return NULL;
+    
+    size_t str_len = strlen(str);
+    if (start >= str_len) return strdup("");  // Out of bounds
+    
+    // Adjust length if it goes beyond string end
+    if (start + length > str_len) {
+        length = str_len - start;
+    }
+    
+    // Allocate memory for substring + null terminator
+    char* result = malloc(length + 1);
+    if (!result) return NULL;
+    
+    // Copy substring
+    memcpy(result, str + start, length);
+    result[length] = '\0';
+    
+    return result;
+}
+
+/**
+ * YZ_22: Find first occurrence of substring
+ * 
+ * @param str String to search in
+ * @param substr Substring to find
+ * @return Index of first occurrence, or -1 if not found
+ */
+int mlp_string_indexOf(const char* str, const char* substr) {
+    if (!str || !substr) return -1;
+    
+    const char* found = strstr(str, substr);
+    if (!found) return -1;
+    
+    return (int)(found - str);  // Calculate index
+}
+
 // ============================================================================
 // Memory Management Helpers
 // ============================================================================

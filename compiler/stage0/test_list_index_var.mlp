@@ -1,0 +1,6 @@
+function main() returns numeric
+    list coords = (100; 200; 300;)
+    numeric i = 2
+    numeric val = coords[i]
+    return val
+end function

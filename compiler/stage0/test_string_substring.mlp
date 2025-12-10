@@ -1,0 +1,6 @@
+function main() returns numeric
+    text msg = "HelloWorld"
+    text sub = substring(msg, 0, 5)
+    numeric result = length(sub)
+    return result
+end function

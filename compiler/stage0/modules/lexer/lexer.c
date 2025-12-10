@@ -56,6 +56,14 @@ static Token* make_token(TokenType type, const char* value, int line) {
     token->type = type;
     token->value = value ? strdup(value) : NULL;
     token->line = line;
+    token->has_leading_whitespace = 0;  // YZ_24: Default to no whitespace
+    return token;
+}
+
+// YZ_24: Helper to create token with whitespace flag
+static Token* make_token_ws(TokenType type, const char* value, int line, int had_whitespace) {
+    Token* token = make_token(type, value, line);
+    token->has_leading_whitespace = had_whitespace;
     return token;
 }
 
@@ -162,19 +170,39 @@ Token* lexer_next_token(Lexer* lexer) {
         return tok;
     }
     
+    // YZ_24: Track if whitespace exists before next token
+    int had_whitespace = 0;
+    if (lexer->pos > 0 && (lexer->source[lexer->pos - 1] == ' ' || 
+                           lexer->source[lexer->pos - 1] == '\t' ||
+                           lexer->source[lexer->pos - 1] == '\r' ||
+                           lexer->source[lexer->pos - 1] == '\n')) {
+        had_whitespace = 1;
+    }
+    
     while (1) {
+        // YZ_24: Check whitespace BEFORE skipping
+        if (lexer->source[lexer->pos] == ' ' || 
+            lexer->source[lexer->pos] == '\t' ||
+            lexer->source[lexer->pos] == '\r' ||
+            lexer->source[lexer->pos] == '\n') {
+            had_whitespace = 1;
+        }
+        
         skip_whitespace(lexer);
         
         // Check for comment using comments module
         if (is_comment_start(lexer->source, lexer->pos)) {
             lexer->pos = skip_comment(lexer->source, lexer->pos, &lexer->line);
+            had_whitespace = 1;  // YZ_24: Comments count as whitespace separator
             continue;  // Re-check for more whitespace/comments
         }
         break;
     }
     
     if (lexer->source[lexer->pos] == '\0') {
-        return make_token(TOKEN_EOF, NULL, lexer->line);
+        Token* token = make_token(TOKEN_EOF, NULL, lexer->line);
+        token->has_leading_whitespace = had_whitespace;
+        return token;
     }
     
     char c = lexer->source[lexer->pos];
@@ -182,45 +210,45 @@ Token* lexer_next_token(Lexer* lexer) {
     // Two-character operators (must check before single-char)
     if (c == '=' && lexer->source[lexer->pos + 1] == '=') {
         lexer->pos += 2;
-        return make_token(TOKEN_EQUAL, "==", lexer->line);
+        return make_token_ws(TOKEN_EQUAL, "==", lexer->line, had_whitespace);
     }
     
     if (c == '!' && lexer->source[lexer->pos + 1] == '=') {
         lexer->pos += 2;
-        return make_token(TOKEN_NOT_EQUAL, "!=", lexer->line);
+        return make_token_ws(TOKEN_NOT_EQUAL, "!=", lexer->line, had_whitespace);
     }
     
     if (c == '<' && lexer->source[lexer->pos + 1] == '=') {
         lexer->pos += 2;
-        return make_token(TOKEN_LESS_EQUAL, "<=", lexer->line);
+        return make_token_ws(TOKEN_LESS_EQUAL, "<=", lexer->line, had_whitespace);
     }
     
     if (c == '>' && lexer->source[lexer->pos + 1] == '=') {
         lexer->pos += 2;
-        return make_token(TOKEN_GREATER_EQUAL, ">=", lexer->line);
+        return make_token_ws(TOKEN_GREATER_EQUAL, ">=", lexer->line, had_whitespace);
     }
     
     // Logical operators (two-character)
     if (c == '&' && lexer->source[lexer->pos + 1] == '&') {
         lexer->pos += 2;
-        return make_token(TOKEN_AND, "&&", lexer->line);
+        return make_token_ws(TOKEN_AND, "&&", lexer->line, had_whitespace);
     }
     
     if (c == '|' && lexer->source[lexer->pos + 1] == '|') {
         lexer->pos += 2;
-        return make_token(TOKEN_OR, "||", lexer->line);
+        return make_token_ws(TOKEN_OR, "||", lexer->line, had_whitespace);
     }
     
     // Power operator (two-character **)
     if (c == '*' && lexer->source[lexer->pos + 1] == '*') {
         lexer->pos += 2;
-        return make_token(TOKEN_POWER, "**", lexer->line);
+        return make_token_ws(TOKEN_POWER, "**", lexer->line, had_whitespace);
     }
     
     // Single-character operators
     if (c == '=') {
         lexer->pos++;
-        return make_token(TOKEN_ASSIGN, "=", lexer->line);
+        return make_token_ws(TOKEN_ASSIGN, "=", lexer->line, had_whitespace);
     }
     
     if (c == '<') {
@@ -236,106 +264,106 @@ Token* lexer_next_token(Lexer* lexer) {
         }
         // If next is identifier/number/string/> → tuple literal
         if (isalpha(next) || isdigit(next) || next == '"' || next == '_' || next == '>') {
-            return make_token(TOKEN_LANGLE, "<", lexer->line);
+            return make_token_ws(TOKEN_LANGLE, "<", lexer->line, had_whitespace);
         }
         // Otherwise: comparison operator
-        return make_token(TOKEN_LESS, "<", lexer->line);
+        return make_token_ws(TOKEN_LESS, "<", lexer->line, had_whitespace);
     }
     
     if (c == '>') {
         lexer->pos++;
         // Always TOKEN_GREATER for comparison
         // Parser converts to tuple close if needed
-        return make_token(TOKEN_GREATER, ">", lexer->line);
+        return make_token_ws(TOKEN_GREATER, ">", lexer->line, had_whitespace);
     }
     
     // Arithmetic operators
     if (c == '+') {
         lexer->pos++;
-        return make_token(TOKEN_PLUS, "+", lexer->line);
+        return make_token_ws(TOKEN_PLUS, "+", lexer->line, had_whitespace);
     }
     
     if (c == '-') {
         lexer->pos++;
-        return make_token(TOKEN_MINUS, "-", lexer->line);
+        return make_token_ws(TOKEN_MINUS, "-", lexer->line, had_whitespace);
     }
     
     if (c == '*') {
         lexer->pos++;
-        return make_token(TOKEN_MULTIPLY, "*", lexer->line);
+        return make_token_ws(TOKEN_MULTIPLY, "*", lexer->line, had_whitespace);
     }
     
     if (c == '/') {
         lexer->pos++;
-        return make_token(TOKEN_DIVIDE, "/", lexer->line);
+        return make_token_ws(TOKEN_DIVIDE, "/", lexer->line, had_whitespace);
     }
     
     if (c == '%') {
         lexer->pos++;
-        return make_token(TOKEN_MOD, "%", lexer->line);
+        return make_token_ws(TOKEN_MOD, "%", lexer->line, had_whitespace);
     }
     
     // Bitwise operators (single-character, checked after && and ||)
     if (c == '&') {
         lexer->pos++;
-        return make_token(TOKEN_AND, "&", lexer->line);
+        return make_token_ws(TOKEN_AND, "&", lexer->line, had_whitespace);
     }
     
     if (c == '|') {
         lexer->pos++;
-        return make_token(TOKEN_OR, "|", lexer->line);
+        return make_token_ws(TOKEN_OR, "|", lexer->line, had_whitespace);
     }
     
     if (c == '^') {
         lexer->pos++;
-        return make_token(TOKEN_XOR, "^", lexer->line);
+        return make_token_ws(TOKEN_XOR, "^", lexer->line, had_whitespace);
     }
     
     // Logical NOT (single-character, checked after !=)
     if (c == '!') {
         lexer->pos++;
-        return make_token(TOKEN_NOT, "!", lexer->line);
+        return make_token_ws(TOKEN_NOT, "!", lexer->line, had_whitespace);
     }
     
     // Delimiters
     if (c == '(') {
         lexer->pos++;
-        return make_token(TOKEN_LPAREN, "(", lexer->line);
+        return make_token_ws(TOKEN_LPAREN, "(", lexer->line, had_whitespace);  // YZ_24: Critical for list validation!
     }
     
     if (c == ')') {
         lexer->pos++;
-        return make_token(TOKEN_RPAREN, ")", lexer->line);
+        return make_token_ws(TOKEN_RPAREN, ")", lexer->line, had_whitespace);
     }
     
     if (c == ',') {
         lexer->pos++;
-        return make_token(TOKEN_COMMA, ",", lexer->line);
+        return make_token_ws(TOKEN_COMMA, ",", lexer->line, had_whitespace);
     }
     
     if (c == ':') {
         lexer->pos++;
-        return make_token(TOKEN_COLON, ":", lexer->line);
+        return make_token_ws(TOKEN_COLON, ":", lexer->line, had_whitespace);
     }
     
     if (c == ';') {
         lexer->pos++;
-        return make_token(TOKEN_SEMICOLON, ";", lexer->line);
+        return make_token_ws(TOKEN_SEMICOLON, ";", lexer->line, had_whitespace);
     }
     
     if (c == '[') {
         lexer->pos++;
-        return make_token(TOKEN_LBRACKET, "[", lexer->line);
+        return make_token_ws(TOKEN_LBRACKET, "[", lexer->line, had_whitespace);
     }
     
     if (c == ']') {
         lexer->pos++;
-        return make_token(TOKEN_RBRACKET, "]", lexer->line);
+        return make_token_ws(TOKEN_RBRACKET, "]", lexer->line, had_whitespace);
     }
     
     if (c == '.') {
         lexer->pos++;
-        return make_token(TOKEN_DOT, ".", lexer->line);
+        return make_token_ws(TOKEN_DOT, ".", lexer->line, had_whitespace);
     }
     
     // Line continuation character
@@ -351,21 +379,29 @@ Token* lexer_next_token(Lexer* lexer) {
         // If not followed by newline, treat _ as identifier start
         if (c == '_') {
             lexer->pos--;  // Back up
-            return read_identifier(lexer);
+            Token* token = read_identifier(lexer);
+            token->has_leading_whitespace = had_whitespace;  // YZ_24: Set flag
+            return token;
         }
-        return make_token(TOKEN_CONTINUATION, c == '_' ? "_" : "\\", lexer->line);
+        return make_token_ws(TOKEN_CONTINUATION, c == '_' ? "_" : "\\", lexer->line, had_whitespace);
     }
     
     if (isdigit(c)) {
-        return read_number(lexer);
+        Token* token = read_number(lexer);
+        token->has_leading_whitespace = had_whitespace;  // YZ_24: Set flag
+        return token;
     }
     
     if (c == '"') {
-        return read_string(lexer);
+        Token* token = read_string(lexer);
+        token->has_leading_whitespace = had_whitespace;  // YZ_24: Set flag
+        return token;
     }
     
     if (isalpha(c) || c == '_') {
-        return read_identifier(lexer);
+        Token* token = read_identifier(lexer);
+        token->has_leading_whitespace = had_whitespace;  // YZ_24: Set flag
+        return token;
     }
     
     // Check for UTF-8 multi-byte characters (non-ASCII)
@@ -389,8 +425,8 @@ Token* lexer_next_token(Lexer* lexer) {
         // Return error token with helpful message
         char error_msg[100];
         snprintf(error_msg, sizeof(error_msg), "Unexpected non-ASCII character (byte: 0x%02X) at line %d", (unsigned char)c, lexer->line);
-        return make_token(TOKEN_ERROR, error_msg, lexer->line);
+        return make_token_ws(TOKEN_ERROR, error_msg, lexer->line, had_whitespace);
     }
     
-    return make_token(TOKEN_ERROR, NULL, lexer->line);
+    return make_token_ws(TOKEN_ERROR, NULL, lexer->line, had_whitespace);
 }
