@@ -11,14 +11,13 @@ typedef struct FunctionDeclaration FunctionDeclaration;
 // func: FunctionDeclaration* for variable scoping (type-safe)
 void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration* func);
 
-// YZ_28: Loop label stack for break/continue support
+// YZ_28: Loop label stack for exit support (VB.NET style)
 // Maximum nested loop depth
 #define MAX_LOOP_DEPTH 32
 
-// Loop context for break/continue
+// Loop context for exit for/exit while
 typedef struct {
-    int break_label;       // Label ID for break target
-    int continue_label;    // Label ID for continue target
+    int exit_label;        // Label ID for exit target (loop end)
 } LoopContext;
 
 // Global loop stack
@@ -26,9 +25,8 @@ extern LoopContext loop_stack[MAX_LOOP_DEPTH];
 extern int loop_stack_top;
 
 // Push/pop loop context
-void loop_push(int break_label, int continue_label);
+void loop_push(int exit_label);
 void loop_pop(void);
-int get_break_label(void);
-int get_continue_label(void);
+int get_break_label(void);  // Returns exit_label for current loop
 
 #endif

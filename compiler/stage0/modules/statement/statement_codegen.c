@@ -15,15 +15,14 @@
 // Global counter for string literals
 static int string_literal_counter = 0;
 
-// YZ_28: Loop stack for break/continue support
+// YZ_28: Loop stack for exit support (VB.NET style)
 LoopContext loop_stack[MAX_LOOP_DEPTH];
 int loop_stack_top = -1;
 
-void loop_push(int break_label, int continue_label) {
+void loop_push(int exit_label) {
     if (loop_stack_top < MAX_LOOP_DEPTH - 1) {
         loop_stack_top++;
-        loop_stack[loop_stack_top].break_label = break_label;
-        loop_stack[loop_stack_top].continue_label = continue_label;
+        loop_stack[loop_stack_top].exit_label = exit_label;
     }
 }
 
@@ -35,14 +34,7 @@ void loop_pop(void) {
 
 int get_break_label(void) {
     if (loop_stack_top >= 0) {
-        return loop_stack[loop_stack_top].break_label;
-    }
-    return -1;  // No loop context
-}
-
-int get_continue_label(void) {
-    if (loop_stack_top >= 0) {
-        return loop_stack[loop_stack_top].continue_label;
+        return loop_stack[loop_stack_top].exit_label;
     }
     return -1;  // No loop context
 }
@@ -401,28 +393,38 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
             break;
         }
         
-        // YZ_28: Break statement - jump to loop end
-        // Note: Loop labels are managed by for_loop_codegen and control_flow_codegen
-        case STMT_BREAK: {
+        // YZ_28: Exit statement - VB.NET style exit from blocks
+        // exit for, exit while - jump to loop end
+        case STMT_EXIT:
+        case STMT_EXIT_FOR:
+        case STMT_EXIT_WHILE: {
             int break_label = get_break_label();
             if (break_label >= 0) {
-                fprintf(output, "    # Break - jump to loop end\n");
+                fprintf(output, "    # Exit - jump to loop end\n");
                 fprintf(output, "    jmp .loop_end_%d\n", break_label);
             } else {
-                fprintf(output, "    # Error: break outside loop\n");
+                fprintf(output, "    # Error: exit outside loop\n");
             }
             break;
         }
         
-        // YZ_28: Continue statement - jump to loop start/continue
-        case STMT_CONTINUE: {
-            int continue_label = get_continue_label();
-            if (continue_label >= 0) {
-                fprintf(output, "    # Continue - jump to loop continue\n");
-                fprintf(output, "    jmp .loop_continue_%d\n", continue_label);
-            } else {
-                fprintf(output, "    # Error: continue outside loop\n");
-            }
+        // YZ_28: Exit if - jump to end of if block (guard clause pattern)
+        // This is used instead of "continue" - put code after if block
+        case STMT_EXIT_IF: {
+            // exit if just ends the if block early, the code after if continues
+            // This is handled by the if codegen - we just need to jump to end_if label
+            // For now, this is a no-op since we're already at end of if
+            fprintf(output, "    # Exit if - guard clause (code continues after if)\n");
+            break;
+        }
+        
+        // YZ_28: Exit function - early return (void)
+        case STMT_EXIT_FUNCTION: {
+            fprintf(output, "    # Exit function - early return\n");
+            fprintf(output, "    xor %%rax, %%rax\n");
+            fprintf(output, "    movq %%rbp, %%rsp\n");
+            fprintf(output, "    popq %%rbp\n");
+            fprintf(output, "    ret\n");
             break;
         }
         

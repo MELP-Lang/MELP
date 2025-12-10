@@ -63,8 +63,8 @@ void control_flow_generate_while(FILE* output, WhileStatement* stmt, void* conte
     
     int loop_id = label_counter++;
     
-    // YZ_28: Push loop context for break/continue
-    loop_push(loop_id, loop_id);
+    // YZ_28: Push loop context for exit while
+    loop_push(loop_id);
     
     fprintf(output, "\n    # While loop\n");
     fprintf(output, ".while_start_%d:\n", loop_id);
@@ -84,8 +84,6 @@ void control_flow_generate_while(FILE* output, WhileStatement* stmt, void* conte
         body_stmt = body_stmt->next;
     }
     
-    // YZ_28: Continue label
-    fprintf(output, ".loop_continue_%d:\n", loop_id);
     fprintf(output, "    jmp .while_start_%d\n", loop_id);
     fprintf(output, ".loop_end_%d:\n", loop_id);
     

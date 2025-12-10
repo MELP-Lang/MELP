@@ -232,19 +232,39 @@ Statement* statement_parse(Parser* parser) {
         return stmt;
     }
     
-    // ✅ YZ_28: BREAK statement - exit loop
-    if (tok->type == TOKEN_BREAK) {
+    // ✅ YZ_28: EXIT statement - exit from block (VB.NET style)
+    // Syntax: exit, exit for, exit while, exit if, exit function
+    if (tok->type == TOKEN_EXIT) {
         token_free(tok);
-        stmt = statement_create(STMT_BREAK);
-        stmt->data = NULL;
-        stmt->next = NULL;
-        return stmt;
-    }
-    
-    // ✅ YZ_28: CONTINUE statement - skip to next iteration
-    if (tok->type == TOKEN_CONTINUE) {
-        token_free(tok);
-        stmt = statement_create(STMT_CONTINUE);
+        
+        // Peek next token to see if it's "for", "while", "if", "function"
+        Token* next = lexer_next_token(parser->lexer);
+        
+        if (next && next->type == TOKEN_FOR) {
+            // exit for
+            token_free(next);
+            stmt = statement_create(STMT_EXIT_FOR);
+        } else if (next && next->type == TOKEN_WHILE) {
+            // exit while
+            token_free(next);
+            stmt = statement_create(STMT_EXIT_WHILE);
+        } else if (next && next->type == TOKEN_IF) {
+            // exit if
+            token_free(next);
+            stmt = statement_create(STMT_EXIT_IF);
+        } else if (next && next->type == TOKEN_FUNCTION) {
+            // exit function
+            token_free(next);
+            stmt = statement_create(STMT_EXIT_FUNCTION);
+        } else {
+            // Just "exit" - exit from nearest block
+            if (next) {
+                // Put token back for next parse
+                parser->current_token = next;
+            }
+            stmt = statement_create(STMT_EXIT);
+        }
+        
         stmt->data = NULL;
         stmt->next = NULL;
         return stmt;

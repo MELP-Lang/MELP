@@ -142,9 +142,7 @@ static Token* read_identifier(Lexer* lexer) {
     else if (strcmp(value, "downto") == 0) type = TOKEN_DOWNTO;
     else if (strcmp(value, "each") == 0) type = TOKEN_EACH;       // YZ_28: for each
     else if (strcmp(value, "in") == 0) type = TOKEN_IN;           // YZ_28: for each item in
-    else if (strcmp(value, "break") == 0) type = TOKEN_BREAK;     // YZ_28: break from loop
-    else if (strcmp(value, "continue") == 0) type = TOKEN_CONTINUE; // YZ_28: continue loop
-    else if (strcmp(value, "exit") == 0) type = TOKEN_EXIT;
+    else if (strcmp(value, "exit") == 0) type = TOKEN_EXIT;       // YZ_28: exit, exit for, exit while, exit if
     // Function keywords
     else if (strcmp(value, "function") == 0) type = TOKEN_FUNCTION;
     else if (strcmp(value, "return") == 0) type = TOKEN_RETURN;

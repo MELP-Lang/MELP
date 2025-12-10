@@ -1,0 +1,10 @@
+function main() returns numeric
+    numeric i = 0
+    while i < 100
+        i = i + 1
+        if i == 7 then
+            exit while
+        end if
+    end while
+    return i
+end function

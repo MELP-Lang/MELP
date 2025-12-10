@@ -500,12 +500,14 @@ end for
 ## Ayrılmış Anahtar Kelimeler
 
 ```
-and, boolean, break, case, catch, continue, default, defer,
-do, else, end, exit, false, finally, for, function, generator,
-if, import, in, lambda, list, match, module, not, null, numeric,
-operator, or, print, return, shared, state, step, string, struct,
-switch, then, throw, to, true, try, tuple, while, yield
+and, boolean, case, catch, default, defer, do, each, else, end,
+exit, false, finally, for, function, generator, if, import, in,
+lambda, list, match, module, not, null, numeric, operator, or,
+print, return, shared, state, step, string, struct, switch, then,
+throw, to, true, try, tuple, while, yield
 ```
+
+**Not:** `break` ve `continue` MELP'te yoktur. Bunların yerine `exit` sistemi kullanılır.
 
 ---
 

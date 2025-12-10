@@ -1,0 +1,11 @@
+function main() returns numeric
+    numeric[] arr = [10, 20, 30, 40, 50]
+    numeric sum = 0
+    for each item in arr
+        sum = sum + item
+        if item == 30 then
+            exit for
+        end if
+    end for
+    return sum
+end function
