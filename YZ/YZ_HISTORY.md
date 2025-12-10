@@ -23,7 +23,7 @@
 ### ✅ Tamamlanan Ana Özellikler:
 - Lexer & Parser (Token işleme, AST oluşturma)
 - Functions (Deklarasyon, çağrı, parametreler, return)
-- Variables (numeric, text, boolean tipi)
+- Variables (numeric, string, boolean tipi)
 - Arithmetic (+, -, *, /)
 - Comparison (<, <=, >, >=, ==, !=)
 - Control Flow (if/else, while döngüsü)
@@ -59,7 +59,7 @@
 #### 🎯 Ne Yapıldı:
 - **Kritik Sorun Buldu:** Önceki AI, TTO mimarisini ihlal ederek stdlib'de `int`/`float` tipleri expose etmiş
 - **Çözüm:** Tüm legacy API temizlendi, saf TTO mimarisi uygulandı
-- **TTO Prensibi:** Kullanıcı sadece `numeric` ve `text` görür, runtime içerde optimize eder
+- **TTO Prensibi:** Kullanıcı sadece `numeric` ve `string` görür, runtime içerde optimize eder
 
 #### 🔧 Teknik Değişiklikler:
 1. **Stdlib Temizliği:**
@@ -257,7 +257,7 @@ Output: `fibonacci(10) = 55` ✅
    typedef struct LocalVariable {
        char* name;
        int stack_offset;
-       int is_numeric;  // 1=numeric, 0=text
+       int is_numeric;  // 1=numeric, 0=string
    } LocalVariable;
    ```
 
@@ -289,7 +289,7 @@ end function
 Output: `factorial(5) = 120` ✅
 
 #### 📝 TTO Prensibi:
-- Kullanıcı görür: `numeric`, `text`
+- Kullanıcı görür: `numeric`, `string`
 - Compiler takip eder: 1 bit (`is_numeric`)
 - Runtime optimize eder: int64/double/BigDecimal, SSO/heap
 
@@ -868,7 +868,7 @@ end                      body
 
 ### 🎓 Öğrenilen Dersler:
 1. **TTO Prensibi Kritik:**
-   - Kullanıcı sadece 2 tip görür: numeric, text
+   - Kullanıcı sadece 2 tip görür: numeric, string
    - Compiler 1 bit track eder: is_numeric
    - Runtime optimize eder: int64/double/BigDecimal, SSO/heap
    - **ÖNEMLİ:** Bu prensibi anlamadan geliştirme yapma!
@@ -900,7 +900,7 @@ end                      body
    - Dilden bağımsız
 
 3. **TTO Type System:**
-   - 2 tip (numeric, text)
+   - 2 tip (numeric, string)
    - 1 bit tracking (is_numeric)
    - Runtime optimization
 
@@ -919,7 +919,7 @@ end                      body
 
 ### ✅ Çalışan Özellikler:
 - Functions (declaration, call, return, recursion)
-- Variables (numeric, text)
+- Variables (numeric, string)
 - Arithmetic (+, -, *, /)
 - Comparison (6 operator: <, <=, >, >=, ==, !=)
 - Control Flow (if/else, while)

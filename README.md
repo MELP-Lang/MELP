@@ -100,7 +100,7 @@ MLP/
 - ✅ **Variables**: Numeric type (local in functions)
 - ✅ **Arithmetic**: All operations (+, -, *, /)
 - ✅ **Stdlib**: println() integrated
-- ✅ **Keywords**: `function`, `numeric`, `text`, `boolean`, `if`, `while`, `for`, `return`
+- ✅ **Keywords**: `function`, `numeric`, `string`, `boolean`, `if`, `while`, `for`, `return`
 - ✅ **Parsers**: All control flow parsers ready (codegen needed)
 - ✅ **Modular Architecture**: No central files, Unix pipes
 - ✅ **Test Suite**: Comprehensive MVC test passing
@@ -108,9 +108,9 @@ MLP/
 ### Type System
 - **Type Keywords**: 
   - `numeric` - Integer and floating-point numbers (TTO optimized)
-  - `text` - UTF-8 strings (MLP standard, SSO optimization)
+  - `string` - UTF-8 strings (MLP standard, SSO optimization)
   - `boolean` - True/false values
-- **TOKEN_STRING_TYPE**: Internal token for type keywords (`text`, `numeric`, `boolean`)
+- **TOKEN_STRING_TYPE**: Internal token for type keywords (`string`, `numeric`, `boolean`)
 - **TOKEN_STRING**: Internal token for string literals ("...")
 
 ### Next Features (YZ_04 Priority)
