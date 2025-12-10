@@ -125,13 +125,13 @@ void codegen_tuple_literal(FILE* output, Tuple* tuple) {
     
     fprintf(output, "    # Tuple literal: %d elements (immutable)\n", tuple->length);
     
-    int tuple_id = array_label_counter++;
+    // Tuples use runtime allocation (tto_tuple_alloc)
+    // Then we set each element with type info
     
-    // Tuples are stack-allocated (fixed size, immutable)
-    fprintf(output, "    # Allocate tuple on stack\n");
-    int bytes = tuple->length * 8 + tuple->length * 4;  // Elements + types
-    fprintf(output, "    sub rsp, %d  ; Allocate %d bytes\n", bytes, bytes);
-    fprintf(output, "    mov [tuple_%d], rsp  ; Save tuple pointer\n", tuple_id);
+    // Call tto_tuple_alloc(size_t length)
+    fprintf(output, "    movq $%d, %%rdi  # arg1: tuple length\n", tuple->length);
+    fprintf(output, "    call tto_tuple_alloc  # Returns pointer in rax\n");
+    fprintf(output, "    movq %%rax, %%rbx  # Save tuple pointer in rbx\n");
     
     // Initialize tuple elements
     if (tuple->length > 0 && tuple->elements && tuple->element_types) {
@@ -139,21 +139,28 @@ void codegen_tuple_literal(FILE* output, Tuple* tuple) {
             ArithmeticExpr* elem = (ArithmeticExpr*)tuple->elements[i];
             if (elem) {
                 fprintf(output, "    # Tuple element %d (type=%d)\n", i, tuple->element_types[i]);
+                
+                // Evaluate element expression
                 arithmetic_generate_code(output, elem, NULL);  // Result in r8/xmm0
-                fprintf(output, "    mov rax, r8  ; Move result to rax\n");
                 
-                // Store in tuple (immutable after creation)
-                fprintf(output, "    mov rbx, [tuple_%d]  ; Load tuple pointer\n", tuple_id);
-                fprintf(output, "    mov [rbx + %d], rax  ; Store element\n", i * 8);
+                // Push element value to stack (tto_tuple_set expects pointer)
+                fprintf(output, "    pushq %%r8  # Push value to stack\n");
                 
-                // Store type info
-                fprintf(output, "    mov dword [rbx + %d], %d  ; Store type\n", 
-                       tuple->length * 8 + i * 4, tuple->element_types[i]);
+                // Call tto_tuple_set(tuple, index, value_ptr, type)
+                fprintf(output, "    movq %%rbx, %%rdi  # arg1: tuple pointer\n");
+                fprintf(output, "    movq $%d, %%rsi  # arg2: index\n", i);
+                fprintf(output, "    movq %%rsp, %%rdx  # arg3: pointer to value on stack\n");
+                fprintf(output, "    movq $%d, %%rcx  # arg4: type\n", tuple->element_types[i]);
+                fprintf(output, "    call tto_tuple_set  # Set element with type\n");
+                
+                // Clean up stack
+                fprintf(output, "    addq $8, %%rsp  # Pop value\n");
             }
         }
     }
     
-    fprintf(output, "    mov rax, [tuple_%d]  ; Tuple pointer result\n", tuple_id);
+    // Result: tuple pointer in rbx, move to rax
+    fprintf(output, "    movq %%rbx, %%rax  # Tuple pointer result\n");
 }
 
 // Generate stack-based array (fixed size)

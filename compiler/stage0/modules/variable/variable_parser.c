@@ -126,6 +126,7 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
         tok->type == TOKEN_NUMBER ||
         tok->type == TOKEN_STRING ||
         tok->type == TOKEN_LPAREN ||  // YZ_19: list literal (1;2;) or parenthesized expression
+        tok->type == TOKEN_LANGLE ||  // YZ_20: tuple literal <1,2>
         tok->type == TOKEN_NOT) {  // YZ_18: Handle NOT operator
         
         // Use stateless arithmetic parser for expression parsing
@@ -141,7 +142,7 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
                 decl->storage = STORAGE_DATA;
                 arithmetic_expr_free(expr);
             } else {
-                // Complex expression or collection: numeric x = a + b, list x = (1;2;)
+                // Complex expression or collection: numeric x = a + b, list x = (1;2;), tuple x = <1,2>
                 decl->init_expr = expr;  // ✅ Store ArithmeticExpr*
                 decl->storage = STORAGE_BSS;  // Runtime initialization
                 decl->tto_analyzed = false;

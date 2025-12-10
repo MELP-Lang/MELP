@@ -964,6 +964,127 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         return first_elem;
     }
     
+    // Tuple literal: <x, y, z>
+    if ((*current)->type == TOKEN_LANGLE) {
+        advance_stateless(lexer, current);  // Skip '<'
+        
+        // Check for empty tuple: <>
+        if ((*current)->type == TOKEN_GREATER) {
+            // Empty tuple
+            advance_stateless(lexer, current);  // Skip '>'
+            
+            Collection* coll = malloc(sizeof(Collection));
+            coll->type = COLL_TUPLE;
+            coll->data.tuple.length = 0;
+            coll->data.tuple.elements = NULL;
+            coll->data.tuple.element_types = NULL;
+            
+            expr->is_literal = 1;
+            expr->is_collection = 1;
+            expr->collection = coll;
+            expr->is_float = 0;
+            expr->is_string = 0;
+            expr->is_boolean = 0;
+            
+            TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+            tto->type = INTERNAL_TYPE_TUPLE;
+            tto->is_constant = false;
+            tto->needs_promotion = false;
+            tto->mem_location = MEM_HEAP;
+            expr->tto_info = tto;
+            expr->tto_analyzed = true;
+            expr->needs_overflow_check = false;
+            
+            return expr;
+        }
+        
+        // Parse elements (comma-separated)
+        int capacity = 4;
+        int length = 0;
+        ArithmeticExpr** elements = malloc(sizeof(ArithmeticExpr*) * capacity);
+        VarType* types = malloc(sizeof(VarType) * capacity);
+        
+        // Parse first element
+        ArithmeticExpr* first_elem = parse_bitwise_stateless(lexer, current);
+        if (!first_elem) {
+            fprintf(stderr, "Error: Failed to parse tuple element\n");
+            free(elements);
+            free(types);
+            free(expr);
+            return NULL;
+        }
+        elements[0] = first_elem;
+        types[0] = first_elem->is_string ? VAR_STRING : VAR_NUMERIC;
+        length = 1;
+        
+        // Parse remaining elements
+        while (*current && (*current)->type == TOKEN_COMMA) {
+            advance_stateless(lexer, current);  // Skip ','
+            
+            // Check capacity
+            if (length >= capacity) {
+                capacity *= 2;
+                elements = realloc(elements, sizeof(ArithmeticExpr*) * capacity);
+                types = realloc(types, sizeof(VarType) * capacity);
+            }
+            
+            // Parse next element
+            ArithmeticExpr* elem = parse_bitwise_stateless(lexer, current);
+            if (!elem) {
+                fprintf(stderr, "Error: Failed to parse tuple element\n");
+                for (int i = 0; i < length; i++) {
+                    arithmetic_expr_free(elements[i]);
+                }
+                free(elements);
+                free(types);
+                free(expr);
+                return NULL;
+            }
+            
+            elements[length] = elem;
+            types[length] = elem->is_string ? VAR_STRING : VAR_NUMERIC;
+            length++;
+        }
+        
+        // Expect '>'
+        if (!*current || (*current)->type != TOKEN_GREATER) {
+            fprintf(stderr, "Error: Expected '>' after tuple elements\n");
+            for (int i = 0; i < length; i++) {
+                arithmetic_expr_free(elements[i]);
+            }
+            free(elements);
+            free(types);
+            free(expr);
+            return NULL;
+        }
+        advance_stateless(lexer, current);  // Skip '>'
+        
+        // Build tuple collection
+        Collection* coll = malloc(sizeof(Collection));
+        coll->type = COLL_TUPLE;
+        coll->data.tuple.length = length;
+        coll->data.tuple.elements = (void**)elements;
+        coll->data.tuple.element_types = types;
+        
+        expr->is_literal = 1;
+        expr->is_collection = 1;
+        expr->collection = coll;
+        expr->is_float = 0;
+        expr->is_string = 0;
+        expr->is_boolean = 0;
+        
+        TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+        tto->type = INTERNAL_TYPE_TUPLE;
+        tto->is_constant = false;
+        tto->needs_promotion = false;
+        tto->mem_location = MEM_HEAP;
+        expr->tto_info = tto;
+        expr->tto_analyzed = true;
+        expr->needs_overflow_check = false;
+        
+        return expr;
+    }
+    
     fprintf(stderr, "Error: Unexpected token in arithmetic expression\n");
     free(expr);
     return NULL;
