@@ -123,8 +123,8 @@ static Token* read_identifier(Lexer* lexer) {
     // Check keywords
     TokenType type = TOKEN_IDENTIFIER;
     if (strcmp(value, "numeric") == 0) type = TOKEN_NUMERIC;
-    else if (strcmp(value, "string") == 0) type = TOKEN_STRING_TYPE;  // STRING type keyword (legacy)
-    else if (strcmp(value, "text") == 0) type = TOKEN_STRING_TYPE;    // TEXT type keyword (MLP standard)
+    else if (strcmp(value, "string") == 0) type = TOKEN_STRING_TYPE;  // STRING type keyword (MLP standard)
+    else if (strcmp(value, "text") == 0) type = TOKEN_STRING_TYPE;    // TEXT type keyword (legacy alias, deprecated)
     else if (strcmp(value, "boolean") == 0) type = TOKEN_BOOLEAN;
     else if (strcmp(value, "list") == 0) type = TOKEN_LIST;
     else if (strcmp(value, "tuple") == 0) type = TOKEN_TUPLE;

@@ -22,7 +22,7 @@ typedef struct {
 // Variable info (legacy)
 typedef struct {
     char* name;
-    int type;  // 0=numeric, 1=text, 2=boolean
+    int type;  // 0=numeric, 1=string, 2=boolean
 } VarInfo;
 
 // Function context (forward declaration)

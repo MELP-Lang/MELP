@@ -9,8 +9,8 @@ typedef enum {
     VAR_NUMERIC,
     VAR_STRING,
     VAR_BOOLEAN,
-    VAR_POINTER,     // Pointer type (numeric*, text*)
-    VAR_ARRAY,       // Array type (numeric[], text[])
+    VAR_POINTER,     // Pointer type (numeric*, string*)
+    VAR_ARRAY,       // Array type (numeric[], string[])
     VAR_LIST,        // List type () - heterogeneous, mutable
     VAR_TUPLE        // Tuple type <> - heterogeneous, immutable
 } VarType;
@@ -41,7 +41,7 @@ typedef enum {
 // Variable declaration structure
 typedef struct {
     char* name;                          // Variable name
-    VarType type;                        // Variable type (numeric, text, boolean, pointer, array)
+    VarType type;                        // Variable type (numeric, string, boolean, pointer, array)
     char* value;                         // Initial value (string representation)
     InternalNumericType internal_num_type;  // For TTO optimization (DEPRECATED - use tto_info)
     InternalStringType internal_str_type;   // For TTO optimization (DEPRECATED - use tto_info)
@@ -70,6 +70,9 @@ typedef struct {
     TTOTypeInfo* tto_info;               // TTO analysis of assigned value (heap allocated)
     bool tto_analyzed;                   // Has TTO analysis been performed?
     bool needs_type_promotion;           // Does this need type promotion (int64 -> bigdec)?
+    
+    // ========== YZ_25: Implicit Declaration ==========
+    bool is_implicit_declaration;        // True if declared with `;` (type inference)
 } VariableAssignment;
 
 // ========== YZ_15: Array Element Assignment ==========

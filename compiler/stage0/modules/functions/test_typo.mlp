@@ -1,0 +1,9 @@
+function main() returns numeric
+    numeric sayi = 10
+    
+    -- Yazım hatası - syai yerine sayi olmalıydı
+    -- Ve sonunda ; yok, bu yüzden hata vermeli
+    syai = 20
+    
+    return sayi
+end function

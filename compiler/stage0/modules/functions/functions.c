@@ -107,7 +107,7 @@ void function_register_local_var_with_type(FunctionDeclaration* func, const char
     // Create new local variable entry
     LocalVariable* var = malloc(sizeof(LocalVariable));
     var->name = strdup(name);
-    var->is_numeric = is_numeric;  // TTO: 1=numeric, 0=text
+    var->is_numeric = is_numeric;  // TTO: 1=numeric, 0=string
     var->is_array = 0;             // Default: not an array
     var->array_length = 0;         // Default: no length
     var->is_tuple = 0;             // YZ_21: Default: not a tuple
@@ -144,7 +144,61 @@ int function_get_var_offset(FunctionDeclaration* func, const char* name) {
     return 0;  // Not found
 }
 
-// Lookup variable's type (1 = numeric, 0 = text)
+// YZ_25: Check if variable exists in function scope
+int function_var_exists(FunctionDeclaration* func, const char* name) {
+    if (!func || !name) return 0;
+    
+    LocalVariable* var = func->local_vars;
+    while (var) {
+        if (strcmp(var->name, name) == 0) {
+            return 1;  // Found
+        }
+        var = var->next;
+    }
+    
+    return 0;  // Not found
+}
+
+// YZ_25: Find similar variable name (for typo suggestions)
+// Uses simple Levenshtein-like comparison
+static int str_similarity(const char* a, const char* b) {
+    int len_a = strlen(a);
+    int len_b = strlen(b);
+    int matches = 0;
+    int min_len = len_a < len_b ? len_a : len_b;
+    
+    for (int i = 0; i < min_len; i++) {
+        if (a[i] == b[i]) matches++;
+    }
+    
+    // Also check for transposed characters
+    for (int i = 0; i < min_len - 1; i++) {
+        if (a[i] == b[i+1] && a[i+1] == b[i]) matches++;
+    }
+    
+    return matches * 100 / (len_a > len_b ? len_a : len_b);
+}
+
+const char* function_find_similar_var(FunctionDeclaration* func, const char* name) {
+    if (!func || !name) return NULL;
+    
+    const char* best_match = NULL;
+    int best_score = 50;  // Minimum 50% similarity required
+    
+    LocalVariable* var = func->local_vars;
+    while (var) {
+        int score = str_similarity(name, var->name);
+        if (score > best_score) {
+            best_score = score;
+            best_match = var->name;
+        }
+        var = var->next;
+    }
+    
+    return best_match;
+}
+
+// Lookup variable's type (1 = numeric, 0 = string)
 int function_get_var_is_numeric(FunctionDeclaration* func, const char* name) {
     if (!func || !name) return 1;
     
