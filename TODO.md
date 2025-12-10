@@ -831,6 +831,12 @@ end function
 4. Test incrementally
 5. Document in YZ/YZ_31.md
 
+**⚠️ Oturum Sonu Zorunlu Güncellemeler:**
+1. `TODO.md` - Phase durumlarını güncelle
+2. `temp/user_todo.md` - TODO.md ile senkronize tut!
+3. `YZ/YZ_XX.md` - Oturum raporu oluştur
+4. `NEXT_AI_START_HERE.md` - Sonraki YZ için güncelle
+
 **Potential Next Tasks:**
 - Error recovery (continue parsing after error)
 - Input functions (input(), input_numeric())
