@@ -116,6 +116,52 @@ For complete implementation details, algorithms, and memory strategies:
 
 ---
 
+## Rule #0.5: Stateless Architecture
+
+### 🎯 Two Meanings of "Stateless"
+
+MELP uses "stateless" in two different contexts:
+
+#### 1. Compiler Stateless (Internal Implementation)
+- Parser functions are stateless (`*_stateless()` pattern)
+- No global state between modules
+- Token ownership/borrowing pattern for memory management
+- Pipeline: Lexer → Parser → Codegen are separate, independent stages
+
+#### 2. Runtime Stateful (User Code)
+- `state` keyword allows runtime state variables
+- Global/shared variables are supported
+- Mutable variables work (`x = x + 1`)
+
+**This separation is intentional:** A stateless compiler is easier to test and debug,
+but doesn't restrict the language user from managing state.
+
+---
+
+## Rule #0.6: Design Philosophy
+
+### 🎯 MELP = VB.NET Readability + Python Simplicity
+
+MELP combines the best of both worlds:
+
+| Decision | MELP Choice | Reason |
+|----------|-------------|--------|
+| `=` vs `==` | `=` assignment, `==` comparison | Explicit, prevents bugs (unlike VB.NET's context-dependent `=`) |
+| `function` keyword | Single keyword, no `Sub` | Python-like simplicity, no void/return distinction needed |
+| Variable declaration | `numeric x = 5` (no `Dim`) | Type-first is clear enough, `Dim` is verbose |
+| String type | `string` keyword | Universal term, understood in all languages |
+| Collection iteration | `for each item in collection` | VB.NET compatibility, readable |
+| Block endings | `end if`, `end while`, `end function` | VB.NET style, self-documenting |
+
+### ⚠️ Design Principles
+
+1. **Readability over brevity** - `end if` not `}`
+2. **Explicit over implicit** - `==` for comparison, not context-dependent `=`
+3. **One way to do things** - Single `function` keyword, no `Sub`/`Function` split
+4. **Type-first declarations** - `numeric x`, not `Dim x As Integer`
+
+---
+
 ## Rule #1: NO CENTRAL FILES (Radical Modularity)
 
 **WHY:** Central files (main.c, orchestrator.c, helpers.c) attract AI agents to write monolithic code.

@@ -34,8 +34,8 @@ make clean && make
 
 # Test
 ./functions_compiler test.mlp test.s
-gcc -no-pie test.s runtime_funcs.c -o test
-./test
+gcc -o test test.s -L../../../../runtime/stdlib -lmlp_stdlib -L../../../../runtime/tto -ltto_runtime -lm
+LD_LIBRARY_PATH=../../../../runtime/stdlib:../../../../runtime/tto ./test
 ```
 
 ## 📜 Kurallar
@@ -58,22 +58,43 @@ Oturumu bitirmeden önce:
 | Dosya | Amaç |
 |-------|------|
 | `TODO.md` | Görev listesi |
-| `ARCHITECTURE.md` | Proje mimarisi |
+| `ARCHITECTURE.md` | Proje mimarisi + Tasarım Felsefesi |
 | `YZ/YZ_XX.md` | Oturum raporları |
 | `compiler/stage0/modules/functions/` | Aktif geliştirme alanı |
 
 ## 🔢 Son YZ Numarası
 
-**YZ_26** - Dokümantasyon düzeltmeleri (text→string) + While loop sorunu tespit edildi
+**YZ_27** - While loop düzeltildi ✅ + Tasarım felsefesi belgelendi
 
 ---
 
-## 🔴 ACİL: While Loop Sorunu
+## 🎯 Sonraki Görevler (Phase 4)
 
-While loop parser'da çalışmıyor. Lexer doğru token üretiyor ama `statement_parser.c` işlemiyor.
+### Öncelikli: For-Each Loop
+```mlp
+for each item in collection
+    print item
+end for
+```
+- Lexer: TOKEN_EACH, TOKEN_IN ekle
+- Parser: for_loop_parser.c güncelle
+- Codegen: Counter + bounds checking
 
-**Sorun:** `statement_parser.c` satır 40-86 arası - TOKEN_WHILE case'ine girilmiyor  
-**Detay:** `YZ/YZ_26.md` dosyasına bak
+### Diğer Phase 4 görevleri için `TODO.md` bak
+
+---
+
+## ✅ Son Düzeltmeler (YZ_27)
+
+1. **While Loop Düzeltildi**
+   - Bug: Lexer `<` için TOKEN_LANGLE döndürüyordu (tuple için)
+   - Fix: Boşluk bazlı heuristic (`x < 3` → TOKEN_LESS)
+   - `do` keyword kaldırıldı: `while condition ... end while`
+
+2. **Tasarım Felsefesi Belgelendi**
+   - ARCHITECTURE.md: Stateless Architecture + Design Philosophy
+   - docs/language/melp_syntax.md: Design Philosophy bölümü
+   - docs_tr/language/melp_syntax.md: Tasarım Felsefesi bölümü
 
 ---
 

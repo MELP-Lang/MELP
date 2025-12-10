@@ -1,7 +1,9 @@
 function main() returns numeric
     numeric x = 0
-    while x < 3
+    while x < 5 do
+        print x
         x = x + 1
     end while
+    print x
     return x
 end function

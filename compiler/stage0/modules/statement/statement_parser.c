@@ -78,7 +78,6 @@ Statement* statement_parse(Parser* parser) {
     
     // ✅ WHILE statement - use control_flow module
     if (tok->type == TOKEN_WHILE) {
-        
         // ✅ NEW STATELESS PATTERN - No malloc/free!
         // Call template function, passing token
         WhileStatement* while_data = control_flow_parse_while(parser->lexer, tok);

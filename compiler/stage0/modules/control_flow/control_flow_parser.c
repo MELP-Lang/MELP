@@ -74,17 +74,7 @@ WhileStatement* control_flow_parse_while(Lexer* lexer, Token* while_token) {
         return NULL;
     }
     
-    // ✅ Expect 'do' keyword after condition
-    tok = lexer_next_token(lexer);
-    if (!tok || tok->type != TOKEN_DO) {
-        fprintf(stderr, "[Parser] error: Expected 'do' after while condition\n");
-        free(stmt->condition);
-        free(stmt);
-        if (tok) token_free(tok);
-        return NULL;
-    }
-    token_free(tok);
-    
+    // No 'do' keyword needed - while condition ... end while
     // Don't parse body - statement_parser will handle recursively
     return stmt;
 }
