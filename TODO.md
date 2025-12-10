@@ -642,7 +642,54 @@ Eğer TTO'yu anlamadan TODO'ya başlarsan, çalışan sistemi bozabilirsin.
 
 ---
 
-## 🎯 Phase 8: Self-Hosting Preparation (Future - Far)
+## 🎯 Phase 8: State Module (Future - Optional)
+**Priority:** ⭐ LOW (opt-in feature)
+
+> **MELP is Stateless by Default!** All variables are function-local and don't persist.
+> The State module is an **explicit opt-in** for when persistence is needed.
+
+- [ ] **State Module Implementation** (~3 hours)
+  - `import state` - Enable state management
+  - `state.set(key, value)` - Store persistent value
+  - `state.get(key)` - Retrieve persistent value
+  - `state.has(key)` - Check if key exists
+  - `state.clear()` - Clear all state
+
+- [ ] **State Runtime** (~2 hours)
+  - Hash map based storage
+  - Type-safe value retrieval
+  - Memory management
+
+- [ ] **Shared State** (Future - Optional)
+  - Cross-module state sharing
+  - `import shared_state`
+
+**Example Usage:**
+```mlp
+-- Without state (default): counter always returns 1
+function counter() returns numeric
+    numeric x = 0
+    x = x + 1
+    return x
+end function
+
+-- With state module: counter increments
+import state
+state.set("x", 0)
+
+function counter_stateful() returns numeric
+    numeric x = state.get("x")
+    x = x + 1
+    state.set("x", x)
+    return x  -- Returns 1, 2, 3, 4...
+end function
+```
+
+**Deliverable:** Optional state management for when persistence is truly needed
+
+---
+
+## 🎯 Phase 9: Self-Hosting Preparation (Future - Far)
 **Priority:** ⭐ LOW (far future)
 
 - [ ] **File I/O** (2 hours)
@@ -699,7 +746,10 @@ Eğer TTO'yu anlamadan TODO'ya başlarsan, çalışan sistemi bozabilirsin.
 | **Phase 5: String Methods** | ⏳ Future | 0% |
 | **Phase 6: Error Messages** | ⏳ Future | 0% |
 | **Phase 7: Optimization** | ⏳ Future | 0% |
-| **Phase 8: Self-Hosting** | ⏳ Far Future | 0% |
+| **Phase 8: State Module** | ⏳ Future (Opt-in) | 0% |
+| **Phase 9: Self-Hosting** | ⏳ Far Future | 0% |
+
+> **Note:** MELP is **stateless by default**. Phase 8 (State Module) is optional - only needed when explicit persistence is required.
 
 ---
 

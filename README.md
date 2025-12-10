@@ -2,6 +2,8 @@
 
 Modern, type-safe, and efficient programming language with transparent type optimization (TTO).
 
+**Core Philosophy:** *Stateless by Default, Stateful by Choice* - MELP is a stateless language where all variables are function-local. For persistent state, explicitly import the `state` module.
+
 > **For New AI Assistant (YZ Series)**: Read `/NEXT_AI_START_HERE.md` for current status and your mission. Then read `/ARCHITECTURE.md` for critical rules. All YZ sessions documented in `/YZ/` folder.
 > 
 > **⚠️ CRITICAL: Read `ARCHITECTURE.md` BEFORE coding!** Previous AI agents created monolithic code by violating modularity rules. Follow the YZ workflow: branch naming, commits, handoff docs.
