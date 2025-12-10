@@ -54,7 +54,9 @@ Oturumu bitirmeden önce:
 
 - [ ] `YZ/YZ_XX.md` oluştur (XX = sonraki numara)
 - [ ] `TODO.md` güncelle (tamamlananları işaretle, yenileri ekle)
+- [ ] `temp/user_todo.md` güncelle (TODO.md ile senkronize tut!) ⚠️
 - [ ] Bu dosyayı güncelle (önemli bir değişiklik varsa)
+- [ ] Commit ve push yap (dal: `*_YZ_XX`)
 
 ## 📁 Önemli Dosyalar
 
