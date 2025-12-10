@@ -356,6 +356,8 @@ Statement* statement_parse(Parser* parser) {
         }
         
         // Variable assignment: var = value
+        // YZ_25: If statement ends with ';', it's implicit declaration (type inferred later)
+        // If no ';' and variable not declared, codegen will catch the error
         if (next_tok && next_tok->type == TOKEN_ASSIGN) {
             token_free(next_tok);  // We know it's '=', consume it
             
@@ -371,12 +373,28 @@ Statement* statement_parse(Parser* parser) {
             token_free(expr_tok);
             
             if (expr) {
+                // YZ_25: Check for trailing semicolon (implicit declaration marker)
+                Token* maybe_semicolon = lexer_next_token(parser->lexer);
+                int is_implicit_declaration = 0;
+                
+                if (maybe_semicolon && maybe_semicolon->type == TOKEN_SEMICOLON) {
+                    // Has semicolon - this is an implicit variable declaration
+                    is_implicit_declaration = 1;
+                    token_free(maybe_semicolon);
+                } else {
+                    // No semicolon - put token back for next statement
+                    if (maybe_semicolon) {
+                        lexer_unget_token(parser->lexer, maybe_semicolon);
+                    }
+                }
+                
                 VariableAssignment* assign = malloc(sizeof(VariableAssignment));
                 assign->name = strdup(tok->value);
                 assign->value_expr = expr;
                 assign->tto_info = NULL;
                 assign->tto_analyzed = false;
                 assign->needs_type_promotion = false;
+                assign->is_implicit_declaration = is_implicit_declaration;  // YZ_25: Mark if implicit
                 
                 token_free(tok);
                 

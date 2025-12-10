@@ -1,0 +1,9 @@
+function main() returns numeric
+    -- String implicit declaration
+    isim = "Ali";
+    
+    -- Numeric implicit declaration  
+    yas = 25;
+    
+    return yas
+end function

@@ -1,0 +1,14 @@
+function main() returns numeric
+    -- Explicit declaration (klasik)
+    numeric x = 10
+    
+    -- Implicit declaration with ; (YZ_25)
+    y = 20;
+    
+    -- Assignment to existing variable (no ;)
+    x = 15
+    
+    -- Use both variables
+    numeric result = x + y
+    return result
+end function

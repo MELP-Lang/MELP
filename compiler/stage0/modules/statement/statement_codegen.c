@@ -194,8 +194,40 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
         
         case STMT_ASSIGNMENT: {
             // ✅ Variable assignment - evaluate expression and store
+            // YZ_25: Check for implicit declaration or undefined variable
             VariableAssignment* assign = (VariableAssignment*)stmt->data;
             if (assign) {
+                // YZ_25: Check if variable exists
+                int var_exists = function_var_exists(func, assign->name);
+                
+                if (!var_exists && assign->is_implicit_declaration) {
+                    // YZ_25: Implicit declaration with ';' - register the variable
+                    // Infer type from expression
+                    int is_numeric = 1;  // Default to numeric
+                    if (assign->value_expr) {
+                        ArithmeticExpr* expr = (ArithmeticExpr*)assign->value_expr;
+                        if (expr->is_string) {
+                            is_numeric = 0;
+                        }
+                    }
+                    function_register_local_var_with_type(func, assign->name, is_numeric);
+                    fprintf(output, "    # YZ_25: Implicit declaration of '%s' (type inferred)\n", assign->name);
+                } else if (!var_exists && !assign->is_implicit_declaration) {
+                    // YZ_25: Variable not declared and no ';' - ERROR (likely typo)
+                    const char* similar = function_find_similar_var(func, assign->name);
+                    if (similar) {
+                        fprintf(stderr, "Error: Undefined variable '%s'. Did you mean '%s'?\n", 
+                                assign->name, similar);
+                        fprintf(stderr, "       Add ';' at end to declare new variable: %s = ...;\n", 
+                                assign->name);
+                    } else {
+                        fprintf(stderr, "Error: Undefined variable '%s'.\n", assign->name);
+                        fprintf(stderr, "       Add ';' at end to declare new variable: %s = ...;\n", 
+                                assign->name);
+                    }
+                    return;  // Stop codegen for this statement
+                }
+                
                 int offset = function_get_var_offset(func, assign->name);
                 
                 fprintf(output, "    # Assignment: %s = ...\n", assign->name);

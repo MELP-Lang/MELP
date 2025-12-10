@@ -30,7 +30,7 @@ typedef struct Statement Statement;
 typedef struct LocalVariable {
     char* name;
     int stack_offset;  // Offset from rbp (negative: -8, -16, -24...)
-    int is_numeric;    // 1=numeric, 0=text (TTO: only 2 types, 1 bit is enough!)
+    int is_numeric;    // 1=numeric, 0=string (TTO: only 2 types, 1 bit is enough!)
     int is_array;      // 1=array, 0=scalar
     int array_length;  // Array element count (for bounds checking)
     int is_tuple;      // YZ_21: 1=tuple, 0=other
@@ -80,6 +80,8 @@ void return_statement_free(ReturnStatement* ret);
 void function_register_local_var(FunctionDeclaration* func, const char* name);
 void function_register_local_var_with_type(FunctionDeclaration* func, const char* name, int is_numeric);
 void function_register_array_var(FunctionDeclaration* func, const char* name, int length, int is_numeric);
+int function_var_exists(FunctionDeclaration* func, const char* name);  // YZ_25: Check if variable is declared
+const char* function_find_similar_var(FunctionDeclaration* func, const char* name);  // YZ_25: Find similar variable name
 void function_register_tuple_var(FunctionDeclaration* func, const char* name, int length);  // YZ_21
 void function_register_list_var(FunctionDeclaration* func, const char* name, int length);  // YZ_22
 int function_get_var_offset(FunctionDeclaration* func, const char* name);

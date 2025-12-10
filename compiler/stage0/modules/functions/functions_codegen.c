@@ -83,7 +83,7 @@ static void scan_statement_for_variables(FunctionDeclaration* func, Statement* s
     if (stmt->type == STMT_VARIABLE_DECL) {
         VariableDeclaration* decl = (VariableDeclaration*)stmt->data;
         if (decl && decl->name) {
-            // TTO: Register with type flag (1=numeric, 0=text)
+            // TTO: Register with type flag (1=numeric, 0=string)
             int is_numeric = (decl->type != VAR_STRING) ? 1 : 0;
             function_register_local_var_with_type(func, decl->name, is_numeric);
         }

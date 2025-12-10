@@ -18,7 +18,7 @@ typedef enum {
     INTERNAL_TYPE_DOUBLE,       // IEEE 754 double (8 bytes, XMM register)
     INTERNAL_TYPE_BIGDECIMAL,   // Unlimited precision (heap allocated)
     
-    // Text types (user sees: text)
+    // String types (user sees: string)
     INTERNAL_TYPE_SSO_STRING,   // Small String Optimization (≤23 bytes, stack)
     INTERNAL_TYPE_HEAP_STRING,  // Heap allocated string (>23 bytes)
     INTERNAL_TYPE_RODATA_STRING,// Constant string in .rodata section
