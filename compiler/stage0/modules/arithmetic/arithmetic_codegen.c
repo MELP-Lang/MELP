@@ -1,6 +1,7 @@
 #include "arithmetic_codegen.h"
 #include "../../../../runtime/tto/runtime_tto.h"
 #include "../functions/functions.h"  // For FunctionDeclaration type
+#include "../array/array_codegen.h"  // YZ_14: For array access codegen
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -74,13 +75,28 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
         // Check if builtin stdlib function
         const char* actual_function = call->function_name;
         if (strcmp(call->function_name, "println") == 0) {
-            // TTO-aware: Pass pointer to value + type
-            // Value is in %rdi, need to save to stack and pass pointer
-            fprintf(output, "    subq $16, %%rsp      # Allocate temp space\n");
-            fprintf(output, "    movq %%rdi, (%%rsp)  # Store value\n");
-            fprintf(output, "    movq %%rsp, %%rdi    # arg1: pointer to value\n");
-            fprintf(output, "    movq $0, %%rsi       # arg2: TTO_TYPE_INT64\n");
-            actual_function = "mlp_println_numeric";
+            // TTO: Check if argument is numeric by looking up in function context
+            int is_numeric_arg = 1;  // Default: numeric
+            if (call->arg_count > 0 && call->arguments[0] && func) {
+                ArithmeticExpr* arg_expr = call->arguments[0];
+                if (arg_expr && !arg_expr->left && !arg_expr->right && arg_expr->value && !arg_expr->is_literal) {
+                    // Variable reference - lookup type from function context
+                    is_numeric_arg = function_get_var_is_numeric(func, arg_expr->value);
+                }
+            }
+            
+            if (is_numeric_arg) {
+                // Numeric argument - TTO-aware: Pass pointer to value + type
+                // Value is in %rdi, need to save to stack and pass pointer
+                fprintf(output, "    subq $16, %%rsp      # Allocate temp space\n");
+                fprintf(output, "    movq %%rdi, (%%rsp)  # Store value\n");
+                fprintf(output, "    movq %%rsp, %%rdi    # arg1: pointer to value\n");
+                fprintf(output, "    movq $0, %%rsi       # arg2: TTO_TYPE_INT64\n");
+                actual_function = "mlp_println_numeric";
+            } else {
+                // Text argument - direct call
+                actual_function = "mlp_println_string";
+            }
         } else if (strcmp(call->function_name, "print") == 0) {
             fprintf(output, "    subq $16, %%rsp      # Allocate temp space\n");
             fprintf(output, "    movq %%rdi, (%%rsp)  # Store value\n");
@@ -111,14 +127,119 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
         return;
     }
     
+    // YZ_14: Array index access
+    if (expr->is_array_access && expr->array_access) {
+        IndexAccess* access = expr->array_access;
+        fprintf(output, "    # Array index access: %s\n", access->collection_name);
+        
+        // Get stack offset for array variable
+        if (func) {
+            int offset = function_get_var_offset(func, access->collection_name);
+            
+            if (access->index_type == 0) {
+                // Constant index
+                int arr_length = function_get_array_length(func, access->collection_name);
+                fprintf(output, "    movq %d(%%rbp), %%rbx  # Load array pointer from stack\n", offset);
+                
+                // Bounds check
+                if (arr_length > 0) {
+                    fprintf(output, "    # Bounds check: index=%d, length=%d\n", 
+                            access->index.const_index, arr_length);
+                    if (access->index.const_index >= arr_length) {
+                        fprintf(output, "    # COMPILE ERROR: Index %d >= length %d!\n", 
+                                access->index.const_index, arr_length);
+                    }
+                    fprintf(output, "    movq $%d, %%rcx      # Load index to register\n", access->index.const_index);
+                    fprintf(output, "    cmpq $%d, %%rcx      # Compare index with length\n", arr_length);
+                    fprintf(output, "    jl .bounds_ok_read_%p  # Jump if within bounds\n", (void*)access);
+                    fprintf(output, "    movq $%d, %%rdi      # index\n", access->index.const_index);
+                    fprintf(output, "    movq $%d, %%rsi      # length\n", arr_length);
+                    fprintf(output, "    xorq %%rdx, %%rdx    # NULL for array name\n");
+                    fprintf(output, "    call mlp_panic_array_bounds\n");
+                    fprintf(output, ".bounds_ok_read_%p:\n", (void*)access);
+                }
+                
+                int elem_offset = access->index.const_index * 8;
+                fprintf(output, "    movq %d(%%rbx), %%rax  # Get element at index %d\n", elem_offset, access->index.const_index);
+            } else if (access->index_type == 1) {
+                // Variable index
+                int idx_offset = function_get_var_offset(func, access->index.var_index);
+                int arr_length = function_get_array_length(func, access->collection_name);
+                
+                fprintf(output, "    movq %d(%%rbp), %%rbx  # Load array pointer\n", offset);
+                fprintf(output, "    movq %d(%%rbp), %%rcx  # Load index value\n", idx_offset);
+                
+                // Bounds check
+                if (arr_length > 0) {
+                    fprintf(output, "    # Bounds check: variable index vs length=%d\n", arr_length);
+                    fprintf(output, "    cmpq $%d, %%rcx      # Compare index with length\n", arr_length);
+                    fprintf(output, "    jl .bounds_ok_read_%p  # Jump if within bounds\n", (void*)access);
+                    fprintf(output, "    movq %%rcx, %%rdi    # index\n");
+                    fprintf(output, "    movq $%d, %%rsi      # length\n", arr_length);
+                    fprintf(output, "    xorq %%rdx, %%rdx    # NULL for array name\n");
+                    fprintf(output, "    call mlp_panic_array_bounds\n");
+                    fprintf(output, ".bounds_ok_read_%p:\n", (void*)access);
+                }
+                
+                fprintf(output, "    shlq $3, %%rcx  # index * 8\n");
+                fprintf(output, "    movq (%%rbx,%%rcx), %%rax  # Get element\n");
+            } else if (access->index_type == 2) {
+                // Expression index: arr[x+1]
+                ArithmeticExpr* idx_expr = (ArithmeticExpr*)access->index.expr_index;
+                int arr_length = function_get_array_length(func, access->collection_name);
+                
+                fprintf(output, "    # Expression index: evaluate to get offset\n");
+                fprintf(output, "    movq %d(%%rbp), %%rbx  # Load array pointer\n", offset);
+                // Evaluate index expression to r8
+                generate_expr_code(output, idx_expr, 0, func);  // target_reg=0 → r8
+                fprintf(output, "    movq %%r8, %%rcx     # Move index to rcx\n");
+                
+                // Bounds check
+                if (arr_length > 0) {
+                    fprintf(output, "    # Bounds check: expression index vs length=%d\n", arr_length);
+                    fprintf(output, "    cmpq $%d, %%rcx      # Compare index with length\n", arr_length);
+                    fprintf(output, "    jl .bounds_ok_read_%p  # Jump if within bounds\n", (void*)access);
+                    fprintf(output, "    movq %%rcx, %%rdi    # index\n");
+                    fprintf(output, "    movq $%d, %%rsi      # length\n", arr_length);
+                    fprintf(output, "    xorq %%rdx, %%rdx    # NULL for array name\n");
+                    fprintf(output, "    call mlp_panic_array_bounds\n");
+                    fprintf(output, ".bounds_ok_read_%p:\n", (void*)access);
+                }
+                
+                fprintf(output, "    shlq $3, %%rcx       # index * 8\n");
+                fprintf(output, "    movq (%%rbx,%%rcx), %%rax  # Get element\n");
+            }
+        } else {
+            fprintf(output, "    # Error: No function context for array access\n");
+        }
+        
+        // Result is in %rax, move to target register
+        fprintf(output, "    movq %%rax, %%r%d  # Array element value\n", target_reg + 8);
+        return;
+    }
+    
+    // YZ_17: Collection literals (Array, List, Tuple)
+    if (expr->is_collection && expr->collection) {
+        fprintf(output, "    # Collection literal\n");
+        codegen_collection(output, expr->collection);
+        // Result is in rax, move to target register
+        fprintf(output, "    movq %%rax, %%r%d  # Collection pointer\n", target_reg + 8);
+        return;
+    }
+    
     // Leaf node (literal or variable)
     if (expr->is_literal || (!expr->left && !expr->right)) {
         if (expr->is_literal) {
-            if (expr->is_string) {
+            if (expr->is_boolean) {
+                // Boolean literal - convert true/false to 1/0
+                int bool_value = (strcmp(expr->value, "true") == 0) ? 1 : 0;
+                fprintf(output, "    movq $%d, %%r%d  # Boolean literal: %s\n", 
+                        bool_value, target_reg + 8, expr->value);
+            } else if (expr->is_string) {
                 // String literal - define in .rodata and load pointer
                 static int string_counter = 0;
                 fprintf(output, "    .section .rodata\n");
-                fprintf(output, "    _str_%d: .asciz %s\n", string_counter, expr->value);
+                fprintf(output, "    _str_%d: .asciz \"%s\"\n", string_counter, expr->value);
                 fprintf(output, "    .section .text\n");
                 fprintf(output, "    leaq _str_%d(%%rip), %%r%d  # Load string pointer\n", 
                         string_counter, target_reg + 8);
@@ -148,13 +269,13 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
     int is_string = (expr->left && expr->left->is_string) || 
                     (expr->right && expr->right->is_string);
     
-    // Handle string concatenation
+    // Handle string concatenation (YZ_07)
     if (is_string && expr->op == ARITH_ADD) {
-        fprintf(output, "    # String concatenation\n");
-        fprintf(output, "    movq %%r%d, %%rdi  # First string\n", left_reg + 8);
-        fprintf(output, "    movq %%r%d, %%rsi  # Second string\n", right_reg + 8);
-        fprintf(output, "    call tto_sso_concat\n");
-        fprintf(output, "    movq %%rax, %%r%d  # Result string pointer\n", left_reg + 8);
+        fprintf(output, "    # String concatenation (text + text)\n");
+        fprintf(output, "    movq %%r%d, %%rdi  # arg1: first string pointer\n", left_reg + 8);
+        fprintf(output, "    movq %%r%d, %%rsi  # arg2: second string pointer\n", right_reg + 8);
+        fprintf(output, "    call mlp_string_concat  # Returns new string in %%rax\n");
+        fprintf(output, "    movq %%rax, %%r%d  # Store result string pointer\n", target_reg + 8);
         return;
     }
     

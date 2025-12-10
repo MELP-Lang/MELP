@@ -8,6 +8,7 @@ typedef enum {
     STMT_EXPRESSION,
     STMT_VARIABLE_DECL,
     STMT_ASSIGNMENT,
+    STMT_ARRAY_ASSIGNMENT,  // YZ_15: arr[i] = value
     STMT_IF,
     STMT_WHILE,
     STMT_FOR,

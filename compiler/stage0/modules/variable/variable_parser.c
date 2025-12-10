@@ -24,6 +24,10 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
         base_type = VAR_STRING;
     } else if (type_token->type == TOKEN_BOOLEAN) {
         base_type = VAR_BOOLEAN;
+    } else if (type_token->type == TOKEN_LIST) {
+        base_type = VAR_LIST;
+    } else if (type_token->type == TOKEN_TUPLE) {
+        base_type = VAR_TUPLE;
     } else {
         return NULL;  // Not a variable declaration
     }
@@ -120,7 +124,10 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
     // ✅ Parse init expression using arithmetic parser
     if (tok->type == TOKEN_IDENTIFIER ||
         tok->type == TOKEN_NUMBER ||
-        tok->type == TOKEN_LPAREN) {
+        tok->type == TOKEN_STRING ||
+        tok->type == TOKEN_LPAREN ||  // YZ_19: list literal (1;2;) or parenthesized expression
+        tok->type == TOKEN_LANGLE ||  // YZ_20: tuple literal <1,2>
+        tok->type == TOKEN_NOT) {  // YZ_18: Handle NOT operator
         
         // Use stateless arithmetic parser for expression parsing
         // tok is OWNED by us and will be consumed by arithmetic parser
@@ -128,14 +135,14 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
         token_free(tok);  // arithmetic parser borrowed it, we still own it
         
         if (expr) {
-            // Check if it's a simple literal
-            if (expr->is_literal && !expr->left && !expr->right) {
+            // Check if it's a simple literal (but not a collection)
+            if (expr->is_literal && !expr->left && !expr->right && !expr->is_collection) {
                 // Simple literal: numeric x = 5
                 decl->value = strdup(expr->value);
                 decl->storage = STORAGE_DATA;
                 arithmetic_expr_free(expr);
             } else {
-                // Complex expression: numeric x = a + b
+                // Complex expression or collection: numeric x = a + b, list x = (1;2;), tuple x = <1,2>
                 decl->init_expr = expr;  // ✅ Store ArithmeticExpr*
                 decl->storage = STORAGE_BSS;  // Runtime initialization
                 decl->tto_analyzed = false;

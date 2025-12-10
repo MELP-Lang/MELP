@@ -1,0 +1,34 @@
+function greet(text name) returns numeric
+    text greeting = "Hello, "
+    numeric output1 = println(greeting)
+    numeric output2 = println(name)
+    return 0
+end function
+
+function calculate(numeric a, numeric b) returns numeric
+    numeric sum = a + b
+    numeric product = a * b
+    numeric out1 = println(sum)
+    numeric out2 = println(product)
+    return sum
+end function
+
+function count_up(numeric limit) returns numeric
+    numeric i = 0
+    while i < limit
+        i = i + 1
+    end while
+    return i
+end function
+
+function main() returns numeric
+    text welcome = "=== MELP Stage 0 Demo ==="
+    numeric output = println(welcome)
+    
+    numeric result1 = greet("World")
+    numeric result2 = calculate(15, 7)
+    numeric result3 = count_up(5)
+    numeric final = println(result3)
+    
+    return 0
+end function

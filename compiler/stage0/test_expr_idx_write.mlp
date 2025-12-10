@@ -1,0 +1,7 @@
+function main() returns numeric
+    numeric[] arr = [1, 2, 3, 4, 5]
+    numeric base = 1
+    arr[base + 1] = 100
+    numeric result = arr[2]
+    return result
+end function

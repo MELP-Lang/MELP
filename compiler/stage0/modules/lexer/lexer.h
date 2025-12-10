@@ -5,6 +5,8 @@ typedef enum {
     TOKEN_NUMERIC,
     TOKEN_STRING_TYPE,     // string keyword (type declaration)
     TOKEN_BOOLEAN,
+    TOKEN_LIST,            // list keyword (type declaration)
+    TOKEN_TUPLE,           // tuple keyword (type declaration)
     TOKEN_IDENTIFIER,
     TOKEN_ASSIGN,
     TOKEN_NUMBER,
@@ -54,6 +56,8 @@ typedef enum {
     TOKEN_RPAREN,          // )
     TOKEN_LBRACKET,        // [
     TOKEN_RBRACKET,        // ]
+    TOKEN_LANGLE,          // < (tuple literal, not comparison)
+    TOKEN_RANGLE,          // > (tuple literal, not comparison)
     TOKEN_COMMA,           // ,
     TOKEN_COLON,           // :
     TOKEN_SEMICOLON,       // ;

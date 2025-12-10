@@ -1,0 +1,11 @@
+function main() returns numeric
+    boolean a = false
+    boolean result = not a
+    numeric output = 0
+    
+    if result then
+        output = 1
+    end if
+    
+    return output
+end function

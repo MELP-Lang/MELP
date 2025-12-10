@@ -1,0 +1,6 @@
+function main() returns numeric
+    for i = 0 to 5
+        println(i)
+    end for
+    return 0
+end function

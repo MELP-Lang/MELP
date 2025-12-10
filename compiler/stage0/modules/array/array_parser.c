@@ -387,12 +387,30 @@ IndexAccess* array_parse_index_access(Lexer* lexer, const char* base_name, Token
         
         tok = lexer_next_token(lexer);  // OWNED - closing bracket/paren
     } else if (tok->type == TOKEN_IDENTIFIER) {
-        // Variable index
-        access->index_type = 1;
-        access->index.var_index = strdup(tok->value);
-        token_free(tok);
-        
-        tok = lexer_next_token(lexer);  // OWNED - closing bracket/paren
+        // Check if this is a simple variable or start of expression
+        Token* lookahead = lexer_next_token(lexer);  // OWNED
+        if (lookahead && (lookahead->type == TOKEN_RBRACKET || lookahead->type == TOKEN_RPAREN)) {
+            // Simple variable index: arr[i]
+            access->index_type = 1;
+            access->index.var_index = strdup(tok->value);
+            token_free(tok);
+            tok = lookahead;  // Use closing bracket/paren
+        } else {
+            // Expression starting with identifier: arr[i+1]
+            lexer_unget_token(lexer, lookahead);  // Put back
+            ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok);
+            if (!expr) {
+                error_parser(tok->line, "Failed to parse index expression");
+                token_free(tok);
+                free(access->collection_name);
+                free(access);
+                return NULL;
+            }
+            access->index_type = 2;
+            access->index.expr_index = expr;
+            
+            tok = lexer_next_token(lexer);  // OWNED - closing bracket/paren
+        }
     } else {
         // Expression index - use arithmetic parser
         ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok);

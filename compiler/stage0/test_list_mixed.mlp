@@ -1,0 +1,4 @@
+function main() returns numeric
+    list mixed = (1; "hello"; 42;)
+    return 100
+end function

@@ -1,0 +1,22 @@
+function main() returns numeric
+    text a = "apple"
+    text b = "banana"
+    
+    if a < b then
+        numeric out1 = println(1)
+    end if
+    
+    if b > a then
+        numeric out2 = println(2)
+    end if
+    
+    if a != b then
+        numeric out3 = println(3)
+    end if
+    
+    if a == "apple" then
+        numeric out4 = println(4)
+    end if
+    
+    return 0
+end function

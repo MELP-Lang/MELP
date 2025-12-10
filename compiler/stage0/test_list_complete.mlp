@@ -1,0 +1,4 @@
+function main() returns numeric
+    list myList = (10; 20; 30;)
+    return 100
+end function

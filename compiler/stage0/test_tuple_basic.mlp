@@ -1,0 +1,4 @@
+function main() returns numeric
+    tuple myPair = <42, 99>
+    return 42
+end function

@@ -8,6 +8,8 @@
 #include "../functions/functions.h"                // ✅ ReturnStatement
 #include "../lexer/lexer.h"                        // ✅ Token operations
 #include "../error/error.h"                        // ✅ Error handling system
+#include "../array/array.h"                        // ✅ YZ_15: IndexAccess, ArrayAssignment
+#include "../array/array_parser.h"                 // ✅ YZ_15: array_parse_index_access
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -265,7 +267,8 @@ Statement* statement_parse(Parser* parser) {
     }
     
     // ✅ Variable declaration - use variable module (STATELESS)
-    if (tok->type == TOKEN_NUMERIC || tok->type == TOKEN_STRING_TYPE || tok->type == TOKEN_BOOLEAN) {
+    if (tok->type == TOKEN_NUMERIC || tok->type == TOKEN_STRING_TYPE || tok->type == TOKEN_BOOLEAN ||
+        tok->type == TOKEN_LIST || tok->type == TOKEN_TUPLE) {
         // Call stateless version - tok is borrowed by variable_parse_declaration
         VariableDeclaration* decl = variable_parse_declaration(parser->lexer, tok);
         
@@ -283,10 +286,76 @@ Statement* statement_parse(Parser* parser) {
         return NULL;
     }
     
-    // ✅ Variable assignment - check if identifier followed by '='
+    // ✅ Variable assignment - check if identifier followed by '=' or '['
     if (tok->type == TOKEN_IDENTIFIER) {
-        // Need to look ahead for '='
+        // Need to look ahead for '=' or '['
         Token* next_tok = lexer_next_token(parser->lexer);
+        
+        // YZ_15: Check for array assignment: arr[i] = value
+        if (next_tok && next_tok->type == TOKEN_LBRACKET) {
+            // Array element assignment
+            char* arr_name = strdup(tok->value);
+            token_free(tok);
+            
+            // Parse index access using existing array parser
+            IndexAccess* access = array_parse_index_access(parser->lexer, arr_name, next_tok);
+            token_free(next_tok);
+            
+            if (!access) {
+                free(arr_name);
+                error_parser(0, "Failed to parse array index");
+                return NULL;
+            }
+            
+            // Expect '=' after ']'
+            Token* eq_tok = lexer_next_token(parser->lexer);
+            if (!eq_tok || eq_tok->type != TOKEN_ASSIGN) {
+                free(arr_name);
+                if (access->collection_name) free(access->collection_name);
+                if (access->index_type == 1 && access->index.var_index) free(access->index.var_index);
+                free(access);
+                if (eq_tok) token_free(eq_tok);
+                error_parser(0, "Expected '=' after array index");
+                return NULL;
+            }
+            token_free(eq_tok);
+            
+            // Parse value expression
+            Token* expr_tok = lexer_next_token(parser->lexer);
+            if (!expr_tok) {
+                free(arr_name);
+                if (access->collection_name) free(access->collection_name);
+                if (access->index_type == 1 && access->index.var_index) free(access->index.var_index);
+                free(access);
+                error_parser(0, "Expected expression after '='");
+                return NULL;
+            }
+            
+            ArithmeticExpr* expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok);
+            token_free(expr_tok);
+            
+            if (!expr) {
+                free(arr_name);
+                if (access->collection_name) free(access->collection_name);
+                if (access->index_type == 1 && access->index.var_index) free(access->index.var_index);
+                free(access);
+                return NULL;
+            }
+            
+            // Create array assignment
+            ArrayAssignment* arr_assign = malloc(sizeof(ArrayAssignment));
+            arr_assign->index_access = (void*)access;  // Store as void*
+            arr_assign->value_expr = expr;
+            arr_assign->tto_info = NULL;
+            arr_assign->tto_analyzed = false;
+            
+            stmt = statement_create(STMT_ARRAY_ASSIGNMENT);
+            stmt->data = arr_assign;
+            stmt->next = NULL;
+            return stmt;
+        }
+        
+        // Variable assignment: var = value
         if (next_tok && next_tok->type == TOKEN_ASSIGN) {
             token_free(next_tok);  // We know it's '=', consume it
             

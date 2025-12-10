@@ -76,6 +76,12 @@ FOR_LOOP_SOURCES = \
 	$(FOR_LOOP_DIR)/for_loop_parser.c \
 	$(FOR_LOOP_DIR)/for_loop_codegen.c
 
+# Array modülü (YZ_14 - Array indexing)
+ARRAY_DIR = ../array
+ARRAY_SOURCES = \
+	$(ARRAY_DIR)/array_parser.c \
+	$(ARRAY_DIR)/array_codegen.c
+
 # Statement modülü (Body parsing için)
 STATEMENT_DIR = ../statement
 STATEMENT_SOURCES = \
@@ -110,6 +116,7 @@ SOURCES = \
 	$(LOGICAL_SOURCES) \
 	$(CONTROL_FLOW_SOURCES) \
 	$(FOR_LOOP_SOURCES) \
+	$(ARRAY_SOURCES) \
 	$(STATEMENT_SOURCES) \
 	$(PARSER_CORE_SOURCES) \
 	$(CODEGEN_CONTEXT_SOURCES) \

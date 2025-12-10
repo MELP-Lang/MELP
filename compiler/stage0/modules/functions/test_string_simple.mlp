@@ -1,0 +1,5 @@
+function main() returns numeric
+    text message = "Hello World"
+    numeric result = println(message)
+    return 0
+end function

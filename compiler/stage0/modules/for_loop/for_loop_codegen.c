@@ -23,7 +23,7 @@ void for_loop_generate_code(FILE* output, ForLoop* loop, void* context) {
     FunctionDeclaration* func = (FunctionDeclaration*)context;
     int loop_id = for_label_counter++;
     
-    fprintf(output, "\n    ; For loop (desugared to while)\n");
+    fprintf(output, "\n    # For loop (desugared to while)\n");
     
     // 0. Auto-register loop variable if not already registered
     function_register_local_var(func, loop->var_name);

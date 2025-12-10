@@ -1,0 +1,18 @@
+function main() returns numeric
+    text name = "Alice"
+    text greeting = "Hello, " + name + "!"
+    numeric out1 = println(greeting)
+    
+    if name == "Alice" then
+        numeric out2 = println(1)
+    else
+        numeric out3 = println(0)
+    end if
+    
+    text password = "secret123"
+    if password != "wrong" then
+        numeric out4 = println(2)
+    end if
+    
+    return 0
+end function

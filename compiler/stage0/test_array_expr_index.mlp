@@ -1,0 +1,9 @@
+function main() returns numeric
+    # Test expression index in array access
+    numeric[] arr = [10, 20, 30, 40, 50]
+    
+    numeric base = 1
+    numeric x = arr[base + 1]    # arr[2] = 30
+    
+    return x
+end function

@@ -1,6 +1,4 @@
-function main()
-    numeric[] numbers = [10, 20, 30, 40, 50]
-    numeric x = numbers[2]
-    print x
+function main() returns numeric
+    numeric[] arr = [1, 2, 3]
     return 0
 end function

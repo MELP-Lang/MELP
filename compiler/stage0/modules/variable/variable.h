@@ -10,7 +10,9 @@ typedef enum {
     VAR_STRING,
     VAR_BOOLEAN,
     VAR_POINTER,     // Pointer type (numeric*, text*)
-    VAR_ARRAY        // Array type (numeric[], text[])
+    VAR_ARRAY,       // Array type (numeric[], text[])
+    VAR_LIST,        // List type () - heterogeneous, mutable
+    VAR_TUPLE        // Tuple type <> - heterogeneous, immutable
 } VarType;
 
 // Internal numeric representation (transparent to user)
@@ -69,5 +71,16 @@ typedef struct {
     bool tto_analyzed;                   // Has TTO analysis been performed?
     bool needs_type_promotion;           // Does this need type promotion (int64 -> bigdec)?
 } VariableAssignment;
+
+// ========== YZ_15: Array Element Assignment ==========
+// Array element assignment: arr[i] = value
+// Note: IndexAccess is defined in array/array.h
+typedef struct {
+    void* index_access;                  // IndexAccess* (forward declaration)
+    void* value_expr;                    // Expression* for value to assign
+    
+    TTOTypeInfo* tto_info;               // TTO analysis
+    bool tto_analyzed;                   // Has TTO analysis been performed?
+} ArrayAssignment;
 
 #endif

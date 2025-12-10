@@ -1,5 +1,6 @@
 #include "arithmetic_parser.h"
 #include "../codegen_context/codegen_context.h"
+#include "../array/array_parser.h"  // YZ_14: For array index access
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -62,12 +63,35 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
     expr->tto_analyzed = false;
     expr->needs_overflow_check = false;
     
+    // Boolean literal (true/false)
+    if (parser->current_token->type == TOKEN_TRUE || parser->current_token->type == TOKEN_FALSE) {
+        expr->is_literal = 1;
+        expr->value = strdup(parser->current_token->value);  // "true" or "false"
+        expr->is_float = 0;
+        expr->is_string = 0;
+        expr->is_boolean = 1;
+        
+        // TTO analysis for boolean literal
+        TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+        tto->type = INTERNAL_TYPE_INT64;  // Boolean stored as int (0/1)
+        tto->is_constant = true;  // Boolean literals are constant
+        tto->needs_promotion = false;
+        tto->mem_location = MEM_REGISTER;  // Small value, keep in register
+        expr->tto_info = tto;
+        expr->tto_analyzed = true;
+        expr->needs_overflow_check = false;
+        
+        advance(parser);
+        return expr;
+    }
+    
     // String literal
     if (parser->current_token->type == TOKEN_STRING) {
         expr->is_literal = 1;
         expr->value = strdup(parser->current_token->value);
         expr->is_float = 0;
         expr->is_string = 1;
+        expr->is_boolean = 0;
         
         // TTO analysis for string literal
         TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
@@ -89,6 +113,7 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
         expr->value = strdup(parser->current_token->value);
         expr->is_float = (strchr(expr->value, '.') != NULL);
         expr->is_string = 0;
+        expr->is_boolean = 0;
         
         // Phase 2.3: TTO analysis for numeric literal
         TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
@@ -195,6 +220,7 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
         expr->value = identifier;
         expr->is_float = 0;
         expr->is_string = 0;  // TODO: Infer from variable type
+        expr->is_boolean = 0;
         expr->is_function_call = 0;
         expr->func_call = NULL;
         
@@ -255,6 +281,7 @@ ArithmeticExpr* arithmetic_parse_power(ArithmeticParser* parser) {
         binary->value = NULL;
         binary->is_float = 0;
         binary->is_string = 0;
+        binary->is_boolean = 0;
         
         // Phase 2.3: TTO type propagation for binary operation
         binary->tto_info = NULL;
@@ -310,6 +337,7 @@ ArithmeticExpr* arithmetic_parse_term(ArithmeticParser* parser) {
         binary->is_literal = 0;
         binary->value = NULL;
         binary->is_float = 0;
+        binary->is_boolean = 0;
         
         // Phase 2.3: TTO type propagation
         binary->tto_info = NULL;
@@ -362,6 +390,11 @@ ArithmeticExpr* arithmetic_parse_factor(ArithmeticParser* parser) {
         binary->is_literal = 0;
         binary->value = NULL;
         binary->is_float = 0;
+        binary->is_boolean = 0;
+        
+        // String type propagation: If either operand is string, result is string
+        // This enables: text + text (concat), text + numeric (would need runtime conversion)
+        binary->is_string = (left->is_string || right->is_string);
         
         // Phase 2.3: TTO type propagation
         binary->tto_info = NULL;
@@ -416,6 +449,7 @@ ArithmeticExpr* arithmetic_parse_bitwise(ArithmeticParser* parser) {
         binary->is_literal = 0;
         binary->value = NULL;
         binary->is_float = 0;
+        binary->is_boolean = 0;
         
         // Phase 2.3: TTO type propagation
         binary->tto_info = NULL;
@@ -498,6 +532,54 @@ static void advance_stateless(Lexer* lexer, Token** current) {
 static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
     if (!current || !*current) return NULL;
     
+    // YZ_18: Handle NOT operator (unary boolean NOT)
+    if ((*current)->type == TOKEN_NOT) {
+        advance_stateless(lexer, current);  // consume 'not'
+        
+        // Parse the operand
+        ArithmeticExpr* operand = parse_primary_stateless(lexer, current);
+        if (!operand) return NULL;
+        
+        // Create XOR with 1: not x = x xor 1
+        ArithmeticExpr* expr = malloc(sizeof(ArithmeticExpr));
+        expr->op = ARITH_XOR;
+        expr->left = operand;
+        expr->right = malloc(sizeof(ArithmeticExpr));
+        expr->right->is_literal = 1;
+        expr->right->value = strdup("1");
+        expr->right->is_float = 0;
+        expr->right->is_string = 0;
+        expr->right->is_boolean = 0;  // Treat as numeric 1, not boolean
+        expr->right->left = NULL;
+        expr->right->right = NULL;
+        expr->right->tto_info = NULL;
+        expr->right->tto_analyzed = false;
+        expr->right->needs_overflow_check = false;
+        expr->right->is_function_call = 0;
+        expr->right->func_call = NULL;
+        expr->right->is_array_access = 0;
+        expr->right->array_access = NULL;
+        expr->right->is_collection = 0;
+        expr->right->collection = NULL;
+        
+        expr->is_literal = 0;
+        expr->value = NULL;
+        expr->is_float = 0;
+        expr->is_string = 0;
+        expr->is_boolean = 0;  // Result is also treated as numeric
+        expr->tto_info = NULL;
+        expr->tto_analyzed = false;
+        expr->needs_overflow_check = false;
+        expr->is_function_call = 0;
+        expr->func_call = NULL;
+        expr->is_array_access = 0;
+        expr->array_access = NULL;
+        expr->is_collection = 0;
+        expr->collection = NULL;
+        
+        return expr;
+    }
+    
     ArithmeticExpr* expr = malloc(sizeof(ArithmeticExpr));
     expr->left = NULL;
     expr->right = NULL;
@@ -507,18 +589,46 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
     expr->needs_overflow_check = false;
     expr->is_function_call = 0;
     expr->func_call = NULL;
+    expr->is_array_access = 0;
+    expr->array_access = NULL;
+    expr->is_collection = 0;
+    expr->collection = NULL;
     
     // Number literal
     if ((*current)->type == TOKEN_NUMBER) {
         expr->is_literal = 1;
         expr->value = strdup((*current)->value);
         expr->is_float = (strchr(expr->value, '.') != NULL);
+        expr->is_string = 0;  // YZ_10: Not a string
+        expr->is_boolean = 0;
         
         TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
         *tto = codegen_tto_infer_numeric_type(expr->value);
         expr->tto_info = tto;
         expr->tto_analyzed = true;
         expr->needs_overflow_check = (tto->type == INTERNAL_TYPE_INT64);
+        
+        advance_stateless(lexer, current);
+        return expr;
+    }
+    
+    // YZ_10: String literal
+    if ((*current)->type == TOKEN_STRING) {
+        expr->is_literal = 1;
+        expr->value = strdup((*current)->value);
+        expr->is_float = 0;
+        expr->is_string = 1;  // YZ_10: This is a string!
+        expr->is_boolean = 0;
+        
+        // TTO analysis for string literal
+        TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+        tto->type = INTERNAL_TYPE_SSO_STRING;  // Small String Optimization
+        tto->is_constant = true;  // String literals are constant
+        tto->needs_promotion = false;
+        tto->mem_location = MEM_RODATA;  // String literals in .rodata
+        expr->tto_info = tto;
+        expr->tto_analyzed = true;
+        expr->needs_overflow_check = false;
         
         advance_stateless(lexer, current);
         return expr;
@@ -597,6 +707,8 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
             expr->is_literal = 0;
             expr->value = NULL;
             expr->is_float = 0;
+            expr->is_string = 0;
+            expr->is_boolean = 0;
             expr->is_function_call = 1;
             expr->func_call = func_call;
             
@@ -613,10 +725,50 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
             return expr;
         }
         
+        // YZ_14: Check for array/list access
+        if (*current && ((*current)->type == TOKEN_LBRACKET || (*current)->type == TOKEN_LPAREN)) {
+            // It's array indexing: identifier[index] or list access: identifier(index)
+            IndexAccess* access = array_parse_index_access(lexer, identifier, *current);
+            if (!access) {
+                free(identifier);
+                free(expr);
+                return NULL;
+            }
+            
+            // Create array access expression
+            expr->is_literal = 0;
+            expr->value = NULL;
+            expr->is_float = 0;
+            expr->is_string = 0;
+            expr->is_boolean = 0;
+            expr->is_function_call = 0;
+            expr->func_call = NULL;
+            expr->is_array_access = 1;
+            expr->array_access = access;
+            
+            // TTO info: result is INT64 (array element)
+            TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+            tto->type = INTERNAL_TYPE_INT64;
+            tto->is_constant = false;
+            tto->needs_promotion = true;
+            tto->mem_location = MEM_REGISTER;
+            expr->tto_info = tto;
+            expr->tto_analyzed = true;
+            expr->needs_overflow_check = true;
+            
+            // array_parse_index_access consumed tokens, update current
+            advance_stateless(lexer, current);
+            
+            free(identifier);  // IndexAccess has its own copy
+            return expr;
+        }
+        
         // It's a variable
         expr->is_literal = 0;
         expr->value = identifier;
         expr->is_float = 0;
+        expr->is_string = 0;  // YZ_10: TODO - Infer from variable type in symbol table
+        expr->is_boolean = 0;
         
         TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
         tto->type = INTERNAL_TYPE_INT64;
@@ -630,18 +782,306 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         return expr;
     }
     
-    // Parentheses
-    if ((*current)->type == TOKEN_LPAREN) {
-        advance_stateless(lexer, current);
-        free(expr);
-        expr = parse_bitwise_stateless(lexer, current);
+    // ========== YZ_17: Array Literal [1, 2, 3] ==========
+    if ((*current)->type == TOKEN_LBRACKET) {
+        Token* lbracket = *current;
+        Collection* coll = array_parse_literal(lexer, lbracket);
         
-        if (!*current || (*current)->type != TOKEN_RPAREN) {
-            fprintf(stderr, "Error: Expected ')'\n");
-            arithmetic_expr_free(expr);
+        if (!coll) {
+            free(expr);
             return NULL;
         }
-        advance_stateless(lexer, current);
+        
+        advance_stateless(lexer, current);  // Update current token
+        expr->is_literal = 1;
+        expr->is_collection = 1;
+        expr->collection = coll;
+        expr->is_float = 0;
+        expr->is_string = 0;
+        expr->is_boolean = 0;
+        
+        TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+        tto->type = INTERNAL_TYPE_ARRAY;
+        tto->is_constant = false;
+        tto->needs_promotion = false;
+        tto->mem_location = MEM_HEAP;
+        expr->tto_info = tto;
+        expr->tto_analyzed = true;
+        expr->needs_overflow_check = false;
+        
+        return expr;
+    }
+    
+    // Parentheses or List literal
+    if ((*current)->type == TOKEN_LPAREN) {
+        // Lookahead to distinguish:
+        // - Parenthesized expression: (x + y)  -> NO ';' after first expr
+        // - List literal: (1; 2; 3;)  -> has ';' after each element
+        
+        // Strategy: Peek ahead to see if we have ';' or ')' after first element
+        // We need to look at tokens without consuming them
+        
+        // Save the lparen token
+        Token* lparen = *current;
+        advance_stateless(lexer, current);  // Skip '('
+        
+        // Check for empty list: ()
+        if ((*current)->type == TOKEN_RPAREN) {
+            // Empty list
+            advance_stateless(lexer, current);  // Skip ')'
+            
+            Collection* coll = malloc(sizeof(Collection));
+            coll->type = COLL_LIST;
+            coll->data.list.capacity = 0;
+            coll->data.list.length = 0;
+            coll->data.list.elements = NULL;
+            coll->data.list.element_types = NULL;
+            
+            expr->is_literal = 1;
+            expr->is_collection = 1;
+            expr->collection = coll;
+            expr->is_float = 0;
+            expr->is_string = 0;
+            expr->is_boolean = 0;
+            
+            TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+            tto->type = INTERNAL_TYPE_LIST;
+            tto->is_constant = false;
+            tto->needs_promotion = false;
+            tto->mem_location = MEM_HEAP;
+            expr->tto_info = tto;
+            expr->tto_analyzed = true;
+            expr->needs_overflow_check = false;
+            
+            return expr;
+        }
+        
+        // Parse first element to see what follows
+        ArithmeticExpr* first_elem = parse_bitwise_stateless(lexer, current);
+        if (!first_elem) {
+            fprintf(stderr, "Error: Failed to parse element after '('\n");
+            free(expr);
+            return NULL;
+        }
+        
+        // Check what comes after first element
+        if ((*current)->type == TOKEN_SEMICOLON) {
+            // It's a list! (elem1; ...)
+            // We need to backtrack and reparse with list parser
+            // Problem: we already consumed tokens!
+            
+            // WORKAROUND: Build list manually here
+            int capacity = 4;
+            int length = 1;
+            ArithmeticExpr** elements = malloc(sizeof(ArithmeticExpr*) * capacity);
+            VarType* types = malloc(sizeof(VarType) * capacity);
+            elements[0] = first_elem;
+            types[0] = VAR_NUMERIC;  // Default
+            
+            // Parse remaining elements
+            while ((*current)->type == TOKEN_SEMICOLON) {
+                advance_stateless(lexer, current);  // Skip ';'
+                
+                // Check for end of list
+                if ((*current)->type == TOKEN_RPAREN) {
+                    break;
+                }
+                
+                // Resize if needed
+                if (length >= capacity) {
+                    capacity *= 2;
+                    elements = realloc(elements, sizeof(ArithmeticExpr*) * capacity);
+                    types = realloc(types, sizeof(VarType) * capacity);
+                }
+                
+                // Parse next element
+                ArithmeticExpr* elem = parse_bitwise_stateless(lexer, current);
+                if (!elem) {
+                    fprintf(stderr, "Error: Failed to parse list element\n");
+                    for (int i = 0; i < length; i++) {
+                        arithmetic_expr_free(elements[i]);
+                    }
+                    free(elements);
+                    free(types);
+                    free(expr);
+                    return NULL;
+                }
+                elements[length] = elem;
+                types[length] = VAR_NUMERIC;
+                length++;
+            }
+            
+            // Expect ')'
+            if ((*current)->type != TOKEN_RPAREN) {
+                fprintf(stderr, "Error: Expected ')' to close list\n");
+                for (int i = 0; i < length; i++) {
+                    arithmetic_expr_free(elements[i]);
+                }
+                free(elements);
+                free(types);
+                free(expr);
+                return NULL;
+            }
+            advance_stateless(lexer, current);  // Skip ')'
+            
+            // Build list collection
+            Collection* coll = malloc(sizeof(Collection));
+            coll->type = COLL_LIST;
+            coll->data.list.capacity = capacity;
+            coll->data.list.length = length;
+            coll->data.list.elements = (void**)elements;
+            coll->data.list.element_types = types;
+            
+            expr->is_literal = 1;
+            expr->is_collection = 1;
+            expr->collection = coll;
+            expr->is_float = 0;
+            expr->is_string = 0;
+            expr->is_boolean = 0;
+            
+            TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+            tto->type = INTERNAL_TYPE_LIST;
+            tto->is_constant = false;
+            tto->needs_promotion = false;
+            tto->mem_location = MEM_HEAP;
+            expr->tto_info = tto;
+            expr->tto_analyzed = true;
+            expr->needs_overflow_check = false;
+            
+            return expr;
+        }
+        
+        // Not a list - it's a parenthesized expression
+        if ((*current)->type != TOKEN_RPAREN) {
+            fprintf(stderr, "Error: Expected ')' after parenthesized expression\n");
+            arithmetic_expr_free(first_elem);
+            free(expr);
+            return NULL;
+        }
+        advance_stateless(lexer, current);  // Skip ')'
+        
+        free(expr);
+        return first_elem;
+    }
+    
+    // Tuple literal: <x, y, z>
+    if ((*current)->type == TOKEN_LANGLE) {
+        advance_stateless(lexer, current);  // Skip '<'
+        
+        // Check for empty tuple: <>
+        if ((*current)->type == TOKEN_GREATER) {
+            // Empty tuple
+            advance_stateless(lexer, current);  // Skip '>'
+            
+            Collection* coll = malloc(sizeof(Collection));
+            coll->type = COLL_TUPLE;
+            coll->data.tuple.length = 0;
+            coll->data.tuple.elements = NULL;
+            coll->data.tuple.element_types = NULL;
+            
+            expr->is_literal = 1;
+            expr->is_collection = 1;
+            expr->collection = coll;
+            expr->is_float = 0;
+            expr->is_string = 0;
+            expr->is_boolean = 0;
+            
+            TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+            tto->type = INTERNAL_TYPE_TUPLE;
+            tto->is_constant = false;
+            tto->needs_promotion = false;
+            tto->mem_location = MEM_HEAP;
+            expr->tto_info = tto;
+            expr->tto_analyzed = true;
+            expr->needs_overflow_check = false;
+            
+            return expr;
+        }
+        
+        // Parse elements (comma-separated)
+        int capacity = 4;
+        int length = 0;
+        ArithmeticExpr** elements = malloc(sizeof(ArithmeticExpr*) * capacity);
+        VarType* types = malloc(sizeof(VarType) * capacity);
+        
+        // Parse first element
+        ArithmeticExpr* first_elem = parse_bitwise_stateless(lexer, current);
+        if (!first_elem) {
+            fprintf(stderr, "Error: Failed to parse tuple element\n");
+            free(elements);
+            free(types);
+            free(expr);
+            return NULL;
+        }
+        elements[0] = first_elem;
+        types[0] = first_elem->is_string ? VAR_STRING : VAR_NUMERIC;
+        length = 1;
+        
+        // Parse remaining elements
+        while (*current && (*current)->type == TOKEN_COMMA) {
+            advance_stateless(lexer, current);  // Skip ','
+            
+            // Check capacity
+            if (length >= capacity) {
+                capacity *= 2;
+                elements = realloc(elements, sizeof(ArithmeticExpr*) * capacity);
+                types = realloc(types, sizeof(VarType) * capacity);
+            }
+            
+            // Parse next element
+            ArithmeticExpr* elem = parse_bitwise_stateless(lexer, current);
+            if (!elem) {
+                fprintf(stderr, "Error: Failed to parse tuple element\n");
+                for (int i = 0; i < length; i++) {
+                    arithmetic_expr_free(elements[i]);
+                }
+                free(elements);
+                free(types);
+                free(expr);
+                return NULL;
+            }
+            
+            elements[length] = elem;
+            types[length] = elem->is_string ? VAR_STRING : VAR_NUMERIC;
+            length++;
+        }
+        
+        // Expect '>'
+        if (!*current || (*current)->type != TOKEN_GREATER) {
+            fprintf(stderr, "Error: Expected '>' after tuple elements\n");
+            for (int i = 0; i < length; i++) {
+                arithmetic_expr_free(elements[i]);
+            }
+            free(elements);
+            free(types);
+            free(expr);
+            return NULL;
+        }
+        advance_stateless(lexer, current);  // Skip '>'
+        
+        // Build tuple collection
+        Collection* coll = malloc(sizeof(Collection));
+        coll->type = COLL_TUPLE;
+        coll->data.tuple.length = length;
+        coll->data.tuple.elements = (void**)elements;
+        coll->data.tuple.element_types = types;
+        
+        expr->is_literal = 1;
+        expr->is_collection = 1;
+        expr->collection = coll;
+        expr->is_float = 0;
+        expr->is_string = 0;
+        expr->is_boolean = 0;
+        
+        TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+        tto->type = INTERNAL_TYPE_TUPLE;
+        tto->is_constant = false;
+        tto->needs_promotion = false;
+        tto->mem_location = MEM_HEAP;
+        expr->tto_info = tto;
+        expr->tto_analyzed = true;
+        expr->needs_overflow_check = false;
+        
         return expr;
     }
     
@@ -671,6 +1111,7 @@ static ArithmeticExpr* parse_power_stateless(Lexer* lexer, Token** current) {
         binary->is_literal = 0;
         binary->value = NULL;
         binary->is_float = 0;
+        binary->is_boolean = 0;
         binary->tto_info = NULL;
         binary->tto_analyzed = false;
         binary->needs_overflow_check = false;
@@ -722,6 +1163,7 @@ static ArithmeticExpr* parse_term_stateless(Lexer* lexer, Token** current) {
         binary->is_literal = 0;
         binary->value = NULL;
         binary->is_float = 0;
+        binary->is_boolean = 0;
         binary->tto_info = NULL;
         binary->tto_analyzed = false;
         binary->needs_overflow_check = false;
@@ -771,6 +1213,8 @@ static ArithmeticExpr* parse_factor_stateless(Lexer* lexer, Token** current) {
         binary->is_literal = 0;
         binary->value = NULL;
         binary->is_float = 0;
+        binary->is_string = (left->is_string || right->is_string);  // YZ_10: String propagation
+        binary->is_boolean = 0;
         binary->tto_info = NULL;
         binary->tto_analyzed = false;
         binary->needs_overflow_check = false;
@@ -822,6 +1266,7 @@ static ArithmeticExpr* parse_bitwise_stateless(Lexer* lexer, Token** current) {
         binary->is_literal = 0;
         binary->value = NULL;
         binary->is_float = 0;
+        binary->is_boolean = 0;
         binary->tto_info = NULL;
         binary->tto_analyzed = false;
         binary->needs_overflow_check = false;

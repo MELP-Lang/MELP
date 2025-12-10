@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "../lexer/lexer.h"
 #include "../codegen_context/tto_types.h"
+#include "../array/array.h"  // YZ_14: For IndexAccess struct
 
 // Arithmetic operation types
 typedef enum {
@@ -32,10 +33,19 @@ typedef struct ArithmeticExpr {
     char* value;                  // Literal value or variable name
     int is_float;                 // 1 if floating point number
     int is_string;                // 1 if string literal/variable
+    int is_boolean;               // 1 if boolean literal/variable (true/false)
     
     // ========== Phase 3.5: Function Calls ==========
     int is_function_call;         // 1 if this is a function call
     FunctionCallExpr* func_call;  // Function call details (if is_function_call)
+    
+    // ========== YZ_14: Array Index Access ==========
+    int is_array_access;          // 1 if this is array indexing (arr[i])
+    IndexAccess* array_access;    // Array access details (if is_array_access)
+    
+    // ========== YZ_17: Collection Literals (Array/List/Tuple) ==========
+    int is_collection;            // 1 if this is a collection literal
+    Collection* collection;       // Collection details (if is_collection)
     
     // ========== Phase 2.3: TTO Type Propagation ==========
     TTOTypeInfo* tto_info;        // TTO analysis result (heap allocated)

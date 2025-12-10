@@ -1,0 +1,6 @@
+function main() returns numeric
+    if "hello" == "hello" then
+        println(1)
+    end if
+    return 0
+end function

@@ -1,0 +1,17 @@
+function fibonacci(numeric n) returns numeric
+    if n <= 1 then
+        return n
+    else
+        numeric a = fibonacci(n - 1)
+        numeric b = fibonacci(n - 2)
+        numeric result = a + b
+        return result
+    end if
+end function
+
+function main() returns numeric
+    numeric n = 10
+    numeric result = fibonacci(n)
+    numeric output = println(result)
+    return 0
+end function
