@@ -1,6 +1,7 @@
 #include "import.h"
 #include "import_parser.h"
 #include "import_cache.h"  // YZ_42: Module caching
+#include "import_cache_persist.h"  // YZ_43: Persistent cache
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -116,12 +117,29 @@ char* import_resolve_module_path(const char* module_name) {
 
 // YZ_36: Load and parse a module file
 // YZ_42: Enhanced with module caching for incremental compilation
+// YZ_43: Enhanced with persistent cache and incremental object files
 FunctionDeclaration* import_load_module(const char* module_path) {
-    // YZ_42: Check cache first
+    // YZ_42: Check in-memory cache first (same compilation)
     FunctionDeclaration* cached_functions = cache_get(module_path);
     if (cached_functions) {
         // Cache hit! No need to parse again
         return cached_functions;
+    }
+    
+    // YZ_43: Check persistent cache (for information only)
+    // Note: We still need to parse to get actual function declarations
+    // Persistent cache is mainly useful for object file tracking
+    CacheMetadata cached_meta = {0};
+    int has_persistent_cache = cache_persist_load(module_path, &cached_meta);
+    if (has_persistent_cache) {
+        if (cache_persist_is_valid(&cached_meta)) {
+            // Check if object file is also valid
+            if (cached_meta.object_path && cache_object_is_valid(module_path, cached_meta.object_path)) {
+                printf("   ⚡ Valid object file found: %s (for future incremental compilation)\n", 
+                       cached_meta.object_path);
+            }
+        }
+        cache_metadata_cleanup(&cached_meta);  // Cleanup fields only
     }
     
     // YZ_37: Check for circular import
@@ -274,6 +292,20 @@ FunctionDeclaration* import_load_module(const char* module_path) {
     
     // YZ_42: Store in cache for next time
     cache_put(module_path, functions, dependencies, dependency_count);
+    
+    // YZ_43: Save to persistent cache
+    char* assembly_path = cache_get_assembly_path(module_path);
+    char* object_path = cache_get_object_path(module_path);
+    CacheMetadata* metadata = cache_metadata_create(
+        module_path, functions, dependencies, dependency_count,
+        object_path, assembly_path
+    );
+    if (metadata) {
+        cache_persist_save(module_path, metadata);
+        cache_metadata_free(metadata);
+    }
+    free(assembly_path);
+    free(object_path);
     
     // YZ_42: Clean up dependency tracking
     for (int i = 0; i < dependency_count; i++) {
