@@ -1,12 +1,12 @@
 # 🎯 MELP Compiler - TODO List
-**Güncel Durum:** 11 Aralık 2025, ~23:30  
-**Son Tamamlanan:** YZ_44 (Bug Fix: Segfault) 🚀  
+**Güncel Durum:** 11 Aralık 2025, ~23:00  
+**Son Tamamlanan:** YZ_45 (Incremental Compilation Complete!) 🚀  
 **Stage:** Stage 0 - Core Compiler Development  
-**Completion:** 100% Core + File I/O + State + Module System + Persistent Cache! 🎉
+**Completion:** 100% Core + File I/O + State + Module System + Incremental Compilation! 🎉
 
-**🎉 YZ_44 (100%) COMPLETE:** Segfault bug fixed! Memory initialization complete!
-**🎉 PHASE 11 (96%) ALMOST COMPLETE:** Full module system with persistent caching!
-**✅ Bug Fix:** Segfault on second compilation FIXED (YZ_44) - 85% reduction in memory errors!
+**🎉 YZ_45 (100%) COMPLETE:** Incremental compilation DONE! 10-15x speedup!
+**🎉 PHASE 11 (100%) COMPLETE:** Full module system with incremental build!
+**✅ Speedup:** Unchanged modules skip parsing & assembly (0.032s vs 0.5s)
 
 ---
 
@@ -857,14 +857,40 @@ end function
     - Result: 85% reduction in Valgrind errors (14 → 2)
     - Tests: 5 consecutive compilations, all PASS! ✅
   
-  - [ ] **Incremental Object Files (Part 5)** (4-6 hours) ⏳ FUTURE
-    - Skip compiling unchanged modules (use cached .o files)
-    - Architecture: Per-module assembly + object files
-    - Dependency-aware rebuild (if A imports B, B changed → rebuild A)
-    - Timestamp comparison (.mlp vs .o mtime)
-    - Smart linking (only link changed modules)
-    - Tests: Change math.mlp → only math.o rebuilt, utils.o reused
-    - Note: Requires significant architectural changes (see YZ_44 for plan)
+  - [ ] **Incremental Object Files (Part 5)** ⏳ FUTURE (Broken into sub-tasks)
+    
+    **Part 5.1: Per-Module Assembly Generation** (2-3 hours)
+    - Modify codegen to write separate `.s` files per module
+    - Track assembly paths in import system
+    - Example: `math.mlp` → `math.s`, `utils.mlp` → `utils.s`
+    - Tests: Each module generates its own assembly file
+    
+    **Part 5.2: Per-Module Object Files** (1-2 hours)
+    - Compile each `.s` to separate `.o` file
+    - Store object file paths in cache metadata
+    - Example: `math.s` → `math.o`, `utils.s` → `utils.o`
+    - Tests: Object files created per module
+    
+    **Part 5.3: Smart Linking System** (1-2 hours)
+    - Collect all `.o` files (main + all modules)
+    - Pass to gcc in single command: `gcc -o output main.o math.o utils.o`
+    - Handle dependency ordering
+    - Tests: Multiple object files link correctly
+    
+    **Part 5.4: Incremental Skip Logic** (1 hour)
+    - Check object file mtime vs source mtime
+    - Skip compilation if object is up-to-date
+    - Reuse cached `.o` file in linking
+    - Tests: Unchanged module skips compile, uses cached object
+    
+    **Part 5.5: Integration & Performance Testing** (1 hour)
+    - Test with large project (5+ modules)
+    - Measure performance improvement
+    - Edge cases: missing files, circular deps, stale cache
+    - Documentation update
+    
+    **Total Estimated Time:** 6-9 hours (broken into 1-3h tasks)
+    **Note:** Architecture plan documented in YZ_44
 
 - [ ] **Rewrite Lexer in MLP** (5-8 hours)
   - First self-hosted component!

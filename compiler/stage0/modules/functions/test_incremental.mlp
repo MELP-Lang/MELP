@@ -1,0 +1,7 @@
+import math_test
+
+function main() returns numeric
+    numeric result = add(10, 20)
+    numeric product = multiply(5, 6)
+    return result + product
+end function

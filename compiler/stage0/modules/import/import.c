@@ -10,6 +10,7 @@
 // YZ_36: Need to include lexer and parser for module loading
 #include "../lexer/lexer.h"
 #include "../functions/functions_parser.h"
+#include "../functions/functions_codegen.h"  // YZ_44: Part 5.1 - Assembly generation
 #include "../error/error.h"
 
 // ============================================================================
@@ -118,6 +119,7 @@ char* import_resolve_module_path(const char* module_name) {
 // YZ_36: Load and parse a module file
 // YZ_42: Enhanced with module caching for incremental compilation
 // YZ_43: Enhanced with persistent cache and incremental object files
+// YZ_45 Part 5.4: Incremental Skip Logic - Skip parsing if object file is up-to-date
 FunctionDeclaration* import_load_module(const char* module_path) {
     // YZ_42: Check in-memory cache first (same compilation)
     FunctionDeclaration* cached_functions = cache_get(module_path);
@@ -126,18 +128,52 @@ FunctionDeclaration* import_load_module(const char* module_path) {
         return cached_functions;
     }
     
-    // YZ_43: Check persistent cache (for information only)
-    // Note: We still need to parse to get actual function declarations
-    // Persistent cache is mainly useful for object file tracking
+    // YZ_45 Part 5.4: INCREMENTAL SKIP LOGIC
+    // Check persistent cache AND object file validity
+    // If both are valid, we can skip parsing entirely!
     CacheMetadata cached_meta = {0};
     int has_persistent_cache = cache_persist_load(module_path, &cached_meta);
     if (has_persistent_cache) {
-        if (cache_persist_is_valid(&cached_meta)) {
-            // Check if object file is also valid
-            if (cached_meta.object_path && cache_object_is_valid(module_path, cached_meta.object_path)) {
-                printf("   ⚡ Valid object file found: %s (for future incremental compilation)\n", 
-                       cached_meta.object_path);
+        int is_valid = cache_persist_is_valid(&cached_meta);
+        int obj_valid = (cached_meta.object_path && cache_object_is_valid(module_path, cached_meta.object_path));
+        
+        if (is_valid && obj_valid) {
+            // YZ_45: Object file is up-to-date!
+            // Create minimal function declarations from cache metadata
+            // (Only function names, no body - sufficient for function registry)
+            printf("   ⚡ SKIP: Module unchanged, using cached object: %s\n", 
+                   cached_meta.object_path);
+            
+            FunctionDeclaration* funcs = NULL;
+            FunctionDeclaration* last = NULL;
+            
+            for (int i = 0; i < cached_meta.function_count; i++) {
+                FunctionDeclaration* func = malloc(sizeof(FunctionDeclaration));
+                memset(func, 0, sizeof(FunctionDeclaration));  // YZ_45: Initialize all fields
+                func->name = strdup(cached_meta.function_names[i]);
+                func->return_type = FUNC_RETURN_NUMERIC;  // Default
+                func->param_count = 0;
+                func->local_var_count = 0;
+                func->body = NULL;
+                func->params = NULL;
+                func->local_vars = NULL;
+                func->next = NULL;
+                
+                if (!funcs) {
+                    funcs = func;
+                    last = func;
+                } else {
+                    last->next = func;
+                    last = func;
+                }
             }
+            
+            // Put in in-memory cache for this compilation
+            // YZ_45: Don't pass dependencies (not parsed from cache yet, TODO: parse deps too)
+            cache_put(module_path, funcs, NULL, 0);
+            
+            cache_metadata_cleanup(&cached_meta);
+            return funcs;  // YZ_45: EARLY EXIT - No parsing needed!
         }
         cache_metadata_cleanup(&cached_meta);  // Cleanup fields only
     }
@@ -293,6 +329,9 @@ FunctionDeclaration* import_load_module(const char* module_path) {
     // YZ_42: Store in cache for next time
     cache_put(module_path, functions, dependencies, dependency_count);
     
+    // YZ_44 Part 5.1: Generate assembly for this module
+    import_generate_module_assembly(module_path, functions);
+    
     // YZ_43: Save to persistent cache
     char* assembly_path = cache_get_assembly_path(module_path);
     char* object_path = cache_get_object_path(module_path);
@@ -314,4 +353,48 @@ FunctionDeclaration* import_load_module(const char* module_path) {
     free(dependencies);
     
     return functions;
+}
+
+// ============================================================================
+// YZ_44 Part 5.1: Per-Module Assembly Generation
+// ============================================================================
+
+// Generate assembly file for a module
+// Returns 1 on success, 0 on failure
+int import_generate_module_assembly(const char* module_path, FunctionDeclaration* functions) {
+    if (!module_path || !functions) {
+        return 0;
+    }
+    
+    // Get assembly path
+    char* assembly_path = cache_get_assembly_path(module_path);
+    if (!assembly_path) {
+        return 0;
+    }
+    
+    // Open assembly file for writing
+    FILE* asm_file = fopen(assembly_path, "w");
+    if (!asm_file) {
+        fprintf(stderr, "Warning: Cannot create assembly file: %s\n", assembly_path);
+        free(assembly_path);
+        return 0;
+    }
+    
+    // Generate assembly header
+    fprintf(asm_file, "# Module: %s\n", module_path);
+    fprintf(asm_file, "# Generated by MELP Compiler (YZ_44 Part 5.1)\n\n");
+    fprintf(asm_file, ".text\n\n");
+    
+    // Generate code for each function in this module
+    FunctionDeclaration* func = functions;
+    while (func) {
+        function_generate_declaration(asm_file, func);
+        func = func->next;
+    }
+    
+    fclose(asm_file);
+    printf("   📝 Generated assembly: %s\n", assembly_path);
+    
+    free(assembly_path);
+    return 1;
 }
