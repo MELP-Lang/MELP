@@ -2,9 +2,9 @@
 
 > **Yeni YZ iseniz sadece bu belgeyi okuyun. Her şey burada.**
 
-**Son Güncelleme:** 11 Aralık 2025, ~10:30  
-**Son Tamamlanan:** YZ_35 (Phase 11 - Module System - Import Statement) 🎉  
-**Durum:** Stage 0 - Core Features + Phase 9 File I/O + Phase 10 State + Phase 11 Import! 🎉
+**Son Güncelleme:** 11 Aralık 2025, ~05:00  
+**Son Tamamlanan:** YZ_36 (Phase 11 - Module System - Module Loading) 🎉  
+**Durum:** Stage 0 - Core Features + File I/O + State + Module System! 🎉
 
 ## 🎯 Hızlı Başlangıç
 
@@ -74,7 +74,10 @@ Oturumu bitirmeden önce:
 
 ## 🔢 Son YZ Numarası
 
-**YZ_35** - Phase 11 (Module System - Import Statement) tamamlandı! 🎉 import module_name syntax working!
+**YZ_36** - Phase 11 (Module System - Module Loading) tamamlandı! 🎉 
+- ✅ import edilen modüller yükleniyor
+- ✅ Cross-module function calls çalışıyor
+- ✅ User-defined functions artık tanınıyor
 
 ---
 
@@ -95,25 +98,29 @@ Oturumu bitirmeden önce:
 - ✅ TTO optimization - SSO vs Heap for state values
 - ✅ Namespace convention - shared:, config:, temp:
 
-### YZ_35 Tamamlananlar (Phase 11 - Module System):
-- ✅ **import statement** - `import module_name` syntax
-- ✅ **Module path resolution** - modules/core/, modules/advanced/, modules/experimental/
-- ✅ **Lexer tokens** - TOKEN_IMPORT, TOKEN_MODULE
-- ✅ **Parser integration** - Import statement parsing
-- ✅ **Compiler support** - Import handling in functions_standalone.c
-- ✅ **Tests** - import math successfully resolves to modules/core/math.mlp
+### YZ_36 Tamamlananlar (Phase 11 - Module Loading):
+- ✅ **import_load_module()** - Recursive module parsing
+- ✅ **Function registry system** - function_is_known()
+- ✅ **Cross-module function calls** - add(), multiply(), square() working
+- ✅ **Arithmetic parser integration** - User-defined functions recognized
+- ✅ **Tests** - simple import, parametreli functions, multiple calls ALL PASS!
 
-### Sonraki Görevler (YZ_36 için):
+### Sonraki Görevler (YZ_37 için):
 
-**A) Phase 11 Completion - Module Loading (Recommended):** (Recommended):**
-- [ ] Load imported modules - Recursive compilation
-- [ ] Cross-module function calls - Symbol table integration
-- [ ] Separate compilation - Link multiple .s files
+**A) Error Context Management (Recommended):**
+- [ ] error_save_context() / error_restore_context()
+- [ ] Proper module error reporting
+- [ ] Clear error messages for module parse errors
 
-**B) Error Handling Improvement (Alternative):**
-- [ ] Better import error messages
-- [ ] Circular import detection
-- [ ] Module not found suggestions
+**B) Circular Import Detection:**
+- [ ] Import stack tracking
+- [ ] Detect circular dependencies
+- [ ] User-friendly error messages
+
+**C) Separate Compilation (Advanced):**
+- [ ] .mlp → .s → .o pipeline
+- [ ] Link multiple .o files
+- [ ] Module caching
 
 ### Diğer görevler için `TODO.md` bak
 
@@ -227,8 +234,10 @@ Oturumu bitirmeden önce:
 | Phase 7 | ✅ | 100% |
 | Phase 8 | ⏳ | 0% |
 | Phase 9 | ✅ | 100% 🆕 |
+| Phase 10 | ✅ | 100% 🆕 |
+| Phase 11 | ✅ | 80% 🆕 |
 
-**Toplam**: 100% core language + optimization + File I/O complete! 🎉
+**Toplam**: 100% core language + optimization + File I/O + State + Modules! 🎉
 
 ---
 
