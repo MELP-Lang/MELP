@@ -10,6 +10,7 @@
 #include "../import/import.h"          // YZ_35: Import statement
 #include "../import/import_parser.h"   // YZ_35: Import parser
 #include "../import/import_cache.h"    // YZ_42: Module caching
+#include "../import/import_cache_persist.h"  // YZ_43: Persistent cache
 #include "functions.h"
 #include "functions_parser.h"
 #include "functions_codegen.h"
@@ -84,6 +85,9 @@ int main(int argc, char** argv) {
     
     // YZ_42: Initialize module cache
     cache_init();
+    
+    // YZ_43: Initialize persistent cache directory
+    cache_persist_init();
     
     // YZ_38: Parse command-line arguments
     int compile_only = 0;  // Flag for -c or --compile-only

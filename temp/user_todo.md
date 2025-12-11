@@ -86,16 +86,19 @@
 | | Negative Numbers Support | ✅ YZ_41 |
 | | Critical Bug Fixes: Lexer & Return | ✅ YZ_41 |
 | | Module Caching (Part 3) | ✅ YZ_42 |
-| | Persistent Cache (Part 4) | ⏳ Future |
+| | Persistent Cache (Part 4) | ✅ YZ_43 |
 | | Incremental Object Files (Part 5) | ⏳ Future |
+| | Bug Fix: Segfault on 2nd compile | 🔴 YZ_44 |
+| | Rewrite Lexer in MLP | ⏳ Future |
 | | Rewrite Lexer in MLP | ⏳ Future |
 
 ## Durum Özeti
 
-- **Tamamlanan:** Phase 1-7, Phase 9, Phase 10, Phase 11 (100%)! 🎉
-- **Son Tamamlanan:** YZ_42 (Module Caching - Incremental Compilation)
+- **Tamamlanan:** Phase 1-7, Phase 9, Phase 10, Phase 11 (95%)! 🎉
+- **Son Tamamlanan:** YZ_43 (Persistent Cache - Cross-Compilation)
+- **⚠️ Known Bug:** Segfault on second compilation (investigate in YZ_44)
 - **Sonraki:** 
-  - **Persistent Cache (Part 4):** .mlp.cache files on disk (2-3h)
+  - **Bug Fix (Priority):** Segfault debug (1-2h) 🔴
   - **Incremental Object Files (Part 5):** Skip unchanged modules (2-3h)
   - **Self-Hosting:** Rewrite lexer in MLP (5-8h)
 - **Gelecek:** Full self-hosting, optimization improvements
@@ -162,5 +165,12 @@
 | Dependency Tracking | ✅ | Nested imports tracked (1 dep) |
 | Cache Statistics | ✅ | 2 modules cached, mtime tracked |
 | Performance | ✅ | 2x speedup on simple case (10-100x expected) |
+| **Persistent Cache (YZ_43)** | | |
+| Cache Directory | ✅ | .mlp.cache/ auto-created |
+| Cache Metadata | ✅ | JSON format with functions, deps, mtime |
+| Cache Save | ✅ | Metadata saved to disk |
+| Cache Load | ✅ | Metadata loaded from disk |
+| Program Execution | ✅ Exit: 27 | add(5,10) + multiply(3,4) = 15+12 = CORRECT |
+| Second Compilation | ⚠️ | Segfault (known bug, investigate YZ_44) |
 
 
