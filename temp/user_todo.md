@@ -71,18 +71,22 @@
 | | Namespace Convention (shared:, config:, temp:) | ✅ |
 | | JSON Persistence | ✅ |
 | | Runtime C Tests | ✅ |
-| **Phase 11: Self-Hosting Preparation** | | ✅ 50% |
+| **Phase 11: Module System** | | ✅ 80% |
 | | Import Statement (import module_name) | ✅ |
 | | Module Path Resolution | ✅ |
+| | Module Loading (Recursive Parsing) | ✅ |
+| | Function Registry System | ✅ |
+| | Cross-Module Function Calls | ✅ |
+| | Error Context Management | ⏳ |
+| | Circular Import Detection | ⏳ |
 | | Separate Compilation | ⏳ |
-| | Rewrite Lexer in MLP | ⏳ |
 
 ## Durum Özeti
 
-- **Tamamlanan:** Phase 1-7, Phase 9, Phase 10 (100%)
-- **Son Tamamlanan:** YZ_34 (Phase 10 - State Module)
-- **Sonraki:** Phase 11 (Self-Hosting Preparation)
-- **Gelecek:** Module System, Rewrite Lexer in MLP
+- **Tamamlanan:** Phase 1-7, Phase 9, Phase 10, Phase 11 (80%)
+- **Son Tamamlanan:** YZ_36 (Phase 11 - Module Loading)
+- **Sonraki:** Error Context Management veya Circular Import Detection
+- **Gelecek:** Separate Compilation, Module Namespaces
 
 > **⚠️ Senkronizasyon:** Bu dosya `TODO.md` ile eş zamanlı tutulmalıdır!
 
@@ -112,4 +116,7 @@
 | State Persistence | ✅ | JSON save/load cycle validated |
 | State Config | ✅ | auto_persist, persist_file working |
 | State Namespaces | ✅ | shared:, config:, temp: prefixes |
+| **Module Import** | ✅ Exit: 42 | `import simple` → test() returns 42 |
+| **Module Call** | ✅ Exit: 30 | `import math` → add(10,20) = 30 |
+| **Multiple Calls** | ✅ Exit: 54 | add(5,10) + multiply(15,2) + square(3) = 54 |
 
