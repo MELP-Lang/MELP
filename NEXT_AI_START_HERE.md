@@ -2,9 +2,9 @@
 
 > **Yeni YZ iseniz sadece bu belgeyi okuyun. Her şey burada.**
 
-**Son Güncelleme:** 11 Aralık 2025, ~23:00  
-**Son Tamamlanan:** YZ_45 (Incremental Compilation Complete!) 🎉  
-**Durum:** Stage 0 - Phase 11 (100% Complete) ✅
+**Son Güncelleme:** 11 Aralık 2025, ~02:00 (YZ_46)  
+**Son Tamamlanan:** YZ_46 (Self-Hosting Part 6.1 & 6.2 Complete!) 🎉  
+**Durum:** Stage 0 - Phase 11 (100%) + Self-Hosting Started! ✅
 
 **✅ Incremental Build:** 10-15x speedup! Parse & assembly skip working!
 
@@ -82,22 +82,35 @@ Oturumu bitirmeden önce:
 
 ## 🔢 Son YZ Numarası
 
-**YZ_45** - Incremental Compilation Complete! 🎉 
-- ✅ Part 5.3: Smart Linking System (mtime-based skip)
-- ✅ Part 5.4: Incremental Skip Logic (parse skip for unchanged)
-- ✅ Part 5.5: Integration Testing (15x speedup verified!)
-- ✅ Performance: 0.032s vs 0.5s (unchanged modules)
-- ✅ JSON parsing: Robust with loop protection
-- ✅ **Phase 11: 100% COMPLETE!**
+**YZ_46** - Self-Hosting Part 6.1 & 6.2 Complete! 🎉 
+- ✅ Part 6.1: Token Structure (61 token types)
+- ✅ Part 6.2: Character Classification (10 functions)
+- ✅ 550+ lines of MLP code!
+- ✅ Token structure: `[type, value, line, column]`
+- ✅ Character classification: digit, alpha, whitespace, symbols
+- ⚠️ Tests pending (function parameter binding issue)
 
 ---
 
-## 🎯 Mevcut Durum (11 Aralık 2025, 23:00)
+## 🎯 Mevcut Durum (11 Aralık 2025, 02:00)
 
 ### Tamamlanan Phase'ler:
 - ✅ **Phase 1-3**: Strings, For Loops, Collections, Booleans (100%)
 - ✅ **Phase 4**: While loops, For-each, Exit system (100%)
 - ✅ **Phase 5**: String methods - toUpperCase, toLowerCase, trim, etc. (100%)
+- ✅ **Phase 6**: Error messages, "Did you mean", Division by zero, Error Recovery (100%)
+- ✅ **Phase 7**: Constant Folding, Dead Code Elimination, Register Allocation (100%)
+- ✅ **Phase 9**: File I/O - read_file, write_file, append_file (100%)
+- ✅ **Phase 10**: State Module - Persistent state management (100%)
+- ✅ **Phase 11**: Module System + Incremental Compilation (100%)!
+- 🔵 **Phase 12**: Self-Hosting - Lexer in MLP (Progress: 33% - Part 6.1 & 6.2 done!)
+
+### YZ_46 Tamamlananlar:
+- ✅ **Token Structure** - 61 token types (keyword, literal, operator, symbol)
+- ✅ **Token Functions** - create_token, accessors, to_string (7 functions)
+- ✅ **Character Classification** - is_digit, is_alpha, is_whitespace, etc. (10 functions)
+- ✅ **MLP Code** - 550+ lines of pure MLP code!
+- ⚠️ **Tests** - Pending (function parameter binding issue in compiler)
 - ✅ **Phase 6**: Error messages, "Did you mean", Division by zero, Error Recovery (100%)
 - ✅ **Phase 7**: Constant Folding, Dead Code Elimination, Register Allocation (100%)
 - ✅ **Phase 9**: File I/O - read_file, write_file, append_file (100%)
@@ -114,19 +127,25 @@ Oturumu bitirmeden önce:
 
 ### Sonraki Görevler (Optional):
 
-**🔵 ÖNERİLEN (YZ_46): Self-Hosting Part 6.1 - Token Structure (1-1.5h)**
-- **Dosya:** `modules/lexer_mlp/token.mlp`
-- **Görev:** TokenType enum + Token struct tanımı
+**🔵 ÖNERİLEN SEÇENEK 1 (YZ_47): Core Compiler Improvements (2-3h) ⭐⭐⭐**
+- **Priority:** YÜKSEK (self-hosting için gerekli)
+- **Görevler:**
+  - Function parameter binding düzelt
+  - Global constants desteği ekle
+  - Test suite'i çalıştırılabilir hale getir
+- **Neden:** Self-hosting devam edebilmesi için gerekli
+
+**🟢 ÖNERİLEN SEÇENEK 2 (YZ_47): Self-Hosting Part 6.3 - Number & String Tokenization (1.5h)**
+- **Dosya:** `modules/lexer_mlp/tokenize_literals.mlp`
+- **Görev:** scan_number(), scan_string() fonksiyonları
 - **Detay:** TODO.md → "Phase 12: Self-Hosting" bölümüne bak
-- **Zorluk:** ⭐ KOLAY (iyi başlangıç noktası)
+- **Zorluk:** ⭐⭐ ORTA
 
-**🟢 ALTERNATİF (YZ_46): Diğer İyileştirmeler**
-- [ ] Advanced optimization (register allocation)
-- [ ] Standard library expansion (math, string utils)
-- [ ] Documentation improvements
-- [ ] Test coverage expansion
+**🟡 ALTERNATİF (YZ_47): Part 6.4 - Identifier & Keyword Recognition (1h)**
+- **Dosya:** `modules/lexer_mlp/tokenize_identifiers.mlp`
+- **Görev:** scan_identifier(), is_keyword() fonksiyonları
 
-**📝 Not:** Self-hosting seçeneklerdir, zorunlu değil. Core language %100 tamamlandı!
+**📝 Not:** Core compiler improvements öncelikli! Self-hosting için function parameters çalışmalı.
 
 ---
 

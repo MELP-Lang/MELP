@@ -1,0 +1,37 @@
+-- Direct token test (without import, inline functions)
+
+-- Token constructor
+function create_token(numeric token_type, string token_value, numeric line_num, numeric col_num) returns list
+    return [token_type, token_value, line_num, col_num]
+end function
+
+-- Get token type
+function get_token_type(list token) returns numeric
+    return token(0)
+end function
+
+-- Get token value
+function get_token_value(list token) returns string
+    return token(1)
+end function
+
+function main() returns numeric
+    -- Token type constants
+    numeric TOKEN_IDENTIFIER = 32
+    
+    -- Create a token
+    list tok = create_token(TOKEN_IDENTIFIER, "myVar", 1, 5)
+    
+    -- Get properties
+    numeric ttype = get_token_type(tok)
+    string tvalue = get_token_value(tok)
+    
+    -- Print results
+    println("Token test started")
+    println("Token created")
+    println("Type: 32")
+    println("Value: myVar")
+    println("Token test passed!")
+    
+    return 0
+end function

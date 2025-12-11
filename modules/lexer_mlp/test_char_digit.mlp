@@ -1,0 +1,28 @@
+function is_digit(string c) returns boolean
+    if c == "0" then return true end if
+    if c == "1" then return true end if
+    if c == "2" then return true end if
+    if c == "3" then return true end if
+    if c == "4" then return true end if
+    if c == "5" then return true end if
+    if c == "6" then return true end if
+    if c == "7" then return true end if
+    if c == "8" then return true end if
+    if c == "9" then return true end if
+    return false
+end function
+
+function main() returns numeric
+    boolean result1 = is_digit("5")
+    boolean result2 = is_digit("a")
+    
+    if result1 == true then
+        return 1
+    end if
+    
+    if result2 == false then
+        return 2
+    end if
+    
+    return 0
+end function
