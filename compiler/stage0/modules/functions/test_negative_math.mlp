@@ -1,0 +1,7 @@
+function main() returns numeric
+    numeric x = -15
+    numeric y = -20
+    numeric z = x + y
+    numeric result = z * 2
+    return 0
+end function

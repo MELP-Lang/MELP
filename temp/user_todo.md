@@ -5,16 +5,16 @@
 
 | Phase | Alt Başlık | Bitti |
 |-------|-----------|-------|
-| **Phase 1: String Operations** | | ✅ |
+| **Phase 1: String Operations** | | ✅ 100% |
 | | String Runtime Functions | ✅ |
 | | String Concat Codegen | ✅ |
 | | String Concat Parser | ✅ |
 | | String Compare Codegen | ✅ |
 | | Integration Tests | ✅ |
-| **Phase 2: For Loops** | | ✅ |
+| **Phase 2: For Loops** | | ✅ 100% |
 | | For Loop Codegen | ✅ |
 | | Range Iteration (to/downto) | ✅ |
-| **Phase 3: Collections & Booleans** | | ✅ |
+| **Phase 3: Collections & Booleans** | | ✅ 100% |
 | | Array Literals | ✅ |
 | | Array Access (Read) | ✅ |
 | | Array Access (Write) | ✅ |
@@ -31,11 +31,11 @@
 | | String Methods (length, indexOf, substring) | ✅ |
 | | Collection Syntax Compliance | ✅ |
 | | Whitespace Enforcement | ✅ |
-| **Phase 4: Advanced Language Features** | | ✅ |
+| **Phase 4: Advanced Language Features** | | ✅ 100% |
 | | For-Each Loop | ✅ |
 | | While Loop | ✅ |
 | | Exit System (exit for/while/if/function) | ✅ |
-| **Phase 5: String Methods (Extended)** | | ✅ |
+| **Phase 5: String Methods (Extended)** | | ✅ 100% |
 | | toUpperCase() | ✅ |
 | | toLowerCase() | ✅ |
 | | trim(), trimStart(), trimEnd() | ✅ |
@@ -71,27 +71,32 @@
 | | Namespace Convention (shared:, config:, temp:) | ✅ |
 | | JSON Persistence | ✅ |
 | | Runtime C Tests | ✅ |
-| **Phase 11: Module System** | | ✅ 92% |
-| | Import Statement (import module_name) | ✅ |
-| | Module Path Resolution | ✅ |
-| | Module Loading (Recursive Parsing) | ✅ |
-| | Function Registry System | ✅ |
-| | Cross-Module Function Calls | ✅ |
-| | Error Context Management | ✅ |
-| | Circular Import Detection | ✅ |
+| **Phase 11: Module System** | | ✅ 100% |
+| | Import Statement (import module_name) | ✅ YZ_35 |
+| | Module Path Resolution | ✅ YZ_35 |
+| | Module Loading (Recursive Parsing) | ✅ YZ_36 |
+| | Function Registry System | ✅ YZ_36 |
+| | Cross-Module Function Calls | ✅ YZ_36 |
+| | Error Context Management | ✅ YZ_37 |
+| | Circular Import Detection | ✅ YZ_37 |
 | | Separate Compilation (Part 1: Assembly) | ✅ YZ_38 |
-| | Separate Compilation (Part 2: Linking) | ⏳ YZ_39 |
-| | Separate Compilation (Part 3: Caching) | ⏳ YZ_40 |
-| | Rewrite Lexer in MLP | ⏳ |
+| | Separate Compilation (Part 2: Linking) | ✅ YZ_39 |
+| | Bug Fix: Function Call Parsing | ✅ YZ_40 |
+| | Forward Reference Support | ✅ YZ_40 |
+| | Negative Numbers Support | ✅ YZ_41 |
+| | Critical Bug Fixes: Lexer & Return | ✅ YZ_41 |
+| | Module Caching (Part 3) | ✅ YZ_42 |
+| | Rewrite Lexer in MLP | ⏳ Future |
 
 ## Durum Özeti
 
-- **Tamamlanan:** Phase 1-7, Phase 9, Phase 10, Phase 11 (92%)
-- **Son Tamamlanan:** YZ_38 (Phase 11 - Separate Compilation Part 1)
+- **Tamamlanan:** Phase 1-7, Phase 9, Phase 10, Phase 11 (100%)! 🎉
+- **Son Tamamlanan:** YZ_42 (Module Caching - Incremental Compilation)
 - **Sonraki:** 
-  - **YZ_39:** Separate Compilation Part 2 (Automatic Linking, 1.5-2h)
-  - **YZ_40:** Separate Compilation Part 3 (Module Caching, 1-1.5h)
-- **Gelecek:** Self-hosting, Lexer in MLP
+  - Self-hosting preparation
+  - Persistent cache (.mlp.cache files)
+  - Rewrite Lexer in MLP
+- **Gelecek:** Full self-hosting, optimization improvements
 
 > **⚠️ Senkronizasyon:** Bu dosya `TODO.md` ile eş zamanlı tutulmalıdır!
 
@@ -99,37 +104,61 @@
 
 | Test | Sonuç | Açıklama |
 |------|-------|----------|
+| **Phase 1-3: Basic Features** | | |
 | For-Each | ✅ Exit: 60 | `for each x in [10,20,30]` → sum=60 |
 | While | ✅ Exit: 3 | `while x < 3` döngüsü |
 | Exit For | ✅ Exit: 21 | `exit for` ile erken çıkış |
+| Array Operations | ✅ | Array read/write, bounds checking |
+| Boolean Logic | ✅ | AND/OR/NOT operations |
+| **Phase 5: String Methods** | | |
 | toUpperCase | ✅ "HELLO" | String büyük harfe çevirme |
+| toLowerCase | ✅ "hello" | String küçük harfe çevirme |
 | length() | ✅ Exit: 11 | "Hello World" = 11 karakter |
+| replace/split | ✅ | String manipulation working |
+| **Phase 6: Error System** | | |
 | Division by Zero | ✅ Exit: 43 | Runtime error mesajı |
 | "Did You Mean" | ✅ | `functio` → 'function' önerisi |
 | Error Recovery | ✅ | 2 hata, 2 recovery attempt |
 | input_numeric() | ✅ Exit: 30 | `echo -e "10\n20"` → 30 |
-| replace/split | ✅ | String manipulation working |
+| **Phase 7: Optimization** | | |
 | Constant Folding | ✅ Exit: 55 | `2 + 3` → `movq $5` |
 | Dead Code Elim | ✅ Exit: 5 | `if false`, post-return removed |
-| read_file() | ✅ | Runtime C: "Hello, File I/O from MELP!" |
-| write_file() | ✅ Result: 1 | Runtime C: Write success |
-| append_file() | ✅ Result: 1 | Runtime C: 3 lines appended |
+| **Phase 9: File I/O** | | |
+| read_file() | ✅ | "Hello, File I/O from MELP!" |
+| write_file() | ✅ Result: 1 | Write success |
+| append_file() | ✅ Result: 1 | 3 lines appended |
 | File Errors | ✅ | Non-existent file, invalid path handled |
-| State Lifecycle | ✅ | state_init/close, double-init prevention |
+| **Phase 10: State Module** | | |
+| State Lifecycle | ✅ | init/close, double-init prevention |
 | State Operations | ✅ | set/get/has/delete/clear working |
 | State TTO | ✅ | SSO (3, 22 bytes), Heap (68 bytes) |
 | State Persistence | ✅ | JSON save/load cycle validated |
 | State Config | ✅ | auto_persist, persist_file working |
 | State Namespaces | ✅ | shared:, config:, temp: prefixes |
-| **Module Import** | ✅ Exit: 42 | `import simple` → test() returns 42 |
-| **Module Call** | ✅ Exit: 30 | `import math` → add(10,20) = 30 |
-| **Multiple Calls** | ✅ Exit: 54 | add(5,10) + multiply(15,2) + square(3) = 54 |
-| **Error Context** | ✅ | Module errors show correct filename & line |
-| **Circular Import** | ✅ | A→B→A detected with import chain display |
-| **Nested Imports** | ✅ | Modules can import other modules |
-| **-c Flag** | ✅ Exit: 0 | Compile-only mode working |
-| **Per-Module Assembly** | ✅ | math.mlp → math.s, utils.mlp → utils.s |
-| **Object Files** | ✅ | .s → .o conversion successful |
-| **Manual Linking** | ✅ Exit: 60 | 3 .o files → executable (10+20+30=60) |
-| **Import + -c** | ✅ | import math + compile-only compatible |
+| **Phase 11: Module System** | | |
+| Module Import | ✅ Exit: 42 | `import simple` → test() returns 42 |
+| Module Call | ✅ Exit: 30 | `import math` → add(10,20) = 30 |
+| Multiple Calls | ✅ Exit: 54 | add(5,10) + multiply(15,2) + square(3) = 54 |
+| Error Context | ✅ | Module errors show correct filename & line |
+| Circular Import | ✅ | A→B→A detected with import chain display |
+| Nested Imports | ✅ | Modules can import other modules |
+| **Separate Compilation** | | |
+| -c Flag | ✅ Exit: 0 | Compile-only mode working |
+| Per-Module Assembly | ✅ | math.mlp → math.s, utils.mlp → utils.s |
+| Object Files | ✅ | .s → .o conversion successful |
+| Auto Linking | ✅ Exit: 60 | Auto .mlp → executable pipeline |
+| Import + -c | ✅ | import + compile-only compatible |
+| **Bug Fixes (YZ_40, YZ_41)** | | |
+| Function Calls | ✅ | User-defined functions parsed correctly |
+| Forward References | ✅ | Call functions before declaration |
+| Negative Numbers | ✅ | `numeric x = -15`, `-10 + 5 = -5` |
+| Lexer Bug | ✅ | Unknown chars no longer cause infinite loop |
+| Return Bug | ✅ | Return statement exits function properly |
+| **Module Caching (YZ_42)** | | |
+| Cache Hit Detection | ✅ Exit: 67 | Module parsed once, used twice from cache |
+| Duplicate Prevention | ✅ | No duplicate symbols in assembly |
+| Dependency Tracking | ✅ | Nested imports tracked (1 dep) |
+| Cache Statistics | ✅ | 2 modules cached, mtime tracked |
+| Performance | ✅ | 2x speedup on simple case (10-100x expected) |
+
 

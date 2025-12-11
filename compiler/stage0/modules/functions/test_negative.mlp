@@ -1,0 +1,7 @@
+function main() returns numeric
+    numeric x = -15
+    numeric y = -20
+    numeric z = x + y
+    println(z)
+    return z
+end function

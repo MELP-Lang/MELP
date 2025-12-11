@@ -1,0 +1,11 @@
+function main() returns numeric
+    numeric a = -10
+    numeric b = 5
+    numeric sum = a + b
+    # sum should be -5, but we return positive value for testing
+    if sum == -5 then
+        return 1
+    else
+        return 0
+    end if
+end function

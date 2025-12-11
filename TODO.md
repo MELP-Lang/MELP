@@ -811,18 +811,29 @@ end function
   - Temporary file cleanup ✅
   - Tests: auto link working, import compatible ✅
 
-- [ ] **Module System - Separate Compilation (Part 3: Module Caching)** ⏳ (1-1.5 hours) **→ YZ_40 or later**
+- [ ] **Module System - Separate Compilation (Part 3: Module Caching)** ⏳ (1-1.5 hours) **→ YZ_42 (NEXT PRIORITY!)**
   - Module dependency tracking (which modules need rebuild?)
   - Timestamp-based caching (skip unchanged modules)
   - Cache invalidation on source change
   - Symbol table persistence per module (.mlp.cache files?)
   - Tests: modify math.mlp → only math recompiles, utils untouched
 
-- [ ] **Bug Fix: User-Defined Function Calls** ⏳ (1 hour) **→ YZ_40 (PRIORITY!)**
-  - Problem: User-defined functions parsed as array access
-  - Example: `calculate(x)` → treated as `calculate[x]` ❌
-  - Solution: Improve lookahead in arithmetic_parser.c
-  - Tests: Cross-function calls within same file
+- [x] **Bug Fix: User-Defined Function Calls** ✅ (YZ_40 COMPLETE!)
+  - Problem: User-defined functions parsed as array access ✅
+  - Solution: Two-pass parsing (register function names first) ✅
+  - Forward reference support added ✅
+  - Tests: Cross-function calls, forward refs, all PASS! ✅
+
+- [x] **Negative Numbers Support** ✅ (YZ_41 COMPLETE!)
+  - Unary minus operator in all contexts ✅
+  - Variable assignment: `numeric x = -15` ✅
+  - Arithmetic: `-10 + 5 = -5` ✅
+  - Comparison: `if a == -10 then` ✅
+  - Tests: All arithmetic and comparison tests PASS! ✅
+
+- [x] **Critical Bug Fixes** ✅ (YZ_41 COMPLETE!)
+  - Lexer infinite loop fix (unknown characters) ✅
+  - Return statement fix (now exits function properly) ✅
 
 - [ ] **Rewrite Lexer in MLP** (5 hours)
   - First self-hosted component!

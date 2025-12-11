@@ -9,6 +9,7 @@
 #include "../error/error.h"
 #include "../import/import.h"          // YZ_35: Import statement
 #include "../import/import_parser.h"   // YZ_35: Import parser
+#include "../import/import_cache.h"    // YZ_42: Module caching
 #include "functions.h"
 #include "functions_parser.h"
 #include "functions_codegen.h"
@@ -80,6 +81,9 @@ static int skip_to_sync_point(Lexer* lexer) {
 int main(int argc, char** argv) {
     // Initialize error handling system
     error_init();
+    
+    // YZ_42: Initialize module cache
+    cache_init();
     
     // YZ_38: Parse command-line arguments
     int compile_only = 0;  // Flag for -c or --compile-only
@@ -288,25 +292,48 @@ int main(int argc, char** argv) {
         func_temp = func_temp->next;
     }
     
-    // YZ_36: Merge imported functions into main function list
+    // YZ_42: Merge imported functions (with duplicate check for cache)
+    // Build a list of unique function names already in main list
     if (imports) {
+        // Find last function in main list
+        last_func = functions;
+        if (last_func) {
+            while (last_func->next) {
+                last_func = last_func->next;
+            }
+        }
+        
         ImportStatement* imp = imports;
         while (imp) {
             if (imp->functions) {
-                // Add imported functions to the end of main function list
-                if (!functions) {
-                    functions = imp->functions;
-                    last_func = imp->functions;
-                    // Find the last function in imported module
-                    while (last_func->next) {
-                        last_func = last_func->next;
+                FunctionDeclaration* imported_func = imp->functions;
+                while (imported_func) {
+                    // Check if function already exists
+                    int exists = 0;
+                    FunctionDeclaration* check = functions;
+                    while (check) {
+                        if (strcmp(check->name, imported_func->name) == 0) {
+                            exists = 1;
+                            break;
+                        }
+                        check = check->next;
                     }
-                } else {
-                    // Append imported functions
-                    FunctionDeclaration* imported_func = imp->functions;
-                    while (imported_func) {
-                        last_func->next = imported_func;
-                        last_func = imported_func;
+                    
+                    if (!exists) {
+                        // Append to main list
+                        FunctionDeclaration* next_import = imported_func->next;  // Save next before modifying
+                        imported_func->next = NULL;  // Break the link
+                        
+                        if (!functions) {
+                            functions = imported_func;
+                            last_func = imported_func;
+                        } else {
+                            last_func->next = imported_func;
+                            last_func = imported_func;
+                        }
+                        
+                        imported_func = next_import;  // Continue with saved next
+                    } else {
                         imported_func = imported_func->next;
                     }
                 }
@@ -315,14 +342,16 @@ int main(int argc, char** argv) {
         }
     }
     
-    // YZ_36: Free imports (but not the functions, they're now in the main list)
+    // YZ_36: Free imports
     if (imports) {
         ImportStatement* imp = imports;
         while (imp) {
             ImportStatement* next = imp->next;
-            // Don't free functions, they're now owned by main list
+            // Functions are now in main list or cached, don't free them
             imp->functions = NULL;
-            import_statement_free(imp);
+            free(imp->module_name);
+            free(imp->module_path);
+            free(imp);
             imp = next;
         }
     }
@@ -494,5 +523,14 @@ int main(int argc, char** argv) {
         printf("   Run with: LD_LIBRARY_PATH=../../../../runtime/stdlib:../../../../runtime/tto ./%s\n", 
                output_file);
     }
+    
+    // YZ_42: Print cache stats (for debugging)
+    if (getenv("MELP_CACHE_STATS")) {
+        cache_print_stats();
+    }
+    
+    // YZ_42: Cleanup cache
+    cache_cleanup();
+    
     return 0;
 }
