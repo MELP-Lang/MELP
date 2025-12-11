@@ -86,6 +86,8 @@
 | | Negative Numbers Support | ✅ YZ_41 |
 | | Critical Bug Fixes: Lexer & Return | ✅ YZ_41 |
 | | Module Caching (Part 3) | ✅ YZ_42 |
+| | Persistent Cache (Part 4) | ⏳ Future |
+| | Incremental Object Files (Part 5) | ⏳ Future |
 | | Rewrite Lexer in MLP | ⏳ Future |
 
 ## Durum Özeti
@@ -93,9 +95,9 @@
 - **Tamamlanan:** Phase 1-7, Phase 9, Phase 10, Phase 11 (100%)! 🎉
 - **Son Tamamlanan:** YZ_42 (Module Caching - Incremental Compilation)
 - **Sonraki:** 
-  - Self-hosting preparation
-  - Persistent cache (.mlp.cache files)
-  - Rewrite Lexer in MLP
+  - **Persistent Cache (Part 4):** .mlp.cache files on disk (2-3h)
+  - **Incremental Object Files (Part 5):** Skip unchanged modules (2-3h)
+  - **Self-Hosting:** Rewrite lexer in MLP (5-8h)
 - **Gelecek:** Full self-hosting, optimization improvements
 
 > **⚠️ Senkronizasyon:** Bu dosya `TODO.md` ile eş zamanlı tutulmalıdır!

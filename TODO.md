@@ -838,9 +838,26 @@ end function
   - Lexer infinite loop fix (unknown characters) ✅
   - Return statement fix (now exits function properly) ✅
 
-- [ ] **Rewrite Lexer in MLP** (5 hours)
+- [ ] **Module System - Future Enhancements** ⏳ (Optional, after core complete)
+  
+  - [ ] **Persistent Cache (Part 4)** (2-3 hours)
+    - Save cache to disk (.mlp.cache files)
+    - Load cache on startup (cross-compilation persistence)
+    - Cache versioning (invalidate on compiler version change)
+    - Cache directory management (~/.melp/cache/)
+    - Tests: Compile, exit, recompile → cache loaded from disk
+  
+  - [ ] **Incremental Object Files (Part 5)** (2-3 hours)
+    - Skip compiling unchanged modules (use cached .o files)
+    - Dependency-aware rebuild (if A imports B, B changed → rebuild A)
+    - Timestamp comparison (.mlp vs .o mtime)
+    - Smart linking (only link changed modules)
+    - Tests: Change math.mlp → only math.o rebuilt, utils.o reused
+
+- [ ] **Rewrite Lexer in MLP** (5-8 hours)
   - First self-hosted component!
   - Bootstrap process
+  - Performance comparison with C version
 
 **Deliverable:** ✅ Phase 11 - 100% COMPLETE! Module system + auto linking + caching ALL WORKING!
 
