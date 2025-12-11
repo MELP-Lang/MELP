@@ -49,8 +49,12 @@ LD_LIBRARY_PATH=../../../../runtime/stdlib:../../../../runtime/tto ./test
 2. **Bilgi sahibi ol** ilgilendiğin konu ne ise önce onun ile ilgili bilgiye docs_tr/language/melp_syntax.md
 dosyasından ulaş. söz dizimini öğren. Kullanıcıya, şu an ki görevim (örneğin list() listeler) "melp_syntax.md" belgesinin listeler bölümünü okudum, söz dizimine hakimim. ilgili bölüm şöyle diyor, benim görevim list() içinde şunları yapmaktır, diye bilgi ver.
 3. **Her YZ kendi dalına commit ve push eder** (dal adı: `*_YZ_XX` formatında, yedekler GitHub'da tutulur)
-4. **Her değişikliği test edin**
-5. **Belgeleri güncel tutun**
+4. **⚠️ KRİTİK: ASLA main branch'e Pull Request GÖNDERME!** 
+   - Sadece kendi dalına push yap: `git push origin dal_adi`
+   - Main branch'e merge YAPMA
+   - Kullanıcı gerekirse kendisi PR oluşturur
+5. **Her değişikliği test edin**
+6. **Belgeleri güncel tutun**
 
 
 ## ✅ Oturum Sonu Kontrol Listesi
@@ -62,6 +66,7 @@ Oturumu bitirmeden önce:
 - [ ] `temp/user_todo.md` güncelle (TODO.md ile senkronize tut!) ⚠️
 - [ ] Bu dosyayı güncelle (önemli bir değişiklik varsa)
 - [ ] Commit ve push yap (dal: `*_YZ_XX`)
+- [ ] ⚠️ **KRİTİK:** Sadece kendi dalına push yap, main'e PR GÖNDERME!
 
 ## 📁 Önemli Dosyalar
 
