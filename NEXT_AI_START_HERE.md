@@ -2,8 +2,8 @@
 
 > **Yeni YZ iseniz sadece bu belgeyi okuyun. Her şey burada.**
 
-**Son Güncelleme:** 11 Aralık 2025, ~16:00  
-**Son Tamamlanan:** YZ_40 (Bug Fix: Function Call Parsing + Math Functions) 🎉  
+**Son Güncelleme:** 11 Aralık 2025, ~18:00  
+**Son Tamamlanan:** YZ_41 (Negative Numbers Support + Critical Bug Fixes) 🎉  
 **Durum:** Stage 0 - Core Features + File I/O + State + Module System (100%)! 🎉
 
 ## 🎯 Hızlı Başlangıç
@@ -74,12 +74,12 @@ Oturumu bitirmeden önce:
 
 ## 🔢 Son YZ Numarası
 
-**YZ_40** - Bug Fix: Function Call Parsing + Forward References! 🎉 
-- ✅ Math functions added (abs, pow, sqrt, sin, cos, tan, floor, ceil, round)
-- ✅ Two-pass parsing (First pass: register function names, Second pass: parse bodies)
-- ✅ Forward reference support (function A can call function B defined later)
-- ✅ 'end function' pattern filtering in first pass
-- ✅ All tests PASSED (builtin, user-defined, forward ref, comprehensive)
+**YZ_41** - Negative Numbers Support + Critical Bug Fixes! 🎉 
+- ✅ Unary minus operator (numeric x = -15)
+- ✅ Negative numbers in all contexts (assignment, arithmetic, comparison)
+- ✅ Lexer infinite loop bug fixed (unknown characters)
+- ✅ Return statement bug fixed (now properly exits function)
+- ✅ All tests PASSED (arithmetic, comparison, nested ifs)
 
 ---
 
@@ -94,20 +94,15 @@ Oturumu bitirmeden önce:
 - ✅ **Phase 9**: File I/O - read_file, write_file, append_file (100%) 🆕
 - ✅ **Phase 11**: Module System + Auto Linking + Function Calls (100%) 🆕
 
-### YZ_40 Tamamlananlar:
-- ✅ **Math functions** - abs(), pow(), sqrt(), sin(), cos(), tan(), floor(), ceil(), round()
-- ✅ **Two-pass parsing** - Forward reference support
-- ✅ **Function call bug fix** - calculate(x) artık list access olmuyor!
-- ✅ Tests: builtin math, user functions, forward refs, comprehensive
+### YZ_41 Tamamlananlar:
+- ✅ **Negative Numbers Support** - Unary minus operator
+- ✅ **Critical Bug Fix** - Lexer infinite loop on unknown characters
+- ✅ **Critical Bug Fix** - Return statement now exits function properly
+- ✅ Tests: -10 + 5 = -5, if a == -10, nested returns
 
-### Sonraki Görevler (YZ_41 için):
+### Sonraki Görevler (YZ_42 için):
 
-**A) Negative Numbers Support (YZ_41, 30-45min - HIGH PRIORITY!):**
-- [ ] Problem: `numeric x = -15` parse error veriyor
-- [ ] Fix: Unary minus operator in variable assignment
-- [ ] Files: variable_parser.c, arithmetic_parser.c
-
-**B) Module Caching - Part 3 (Later, 1.5-2h):**
+**A) Module Caching - Part 3 (HIGH PRIORITY, 1.5-2h):**
 - [ ] Module dependency tracking
 - [ ] Timestamp-based caching (skip unchanged modules)
 - [ ] Cache invalidation on source change
