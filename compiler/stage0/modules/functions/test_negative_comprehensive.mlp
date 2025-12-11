@@ -1,0 +1,23 @@
+function main() returns numeric
+    numeric a = -100
+    numeric b = -50
+    numeric c = 25
+    
+    ' Test 1: negative + negative
+    numeric test1 = a + b  ' -150
+    
+    ' Test 2: negative + positive
+    numeric test2 = a + c  ' -75
+    
+    ' Test 3: negative * negative
+    numeric test3 = b * b  ' 2500
+    
+    ' Test 4: negative * positive
+    numeric test4 = a * c  ' -2500
+    
+    ' Test 5: unary minus on variable
+    numeric x = 10
+    numeric neg_x = -x  ' Not yet supported, will fail
+    
+    return 0
+end function

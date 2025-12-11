@@ -1,0 +1,9 @@
+import math_cache_test
+import utils_cache_test
+
+function main() returns numeric
+    numeric a = add(10, 20)
+    numeric b = square(5)
+    numeric c = multiply(3, 4)
+    return a + b + c
+end function

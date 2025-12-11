@@ -1,0 +1,8 @@
+function main() returns numeric
+    numeric a = -10
+    if a == -10 then
+        return 1
+    else
+        return 0
+    end if
+end function

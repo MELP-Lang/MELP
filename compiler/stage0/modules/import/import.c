@@ -1,5 +1,6 @@
 #include "import.h"
 #include "import_parser.h"
+#include "import_cache.h"  // YZ_42: Module caching
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -114,7 +115,15 @@ char* import_resolve_module_path(const char* module_name) {
 }
 
 // YZ_36: Load and parse a module file
+// YZ_42: Enhanced with module caching for incremental compilation
 FunctionDeclaration* import_load_module(const char* module_path) {
+    // YZ_42: Check cache first
+    FunctionDeclaration* cached_functions = cache_get(module_path);
+    if (cached_functions) {
+        // Cache hit! No need to parse again
+        return cached_functions;
+    }
+    
     // YZ_37: Check for circular import
     if (import_check_circular(module_path)) {
         fprintf(stderr, "\n");
@@ -131,6 +140,11 @@ FunctionDeclaration* import_load_module(const char* module_path) {
     if (!import_push_stack(module_path)) {
         return NULL;
     }
+    
+    // YZ_42: Track dependencies for cache
+    char** dependencies = NULL;
+    int dependency_count = 0;
+    int dependency_capacity = 0;
     
     // Read module file
     FILE* file = fopen(module_path, "r");
@@ -197,6 +211,13 @@ FunctionDeclaration* import_load_module(const char* module_path) {
                 printf("   📦 Nested Import: %s (from %s)\n", 
                        import_stmt->module_name, module_path);
                 
+                // YZ_42: Track dependency for cache
+                if (dependency_count >= dependency_capacity) {
+                    dependency_capacity = dependency_capacity == 0 ? 4 : dependency_capacity * 2;
+                    dependencies = realloc(dependencies, sizeof(char*) * dependency_capacity);
+                }
+                dependencies[dependency_count++] = strdup(import_stmt->module_path);
+                
                 FunctionDeclaration* imported_funcs = import_load_module(import_stmt->module_path);
                 if (imported_funcs) {
                     // Add imported functions to our list
@@ -250,6 +271,15 @@ FunctionDeclaration* import_load_module(const char* module_path) {
     
     // YZ_37: Pop from import stack (successful parse)
     import_pop_stack();
+    
+    // YZ_42: Store in cache for next time
+    cache_put(module_path, functions, dependencies, dependency_count);
+    
+    // YZ_42: Clean up dependency tracking
+    for (int i = 0; i < dependency_count; i++) {
+        free(dependencies[i]);
+    }
+    free(dependencies);
     
     return functions;
 }

@@ -1,0 +1,23 @@
+function main() returns numeric
+    -- Test 1: Negative number in variable assignment
+    numeric a = -10
+    numeric b = 5
+    
+    -- Test 2: Arithmetic with negative numbers
+    numeric sum = a + b
+    numeric diff = a - b
+    numeric prod = a * b
+    
+    -- Test 3: Comparison with negative numbers
+    if a == -10 then
+        if sum == -5 then
+            if diff == -15 then
+                if prod == -50 then
+                    return 1  -- All tests passed!
+                end if
+            end if
+        end if
+    end if
+    
+    return 0  -- Test failed
+end function

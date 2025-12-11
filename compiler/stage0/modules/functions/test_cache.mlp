@@ -1,0 +1,14 @@
+# YZ_42: Main test program
+# Tests that math_cache_test is cached after first import
+
+import math_cache_test
+import utils_cache_test
+
+function main() returns numeric
+    numeric a = add(10, 20)        # From math_cache_test
+    numeric b = square(5)          # From utils_cache_test (which also imports math_cache_test)
+    numeric c = multiply(3, 4)     # From math_cache_test
+    
+    # Expected: math_cache_test should only be parsed once (cached on second import)
+    return a + b + c
+end function

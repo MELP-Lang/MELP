@@ -95,7 +95,8 @@ STATEMENT_SOURCES = \
 IMPORT_DIR = ../import
 IMPORT_SOURCES = \
 	$(IMPORT_DIR)/import.c \
-	$(IMPORT_DIR)/import_parser.c
+	$(IMPORT_DIR)/import_parser.c \
+	$(IMPORT_DIR)/import_cache.c
 
 # Parser Core modülü (Parser structure)
 PARSER_CORE_DIR = ../parser_core
