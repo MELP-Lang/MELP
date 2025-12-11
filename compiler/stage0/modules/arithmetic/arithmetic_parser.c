@@ -2,6 +2,7 @@
 #include "arithmetic_optimize.h"  // YZ_32: Constant folding
 #include "../codegen_context/codegen_context.h"
 #include "../array/array_parser.h"  // YZ_14: For array index access
+#include "../functions/functions.h"  // YZ_36: For function_is_known()
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -646,49 +647,14 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         // 3. Variable: x
         
         // YZ_29: For TOKEN_LPAREN, we need to distinguish between:
-        //   - Function call: toUpperCase(msg), println(x)
+        //   - Function call: toUpperCase(msg), println(x), add(10, 20)
         //   - List access: mylist(0)
-        // Solution: Check if identifier is a known builtin function
-        int is_builtin_func = 0;
-        if (strcmp(identifier, "println") == 0 ||
-            strcmp(identifier, "print") == 0 ||
-            strcmp(identifier, "toString") == 0 ||
-            strcmp(identifier, "length") == 0 ||
-            strcmp(identifier, "substring") == 0 ||
-            strcmp(identifier, "indexOf") == 0 ||
-            strcmp(identifier, "toUpperCase") == 0 ||
-            strcmp(identifier, "toLowerCase") == 0 ||
-            strcmp(identifier, "trim") == 0 ||
-            strcmp(identifier, "trimStart") == 0 ||
-            strcmp(identifier, "trimEnd") == 0 ||
-            // YZ_31: Input functions
-            strcmp(identifier, "input") == 0 ||
-            strcmp(identifier, "input_numeric") == 0 ||
-            // YZ_31: Replace & Split
-            strcmp(identifier, "replace") == 0 ||
-            strcmp(identifier, "replaceAll") == 0 ||
-            strcmp(identifier, "split") == 0 ||
-            // YZ_33: Phase 9 - File I/O
-            strcmp(identifier, "read_file") == 0 ||
-            strcmp(identifier, "write_file") == 0 ||
-            strcmp(identifier, "append_file") == 0 ||
-            // YZ_34: Phase 8 - State Manager
-            strcmp(identifier, "state_init") == 0 ||
-            strcmp(identifier, "state_close") == 0 ||
-            strcmp(identifier, "state_set") == 0 ||
-            strcmp(identifier, "state_get") == 0 ||
-            strcmp(identifier, "state_has") == 0 ||
-            strcmp(identifier, "state_delete") == 0 ||
-            strcmp(identifier, "state_clear") == 0 ||
-            strcmp(identifier, "state_config_set") == 0 ||
-            strcmp(identifier, "state_save") == 0 ||
-            strcmp(identifier, "state_load") == 0) {
-            is_builtin_func = 1;
-        }
+        // YZ_36: Solution: Check if identifier is a known function (builtin or user-defined)
+        int is_known_func = function_is_known(identifier);
         
-        // YZ_23: Check for array/list/tuple access FIRST (but NOT for builtin functions!)
+        // YZ_23: Check for array/list/tuple access FIRST (but NOT for known functions!)
         if (*current && ((*current)->type == TOKEN_LBRACKET || 
-                        ((*current)->type == TOKEN_LPAREN && !is_builtin_func) ||
+                        ((*current)->type == TOKEN_LPAREN && !is_known_func) ||
                         (*current)->type == TOKEN_LANGLE)) {
             // Array: identifier[index]
             // List:  identifier(index)  
@@ -730,7 +696,8 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         
         // Phase 3.5: Check for function call
         // YZ_29: Now this code is reachable for builtin functions!
-        if (*current && (*current)->type == TOKEN_LPAREN && is_builtin_func) {
+        // YZ_36: And also for user-defined functions!
+        if (*current && (*current)->type == TOKEN_LPAREN && is_known_func) {
             // It's a function call: identifier(args...)
             advance_stateless(lexer, current);  // consume '('
             

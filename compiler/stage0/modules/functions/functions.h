@@ -95,4 +95,10 @@ int function_get_list_length(FunctionDeclaration* func, const char* name);  // Y
 // Builtin function recognition
 int function_is_builtin(const char* name);
 
+// YZ_36: Function registry for user-defined functions (module support)
+// Check if a function is known (builtin or user-defined)
+int function_is_known(const char* name);
+void function_register_name(const char* name);
+void function_clear_registry(void);
+
 #endif

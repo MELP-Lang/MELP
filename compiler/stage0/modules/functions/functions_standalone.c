@@ -134,15 +134,12 @@ int main(int argc, char** argv) {
             token_free(tok);
             
             if (import_stmt) {
-                // Store import for later processing
+                // YZ_36: Add to linked list
                 if (!imports) {
                     imports = import_stmt;
                     last_import = import_stmt;
                 } else {
-                    // Create linked list (we'll need to add 'next' field to ImportStatement)
-                    // For now, just keep the last one
-                    import_statement_free(imports);
-                    imports = import_stmt;
+                    last_import->next = import_stmt;
                     last_import = import_stmt;
                 }
                 
@@ -150,6 +147,22 @@ int main(int argc, char** argv) {
                 if (import_stmt->is_resolved) {
                     printf("📦 Import: %s (resolved to %s)\n", 
                            import_stmt->module_name, import_stmt->module_path);
+                    
+                    // YZ_36: Load module functions
+                    import_stmt->functions = import_load_module(import_stmt->module_path);
+                    if (import_stmt->functions) {
+                        // Count imported functions and register them
+                        int func_count = 0;
+                        FunctionDeclaration* f = import_stmt->functions;
+                        while (f) {
+                            func_count++;
+                            function_register_name(f->name);  // YZ_36: Register for arithmetic parser
+                            f = f->next;
+                        }
+                        printf("   ✅ Loaded %d function(s) from %s\n", func_count, import_stmt->module_name);
+                    } else {
+                        error_warning(0, "No functions found in module '%s'", import_stmt->module_name);
+                    }
                 } else {
                     error_warning(0, "Module '%s' not found (compilation continues)", 
                                   import_stmt->module_name);
@@ -198,9 +211,51 @@ int main(int argc, char** argv) {
     // Close lexer
     lexer_free(lexer);
     
-    // YZ_35: Free imports (module loading not implemented yet - placeholder)
+    // YZ_36: Register all function names before merging
+    // This allows arithmetic parser to recognize user-defined functions
+    FunctionDeclaration* func_temp = functions;
+    while (func_temp) {
+        function_register_name(func_temp->name);
+        func_temp = func_temp->next;
+    }
+    
+    // YZ_36: Merge imported functions into main function list
     if (imports) {
-        import_statement_free(imports);
+        ImportStatement* imp = imports;
+        while (imp) {
+            if (imp->functions) {
+                // Add imported functions to the end of main function list
+                if (!functions) {
+                    functions = imp->functions;
+                    last_func = imp->functions;
+                    // Find the last function in imported module
+                    while (last_func->next) {
+                        last_func = last_func->next;
+                    }
+                } else {
+                    // Append imported functions
+                    FunctionDeclaration* imported_func = imp->functions;
+                    while (imported_func) {
+                        last_func->next = imported_func;
+                        last_func = imported_func;
+                        imported_func = imported_func->next;
+                    }
+                }
+            }
+            imp = imp->next;
+        }
+    }
+    
+    // YZ_36: Free imports (but not the functions, they're now in the main list)
+    if (imports) {
+        ImportStatement* imp = imports;
+        while (imp) {
+            ImportStatement* next = imp->next;
+            // Don't free functions, they're now owned by main list
+            imp->functions = NULL;
+            import_statement_free(imp);
+            imp = next;
+        }
     }
     
     // Check if we have any errors

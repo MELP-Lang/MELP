@@ -447,3 +447,54 @@ int function_is_builtin(const char* name) {
     
     return 0;
 }
+
+// YZ_36: Function name registry for user-defined functions
+static char** known_functions = NULL;
+static int known_function_count = 0;
+static int known_function_capacity = 0;
+
+void function_register_name(const char* name) {
+    if (!name) return;
+    
+    // Check if already registered
+    for (int i = 0; i < known_function_count; i++) {
+        if (strcmp(known_functions[i], name) == 0) {
+            return;  // Already registered
+        }
+    }
+    
+    // Expand capacity if needed
+    if (known_function_count >= known_function_capacity) {
+        known_function_capacity = known_function_capacity == 0 ? 16 : known_function_capacity * 2;
+        known_functions = realloc(known_functions, sizeof(char*) * known_function_capacity);
+    }
+    
+    // Add to registry
+    known_functions[known_function_count++] = strdup(name);
+}
+
+int function_is_known(const char* name) {
+    // First check if it's builtin
+    if (function_is_builtin(name)) {
+        return 1;
+    }
+    
+    // Then check user-defined functions
+    for (int i = 0; i < known_function_count; i++) {
+        if (strcmp(known_functions[i], name) == 0) {
+            return 1;
+        }
+    }
+    
+    return 0;
+}
+
+void function_clear_registry(void) {
+    for (int i = 0; i < known_function_count; i++) {
+        free(known_functions[i]);
+    }
+    free(known_functions);
+    known_functions = NULL;
+    known_function_count = 0;
+    known_function_capacity = 0;
+}

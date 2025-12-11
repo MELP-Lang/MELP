@@ -1,0 +1,6 @@
+import simple
+
+function main() returns numeric
+    numeric x = test()
+    return x
+end function
