@@ -56,6 +56,7 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
     }
     
     ArithmeticExpr* expr = malloc(sizeof(ArithmeticExpr));
+    memset(expr, 0, sizeof(ArithmeticExpr));  // YZ_44: Initialize all fields to zero
     expr->left = NULL;
     expr->right = NULL;
     expr->value = NULL;
@@ -276,6 +277,7 @@ ArithmeticExpr* arithmetic_parse_power(ArithmeticParser* parser) {
         
         // Create binary operation node
         ArithmeticExpr* binary = malloc(sizeof(ArithmeticExpr));
+        memset(binary, 0, sizeof(ArithmeticExpr));  // YZ_44: Initialize all fields to zero
         binary->op = ARITH_POW;
         binary->left = left;
         binary->right = right;
@@ -333,6 +335,7 @@ ArithmeticExpr* arithmetic_parse_term(ArithmeticParser* parser) {
         
         // Create binary operation node
         ArithmeticExpr* binary = malloc(sizeof(ArithmeticExpr));
+        memset(binary, 0, sizeof(ArithmeticExpr));  // YZ_44: Initialize all fields to zero
         binary->op = op;
         binary->left = left;
         binary->right = right;
@@ -386,6 +389,7 @@ ArithmeticExpr* arithmetic_parse_factor(ArithmeticParser* parser) {
         
         // Create binary operation node
         ArithmeticExpr* binary = malloc(sizeof(ArithmeticExpr));
+        memset(binary, 0, sizeof(ArithmeticExpr));  // YZ_44: Initialize all fields to zero
         binary->op = op;
         binary->left = left;
         binary->right = right;
@@ -445,6 +449,7 @@ ArithmeticExpr* arithmetic_parse_bitwise(ArithmeticParser* parser) {
         
         // Create binary operation node
         ArithmeticExpr* binary = malloc(sizeof(ArithmeticExpr));
+        memset(binary, 0, sizeof(ArithmeticExpr));  // YZ_44: Initialize all fields to zero
         binary->op = op;
         binary->left = left;
         binary->right = right;
@@ -544,9 +549,11 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         
         // Create XOR with 1: not x = x xor 1
         ArithmeticExpr* expr = malloc(sizeof(ArithmeticExpr));
+        memset(expr, 0, sizeof(ArithmeticExpr));  // YZ_44: Initialize all fields to zero
         expr->op = ARITH_XOR;
         expr->left = operand;
         expr->right = malloc(sizeof(ArithmeticExpr));
+        memset(expr->right, 0, sizeof(ArithmeticExpr));  // YZ_44: Initialize all fields to zero
         expr->right->is_literal = 1;
         expr->right->value = strdup("1");
         expr->right->is_float = 0;
@@ -592,8 +599,10 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         
         // Create subtraction: 0 - operand
         ArithmeticExpr* expr = malloc(sizeof(ArithmeticExpr));
+        memset(expr, 0, sizeof(ArithmeticExpr));  // YZ_44: Initialize all fields to zero
         expr->op = ARITH_SUB;
         expr->left = malloc(sizeof(ArithmeticExpr));
+        memset(expr->left, 0, sizeof(ArithmeticExpr));  // YZ_44: Initialize all fields to zero
         expr->left->is_literal = 1;
         expr->left->value = strdup("0");
         expr->left->is_float = 0;
@@ -631,6 +640,7 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
     }
     
     ArithmeticExpr* expr = malloc(sizeof(ArithmeticExpr));
+    memset(expr, 0, sizeof(ArithmeticExpr));  // YZ_44: Initialize all fields to zero
     expr->left = NULL;
     expr->right = NULL;
     expr->value = NULL;
@@ -1172,6 +1182,7 @@ static ArithmeticExpr* parse_power_stateless(Lexer* lexer, Token** current) {
         }
         
         ArithmeticExpr* binary = malloc(sizeof(ArithmeticExpr));
+        memset(binary, 0, sizeof(ArithmeticExpr));  // YZ_44: Initialize all fields to zero
         binary->op = ARITH_POW;
         binary->left = left;
         binary->right = right;
@@ -1224,6 +1235,7 @@ static ArithmeticExpr* parse_term_stateless(Lexer* lexer, Token** current) {
         }
         
         ArithmeticExpr* binary = malloc(sizeof(ArithmeticExpr));
+        memset(binary, 0, sizeof(ArithmeticExpr));  // YZ_44: Initialize all fields to zero
         binary->op = op;
         binary->left = left;
         binary->right = right;
@@ -1274,6 +1286,7 @@ static ArithmeticExpr* parse_factor_stateless(Lexer* lexer, Token** current) {
         }
         
         ArithmeticExpr* binary = malloc(sizeof(ArithmeticExpr));
+        memset(binary, 0, sizeof(ArithmeticExpr));  // YZ_44: Initialize all fields to zero
         binary->op = op;
         binary->left = left;
         binary->right = right;
@@ -1327,6 +1340,7 @@ static ArithmeticExpr* parse_bitwise_stateless(Lexer* lexer, Token** current) {
         }
         
         ArithmeticExpr* binary = malloc(sizeof(ArithmeticExpr));
+        memset(binary, 0, sizeof(ArithmeticExpr));  // YZ_44: Initialize all fields to zero
         binary->op = op;
         binary->left = left;
         binary->right = right;

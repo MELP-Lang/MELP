@@ -1,12 +1,7 @@
--- Core math module
-function add(numeric x, numeric y) returns numeric
-    return x + y
+function add(numeric a, numeric b) returns numeric
+    return a + b
 end function
 
-function multiply(numeric x, numeric y) returns numeric
-    return x * y
-end function
-
-function square(numeric x) returns numeric
-    return x * x
+function multiply(numeric a, numeric b) returns numeric
+    return a * b
 end function
