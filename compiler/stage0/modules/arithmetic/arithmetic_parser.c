@@ -582,6 +582,54 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         return expr;
     }
     
+    // YZ_41: Handle unary MINUS operator (negative numbers)
+    if ((*current)->type == TOKEN_MINUS) {
+        advance_stateless(lexer, current);  // consume '-'
+        
+        // Parse the operand (must be a primary expression)
+        ArithmeticExpr* operand = parse_primary_stateless(lexer, current);
+        if (!operand) return NULL;
+        
+        // Create subtraction: 0 - operand
+        ArithmeticExpr* expr = malloc(sizeof(ArithmeticExpr));
+        expr->op = ARITH_SUB;
+        expr->left = malloc(sizeof(ArithmeticExpr));
+        expr->left->is_literal = 1;
+        expr->left->value = strdup("0");
+        expr->left->is_float = 0;
+        expr->left->is_string = 0;
+        expr->left->is_boolean = 0;
+        expr->left->left = NULL;
+        expr->left->right = NULL;
+        expr->left->tto_info = NULL;
+        expr->left->tto_analyzed = false;
+        expr->left->needs_overflow_check = false;
+        expr->left->is_function_call = 0;
+        expr->left->func_call = NULL;
+        expr->left->is_array_access = 0;
+        expr->left->array_access = NULL;
+        expr->left->is_collection = 0;
+        expr->left->collection = NULL;
+        
+        expr->right = operand;
+        expr->is_literal = 0;
+        expr->value = NULL;
+        expr->is_float = operand->is_float;  // Preserve float type
+        expr->is_string = 0;
+        expr->is_boolean = 0;
+        expr->tto_info = NULL;
+        expr->tto_analyzed = false;
+        expr->needs_overflow_check = false;
+        expr->is_function_call = 0;
+        expr->func_call = NULL;
+        expr->is_array_access = 0;
+        expr->array_access = NULL;
+        expr->is_collection = 0;
+        expr->collection = NULL;
+        
+        return expr;
+    }
+    
     ArithmeticExpr* expr = malloc(sizeof(ArithmeticExpr));
     expr->left = NULL;
     expr->right = NULL;
