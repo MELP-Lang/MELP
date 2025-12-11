@@ -23,7 +23,25 @@ static ErrorState global_error_state = {
 static int recovery_mode = 0;      // Are we in recovery mode?
 static int recovery_count = 0;     // How many times have we recovered?
 
+// ============================================================================
+// Phase 11: Error Context Stack (YZ_37)
+// For saving/restoring error context during module imports
+// ============================================================================
+
+#define MAX_CONTEXT_STACK 32
+
+typedef struct {
+    const char* source;
+    const char* filename;
+} ErrorContextFrame;
+
+static ErrorContextFrame context_stack[MAX_CONTEXT_STACK];
+static int context_stack_top = 0;
+
+// ============================================================================
 // Category names for display
+// ============================================================================
+
 static const char* category_names[] = {
     "Lexer",
     "Parser",
@@ -717,4 +735,40 @@ void error_mark_recovered(void) {
 
 int error_get_recovery_count(void) {
     return recovery_count;
+}
+
+// ============================================================================
+// Phase 11: Error Context Management (YZ_37)
+// ============================================================================
+
+// Save current error context and return context ID
+int error_save_context(void) {
+    if (context_stack_top >= MAX_CONTEXT_STACK) {
+        error_fatal("Error context stack overflow (max %d)", MAX_CONTEXT_STACK);
+        return -1;
+    }
+    
+    // Save current context
+    context_stack[context_stack_top].source = global_error_state.source;
+    context_stack[context_stack_top].filename = global_error_state.filename;
+    
+    int context_id = context_stack_top;
+    context_stack_top++;
+    
+    return context_id;
+}
+
+// Restore error context from saved state
+void error_restore_context(int context_id) {
+    if (context_id < 0 || context_id >= context_stack_top) {
+        error_fatal("Invalid error context ID: %d", context_id);
+        return;
+    }
+    
+    // Restore context
+    global_error_state.source = context_stack[context_id].source;
+    global_error_state.filename = context_stack[context_id].filename;
+    
+    // Pop stack back to this level
+    context_stack_top = context_id;
 }

@@ -1,0 +1,3 @@
+function double(numeric x) returns numeric
+    return x * 2
+end function

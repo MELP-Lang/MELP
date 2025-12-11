@@ -2,9 +2,9 @@
 
 > **Yeni YZ iseniz sadece bu belgeyi okuyun. Her şey burada.**
 
-**Son Güncelleme:** 11 Aralık 2025, ~05:00  
-**Son Tamamlanan:** YZ_36 (Phase 11 - Module System - Module Loading) 🎉  
-**Durum:** Stage 0 - Core Features + File I/O + State + Module System! 🎉
+**Son Güncelleme:** 11 Aralık 2025, ~08:00  
+**Son Tamamlanan:** YZ_37 (Phase 11 - Error Context + Circular Import) 🎉  
+**Durum:** Stage 0 - Core Features + File I/O + State + Module System (90%)! 🎉
 
 ## 🎯 Hızlı Başlangıç
 
@@ -74,10 +74,11 @@ Oturumu bitirmeden önce:
 
 ## 🔢 Son YZ Numarası
 
-**YZ_36** - Phase 11 (Module System - Module Loading) tamamlandı! 🎉 
-- ✅ import edilen modüller yükleniyor
-- ✅ Cross-module function calls çalışıyor
-- ✅ User-defined functions artık tanınıyor
+**YZ_37** - Phase 11 (Error Context + Circular Import) tamamlandı! 🎉 
+- ✅ Error context management çalışıyor
+- ✅ Circular import detection implemented
+- ✅ Nested module imports destekleniyor
+- ✅ User-friendly error messages with import chain
 
 ---
 
@@ -105,22 +106,21 @@ Oturumu bitirmeden önce:
 - ✅ **Arithmetic parser integration** - User-defined functions recognized
 - ✅ **Tests** - simple import, parametreli functions, multiple calls ALL PASS!
 
-### Sonraki Görevler (YZ_37 için):
+### YZ_37 Tamamlananlar (Phase 11 - Error Context + Circular Import):
+- ✅ **Error Context Management** - error_save_context() / error_restore_context()
+- ✅ **Context stack** - Nested module parsing ile proper error reporting
+- ✅ **Circular Import Detection** - Import stack tracking
+- ✅ **Import chain display** - User-friendly error messages
+- ✅ **Nested imports** - Modules can import other modules
+- ✅ **Tests** - Circular import detected, normal imports working!
 
-**A) Error Context Management (Recommended):**
-- [ ] error_save_context() / error_restore_context()
-- [ ] Proper module error reporting
-- [ ] Clear error messages for module parse errors
+### Sonraki Görevler (YZ_38 için):
 
-**B) Circular Import Detection:**
-- [ ] Import stack tracking
-- [ ] Detect circular dependencies
-- [ ] User-friendly error messages
-
-**C) Separate Compilation (Advanced):**
-- [ ] .mlp → .s → .o pipeline
-- [ ] Link multiple .o files
-- [ ] Module caching
+**A) Separate Compilation (Recommended - Phase 11 Final!):**
+- [ ] Per-module compilation (.mlp → .s → .o)
+- [ ] Linker integration (link multiple .o files)
+- [ ] Module caching (don't reparse unchanged)
+- [ ] Symbol table per module
 
 ### Diğer görevler için `TODO.md` bak
 

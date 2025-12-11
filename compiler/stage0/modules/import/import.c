@@ -1,4 +1,5 @@
 #include "import.h"
+#include "import_parser.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -8,6 +9,54 @@
 #include "../lexer/lexer.h"
 #include "../functions/functions_parser.h"
 #include "../error/error.h"
+
+// ============================================================================
+// Phase 11: Circular Import Detection (YZ_37)
+// ============================================================================
+
+#define MAX_IMPORT_DEPTH 64
+
+// Import stack for circular dependency detection
+static const char* import_stack[MAX_IMPORT_DEPTH];
+static int import_stack_top = 0;
+
+// Push module to import stack
+static int import_push_stack(const char* module_path) {
+    if (import_stack_top >= MAX_IMPORT_DEPTH) {
+        error_fatal("Import depth too deep (max %d) - possible circular import?", MAX_IMPORT_DEPTH);
+        return 0;
+    }
+    import_stack[import_stack_top++] = module_path;
+    return 1;
+}
+
+// Pop module from import stack
+static void import_pop_stack(void) {
+    if (import_stack_top > 0) {
+        import_stack_top--;
+    }
+}
+
+// Check if module is already being imported (circular dependency)
+static int import_check_circular(const char* module_path) {
+    for (int i = 0; i < import_stack_top; i++) {
+        if (strcmp(import_stack[i], module_path) == 0) {
+            return 1;  // Circular dependency detected
+        }
+    }
+    return 0;  // No circular dependency
+}
+
+// Print import chain for error message
+static void import_print_chain(void) {
+    fprintf(stderr, "\n");
+    fprintf(stderr, "Import chain:\n");
+    for (int i = 0; i < import_stack_top; i++) {
+        fprintf(stderr, "  %s\n", import_stack[i]);
+    }
+}
+
+// ============================================================================
 
 ImportStatement* import_statement_create(const char* module_name) {
     ImportStatement* stmt = malloc(sizeof(ImportStatement));
@@ -66,9 +115,27 @@ char* import_resolve_module_path(const char* module_name) {
 
 // YZ_36: Load and parse a module file
 FunctionDeclaration* import_load_module(const char* module_path) {
+    // YZ_37: Check for circular import
+    if (import_check_circular(module_path)) {
+        fprintf(stderr, "\n");
+        fprintf(stderr, "%sCircular import detected!%s\n", 
+                "\033[1;31m", "\033[0m");
+        fprintf(stderr, "Attempting to import: %s\n", module_path);
+        import_print_chain();
+        fprintf(stderr, "  -> %s (circular!)\n", module_path);
+        error_fatal("Circular import dependency");
+        return NULL;
+    }
+    
+    // YZ_37: Push to import stack
+    if (!import_push_stack(module_path)) {
+        return NULL;
+    }
+    
     // Read module file
     FILE* file = fopen(module_path, "r");
     if (!file) {
+        import_pop_stack();
         error_fatal("Cannot open module file: %s", module_path);
         return NULL;
     }
@@ -89,14 +156,16 @@ FunctionDeclaration* import_load_module(const char* module_path) {
     source[size] = '\0';
     fclose(file);
     
-    // YZ_36: Save current error context
-    // Note: error_set_source() changes global state, we need to restore it later
-    // For now, we'll parse without setting source (errors will be less helpful)
-    // TODO: Implement error context save/restore
+    // YZ_37: Save current error context before parsing module
+    int saved_context = error_save_context();
+    
+    // Set error context for this module
+    error_set_source(source, module_path);
     
     // Create lexer
     Lexer* lexer = lexer_create(source);
     if (!lexer) {
+        error_restore_context(saved_context);
         free(source);
         error_fatal("Failed to create lexer for module: %s", module_path);
         return NULL;
@@ -113,10 +182,38 @@ FunctionDeclaration* import_load_module(const char* module_path) {
             break;
         }
         
-        // Module files should only contain function declarations
+        // YZ_37: Handle import statements in modules
         if (tok->type == TOKEN_IMPORT) {
-            error_warning(tok->line, "Import statements in modules are not yet supported");
+            // Parse import statement
+            ImportStatement* import_stmt = import_parse(lexer, tok);
             token_free(tok);
+            
+            if (!import_stmt) {
+                continue;  // Parse error already reported
+            }
+            
+            // Load the imported module recursively
+            if (import_stmt->is_resolved && import_stmt->module_path) {
+                printf("   📦 Nested Import: %s (from %s)\n", 
+                       import_stmt->module_name, module_path);
+                
+                FunctionDeclaration* imported_funcs = import_load_module(import_stmt->module_path);
+                if (imported_funcs) {
+                    // Add imported functions to our list
+                    if (!functions) {
+                        functions = imported_funcs;
+                        // Find last function
+                        last_func = imported_funcs;
+                        while (last_func->next) last_func = last_func->next;
+                    } else {
+                        last_func->next = imported_funcs;
+                        // Find new last function
+                        while (last_func->next) last_func = last_func->next;
+                    }
+                }
+            }
+            
+            import_statement_free(import_stmt);
             continue;
         }
         
@@ -126,7 +223,13 @@ FunctionDeclaration* import_load_module(const char* module_path) {
         // Parse function
         FunctionDeclaration* func = parse_function_declaration(lexer);
         if (!func) {
-            break;  // Parse error
+            // Parse error - restore context and cleanup
+            lexer_free(lexer);
+            free(source);
+            error_restore_context(saved_context);
+            import_pop_stack();  // YZ_37: Pop from import stack
+            error_fatal("Failed to parse module: %s", module_path);
+            return NULL;
         }
         
         // Add to list
@@ -141,6 +244,12 @@ FunctionDeclaration* import_load_module(const char* module_path) {
     
     lexer_free(lexer);
     free(source);
+    
+    // YZ_37: Restore original error context
+    error_restore_context(saved_context);
+    
+    // YZ_37: Pop from import stack (successful parse)
+    import_pop_stack();
     
     return functions;
 }
