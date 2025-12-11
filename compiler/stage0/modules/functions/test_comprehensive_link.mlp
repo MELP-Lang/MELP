@@ -1,0 +1,13 @@
+import math
+
+function calculate(numeric x) returns numeric
+    numeric doubled = add(x, x)
+    numeric result = multiply(doubled, x)
+    return result
+end function
+
+function main() returns numeric
+    numeric value = 7
+    numeric result = calculate(value)
+    return result
+end function

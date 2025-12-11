@@ -1,4 +1,4 @@
--- Math module with basic operations
+-- Core math module
 function add(numeric x, numeric y) returns numeric
     return x + y
 end function

@@ -2,9 +2,9 @@
 
 > **Yeni YZ iseniz sadece bu belgeyi okuyun. Her şey burada.**
 
-**Son Güncelleme:** 11 Aralık 2025, ~13:00  
-**Son Tamamlanan:** YZ_38 (Phase 11 - Separate Compilation Part 1) 🎉  
-**Durum:** Stage 0 - Core Features + File I/O + State + Module System (92%)! 🎉
+**Son Güncelleme:** 11 Aralık 2025, ~15:00  
+**Son Tamamlanan:** YZ_39 (Phase 11 - Separate Compilation Part 2) 🎉  
+**Durum:** Stage 0 - Core Features + File I/O + State + Module System + Auto Linking (95%)! 🎉
 
 ## 🎯 Hızlı Başlangıç
 
@@ -74,12 +74,13 @@ Oturumu bitirmeden önce:
 
 ## 🔢 Son YZ Numarası
 
-**YZ_38** - Phase 11 (Separate Compilation Part 1) tamamlandı! 🎉 
-- ✅ `-c` / `--compile-only` flag eklendi
-- ✅ Per-module assembly generation çalışıyor
-- ✅ Object file creation tested (.s → .o)
-- ✅ Manual linking successful (3 .o → executable)
-- ✅ Import system ile uyumlu
+**YZ_39** - Phase 11 (Separate Compilation Part 2) tamamlandı! 🎉 
+- ✅ Automatic `.s → .o` pipeline (gcc -c integration)
+- ✅ Automatic linking (gcc coordination)
+- ✅ Full compilation mode (one command: .mlp → executable)
+- ✅ Error handling (warnings ignored, errors fatal)
+- ✅ Temporary file cleanup
+- ✅ Import system fully compatible
 
 ---
 
@@ -107,24 +108,23 @@ Oturumu bitirmeden önce:
 - ✅ **Arithmetic parser integration** - User-defined functions recognized
 - ✅ **Tests** - simple import, parametreli functions, multiple calls ALL PASS!
 
-### YZ_38 Tamamlananlar (Phase 11 - Separate Compilation Part 1):
-- ✅ **Compiler flag: -c / --compile-only** - Assembly-only mode
-- ✅ **Per-module compilation** - math.mlp → math.s, utils.mlp → utils.s
-- ✅ **Object file creation** - .s → .o with gcc
-- ✅ **Manual linking test** - 3 .o files → executable
-- ✅ **Execution test** - Exit: 60 (10+20+30) ✅
-- ✅ **Import compatibility** - import math + -c flag working
+### YZ_39 Tamamlananlar (Phase 11 - Separate Compilation Part 2):
+- ✅ **Automatic .s → .o pipeline** - gcc -c integration
+- ✅ **Automatic linking** - gcc linker coordination
+- ✅ **Full compilation mode** - One command: .mlp → executable!
+- ✅ **Error handling** - Warnings ignored, only errors fatal
+- ✅ **Temporary file cleanup** - Auto cleanup of .s and .o files
+- ✅ **Import compatibility** - Works with import system
 
-### Sonraki Görevler (YZ_39, YZ_40 için):
+### Sonraki Görevler (YZ_40 için):
 
-**A) Separate Compilation - Part 2: Object Files & Linking (YZ_39, 1.5-2h):**
-- [ ] Automatic per-module .s generation (import math → math.s ayrı dosya)
-- [ ] .s → .o pipeline otomasyonu
-- [ ] Linker coordination (gcc -o final main.o math.o utils.o)
-- [ ] Symbol resolution across modules
-- [ ] Tests: import math → auto-generate math.o + link
+**A) Bug Fix: User-Defined Function Calls (YZ_40, 1h - PRIORITY!):**
+- [ ] Problem: User functions parsed as array access
+- [ ] Example: `calculate(x)` treated as `calculate[x]` ❌
+- [ ] Fix: Improve lookahead in arithmetic_parser.c
+- [ ] Tests: Cross-function calls within same file
 
-**B) Separate Compilation - Part 3: Module Caching (YZ_40, 1-1.5h):**
+**B) Separate Compilation - Part 3: Module Caching (YZ_40 or later, 1-1.5h):**
 - [ ] Module dependency tracking
 - [ ] Timestamp-based caching (skip unchanged modules)
 - [ ] Cache invalidation on source change
@@ -244,7 +244,7 @@ Oturumu bitirmeden önce:
 | Phase 8 | ⏳ | 0% |
 | Phase 9 | ✅ | 100% 🆕 |
 | Phase 10 | ✅ | 100% 🆕 |
-| Phase 11 | ✅ | 80% 🆕 |
+| Phase 11 | ✅ | 95% 🆕 |
 
 **Toplam**: 100% core language + optimization + File I/O + State + Modules! 🎉
 

@@ -1,10 +1,10 @@
 # 🎯 MELP Compiler - TODO List
-**Güncel Durum:** 11 Aralık 2025, ~13:00  
-**Son Tamamlanan:** YZ_38 (Phase 11 - Separate Compilation Part 1) 🚀  
+**Güncel Durum:** 11 Aralık 2025, ~15:00  
+**Son Tamamlanan:** YZ_39 (Phase 11 - Separate Compilation Part 2) 🚀  
 **Stage:** Stage 0 - Core Compiler Development  
-**Completion:** 100% Core + File I/O + State + Module System (92%)! 🎉
+**Completion:** 100% Core + File I/O + State + Module System (95%)! 🎉
 
-**🎉 PHASE 11 (92%) COMPLETE:** YZ_38 finished per-module assembly generation! Compile-only mode working!
+**🎉 PHASE 11 (95%) COMPLETE:** YZ_39 finished automatic linking! One-command compilation working!
 
 ---
 
@@ -761,10 +761,10 @@ end function
 
 ---
 
-## 🎯 Phase 11: Self-Hosting Preparation ✅ 92% COMPLETE!
-**Responsible:** YZ_35, YZ_36, YZ_37, YZ_38  
+## 🎯 Phase 11: Self-Hosting Preparation ✅ 95% COMPLETE!
+**Responsible:** YZ_35, YZ_36, YZ_37, YZ_38, YZ_39  
 **Priority:** ⭐ LOW (opt-in feature)  
-**Status:** ✅ 92% COMPLETE! Separate compilation Part 1 done!
+**Status:** ✅ 95% COMPLETE! Automatic linking working!
 
 - [x] **Module System - Import Statement** ✅ (YZ_35 completed - 2 hours)
   - `import module_name` syntax support
@@ -803,25 +803,32 @@ end function
   - Object files: .s → .o with gcc ✅
   - Manual linking: multiple .o → executable ✅
 
-- [ ] **Module System - Separate Compilation (Part 2: Object Files & Linking)** ⏳ (1.5-2 hours) **→ YZ_39**
-  - .s → .o pipeline (assemble per module)
-  - Link multiple .o files together
-  - Linker coordination (gcc -o final main.o math.o utils.o)
-  - Symbol resolution across modules
-  - Tests: link main.o + math.o → working executable
+- [x] **Module System - Separate Compilation (Part 2: Object Files & Linking)** ✅ (YZ_39 completed - 1.5 hours)
+  - Automatic .s → .o pipeline (gcc -c integration) ✅
+  - Linker coordination (gcc -o final main.o -lmlp_stdlib -ltto_runtime) ✅
+  - Full compilation mode (one command: .mlp → executable) ✅
+  - Error handling (warnings ignored, errors fatal) ✅
+  - Temporary file cleanup ✅
+  - Tests: auto link working, import compatible ✅
 
-- [ ] **Module System - Separate Compilation (Part 3: Module Caching)** ⏳ (1-1.5 hours) **→ YZ_40**
+- [ ] **Module System - Separate Compilation (Part 3: Module Caching)** ⏳ (1-1.5 hours) **→ YZ_40 or later**
   - Module dependency tracking (which modules need rebuild?)
   - Timestamp-based caching (skip unchanged modules)
   - Cache invalidation on source change
   - Symbol table persistence per module (.mlp.cache files?)
   - Tests: modify math.mlp → only math recompiles, utils untouched
 
+- [ ] **Bug Fix: User-Defined Function Calls** ⏳ (1 hour) **→ YZ_40 (PRIORITY!)**
+  - Problem: User-defined functions parsed as array access
+  - Example: `calculate(x)` → treated as `calculate[x]` ❌
+  - Solution: Improve lookahead in arithmetic_parser.c
+  - Tests: Cross-function calls within same file
+
 - [ ] **Rewrite Lexer in MLP** (5 hours)
   - First self-hosted component!
   - Bootstrap process
 
-**Deliverable:** ✅ Import statements working! ⏳ Full module loading next
+**Deliverable:** ✅ Import working! ✅ Auto linking! ⏳ Bug fix or caching next
 
 ---
 

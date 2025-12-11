@@ -1,0 +1,8 @@
+import math
+
+function main() returns numeric
+    numeric x = 10
+    numeric y = 20
+    numeric sum = add(x, y)
+    return sum
+end function

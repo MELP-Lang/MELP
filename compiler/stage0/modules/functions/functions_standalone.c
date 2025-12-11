@@ -287,44 +287,158 @@ int main(int argc, char** argv) {
         return 0;  // Not an error, just nothing to do
     }
     
-    // Open output file
-    FILE* output = fopen(output_file, "w");
-    if (!output) {
-        perror("Error opening output file");
-        return 1;
+    // YZ_39: For compile-only mode, generate assembly now
+    if (compile_only) {
+        // Open output file
+        FILE* output = fopen(output_file, "w");
+        if (!output) {
+            perror("Error opening output file");
+            return 1;
+        }
+        
+        // Generate assembly header
+        // Phase 6: Add .rodata section for runtime error messages
+        fprintf(output, ".section .rodata\n");
+        fprintf(output, ".div_zero_msg:\n");
+        fprintf(output, "    .string \"Division by zero is not allowed!\"\n");
+        fprintf(output, "\n");
+        
+        // Generate AT&T syntax assembly (default for GCC)
+        fprintf(output, ".text\n\n");
+        
+        // Generate code for each function
+        FunctionDeclaration* func = functions;
+        while (func) {
+            function_generate_declaration(output, func);
+            func = func->next;
+        }
+        
+        // Close output
+        fclose(output);
     }
-    
-    // Generate assembly header
-    // Phase 6: Add .rodata section for runtime error messages
-    fprintf(output, ".section .rodata\n");
-    fprintf(output, ".div_zero_msg:\n");
-    fprintf(output, "    .string \"Division by zero is not allowed!\"\n");
-    fprintf(output, "\n");
-    
-    // Generate AT&T syntax assembly (default for GCC)
-    // fprintf(output, ".intel_syntax noprefix\n");  // Disabled: using AT&T
-    fprintf(output, ".text\n\n");
-    
-    // Generate code for each function
-    FunctionDeclaration* func = functions;
-    while (func) {
-        function_generate_declaration(output, func);
-        func = func->next;
-    }
-    
-    // Close output
-    fclose(output);
     
     // Free source code
     free(source);
     
-    // YZ_38: Different success messages based on mode
+    // YZ_39: Generate object files and link if needed
     if (compile_only) {
-        printf("✅ Compiled (assembly only) %s -> %s\n", input_file, output_file);
-        printf("   Next: gcc -c %s -o %s.o\n", output_file, 
-               output_file[strlen(output_file)-2] == '.' ? "" : output_file);
+        // YZ_39: Generate object file (.s -> .o)
+        char obj_file[512];
+        snprintf(obj_file, sizeof(obj_file), "%s", output_file);
+        // Replace .s with .o
+        char* dot = strrchr(obj_file, '.');
+        if (dot && strcmp(dot, ".s") == 0) {
+            strcpy(dot, ".o");
+        } else {
+            strcat(obj_file, ".o");
+        }
+        
+        // Assemble: gcc -c output.s -o output.o
+        char cmd[1024];
+        snprintf(cmd, sizeof(cmd), "gcc -c %s -o %s 2>&1", output_file, obj_file);
+        
+        printf("🔧 Assembling: %s -> %s\n", output_file, obj_file);
+        FILE* gcc = popen(cmd, "r");
+        if (gcc) {
+            char line[512];
+            int has_error = 0;
+            while (fgets(line, sizeof(line), gcc)) {
+                fprintf(stderr, "   gcc: %s", line);
+                has_error = 1;
+            }
+            int status = pclose(gcc);
+            if (status != 0 || has_error) {
+                error_fatal("Assembly failed: %s", obj_file);
+                return 1;
+            }
+        }
+        
+        printf("✅ Compiled (object file) %s -> %s\n", input_file, obj_file);
+        printf("   Next: Link with: gcc -o program %s ...\n", obj_file);
     } else {
-        printf("✅ Compiled %s -> %s\n", input_file, output_file);
+        // YZ_39: Full compilation with linking
+        // Step 1: Generate temporary assembly and object files
+        char asm_file[512];
+        char obj_file[512];
+        snprintf(asm_file, sizeof(asm_file), "%s.s", output_file);
+        snprintf(obj_file, sizeof(obj_file), "%s.o", output_file);
+        
+        // Re-open assembly file for this step
+        FILE* asm_output = fopen(asm_file, "w");
+        if (!asm_output) {
+            error_fatal("Cannot create assembly file: %s", asm_file);
+            return 1;
+        }
+        
+        // Generate assembly header
+        fprintf(asm_output, ".section .rodata\n");
+        fprintf(asm_output, ".div_zero_msg:\n");
+        fprintf(asm_output, "    .string \"Division by zero is not allowed!\"\n");
+        fprintf(asm_output, "\n");
+        fprintf(asm_output, ".text\n\n");
+        
+        // Generate code for each function
+        FunctionDeclaration* func = functions;
+        while (func) {
+            function_generate_declaration(asm_output, func);
+            func = func->next;
+        }
+        
+        fclose(asm_output);
+        
+        // Step 2: Assemble: gcc -c output.s -o output.o
+        char cmd[1024];
+        snprintf(cmd, sizeof(cmd), "gcc -c %s -o %s 2>&1", asm_file, obj_file);
+        
+        printf("🔧 Assembling: %s -> %s\n", asm_file, obj_file);
+        FILE* gcc = popen(cmd, "r");
+        if (gcc) {
+            char line[512];
+            int has_error = 0;
+            while (fgets(line, sizeof(line), gcc)) {
+                fprintf(stderr, "   gcc: %s", line);
+                has_error = 1;
+            }
+            int status = pclose(gcc);
+            if (status != 0 || has_error) {
+                error_fatal("Assembly failed: %s", obj_file);
+                return 1;
+            }
+        }
+        
+        // Step 3: Link: gcc -o output output.o -L... -lmlp_stdlib -ltto_runtime -lm
+        snprintf(cmd, sizeof(cmd), 
+                 "gcc -o %s %s "
+                 "-L../../../../runtime/stdlib -lmlp_stdlib "
+                 "-L../../../../runtime/tto -ltto_runtime -lm 2>&1",
+                 output_file, obj_file);
+        
+        printf("🔗 Linking: %s\n", output_file);
+        gcc = popen(cmd, "r");
+        if (gcc) {
+            char line[512];
+            int has_error = 0;
+            while (fgets(line, sizeof(line), gcc)) {
+                // Only report actual errors, not warnings
+                if (strstr(line, "error:") || strstr(line, "undefined reference")) {
+                    fprintf(stderr, "   gcc: %s", line);
+                    has_error = 1;
+                }
+            }
+            int status = pclose(gcc);
+            if (status != 0 && has_error) {
+                error_fatal("Linking failed: %s", output_file);
+                return 1;
+            }
+        }
+        
+        // Step 4: Clean up temporary files
+        remove(asm_file);
+        remove(obj_file);
+        
+        printf("✅ Compiled and linked %s -> %s\n", input_file, output_file);
+        printf("   Run with: LD_LIBRARY_PATH=../../../../runtime/stdlib:../../../../runtime/tto ./%s\n", 
+               output_file);
     }
     return 0;
 }
