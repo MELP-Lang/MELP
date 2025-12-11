@@ -671,7 +671,18 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
             // YZ_33: Phase 9 - File I/O
             strcmp(identifier, "read_file") == 0 ||
             strcmp(identifier, "write_file") == 0 ||
-            strcmp(identifier, "append_file") == 0) {
+            strcmp(identifier, "append_file") == 0 ||
+            // YZ_34: Phase 8 - State Manager
+            strcmp(identifier, "state_init") == 0 ||
+            strcmp(identifier, "state_close") == 0 ||
+            strcmp(identifier, "state_set") == 0 ||
+            strcmp(identifier, "state_get") == 0 ||
+            strcmp(identifier, "state_has") == 0 ||
+            strcmp(identifier, "state_delete") == 0 ||
+            strcmp(identifier, "state_clear") == 0 ||
+            strcmp(identifier, "state_config_set") == 0 ||
+            strcmp(identifier, "state_save") == 0 ||
+            strcmp(identifier, "state_load") == 0) {
             is_builtin_func = 1;
         }
         

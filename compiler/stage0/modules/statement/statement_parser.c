@@ -10,6 +10,7 @@
 #include "../error/error.h"                        // ✅ Error handling system
 #include "../array/array.h"                        // ✅ YZ_15: IndexAccess, ArrayAssignment
 #include "../array/array_parser.h"                 // ✅ YZ_15: array_parse_index_access
+#include "../import/import_parser.h"               // ✅ YZ_35: Import statement parsing
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -74,6 +75,27 @@ Statement* statement_parse(Parser* parser) {
     if (tok->type == TOKEN_ELSE) {
         parser->current_token = tok;  // Keep token for parent parser
         return NULL;
+    }
+    
+    // ✅ YZ_35: IMPORT statement - use import module
+    if (tok->type == TOKEN_IMPORT) {
+        ImportStatement* import_data = import_parse(parser->lexer, tok);
+        
+        // We own tok - free it!
+        token_free(tok);
+        tok = NULL;
+        
+        if (import_data) {
+            stmt = statement_create(STMT_IMPORT);
+            stmt->data = import_data;
+            stmt->next = NULL;
+            
+            // Note: Import statements are typically at top of file
+            // Module loading will be handled by compiler/linker
+            // For now, we just parse and store the import
+        }
+        
+        return stmt;
     }
     
     // ✅ WHILE statement - use control_flow module

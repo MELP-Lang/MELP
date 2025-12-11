@@ -463,6 +463,139 @@ void function_generate_call(FILE* output, FunctionCall* call) {
             }
             return;
         }
+        
+        // YZ_34: Phase 8 - State Manager functions
+        
+        // state_init() - initialize state manager
+        if (strcmp(call->function_name, "state_init") == 0) {
+            fprintf(output, "    # state_init: initialize state manager\n");
+            fprintf(output, "    call mlp_state_init\n");
+            fprintf(output, "    movq %%rax, %%r8     # Result (1=success) in %%r8\n");
+            return;
+        }
+        
+        // state_close() - close state manager
+        if (strcmp(call->function_name, "state_close") == 0) {
+            fprintf(output, "    # state_close: close state manager\n");
+            fprintf(output, "    call mlp_state_close\n");
+            fprintf(output, "    movq %%rax, %%r8     # Result (1=success) in %%r8\n");
+            return;
+        }
+        
+        // state_set(key, value) - store value
+        if (strcmp(call->function_name, "state_set") == 0) {
+            if (call->arg_count != 2) {
+                fprintf(output, "    # ERROR: state_set requires exactly 2 arguments (key, value)\n");
+                return;
+            }
+            
+            fprintf(output, "    # state_set: store value\n");
+            if (call->arguments && call->arguments[0] && call->arguments[1]) {
+                expression_generate_code(output, call->arguments[0], NULL);
+                fprintf(output, "    pushq %%r8           # Save key\n");
+                expression_generate_code(output, call->arguments[1], NULL);
+                fprintf(output, "    movq %%r8, %%rsi     # arg2: value\n");
+                fprintf(output, "    popq %%rdi           # arg1: key\n");
+                fprintf(output, "    call mlp_state_set\n");
+                fprintf(output, "    movq %%rax, %%r8     # Result (1=success) in %%r8\n");
+            }
+            return;
+        }
+        
+        // state_get(key) - retrieve value
+        if (strcmp(call->function_name, "state_get") == 0) {
+            if (call->arg_count != 1) {
+                fprintf(output, "    # ERROR: state_get requires exactly 1 argument (key)\n");
+                return;
+            }
+            
+            fprintf(output, "    # state_get: retrieve value\n");
+            if (call->arguments && call->arguments[0]) {
+                expression_generate_code(output, call->arguments[0], NULL);
+                fprintf(output, "    movq %%r8, %%rdi     # arg1: key\n");
+                fprintf(output, "    call mlp_state_get\n");
+                fprintf(output, "    movq %%rax, %%r8     # Result (value string) in %%r8\n");
+            }
+            return;
+        }
+        
+        // state_has(key) - check if key exists
+        if (strcmp(call->function_name, "state_has") == 0) {
+            if (call->arg_count != 1) {
+                fprintf(output, "    # ERROR: state_has requires exactly 1 argument (key)\n");
+                return;
+            }
+            
+            fprintf(output, "    # state_has: check if key exists\n");
+            if (call->arguments && call->arguments[0]) {
+                expression_generate_code(output, call->arguments[0], NULL);
+                fprintf(output, "    movq %%r8, %%rdi     # arg1: key\n");
+                fprintf(output, "    call mlp_state_has\n");
+                fprintf(output, "    movq %%rax, %%r8     # Result (1=exists, 0=not) in %%r8\n");
+            }
+            return;
+        }
+        
+        // state_delete(key) - delete key
+        if (strcmp(call->function_name, "state_delete") == 0) {
+            if (call->arg_count != 1) {
+                fprintf(output, "    # ERROR: state_delete requires exactly 1 argument (key)\n");
+                return;
+            }
+            
+            fprintf(output, "    # state_delete: delete key\n");
+            if (call->arguments && call->arguments[0]) {
+                expression_generate_code(output, call->arguments[0], NULL);
+                fprintf(output, "    movq %%r8, %%rdi     # arg1: key\n");
+                fprintf(output, "    call mlp_state_delete\n");
+                fprintf(output, "    movq %%rax, %%r8     # Result (1=deleted) in %%r8\n");
+            }
+            return;
+        }
+        
+        // state_clear() - clear all state
+        if (strcmp(call->function_name, "state_clear") == 0) {
+            fprintf(output, "    # state_clear: clear all state\n");
+            fprintf(output, "    call mlp_state_clear\n");
+            fprintf(output, "    movq %%rax, %%r8     # Result (1=success) in %%r8\n");
+            return;
+        }
+        
+        // state_config_set(key, value) - set configuration
+        if (strcmp(call->function_name, "state_config_set") == 0) {
+            if (call->arg_count != 2) {
+                fprintf(output, "    # ERROR: state_config_set requires exactly 2 arguments (key, value)\n");
+                return;
+            }
+            
+            fprintf(output, "    # state_config_set: set configuration\n");
+            if (call->arguments && call->arguments[0] && call->arguments[1]) {
+                expression_generate_code(output, call->arguments[0], NULL);
+                fprintf(output, "    pushq %%r8           # Save key\n");
+                expression_generate_code(output, call->arguments[1], NULL);
+                fprintf(output, "    movq %%r8, %%rsi     # arg2: value\n");
+                fprintf(output, "    popq %%rdi           # arg1: key\n");
+                fprintf(output, "    call mlp_state_config_set\n");
+                fprintf(output, "    movq %%rax, %%r8     # Result (1=success) in %%r8\n");
+            }
+            return;
+        }
+        
+        // state_save() - save to disk
+        if (strcmp(call->function_name, "state_save") == 0) {
+            fprintf(output, "    # state_save: save to disk\n");
+            fprintf(output, "    call mlp_state_save\n");
+            fprintf(output, "    movq %%rax, %%r8     # Result (1=success) in %%r8\n");
+            return;
+        }
+        
+        // state_load() - load from disk
+        if (strcmp(call->function_name, "state_load") == 0) {
+            fprintf(output, "    # state_load: load from disk\n");
+            fprintf(output, "    call mlp_state_load\n");
+            fprintf(output, "    movq %%rax, %%r8     # Result (1=success) in %%r8\n");
+            return;
+        }
     }
     
     // Standard user-defined function call

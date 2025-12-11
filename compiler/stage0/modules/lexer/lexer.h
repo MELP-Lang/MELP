@@ -51,6 +51,9 @@ typedef enum {
     TOKEN_RETURNS,         // returns (for return type declaration)
     // Struct keywords
     TOKEN_STRUCT,
+    // Module keywords
+    TOKEN_IMPORT,          // import module_name
+    TOKEN_MODULE,          // module keyword
     // I/O keywords
     TOKEN_PRINT,
     // Delimiters

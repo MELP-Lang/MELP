@@ -91,6 +91,12 @@ STATEMENT_SOURCES = \
 	$(STATEMENT_DIR)/statement_codegen.c \
 	$(STATEMENT_DIR)/statement_optimize.c
 
+# Import modülü (YZ_35 - Module system)
+IMPORT_DIR = ../import
+IMPORT_SOURCES = \
+	$(IMPORT_DIR)/import.c \
+	$(IMPORT_DIR)/import_parser.c
+
 # Parser Core modülü (Parser structure)
 PARSER_CORE_DIR = ../parser_core
 PARSER_CORE_SOURCES = \
@@ -120,6 +126,7 @@ SOURCES = \
 	$(FOR_LOOP_SOURCES) \
 	$(ARRAY_SOURCES) \
 	$(STATEMENT_SOURCES) \
+	$(IMPORT_SOURCES) \
 	$(PARSER_CORE_SOURCES) \
 	$(CODEGEN_CONTEXT_SOURCES) \
 	$(ERROR_SOURCES) \
