@@ -428,5 +428,10 @@ int function_is_builtin(const char* name) {
     if (strcmp(name, "replaceAll") == 0) return 1;
     if (strcmp(name, "split") == 0) return 1;
     
+    // YZ_33: Phase 9 - File I/O
+    if (strcmp(name, "read_file") == 0) return 1;
+    if (strcmp(name, "write_file") == 0) return 1;
+    if (strcmp(name, "append_file") == 0) return 1;
+    
     return 0;
 }

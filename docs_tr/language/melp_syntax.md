@@ -435,6 +435,98 @@ end try
 
 ---
 
+## Builtin Fonksiyonlar
+
+### I/O Fonksiyonları
+
+#### Çıktı (Output)
+```mlp
+println(value)       -- Değeri yaz ve satır atla
+print(value)         -- Değeri yaz (satır atlamadan)
+```
+
+#### Giriş (Input)
+```mlp
+string text = input()                    -- Stdin'den string oku
+string name = input("İsminiz: ")         -- Prompt ile string oku
+numeric num = input_numeric()            -- Stdin'den sayı oku
+numeric age = input_numeric("Yaşınız: ") -- Prompt ile sayı oku
+```
+
+#### Dosya I/O (YZ_33 - Phase 9)
+```mlp
+-- Dosyadan okuma
+string content = read_file("data.txt")
+-- Boş string döner eğer dosya yoksa veya okunamazsa
+
+-- Dosyaya yazma (üzerine yaz)
+numeric success = write_file("output.txt", "Hello World")
+-- 1 döner başarılı ise, 0 hata durumunda
+
+-- Dosyaya ekleme
+numeric success = append_file("log.txt", "New line\n")
+-- 1 döner başarılı ise, 0 hata durumunda
+```
+
+**Örnek:**
+```mlp
+function main() returns numeric
+    -- Dosyaya yaz
+    write_file("test.txt", "Hello from MELP!\n")
+    
+    -- Dosyadan oku
+    string content = read_file("test.txt")
+    println(content)
+    
+    -- Dosyaya ekle
+    append_file("test.txt", "Second line!\n")
+    
+    return 0
+end function
+```
+
+### String Fonksiyonları
+
+#### Temel String İşlemleri
+```mlp
+numeric len = length(str)              -- String uzunluğu
+string sub = substring(str, start, end) -- Alt string
+numeric pos = indexOf(str, search)     -- İlk bulunma pozisyonu (-1 if not found)
+```
+
+#### String Dönüşümleri (YZ_29 - Phase 5)
+```mlp
+string upper = toUpperCase(str)    -- Büyük harfe çevir
+string lower = toLowerCase(str)    -- Küçük harfe çevir
+string clean = trim(str)           -- Baştan ve sondan boşluk temizle
+string clean = trimStart(str)      -- Baştan boşluk temizle
+string clean = trimEnd(str)        -- Sondan boşluk temizle
+```
+
+#### String Manipülasyonu (YZ_31 - Phase 6)
+```mlp
+string result = replace(str, old, new)    -- İlk eşleşmeyi değiştir
+string result = replaceAll(str, old, new) -- Tüm eşleşmeleri değiştir
+-- split() - String'i parçalara ayır (list döner)
+-- Şu an implementasyon devam ediyor
+```
+
+**Örnek:**
+```mlp
+string msg = "  Hello World  "
+println(trim(msg))                    -- "Hello World"
+println(toUpperCase(msg))             -- "  HELLO WORLD  "
+println(replace(msg, "World", "MELP")) -- "  Hello MELP  "
+```
+
+### Tip Dönüşüm Fonksiyonları
+
+```mlp
+string s = toString(value)  -- Numeric veya boolean'ı string'e çevir
+```
+
+---
+
 ## Gelişmiş Özellikler
 
 ### Pattern Matching

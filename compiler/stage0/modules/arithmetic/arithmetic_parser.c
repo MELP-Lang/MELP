@@ -667,7 +667,11 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
             // YZ_31: Replace & Split
             strcmp(identifier, "replace") == 0 ||
             strcmp(identifier, "replaceAll") == 0 ||
-            strcmp(identifier, "split") == 0) {
+            strcmp(identifier, "split") == 0 ||
+            // YZ_33: Phase 9 - File I/O
+            strcmp(identifier, "read_file") == 0 ||
+            strcmp(identifier, "write_file") == 0 ||
+            strcmp(identifier, "append_file") == 0) {
             is_builtin_func = 1;
         }
         

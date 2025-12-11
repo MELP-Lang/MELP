@@ -201,3 +201,68 @@ int64_t mlp_input_numeric_prompt(const char* prompt) {
     }
     return mlp_input_numeric();
 }
+
+// ============================================================================
+// File I/O Functions (YZ_33 - Phase 9)
+// ============================================================================
+
+// Read entire file content as string
+char* mlp_read_file(const char* filename) {
+    if (!filename) return strdup("");
+    
+    FILE* file = fopen(filename, "r");
+    if (!file) {
+        return strdup("");  // File not found or permission denied
+    }
+    
+    // Get file size
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    
+    // Allocate buffer
+    char* content = (char*)malloc(file_size + 1);
+    if (!content) {
+        fclose(file);
+        return strdup("");
+    }
+    
+    // Read entire file
+    size_t bytes_read = fread(content, 1, file_size, file);
+    content[bytes_read] = '\0';
+    
+    fclose(file);
+    return content;
+}
+
+// Write string content to file (overwrite)
+int64_t mlp_write_file(const char* filename, const char* content) {
+    if (!filename || !content) return 0;
+    
+    FILE* file = fopen(filename, "w");
+    if (!file) {
+        return 0;  // Permission denied or invalid path
+    }
+    
+    size_t len = strlen(content);
+    size_t written = fwrite(content, 1, len, file);
+    fclose(file);
+    
+    return (written == len) ? 1 : 0;
+}
+
+// Append string content to file
+int64_t mlp_append_file(const char* filename, const char* content) {
+    if (!filename || !content) return 0;
+    
+    FILE* file = fopen(filename, "a");
+    if (!file) {
+        return 0;  // Permission denied or invalid path
+    }
+    
+    size_t len = strlen(content);
+    size_t written = fwrite(content, 1, len, file);
+    fclose(file);
+    
+    return (written == len) ? 1 : 0;
+}
