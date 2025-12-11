@@ -94,7 +94,13 @@
 | | → Part 5.3: Smart Linking System | ✅ YZ_45 |
 | | → Part 5.4: Incremental Skip Logic | ✅ YZ_45 |
 | | → Part 5.5: Integration & Testing | ✅ YZ_45 |
-| | Rewrite Lexer in MLP | ⏳ Future |
+| | **Self-Hosting: Rewrite Lexer in MLP** | **⏳ Future (5-8h)** |
+| | → Part 6.1: Token Structure & Basics | ⏳ (1-1.5h) |
+| | → Part 6.2: Character Classification | ⏳ (1h) |
+| | → Part 6.3: Number & String Tokenization | ⏳ (1.5h) |
+| | → Part 6.4: Identifier & Keyword Recognition | ⏳ (1h) |
+| | → Part 6.5: Symbol & Operator Tokenization | ⏳ (1h) |
+| | → Part 6.6: Integration & Testing | ⏳ (1-1.5h) |
 
 ## Durum Özeti
 
