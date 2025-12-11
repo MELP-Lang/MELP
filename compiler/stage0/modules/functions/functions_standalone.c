@@ -7,6 +7,8 @@
 #include <string.h>
 #include "../lexer/lexer.h"
 #include "../error/error.h"
+#include "../import/import.h"          // YZ_35: Import statement
+#include "../import/import_parser.h"   // YZ_35: Import parser
 #include "functions.h"
 #include "functions_parser.h"
 #include "functions_codegen.h"
@@ -106,8 +108,11 @@ int main(int argc, char** argv) {
     }
     
     // Parse all functions with ERROR RECOVERY
+    // YZ_35: Also handle import statements at top-level
     FunctionDeclaration* functions = NULL;
     FunctionDeclaration* last_func = NULL;
+    ImportStatement* imports = NULL;    // YZ_35: Store imports
+    ImportStatement* last_import = NULL;
     
     while (1) {
         // Check if we should stop due to too many errors
@@ -115,6 +120,46 @@ int main(int argc, char** argv) {
             error_hint("Too many errors, stopping compilation");
             break;
         }
+        
+        // Peek at next token to see if it's import or function
+        Token* tok = lexer_next_token(lexer);
+        if (!tok || tok->type == TOKEN_EOF) {
+            if (tok) token_free(tok);
+            break;
+        }
+        
+        // YZ_35: Handle import statement
+        if (tok->type == TOKEN_IMPORT) {
+            ImportStatement* import_stmt = import_parse(lexer, tok);
+            token_free(tok);
+            
+            if (import_stmt) {
+                // Store import for later processing
+                if (!imports) {
+                    imports = import_stmt;
+                    last_import = import_stmt;
+                } else {
+                    // Create linked list (we'll need to add 'next' field to ImportStatement)
+                    // For now, just keep the last one
+                    import_statement_free(imports);
+                    imports = import_stmt;
+                    last_import = import_stmt;
+                }
+                
+                // Log the import
+                if (import_stmt->is_resolved) {
+                    printf("📦 Import: %s (resolved to %s)\n", 
+                           import_stmt->module_name, import_stmt->module_path);
+                } else {
+                    error_warning(0, "Module '%s' not found (compilation continues)", 
+                                  import_stmt->module_name);
+                }
+            }
+            continue;
+        }
+        
+        // Not an import, put token back for function parser
+        lexer_unget_token(lexer, tok);
         
         FunctionDeclaration* func = parse_function_declaration(lexer);
         
@@ -152,6 +197,11 @@ int main(int argc, char** argv) {
     
     // Close lexer
     lexer_free(lexer);
+    
+    // YZ_35: Free imports (module loading not implemented yet - placeholder)
+    if (imports) {
+        import_statement_free(imports);
+    }
     
     // Check if we have any errors
     if (error_has_errors()) {

@@ -15,6 +15,7 @@ typedef enum {
     STMT_RETURN,
     STMT_PRINT,
     STMT_FUNCTION,
+    STMT_IMPORT,            // YZ_35: import module_name
     STMT_BLOCK,
     STMT_EXIT,              // YZ_28: exit, exit for, exit while, exit if, exit function
     STMT_EXIT_FOR,          // YZ_28: exit for

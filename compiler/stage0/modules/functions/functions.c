@@ -433,5 +433,17 @@ int function_is_builtin(const char* name) {
     if (strcmp(name, "write_file") == 0) return 1;
     if (strcmp(name, "append_file") == 0) return 1;
     
+    // YZ_34: Phase 8 - State Manager
+    if (strcmp(name, "state_init") == 0) return 1;
+    if (strcmp(name, "state_close") == 0) return 1;
+    if (strcmp(name, "state_set") == 0) return 1;
+    if (strcmp(name, "state_get") == 0) return 1;
+    if (strcmp(name, "state_has") == 0) return 1;
+    if (strcmp(name, "state_delete") == 0) return 1;
+    if (strcmp(name, "state_clear") == 0) return 1;
+    if (strcmp(name, "state_config_set") == 0) return 1;
+    if (strcmp(name, "state_save") == 0) return 1;
+    if (strcmp(name, "state_load") == 0) return 1;
+    
     return 0;
 }

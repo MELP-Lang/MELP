@@ -2,11 +2,16 @@
 
 > **Yeni YZ iseniz sadece bu belgeyi okuyun. Her şey burada.**
 
+**Son Güncelleme:** 11 Aralık 2025, ~10:30  
+**Son Tamamlanan:** YZ_35 (Phase 11 - Module System - Import Statement) 🎉  
+**Durum:** Stage 0 - Core Features + Phase 9 File I/O + Phase 10 State + Phase 11 Import! 🎉
+
 ## 🎯 Hızlı Başlangıç
 
 1. **Kullanıcıya sorun**: "Hangi görev üzerinde çalışmamı istersiniz?"
 2. **TODO.md'yi okuyun**: Öncelikli görevler burada
-3. **Çalışın ve belgeleyin**
+3. **YZ_34.md'yi okuyun**: Son oturumda ne yapıldı?
+4. **Çalışın ve belgeleyin**
 
 ## 📋 Öncelik Sırası
 
@@ -69,7 +74,7 @@ Oturumu bitirmeden önce:
 
 ## 🔢 Son YZ Numarası
 
-**YZ_33** - Phase 9 (File I/O) tamamlandı! 🎉 read_file(), write_file(), append_file()
+**YZ_35** - Phase 11 (Module System - Import Statement) tamamlandı! 🎉 import module_name syntax working!
 
 ---
 
@@ -83,23 +88,32 @@ Oturumu bitirmeden önce:
 - ✅ **Phase 7**: Constant Folding, Dead Code Elimination, Register Allocation (100%)
 - ✅ **Phase 9**: File I/O - read_file, write_file, append_file (100%) 🆕
 
-### YZ_33 Tamamlananlar:
-- ✅ **read_file(filename)** - Dosyadan okuma (string döner)
-- ✅ **write_file(filename, content)** - Dosyaya yazma (üzerine yaz, 1/0 döner)
-- ✅ **append_file(filename, content)** - Dosyaya ekleme (1/0 döner)
-- ✅ Runtime C testleri - Tüm testler geçti (%100 çalışıyor)
-- ✅ Dokümantasyon - melp_syntax.md güncellendi
+### YZ_34 Tamamlananlar:
+- ✅ **state_init(), state_close()** - State manager lifecycle
+- ✅ **state_set(key, value), state_get(key)** - Key-value operations
+- ✅ **state_save(), state_load()** - JSON persistence
+- ✅ TTO optimization - SSO vs Heap for state values
+- ✅ Namespace convention - shared:, config:, temp:
 
-### Sonraki Görevler (YZ_34 için):
+### YZ_35 Tamamlananlar (Phase 11 - Module System):
+- ✅ **import statement** - `import module_name` syntax
+- ✅ **Module path resolution** - modules/core/, modules/advanced/, modules/experimental/
+- ✅ **Lexer tokens** - TOKEN_IMPORT, TOKEN_MODULE
+- ✅ **Parser integration** - Import statement parsing
+- ✅ **Compiler support** - Import handling in functions_standalone.c
+- ✅ **Tests** - import math successfully resolves to modules/core/math.mlp
 
-**A) Phase 8 - State Module (Önerilen):**
-- [ ] `import state` - state modülünü aktifleştir
-- [ ] `state.set(key, value)` - değer kaydet (persistent with File I/O)
-- [ ] `state.get(key)` - değer oku
+### Sonraki Görevler (YZ_36 için):
 
-**B) Compiler Maturity (Alternatif):**
-- [ ] functions_compiler statement parsing düzeltme
-- [ ] MLP-level file I/O testleri (şu an sadece C testleri var)
+**A) Phase 11 Completion - Module Loading (Recommended):** (Recommended):**
+- [ ] Load imported modules - Recursive compilation
+- [ ] Cross-module function calls - Symbol table integration
+- [ ] Separate compilation - Link multiple .s files
+
+**B) Error Handling Improvement (Alternative):**
+- [ ] Better import error messages
+- [ ] Circular import detection
+- [ ] Module not found suggestions
 
 ### Diğer görevler için `TODO.md` bak
 

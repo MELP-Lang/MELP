@@ -519,6 +519,107 @@ println(toUpperCase(msg))             -- "  HELLO WORLD  "
 println(replace(msg, "World", "MELP")) -- "  Hello MELP  "
 ```
 
+### State Management Fonksiyonları (YZ_34 - Phase 10)
+
+MELP stateless bir dil olmasına rağmen, kullanıcı açıkça talep ettiğinde runtime-based state yönetimi sağlar. State manager opt-in'dir ve TTO (Transparent Type Optimization) ile entegre çalışır.
+
+#### Lifecycle Yönetimi
+```mlp
+numeric ok = state_init()     -- State manager'ı başlat (1=success, 0=fail)
+state_close()                 -- State manager'ı kapat (opsiyonel - auto-cleanup var)
+```
+
+#### Veri İşlemleri
+```mlp
+numeric ok = state_set(key, value)  -- Key-value çifti kaydet (1=success, 0=fail)
+string val = state_get(key)         -- Key'e karşılık value getir (boş string=yok)
+numeric exists = state_has(key)     -- Key var mı? (1=var, 0=yok)
+state_delete(key)                   -- Key-value çiftini sil
+state_clear()                       -- Tüm state'i temizle
+```
+
+#### Persistence (Kalıcılık)
+```mlp
+numeric ok = state_save()            -- State'i dosyaya kaydet (1=success, 0=fail)
+numeric ok = state_load()            -- State'i dosyadan yükle (1=success, 0=fail)
+state_config_set(key, value)        -- Konfigürasyon ayarla
+```
+
+#### Namespace Convention (İsimlendirme Kuralı)
+```mlp
+-- "shared:" - Uygulama geneli paylaşılan veri
+state_set("shared:username", "Ali")
+state_set("shared:theme", "dark")
+
+-- "config:" - Konfigürasyon ayarları
+state_set("config:language", "tr")
+state_set("config:timeout", "30")
+
+-- "temp:" - Geçici veriler
+state_set("temp:session_id", "abc123")
+```
+
+#### TTO Optimizasyonu
+State manager, küçük string'ler için SSO (Small String Optimization) kullanır:
+- ≤23 byte: Stack'te inline (SSO)
+- >23 byte: Heap'te pointer
+
+```mlp
+state_set("shared:name", "Ali")          -- 3 byte → SSO (stack)
+state_set("shared:description", "1234567890123456789012")  -- 22 byte → SSO (stack)
+state_set("shared:largeDoc", "...68 bytes...")  -- 68 byte → Heap
+```
+
+#### Auto-Cleanup
+Program sonunda `state_close()` çağrılmamışsa, auto-cleanup devreye girer:
+- `auto_persist=1` ise: State otomatik kaydedilir
+- Bellek serbest bırakılır
+- Uyarı mesajı verilir
+
+**Tam Örnek:**
+```mlp
+function main() returns numeric
+    -- State manager'ı başlat
+    state_init()
+    
+    -- Konfigürasyon
+    state_config_set("auto_persist", "1")
+    state_config_set("persist_file", "app_state.json")
+    
+    -- Veri kaydet
+    state_set("shared:username", "Ali")
+    state_set("shared:windowCount", "5")
+    state_set("config:language", "tr")
+    state_set("temp:session", "xyz789")
+    
+    -- Veri oku
+    string user = state_get("shared:username")
+    println(user)  -- "Ali"
+    
+    -- Kontrol et
+    if state_has("shared:username") == 1 then
+        println("User exists!")
+    end if
+    
+    -- Sil
+    state_delete("temp:session")
+    
+    -- Manuel kaydet (auto_persist varsa gereksiz)
+    state_save()
+    
+    -- Kapat (opsiyonel - auto-cleanup var)
+    state_close()
+    
+    return 0
+end function
+```
+
+**Felsefe:** MELP stateless bir dildir, ancak kullanıcı açıkça `state_init()` çağırdığında:
+1. Runtime-based state yönetimi başlar
+2. Kullanıcı lifecycle'ı kontrol eder (`state_close()`)
+3. Auto-cleanup fallback vardır (memory leak önleme)
+4. Maliyet şeffaftır (memory + I/O)
+
 ### Tip Dönüşüm Fonksiyonları
 
 ```mlp
