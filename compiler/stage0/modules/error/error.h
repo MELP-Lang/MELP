@@ -220,4 +220,17 @@ void error_mark_recovered(void);
 // Get recovery statistics
 int error_get_recovery_count(void);
 
+// ============================================================================
+// Phase 11: Error Context Management (YZ_37)
+// For saving/restoring error context during module imports
+// ============================================================================
+
+// Save current error context (source, filename)
+// Returns context ID for restoration
+int error_save_context(void);
+
+// Restore error context from saved state
+// context_id: ID returned from error_save_context()
+void error_restore_context(int context_id);
+
 #endif // ERROR_H

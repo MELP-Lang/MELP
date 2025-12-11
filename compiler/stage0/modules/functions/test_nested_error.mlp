@@ -1,0 +1,7 @@
+import helper
+
+function main() returns numeric
+    # Ana dosyada syntax error
+    invalid syntax here
+    return double(5)
+end function

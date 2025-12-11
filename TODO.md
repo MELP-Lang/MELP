@@ -1,10 +1,10 @@
 # 🎯 MELP Compiler - TODO List
-**Güncel Durum:** 11 Aralık 2025, ~05:00  
-**Son Tamamlanan:** YZ_36 (Phase 11 - Module Loading) 🚀  
+**Güncel Durum:** 11 Aralık 2025, ~08:00  
+**Son Tamamlanan:** YZ_37 (Phase 11 - Error Context + Circular Import) 🚀  
 **Stage:** Stage 0 - Core Compiler Development  
-**Completion:** 100% Core + File I/O + State + Module System (80%)! 🎉
+**Completion:** 100% Core + File I/O + State + Module System (90%)! 🎉
 
-**🎉 PHASE 11 (80%) COMPLETE:** YZ_36 finished module loading! Import edilen modüller çalışıyor, cross-module function calls working!
+**🎉 PHASE 11 (90%) COMPLETE:** YZ_37 finished error context management and circular import detection! Module system almost done!
 
 ---
 
@@ -761,10 +761,10 @@ end function
 
 ---
 
-## 🎯 Phase 11: Self-Hosting Preparation ✅ 50% COMPLETE!
-**Responsible:** YZ_35  
+## 🎯 Phase 11: Self-Hosting Preparation ✅ 90% COMPLETE!
+**Responsible:** YZ_35, YZ_36, YZ_37  
 **Priority:** ⭐ LOW (opt-in feature)  
-**Status:** ✅ 50% COMPLETE! Module import working!
+**Status:** ✅ 90% COMPLETE! Module system almost done!
 
 - [x] **Module System - Import Statement** ✅ (YZ_35 completed - 2 hours)
   - `import module_name` syntax support
@@ -774,10 +774,31 @@ end function
   - Compiler integration (statement parser, lexer)
   - Tests: import statement successfully recognized and resolved
 
-- [ ] **Module System - Separate Compilation** (3 hours)
-  - Load and compile imported modules
-  - Cross-module function calls
-  - Symbol table integration
+- [x] **Module System - Module Loading** ✅ (YZ_36 completed - 3 hours)
+  - import_load_module() - Recursive module parsing
+  - Function registry system
+  - Cross-module function calls working!
+  - User-defined functions recognized in arithmetic parser
+  - Tests: simple import, parametreli functions, multiple calls ALL PASS!
+
+- [x] **Module System - Error Context Management** ✅ (YZ_37 completed - 1 hour)
+  - error_save_context() / error_restore_context()
+  - Context stack for nested module parsing
+  - Proper error reporting with correct source file
+  - Module parse errors show correct filename and line
+
+- [x] **Module System - Circular Import Detection** ✅ (YZ_37 completed - 1.5 hours)
+  - Import stack tracking
+  - Circular dependency detection
+  - User-friendly error messages with import chain display
+  - Nested imports supported (modules can import other modules)
+  - Tests: circular import correctly detected and reported
+
+- [ ] **Module System - Separate Compilation** ⏳ (3-4 hours) **→ YZ_38**
+  - .mlp → .s → .o pipeline
+  - Link multiple .o files
+  - Module caching (don't reparse unchanged modules)
+  - Symbol table per module
   - Linker coordination
 
 - [ ] **Rewrite Lexer in MLP** (5 hours)
