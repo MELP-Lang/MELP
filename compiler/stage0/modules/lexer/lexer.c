@@ -438,5 +438,9 @@ Token* lexer_next_token(Lexer* lexer) {
         return make_token_ws(TOKEN_ERROR, error_msg, lexer->line, had_whitespace);
     }
     
-    return make_token_ws(TOKEN_ERROR, NULL, lexer->line, had_whitespace);
+    // YZ_41: Unknown character - advance position to avoid infinite loop
+    lexer->pos++;
+    char error_msg[100];
+    snprintf(error_msg, sizeof(error_msg), "Unexpected character '%c' (0x%02X) at line %d", c, (unsigned char)c, lexer->line);
+    return make_token_ws(TOKEN_ERROR, error_msg, lexer->line, had_whitespace);
 }

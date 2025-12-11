@@ -390,6 +390,9 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
                 fprintf(output, "    # Return (void)\n");
                 fprintf(output, "    xor %%rax, %%rax\n");
             }
+            
+            // YZ_41: Jump to function epilogue
+            fprintf(output, "    jmp .L%s_return\n", func->name);
             break;
         }
         

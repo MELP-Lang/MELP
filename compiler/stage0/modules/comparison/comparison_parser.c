@@ -64,6 +64,21 @@ ComparisonExpr* comparison_parse_expression_stateless(Lexer* lexer, Token* first
         expr->left_value = strdup(first_token->value);
         expr->left_is_literal = 1;
         expr->is_float = (strchr(expr->left_value, '.') != NULL);
+    } else if (first_token->type == TOKEN_MINUS) {  // YZ_41: Negative number support
+        // Read the number after minus
+        Token* num_tok = lexer_next_token(lexer);
+        if (!num_tok || num_tok->type != TOKEN_NUMBER) {
+            token_free(num_tok);
+            free(expr);
+            return NULL;
+        }
+        // Create negative value: "-" + number
+        char negative_buf[256];
+        snprintf(negative_buf, sizeof(negative_buf), "-%s", num_tok->value);
+        expr->left_value = strdup(negative_buf);
+        expr->left_is_literal = 1;
+        expr->is_float = (strchr(num_tok->value, '.') != NULL);
+        token_free(num_tok);
     } else if (first_token->type == TOKEN_STRING) {  // YZ_07: String literal support
         expr->left_value = strdup(first_token->value);
         expr->left_is_literal = 1;
@@ -117,6 +132,26 @@ ComparisonExpr* comparison_parse_expression_stateless(Lexer* lexer, Token* first
         if (!expr->is_float) {
             expr->is_float = (strchr(expr->right_value, '.') != NULL);
         }
+    } else if (right_tok->type == TOKEN_MINUS) {  // YZ_41: Negative number support
+        token_free(right_tok);  // Free the minus token first
+        // Read the number after minus
+        Token* num_tok = lexer_next_token(lexer);
+        if (!num_tok || num_tok->type != TOKEN_NUMBER) {
+            token_free(num_tok);
+            free(expr->left_value);
+            free(expr);
+            return NULL;
+        }
+        // Create negative value: "-" + number
+        char negative_buf[256];
+        snprintf(negative_buf, sizeof(negative_buf), "-%s", num_tok->value);
+        expr->right_value = strdup(negative_buf);
+        expr->right_is_literal = 1;
+        if (!expr->is_float) {
+            expr->is_float = (strchr(num_tok->value, '.') != NULL);
+        }
+        token_free(num_tok);
+        right_tok = NULL;  // We already freed it
     } else if (right_tok->type == TOKEN_STRING) {  // YZ_07: String literal support
         expr->right_value = strdup(right_tok->value);
         expr->right_is_literal = 1;
@@ -132,7 +167,9 @@ ComparisonExpr* comparison_parse_expression_stateless(Lexer* lexer, Token* first
         return NULL;
     }
     
-    token_free(right_tok);  // Done with right operand
+    if (right_tok) {  // YZ_41: Only free if not already freed (negative number case)
+        token_free(right_tok);
+    }
     
     // ✅ Phase 3.2: Check for logical operators (and, or)
     Token* chain_tok = lexer_next_token(lexer);
