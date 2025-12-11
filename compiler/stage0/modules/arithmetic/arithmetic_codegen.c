@@ -157,6 +157,34 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
             // YZ_31: split(str, delimiter) -> mlp_string_split(char*, char*, int*)
             // Note: split returns array, need special handling for list
             actual_function = "mlp_string_split";
+        } else if (strcmp(call->function_name, "abs") == 0) {
+            // YZ_40: abs(x) -> abs(x) from math.h - Note: stdlib abs works for int64
+            // For float use fabs from <math.h>
+            actual_function = "abs";
+        } else if (strcmp(call->function_name, "pow") == 0) {
+            // YZ_40: pow(x, y) -> pow(x, y) from <math.h>
+            actual_function = "pow";
+        } else if (strcmp(call->function_name, "sqrt") == 0) {
+            // YZ_40: sqrt(x) -> sqrt(x) from <math.h>
+            actual_function = "sqrt";
+        } else if (strcmp(call->function_name, "sin") == 0) {
+            // YZ_40: sin(x) -> sin(x) from <math.h>
+            actual_function = "sin";
+        } else if (strcmp(call->function_name, "cos") == 0) {
+            // YZ_40: cos(x) -> cos(x) from <math.h>
+            actual_function = "cos";
+        } else if (strcmp(call->function_name, "tan") == 0) {
+            // YZ_40: tan(x) -> tan(x) from <math.h>
+            actual_function = "tan";
+        } else if (strcmp(call->function_name, "floor") == 0) {
+            // YZ_40: floor(x) -> floor(x) from <math.h>
+            actual_function = "floor";
+        } else if (strcmp(call->function_name, "ceil") == 0) {
+            // YZ_40: ceil(x) -> ceil(x) from <math.h>
+            actual_function = "ceil";
+        } else if (strcmp(call->function_name, "round") == 0) {
+            // YZ_40: round(x) -> round(x) from <math.h>
+            actual_function = "round";
         }
         
         // Call the function

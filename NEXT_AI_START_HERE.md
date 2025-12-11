@@ -2,9 +2,9 @@
 
 > **Yeni YZ iseniz sadece bu belgeyi okuyun. Her şey burada.**
 
-**Son Güncelleme:** 11 Aralık 2025, ~15:00  
-**Son Tamamlanan:** YZ_39 (Phase 11 - Separate Compilation Part 2) 🎉  
-**Durum:** Stage 0 - Core Features + File I/O + State + Module System + Auto Linking (95%)! 🎉
+**Son Güncelleme:** 11 Aralık 2025, ~16:00  
+**Son Tamamlanan:** YZ_40 (Bug Fix: Function Call Parsing + Math Functions) 🎉  
+**Durum:** Stage 0 - Core Features + File I/O + State + Module System (100%)! 🎉
 
 ## 🎯 Hızlı Başlangıç
 
@@ -74,13 +74,12 @@ Oturumu bitirmeden önce:
 
 ## 🔢 Son YZ Numarası
 
-**YZ_39** - Phase 11 (Separate Compilation Part 2) tamamlandı! 🎉 
-- ✅ Automatic `.s → .o` pipeline (gcc -c integration)
-- ✅ Automatic linking (gcc coordination)
-- ✅ Full compilation mode (one command: .mlp → executable)
-- ✅ Error handling (warnings ignored, errors fatal)
-- ✅ Temporary file cleanup
-- ✅ Import system fully compatible
+**YZ_40** - Bug Fix: Function Call Parsing + Forward References! 🎉 
+- ✅ Math functions added (abs, pow, sqrt, sin, cos, tan, floor, ceil, round)
+- ✅ Two-pass parsing (First pass: register function names, Second pass: parse bodies)
+- ✅ Forward reference support (function A can call function B defined later)
+- ✅ 'end function' pattern filtering in first pass
+- ✅ All tests PASSED (builtin, user-defined, forward ref, comprehensive)
 
 ---
 
@@ -93,38 +92,22 @@ Oturumu bitirmeden önce:
 - ✅ **Phase 6**: Error messages, "Did you mean", Division by zero, Error Recovery (100%)
 - ✅ **Phase 7**: Constant Folding, Dead Code Elimination, Register Allocation (100%)
 - ✅ **Phase 9**: File I/O - read_file, write_file, append_file (100%) 🆕
+- ✅ **Phase 11**: Module System + Auto Linking + Function Calls (100%) 🆕
 
-### YZ_34 Tamamlananlar:
-- ✅ **state_init(), state_close()** - State manager lifecycle
-- ✅ **state_set(key, value), state_get(key)** - Key-value operations
-- ✅ **state_save(), state_load()** - JSON persistence
-- ✅ TTO optimization - SSO vs Heap for state values
-- ✅ Namespace convention - shared:, config:, temp:
+### YZ_40 Tamamlananlar:
+- ✅ **Math functions** - abs(), pow(), sqrt(), sin(), cos(), tan(), floor(), ceil(), round()
+- ✅ **Two-pass parsing** - Forward reference support
+- ✅ **Function call bug fix** - calculate(x) artık list access olmuyor!
+- ✅ Tests: builtin math, user functions, forward refs, comprehensive
 
-### YZ_36 Tamamlananlar (Phase 11 - Module Loading):
-- ✅ **import_load_module()** - Recursive module parsing
-- ✅ **Function registry system** - function_is_known()
-- ✅ **Cross-module function calls** - add(), multiply(), square() working
-- ✅ **Arithmetic parser integration** - User-defined functions recognized
-- ✅ **Tests** - simple import, parametreli functions, multiple calls ALL PASS!
+### Sonraki Görevler (YZ_41 için):
 
-### YZ_39 Tamamlananlar (Phase 11 - Separate Compilation Part 2):
-- ✅ **Automatic .s → .o pipeline** - gcc -c integration
-- ✅ **Automatic linking** - gcc linker coordination
-- ✅ **Full compilation mode** - One command: .mlp → executable!
-- ✅ **Error handling** - Warnings ignored, only errors fatal
-- ✅ **Temporary file cleanup** - Auto cleanup of .s and .o files
-- ✅ **Import compatibility** - Works with import system
+**A) Negative Numbers Support (YZ_41, 30-45min - HIGH PRIORITY!):**
+- [ ] Problem: `numeric x = -15` parse error veriyor
+- [ ] Fix: Unary minus operator in variable assignment
+- [ ] Files: variable_parser.c, arithmetic_parser.c
 
-### Sonraki Görevler (YZ_40 için):
-
-**A) Bug Fix: User-Defined Function Calls (YZ_40, 1h - PRIORITY!):**
-- [ ] Problem: User functions parsed as array access
-- [ ] Example: `calculate(x)` treated as `calculate[x]` ❌
-- [ ] Fix: Improve lookahead in arithmetic_parser.c
-- [ ] Tests: Cross-function calls within same file
-
-**B) Separate Compilation - Part 3: Module Caching (YZ_40 or later, 1-1.5h):**
+**B) Module Caching - Part 3 (Later, 1.5-2h):**
 - [ ] Module dependency tracking
 - [ ] Timestamp-based caching (skip unchanged modules)
 - [ ] Cache invalidation on source change
