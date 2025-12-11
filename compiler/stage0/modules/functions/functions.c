@@ -445,6 +445,17 @@ int function_is_builtin(const char* name) {
     if (strcmp(name, "state_save") == 0) return 1;
     if (strcmp(name, "state_load") == 0) return 1;
     
+    // YZ_40: Math functions (stdlib math library)
+    if (strcmp(name, "abs") == 0) return 1;
+    if (strcmp(name, "pow") == 0) return 1;
+    if (strcmp(name, "sqrt") == 0) return 1;
+    if (strcmp(name, "sin") == 0) return 1;
+    if (strcmp(name, "cos") == 0) return 1;
+    if (strcmp(name, "tan") == 0) return 1;
+    if (strcmp(name, "floor") == 0) return 1;
+    if (strcmp(name, "ceil") == 0) return 1;
+    if (strcmp(name, "round") == 0) return 1;
+    
     return 0;
 }
 

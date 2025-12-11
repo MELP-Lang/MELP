@@ -1,32 +1,17 @@
--- MLP Function Body Codegen - Complete Test
--- Tests: function calls, return values, local variables, expressions
-
 function add(numeric a, numeric b) returns numeric
-    return a + b
+    numeric result = a + b
+    return result
 end function
 
-function subtract(numeric x, numeric y) returns numeric
-    return x - y
+function main() returns numeric
+    numeric x = 5
+    numeric y = 10
+    numeric sum = add(x, y)
+    numeric squared = square(sum)
+    return squared
 end function
 
-function multiply(numeric m, numeric n) returns numeric
-    return m * n
-end function
-
-function main()
-    -- Test 1: Direct function call with constants
-    numeric sum = add(10, 20)
-    print sum
-    
-    -- Test 2: Local variables as function arguments
-    numeric x = 8
-    numeric y = 3
-    numeric diff = subtract(x, y)
-    print diff
-    
-    -- Test 3: Multiplication
-    numeric prod = multiply(6, 7)
-    print prod
-    
-    return 0
+function square(numeric n) returns numeric
+    numeric result = n * n
+    return result
 end function

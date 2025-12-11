@@ -122,7 +122,61 @@ int main(int argc, char** argv) {
         return 1;
     }
     
-    // Parse all functions with ERROR RECOVERY
+    // YZ_40: FIRST PASS - Register all function names (forward reference support)
+    // This allows functions to call other functions defined later in the file
+    printf("🔍 First pass: Scanning function names...\n");
+    int func_count = 0;
+    Token* prev_tok = NULL;
+    
+    while (1) {
+        Token* tok = lexer_next_token(lexer);
+        if (!tok || tok->type == TOKEN_EOF) {
+            if (tok) token_free(tok);
+            break;
+        }
+        
+        // Look for 'function' keyword
+        if (tok->type == TOKEN_FUNCTION) {
+            // Skip 'end function' pattern (prev token was 'end')
+            if (prev_tok && prev_tok->type == TOKEN_END) {
+                // This is 'end function', not a new function declaration
+                if (prev_tok) token_free(prev_tok);
+                prev_tok = tok;
+                continue;
+            }
+            
+            func_count++;
+            // Next token should be function name
+            Token* name_tok = lexer_next_token(lexer);
+            if (name_tok && name_tok->type == TOKEN_IDENTIFIER) {
+                function_register_name(name_tok->value);
+                printf("   📝 Registered: %s()\n", name_tok->value);
+            } else if (name_tok) {
+                printf("   ⚠️  TOKEN_FUNCTION but next token is type=%d\n", name_tok->type);
+            }
+            if (name_tok) token_free(name_tok);
+        }
+        
+        if (prev_tok) token_free(prev_tok);
+        prev_tok = tok;
+    }
+    
+    if (prev_tok) token_free(prev_tok);
+    
+    printf("   Total function declarations found: %d\n", func_count);
+    
+    // Free first lexer and create new one for second pass
+    lexer_free(lexer);
+    lexer = lexer_create(source);
+    if (!lexer) {
+        error_fatal("Failed to create lexer for second pass");
+        free(source);
+        return 1;
+    }
+    
+    printf("✅ First pass complete. Starting second pass...\n\n");
+    
+    // Parse all functions with ERROR RECOVERY (SECOND PASS)
     // YZ_35: Also handle import statements at top-level
     FunctionDeclaration* functions = NULL;
     FunctionDeclaration* last_func = NULL;

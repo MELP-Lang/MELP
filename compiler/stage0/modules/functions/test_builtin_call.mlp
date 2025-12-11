@@ -1,0 +1,5 @@
+function main() returns numeric
+    numeric x = 10
+    numeric y = abs(x)
+    return y
+end function

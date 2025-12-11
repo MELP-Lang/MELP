@@ -1,0 +1,10 @@
+function main() returns numeric
+    numeric x = 10
+    numeric result = helper(x)
+    return result
+end function
+
+function helper(numeric val) returns numeric
+    numeric answer = val * 3
+    return answer
+end function

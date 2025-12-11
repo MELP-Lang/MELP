@@ -1,0 +1,10 @@
+function calculate(numeric x) returns numeric
+    numeric result = x * 2
+    return result
+end function
+
+function main() returns numeric
+    numeric a = 10
+    numeric b = calculate(a)
+    return b
+end function
