@@ -66,4 +66,26 @@ int64_t mlp_input_numeric(void);
 // Returns: int64_t value (0 on error)
 int64_t mlp_input_numeric_prompt(const char* prompt);
 
+// ============================================================================
+// File I/O Functions (YZ_33 - Phase 9)
+// ============================================================================
+
+// Read entire file content as string
+// filename: Path to file to read
+// Returns: dynamically allocated string with file content (caller must free)
+//          Returns empty string "" on error (file not found, permission denied, etc.)
+char* mlp_read_file(const char* filename);
+
+// Write string content to file (overwrites existing file)
+// filename: Path to file to write
+// content: String content to write
+// Returns: 1 on success, 0 on error
+int64_t mlp_write_file(const char* filename, const char* content);
+
+// Append string content to file (creates file if doesn't exist)
+// filename: Path to file to append to
+// content: String content to append
+// Returns: 1 on success, 0 on error
+int64_t mlp_append_file(const char* filename, const char* content);
+
 #endif

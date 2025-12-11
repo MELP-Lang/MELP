@@ -1,0 +1,31 @@
+-- Test Phase 9: File I/O
+-- YZ_33: read_file, write_file, append_file
+
+function main() returns numeric
+    -- Test 1: Write file
+    println("Test 1: Writing to file...")
+    numeric result1 = write_file("test_output.txt", "Hello, File I/O!")
+    println(result1)  -- Should print 1 (success)
+    
+    -- Test 2: Read file
+    println("Test 2: Reading from file...")
+    string content = read_file("test_output.txt")
+    println(content)  -- Should print "Hello, File I/O!"
+    
+    -- Test 3: Append to file
+    println("Test 3: Appending to file...")
+    numeric result2 = append_file("test_output.txt", "\nSecond line!")
+    println(result2)  -- Should print 1 (success)
+    
+    -- Test 4: Read updated file
+    println("Test 4: Reading updated file...")
+    string updated = read_file("test_output.txt")
+    println(updated)  -- Should print both lines
+    
+    -- Test 5: Read non-existent file
+    println("Test 5: Reading non-existent file...")
+    string empty = read_file("nonexistent.txt")
+    println(empty)  -- Should print empty string
+    
+    return 0
+end function

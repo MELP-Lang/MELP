@@ -398,6 +398,71 @@ void function_generate_call(FILE* output, FunctionCall* call) {
             }
             return;
         }
+        
+        // YZ_33: Phase 9 - File I/O functions
+        
+        // read_file(filename) - read entire file as string
+        if (strcmp(call->function_name, "read_file") == 0) {
+            if (call->arg_count != 1) {
+                fprintf(output, "    # ERROR: read_file requires exactly 1 argument (filename)\n");
+                return;
+            }
+            
+            fprintf(output, "    # read_file: read file content as string\n");
+            if (call->arguments && call->arguments[0]) {
+                expression_generate_code(output, call->arguments[0], NULL);
+                fprintf(output, "    movq %%r8, %%rdi     # arg1: filename string\n");
+                fprintf(output, "    call mlp_read_file\n");
+                fprintf(output, "    movq %%rax, %%r8     # Result (file content string) in %%r8\n");
+            }
+            return;
+        }
+        
+        // write_file(filename, content) - write content to file (overwrite)
+        if (strcmp(call->function_name, "write_file") == 0) {
+            if (call->arg_count != 2) {
+                fprintf(output, "    # ERROR: write_file requires exactly 2 arguments (filename, content)\n");
+                return;
+            }
+            
+            fprintf(output, "    # write_file: write content to file\n");
+            if (call->arguments && call->arguments[0] && call->arguments[1]) {
+                // First argument: filename
+                expression_generate_code(output, call->arguments[0], NULL);
+                fprintf(output, "    pushq %%r8           # Save filename\n");
+                
+                // Second argument: content
+                expression_generate_code(output, call->arguments[1], NULL);
+                fprintf(output, "    movq %%r8, %%rsi     # arg2: content string\n");
+                fprintf(output, "    popq %%rdi           # arg1: filename\n");
+                fprintf(output, "    call mlp_write_file\n");
+                fprintf(output, "    movq %%rax, %%r8     # Result (1=success, 0=fail) in %%r8\n");
+            }
+            return;
+        }
+        
+        // append_file(filename, content) - append content to file
+        if (strcmp(call->function_name, "append_file") == 0) {
+            if (call->arg_count != 2) {
+                fprintf(output, "    # ERROR: append_file requires exactly 2 arguments (filename, content)\n");
+                return;
+            }
+            
+            fprintf(output, "    # append_file: append content to file\n");
+            if (call->arguments && call->arguments[0] && call->arguments[1]) {
+                // First argument: filename
+                expression_generate_code(output, call->arguments[0], NULL);
+                fprintf(output, "    pushq %%r8           # Save filename\n");
+                
+                // Second argument: content
+                expression_generate_code(output, call->arguments[1], NULL);
+                fprintf(output, "    movq %%r8, %%rsi     # arg2: content string\n");
+                fprintf(output, "    popq %%rdi           # arg1: filename\n");
+                fprintf(output, "    call mlp_append_file\n");
+                fprintf(output, "    movq %%rax, %%r8     # Result (1=success, 0=fail) in %%r8\n");
+            }
+            return;
+        }
     }
     
     // Standard user-defined function call
