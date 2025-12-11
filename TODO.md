@@ -1,10 +1,10 @@
 # 🎯 MELP Compiler - TODO List
-**Güncel Durum:** 11 Aralık 2025, ~08:00  
-**Son Tamamlanan:** YZ_37 (Phase 11 - Error Context + Circular Import) 🚀  
+**Güncel Durum:** 11 Aralık 2025, ~13:00  
+**Son Tamamlanan:** YZ_38 (Phase 11 - Separate Compilation Part 1) 🚀  
 **Stage:** Stage 0 - Core Compiler Development  
-**Completion:** 100% Core + File I/O + State + Module System (90%)! 🎉
+**Completion:** 100% Core + File I/O + State + Module System (92%)! 🎉
 
-**🎉 PHASE 11 (90%) COMPLETE:** YZ_37 finished error context management and circular import detection! Module system almost done!
+**🎉 PHASE 11 (92%) COMPLETE:** YZ_38 finished per-module assembly generation! Compile-only mode working!
 
 ---
 
@@ -761,10 +761,10 @@ end function
 
 ---
 
-## 🎯 Phase 11: Self-Hosting Preparation ✅ 90% COMPLETE!
-**Responsible:** YZ_35, YZ_36, YZ_37  
+## 🎯 Phase 11: Self-Hosting Preparation ✅ 92% COMPLETE!
+**Responsible:** YZ_35, YZ_36, YZ_37, YZ_38  
 **Priority:** ⭐ LOW (opt-in feature)  
-**Status:** ✅ 90% COMPLETE! Module system almost done!
+**Status:** ✅ 92% COMPLETE! Separate compilation Part 1 done!
 
 - [x] **Module System - Import Statement** ✅ (YZ_35 completed - 2 hours)
   - `import module_name` syntax support
@@ -794,12 +794,28 @@ end function
   - Nested imports supported (modules can import other modules)
   - Tests: circular import correctly detected and reported
 
-- [ ] **Module System - Separate Compilation** ⏳ (3-4 hours) **→ YZ_38**
-  - .mlp → .s → .o pipeline
-  - Link multiple .o files
-  - Module caching (don't reparse unchanged modules)
-  - Symbol table per module
-  - Linker coordination
+- [x] **Module System - Separate Compilation (Part 1: Per-Module Assembly)** ✅ (YZ_38 completed - 2 hours)
+  - .mlp → .s pipeline per module (individual assembly files) ✅
+  - Module-specific assembly output (module_name.s) ✅
+  - Compiler flag: --compile-only or -c (skip linking) ✅
+  - Function symbol generation per module (proper naming) ✅
+  - Tests: compile math.mlp → math.s, utils.mlp → utils.s ✅
+  - Object files: .s → .o with gcc ✅
+  - Manual linking: multiple .o → executable ✅
+
+- [ ] **Module System - Separate Compilation (Part 2: Object Files & Linking)** ⏳ (1.5-2 hours) **→ YZ_39**
+  - .s → .o pipeline (assemble per module)
+  - Link multiple .o files together
+  - Linker coordination (gcc -o final main.o math.o utils.o)
+  - Symbol resolution across modules
+  - Tests: link main.o + math.o → working executable
+
+- [ ] **Module System - Separate Compilation (Part 3: Module Caching)** ⏳ (1-1.5 hours) **→ YZ_40**
+  - Module dependency tracking (which modules need rebuild?)
+  - Timestamp-based caching (skip unchanged modules)
+  - Cache invalidation on source change
+  - Symbol table persistence per module (.mlp.cache files?)
+  - Tests: modify math.mlp → only math recompiles, utils untouched
 
 - [ ] **Rewrite Lexer in MLP** (5 hours)
   - First self-hosted component!

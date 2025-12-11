@@ -71,7 +71,7 @@
 | | Namespace Convention (shared:, config:, temp:) | ✅ |
 | | JSON Persistence | ✅ |
 | | Runtime C Tests | ✅ |
-| **Phase 11: Module System** | | ✅ 90% |
+| **Phase 11: Module System** | | ✅ 92% |
 | | Import Statement (import module_name) | ✅ |
 | | Module Path Resolution | ✅ |
 | | Module Loading (Recursive Parsing) | ✅ |
@@ -79,14 +79,18 @@
 | | Cross-Module Function Calls | ✅ |
 | | Error Context Management | ✅ |
 | | Circular Import Detection | ✅ |
-| | Separate Compilation | ⏳ |
+| | Separate Compilation (Part 1: Assembly) | ✅ YZ_38 |
+| | Separate Compilation (Part 2: Linking) | ⏳ YZ_39 |
+| | Separate Compilation (Part 3: Caching) | ⏳ YZ_40 |
 | | Rewrite Lexer in MLP | ⏳ |
 
 ## Durum Özeti
 
-- **Tamamlanan:** Phase 1-7, Phase 9, Phase 10, Phase 11 (90%)
-- **Son Tamamlanan:** YZ_37 (Phase 11 - Error Context + Circular Import)
-- **Sonraki:** Separate Compilation (YZ_38)
+- **Tamamlanan:** Phase 1-7, Phase 9, Phase 10, Phase 11 (92%)
+- **Son Tamamlanan:** YZ_38 (Phase 11 - Separate Compilation Part 1)
+- **Sonraki:** 
+  - **YZ_39:** Separate Compilation Part 2 (Automatic Linking, 1.5-2h)
+  - **YZ_40:** Separate Compilation Part 3 (Module Caching, 1-1.5h)
 - **Gelecek:** Self-hosting, Lexer in MLP
 
 > **⚠️ Senkronizasyon:** Bu dosya `TODO.md` ile eş zamanlı tutulmalıdır!
@@ -120,4 +124,12 @@
 | **Module Import** | ✅ Exit: 42 | `import simple` → test() returns 42 |
 | **Module Call** | ✅ Exit: 30 | `import math` → add(10,20) = 30 |
 | **Multiple Calls** | ✅ Exit: 54 | add(5,10) + multiply(15,2) + square(3) = 54 |
+| **Error Context** | ✅ | Module errors show correct filename & line |
+| **Circular Import** | ✅ | A→B→A detected with import chain display |
+| **Nested Imports** | ✅ | Modules can import other modules |
+| **-c Flag** | ✅ Exit: 0 | Compile-only mode working |
+| **Per-Module Assembly** | ✅ | math.mlp → math.s, utils.mlp → utils.s |
+| **Object Files** | ✅ | .s → .o conversion successful |
+| **Manual Linking** | ✅ Exit: 60 | 3 .o files → executable (10+20+30=60) |
+| **Import + -c** | ✅ | import math + compile-only compatible |
 

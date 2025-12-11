@@ -81,13 +81,28 @@ int main(int argc, char** argv) {
     // Initialize error handling system
     error_init();
     
-    if (argc != 3) {
-        error_io("Usage: %s <input.mlp> <output.s>", argv[0]);
-        return 1;
+    // YZ_38: Parse command-line arguments
+    int compile_only = 0;  // Flag for -c or --compile-only
+    const char* input_file = NULL;
+    const char* output_file = NULL;
+    
+    // Parse arguments
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-c") == 0 || strcmp(argv[i], "--compile-only") == 0) {
+            compile_only = 1;
+        } else if (!input_file) {
+            input_file = argv[i];
+        } else if (!output_file) {
+            output_file = argv[i];
+        }
     }
     
-    const char* input_file = argv[1];
-    const char* output_file = argv[2];
+    // Check required arguments
+    if (!input_file || !output_file) {
+        error_io("Usage: %s [-c|--compile-only] <input.mlp> <output.s>", argv[0]);
+        error_io("  -c, --compile-only    Generate assembly only (no linking)");
+        return 1;
+    }
     
     // Read input file
     char* source = read_file(input_file);
@@ -303,6 +318,13 @@ int main(int argc, char** argv) {
     // Free source code
     free(source);
     
-    printf("✅ Compiled %s -> %s\n", input_file, output_file);
+    // YZ_38: Different success messages based on mode
+    if (compile_only) {
+        printf("✅ Compiled (assembly only) %s -> %s\n", input_file, output_file);
+        printf("   Next: gcc -c %s -o %s.o\n", output_file, 
+               output_file[strlen(output_file)-2] == '.' ? "" : output_file);
+    } else {
+        printf("✅ Compiled %s -> %s\n", input_file, output_file);
+    }
     return 0;
 }
