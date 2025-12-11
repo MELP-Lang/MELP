@@ -114,10 +114,19 @@ Oturumu bitirmeden önce:
 
 ### Sonraki Görevler (Optional):
 
-**🔵 OPTIONAL (YZ_46+):**
-- [ ] **Self-Hosting** - Rewrite lexer in MLP (5-8h)
-- [ ] **Advanced Optimization** - Register allocation, function inlining (5-10h)
-- [ ] **Standard Library** - Expand built-in functions (3-5h)
+**🔵 ÖNERİLEN (YZ_46): Self-Hosting Part 6.1 - Token Structure (1-1.5h)**
+- **Dosya:** `modules/lexer_mlp/token.mlp`
+- **Görev:** TokenType enum + Token struct tanımı
+- **Detay:** TODO.md → "Phase 12: Self-Hosting" bölümüne bak
+- **Zorluk:** ⭐ KOLAY (iyi başlangıç noktası)
+
+**🟢 ALTERNATİF (YZ_46): Diğer İyileştirmeler**
+- [ ] Advanced optimization (register allocation)
+- [ ] Standard library expansion (math, string utils)
+- [ ] Documentation improvements
+- [ ] Test coverage expansion
+
+**📝 Not:** Self-hosting seçeneklerdir, zorunlu değil. Core language %100 tamamlandı!
 
 ---
 
@@ -227,12 +236,50 @@ Oturumu bitirmeden önce:
 | Phase 5 | ✅ | 100% |
 | Phase 6 | ✅ | 100% |
 | Phase 7 | ✅ | 100% |
-| Phase 8 | ⏳ | 0% |
-| Phase 9 | ✅ | 100% 🆕 |
-| Phase 10 | ✅ | 100% 🆕 |
-| Phase 11 | ✅ | 96% 🆕 |
+| Phase 9 | ✅ | 100% |
+| Phase 10 | ✅ | 100% |
+| Phase 11 | ✅ | 100% 🆕 |
+| Phase 12 (Self-Hosting) | ⏳ | 0% (Optional) |
 
-**Toplam**: 100% core language + optimization + File I/O + State + Modules! 🎉
+**Toplam**: 100% core language + optimization + File I/O + State + Modules + Incremental! 🎉
+
+---
+
+## 🎯 Sonraki YZ İçin Öneriler (YZ_46)
+
+### Seçenek 1: Self-Hosting Başla (ÖNERİLEN) ⭐
+**Görev:** Part 6.1 - Token Structure & Basics (1-1.5h)
+
+**Adımlar:**
+1. `TODO.md` → "Phase 12: Self-Hosting" bölümünü oku (5 dk)
+2. `modules/lexer_mlp/` klasörü oluştur
+3. `token.mlp` dosyasını yaz:
+   - TokenType enum (KEYWORD, IDENTIFIER, NUMBER, etc.)
+   - Token struct (type, value, line, column)
+   - `create_token()` constructor
+   - `token_to_string()` debug function
+4. Test: Token'ları manuel oluştur, yazdır
+5. Commit: "YZ_46: Self-Hosting Part 6.1 - Token Structure"
+
+**Neden bu görev?**
+- ✅ Kolay başlangıç (1-1.5h)
+- ✅ MLP dilinde kod yazma pratiği
+- ✅ Self-hosting'e ilk adım
+- ✅ Bağımsız test edilebilir
+
+### Seçenek 2: Diğer İyileştirmeler
+- Documentation expansion
+- Test coverage improvement
+- Bug hunting with Valgrind
+- Performance profiling
+
+### Seçenek 3: Yeni Özellikler
+- Advanced string methods
+- Math library (sin, cos, sqrt)
+- Date/time functions
+- Network I/O (experimental)
+
+**💡 Tavsiye:** Kullanıcıya sor! "Hangi görev üzerinde çalışmamı istersiniz?"
 
 ---
 
