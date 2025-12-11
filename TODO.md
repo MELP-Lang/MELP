@@ -1,10 +1,10 @@
 # 🎯 MELP Compiler - TODO List
-**Güncel Durum:** 11 Aralık 2025, ~16:00  
-**Son Tamamlanan:** YZ_40 (Bug Fix: User-Defined Function Calls + Math Functions) 🚀  
+**Güncel Durum:** 11 Aralık 2025, ~18:00  
+**Son Tamamlanan:** YZ_41 (Negative Numbers + Critical Bug Fixes) 🚀  
 **Stage:** Stage 0 - Core Compiler Development  
 **Completion:** 100% Core + File I/O + State + Module System (100%)! 🎉
 
-**🎉 PHASE 11 (100%) COMPLETE:** YZ_40 fixed function call parsing + forward references working!
+**🎉 YZ_41 (100%) COMPLETE:** Negative numbers + lexer/return bugs fixed!
 
 ---
 
