@@ -2,9 +2,9 @@
 
 > **Yeni YZ iseniz sadece bu belgeyi okuyun. Her şey burada.**
 
-**Son Güncelleme:** 11 Aralık 2025, ~08:00  
-**Son Tamamlanan:** YZ_37 (Phase 11 - Error Context + Circular Import) 🎉  
-**Durum:** Stage 0 - Core Features + File I/O + State + Module System (90%)! 🎉
+**Son Güncelleme:** 11 Aralık 2025, ~13:00  
+**Son Tamamlanan:** YZ_38 (Phase 11 - Separate Compilation Part 1) 🎉  
+**Durum:** Stage 0 - Core Features + File I/O + State + Module System (92%)! 🎉
 
 ## 🎯 Hızlı Başlangıç
 
@@ -74,11 +74,12 @@ Oturumu bitirmeden önce:
 
 ## 🔢 Son YZ Numarası
 
-**YZ_37** - Phase 11 (Error Context + Circular Import) tamamlandı! 🎉 
-- ✅ Error context management çalışıyor
-- ✅ Circular import detection implemented
-- ✅ Nested module imports destekleniyor
-- ✅ User-friendly error messages with import chain
+**YZ_38** - Phase 11 (Separate Compilation Part 1) tamamlandı! 🎉 
+- ✅ `-c` / `--compile-only` flag eklendi
+- ✅ Per-module assembly generation çalışıyor
+- ✅ Object file creation tested (.s → .o)
+- ✅ Manual linking successful (3 .o → executable)
+- ✅ Import system ile uyumlu
 
 ---
 
@@ -106,21 +107,29 @@ Oturumu bitirmeden önce:
 - ✅ **Arithmetic parser integration** - User-defined functions recognized
 - ✅ **Tests** - simple import, parametreli functions, multiple calls ALL PASS!
 
-### YZ_37 Tamamlananlar (Phase 11 - Error Context + Circular Import):
-- ✅ **Error Context Management** - error_save_context() / error_restore_context()
-- ✅ **Context stack** - Nested module parsing ile proper error reporting
-- ✅ **Circular Import Detection** - Import stack tracking
-- ✅ **Import chain display** - User-friendly error messages
-- ✅ **Nested imports** - Modules can import other modules
-- ✅ **Tests** - Circular import detected, normal imports working!
+### YZ_38 Tamamlananlar (Phase 11 - Separate Compilation Part 1):
+- ✅ **Compiler flag: -c / --compile-only** - Assembly-only mode
+- ✅ **Per-module compilation** - math.mlp → math.s, utils.mlp → utils.s
+- ✅ **Object file creation** - .s → .o with gcc
+- ✅ **Manual linking test** - 3 .o files → executable
+- ✅ **Execution test** - Exit: 60 (10+20+30) ✅
+- ✅ **Import compatibility** - import math + -c flag working
 
-### Sonraki Görevler (YZ_38 için):
+### Sonraki Görevler (YZ_39, YZ_40 için):
 
-**A) Separate Compilation (Recommended - Phase 11 Final!):**
-- [ ] Per-module compilation (.mlp → .s → .o)
-- [ ] Linker integration (link multiple .o files)
-- [ ] Module caching (don't reparse unchanged)
-- [ ] Symbol table per module
+**A) Separate Compilation - Part 2: Object Files & Linking (YZ_39, 1.5-2h):**
+- [ ] Automatic per-module .s generation (import math → math.s ayrı dosya)
+- [ ] .s → .o pipeline otomasyonu
+- [ ] Linker coordination (gcc -o final main.o math.o utils.o)
+- [ ] Symbol resolution across modules
+- [ ] Tests: import math → auto-generate math.o + link
+
+**B) Separate Compilation - Part 3: Module Caching (YZ_40, 1-1.5h):**
+- [ ] Module dependency tracking
+- [ ] Timestamp-based caching (skip unchanged modules)
+- [ ] Cache invalidation on source change
+- [ ] Symbol table persistence per module
+- [ ] Tests: modify math.mlp → only math recompiles
 
 ### Diğer görevler için `TODO.md` bak
 

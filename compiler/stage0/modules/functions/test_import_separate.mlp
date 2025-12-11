@@ -1,0 +1,12 @@
+import math
+
+function main() returns numeric
+    numeric x = 5
+    numeric y = 10
+    
+    -- Call imported function
+    numeric sum = add(x, y)
+    numeric squared = square(sum)
+    
+    return squared
+end function
