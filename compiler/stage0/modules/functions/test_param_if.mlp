@@ -1,0 +1,12 @@
+function check_positive(numeric n) returns numeric
+    if n > 0 then
+        return 1
+    else
+        return 0
+    end if
+end function
+
+function main() returns numeric
+    numeric result = check_positive(10)
+    return result
+end function

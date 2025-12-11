@@ -15,7 +15,7 @@ Bu dizin MELP dilinin Türkçe dokümantasyonunu içerir.
 - [control_flow.md](language/control_flow.md) - Kontrol akışı yapıları
 - [functions.md](language/functions.md) - Fonksiyon tanımlama ve kullanım
 - [collections.md](language/collections.md) - Array, List ve Tuple koleksiyonları
-- [TTO.md](language/TTO.md) - Şeffaf Tip Optimizasyonu
+- [STO.md](language/STO.md) - Akıllı Tip Optimizasyonu
 
 ### API Belgeleri (`api/`)
 *Yakında eklenecek*
@@ -47,7 +47,7 @@ MELP çok dilli bir programlama dilidir. Dokümantasyon şu dillerde mevcuttur:
    - [collections.md](language/collections.md) - Array, List ve Tuple kullanımı
 
 3. **İleri Seviye:**
-   - [TTO.md](language/TTO.md) - MELP'in dahili optimizasyonlarını anla
+   - [STO.md](language/STO.md) - MELP'in dahili optimizasyonlarını anla
 
 4. **Geliştirici Belgeleri:**
    - [PHASE3_SUMMARY.md](PHASE3_SUMMARY.md) - Derleyici geliştirme geçmişi
@@ -62,7 +62,7 @@ MELP çok dilli bir programlama dilidir. Dokümantasyon şu dillerde mevcuttur:
 | melp_syntax.md | ✅ Tamamlandı | 10 Aralık 2025 |
 | melp_philosophy.md | ✅ Zaten Türkçe | - |
 | data_types.md | ✅ Tamamlandı | 10 Aralık 2025 |
-| TTO.md | ✅ Tamamlandı | 10 Aralık 2025 |
+| STO.md | ✅ Tamamlandı | 12 Aralık 2025 |
 | control_flow.md | ⏳ Gelecekte | - |
 | functions.md | ⏳ Gelecekte | - |
 | collections.md | ⏳ Gelecekte | - |

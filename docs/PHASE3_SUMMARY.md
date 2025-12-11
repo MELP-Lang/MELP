@@ -348,7 +348,7 @@ end function
 - Correct x86-64 calling convention
 - Proper stack frame management
 - Short-circuit evaluation for logical ops
-- TTO overflow handling in arithmetic
+- STO overflow handling in arithmetic
 - Clean label generation
 - Efficient register usage
 

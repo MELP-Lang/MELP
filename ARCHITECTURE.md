@@ -40,7 +40,7 @@ Previous AI agents violated these rules and created a 736-line monolithic `main.
 
 ---
 
-## Rule #0: TTO (Transparent Type Optimization) - CORE PRINCIPLE
+## Rule #0: STO (Smart Type Optimization) - CORE PRINCIPLE
 
 ### 🎯 The Philosophy
 
@@ -58,7 +58,7 @@ Previous AI agents violated these rules and created a 736-line monolithic `main.
 3. "Ali" and a 10,000-page book shouldn't use same memory strategy
 4. User doesn't see pragmatic layer → backend optimization possible
 
-### 🔄 How TTO Works
+### 🔄 How STO Works
 
 **User writes:**
 ```mlp
@@ -85,7 +85,7 @@ text long = read_file("book.txt")
 
 **DO:**
 - ✅ Track minimal type info (1 bit: `is_numeric` flag)
-- ✅ Read `temp/kurallar_kitabı.md` TTO section for full details
+- ✅ Read `temp/kurallar_kitabı.md` STO section for full details
 - ✅ Keep user API simple (only `numeric` and `string`)
 
 **DON'T:**
@@ -109,10 +109,10 @@ typedef enum { VAR_INT, VAR_FLOAT, VAR_BIGDEC, VAR_STRING, ... } VarType;
 
 **Key Principle:** "2 types, 1 bit, simple!" - Keep it minimal.
 
-### 📚 Full TTO Documentation
+### 📚 Full STO Documentation
 
 For complete implementation details, algorithms, and memory strategies:
-→ See **`temp/kurallar_kitabı.md`** Section 4: "Transparent Type Optimization (TTO)"
+→ See **`temp/kurallar_kitabı.md`** Section 4: "Smart Type Optimization (STO)"
 
 ---
 
@@ -285,16 +285,16 @@ text msg = "Hello"   # No type annotations needed
 - Large values → heap with safety (correct)
 - User never sees complexity
 
-**See Rule #0 (TTO) for full architecture details.**
+**See Rule #0 (STO) for full architecture details.**
 
 ---
 
 ## Current Architecture Status
 
-### ✅ RESOLVED: TTO Duplicate Definition (9 Aralık 2025 - YZ_02)
-- **Problem:** `tto_infer_numeric_type()` defined in both compiler and runtime
+### ✅ RESOLVED: STO Duplicate Definition (9 Aralık 2025 - YZ_02)
+- **Problem:** `sto_infer_numeric_type()` defined in both compiler and runtime
 - **Action:** Renamed compiler functions with `codegen_` prefix (namespace separation)
-- **Result:** Clean separation - compiler uses `codegen_tto_*`, runtime uses `tto_*`
+- **Result:** Clean separation - compiler uses `codegen_sto_*`, runtime uses `sto_*`
 - **Status:** ✅ NO HACKS (rejected `--allow-multiple-definition`)
 
 ### ✅ RESOLVED: Stdlib Integration (9 Aralık 2025 - YZ_02)
@@ -319,8 +319,8 @@ text msg = "Hello"   # No type annotations needed
 4. **modules/cli/** - Convert cli/ directory
 5. **Delete:** pipeline/ (replaced by Unix pipes)
 
-### ✅ Problem: TTO runtime
-- **Status:** ✅ RESOLVED (libtto_runtime.a linked)
+### ✅ Problem: STO runtime
+- **Status:** ✅ RESOLVED (libsto_runtime.a linked)
 - **Date:** 7 Aralık 2025
 
 ### ✅ Problem: Stdlib Integration
@@ -332,7 +332,7 @@ text msg = "Hello"   # No type annotations needed
 ## How to Avoid Architecture Decay
 
 ### For Current AI Agent:
-1. ✅ Implement TTO runtime FIRST
+1. ✅ Implement STO runtime FIRST
 2. ✅ Keep main.c < 300 lines
 3. ✅ Use existing modules, don't merge them
 4. ✅ Run `make check-architecture` before committing
@@ -363,7 +363,7 @@ make check-coupling       # Checks forbidden imports
 ## Success Metrics
 
 **Stage 0 (Current - 9 Aralık 2025):**
-- [x] TTO runtime implemented ✅ (YZ_01)
+- [x] STO runtime implemented ✅ (YZ_01)
 - [x] Stdlib integrated ✅ (YZ_02)
 - [x] Functions module complete ✅ (YZ_02)
 - [x] Variables module complete ✅ (YZ_02)
@@ -385,7 +385,7 @@ make check-coupling       # Checks forbidden imports
 
 For MELP, the important stuff is:
 1. **Modularity** (AI can manage small pieces)
-2. **TTO** (Performance without complexity)
+2. **STO** (Performance without complexity)
 3. **Self-hosting** (MELP written in MELP)
 
 If you violate these, you're breaking MELP's core vision.
@@ -399,17 +399,17 @@ If you violate these, you're breaking MELP's core vision.
 - **Duration:** ~2 hours
 - **Token Usage:** 75K / 1M (7.5%)
 - **Achievements:**
-  - ✅ Fixed TTO duplicate definition (namespace separation)
+  - ✅ Fixed STO duplicate definition (namespace separation)
   - ✅ Integrated stdlib (println working!)
   - ✅ Maintained modular architecture (no central files)
   - ✅ Tests passing: println(42), function+println
 - **Documentation:** `/YZ/YZ_02.md`
 - **Status:** MVC ~90% complete
 
-### YZ_01 (7 Aralık 2025) - TTO Cleanup ✅
+### YZ_01 (7 Aralık 2025) - STO Cleanup ✅
 - **Branch:** `tto-cleanup_YZ_01` (assumed pushed)
 - **Achievements:**
-  - ✅ TTO runtime linked
+  - ✅ STO runtime linked
   - ✅ Central files removed
   - ✅ Radical modularity enforced
 - **Status:** Foundation set for stdlib integration

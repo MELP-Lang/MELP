@@ -1,0 +1,8 @@
+function test_param(string c) returns numeric
+    print(c)
+    return 1
+end function
+
+function main() returns numeric
+    return test_param("hello")
+end function

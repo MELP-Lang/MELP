@@ -1,6 +1,6 @@
 # MELP Programming Language
 
-Modern, type-safe, and efficient programming language with transparent type optimization (TTO).
+Modern, type-safe, and efficient programming language with smart type optimization (STO).
 
 **Core Philosophy:** *Stateless by Default, Stateful by Choice* - MELP is a stateless language where all variables are function-local. For persistent state, explicitly import the `state` module.
 
@@ -37,7 +37,7 @@ end function
 ```
 
 **YZ Series Progress**:
-- ✅ YZ_01: TTO Runtime + Architecture enforcement
+- ✅ YZ_01: STO Runtime + Architecture enforcement
 - ✅ YZ_02: Stdlib integration (println)
 - ✅ YZ_03: MVC completion (text keyword fix)
 - ⏳ YZ_04: Control flow codegen (if/while/for)
@@ -70,7 +70,7 @@ MLP/
 │                         # Usage: melp program.mlp [-v] [--no-run]
 │
 ├── runtime/              # Runtime libraries
-│   ├── tto/             # Transparent Type Optimization runtime
+│   ├── tto/             # Smart Type Optimization runtime (will rename to sto/)
 │   ├── memory/          # Memory management
 │   └── stdlib/          # Standard library
 │
@@ -109,7 +109,7 @@ MLP/
 
 ### Type System
 - **Type Keywords**: 
-  - `numeric` - Integer and floating-point numbers (TTO optimized)
+  - `numeric` - Integer and floating-point numbers (STO optimized)
   - `string` - UTF-8 strings (MLP standard, SSO optimization)
   - `boolean` - True/false values
 - **TOKEN_STRING_TYPE**: Internal token for type keywords (`string`, `numeric`, `boolean`)
@@ -183,7 +183,7 @@ Benefits: No `continue` keyword needed, cleaner code without nested else blocks
 - [x] Operator precedence - Implemented
 - [x] Parenthesized expressions - Supported
 - [x] Variable initialization with literals - Working
-- [ ] Complex expression code generation (needs TTO runtime linking)
+- [ ] Complex expression code generation (needs STO runtime linking)
 - [ ] Expression in if/while conditions
 - [ ] Variable usage in expressions
 
@@ -322,7 +322,7 @@ print("Program complete!")
   - ✅ Exit Statements: `exit for`, `exit while`, `exit if` (parsing only, codegen pending)
   - ✅ Comments: `-- comment style`
   - ✅ Expression Parsing: All operators parsed, literal initialization works
-  - 🚧 Complex Expressions: Needs TTO runtime linking for full support
+  - 🚧 Complex Expressions: Needs STO runtime linking for full support
 
 ### Implementation Details
 - **Lexer**: `lexer.c/h` - TOKEN_STRING_TYPE for types, TOKEN_STRING for literals
@@ -332,7 +332,7 @@ print("Program complete!")
 - **No `text` keyword**: Removed, only `string` remains
 
 ### Next Steps (Phase 3.5 & 4)
-1. **TTO Runtime Linking**: Link TTO runtime library for complex expression support
+1. **STO Runtime Linking**: Link STO runtime library for complex expression support
 2. **Expression in Conditions**: Use expressions in if/while/for conditions
 3. **Variable Usage**: Use variables in expressions (currently only literals work)
 4. **Exit Code Generation**: Implement actual break/continue assembly for exit statements

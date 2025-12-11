@@ -1,0 +1,297 @@
+-- ============================================================================
+-- MELP Self-Hosting: Number & String Tokenization
+-- File: modules/lexer_mlp/tokenize_literals.mlp
+-- Author: YZ_47
+-- Date: 12 Aralık 2025
+-- Purpose: Scan number literals and string literals from source code
+-- ============================================================================
+
+-- Dependencies:
+-- - token.mlp: create_token(), TOKEN_NUMBER (30), TOKEN_STRING (31)
+-- - char_utils.mlp: is_digit(), char_code()
+
+-- ============================================================================
+-- Token Type Constants (from token.mlp)
+-- ============================================================================
+-- TOKEN_NUMBER = 30
+-- TOKEN_STRING = 31
+-- TOKEN_UNKNOWN = 81
+
+-- ============================================================================
+-- Number Scanning Functions
+-- ============================================================================
+
+-- Scan an integer number from source starting at position pos
+-- Returns: list [token, new_position] or [null, pos] on failure
+-- Handles: positive integers (123, 0, 999)
+-- Note: Negative numbers handled by parser (unary minus)
+function scan_number(string source, numeric pos) returns list
+    string num_str = ""
+    numeric start_pos = pos
+    numeric source_len = length(source)
+    
+    -- Check if we have at least one digit
+    if pos >= source_len then
+        return (0; pos;)
+    end if
+    
+    string first_char = substring(source, pos, 1)
+    if is_digit(first_char) == false then
+        return (0; pos;)
+    end if
+    
+    -- Collect all consecutive digits
+    while pos < source_len
+        string current_char = substring(source, pos, 1)
+        if is_digit(current_char) then
+            num_str = num_str + current_char
+            pos = pos + 1
+        else
+            -- Stop at non-digit (could be decimal point, letter, etc.)
+            exit while
+        end if
+    end while
+    
+    -- Create NUMBER token
+    -- Token structure: [type, value, line, column]
+    -- Line tracking is done by caller (lexer main loop)
+    list token = (30; num_str; 1; start_pos;)
+    
+    return (token; pos;)
+end function
+
+-- ============================================================================
+-- Decimal Number Support (Future Enhancement)
+-- ============================================================================
+
+-- Scan a decimal number (e.g., 3.14, 0.5)
+-- Returns: list [token, new_position]
+function scan_decimal_number(string source, numeric pos) returns list
+    string num_str = ""
+    numeric start_pos = pos
+    numeric source_len = length(source)
+    boolean has_decimal = false
+    
+    -- First, scan integer part
+    while pos < source_len
+        string current_char = substring(source, pos, 1)
+        if is_digit(current_char) then
+            num_str = num_str + current_char
+            pos = pos + 1
+        else if current_char == "." and has_decimal == false then
+            -- Check if next char is digit (to distinguish from method call)
+            if pos + 1 < source_len then
+                string next_char = substring(source, pos + 1, 1)
+                if is_digit(next_char) then
+                    num_str = num_str + "."
+                    has_decimal = true
+                    pos = pos + 1
+                else
+                    exit while
+                end if
+            else
+                exit while
+            end if
+        else
+            exit while
+        end if
+    end while
+    
+    -- If empty, return failure
+    if length(num_str) == 0 then
+        return (0; start_pos;)
+    end if
+    
+    list token = (30; num_str; 1; start_pos;)
+    return (token; pos;)
+end function
+
+-- ============================================================================
+-- String Scanning Functions
+-- ============================================================================
+
+-- Scan a string literal from source starting at position pos
+-- Expects: pos points to opening quote (")
+-- Returns: list [token, new_position] or [error_token, pos] on failure
+-- Handles: "hello", "world\n", "tab\there", escaped quotes \"
+function scan_string(string source, numeric pos) returns list
+    numeric start_pos = pos
+    numeric source_len = length(source)
+    
+    -- Verify opening quote
+    if pos >= source_len then
+        return (0; pos;)
+    end if
+    
+    string open_quote = substring(source, pos, 1)
+    if open_quote != "\"" then
+        return (0; pos;)
+    end if
+    
+    -- Skip opening quote
+    pos = pos + 1
+    string str_content = ""
+    boolean escaped = false
+    
+    while pos < source_len
+        string current_char = substring(source, pos, 1)
+        
+        if escaped then
+            -- Handle escape sequences
+            if current_char == "n" then
+                -- Newline escape
+                str_content = str_content + "\n"
+            else if current_char == "t" then
+                -- Tab escape
+                str_content = str_content + "\t"
+            else if current_char == "r" then
+                -- Carriage return
+                str_content = str_content + "\r"
+            else if current_char == "\"" then
+                -- Escaped quote
+                str_content = str_content + "\""
+            else if current_char == "\\" then
+                -- Escaped backslash
+                str_content = str_content + "\\"
+            else
+                -- Unknown escape - keep as-is
+                str_content = str_content + "\\" + current_char
+            end if
+            escaped = false
+            pos = pos + 1
+        else if current_char == "\\" then
+            -- Start escape sequence
+            escaped = true
+            pos = pos + 1
+        else if current_char == "\"" then
+            -- Closing quote found
+            pos = pos + 1
+            list token = (31; str_content; 1; start_pos;)
+            return (token; pos;)
+        else if current_char == "\n" then
+            -- Unterminated string (newline before closing quote)
+            -- Return error token (type 81 = UNKNOWN)
+            list error_token = (81; "Unterminated string"; 1; start_pos;)
+            return (error_token; pos;)
+        else
+            -- Regular character
+            str_content = str_content + current_char
+            pos = pos + 1
+        end if
+    end while
+    
+    -- Reached end of source without closing quote
+    list error_token = (81; "Unterminated string at EOF"; 1; start_pos;)
+    return (error_token; pos;)
+end function
+
+-- ============================================================================
+-- Single-Quoted String Support (Optional)
+-- ============================================================================
+
+-- Scan a single-quoted string (e.g., 'hello')
+-- Some languages use single quotes for characters or alternate strings
+function scan_single_quoted_string(string source, numeric pos) returns list
+    numeric start_pos = pos
+    numeric source_len = length(source)
+    
+    -- Verify opening single quote
+    if pos >= source_len then
+        return (0; pos;)
+    end if
+    
+    string open_quote = substring(source, pos, 1)
+    if open_quote != "'" then
+        return (0; pos;)
+    end if
+    
+    -- Skip opening quote
+    pos = pos + 1
+    string str_content = ""
+    boolean escaped = false
+    
+    while pos < source_len
+        string current_char = substring(source, pos, 1)
+        
+        if escaped then
+            -- Handle escape sequences (same as double-quoted)
+            if current_char == "n" then
+                str_content = str_content + "\n"
+            else if current_char == "t" then
+                str_content = str_content + "\t"
+            else if current_char == "'" then
+                str_content = str_content + "'"
+            else if current_char == "\\" then
+                str_content = str_content + "\\"
+            else
+                str_content = str_content + "\\" + current_char
+            end if
+            escaped = false
+            pos = pos + 1
+        else if current_char == "\\" then
+            escaped = true
+            pos = pos + 1
+        else if current_char == "'" then
+            -- Closing quote found
+            pos = pos + 1
+            list token = (31; str_content; 1; start_pos;)
+            return (token; pos;)
+        else if current_char == "\n" then
+            list error_token = (81; "Unterminated string"; 1; start_pos;)
+            return (error_token; pos;)
+        else
+            str_content = str_content + current_char
+            pos = pos + 1
+        end if
+    end while
+    
+    list error_token = (81; "Unterminated string at EOF"; 1; start_pos;)
+    return (error_token; pos;)
+end function
+
+-- ============================================================================
+-- Helper: Check if character is start of number
+-- ============================================================================
+
+function is_number_start(string c) returns boolean
+    return is_digit(c)
+end function
+
+-- ============================================================================
+-- Helper: Check if character is start of string
+-- ============================================================================
+
+function is_string_start(string c) returns boolean
+    if c == "\"" then
+        return true
+    end if
+    if c == "'" then
+        return true
+    end if
+    return false
+end function
+
+-- ============================================================================
+-- Test Entry Point (for standalone testing)
+-- ============================================================================
+
+function main() returns numeric
+    -- Test number scanning
+    string test1 = "12345 hello"
+    list result1 = scan_number(test1, 0)
+    -- result1(0) should be token, result1(1) should be new position (5)
+    
+    -- Test string scanning
+    string test2 = "\"hello world\" more"
+    list result2 = scan_string(test2, 0)
+    -- result2(0) should be token with value "hello world"
+    
+    -- Test escape sequences
+    string test3 = "\"line1\\nline2\""
+    list result3 = scan_string(test3, 0)
+    -- result3(0) token value should have actual newline
+    
+    -- Simple verification: return 0 if basic tests conceptually pass
+    -- (Actual testing would require println or comparison)
+    return 0
+end function

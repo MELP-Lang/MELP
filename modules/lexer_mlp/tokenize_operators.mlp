@@ -1,0 +1,364 @@
+-- ============================================================================
+-- MELP Self-Hosting: Operator & Symbol Tokenization
+-- File: modules/lexer_mlp/tokenize_operators.mlp
+-- Author: YZ_47
+-- Date: 12 Aralık 2025
+-- Purpose: Scan operators and symbols from source code
+-- ============================================================================
+
+-- Dependencies:
+-- - token.mlp: create_token(), token type constants
+
+-- ============================================================================
+-- Token Type Constants (from token.mlp)
+-- ============================================================================
+-- Operators (40-59):
+--   PLUS=40, MINUS=41, MULTIPLY=42, DIVIDE=43, MODULO=44
+--   EQUAL=45, NOT_EQUAL=46, LESS=47, LESS_EQUAL=48
+--   GREATER=49, GREATER_EQUAL=50, ASSIGN=51
+--   PLUS_ASSIGN=52, MINUS_ASSIGN=53
+-- Symbols (60-79):
+--   LPAREN=60, RPAREN=61, LBRACKET=62, RBRACKET=63
+--   LBRACE=64, RBRACE=65, LANGLE=66, RANGLE=67
+--   COMMA=68, SEMICOLON=69, COLON=70, DOT=71, ARROW=72
+-- Special:
+--   COMMENT=82, NEWLINE=83
+
+-- ============================================================================
+-- Single Character Operator Lookup
+-- ============================================================================
+
+-- Get token type for single-character operator/symbol
+-- Returns 0 if not a recognized symbol
+function get_single_char_type(string c) returns numeric
+    -- Arithmetic operators
+    if c == "+" then return 40 end if
+    if c == "-" then return 41 end if
+    if c == "*" then return 42 end if
+    if c == "/" then return 43 end if
+    if c == "%" then return 44 end if
+    
+    -- Comparison (single char versions)
+    if c == "<" then return 47 end if
+    if c == ">" then return 49 end if
+    if c == "=" then return 51 end if
+    
+    -- Brackets and parentheses
+    if c == "(" then return 60 end if
+    if c == ")" then return 61 end if
+    if c == "[" then return 62 end if
+    if c == "]" then return 63 end if
+    if c == "{" then return 64 end if
+    if c == "}" then return 65 end if
+    
+    -- Punctuation
+    if c == "," then return 68 end if
+    if c == ";" then return 69 end if
+    if c == ":" then return 70 end if
+    if c == "." then return 71 end if
+    
+    -- Not recognized
+    return 0
+end function
+
+-- ============================================================================
+-- Operator Scanning (with lookahead for multi-char operators)
+-- ============================================================================
+
+-- Scan an operator or symbol from source starting at position pos
+-- Handles both single-char and multi-char operators
+-- Returns: list [token, new_position]
+function scan_operator(string source, numeric pos) returns list
+    numeric source_len = length(source)
+    numeric start_pos = pos
+    
+    if pos >= source_len then
+        return (0; pos;)
+    end if
+    
+    string current_char = substring(source, pos, 1)
+    string next_char = ""
+    
+    -- Get next character for lookahead
+    if pos + 1 < source_len then
+        next_char = substring(source, pos + 1, 1)
+    end if
+    
+    -- ========================================
+    -- Two-character operators (check first)
+    -- ========================================
+    
+    -- == (equality)
+    if current_char == "=" and next_char == "=" then
+        list token = (45; "=="; 1; start_pos;)
+        return (token; pos + 2;)
+    end if
+    
+    -- != (not equal)
+    if current_char == "!" and next_char == "=" then
+        list token = (46; "!="; 1; start_pos;)
+        return (token; pos + 2;)
+    end if
+    
+    -- <> (alternate not equal)
+    if current_char == "<" and next_char == ">" then
+        list token = (46; "<>"; 1; start_pos;)
+        return (token; pos + 2;)
+    end if
+    
+    -- <= (less or equal)
+    if current_char == "<" and next_char == "=" then
+        list token = (48; "<="; 1; start_pos;)
+        return (token; pos + 2;)
+    end if
+    
+    -- >= (greater or equal)
+    if current_char == ">" and next_char == "=" then
+        list token = (50; ">="; 1; start_pos;)
+        return (token; pos + 2;)
+    end if
+    
+    -- += (plus assign)
+    if current_char == "+" and next_char == "=" then
+        list token = (52; "+="; 1; start_pos;)
+        return (token; pos + 2;)
+    end if
+    
+    -- -= (minus assign)
+    if current_char == "-" and next_char == "=" then
+        list token = (53; "-="; 1; start_pos;)
+        return (token; pos + 2;)
+    end if
+    
+    -- -> (arrow)
+    if current_char == "-" and next_char == ">" then
+        list token = (72; "->"; 1; start_pos;)
+        return (token; pos + 2;)
+    end if
+    
+    -- // (single-line comment)
+    if current_char == "/" and next_char == "/" then
+        -- Skip to end of line
+        pos = pos + 2
+        while pos < source_len
+            string c = substring(source, pos, 1)
+            if c == "\n" then
+                exit while
+            end if
+            pos = pos + 1
+        end while
+        -- Return comment token (or skip - lexer will decide)
+        list token = (82; "//"; 1; start_pos;)
+        return (token; pos;)
+    end if
+    
+    -- -- (MELP style comment)
+    if current_char == "-" and next_char == "-" then
+        -- Skip to end of line
+        pos = pos + 2
+        while pos < source_len
+            string c = substring(source, pos, 1)
+            if c == "\n" then
+                exit while
+            end if
+            pos = pos + 1
+        end while
+        list token = (82; "--"; 1; start_pos;)
+        return (token; pos;)
+    end if
+    
+    -- ========================================
+    -- Single-character operators
+    -- ========================================
+    
+    numeric single_type = get_single_char_type(current_char)
+    if single_type > 0 then
+        list token = (single_type; current_char; 1; start_pos;)
+        return (token; pos + 1;)
+    end if
+    
+    -- ========================================
+    -- Special: Newline
+    -- ========================================
+    if current_char == "\n" then
+        list token = (83; "\n"; 1; start_pos;)
+        return (token; pos + 1;)
+    end if
+    
+    -- ========================================
+    -- Not recognized
+    -- ========================================
+    return (0; pos;)
+end function
+
+-- ============================================================================
+-- Comment Handling
+-- ============================================================================
+
+-- Skip single-line comment (// or --)
+-- Returns: new position after comment (at newline or EOF)
+function skip_line_comment(string source, numeric pos) returns numeric
+    numeric source_len = length(source)
+    
+    while pos < source_len
+        string c = substring(source, pos, 1)
+        if c == "\n" then
+            return pos
+        end if
+        pos = pos + 1
+    end while
+    
+    return pos
+end function
+
+-- Skip multi-line comment (/* ... */) - if MELP supports it
+-- Returns: new position after comment
+function skip_block_comment(string source, numeric pos) returns numeric
+    numeric source_len = length(source)
+    
+    -- Skip opening /*
+    pos = pos + 2
+    
+    while pos + 1 < source_len
+        string c = substring(source, pos, 1)
+        string next = substring(source, pos + 1, 1)
+        
+        if c == "*" and next == "/" then
+            return pos + 2
+        end if
+        
+        pos = pos + 1
+    end while
+    
+    -- Unterminated comment - return end of source
+    return source_len
+end function
+
+-- ============================================================================
+-- Helper: Check if character is an operator/symbol start
+-- ============================================================================
+
+function is_operator_char(string c) returns boolean
+    if c == "+" then return true end if
+    if c == "-" then return true end if
+    if c == "*" then return true end if
+    if c == "/" then return true end if
+    if c == "%" then return true end if
+    if c == "=" then return true end if
+    if c == "!" then return true end if
+    if c == "<" then return true end if
+    if c == ">" then return true end if
+    if c == "(" then return true end if
+    if c == ")" then return true end if
+    if c == "[" then return true end if
+    if c == "]" then return true end if
+    if c == "{" then return true end if
+    if c == "}" then return true end if
+    if c == "," then return true end if
+    if c == ";" then return true end if
+    if c == ":" then return true end if
+    if c == "." then return true end if
+    return false
+end function
+
+-- ============================================================================
+-- Operator Name Lookup (for debugging)
+-- ============================================================================
+
+function operator_type_to_string(numeric token_type) returns string
+    if token_type == 40 then return "PLUS" end if
+    if token_type == 41 then return "MINUS" end if
+    if token_type == 42 then return "MULTIPLY" end if
+    if token_type == 43 then return "DIVIDE" end if
+    if token_type == 44 then return "MODULO" end if
+    if token_type == 45 then return "EQUAL" end if
+    if token_type == 46 then return "NOT_EQUAL" end if
+    if token_type == 47 then return "LESS" end if
+    if token_type == 48 then return "LESS_EQUAL" end if
+    if token_type == 49 then return "GREATER" end if
+    if token_type == 50 then return "GREATER_EQUAL" end if
+    if token_type == 51 then return "ASSIGN" end if
+    if token_type == 52 then return "PLUS_ASSIGN" end if
+    if token_type == 53 then return "MINUS_ASSIGN" end if
+    if token_type == 60 then return "LPAREN" end if
+    if token_type == 61 then return "RPAREN" end if
+    if token_type == 62 then return "LBRACKET" end if
+    if token_type == 63 then return "RBRACKET" end if
+    if token_type == 64 then return "LBRACE" end if
+    if token_type == 65 then return "RBRACE" end if
+    if token_type == 66 then return "LANGLE" end if
+    if token_type == 67 then return "RANGLE" end if
+    if token_type == 68 then return "COMMA" end if
+    if token_type == 69 then return "SEMICOLON" end if
+    if token_type == 70 then return "COLON" end if
+    if token_type == 71 then return "DOT" end if
+    if token_type == 72 then return "ARROW" end if
+    if token_type == 82 then return "COMMENT" end if
+    if token_type == 83 then return "NEWLINE" end if
+    return "UNKNOWN"
+end function
+
+-- ============================================================================
+-- Precedence Helper (for expression parsing)
+-- ============================================================================
+
+-- Get operator precedence (higher = binds tighter)
+-- Returns 0 for non-operators
+function get_precedence(numeric token_type) returns numeric
+    -- Comparison operators: lowest precedence (1)
+    if token_type == 45 then return 1 end if
+    if token_type == 46 then return 1 end if
+    if token_type == 47 then return 1 end if
+    if token_type == 48 then return 1 end if
+    if token_type == 49 then return 1 end if
+    if token_type == 50 then return 1 end if
+    
+    -- Addition/Subtraction: precedence 2
+    if token_type == 40 then return 2 end if
+    if token_type == 41 then return 2 end if
+    
+    -- Multiplication/Division/Modulo: precedence 3
+    if token_type == 42 then return 3 end if
+    if token_type == 43 then return 3 end if
+    if token_type == 44 then return 3 end if
+    
+    return 0
+end function
+
+-- Check if operator is left-associative
+function is_left_associative(numeric token_type) returns boolean
+    -- All binary operators in MELP are left-associative
+    numeric prec = get_precedence(token_type)
+    if prec > 0 then
+        return true
+    end if
+    return false
+end function
+
+-- ============================================================================
+-- Test Entry Point
+-- ============================================================================
+
+function main() returns numeric
+    -- Test single-char operators
+    string test1 = "+ - * /"
+    list result1 = scan_operator(test1, 0)
+    -- result1(0) should be PLUS token
+    
+    -- Test multi-char operators
+    string test2 = "== != <= >="
+    list result2 = scan_operator(test2, 0)
+    -- result2(0) should be EQUAL token, pos should advance by 2
+    
+    -- Test comment skipping
+    string test3 = "// this is a comment\nx = 10"
+    list result3 = scan_operator(test3, 0)
+    -- result3(0) should be COMMENT token, pos should be at newline
+    
+    -- Test MELP comment
+    string test4 = "-- this is MELP comment\ny = 20"
+    list result4 = scan_operator(test4, 0)
+    -- result4(0) should be COMMENT token
+    
+    return 0
+end function

@@ -38,7 +38,17 @@ Statement* statement_parse(Parser* parser) {
     
     Statement* stmt = NULL;
     
-    // Check for end of block
+    // ✅ YZ_47: Check for merged end tokens (TOKEN_END_FUNCTION, TOKEN_END_WHILE, etc.)
+    if (tok->type == TOKEN_END_FUNCTION || 
+        tok->type == TOKEN_END_WHILE ||
+        tok->type == TOKEN_END_FOR ||
+        tok->type == TOKEN_END_IF) {
+        // Merged end token - don't consume, let caller handle it
+        parser->current_token = tok;  // Save for caller
+        return NULL;
+    }
+    
+    // Check for end of block (legacy TOKEN_END - should be rare now)
     if (tok->type == TOKEN_END) {
         // Peek at next token to see what kind of end
         Token* next = lexer_next_token(parser->lexer);
@@ -206,8 +216,20 @@ Statement* statement_parse(Parser* parser) {
                 
                 // ✅ Store else body in IfStatement
                 if_data->else_body = else_head;
+                
+                // ✅ YZ_47: After else body, consume TOKEN_END_IF
+                Token* end_if_tok = parser->current_token;
+                if (end_if_tok && end_if_tok->type == TOKEN_END_IF) {
+                    parser->current_token = NULL;
+                    token_free(end_if_tok);
+                }
+            } else {
+                // ✅ YZ_47: No else - consume TOKEN_END_IF that's waiting in current_token
+                if (check_tok && check_tok->type == TOKEN_END_IF) {
+                    parser->current_token = NULL;
+                    token_free(check_tok);
+                }
             }
-            // If no else, just continue
         }
         
         return stmt;  // ✅ No more control_flow_parser_free!

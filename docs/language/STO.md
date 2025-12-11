@@ -1,14 +1,14 @@
-# Transparent Type Optimization (TTO)
+# Smart Type Optimization (STO)
 
 **Version:** 1.0  
-**Last Updated:** December 10, 2025  
+**Last Updated:** December 12, 2025  
 **Status:** Design Document
 
 ---
 
 ## Overview
 
-TTO (Transparent Type Optimization) is MELP's approach to providing a simple user experience while maintaining high performance. Users see only two basic types (`numeric` and `string`), but the compiler automatically selects optimal internal representations.
+STO (Smart Type Optimization) is MELP's approach to providing a simple user experience while maintaining high performance. Users see only two basic types (`numeric` and `string`), but the compiler automatically selects optimal internal representations.
 
 ---
 
@@ -193,7 +193,7 @@ mov [rbp-56], rax      ; heap pointer
 
 ## Implementation Status
 
-### Phase 1: Basic TTO (In Progress)
+### Phase 1: Basic STO (In Progress)
 
 **Numeric:**
 - [ ] int64 support (small integers)
@@ -210,7 +210,7 @@ mov [rbp-56], rax      ; heap pointer
 - [ ] Type-aware register allocation
 - [ ] Optimized assembly patterns
 
-### Phase 2: Advanced TTO (Future)
+### Phase 2: Advanced STO (Future)
 
 - [ ] Copy-on-write strings
 - [ ] String interning
@@ -241,7 +241,7 @@ mov [rbp-56], rax      ; heap pointer
 
 ## For AI Agents
 
-- TTO should be implemented BEFORE self-hosting
+- STO should be implemented BEFORE self-hosting
 - C runtime provides base functions
 - Codegen generates type-aware assembly
 - Test: Every type combination needs testing

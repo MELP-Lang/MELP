@@ -521,7 +521,7 @@ println(replace(msg, "World", "MELP")) -- "  Hello MELP  "
 
 ### State Management Fonksiyonları (YZ_34 - Phase 10)
 
-MELP stateless bir dil olmasına rağmen, kullanıcı açıkça talep ettiğinde runtime-based state yönetimi sağlar. State manager opt-in'dir ve TTO (Transparent Type Optimization) ile entegre çalışır.
+MELP stateless bir dil olmasına rağmen, kullanıcı açıkça talep ettiğinde runtime-based state yönetimi sağlar. State manager opt-in'dir ve STO (Smart Type Optimization) ile entegre çalışır.
 
 #### Lifecycle Yönetimi
 ```mlp
@@ -559,7 +559,7 @@ state_set("config:timeout", "30")
 state_set("temp:session_id", "abc123")
 ```
 
-#### TTO Optimizasyonu
+#### STO Optimizasyonu
 State manager, küçük string'ler için SSO (Small String Optimization) kullanır:
 - ≤23 byte: Stack'te inline (SSO)
 - >23 byte: Heap'te pointer

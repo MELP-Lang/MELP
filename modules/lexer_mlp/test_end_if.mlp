@@ -1,0 +1,10 @@
+function test() returns numeric
+    if 1 == 1 then
+        return 5
+    end if
+    return 0
+end function
+
+function main() returns numeric
+    return 0
+end function

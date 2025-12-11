@@ -37,6 +37,10 @@ typedef enum {
     TOKEN_THEN,
     TOKEN_ELSE,
     TOKEN_END,
+    TOKEN_END_IF,          // YZ_47: Merged "end if"
+    TOKEN_END_WHILE,       // YZ_47: Merged "end while"
+    TOKEN_END_FOR,         // YZ_47: Merged "end for"
+    TOKEN_END_FUNCTION,    // YZ_47: Merged "end function"
     TOKEN_WHILE,
     TOKEN_DO,
     TOKEN_FOR,

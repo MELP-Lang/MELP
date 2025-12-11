@@ -50,18 +50,18 @@ Dikkat edeceğim edge case'ler:
 ---
 ```
 
-### ⚠️ TTO Kuralı (Zorunlu)
+### ⚠️ STO Kuralı (Zorunlu)
 
-Eğer görevin TTO (Transparent Type Optimization) yapısını ilgilendiriyorsa:
+Eğer görevin STO (Smart Type Optimization) yapısını ilgilendiriyorsa:
 
 ```
-1. temp/kurallar_kitabı.md → TTO bölümünü oku
-2. Kullanıcıya bildir: "TTO bölümünü okudum, kurallara uyacağım"
+1. temp/kurallar_kitabı.md → STO bölümünü oku
+2. Kullanıcıya bildir: "STO bölümünü okudum, kurallara uyacağım"
 3. Onay al
 4. Kodla
 ```
 
-**TTO'yu ilgilendiren konular:**
+**STO'yu ilgilendiren konular:**
 - Type system değişiklikleri
 - Runtime optimizasyonları
 - Numeric/string/boolean işlemleri

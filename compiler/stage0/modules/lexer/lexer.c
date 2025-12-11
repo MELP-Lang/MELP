@@ -164,6 +164,73 @@ static Token* read_identifier(Lexer* lexer) {
     
     Token* token = make_token(type, value, lexer->line);
     free(value);
+    
+    // ✅ YZ_47: PMPL Token Merging - "end X" → TOKEN_END_X
+    // Kurallar kitabı: "end if" iki token değil, tek token olmalı
+    if (type == TOKEN_END) {
+        // Save current position
+        int saved_pos = lexer->pos;
+        int saved_line = lexer->line;
+        
+        // Manual whitespace skip (avoid recursive skip_whitespace)
+        while (lexer->source[lexer->pos] == ' ' || 
+               lexer->source[lexer->pos] == '\t' ||
+               lexer->source[lexer->pos] == '\r') {
+            lexer->pos++;
+        }
+        if (lexer->source[lexer->pos] == '\n') {
+            lexer->line++;
+            lexer->pos++;
+            // Skip more whitespace after newline
+            while (lexer->source[lexer->pos] == ' ' || 
+                   lexer->source[lexer->pos] == '\t' ||
+                   lexer->source[lexer->pos] == '\r') {
+                lexer->pos++;
+            }
+        }
+        
+        // Peek next word
+        if (isalpha(lexer->source[lexer->pos])) {
+            int peek_start = lexer->pos;
+            while (isalnum(lexer->source[lexer->pos]) || lexer->source[lexer->pos] == '_') {
+                lexer->pos++;
+            }
+            int peek_len = lexer->pos - peek_start;
+            char* next_word = malloc(peek_len + 1);
+            strncpy(next_word, &lexer->source[peek_start], peek_len);
+            next_word[peek_len] = '\0';
+            
+            // Check for mergeable keywords
+            if (strcmp(next_word, "if") == 0) {
+                token_free(token);
+                token = make_token(TOKEN_END_IF, "end_if", saved_line);
+                // ✅ Keep position - we consumed "if"
+            } else if (strcmp(next_word, "while") == 0) {
+                token_free(token);
+                token = make_token(TOKEN_END_WHILE, "end_while", saved_line);
+                // ✅ Keep position - we consumed "while"
+            } else if (strcmp(next_word, "for") == 0) {
+                token_free(token);
+                token = make_token(TOKEN_END_FOR, "end_for", saved_line);
+                // ✅ Keep position - we consumed "for"
+            } else if (strcmp(next_word, "function") == 0) {
+                token_free(token);
+                token = make_token(TOKEN_END_FUNCTION, "end_function", saved_line);
+                // ✅ Keep position - we consumed "function"
+            } else {
+                // Not a merge target, restore position
+                lexer->pos = saved_pos;
+                lexer->line = saved_line;
+            }
+            
+            free(next_word);
+        } else {
+            // No next word, restore position
+            lexer->pos = saved_pos;
+            lexer->line = saved_line;
+        }
+    }
+    
     return token;
 }
 

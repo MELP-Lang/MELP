@@ -1,0 +1,7 @@
+function test_param(string c) returns numeric
+    return 42
+end function
+
+function main() returns numeric
+    return 0
+end function

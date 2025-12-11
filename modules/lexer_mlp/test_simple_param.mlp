@@ -1,0 +1,8 @@
+function test(numeric x) returns numeric
+    return x
+end function
+
+function main() returns numeric
+    numeric result = test(42)
+    return result
+end function

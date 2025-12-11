@@ -8,7 +8,7 @@
 
 ## Overview
 
-MELP simplifies data types to minimize cognitive overhead. Users work with only a few high-level types, while the compiler optimizes storage internally (see [TTO.md](TTO.md)).
+MELP simplifies data types to minimize cognitive overhead. Users work with only a few high-level types, while the compiler optimizes storage internally (see [STO.md](STO.md)).
 
 ---
 
@@ -26,7 +26,7 @@ numeric scientific = 1.5e10
 numeric huge = 10 ^ 100
 ```
 
-**Internal Optimization (TTO):**
+**Internal Optimization (STO):**
 | Value | Internal Type | Storage |
 |-------|---------------|---------|
 | Small integers | `int64` | Register |

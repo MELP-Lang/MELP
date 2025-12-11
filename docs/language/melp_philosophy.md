@@ -47,7 +47,7 @@ Derleyici her zaman aynı ara dili (Pragmatik MLP) görür.
 "Kullanıcı sadece 2 temel tip bilmeli: numeric ve string"
 ```
 
-Kullanıcı `int`, `float`, `double`, `BigDecimal` arasında seçim yapmak zorunda kalmamalı. MELP bunu arka planda otomatik optimize eder (TTO - Transparent Type Optimization).
+Kullanıcı `int`, `float`, `double`, `BigDecimal` arasında seçim yapmak zorunda kalmamalı. MELP bunu arka planda otomatik optimize eder (STO - Smart Type Optimization).
 
 ### 2. Okunabilirlik
 
@@ -166,7 +166,7 @@ Kullanıcı sadece şu tipleri bilir:
 - `string` - Tüm metinler
 - `boolean` - true/false
 
-### Derleyici Perspektifi (TTO)
+### Derleyici Perspektifi (STO)
 
 Derleyici arka planda optimize eder:
 
@@ -282,7 +282,7 @@ Bu "bootstrap" sürecidir.
 | Özellik | C | MELP |
 |---------|---|------|
 | Tip sayısı | Çok (int, float, char...) | Az (numeric, string) |
-| Bellek yönetimi | Manuel | Otomatik (TTO) |
+| Bellek yönetimi | Manuel | Otomatik (STO) |
 | Okunabilirlik | Düşük (`{` `}`) | Yüksek (`end if`) |
 | Güvenlik | Düşük | Yüksek (overflow handling) |
 
@@ -304,7 +304,7 @@ MELP şu felsefeyi benimser:
 > "Programlama dili kullanıcıya engel değil, yardımcı olmalı."
 
 Bu nedenle:
-- Tip karmaşıklığı gizlenir (TTO)
+- Tip karmaşıklığı gizlenir (STO)
 - Sözdizimi okunabilirdir (`end if`)
 - Çoklu dil/sözdizimi desteklenir
 - Güvenlik önceliklidir (null safety, exception handling)
@@ -318,7 +318,7 @@ Bu nedenle:
 | **MLP** | Multi Language Programming |
 | **MELP** | MLP'nin kullanışlı kısaltması |
 | **PMLP** | Pragmatik MLP - Derleyicinin gördüğü ara dil |
-| **TTO** | Transparent Type Optimization |
+| **STO** | Smart Type Optimization |
 | **SSO** | Small String Optimization |
 | **Bootstrap** | Derleyiciyi kendi dilinde yazma |
 

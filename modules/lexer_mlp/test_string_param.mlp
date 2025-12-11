@@ -1,0 +1,10 @@
+function test_string(string s) returns numeric
+    if s == "hello" then
+        return 1
+    end if
+    return 0
+end function
+
+function main() returns numeric
+    return 0
+end function

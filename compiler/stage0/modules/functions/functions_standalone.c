@@ -162,16 +162,15 @@ int main(int argc, char** argv) {
             break;
         }
         
+        // ✅ YZ_47: Skip merged "end_function" token
+        if (tok->type == TOKEN_END_FUNCTION) {
+            if (prev_tok) token_free(prev_tok);
+            prev_tok = tok;
+            continue;
+        }
+        
         // Look for 'function' keyword
         if (tok->type == TOKEN_FUNCTION) {
-            // Skip 'end function' pattern (prev token was 'end')
-            if (prev_tok && prev_tok->type == TOKEN_END) {
-                // This is 'end function', not a new function declaration
-                if (prev_tok) token_free(prev_tok);
-                prev_tok = tok;
-                continue;
-            }
-            
             func_count++;
             // Next token should be function name
             Token* name_tok = lexer_next_token(lexer);

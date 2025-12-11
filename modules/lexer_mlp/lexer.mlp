@@ -1,0 +1,390 @@
+-- ============================================================================
+-- MELP Self-Hosting: Main Lexer Integration
+-- File: modules/lexer_mlp/lexer.mlp
+-- Author: YZ_47
+-- Date: 12 Aralık 2025
+-- Purpose: Main lexer that tokenizes MELP source code
+-- ============================================================================
+
+-- This is the integration module that brings together:
+-- - token.mlp: Token structure and type constants
+-- - char_utils.mlp: Character classification utilities
+-- - tokenize_literals.mlp: Number and string scanning
+-- - tokenize_identifiers.mlp: Identifier and keyword scanning
+-- - tokenize_operators.mlp: Operator and symbol scanning
+
+-- ============================================================================
+-- Token Type Constants (Summary)
+-- ============================================================================
+-- Keywords: 1-19 (FUNCTION=1, END=2, IF=3, ...)
+-- Type Keywords: 20-24 (NUMERIC=20, TEXT=21, ...)
+-- Compound Keywords: 25-29 (RETURNS=25, THEN=26, ...)
+-- Literals: 30-34 (NUMBER=30, STRING=31, IDENTIFIER=32, TRUE=33, FALSE=34)
+-- Collection Types: 35-37 (LIST=35, TUPLE=36, ARRAY=37)
+-- Operators: 40-59 (PLUS=40, MINUS=41, ...)
+-- Symbols: 60-79 (LPAREN=60, RPAREN=61, ...)
+-- Special: 80-83 (EOF=80, UNKNOWN=81, COMMENT=82, NEWLINE=83)
+
+-- ============================================================================
+-- Whitespace Handling
+-- ============================================================================
+
+-- Skip whitespace characters (space, tab, carriage return)
+-- Does NOT skip newlines (they may be significant)
+-- Returns: new position after whitespace
+function skip_whitespace(string source, numeric pos) returns numeric
+    numeric source_len = length(source)
+    
+    while pos < source_len
+        string c = substring(source, pos, 1)
+        
+        -- Space
+        if c == " " then
+            pos = pos + 1
+        else if c == "\t" then
+            pos = pos + 1
+        else if c == "\r" then
+            pos = pos + 1
+        else
+            exit while
+        end if
+    end while
+    
+    return pos
+end function
+
+-- Skip whitespace including newlines
+function skip_all_whitespace(string source, numeric pos) returns numeric
+    numeric source_len = length(source)
+    
+    while pos < source_len
+        string c = substring(source, pos, 1)
+        
+        if c == " " then
+            pos = pos + 1
+        else if c == "\t" then
+            pos = pos + 1
+        else if c == "\r" then
+            pos = pos + 1
+        else if c == "\n" then
+            pos = pos + 1
+        else
+            exit while
+        end if
+    end while
+    
+    return pos
+end function
+
+-- ============================================================================
+-- Main Tokenize Function
+-- ============================================================================
+
+-- Tokenize entire source string into list of tokens
+-- Returns: list of tokens
+function tokenize(string source) returns list
+    list tokens = ()
+    numeric pos = 0
+    numeric source_len = length(source)
+    numeric current_line = 1
+    numeric line_start = 0
+    
+    while pos < source_len
+        -- Skip whitespace (but track newlines for line numbers)
+        pos = skip_whitespace(source, pos)
+        
+        if pos >= source_len then
+            exit while
+        end if
+        
+        string c = substring(source, pos, 1)
+        numeric column = pos - line_start + 1
+        
+        -- ========================================
+        -- Newline handling (track line numbers)
+        -- ========================================
+        if c == "\n" then
+            current_line = current_line + 1
+            line_start = pos + 1
+            pos = pos + 1
+            -- Optionally add NEWLINE token
+            -- list nl_token = (83; "\n"; current_line - 1; column;)
+            -- tokens = list_append(tokens, nl_token)
+        
+        -- ========================================
+        -- Comment handling (-- or //)
+        -- ========================================
+        else if c == "-" then
+            string next = ""
+            if pos + 1 < source_len then
+                next = substring(source, pos + 1, 1)
+            end if
+            
+            if next == "-" then
+                -- MELP style comment, skip to end of line
+                pos = pos + 2
+                while pos < source_len
+                    string cc = substring(source, pos, 1)
+                    if cc == "\n" then
+                        exit while
+                    end if
+                    pos = pos + 1
+                end while
+            else
+                -- Single minus, use operator scanner
+                list op_result = scan_operator(source, pos)
+                if op_result(0) != 0 then
+                    -- Update line/column in token
+                    list op_token = op_result(0)
+                    list fixed_token = (op_token(0); op_token(1); current_line; column;)
+                    tokens = list_append(tokens, fixed_token)
+                    pos = op_result(1)
+                else
+                    pos = pos + 1
+                end if
+            end if
+        
+        else if c == "/" then
+            string next = ""
+            if pos + 1 < source_len then
+                next = substring(source, pos + 1, 1)
+            end if
+            
+            if next == "/" then
+                -- C style comment, skip to end of line
+                pos = pos + 2
+                while pos < source_len
+                    string cc = substring(source, pos, 1)
+                    if cc == "\n" then
+                        exit while
+                    end if
+                    pos = pos + 1
+                end while
+            else
+                -- Division operator
+                list op_result = scan_operator(source, pos)
+                if op_result(0) != 0 then
+                    list op_token = op_result(0)
+                    list fixed_token = (op_token(0); op_token(1); current_line; column;)
+                    tokens = list_append(tokens, fixed_token)
+                    pos = op_result(1)
+                else
+                    pos = pos + 1
+                end if
+            end if
+        
+        -- ========================================
+        -- String literal
+        -- ========================================
+        else if c == "\"" then
+            list str_result = scan_string(source, pos)
+            if str_result(0) != 0 then
+                list str_token = str_result(0)
+                list fixed_token = (str_token(0); str_token(1); current_line; column;)
+                tokens = list_append(tokens, fixed_token)
+                pos = str_result(1)
+            else
+                -- Error: couldn't scan string
+                pos = pos + 1
+            end if
+        
+        -- ========================================
+        -- Number literal
+        -- ========================================
+        else if is_digit(c) then
+            list num_result = scan_number(source, pos)
+            if num_result(0) != 0 then
+                list num_token = num_result(0)
+                list fixed_token = (num_token(0); num_token(1); current_line; column;)
+                tokens = list_append(tokens, fixed_token)
+                pos = num_result(1)
+            else
+                pos = pos + 1
+            end if
+        
+        -- ========================================
+        -- Identifier or keyword
+        -- ========================================
+        else if is_alpha(c) then
+            list id_result = scan_identifier(source, pos)
+            if id_result(0) != 0 then
+                list id_token = id_result(0)
+                list fixed_token = (id_token(0); id_token(1); current_line; column;)
+                tokens = list_append(tokens, fixed_token)
+                pos = id_result(1)
+            else
+                pos = pos + 1
+            end if
+        
+        -- ========================================
+        -- Operators and symbols
+        -- ========================================
+        else if is_operator_char(c) then
+            list op_result = scan_operator(source, pos)
+            if op_result(0) != 0 then
+                list op_token = op_result(0)
+                list fixed_token = (op_token(0); op_token(1); current_line; column;)
+                tokens = list_append(tokens, fixed_token)
+                pos = op_result(1)
+            else
+                -- Unknown operator, skip
+                pos = pos + 1
+            end if
+        
+        -- ========================================
+        -- Unknown character
+        -- ========================================
+        else
+            -- Create UNKNOWN token and skip
+            list unknown_token = (81; c; current_line; column;)
+            tokens = list_append(tokens, unknown_token)
+            pos = pos + 1
+        end if
+    end while
+    
+    -- Add EOF token
+    list eof_token = (80; ""; current_line; 1;)
+    tokens = list_append(tokens, eof_token)
+    
+    return tokens
+end function
+
+-- ============================================================================
+-- Helper: Append to list (returns new list with item added)
+-- ============================================================================
+
+-- Note: This is a simple implementation
+-- MELP doesn't have built-in list append, so we simulate it
+function list_append(list lst, list item) returns list
+    -- This is a workaround - in real implementation would use runtime function
+    -- For now, we return the item as a one-element list
+    -- Real implementation needs proper list concatenation
+    return (item;)
+end function
+
+-- ============================================================================
+-- Token Stream Interface
+-- ============================================================================
+
+-- Get token at index from token list
+function get_token(list tokens, numeric index) returns list
+    return tokens(index)
+end function
+
+-- Get number of tokens in list
+function token_count(list tokens) returns numeric
+    return length(tokens)
+end function
+
+-- Check if token is of specific type
+function token_is_type(list token, numeric expected_type) returns boolean
+    numeric actual_type = token(0)
+    if actual_type == expected_type then
+        return true
+    end if
+    return false
+end function
+
+-- Get token type
+function token_get_type(list token) returns numeric
+    return token(0)
+end function
+
+-- Get token value
+function token_get_value(list token) returns string
+    return token(1)
+end function
+
+-- Get token line
+function token_get_line(list token) returns numeric
+    return token(2)
+end function
+
+-- Get token column
+function token_get_column(list token) returns numeric
+    return token(3)
+end function
+
+-- ============================================================================
+-- Token Printing (for debugging)
+-- ============================================================================
+
+function print_token(list token) returns numeric
+    numeric ttype = token(0)
+    string tvalue = token(1)
+    numeric tline = token(2)
+    numeric tcol = token(3)
+    
+    -- Format: [LINE:COL] TYPE "value"
+    string output = "["
+    -- Note: MELP doesn't have number-to-string conversion yet
+    -- This would need a helper function
+    
+    println(tvalue)
+    return 0
+end function
+
+-- Print all tokens in a list
+function print_tokens(list tokens) returns numeric
+    numeric count = length(tokens)
+    numeric i = 0
+    
+    while i < count
+        list token = tokens(i)
+        numeric result = print_token(token)
+        i = i + 1
+    end while
+    
+    return 0
+end function
+
+-- ============================================================================
+-- File-based Tokenization
+-- ============================================================================
+
+-- Tokenize a file (reads file and tokenizes content)
+function tokenize_file(string filename) returns list
+    string content = read_file(filename)
+    
+    if length(content) == 0 then
+        -- Return empty token list with just EOF
+        list eof_token = (80; ""; 1; 1;)
+        return (eof_token;)
+    end if
+    
+    return tokenize(content)
+end function
+
+-- ============================================================================
+-- Test Entry Point
+-- ============================================================================
+
+function main() returns numeric
+    -- Test simple tokenization
+    string simple_source = "numeric x = 10"
+    list tokens1 = tokenize(simple_source)
+    -- Expected: NUMERIC, IDENTIFIER(x), ASSIGN, NUMBER(10), EOF
+    
+    -- Test with function
+    string func_source = "function add(numeric a, numeric b) returns numeric"
+    list tokens2 = tokenize(func_source)
+    -- Expected: FUNCTION, IDENTIFIER(add), LPAREN, NUMERIC, IDENTIFIER(a), ...
+    
+    -- Test with string
+    string str_source = "text msg = \"hello world\""
+    list tokens3 = tokenize(str_source)
+    -- Expected: TEXT, IDENTIFIER(msg), ASSIGN, STRING(hello world), EOF
+    
+    -- Test with comments
+    string comment_source = "-- this is a comment\nnumeric y = 20"
+    list tokens4 = tokenize(comment_source)
+    -- Expected: NUMERIC, IDENTIFIER(y), ASSIGN, NUMBER(20), EOF
+    -- Comment should be skipped
+    
+    -- Test with operators
+    string op_source = "if x == 10 then"
+    list tokens5 = tokenize(op_source)
+    -- Expected: IF, IDENTIFIER(x), EQUAL, NUMBER(10), THEN, EOF
+    
+    return 0
+end function

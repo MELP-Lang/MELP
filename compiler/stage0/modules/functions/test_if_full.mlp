@@ -1,0 +1,21 @@
+function test_simple_if() returns numeric
+    if 1 == 1 then
+        return 5
+    end if
+    return 0
+end function
+
+function test_if_else() returns numeric
+    numeric x = 10
+    if x > 5 then
+        return 1
+    else
+        return 0
+    end if
+end function
+
+function main() returns numeric
+    numeric r1 = test_simple_if()
+    numeric r2 = test_if_else()
+    return r1 + r2
+end function

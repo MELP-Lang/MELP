@@ -8,7 +8,7 @@
 
 ## Genel Bakış
 
-MELP, bilişsel yükü en aza indirmek için veri tiplerini basitleştirir. Kullanıcılar sadece birkaç üst düzey tip ile çalışır, derleyici dahili olarak depolamayı optimize eder (bkz. [TTO.md](TTO.md)).
+MELP, bilişsel yükü en aza indirmek için veri tiplerini basitleştirir. Kullanıcılar sadece birkaç üst düzey tip ile çalışır, derleyici dahili olarak depolamayı optimize eder (bkz. [STO.md](STO.md)).
 
 ---
 
@@ -26,7 +26,7 @@ numeric bilimsel = 1.5e10
 numeric devasa = 10 ^ 100
 ```
 
-**Dahili Optimizasyon (TTO):**
+**Dahili Optimizasyon (STO):**
 | Değer | Dahili Tip | Depolama |
 |-------|---------------|---------|
 | Küçük tamsayılar | `int64` | Register |

@@ -128,6 +128,11 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
         if (has_default && func->param_count > 0) {
             func->params[func->param_count - 1].has_default = 1;
         }
+        
+        // ✅ YZ_47: Register parameter as local variable
+        int is_numeric = (param_type == FUNC_PARAM_NUMERIC || param_type == FUNC_PARAM_BOOLEAN);
+        function_register_local_var_with_type(func, param_name, is_numeric);
+        
         free(param_name);
         
         // Additional parameters: , type name
@@ -175,6 +180,11 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
             if (has_default && func->param_count > 0) {
                 func->params[func->param_count - 1].has_default = 1;
             }
+            
+            // ✅ YZ_47: Register parameter as local variable
+            int is_numeric_param = (param_type == FUNC_PARAM_NUMERIC || param_type == FUNC_PARAM_BOOLEAN);
+            function_register_local_var_with_type(func, param_name, is_numeric_param);
+            
             free(param_name);
         }
     }
@@ -228,6 +238,23 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
     
     // Store body in function
     func->body = body_head;
+    
+    // ✅ YZ_47: Consume "end_function" token (single merged token from lexer)
+    // statement_parse() leaves TOKEN_END_FUNCTION in parser->current_token
+    Token* end_tok = parser->current_token;
+    if (!end_tok) {
+        // Fallback: read from lexer if not in current_token
+        end_tok = lexer_next_token(lexer);
+    } else {
+        parser->current_token = NULL;  // Clear it since we're consuming
+    }
+    
+    if (end_tok && end_tok->type == TOKEN_END_FUNCTION) {
+        token_free(end_tok);
+    } else if (end_tok) {
+        error_parser(end_tok->line, "Expected 'end function' at end of function body, got token type %d", end_tok->type);
+        token_free(end_tok);
+    }
     
     // ✅ YZ_32: Apply optimizations
     // Constant folding already done in arithmetic_parser

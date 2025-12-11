@@ -348,7 +348,7 @@ end function
 - Doğru x86-64 çağrı kuralı
 - Uygun yığın çerçeve yönetimi
 - Mantıksal işlemler için kısa devre değerlendirmesi
-- Aritmetikte TTO overflow kontrolü
+- Aritmetikte STO overflow kontrolü
 - Temiz etiket üretimi
 - Verimli register kullanımı
 

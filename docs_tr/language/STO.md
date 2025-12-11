@@ -1,14 +1,14 @@
-# Şeffaf Tip Optimizasyonu (TTO)
+# Akıllı Tip Optimizasyonu (STO)
 
 **Versiyon:** 1.0  
-**Son Güncelleme:** 10 Aralık 2025  
+**Son Güncelleme:** 12 Aralık 2025  
 **Durum:** Tasarım Belgesi
 
 ---
 
 ## Genel Bakış
 
-TTO (Transparent Type Optimization - Şeffaf Tip Optimizasyonu), MELP'in yüksek performansı korurken basit bir kullanıcı deneyimi sağlama yaklaşımıdır. Kullanıcılar sadece iki temel tip görür (`numeric` ve `string`), ancak derleyici otomatik olarak optimal dahili temsilleri seçer.
+STO (Smart Type Optimization - Akıllı Tip Optimizasyonu), MELP'in yüksek performansı korurken basit bir kullanıcı deneyimi sağlama yaklaşımıdır. Kullanıcılar sadece iki temel tip görür (`numeric` ve `string`), ancak derleyici otomatik olarak optimal dahili temsilleri seçer.
 
 ---
 
@@ -193,7 +193,7 @@ mov [rbp-56], rax      ; heap pointer
 
 ## Uygulama Durumu
 
-### Faz 1: Temel TTO (Devam Ediyor)
+### Faz 1: Temel STO (Devam Ediyor)
 
 **Numeric:**
 - [ ] int64 desteği (küçük tamsayılar)
@@ -210,7 +210,7 @@ mov [rbp-56], rax      ; heap pointer
 - [ ] Tip farkında register tahsisi
 - [ ] Optimize edilmiş assembly kalıpları
 
-### Faz 2: Gelişmiş TTO (Gelecek)
+### Faz 2: Gelişmiş STO (Gelecek)
 
 - [ ] Copy-on-write stringler
 - [ ] String interning
@@ -241,7 +241,7 @@ mov [rbp-56], rax      ; heap pointer
 
 ## AI Agent'lar İçin
 
-- TTO, self-hosting'den ÖNCE uygulanmalıdır
+- STO, self-hosting'den ÖNCE uygulanmalıdır
 - C runtime temel fonksiyonları sağlar
 - Kod üretimi tip farkında assembly üretir
 - Test: Her tip kombinasyonu test edilmelidir
