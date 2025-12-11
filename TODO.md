@@ -963,9 +963,18 @@ end function
 | **Whitespace Validation** | ⭐⭐ | 1.5h | ✅ **COMPLETE** (YZ_24) 🎉 |
 | **Phase 4: Advanced** | ⭐⭐⭐ | 3h | ✅ **COMPLETE** (YZ_27 + YZ_28) 🎉 |
 | **Phase 5: String Methods** | ⭐⭐ | 2h | ✅ **COMPLETE** (YZ_29) 🎉 |
-| **Phase 6: Error Messages** | ⭐⭐ | 2.5h | ✅ **70% COMPLETE** (YZ_30) 🎉 |
-| Optimization | ⭐ | 3-5h | ⏳ Future |
-| Self-hosting | ⭐ | 10-20h | ⏳ Far Future |
+| **Phase 6: Error Messages** | ⭐⭐ | 2.5h | ✅ **100% COMPLETE** (YZ_30 + YZ_31) 🎉 |
+| **Phase 7: Optimization** | ⭐⭐ | 3-5h | ✅ **100% COMPLETE** (YZ_32) 🎉 |
+| **Phase 9: File I/O** | ⭐⭐ | 2h | ✅ **100% COMPLETE** (YZ_33) 🎉 |
+| **Phase 10: State Module** | ⭐⭐ | 3h | ✅ **100% COMPLETE** (YZ_34) 🎉 |
+| **Phase 11: Module System** | ⭐⭐⭐ | 8h | ✅ **100% COMPLETE** (YZ_35-45) 🎉 |
+| **Self-hosting (Part 6)** | ⭐⭐ | 5-8h | ⏳ Future (Broken into 6 parts) |
+| → Part 6.1: Token Structure | ⭐ | 1-1.5h | ⏳ Future |
+| → Part 6.2: Char Classification | ⭐ | 1h | ⏳ Future |
+| → Part 6.3: Number & String | ⭐⭐ | 1.5h | ⏳ Future |
+| → Part 6.4: Identifier & Keyword | ⭐ | 1h | ⏳ Future |
+| → Part 6.5: Operators & Symbols | ⭐ | 1h | ⏳ Future |
+| → Part 6.6: Integration & Test | ⭐⭐ | 1-1.5h | ⏳ Future |
 
 **Total Work Done:** ~30-35 hours across 30 AI sessions  
 **Current Completion:** Phase 1-5 = 100% ✅, Phase 6 = 70% 🎉  
@@ -1040,10 +1049,246 @@ end function
 4. `NEXT_AI_START_HERE.md` - Sonraki YZ için güncelle
 
 **Potential Next Tasks:**
-- Error recovery (continue parsing after error)
-- Input functions (input(), input_numeric())
-- Constant folding optimization
-- replace(), split() string methods
+- ~~Error recovery (continue parsing after error)~~ ✅ Done (YZ_31)
+- ~~Input functions (input(), input_numeric())~~ ✅ Done (YZ_31)
+- ~~Constant folding optimization~~ ✅ Done (YZ_32)
+- ~~replace(), split() string methods~~ ✅ Done (YZ_29)
+- **Self-Hosting:** Rewrite lexer in MLP (Part 6, 5-8h, 6 sub-tasks)
+
+---
+
+## 🚀 Phase 12: Self-Hosting - Lexer in MLP (Optional, Future)
+
+**Goal:** Rewrite the current C lexer in MLP language itself  
+**Total Time:** 5-8 hours  
+**Priority:** ⭐⭐ MEDIUM (Optional enhancement)  
+**Status:** ⏳ Not started (broken into 6 manageable parts)
+
+### Part 6.1: Token Structure & Basics (1-1.5h)
+**File:** `modules/lexer_mlp/token.mlp`
+
+**Tasks:**
+- [ ] Define `TokenType` enum in MLP
+  - Keywords: FUNCTION, END, IF, ELSE, WHILE, FOR, etc.
+  - Types: NUMERIC, TEXT, BOOLEAN
+  - Literals: NUMBER, STRING, IDENTIFIER
+  - Operators: PLUS, MINUS, MULTIPLY, DIVIDE, etc.
+  - Symbols: LPAREN, RPAREN, COMMA, etc.
+- [ ] Define `Token` structure
+  - type: TokenType
+  - value: text (string representation)
+  - line: numeric
+  - column: numeric
+- [ ] Create token constructor functions
+  - `create_token(type, value, line, col)`
+  - `token_to_string(token)` for debugging
+
+**Test:** Create tokens manually, verify structure works
+
+---
+
+### Part 6.2: Character Classification (1h)
+**File:** `modules/lexer_mlp/char_utils.mlp`
+
+**Tasks:**
+- [ ] `is_digit(char)` - Check if '0'-'9'
+- [ ] `is_alpha(char)` - Check if 'a'-'z', 'A'-'Z', '_'
+- [ ] `is_alphanumeric(char)` - digit or alpha
+- [ ] `is_whitespace(char)` - space, tab, newline
+- [ ] `is_symbol(char)` - operators and punctuation
+- [ ] Helper: `char_code(char)` - Get ASCII value
+
+**Implementation:**
+```mlp
+function is_digit(text char) returns boolean
+    numeric code = char_code(char)
+    return code >= 48 and code <= 57  // '0'-'9'
+end function
+```
+
+**Test:** Verify each function with test cases
+
+---
+
+### Part 6.3: Number & String Tokenization (1.5h)
+**File:** `modules/lexer_mlp/tokenize_literals.mlp`
+
+**Tasks:**
+- [ ] `scan_number(source, position)` 
+  - Parse integer literals
+  - Return: Token + new position
+  - Handle: 123, 0, negative numbers
+- [ ] `scan_string(source, position)`
+  - Parse string literals "..."
+  - Handle escape sequences: \n, \t, \"
+  - Error: Unterminated string
+- [ ] Error handling
+  - Malformed number
+  - Unclosed string
+
+**Example:**
+```mlp
+function scan_number(text source, numeric pos) returns list
+    text num = ""
+    numeric start_pos = pos
+    
+    while pos < length(source) and is_digit(substring(source, pos, 1))
+        num = num + substring(source, pos, 1)
+        pos = pos + 1
+    end while
+    
+    // Return [token, new_position]
+    return [create_token(TOKEN_NUMBER, num, 1, start_pos), pos]
+end function
+```
+
+**Test:** "123", "456abc", negative numbers
+
+---
+
+### Part 6.4: Identifier & Keyword Recognition (1h)
+**File:** `modules/lexer_mlp/tokenize_identifiers.mlp`
+
+**Tasks:**
+- [ ] `scan_identifier(source, position)`
+  - Parse: variable names, function names
+  - Pattern: [a-zA-Z_][a-zA-Z0-9_]*
+- [ ] `is_keyword(identifier)`
+  - Check against keyword list
+  - Keywords: function, end, if, else, while, for, return, etc.
+- [ ] Return correct token type
+  - KEYWORD if in keyword list
+  - IDENTIFIER otherwise
+
+**Example:**
+```mlp
+function is_keyword(text word) returns boolean
+    list keywords = ["function", "end", "if", "else", "while", "for", 
+                     "return", "numeric", "text", "boolean"]
+    
+    for each kw in keywords
+        if word == kw
+            return true
+        end if
+    end for
+    
+    return false
+end function
+```
+
+**Test:** "function" → KEYWORD, "myVar" → IDENTIFIER
+
+---
+
+### Part 6.5: Symbol & Operator Tokenization (1h)
+**File:** `modules/lexer_mlp/tokenize_operators.mlp`
+
+**Tasks:**
+- [ ] Single-char operators
+  - +, -, *, /, %, (, ), [, ], {, }, ,, ;
+- [ ] Multi-char operators (lookahead)
+  - == (not just =)
+  - != (not just !)
+  - <= (not just <)
+  - >= (not just >)
+- [ ] Comments
+  - // single-line comments
+  - Skip until newline
+
+**Example:**
+```mlp
+function scan_operator(text source, numeric pos) returns list
+    text char = substring(source, pos, 1)
+    text next_char = substring(source, pos + 1, 1)
+    
+    // Check two-char operators first
+    if char == "=" and next_char == "="
+        return [create_token(TOKEN_EQUAL, "==", 1, pos), pos + 2]
+    else if char == "!"  and next_char == "="
+        return [create_token(TOKEN_NOT_EQUAL, "!=", 1, pos), pos + 2]
+    // ... more cases ...
+    
+    // Single-char operators
+    if char == "+"
+        return [create_token(TOKEN_PLUS, "+", 1, pos), pos + 1]
+    end if
+    // ... more cases ...
+end function
+```
+
+**Test:** "+", "==", "!=", "//" comment
+
+---
+
+### Part 6.6: Integration & Testing (1-1.5h)
+**File:** `modules/lexer_mlp/lexer.mlp`
+
+**Tasks:**
+- [ ] Main lexer loop
+  ```mlp
+  function tokenize(text source) returns list
+      list tokens = []
+      numeric pos = 0
+      
+      while pos < length(source)
+          // Skip whitespace
+          // Check character type and dispatch
+          // - digit → scan_number
+          // - alpha → scan_identifier
+          // - quote → scan_string
+          // - symbol → scan_operator
+          
+          // Add token to list
+      end while
+      
+      return tokens
+  end function
+  ```
+- [ ] Test with existing .mlp files
+  - Run: `./lexer_mlp test.mlp`
+  - Compare output with C lexer
+- [ ] Performance testing
+  - Measure: Time to tokenize 100-line file
+  - Compare: MLP lexer vs C lexer speed
+- [ ] Integration with parser
+  - Parser reads tokens from MLP lexer
+  - Verify: Compilation still works
+
+**Tests:**
+1. Simple: `numeric x = 10`
+2. Complex: `function add(numeric a, numeric b) returns numeric`
+3. Real file: Compile `test_hello_world.mlp`
+
+**Success Criteria:**
+- ✅ All existing .mlp files tokenize correctly
+- ✅ Token output matches C lexer
+- ✅ Full compilation pipeline works
+- ✅ Performance: <2x slower than C lexer (acceptable for self-hosting)
+
+---
+
+## 📝 Notes on Self-Hosting
+
+**Why start with Lexer?**
+- Lexer is stateless and simple
+- No complex data structures needed
+- Good first step for self-hosting
+- Validates MLP language completeness
+
+**Next Steps After Lexer:**
+1. Parser in MLP (more complex, 10-15h)
+2. Codegen in MLP (requires string templating, 8-10h)
+3. Full bootstrap (compile MLP compiler with itself!)
+
+**Current Blockers:** None! Language is feature-complete for lexer.
+
+**Dependencies:**
+- String operations ✅
+- Arrays/Lists ✅
+- Functions ✅
+- Loops ✅
+- File I/O ✅
+- Module system ✅
 
 ---
 
@@ -1057,6 +1302,6 @@ end function
 
 ---
 
-**Last Updated:** 11 Aralık 2025, ~04:00 by YZ_32 (Phase 7 - Optimization COMPLETE!)  
-**Next AI:** YZ_33 (Phase 8 - State Module, or Phase 9 - File I/O recommended)  
-**Estimated Completion:** Stage 0 MVP ✅ ACHIEVED! Production ready!
+**Last Updated:** 11 Aralık 2025, ~23:00 by YZ_45 (Incremental Compilation COMPLETE!)  
+**Next AI:** YZ_46 (Self-Hosting Part 6.1 - Token Structure, or other features)  
+**Estimated Completion:** Stage 0 MVP ✅ COMPLETE! Self-hosting next! 🚀
