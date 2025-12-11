@@ -31,4 +31,9 @@ char* import_resolve_module_path(const char* module_name);
 // Returns NULL on error
 FunctionDeclaration* import_load_module(const char* module_path);
 
+// YZ_44 Part 5.1: Per-Module Assembly Generation
+// Generate assembly file for a module
+// Returns 1 on success, 0 on failure
+int import_generate_module_assembly(const char* module_path, FunctionDeclaration* functions);
+
 #endif

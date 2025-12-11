@@ -1,0 +1,7 @@
+function square(numeric n) returns numeric
+    return n * n
+end function
+
+function double(numeric n) returns numeric
+    return n + n
+end function

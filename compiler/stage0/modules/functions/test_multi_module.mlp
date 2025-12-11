@@ -1,0 +1,9 @@
+import math
+import utils
+
+function main() returns numeric
+    numeric a = add(5, 10)
+    numeric b = square(3)
+    numeric c = double(2)
+    return a + b + c
+end function

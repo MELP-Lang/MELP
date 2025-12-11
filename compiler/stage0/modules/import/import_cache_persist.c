@@ -365,20 +365,72 @@ int cache_persist_load(const char* module_path, CacheMetadata* out_metadata) {
     out_metadata->source_mtime = json_extract_long(json, "source_mtime");
     out_metadata->object_mtime = json_extract_long(json, "object_mtime");
     
-    // Parse functions array (simplified - just count)
+    // Parse functions array - SIMPLE approach to avoid infinite loops
     const char* func_start = strstr(json, "\"functions\": [");
     if (func_start) {
-        out_metadata->function_count = 0;
-        const char* p = func_start;
-        while ((p = strchr(p, '"')) != NULL && p < strstr(json, "],")) {
-            out_metadata->function_count++;
-            p++;
+        const char* func_end = strstr(func_start, "]");
+        if (!func_end) {
+            // Malformed JSON
+            out_metadata->function_count = 0;
+            out_metadata->function_names = NULL;
+        } else {
+            // YZ_45: Extract function names - ROBUST parsing with loop limit
+            out_metadata->function_names = NULL;
+            out_metadata->function_count = 0;
+            int capacity = 4;
+            out_metadata->function_names = malloc(sizeof(char*) * capacity);
+            
+            const char* p = func_start + 15;  // Skip "functions": [
+            int max_iterations = 100;  // Safety: prevent infinite loop
+            int iterations = 0;
+            
+            while (p < func_end && iterations < max_iterations) {
+                iterations++;
+                
+                // Skip whitespace and commas
+                while (p < func_end && (*p == ' ' || *p == '\n' || *p == '\r' || *p == ',' || *p == '\t')) {
+                    p++;
+                }
+                
+                if (p >= func_end) break;
+                
+                // Find next quote
+                if (*p != '"') {
+                    // No more strings
+                    break;
+                }
+                
+                p++;  // Skip opening quote
+                
+                // Find closing quote
+                const char* end = strchr(p, '"');
+                if (!end || end >= func_end) break;
+                
+                // Extract function name
+                size_t len = end - p;
+                if (len > 0 && len < 256) {  // Sanity check
+                    if (out_metadata->function_count >= capacity) {
+                        capacity *= 2;
+                        out_metadata->function_names = realloc(out_metadata->function_names, 
+                                                               sizeof(char*) * capacity);
+                    }
+                    out_metadata->function_names[out_metadata->function_count] = malloc(len + 1);
+                    strncpy(out_metadata->function_names[out_metadata->function_count], p, len);
+                    out_metadata->function_names[out_metadata->function_count][len] = '\0';
+                    out_metadata->function_count++;
+                }
+                
+                p = end + 1;  // Continue after closing quote
+            }
+            
+            if (iterations >= max_iterations) {
+                fprintf(stderr, "Warning: JSON parse loop limit reached\n");
+            }
         }
-        out_metadata->function_count /= 2;  // Each function has 2 quotes
     } else {
         out_metadata->function_count = 0;
+        out_metadata->function_names = NULL;
     }
-    out_metadata->function_names = NULL;  // Don't need names for validation
     
     // Parse dependencies array (simplified - just count)
     const char* dep_start = strstr(json, "\"dependencies\": [");
