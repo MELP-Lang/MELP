@@ -80,6 +80,7 @@
 | | Error Context Management | ⏳ |
 | | Circular Import Detection | ⏳ |
 | | Separate Compilation | ⏳ |
+| | Rewrite Lexer in MLP | ⏳ |
 
 ## Durum Özeti
 
