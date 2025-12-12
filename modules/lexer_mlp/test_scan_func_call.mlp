@@ -1,0 +1,34 @@
+function is_digit(string ch) returns boolean
+    if ch == "0" then
+        return 1
+    end if
+    return 0
+end function
+
+function scan_number() returns string
+    numeric pos = 0
+    string num_value = ""
+    string source = "123"
+    numeric source_len = 3
+    string ch = ""
+    
+    while pos < source_len
+        ch = substring(source, pos, 1)
+        
+        boolean is_d = is_digit(ch)
+        if is_d then
+            num_value = num_value + ch
+            pos = pos + 1
+        else
+            exit while
+        end if
+    end while
+    
+    return num_value
+end function
+
+function main() returns numeric
+    string result = ""
+    result = scan_number()
+    return 0
+end function

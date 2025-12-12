@@ -4,15 +4,18 @@
 #include "array.h"
 #include <stdio.h>
 
+// Forward declaration
+typedef struct FunctionDeclaration FunctionDeclaration;
+
 // Code generation for arrays, lists, and tuples
 
 // Main entry point: Generate code for any collection literal
-void codegen_collection(FILE* output, Collection* coll);
+void codegen_collection(FILE* output, Collection* coll, FunctionDeclaration* func);
 
 // Generate specific collection types
-void codegen_array_literal(FILE* output, Array* arr);
-void codegen_list_literal(FILE* output, List* list);
-void codegen_tuple_literal(FILE* output, Tuple* tuple);
+void codegen_array_literal(FILE* output, Array* arr, FunctionDeclaration* func);
+void codegen_list_literal(FILE* output, List* list, FunctionDeclaration* func);
+void codegen_tuple_literal(FILE* output, Tuple* tuple, FunctionDeclaration* func);
 
 // Legacy: Generate array allocation and initialization
 // Stack array: Fixed size, compile-time known

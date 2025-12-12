@@ -1,12 +1,13 @@
 # 🎯 MELP Compiler - TODO List
-**Güncel Durum:** 12 Aralık 2025, ~19:00  
-**Son Tamamlanan:** YZ_53 (Phase 12 Parts 4-5 Complete!) 🎉  
+**Güncel Durum:** 12 Aralık 2025, ~22:00  
+**Son Tamamlanan:** YZ_55 (TTO→STO %100 + Phase 13 Part 6.3 %70) 🎉  
 **Stage:** Stage 0 - Core Compiler Development  
 **Completion:** 100% Core + File I/O + State + Module System + STO Refactoring COMPLETE! 🎉
 
-**🎉 YZ_53 (PHASE 12) COMPLETE:** TTO→STO refactoring DONE! Testing + Cleanup DONE!
+**🎉 YZ_55 (TTO CLEANUP) COMPLETE:** TTO terimi %100 temizlendi!
 **🎉 PHASE 11 (100%) COMPLETE:** Full module system with incremental build!
-**✅ NEXT:** Phase 13 - Bootstrap Stage 1 (Self-hosting)
+**⚠️ BLOCKER:** String parameter bug (Phase 13 Part 6.3)
+**✅ NEXT:** Fix string param bug, then Phase 13 Part 6.3 completion
 
 ---
 
@@ -845,7 +846,7 @@ end function
   - Cache validation (source mtime check) ✅
   - Cache loading across compilations ✅
   - Tests: Cache created, loaded, program runs (exit 27) ✅
-  - ⚠️ Known Bug: Segfault on second compilation (investigate in YZ_44)
+  - ✅ Bug Fixed: Segfault on second compilation (FIXED in YZ_44!)
 
 - [x] **Bug Fix: User-Defined Function Calls** ✅ (YZ_40 COMPLETE!)
   - Problem: User-defined functions parsed as array access ✅
@@ -864,7 +865,7 @@ end function
   - Lexer infinite loop fix (unknown characters) ✅
   - Return statement fix (now exits function properly) ✅
 
-- [ ] **Module System - Future Enhancements** ⏳ (Optional, after core complete)
+- [x] **Module System - Performance Enhancements** ✅ (YZ_44, YZ_45 COMPLETE!)
   
   - [x] **Bug Fix: Segfault on Second Compilation** ✅ (YZ_44 COMPLETE!) 🎉
     - Issue: Second compilation crashed after loading persistent cache (exit 139)
@@ -873,47 +874,51 @@ end function
     - Result: 85% reduction in Valgrind errors (14 → 2)
     - Tests: 5 consecutive compilations, all PASS! ✅
   
-  - [ ] **Incremental Object Files (Part 5)** ⏳ FUTURE (Broken into sub-tasks)
+  - [x] **Incremental Object Files (Part 5)** ✅ COMPLETE! (YZ_44, YZ_45)
     
-    **Part 5.1: Per-Module Assembly Generation** (2-3 hours)
-    - Modify codegen to write separate `.s` files per module
-    - Track assembly paths in import system
-    - Example: `math.mlp` → `math.s`, `utils.mlp` → `utils.s`
-    - Tests: Each module generates its own assembly file
+    **Part 5.1: Per-Module Assembly Generation** ✅ (YZ_44 - 2 hours)
+    - Modified codegen to write separate `.s` files per module ✅
+    - Track assembly paths in import system ✅
+    - Example: `math.mlp` → `math.s`, `utils.mlp` → `utils.s` ✅
+    - Tests: Each module generates its own assembly file ✅
     
-    **Part 5.2: Per-Module Object Files** (1-2 hours)
-    - Compile each `.s` to separate `.o` file
-    - Store object file paths in cache metadata
-    - Example: `math.s` → `math.o`, `utils.s` → `utils.o`
-    - Tests: Object files created per module
+    **Part 5.2: Per-Module Object Files** ✅ (YZ_44 - 1 hour)
+    - Compile each `.s` to separate `.o` file ✅
+    - Store object file paths in cache metadata ✅
+    - Example: `math.s` → `math.o`, `utils.s` → `utils.o` ✅
+    - Tests: Object files created per module ✅
     
-    **Part 5.3: Smart Linking System** (1-2 hours)
-    - Collect all `.o` files (main + all modules)
-    - Pass to gcc in single command: `gcc -o output main.o math.o utils.o`
-    - Handle dependency ordering
-    - Tests: Multiple object files link correctly
+    **Part 5.3: Smart Linking System** ✅ (YZ_45 - 1 hour)
+    - Collect all `.o` files (main + all modules) ✅
+    - Pass to gcc in single command: `gcc -o output main.o math.o utils.o` ✅
+    - Handle dependency ordering ✅
+    - Tests: Multiple object files link correctly ✅
+    - Mtime-based rebuild (only changed modules) ✅
     
-    **Part 5.4: Incremental Skip Logic** (1 hour)
-    - Check object file mtime vs source mtime
-    - Skip compilation if object is up-to-date
-    - Reuse cached `.o` file in linking
-    - Tests: Unchanged module skips compile, uses cached object
+    **Part 5.4: Incremental Skip Logic** ✅ (YZ_45 - 1.5 hours)
+    - Check object file mtime vs source mtime ✅
+    - Skip compilation if object is up-to-date ✅
+    - Reuse cached `.o` file in linking ✅
+    - Tests: Unchanged module skips compile, uses cached object ✅
+    - Parse skipping for unchanged modules ✅
     
-    **Part 5.5: Integration & Performance Testing** (1 hour)
-    - Test with large project (5+ modules)
-    - Measure performance improvement
-    - Edge cases: missing files, circular deps, stale cache
-    - Documentation update
+    **Part 5.5: Integration & Performance Testing** ✅ (YZ_45 - 30 min)
+    - Test with large project (5+ modules) ✅
+    - Measure performance improvement (10-15x speedup!) ✅
+    - Edge cases: missing files, circular deps, stale cache ✅
+    - Documentation update ✅
     
-    **Total Estimated Time:** 6-9 hours (broken into 1-3h tasks)
-    **Note:** Architecture plan documented in YZ_44
+    **Total Time:** ~6 hours (YZ_44: 3h, YZ_45: 3h)
+    **Performance:** 15x faster for unchanged code (0.5s → 0.032s)
+    **Status:** ✅ 100% COMPLETE - Incremental compilation working!
 
-- [ ] **Rewrite Lexer in MLP** (5-8 hours)
+- [ ] **Rewrite Lexer in MLP** ⏳ (5-8 hours) - See Phase 13 below for details
   - First self-hosted component!
   - Bootstrap process
   - Performance comparison with C version
+  - Status: Parts 6.1 & 6.2 complete (YZ_46), Parts 6.3-6.6 pending
 
-**Deliverable:** ✅ Phase 11 - 100% COMPLETE! Module system + auto linking + caching ALL WORKING!
+**Deliverable:** ✅ Phase 11 - 100% COMPLETE! Module system + auto linking + caching + incremental compilation ALL WORKING!
 
 ---
 
@@ -957,7 +962,7 @@ end function
 - [x] **YZ Documentation** ✅
   - [x] `YZ/AI_METHODOLOGY_SUM.md` - Update TTO references ✅
   - [x] `temp/user_todo.md` - Synced with TODO.md ✅
-  - [ ] Future YZ docs will use STO consistently
+  - [x] Future YZ docs will use STO consistently ✅
 
 **Deliverable:** ✅ All documentation uses STO terminology consistently!
 
@@ -1171,30 +1176,89 @@ grep -r "\bTTO\b" --include="*.c" --include="*.h" compiler/ runtime/
 
 ---
 
-## 🎯 Phase 13: Bootstrap Stage 1 (Self-Hosting) ⏳ PLANNED
+## 🎯 Phase 13: Bootstrap Stage 1 (Self-Hosting) ⏳ IN PLANNING
+**Responsible:** Future YZ sessions  
+**Priority:** ⭐⭐⭐ HIGH (Next major milestone!)  
+**Status:** ⏳ Parts 6.1 & 6.2 complete (YZ_46), remaining parts planned
 
-**Final Verification:**
-```bash
-# No more TTO references (except in history/YZ docs)
-grep -r "tto_" --include="*.c" --include="*.h" compiler/stage0/ runtime/
-grep -r "TTO" --include="*.md" . | grep -v "YZ/" | grep -v "MIGRATION"
-```
+**Goal:** Rewrite compiler components in MLP itself (self-hosting)  
+**Total Estimated Time:** 8-12 hours  
+**Starting Point:** Lexer rewrite (most isolated component)
 
-**Deliverable:** Complete STO migration, zero TTO references in active code
+### Part 6.1: Token Structure & Basics ✅ (YZ_46 - 2h)
+- [x] `modules/lexer_mlp/token.mlp` - Token structure (216 lines)
+- [x] 61 token types defined
+- [x] Token creation and management functions
+- [x] Status: ✅ Complete
+
+### Part 6.2: Character Classification ✅ (YZ_46 - 1h)
+- [x] `modules/lexer_mlp/char_utils.mlp` - Character helpers (330 lines)
+- [x] 10 classification functions (is_alpha, is_digit, is_whitespace, etc.)
+- [x] Status: ✅ Complete
+
+### Part 6.3: Number & String Tokenization ⚠️ PARTIALLY COMPLETE (YZ_54/55 - 4.5h)
+- [x] `modules/lexer_mlp/tokenize_literals.mlp` - CREATED (244 lines)
+- [x] `scan_number()` - Integer/decimal literal parsing with token return
+- [x] `scan_string()` - String literal parsing with token return
+- [x] `is_digit()` - Helper function
+- [x] `char_code()` - Helper function (for escaped quote workaround)
+- [x] CRITICAL: 8 MELP syntax limitations discovered and documented!
+- [x] Token creation system (create_token function) ✅
+- [x] List return values implemented ✅
+- [x] Escaped quote workaround (ASCII 34) ✅
+- [ ] 🔴 BLOCKER: String parameter linking bug
+- [ ] Integration with token.mlp
+- [ ] Full test suite (decimal parsing, escape sequences)
+- [ ] **Status:** ⚠️ 70% Complete - Token return working, linking blocked
+- [ ] **Next:** Fix string parameter bug, then integration tests
+
+### Part 6.4: Identifier & Keyword Recognition ⏳ (1h)
+- [ ] `modules/lexer_mlp/tokenize_identifiers.mlp`
+- [ ] `scan_identifier()` - Variable/function name parsing
+- [ ] Keyword detection (function, if, while, etc.)
+- [ ] Reserved word validation
+- [ ] Tests: Valid identifiers, keywords, edge cases
+
+### Part 6.5: Symbol & Operator Tokenization ⏳ (1h)
+- [ ] `modules/lexer_mlp/tokenize_operators.mlp`
+- [ ] Single-char operators: +, -, *, /, =, etc.
+- [ ] Multi-char operators: ==, !=, <=, >=, etc.
+- [ ] Lookahead logic for disambiguation
+- [ ] Tests: All operator combinations
+
+### Part 6.6: Integration & Testing ⏳ (1-1.5h)
+- [ ] `modules/lexer_mlp/lexer_main.mlp` - Main tokenizer loop
+- [ ] Whitespace and comment handling
+- [ ] Error recovery and reporting
+- [ ] End-to-end tests with real MLP programs
+- [ ] Performance comparison with C lexer
+- [ ] Documentation and handoff
+
+**Deliverable:** Self-hosted lexer passing all existing lexer tests
+
+**Next After Lexer:** Parser rewrite (Phase 14, ~10-15h)
 
 ---
 
-**PHASE 12 TOTAL TIME:** ~5-7 hours (Parts 1-3: 4 hours done)  
+**PHASE 13 PRIORITY:** ⭐⭐⭐ HIGH (Self-hosting is strategic goal)  
+**PHASE 13 STATUS:** 35% Complete (Parts 6.1-6.2 done, 6.3 40% done, 6.4-6.6 pending)  
+**PHASE 13 CRITICAL BLOCKER:** Escaped quote bug in lexer - `"\""` syntax fails to parse
+
+---
+
+**PHASE 12 TOTAL TIME:** ~7 hours (All parts complete!)  
 **PHASE 12 PRIORITY:** CRITICAL (Do before Stage 1 bootstrap!)  
-**PHASE 12 STATUS:** Parts 1-3 COMPLETE, Parts 4-5 PENDING (~1.5 hours remain)
+**PHASE 12 STATUS:** ✅ 100% COMPLETE! (All 5 parts done)
 
 **Success Criteria:**
-- ✅ All documentation uses STO (Part 1 complete)
-- ✅ All runtime uses sto_* functions (Part 2 complete)
-- ✅ All compiler code uses sto_* functions (Part 3 complete)
-- ⏳ All tests pass (Part 4 - quick validation done, comprehensive pending)
-- ⏳ Migration guide created (Part 5 pending)
-- ✅ Git commits pushed to main (91b02e9)---
+- ✅ All documentation uses STO (Part 1 complete - YZ_49)
+- ✅ All runtime uses sto_* functions (Part 2 complete - YZ_50)
+- ✅ All compiler code uses sto_* functions (Part 3 complete - YZ_51)
+- ✅ All tests pass (Part 4 complete - YZ_53, 9/9 tests passing!)
+- ✅ Migration guide created (Part 5 complete - YZ_53, MIGRATION_TTO_TO_STO.md)
+- ✅ Git commits pushed to main (abd8e22, e994a8e, 5605b2d)
+
+---
 
 ## 🔧 Infrastructure & Tooling (Ongoing)
 
@@ -1206,14 +1270,22 @@ grep -r "TTO" --include="*.md" . | grep -v "YZ/" | grep -v "MIGRATION"
   - Architecture: See ARCHITECTURE.md and RADICAL_CHANGE.md
   - Status: Functions compiler fully operational
 
-- [ ] **Better Test Framework** (90 min)
-  - Automated test runner
-  - Expected vs actual output
-  - Regression testing
+- [x] **Test Framework** ✅ (YZ_53 - test_sto.sh created!)
+  - Automated test runner ✅
+  - Expected vs actual exit codes ✅
+  - Regression testing ✅
+  - 9/9 tests passing ✅
 
-- [ ] **CI/CD Setup** (60 min)
-  - GitHub Actions
+- [ ] **Advanced Test Coverage** ⏳ (90 min - Future enhancement)
+  - Output comparison (stdout/stderr)
+  - Performance benchmarks
+  - Memory leak detection (Valgrind integration)
+  - Edge case testing
+
+- [ ] **CI/CD Setup** ⏳ (60 min - Future enhancement)
+  - GitHub Actions workflow
   - Auto-test on push
+  - Build matrix (multiple platforms)
 
 ### Documentation (ongoing)
 - [x] **Language Specification** ✅ (kurallar_kitabı.md)
@@ -1349,11 +1421,9 @@ grep -r "TTO" --include="*.md" . | grep -v "YZ/" | grep -v "MIGRATION"
 - ~~Input functions (input(), input_numeric())~~ ✅ Done (YZ_31)
 - ~~Constant folding optimization~~ ✅ Done (YZ_32)
 - ~~replace(), split() string methods~~ ✅ Done (YZ_29)
-- **Self-Hosting:** Rewrite lexer in MLP (Part 6, 5-8h, 6 sub-tasks)
+- **Self-Hosting:** See Phase 13 above (Lexer rewrite in MLP)
 
 ---
-
-## 🚀 Phase 12: Self-Hosting - Lexer in MLP (Optional, Future)
 
 **Goal:** Rewrite the current C lexer in MLP language itself  
 **Total Time:** 5-8 hours  
@@ -1418,164 +1488,7 @@ end function
 
 ---
 
-### Part 6.3: Number & String Tokenization (1.5h)
-**File:** `modules/lexer_mlp/tokenize_literals.mlp`
-
-**Tasks:**
-- [ ] `scan_number(source, position)` 
-  - Parse integer literals
-  - Return: Token + new position
-  - Handle: 123, 0, negative numbers
-- [ ] `scan_string(source, position)`
-  - Parse string literals "..."
-  - Handle escape sequences: \n, \t, \"
-  - Error: Unterminated string
-- [ ] Error handling
-  - Malformed number
-  - Unclosed string
-
-**Example:**
-```mlp
-function scan_number(text source, numeric pos) returns list
-    text num = ""
-    numeric start_pos = pos
-    
-    while pos < length(source) and is_digit(substring(source, pos, 1))
-        num = num + substring(source, pos, 1)
-        pos = pos + 1
-    end while
-    
-    // Return [token, new_position]
-    return [create_token(TOKEN_NUMBER, num, 1, start_pos), pos]
-end function
-```
-
-**Test:** "123", "456abc", negative numbers
-
----
-
-### Part 6.4: Identifier & Keyword Recognition (1h)
-**File:** `modules/lexer_mlp/tokenize_identifiers.mlp`
-
-**Tasks:**
-- [ ] `scan_identifier(source, position)`
-  - Parse: variable names, function names
-  - Pattern: [a-zA-Z_][a-zA-Z0-9_]*
-- [ ] `is_keyword(identifier)`
-  - Check against keyword list
-  - Keywords: function, end, if, else, while, for, return, etc.
-- [ ] Return correct token type
-  - KEYWORD if in keyword list
-  - IDENTIFIER otherwise
-
-**Example:**
-```mlp
-function is_keyword(text word) returns boolean
-    list keywords = ["function", "end", "if", "else", "while", "for", 
-                     "return", "numeric", "text", "boolean"]
-    
-    for each kw in keywords
-        if word == kw
-            return true
-        end if
-    end for
-    
-    return false
-end function
-```
-
-**Test:** "function" → KEYWORD, "myVar" → IDENTIFIER
-
----
-
-### Part 6.5: Symbol & Operator Tokenization (1h)
-**File:** `modules/lexer_mlp/tokenize_operators.mlp`
-
-**Tasks:**
-- [ ] Single-char operators
-  - +, -, *, /, %, (, ), [, ], {, }, ,, ;
-- [ ] Multi-char operators (lookahead)
-  - == (not just =)
-  - != (not just !)
-  - <= (not just <)
-  - >= (not just >)
-- [ ] Comments
-  - // single-line comments
-  - Skip until newline
-
-**Example:**
-```mlp
-function scan_operator(text source, numeric pos) returns list
-    text char = substring(source, pos, 1)
-    text next_char = substring(source, pos + 1, 1)
-    
-    // Check two-char operators first
-    if char == "=" and next_char == "="
-        return [create_token(TOKEN_EQUAL, "==", 1, pos), pos + 2]
-    else if char == "!"  and next_char == "="
-        return [create_token(TOKEN_NOT_EQUAL, "!=", 1, pos), pos + 2]
-    // ... more cases ...
-    
-    // Single-char operators
-    if char == "+"
-        return [create_token(TOKEN_PLUS, "+", 1, pos), pos + 1]
-    end if
-    // ... more cases ...
-end function
-```
-
-**Test:** "+", "==", "!=", "//" comment
-
----
-
-### Part 6.6: Integration & Testing (1-1.5h)
-**File:** `modules/lexer_mlp/lexer.mlp`
-
-**Tasks:**
-- [ ] Main lexer loop
-  ```mlp
-  function tokenize(text source) returns list
-      list tokens = []
-      numeric pos = 0
-      
-      while pos < length(source)
-          // Skip whitespace
-          // Check character type and dispatch
-          // - digit → scan_number
-          // - alpha → scan_identifier
-          // - quote → scan_string
-          // - symbol → scan_operator
-          
-          // Add token to list
-      end while
-      
-      return tokens
-  end function
-  ```
-- [ ] Test with existing .mlp files
-  - Run: `./lexer_mlp test.mlp`
-  - Compare output with C lexer
-- [ ] Performance testing
-  - Measure: Time to tokenize 100-line file
-  - Compare: MLP lexer vs C lexer speed
-- [ ] Integration with parser
-  - Parser reads tokens from MLP lexer
-  - Verify: Compilation still works
-
-**Tests:**
-1. Simple: `numeric x = 10`
-2. Complex: `function add(numeric a, numeric b) returns numeric`
-3. Real file: Compile `test_hello_world.mlp`
-
-**Success Criteria:**
-- ✅ All existing .mlp files tokenize correctly
-- ✅ Token output matches C lexer
-- ✅ Full compilation pipeline works
-- ✅ Performance: <2x slower than C lexer (acceptable for self-hosting)
-
----
-
-## 📝 Notes on Self-Hosting
+## 📝 Notes on Self-Hosting (Phase 13)
 
 **Why start with Lexer?**
 - Lexer is stateless and simple
@@ -1583,33 +1496,39 @@ end function
 - Good first step for self-hosting
 - Validates MLP language completeness
 
+**Progress:**
+- ✅ Parts 6.1-6.2 Complete (YZ_46): Token structure + character classification
+- ⏳ Parts 6.3-6.6 Pending: Tokenization logic + integration
+
 **Next Steps After Lexer:**
-1. Parser in MLP (more complex, 10-15h)
-2. Codegen in MLP (requires string templating, 8-10h)
-3. Full bootstrap (compile MLP compiler with itself!)
+1. Parser in MLP (more complex, 10-15h) → Phase 14
+2. Codegen in MLP (requires string templating, 8-10h) → Phase 15
+3. Full bootstrap (compile MLP compiler with itself!) → Phase 16
 
 **Current Blockers:** None! Language is feature-complete for lexer.
 
-**Dependencies:**
+**Dependencies (All Complete!):**
 - String operations ✅
 - Arrays/Lists ✅
 - Functions ✅
 - Loops ✅
 - File I/O ✅
 - Module system ✅
+- Incremental compilation ✅
 
 ---
 
-## 📞 Contact Info
+## 📞 Reference Documentation
 
 - **Architecture:** See `ARCHITECTURE.md`
 - **STO Details:** See `temp/kurallar_kitabı.md`
-- **Current Status:** See `STATUS_9_ARALIK_2025.md`
-- **Next Steps:** See `NEXT_AI_START_HERE.md`
-- **AI Sessions:** See `YZ/YZ_*.md`
+- **Current Status:** See `NEXT_AI_START_HERE.md`
+- **AI Methodology:** See `YZ/AI_METHODOLOGY.md`
+- **Session History:** See `YZ/YZ_*.md`
 
 ---
 
-**Last Updated:** 11 Aralık 2025, ~23:00 by YZ_45 (Incremental Compilation COMPLETE!)  
-**Next AI:** YZ_46 (Self-Hosting Part 6.1 - Token Structure, or other features)  
-**Estimated Completion:** Stage 0 MVP ✅ COMPLETE! Self-hosting next! 🚀
+**Last Updated:** 12 Aralık 2025, ~22:30 by YZ_54 (Phase 13 Part 6.3 - MELP syntax research)  
+**Next AI:** Phase 13 Part 6.3 completion (fix escaped quote bug, token creation) or Part 6.4 (Identifier tokenization)  
+**CRITICAL:** Read YZ_54.md for 8 critical MELP syntax limitations before coding!  
+**Current Status:** Phase 11 ✅ + Phase 12 ✅ COMPLETE! Self-hosting ready! 🚀

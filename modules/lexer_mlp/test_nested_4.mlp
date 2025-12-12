@@ -1,0 +1,19 @@
+function test() returns numeric
+    numeric x = 1
+    
+    if x == 1 then
+        if x == 1 then
+            if x == 1 then
+                if x == 1 then
+                    return 4
+                end if
+            end if
+        end if
+    end if
+    
+    return 0
+end function
+
+function main() returns numeric
+    return test()
+end function

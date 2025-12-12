@@ -10,13 +10,14 @@
 #define MLP_IO_H
 
 #include <stdint.h>
+#include "../sto/sto_types.h"  // Use STO type definitions
 
-// STO Type codes (matches sto_types.h)
-#define TTO_TYPE_INT64      0
-#define TTO_TYPE_DOUBLE     1
-#define TTO_TYPE_BIGDECIMAL 2
-#define TTO_TYPE_STRING     3
-#define TTO_TYPE_BOOLEAN    4
+// Legacy compatibility (deprecated - use INTERNAL_TYPE_* from sto_types.h)
+#define STO_TYPE_INT64      INTERNAL_TYPE_INT64
+#define STO_TYPE_DOUBLE     INTERNAL_TYPE_DOUBLE
+#define STO_TYPE_BIGDECIMAL INTERNAL_TYPE_BIGDECIMAL
+#define STO_TYPE_STRING     INTERNAL_TYPE_SSO_STRING
+#define STO_TYPE_BOOLEAN    INTERNAL_TYPE_BOOLEAN
 
 // ============================================================================
 // Core I/O Functions (STO-aware)
@@ -24,7 +25,7 @@
 
 // Print numeric value with newline
 // value: pointer to numeric (int64*, double*, or BigDecimal*)
-// sto_type: TTO_TYPE_INT64, TTO_TYPE_DOUBLE, or TTO_TYPE_BIGDECIMAL
+// sto_type: INTERNAL_TYPE_INT64, INTERNAL_TYPE_DOUBLE, or INTERNAL_TYPE_BIGDECIMAL
 void mlp_println_numeric(void* value, uint8_t sto_type);
 
 // Print string with newline
