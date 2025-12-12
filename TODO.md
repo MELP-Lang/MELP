@@ -901,6 +901,216 @@ end function
 
 ---
 
+## 🎯 Phase 12: TTO→STO Refactoring (Naming Consistency) 🚀 CRITICAL
+**Responsible:** YZ_49, YZ_50, YZ_51  
+**Priority:** ⭐⭐⭐ URGENT (Before Stage 1 bootstrap!)  
+**Status:** ⏳ NOT STARTED
+
+**Background:**
+- Originally: TTO (Transparent Type Optimization)
+- Decision: Rename to STO (Smart Type Optimization) - more descriptive
+- Current state: MIXED naming (documents use STO, code uses TTO)
+- Problem: Inconsistency confuses new developers and AI agents
+
+**Why Urgent:**
+- STO is MELP-specific innovation (not found in other languages)
+- Must standardize before Stage 1 (self-hosting)
+- Once bootstrapped, changing becomes 10x harder
+
+**Backups Created (12 Dec 2025):**
+- ✅ `melp_yedek_stage0_phase11_core_20251212` - Main branch backup (commit 8040c5e)
+- ✅ `melp_yedek_stage0_phase11_core_20251212_2` - Local changes backup (YZ_47/48 renaming)
+
+### Part 1: Documentation Update (YZ_49 - 1 hour) ⭐ START HERE
+**Goal:** Update all markdown files to use consistent terminology
+
+- [ ] **Core Documentation**
+  - [ ] `TODO.md` - Replace "TTO" → "STO" (except in historical YZ references)
+  - [ ] `ARCHITECTURE.md` - Update references
+  - [ ] `NEXT_AI_START_HERE.md` - Update terminology
+  - [ ] `temp/kurallar_kitabı.md` - Already uses STO ✅
+  - [ ] `temp/MELP_VISION.md` - Already uses STO ✅
+  - [ ] `temp/MELP_some_specs.md` - Already uses STO ✅
+
+- [ ] **Technical Documentation**
+  - [ ] `docs/language/TTO.md` → Rename to `docs/language/STO.md`
+  - [ ] `docs_tr/language/TTO.md` → Rename to `docs_tr/language/STO.md`
+  - [ ] Update content: "Transparent Type Optimization (TTO)" → "Smart Type Optimization (STO)"
+  - [ ] Add alias note: "Previously known as TTO (Transparent Type Optimization)"
+
+- [ ] **YZ Documentation**
+  - [ ] `YZ/AI_METHODOLOGY_SUM.md` - Update TTO references
+  - [ ] `YZ/YZ_48.md` - Add note: "Uses legacy tto_runtime (will be renamed to sto_runtime in Phase 12)"
+  - [ ] Future YZ docs will use STO consistently
+
+**Deliverable:** All documentation uses STO terminology consistently
+
+---
+
+### Part 2: Runtime Library Refactoring (YZ_50 - 2-3 hours) ⚠️ CAREFUL
+**Goal:** Rename runtime files and functions
+
+**WARNING:** This breaks existing test programs! Plan carefully.
+
+- [ ] **Directory Restructure**
+  - [ ] `runtime/tto/` → Rename to `runtime/sto/`
+  - [ ] Update all Makefiles that reference `runtime/tto`
+  - [ ] Update linker flags: `-ltto_runtime` → `-lsto_runtime`
+
+- [ ] **File Renaming**
+  - [ ] `tto_runtime.c` → `sto_runtime.c`
+  - [ ] `tto_runtime.h` → `sto_runtime.h`
+  - [ ] `tto_types.h` → `sto_types.h`
+
+- [ ] **Function Renaming (Critical!)**
+  ```c
+  // Numeric functions
+  tto_print_int64()     → sto_print_int64()
+  tto_print_double()    → sto_print_double()
+  tto_safe_add_i64()    → sto_safe_add_i64()
+  bigdec_*()            → Keep as-is (BigDecimal is standard term)
+  
+  // String functions
+  tto_sso_*()           → sto_sso_*()
+  
+  // Collection functions
+  tto_array_alloc()     → sto_array_alloc()
+  tto_list_alloc()      → sto_list_alloc()
+  tto_tuple_alloc()     → sto_tuple_alloc()
+  ```
+
+- [ ] **Struct Renaming**
+  ```c
+  TTOTypeInfo  → STOTypeInfo
+  TTORuntime   → STORuntime
+  TTOVariable  → STOVariable
+  ```
+
+**Test Strategy:**
+1. Rename files first (git mv)
+2. Update function names with find/replace
+3. Rebuild runtime library
+4. Test with simple program
+5. Fix all compilation errors before proceeding
+
+**Deliverable:** Runtime library fully renamed, all tests passing
+
+---
+
+### Part 3: Compiler Code Update (YZ_51 - 1-2 hours)
+**Goal:** Update compiler modules to use STO naming
+
+- [ ] **Module Files**
+  - [ ] `compiler/stage0/modules/codegen_context/tto_types.h` → `sto_types.h`
+  - [ ] `compiler/stage0/modules/tto_runtime/` → `sto_runtime/`
+  - [ ] Update all `#include "tto_*.h"` → `#include "sto_*.h"`
+
+- [ ] **Variable Names in Codegen**
+  - [ ] `arithmetic_codegen.c` - Update TTO references
+  - [ ] `statement_codegen.c` - Update TTO references
+  - [ ] `functions_codegen.c` - Update TTO references
+
+- [ ] **Comments & Logs**
+  - [ ] Update comments: "TTO runtime" → "STO runtime"
+  - [ ] Update printf/fprintf messages
+  - [ ] Update error messages
+
+**Automated Approach:**
+```bash
+# Find all TTO references in .c and .h files
+grep -r "tto_" compiler/stage0/modules/ | wc -l
+grep -r "TTO" compiler/stage0/modules/ | wc -l
+
+# Use sed for bulk replacement (dry-run first!)
+find compiler/stage0/modules/ -name "*.c" -o -name "*.h" | \
+  xargs sed -i 's/tto_/sto_/g'
+  
+find compiler/stage0/modules/ -name "*.c" -o -name "*.h" | \
+  xargs sed -i 's/TTO/STO/g'
+```
+
+**Deliverable:** Compiler modules use STO consistently
+
+---
+
+### Part 4: Integration & Testing (YZ_51 - 1 hour)
+**Goal:** Verify everything works after refactoring
+
+- [ ] **Build Tests**
+  - [ ] `make clean && make` in runtime/sto/ - builds successfully
+  - [ ] `make clean && make` in compiler/stage0/ - builds successfully
+  - [ ] No linker errors
+
+- [ ] **Functional Tests**
+  - [ ] Basic arithmetic: `numeric x = 10 + 20`
+  - [ ] println: `println(42)`
+  - [ ] Collections: arrays, lists, tuples
+  - [ ] String operations
+  - [ ] For loops with println
+  - [ ] Module imports
+
+- [ ] **Test Programs**
+  - [ ] Recompile all test files in `compiler/stage0/modules/functions/`
+  - [ ] Verify output matches expected
+  - [ ] No runtime crashes
+
+**Regression Testing:**
+```bash
+# Run all existing tests
+cd compiler/stage0/modules/functions
+./melpc test_basic.mlp -o test_basic && ./test_basic
+./melpc test_for_simple.mlp -o test_for_simple && ./test_for_simple
+./melpc test_basic_println.mlp -o test_basic_println && ./test_basic_println
+
+# Verify output
+echo $?  # Should be 0 for success
+```
+
+**Deliverable:** All tests pass, no regressions
+
+---
+
+### Part 5: Final Cleanup (YZ_51 - 30 min)
+**Goal:** Update remaining references and documentation
+
+- [ ] **README Files**
+  - [ ] `README.md` - Update TTO → STO
+  - [ ] `runtime/README.md` - Update references
+  - [ ] Module README files
+
+- [ ] **Git Commit Messages**
+  - [ ] Clear commit for each phase
+  - [ ] Document breaking changes
+  - [ ] Update CHANGELOG (if exists)
+
+- [ ] **Migration Guide**
+  - [ ] Create `MIGRATION_TTO_TO_STO.md`
+  - [ ] List all renamed functions
+  - [ ] Update examples for external users
+
+**Final Verification:**
+```bash
+# No more TTO references (except in history/YZ docs)
+grep -r "tto_" --include="*.c" --include="*.h" compiler/stage0/ runtime/
+grep -r "TTO" --include="*.md" . | grep -v "YZ/" | grep -v "MIGRATION"
+```
+
+**Deliverable:** Complete STO migration, zero TTO references in active code
+
+---
+
+**PHASE 12 TOTAL TIME:** ~5-7 hours  
+**PHASE 12 PRIORITY:** CRITICAL (Do before Stage 1 bootstrap!)
+
+**Success Criteria:**
+- ✅ All documentation uses STO
+- ✅ All code uses sto_* functions
+- ✅ All tests pass
+- ✅ No TTO references in active code (except historical docs)
+- ✅ Migration guide created
+
+---
+
 ## 🔧 Infrastructure & Tooling (Ongoing)
 
 ### Build System
@@ -942,7 +1152,8 @@ end function
 | **Phase 7: Optimization** | ✅ Complete | 100% |
 | **Phase 9: File I/O** | ✅ Complete | 100% |
 | **Phase 10: State Module** | ✅ Complete | 100% |
-| **Phase 11: Self-Hosting** | ⏳ Far Future | 0% |
+| **Phase 11: Self-Hosting Prep** | ✅ Complete | 95% |
+| **Phase 12: TTO→STO Refactoring** | ⏳ In Progress | 0% |
 
 > **Note:** MELP is **stateless by default**. Phase 10 (State Module) is optional - only needed when explicit persistence is required.
 
