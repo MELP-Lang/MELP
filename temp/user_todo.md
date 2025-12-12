@@ -104,48 +104,61 @@
 | | → Part 6.4: Identifier & Keyword Recognition | ⏳ (1h) |
 | | → Part 6.5: Symbol & Operator Tokenization | ⏳ (1h) |
 | | → Part 6.6: Integration & Testing | ⏳ (1-1.5h) |
-| **Phase 12: TTO→STO Refactoring** | | ⏳ 0% ||
-| | **Part 1: Documentation Update** | ⏳ YZ_49 (1h) |
-| | → Core docs (TODO, ARCHITECTURE, etc.) | ⏳ |
-| | → Technical docs (rename TTO.md → STO.md) | ⏳ |
-| | → YZ documentation updates | ⏳ |
-| | **Part 2: Runtime Library Refactoring** | ⏳ YZ_50 (2-3h) |
-| | → Directory rename (runtime/tto → runtime/sto) | ⏳ |
-| | → File rename (tto_runtime.* → sto_runtime.*) | ⏳ |
-| | → Function rename (tto_* → sto_*) | ⏳ |
-| | → Struct rename (TTOTypeInfo → STOTypeInfo) | ⏳ |
-| | **Part 3: Compiler Code Update** | ⏳ YZ_51 (1-2h) |
-| | → Codegen function calls update | ⏳ |
-| | → Include paths update | ⏳ |
-| | → Makefile linker flags | ⏳ |
-| | **Part 4: Integration Testing** | ⏳ YZ_51 (1h) |
-| | → All existing tests pass | ⏳ |
-| | → No regression detected | ⏳ |
-| | **Part 5: Final Cleanup** | ⏳ YZ_51 (30min) |
-| | → Migration guide document | ⏳ |
-| | → Update NEXT_AI_START_HERE.md | ⏳ |
+| **Phase 12: TTO→STO Refactoring** | | ✅ 100% |
+| | **Part 1: Documentation Update** | ✅ YZ_49 (1h) |
+| | → Core docs (TODO, ARCHITECTURE, etc.) | ✅ |
+| | → Technical docs (rename TTO.md → STO.md) | ✅ |
+| | → YZ documentation updates | ✅ |
+| | **Part 2: Runtime Library Refactoring** | ✅ YZ_50 (2-3h) |
+| | → Directory rename (runtime/tto → runtime/sto) | ✅ |
+| | → File rename (tto_runtime.* → sto_runtime.*) | ✅ |
+| | → Function rename (tto_* → sto_*) | ✅ |
+| | → Struct rename (TTOTypeInfo → STOTypeInfo) | ✅ |
+| | **Part 3: Compiler Code Update** | ✅ YZ_51 (1-2h) |
+| | → Codegen function calls update | ✅ |
+| | → Include paths update | ✅ |
+| | → Makefile linker flags | ✅ |
+| | **Part 4: Comprehensive Testing** | ✅ YZ_53 (1.5h) |
+| | → Test suite created (test_sto.sh) | ✅ |
+| | → 9/9 tests passing (100%) | ✅ |
+| | → Zero regressions detected | ✅ |
+| | **Part 5: Final Cleanup** | ✅ YZ_53 (30min) |
+| | → README files updated | ✅ |
+| | → Migration guide created | ✅ |
+| | → Final grep cleanup (0 TTO refs) | ✅ |
+| | → Update NEXT_AI_START_HERE.md | ✅ |
 
 ## Durum Özeti
 
-- **Tamamlanan:** Phase 1-7, Phase 9, Phase 10, Phase 11 (100%)! 🎉🎉🎉
-- **Son Tamamlanan:** YZ_48 (println() Complete!) - 12 Aralık 2025
+- **Tamamlanan:** Phase 1-7, Phase 9, Phase 10, Phase 11, Phase 12 (100%)! 🎉🎉🎉
+- **Son Tamamlanan:** YZ_53 (Phase 12 Complete - TTO→STO Refactoring) - 12 Aralık 2025
+- **✅ Phase 12:** TTO→STO refactoring complete! 7 hours, 80+ files, 453+ renames, 0 regressions
 - **✅ Incremental Build:** 10-15x speedup! Parse & assembly skip for unchanged modules
 - **✅ Performance:** 0.032s vs 0.5s (15x faster for no-change builds)
 - **✅ println() Builtin:** For loop içinde çalışıyor!
-- **🔥 Sırada:** Phase 12 - TTO→STO Refactoring (5-7h, URGENT!)
-  - Terminoloji tutarlılığı (kod ve belgeler aynı isimleri kullanmalı)
-  - Stage 1 öncesi yapılmalı
+- **🔥 Sırada:** Phase 13 - Bootstrap Stage 1 (Self-hosting lexer/parser)
 - **Sonraki (Optional):** 
-  - **Self-Hosting:** Rewrite lexer in MLP (5-8h)
+  - **Self-Hosting:** Continue lexer rewrite in MLP (Part 6.3+)
   - **Advanced Optimization:** Register allocation, inlining
 - **Gelecek:** Full self-hosting, production optimizations
 
 > **⚠️ Senkronizasyon:** Bu dosya `TODO.md` ile eş zamanlı tutulmalıdır!
 
-## Güncel Test Sonuçları (11 Aralık 2025)
+## Güncel Test Sonuçları (12 Aralık 2025 - YZ_53)
 
 | Test | Sonuç | Açıklama |
 |------|-------|----------|
+| **Phase 12: STO Refactoring Tests** | | |
+| test_basic.mlp | ✅ Exit: 30 | Basic arithmetic (10+20) |
+| test_for_simple.mlp | ✅ Exit: 0 | For loop (0 to 5) |
+| test_for_simpler.mlp | ✅ Exit: 6 | For loop counter |
+| test_for_count.mlp | ✅ Exit: 55 | Sum 1-10 |
+| test_sto_final.mlp | ✅ Exit: 150 | STO optimization (100+50) |
+| test_boolean_and.mlp | ✅ Exit: 0 | Boolean AND |
+| test_array_syntax.mlp | ✅ Exit: 20 | Array indexing arr[1] |
+| test_bounds_ok.mlp | ✅ Exit: 30 | Array bounds arr[2] |
+| test_list_syntax.mlp | ✅ Exit: 20 | List indexing lst(1) |
+| **Summary** | **9/9 PASS** | **Zero regressions!** |
 | **Phase 1-3: Basic Features** | | |
 | For-Each | ✅ Exit: 60 | `for each x in [10,20,30]` → sum=60 |
 | While | ✅ Exit: 3 | `while x < 3` döngüsü |
