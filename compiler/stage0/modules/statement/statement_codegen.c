@@ -78,6 +78,15 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
             break;
         }
         
+        // ✅ YZ_48: Expression statement (function calls like println)
+        case STMT_EXPRESSION: {
+            ArithmeticExpr* expr = (ArithmeticExpr*)stmt->data;
+            if (expr) {
+                arithmetic_generate_code(output, expr, func);
+            }
+            break;
+        }
+        
         case STMT_VARIABLE_DECL: {
             // ✅ Variable declaration - already registered in pre-scan, just initialize
             VariableDeclaration* decl = (VariableDeclaration*)stmt->data;

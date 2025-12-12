@@ -302,6 +302,46 @@ Statement* statement_parse(Parser* parser) {
         return stmt;
     }
     
+    // ✅ YZ_48: PRINTLN builtin - Reserved keyword
+    if (tok->type == TOKEN_PRINTLN) {
+        token_free(tok);
+        
+        Token* lparen = lexer_next_token(parser->lexer);
+        if (!lparen || lparen->type != TOKEN_LPAREN) {
+            error_parser(0, "Expected '(' after 'println'");
+            if (lparen) token_free(lparen);
+            return NULL;
+        }
+        token_free(lparen);
+        
+        Token* expr_tok = lexer_next_token(parser->lexer);
+        if (!expr_tok) {
+            error_parser(0, "Expected expression in println()");
+            return NULL;
+        }
+        
+        ArithmeticExpr* expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok);
+        token_free(expr_tok);
+        
+        if (!expr) {
+            return NULL;
+        }
+        
+        Token* rparen = lexer_next_token(parser->lexer);
+        if (!rparen || rparen->type != TOKEN_RPAREN) {
+            error_parser(0, "Expected ')' after println expression");
+            if (rparen) token_free(rparen);
+            arithmetic_expr_free(expr);
+            return NULL;
+        }
+        token_free(rparen);
+        
+        stmt = statement_create(STMT_EXPRESSION);
+        stmt->data = expr;
+        stmt->next = NULL;
+        return stmt;
+    }
+    
     // ✅ RETURN statement
     if (tok->type == TOKEN_RETURN) {
         token_free(tok);

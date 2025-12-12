@@ -56,6 +56,7 @@ typedef enum {
     TOKEN_MODULE,          // module keyword
     // I/O keywords
     TOKEN_PRINT,
+    TOKEN_PRINTLN,         // println builtin (YZ_48)
     // Delimiters
     TOKEN_LPAREN,          // (
     TOKEN_RPAREN,          // )

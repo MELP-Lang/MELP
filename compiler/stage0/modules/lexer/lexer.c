@@ -161,6 +161,7 @@ static Token* read_identifier(Lexer* lexer) {
     else if (strcasecmp(value, "mod") == 0) type = TOKEN_MOD;
     // I/O keywords
     else if (strcmp(value, "print") == 0) type = TOKEN_PRINT;
+    else if (strcmp(value, "println") == 0) type = TOKEN_PRINTLN;  // YZ_48
     
     Token* token = make_token(type, value, lexer->line);
     free(value);
