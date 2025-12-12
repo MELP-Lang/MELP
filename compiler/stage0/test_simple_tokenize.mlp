@@ -1,0 +1,83 @@
+-- ============================================================================
+-- Simple Integration Test: Number Tokenization Only
+-- ============================================================================
+
+function is_digit(string ch) returns boolean
+    if ch == "0" then return 1 end if
+    if ch == "1" then return 1 end if
+    if ch == "2" then return 1 end if
+    if ch == "3" then return 1 end if
+    if ch == "4" then return 1 end if
+    if ch == "5" then return 1 end if
+    if ch == "6" then return 1 end if
+    if ch == "7" then return 1 end if
+    if ch == "8" then return 1 end if
+    if ch == "9" then return 1 end if
+    return 0
+end function
+
+function scan_number_simple(string source) returns string
+    string num_value = ""
+    numeric pos = 0
+    numeric source_len = length(source)
+    string ch = ""
+    boolean ch_is_digit = 0
+    
+    while pos < source_len
+        ch = substring(source, pos, 1)
+        ch_is_digit = is_digit(ch)
+        
+        if ch_is_digit then
+            num_value = num_value + ch
+            pos = pos + 1
+        else
+            exit while
+        end if
+    end while
+    
+    return num_value
+end function
+
+function main() returns numeric
+    string result = ""
+    numeric test_passed = 0
+    
+    -- Test 1: Simple integer
+    println("Test 1: Parse '42'")
+    result = scan_number_simple("42")
+    if result == "42" then
+        println("  PASS: Got '42'")
+        test_passed = test_passed + 1
+    else
+        println("  FAIL: Got unexpected result")
+    end if
+    
+    -- Test 2: Longer number
+    println("Test 2: Parse '123456'")
+    result = scan_number_simple("123456")
+    if result == "123456" then
+        println("  PASS: Got '123456'")
+        test_passed = test_passed + 1
+    else
+        println("  FAIL: Got unexpected result")
+    end if
+    
+    -- Test 3: Zero
+    println("Test 3: Parse '0'")
+    result = scan_number_simple("0")
+    if result == "0" then
+        println("  PASS: Got '0'")
+        test_passed = test_passed + 1
+    else
+        println("  FAIL: Got unexpected result")
+    end if
+    
+    -- Summary
+    if test_passed == 3 then
+        println("All tests PASSED! ✓")
+        return 0
+    else
+        println("Some tests FAILED!")
+        return 1
+    end if
+end function
