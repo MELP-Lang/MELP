@@ -1,0 +1,4 @@
+function main() returns numeric
+    println(42)
+    return 0
+end function
