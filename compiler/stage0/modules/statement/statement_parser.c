@@ -320,10 +320,10 @@ Statement* statement_parse(Parser* parser) {
             return NULL;
         }
         
-        ArithmeticExpr* expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok);
+        ArithmeticExpr* arg_expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok);
         token_free(expr_tok);
         
-        if (!expr) {
+        if (!arg_expr) {
             return NULL;
         }
         
@@ -331,10 +331,23 @@ Statement* statement_parse(Parser* parser) {
         if (!rparen || rparen->type != TOKEN_RPAREN) {
             error_parser(0, "Expected ')' after println expression");
             if (rparen) token_free(rparen);
-            arithmetic_expr_free(expr);
+            arithmetic_expr_free(arg_expr);
             return NULL;
         }
         token_free(rparen);
+        
+        // Create FunctionCallExpr for println
+        FunctionCallExpr* func_call = malloc(sizeof(FunctionCallExpr));
+        func_call->function_name = strdup("println");
+        func_call->arg_count = 1;
+        func_call->arguments = malloc(sizeof(ArithmeticExpr*));
+        func_call->arguments[0] = arg_expr;
+        
+        // Wrap in ArithmeticExpr
+        ArithmeticExpr* expr = malloc(sizeof(ArithmeticExpr));
+        memset(expr, 0, sizeof(ArithmeticExpr));
+        expr->is_function_call = 1;
+        expr->func_call = func_call;
         
         stmt = statement_create(STMT_EXPRESSION);
         stmt->data = expr;

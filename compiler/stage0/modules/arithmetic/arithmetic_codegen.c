@@ -48,6 +48,21 @@ static void generate_literal(FILE* output, const char* value, int reg_num, int i
 static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_reg, FunctionDeclaration* func) {
     if (!expr) return;
     
+    // YZ_48: Simple println() codegen for for-loop support
+    if (expr->is_function_call && expr->func_call && 
+        strcmp(expr->func_call->function_name, "println") == 0 && 
+        expr->func_call->arg_count == 1) {
+        fprintf(output, "    # println() call\n");
+        // Evaluate argument expression → r8
+        generate_expr_code(output, expr->func_call->arguments[0], 0, func);
+        // Call TTO print function + manual newline
+        fprintf(output, "    movq %%r8, %%rdi\n");
+        fprintf(output, "    call tto_print_int64\n");
+        fprintf(output, "    movq $10, %%rdi  # newline char\n");
+        fprintf(output, "    call putchar\n");
+        return;
+    }
+    
     // Phase 3.5: Function call
     if (expr->is_function_call && expr->func_call) {
         FunctionCallExpr* call = expr->func_call;

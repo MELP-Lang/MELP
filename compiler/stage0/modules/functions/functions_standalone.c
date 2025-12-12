@@ -633,7 +633,8 @@ int main(int argc, char** argv) {
         }
         
         // Step 4: Clean up temporary files (main program only)
-        remove(asm_file);
+        // YZ_48: Temporarily keep assembly for debugging
+        // remove(asm_file);
         remove(obj_file);
         
         // YZ_44 Part 5.2: Keep module object files persistent (don't delete)
