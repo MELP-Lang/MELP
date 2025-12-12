@@ -1,0 +1,269 @@
+-- ============================================================================
+-- MELP Self-Hosting: Operator & Symbol Tokenization
+-- File: modules/lexer_mlp/tokenize_operators.mlp
+-- Author: YZ_57 (continued)
+-- Date: 13 Aralık 2025
+-- Purpose: Scan and tokenize operators, symbols, and skip comments
+-- Status: PHASE 13 PART 6.5
+-- ============================================================================
+
+-- Token Type Constants Reference:
+-- Operators: PLUS=40, MINUS=41, MULTIPLY=42, DIVIDE=43, MODULO=44
+--            ASSIGN=45, EQUALS=46, NOT_EQUALS=47
+--            LESS=48, GREATER=49, LESS_EQUAL=50, GREATER_EQUAL=51
+--            AND=52, OR=53, NOT=54
+-- Symbols: LPAREN=60, RPAREN=61, LBRACKET=62, RBRACKET=63
+--          LBRACE=64, RBRACE=65, COMMA=66, DOT=67
+--          COLON=68, SEMICOLON=69, ARROW=70
+-- Special: COMMENT=82
+
+-- ============================================================================
+-- Helper Functions
+-- ============================================================================
+
+-- Creates a token [type, value, line, column]
+function create_token(numeric token_type, string token_value, numeric line_num, numeric col_num) returns list
+    return [token_type, token_value, line_num, col_num]
+end function
+
+-- Helper: Create empty two-char result
+function create_empty_two_char_result() returns list
+    return [0, 0, ""]
+end function
+
+-- Helper: Create empty position result
+function create_empty_position_result() returns list
+    return [0, 0, 0]
+end function
+
+-- Helper: Create empty token
+function create_empty_token() returns list
+    return [0, "", 0, 0]
+end function
+
+-- Check if character is whitespace
+function is_whitespace(string ch) returns boolean
+    if ch == " " then return 1 end if
+    if ch == "\t" then return 1 end if
+    if ch == "\n" then return 1 end if
+    if ch == "\r" then return 1 end if
+    return 0
+end function
+
+-- ============================================================================
+-- Comment Handling
+-- ============================================================================
+
+-- Skip a line comment (--) and return new position
+-- Returns: [new_pos, new_col, new_line]
+function skip_line_comment(string source, numeric pos, numeric line, numeric col) returns list
+    numeric source_len = length(source)
+    string ch = ""
+    
+    -- Skip until newline or EOF
+    while pos < source_len
+        ch = substring(source, pos, 1)
+        if ch == "\n" then
+            pos = pos + 1
+            line = line + 1
+            col = 1
+            exit while
+        else
+            pos = pos + 1
+            col = col + 1
+        end if
+    end while
+    
+    return [pos, col, line]
+end function
+
+-- ============================================================================
+-- Single-Character Operator/Symbol Detection
+-- ============================================================================
+
+-- Get token type for single-character operator/symbol
+-- Returns: token_type, or 0 if not a single-char operator
+function get_single_char_token_type(string ch) returns numeric
+    -- Arithmetic operators
+    if ch == "+" then return 40 end if  -- PLUS
+    if ch == "-" then return 41 end if  -- MINUS
+    if ch == "*" then return 42 end if  -- MULTIPLY
+    if ch == "/" then return 43 end if  -- DIVIDE
+    if ch == "%" then return 44 end if  -- MODULO
+    
+    -- Assignment (can be = or ==)
+    if ch == "=" then return 45 end if  -- ASSIGN (may be upgraded to EQUALS)
+    
+    -- Comparison (can be < or <=, > or >=)
+    if ch == "<" then return 48 end if  -- LESS (may be upgraded to LESS_EQUAL)
+    if ch == ">" then return 49 end if  -- GREATER (may be upgraded to GREATER_EQUAL)
+    
+    -- Symbols - Parentheses and brackets
+    if ch == "(" then return 60 end if  -- LPAREN
+    if ch == ")" then return 61 end if  -- RPAREN
+    if ch == "[" then return 62 end if  -- LBRACKET
+    if ch == "]" then return 63 end if  -- RBRACKET
+    if ch == "{" then return 64 end if  -- LBRACE
+    if ch == "}" then return 65 end if  -- RBRACE
+    
+    -- Symbols - Punctuation
+    if ch == "," then return 66 end if  -- COMMA
+    if ch == "." then return 67 end if  -- DOT
+    if ch == ":" then return 68 end if  -- COLON
+    if ch == ";" then return 69 end if  -- SEMICOLON
+    
+    -- Logical NOT (!)
+    if ch == "!" then return 54 end if  -- NOT (may be upgraded to NOT_EQUALS)
+    
+    return 0  -- Not a recognized single-char token
+end function
+
+-- ============================================================================
+-- Multi-Character Operator Detection
+-- ============================================================================
+
+-- Check if current position starts a two-character operator
+-- Returns: [is_two_char, token_type, token_value]
+-- is_two_char: 1 if two-char operator found, 0 otherwise
+function check_two_char_operator(string source, numeric pos) returns list
+    numeric source_len = length(source)
+    numeric next_pos = 0
+    string ch = ""
+    string next_ch = ""
+    
+    ch = substring(source, pos, 1)
+    
+    next_pos = pos + 1
+    if next_pos < source_len then
+        next_ch = substring(source, next_pos, 1)
+        
+        -- ==
+        if ch == "=" then
+            if next_ch == "=" then
+                return [1, 46, "=="]  -- EQUALS
+            end if
+        end if
+        
+        -- !=
+        if ch == "!" then
+            if next_ch == "=" then
+                return [1, 47, "!="]  -- NOT_EQUALS
+            end if
+        end if
+        
+        -- <=
+        if ch == "<" then
+            if next_ch == "=" then
+                return [1, 50, "<="]  -- LESS_EQUAL
+            end if
+        end if
+        
+        -- >=
+        if ch == ">" then
+            if next_ch == "=" then
+                return [1, 51, ">="]  -- GREATER_EQUAL
+            end if
+        end if
+        
+        -- -- (comment marker - not a token, but detected here)
+        if ch == "-" then
+            if next_ch == "-" then
+                return [1, 82, "--"]  -- COMMENT
+            end if
+        end if
+    end if
+    
+    return [0, 0, ""]  -- Not a two-char operator
+end function
+
+-- ============================================================================
+-- Main Operator/Symbol Tokenization
+-- ============================================================================
+
+-- Scan operator or symbol
+-- Returns: [token, new_pos, new_col, new_line]
+-- If comment detected, returns special marker token
+function scan_operator(string source, numeric pos, numeric line, numeric col) returns list
+    numeric start_col = col
+    numeric start_line = line
+    string ch = ""
+    numeric token_type = 0
+    string token_value = ""
+    numeric is_two_char = 0
+    list two_char_result = create_empty_two_char_result()
+    list result_token = create_empty_token()
+    
+    ch = substring(source, pos, 1)
+    
+    -- First, check for two-character operators
+    two_char_result = check_two_char_operator(source, pos)
+    is_two_char = two_char_result[0]
+    
+    if is_two_char then
+        token_type = two_char_result[1]
+        token_value = two_char_result[2]
+        
+        -- Special case: comment marker
+        if token_type == 82 then
+            -- Return comment marker token (caller should skip it)
+            result_token = create_token(82, "--", start_line, start_col)
+            return [result_token, pos + 2, col + 2, line]
+        end if
+        
+        -- Regular two-char operator
+        result_token = create_token(token_type, token_value, start_line, start_col)
+        return [result_token, pos + 2, col + 2, line]
+    end if
+    
+    -- Single-character operator/symbol
+    token_type = get_single_char_token_type(ch)
+    
+    if token_type > 0 then
+        result_token = create_token(token_type, ch, start_line, start_col)
+        return [result_token, pos + 1, col + 1, line]
+    end if
+    
+    -- Unknown character - return UNKNOWN token
+    result_token = create_token(81, ch, start_line, start_col)
+    return [result_token, pos + 1, col + 1, line]
+end function
+
+-- ============================================================================
+-- Whitespace Skipping
+-- ============================================================================
+
+-- Skip whitespace and return new position
+-- Returns: [new_pos, new_col, new_line]
+function skip_whitespace(string source, numeric pos, numeric line, numeric col) returns list
+    numeric source_len = length(source)
+    string ch = ""
+    boolean ch_is_whitespace = 0
+    
+    while pos < source_len
+        ch = substring(source, pos, 1)
+        ch_is_whitespace = is_whitespace(ch)
+        
+        if ch_is_whitespace then
+            if ch == "\n" then
+                line = line + 1
+                col = 1
+                pos = pos + 1
+            else
+                col = col + 1
+                pos = pos + 1
+            end if
+        else
+            exit while
+        end if
+    end while
+    
+    return [pos, col, line]
+end function
+
+-- ============================================================================
+-- Main (for testing)
+-- ============================================================================
+
+function main() returns numeric
+    return 0
+end function
