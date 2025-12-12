@@ -30,7 +30,7 @@ typedef struct Statement Statement;
 typedef struct LocalVariable {
     char* name;
     int stack_offset;  // Offset from rbp (negative: -8, -16, -24...)
-    int is_numeric;    // 1=numeric, 0=string (TTO: only 2 types, 1 bit is enough!)
+    int is_numeric;    // 1=numeric, 0=string (STO: only 2 types, 1 bit is enough!)
     int is_array;      // 1=array, 0=scalar
     int array_length;  // Array element count (for bounds checking)
     int is_tuple;      // YZ_21: 1=tuple, 0=other

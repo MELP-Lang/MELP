@@ -2,7 +2,7 @@
 #define EXPRESSION_H
 
 #include <stdbool.h>
-#include "../codegen_context/tto_types.h"
+#include "../codegen_context/sto_types.h"
 
 // Expression types
 typedef enum {
@@ -41,9 +41,9 @@ typedef struct Expression {
         } call;
     } data;
     
-    // ========== Phase 2: TTO Integration ==========
-    TTOTypeInfo* tto_info;               // Full TTO analysis result (heap allocated)
-    bool tto_analyzed;                   // Has TTO analysis been performed?
+    // ========== Phase 2: STO Integration ==========
+    STOTypeInfo* sto_info;               // Full STO analysis result (heap allocated)
+    bool sto_analyzed;                   // Has STO analysis been performed?
     bool needs_overflow_check;           // Runtime overflow detection needed?
 } Expression;
 

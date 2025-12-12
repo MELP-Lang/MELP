@@ -1,9 +1,9 @@
 /**
- * TTO Runtime Implementation
+ * STO Runtime Implementation
  * Transparent Type Optimization runtime support
  */
 
-#include "tto_runtime.h"
+#include "sto_runtime.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -13,15 +13,15 @@
 // Phase 3.1: Overflow Detection & Promotion
 // ============================================================================
 
-bool tto_would_overflow_add(int64_t a, int64_t b) {
+bool sto_would_overflow_add(int64_t a, int64_t b) {
     return (b > 0 && a > INT64_MAX - b) || (b < 0 && a < INT64_MIN - b);
 }
 
-bool tto_would_overflow_sub(int64_t a, int64_t b) {
+bool sto_would_overflow_sub(int64_t a, int64_t b) {
     return (b < 0 && a > INT64_MAX + b) || (b > 0 && a < INT64_MIN + b);
 }
 
-bool tto_would_overflow_mul(int64_t a, int64_t b) {
+bool sto_would_overflow_mul(int64_t a, int64_t b) {
     if (a == 0 || b == 0) return false;
     if (a > 0 && b > 0 && a > INT64_MAX / b) return true;
     if (a > 0 && b < 0 && b < INT64_MIN / a) return true;
@@ -30,8 +30,8 @@ bool tto_would_overflow_mul(int64_t a, int64_t b) {
     return false;
 }
 
-bool tto_safe_add_i64(int64_t a, int64_t b, int64_t* result) {
-    if (tto_would_overflow_add(a, b)) {
+bool sto_safe_add_i64(int64_t a, int64_t b, int64_t* result) {
+    if (sto_would_overflow_add(a, b)) {
         *result = 0;
         return true;  // Overflow occurred
     }
@@ -39,8 +39,8 @@ bool tto_safe_add_i64(int64_t a, int64_t b, int64_t* result) {
     return false;  // No overflow
 }
 
-bool tto_safe_sub_i64(int64_t a, int64_t b, int64_t* result) {
-    if (tto_would_overflow_sub(a, b)) {
+bool sto_safe_sub_i64(int64_t a, int64_t b, int64_t* result) {
+    if (sto_would_overflow_sub(a, b)) {
         *result = 0;
         return true;
     }
@@ -48,8 +48,8 @@ bool tto_safe_sub_i64(int64_t a, int64_t b, int64_t* result) {
     return false;
 }
 
-bool tto_safe_mul_i64(int64_t a, int64_t b, int64_t* result) {
-    if (tto_would_overflow_mul(a, b)) {
+bool sto_safe_mul_i64(int64_t a, int64_t b, int64_t* result) {
+    if (sto_would_overflow_mul(a, b)) {
         *result = 0;
         return true;
     }
@@ -279,17 +279,17 @@ void sso_release(SSOString* str) {
 // Phase 3.4: Memory Management
 // ============================================================================
 
-static TTOMemStats mem_stats = {0};
+static STOMemStats mem_stats = {0};
 
-void tto_runtime_init(void) {
-    memset(&mem_stats, 0, sizeof(TTOMemStats));
+void sto_runtime_init(void) {
+    memset(&mem_stats, 0, sizeof(STOMemStats));
 }
 
-void tto_runtime_cleanup(void) {
+void sto_runtime_cleanup(void) {
     // Cleanup would happen here if needed
 }
 
-TTOMemStats tto_get_mem_stats(void) {
+STOMemStats sto_get_mem_stats(void) {
     return mem_stats;
 }
 
@@ -302,17 +302,17 @@ TTOMemStats tto_get_mem_stats(void) {
  * 
  * @param count Number of elements
  * @param elem_size Size of each element in bytes
- * @return Pointer to TTOArray structure
+ * @return Pointer to STOArray structure
  * 
  * Note: Returns raw pointer for direct assembly access.
  * Assembly code can store elements directly at base_ptr + (index * elem_size)
  */
-void* tto_array_alloc(size_t count, size_t elem_size) {
+void* sto_array_alloc(size_t count, size_t elem_size) {
     if (count == 0 || elem_size == 0) {
         return NULL;
     }
     
-    TTOArray* array = malloc(sizeof(TTOArray));
+    STOArray* array = malloc(sizeof(STOArray));
     if (!array) {
         fprintf(stderr, "ERROR: Failed to allocate array structure\n");
         exit(1);
@@ -339,11 +339,11 @@ void* tto_array_alloc(size_t count, size_t elem_size) {
 /**
  * Set an array element (for bounds-checked access)
  * 
- * @param array Pointer to TTOArray
+ * @param array Pointer to STOArray
  * @param index Element index
  * @param value Pointer to value to copy
  */
-void tto_array_set(TTOArray* array, size_t index, void* value) {
+void sto_array_set(STOArray* array, size_t index, void* value) {
     if (!array || !value) return;
     if (index >= array->count) {
         fprintf(stderr, "ERROR: Array index out of bounds: %zu >= %zu\n", 
@@ -358,11 +358,11 @@ void tto_array_set(TTOArray* array, size_t index, void* value) {
 /**
  * Get an array element
  * 
- * @param array Pointer to TTOArray
+ * @param array Pointer to STOArray
  * @param index Element index
  * @return Pointer to element
  */
-void* tto_array_get(TTOArray* array, size_t index) {
+void* sto_array_get(STOArray* array, size_t index) {
     if (!array) return NULL;
     if (index >= array->count) {
         fprintf(stderr, "ERROR: Array index out of bounds: %zu >= %zu\n", 
@@ -376,7 +376,7 @@ void* tto_array_get(TTOArray* array, size_t index) {
 /**
  * Free an array
  */
-void tto_array_free(TTOArray* array) {
+void sto_array_free(STOArray* array) {
     if (array) {
         free(array->elements);
         free(array);
@@ -387,12 +387,12 @@ void tto_array_free(TTOArray* array) {
  * Allocate a heterogeneous list (dynamic, type-tracked)
  * 
  * @param capacity Initial capacity
- * @return Pointer to TTOList
+ * @return Pointer to STOList
  */
-TTOList* tto_list_alloc(size_t capacity) {
+STOList* sto_list_alloc(size_t capacity) {
     if (capacity == 0) capacity = 4;  // Default capacity
     
-    TTOList* list = malloc(sizeof(TTOList));
+    STOList* list = malloc(sizeof(STOList));
     if (!list) {
         fprintf(stderr, "ERROR: Failed to allocate list structure\n");
         exit(1);
@@ -421,12 +421,12 @@ TTOList* tto_list_alloc(size_t capacity) {
 /**
  * Set a list element at a specific index
  * 
- * @param list Pointer to TTOList
+ * @param list Pointer to STOList
  * @param index Element index
  * @param value Pointer to value (copied to heap)
  * @param type VarType of the element
  */
-void tto_list_set(TTOList* list, size_t index, void* value, uint8_t type) {
+void sto_list_set(STOList* list, size_t index, void* value, uint8_t type) {
     if (!list || !value) return;
     
     // Grow if needed
@@ -466,7 +466,7 @@ void tto_list_set(TTOList* list, size_t index, void* value, uint8_t type) {
 /**
  * Get a list element
  */
-void* tto_list_get(TTOList* list, size_t index) {
+void* sto_list_get(STOList* list, size_t index) {
     if (!list || index >= list->count) {
         fprintf(stderr, "ERROR: List index out of bounds: %zu >= %zu\n", 
                 index, list->count);
@@ -479,14 +479,14 @@ void* tto_list_get(TTOList* list, size_t index) {
 /**
  * Append to list
  */
-void tto_list_append(TTOList* list, void* value, uint8_t type) {
-    tto_list_set(list, list->count, value, type);
+void sto_list_append(STOList* list, void* value, uint8_t type) {
+    sto_list_set(list, list->count, value, type);
 }
 
 /**
  * Free a list
  */
-void tto_list_free(TTOList* list) {
+void sto_list_free(STOList* list) {
     if (list) {
         // Free all element data
         for (size_t i = 0; i < list->count; i++) {
@@ -501,10 +501,10 @@ void tto_list_free(TTOList* list) {
 /**
  * Allocate a tuple (immutable, heterogeneous)
  */
-TTOTuple* tto_tuple_alloc(size_t count) {
+STOTuple* sto_tuple_alloc(size_t count) {
     if (count == 0) return NULL;
     
-    TTOTuple* tuple = malloc(sizeof(TTOTuple));
+    STOTuple* tuple = malloc(sizeof(STOTuple));
     if (!tuple) {
         fprintf(stderr, "ERROR: Failed to allocate tuple\n");
         exit(1);
@@ -532,7 +532,7 @@ TTOTuple* tto_tuple_alloc(size_t count) {
 /**
  * Set a tuple element (only during initialization)
  */
-void tto_tuple_set(TTOTuple* tuple, size_t index, void* value, uint8_t type) {
+void sto_tuple_set(STOTuple* tuple, size_t index, void* value, uint8_t type) {
     if (!tuple || !value || index >= tuple->count) return;
     
     // Copy value to heap
@@ -546,7 +546,7 @@ void tto_tuple_set(TTOTuple* tuple, size_t index, void* value, uint8_t type) {
 /**
  * Get a tuple element
  */
-void* tto_tuple_get(TTOTuple* tuple, size_t index) {
+void* sto_tuple_get(STOTuple* tuple, size_t index) {
     if (!tuple || index >= tuple->count) {
         fprintf(stderr, "ERROR: Tuple index out of bounds: %zu >= %zu\n", 
                 index, tuple->count);
@@ -559,7 +559,7 @@ void* tto_tuple_get(TTOTuple* tuple, size_t index) {
 /**
  * Free a tuple
  */
-void tto_tuple_free(TTOTuple* tuple) {
+void sto_tuple_free(STOTuple* tuple) {
     if (tuple) {
         // Free all element data
         for (size_t i = 0; i < tuple->count; i++) {

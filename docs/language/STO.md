@@ -1,14 +1,15 @@
-# Transparent Type Optimization (TTO)
+# Smart Type Optimization (STO)
 
-**Version:** 1.0  
-**Last Updated:** December 10, 2025  
-**Status:** Design Document
+**Version:** 2.0  
+**Last Updated:** December 12, 2025  
+**Status:** Active Implementation  
+**Alias:** Previously known as TTO (Transparent Type Optimization)
 
 ---
 
 ## Overview
 
-TTO (Transparent Type Optimization) is MELP's approach to providing a simple user experience while maintaining high performance. Users see only two basic types (`numeric` and `string`), but the compiler automatically selects optimal internal representations.
+STO (Smart Type Optimization) is MELP's approach to providing a simple user experience while maintaining high performance. Users see only two basic types (`numeric` and `string`), but the compiler automatically selects optimal internal representations.
 
 ---
 

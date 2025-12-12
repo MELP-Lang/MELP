@@ -96,9 +96,9 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
     decl->storage = STORAGE_BSS;
     decl->has_decimal_point = 0;
     
-    // Phase 2: Initialize TTO fields
-    decl->tto_info = NULL;
-    decl->tto_analyzed = false;
+    // Phase 2: Initialize STO fields
+    decl->sto_info = NULL;
+    decl->sto_analyzed = false;
     decl->needs_overflow_check = false;
     
     token_free(tok);  // consume identifier
@@ -146,7 +146,7 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
                 // Complex expression or collection: numeric x = a + b, list x = (1;2;), tuple x = <1,2>
                 decl->init_expr = expr;  // ✅ Store ArithmeticExpr*
                 decl->storage = STORAGE_BSS;  // Runtime initialization
-                decl->tto_analyzed = false;
+                decl->sto_analyzed = false;
             }
         }
         
@@ -156,13 +156,13 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
         // String literal
         decl->value = strdup(tok->value);
         
-        // Phase 2: TTO analysis for string literals
-        TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+        // Phase 2: STO analysis for string literals
+        STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
         *tto = codegen_tto_infer_string_type(decl->value, true);  // true = is constant
-        decl->tto_info = tto;
-        decl->tto_analyzed = true;
+        decl->sto_info = tto;
+        decl->sto_analyzed = true;
         
-        // Update internal type based on TTO (backward compatibility)
+        // Update internal type based on STO (backward compatibility)
         if (tto->type == INTERNAL_TYPE_SSO_STRING) {
             decl->internal_str_type = INTERNAL_SSO;
         } else if (tto->type == INTERNAL_TYPE_HEAP_STRING) {
@@ -265,9 +265,9 @@ VariableAssignment* variable_parse_assignment(Lexer* lexer, Token* identifier_to
     assign->name = strdup(identifier_token->value);
     assign->value_expr = NULL;
     
-    // Phase 2: Initialize TTO fields
-    assign->tto_info = NULL;
-    assign->tto_analyzed = false;
+    // Phase 2: Initialize STO fields
+    assign->sto_info = NULL;
+    assign->sto_analyzed = false;
     assign->needs_type_promotion = false;
     
     // identifier_token is BORROWED, read next token (OWNED)
@@ -323,8 +323,8 @@ void variable_declaration_free(VariableDeclaration* decl) {
     if (decl->value) free(decl->value);
     // init_expr would be freed here if used
     
-    // Phase 2: Free TTO info
-    if (decl->tto_info) free(decl->tto_info);
+    // Phase 2: Free STO info
+    if (decl->sto_info) free(decl->sto_info);
     
     free(decl);
 }
@@ -336,8 +336,8 @@ void variable_assignment_free(VariableAssignment* assign) {
     if (assign->name) free(assign->name);
     // value_expr would be freed here if used
     
-    // Phase 2: Free TTO info
-    if (assign->tto_info) free(assign->tto_info);
+    // Phase 2: Free STO info
+    if (assign->sto_info) free(assign->sto_info);
     
     free(assign);
 }

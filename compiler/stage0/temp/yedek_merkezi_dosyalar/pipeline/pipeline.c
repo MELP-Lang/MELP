@@ -52,13 +52,13 @@ CompileResult pipeline_compile(const char* input_path, const char* output_path) 
     fprintf(out, "; Source: %s\n\n", input_path);
     fprintf(out, "global _start\n\n");
     
-    // TTO runtime external functions
-    fprintf(out, "; TTO Runtime functions\n");
-    fprintf(out, "extern tto_bigdec_from_int64\n");
-    fprintf(out, "extern tto_bigdec_add\n");
-    fprintf(out, "extern tto_bigdec_sub\n");
-    fprintf(out, "extern tto_bigdec_mul\n");
-    fprintf(out, "extern tto_bigdec_div\n\n");
+    // STO runtime external functions
+    fprintf(out, "; STO Runtime functions\n");
+    fprintf(out, "extern sto_bigdec_from_int64\n");
+    fprintf(out, "extern sto_bigdec_add\n");
+    fprintf(out, "extern sto_bigdec_sub\n");
+    fprintf(out, "extern sto_bigdec_mul\n");
+    fprintf(out, "extern sto_bigdec_div\n\n");
     
     // Track sections
     char data_section[8192] = "";  // For strings

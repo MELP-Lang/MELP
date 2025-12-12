@@ -64,14 +64,14 @@ static void for_each_generate_code(FILE* output, ForLoop* loop, void* context) {
         fprintf(output, "    # Tuple element access\n");
         fprintf(output, "    movq %d(%%rbp), %%rdi  # Tuple pointer\n", coll_offset);
         fprintf(output, "    movq %d(%%rbp), %%rsi  # Index\n", idx_offset);
-        fprintf(output, "    call tto_tuple_get\n");
+        fprintf(output, "    call sto_tuple_get\n");
         fprintf(output, "    movq %%rax, %d(%%rbp)  # Store in %s\n", item_offset, loop->var_name);
     } else if (is_list) {
         // List access: lst(idx)
         fprintf(output, "    # List element access\n");
         fprintf(output, "    movq %d(%%rbp), %%rdi  # List pointer\n", coll_offset);
         fprintf(output, "    movq %d(%%rbp), %%rsi  # Index\n", idx_offset);
-        fprintf(output, "    call tto_list_get\n");
+        fprintf(output, "    call sto_list_get\n");
         fprintf(output, "    movq %%rax, %d(%%rbp)  # Store in %s\n", item_offset, loop->var_name);
     } else {
         // Array access: arr[idx] - direct memory access

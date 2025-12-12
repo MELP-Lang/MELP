@@ -1,0 +1,13 @@
+function main() {
+    println("STO Runtime Test: Hello from Phase 12!");
+    
+    let x = 42;
+    let y = 3.14159;
+    let z = x + 10;
+    
+    println(x);
+    println(y);
+    println(z);
+    
+    println("✅ Phase 12 TTO->STO refactoring complete!");
+}

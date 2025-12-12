@@ -84,7 +84,7 @@ static void scan_statement_for_variables(FunctionDeclaration* func, Statement* s
     if (stmt->type == STMT_VARIABLE_DECL) {
         VariableDeclaration* decl = (VariableDeclaration*)stmt->data;
         if (decl && decl->name) {
-            // TTO: Register with type flag (1=numeric, 0=string)
+            // STO: Register with type flag (1=numeric, 0=string)
             int is_numeric = (decl->type != VAR_STRING) ? 1 : 0;
             function_register_local_var_with_type(func, decl->name, is_numeric);
         }
@@ -213,11 +213,11 @@ void function_generate_call(FILE* output, FunctionCall* call) {
                     fprintf(output, "    movq %%r8, %%rdi    # arg1: string pointer\n");
                     fprintf(output, "    call mlp_println_string\n");
                 } else {
-                    // Numeric argument - TTO-aware call
+                    // Numeric argument - STO-aware call
                     fprintf(output, "    subq $16, %%rsp      # Allocate temp space\n");
                     fprintf(output, "    movq %%r8, (%%rsp)   # Store value\n");
                     fprintf(output, "    movq %%rsp, %%rdi    # arg1: pointer to value\n");
-                    fprintf(output, "    movq $0, %%rsi       # arg2: TTO_TYPE_INT64\n");
+                    fprintf(output, "    movq $0, %%rsi       # arg2: STO_TYPE_INT64\n");
                     fprintf(output, "    call mlp_println_numeric\n");
                     fprintf(output, "    addq $16, %%rsp      # Clean up temp space\n");
                 }
@@ -238,7 +238,7 @@ void function_generate_call(FILE* output, FunctionCall* call) {
                 fprintf(output, "    subq $16, %%rsp      # Allocate temp space\n");
                 fprintf(output, "    movq %%r8, (%%rsp)   # Store value\n");
                 fprintf(output, "    movq %%rsp, %%rdi    # arg1: pointer to value\n");
-                fprintf(output, "    movq $0, %%rsi       # arg2: TTO_TYPE_INT64\n");
+                fprintf(output, "    movq $0, %%rsi       # arg2: STO_TYPE_INT64\n");
                 fprintf(output, "    call mlp_print_numeric\n");
                 fprintf(output, "    addq $16, %%rsp      # Clean up\n");
             }
@@ -258,7 +258,7 @@ void function_generate_call(FILE* output, FunctionCall* call) {
                 fprintf(output, "    subq $16, %%rsp      # Allocate temp space\n");
                 fprintf(output, "    movq %%r8, (%%rsp)   # Store value\n");
                 fprintf(output, "    movq %%rsp, %%rdi    # arg1: pointer to value\n");
-                fprintf(output, "    movq $0, %%rsi       # arg2: TTO_TYPE_INT64\n");
+                fprintf(output, "    movq $0, %%rsi       # arg2: STO_TYPE_INT64\n");
                 fprintf(output, "    call mlp_toString_numeric\n");
                 fprintf(output, "    addq $16, %%rsp      # Clean up\n");
                 // Return value (string pointer) is in %rax

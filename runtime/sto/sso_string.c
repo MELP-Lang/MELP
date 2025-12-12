@@ -5,13 +5,13 @@
 // - Strings ≤23 bytes: Stored inline (stack) - NO heap allocation
 // - Strings >23 bytes: Stored on heap with pointer
 //
-// Architecture: Modular TTO Runtime Component
+// Architecture: Modular STO Runtime Component
 // Author: MLP Compiler Team
 // Date: 7 Aralık 2025
 
 #define _POSIX_C_SOURCE 200809L
 
-#include "runtime_tto.h"
+#include "runtime_sto.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -21,7 +21,7 @@
 // ============================================================================
 
 // Get string length (works for both SSO and heap)
-size_t tto_sso_length(SSOString* sso) {
+size_t sto_sso_length(SSOString* sso) {
     if (!sso) return 0;
     
     if (sso->flags & 1) {
@@ -34,16 +34,16 @@ size_t tto_sso_length(SSOString* sso) {
 }
 
 // SSO string concatenation
-SSOString* tto_sso_concat(SSOString* a, SSOString* b) {
+SSOString* sto_sso_concat(SSOString* a, SSOString* b) {
     if (!a || !b) return NULL;
     
-    const char* str_a = tto_sso_data(a);
-    const char* str_b = tto_sso_data(b);
+    const char* str_a = sto_sso_data(a);
+    const char* str_b = sto_sso_data(b);
     
     if (!str_a || !str_b) return NULL;
     
-    size_t len_a = tto_sso_length(a);
-    size_t len_b = tto_sso_length(b);
+    size_t len_a = sto_sso_length(a);
+    size_t len_b = sto_sso_length(b);
     size_t total_len = len_a + len_b;
     
     SSOString* result = (SSOString*)malloc(sizeof(SSOString));
@@ -75,11 +75,11 @@ SSOString* tto_sso_concat(SSOString* a, SSOString* b) {
 }
 
 // String comparison
-int tto_sso_compare(SSOString* a, SSOString* b) {
+int sto_sso_compare(SSOString* a, SSOString* b) {
     if (!a || !b) return 0;
     
-    const char* str_a = tto_sso_data(a);
-    const char* str_b = tto_sso_data(b);
+    const char* str_a = sto_sso_data(a);
+    const char* str_b = sto_sso_data(b);
     
     if (!str_a || !str_b) return 0;
     
@@ -87,15 +87,15 @@ int tto_sso_compare(SSOString* a, SSOString* b) {
 }
 
 // String equality check
-bool tto_sso_equals(SSOString* a, SSOString* b) {
-    return tto_sso_compare(a, b) == 0;
+bool sto_sso_equals(SSOString* a, SSOString* b) {
+    return sto_sso_compare(a, b) == 0;
 }
 
 // Substring extraction
-SSOString* tto_sso_substring(SSOString* str, size_t start, size_t length) {
+SSOString* sto_sso_substring(SSOString* str, size_t start, size_t length) {
     if (!str) return NULL;
     
-    size_t str_len = tto_sso_length(str);
+    size_t str_len = sto_sso_length(str);
     if (start >= str_len) return NULL;
     
     // Adjust length if it exceeds string bounds
@@ -103,7 +103,7 @@ SSOString* tto_sso_substring(SSOString* str, size_t start, size_t length) {
         length = str_len - start;
     }
     
-    const char* data = tto_sso_data(str);
+    const char* data = sto_sso_data(str);
     if (!data) return NULL;
     
     SSOString* result = (SSOString*)malloc(sizeof(SSOString));
@@ -133,27 +133,27 @@ SSOString* tto_sso_substring(SSOString* str, size_t start, size_t length) {
 }
 
 // String to integer conversion
-int64_t tto_sso_to_int64(SSOString* str) {
+int64_t sto_sso_to_int64(SSOString* str) {
     if (!str) return 0;
     
-    const char* data = tto_sso_data(str);
+    const char* data = sto_sso_data(str);
     if (!data) return 0;
     
     return atoll(data);
 }
 
 // Integer to string conversion
-SSOString* tto_sso_from_int64(int64_t value) {
+SSOString* sto_sso_from_int64(int64_t value) {
     char buffer[32];
     snprintf(buffer, sizeof(buffer), "%lld", (long long)value);
-    return tto_sso_create(buffer);
+    return sto_sso_create(buffer);
 }
 
 // String find - returns index of first occurrence, or -1 if not found
-int tto_sso_find(SSOString* haystack, const char* needle) {
+int sto_sso_find(SSOString* haystack, const char* needle) {
     if (!haystack || !needle) return -1;
     
-    const char* data = tto_sso_data(haystack);
+    const char* data = sto_sso_data(haystack);
     if (!data) return -1;
     
     const char* found = strstr(data, needle);
@@ -163,23 +163,23 @@ int tto_sso_find(SSOString* haystack, const char* needle) {
 }
 
 // String copy - creates a new independent copy
-SSOString* tto_sso_copy(SSOString* str) {
+SSOString* sto_sso_copy(SSOString* str) {
     if (!str) return NULL;
     
-    const char* data = tto_sso_data(str);
+    const char* data = sto_sso_data(str);
     if (!data) return NULL;
     
-    return tto_sso_create(data);
+    return sto_sso_create(data);
 }
 
 // Convert to C string (caller must free)
-char* tto_sso_to_cstring(SSOString* str) {
+char* sto_sso_to_cstring(SSOString* str) {
     if (!str) return NULL;
     
-    const char* data = tto_sso_data(str);
+    const char* data = sto_sso_data(str);
     if (!data) return NULL;
     
-    size_t len = tto_sso_length(str);
+    size_t len = sto_sso_length(str);
     char* result = (char*)malloc(len + 1);
     if (!result) return NULL;
     
@@ -188,14 +188,14 @@ char* tto_sso_to_cstring(SSOString* str) {
 }
 
 // String starts with
-bool tto_sso_starts_with(SSOString* str, const char* prefix) {
+bool sto_sso_starts_with(SSOString* str, const char* prefix) {
     if (!str || !prefix) return false;
     
-    const char* data = tto_sso_data(str);
+    const char* data = sto_sso_data(str);
     if (!data) return false;
     
     size_t prefix_len = strlen(prefix);
-    size_t str_len = tto_sso_length(str);
+    size_t str_len = sto_sso_length(str);
     
     if (prefix_len > str_len) return false;
     
@@ -203,14 +203,14 @@ bool tto_sso_starts_with(SSOString* str, const char* prefix) {
 }
 
 // String ends with
-bool tto_sso_ends_with(SSOString* str, const char* suffix) {
+bool sto_sso_ends_with(SSOString* str, const char* suffix) {
     if (!str || !suffix) return false;
     
-    const char* data = tto_sso_data(str);
+    const char* data = sto_sso_data(str);
     if (!data) return false;
     
     size_t suffix_len = strlen(suffix);
-    size_t str_len = tto_sso_length(str);
+    size_t str_len = sto_sso_length(str);
     
     if (suffix_len > str_len) return false;
     

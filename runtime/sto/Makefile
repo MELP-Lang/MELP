@@ -4,22 +4,22 @@ AR = ar
 ARFLAGS = rcs
 
 # Targets
-TARGET = test_runtime_tto
+TARGET = test_runtime_sto
 TARGET_BIGDEC = test_bigdecimal
 TARGET_SSO = test_sso_string
-LIB = libtto_runtime.a
-SOURCES = runtime_tto.c tto_runtime.c bigdecimal.c sso_string.c test_runtime_tto.c test_bigdecimal.c test_sso_string.c
-LIB_OBJECTS = runtime_tto.o tto_runtime.o bigdecimal.o sso_string.o
-TEST_OBJECTS = runtime_tto.o bigdecimal.o test_runtime_tto.o
-BIGDEC_TEST_OBJECTS = runtime_tto.o bigdecimal.o test_bigdecimal.o
-SSO_TEST_OBJECTS = runtime_tto.o sso_string.o test_sso_string.o
+LIB = libsto_runtime.a
+SOURCES = runtime_sto.c sto_runtime.c bigdecimal.c sso_string.c test_runtime_sto.c test_bigdecimal.c test_sso_string.c
+LIB_OBJECTS = runtime_sto.o sto_runtime.o bigdecimal.o sso_string.o
+TEST_OBJECTS = runtime_sto.o bigdecimal.o test_runtime_sto.o
+BIGDEC_TEST_OBJECTS = runtime_sto.o bigdecimal.o test_bigdecimal.o
+SSO_TEST_OBJECTS = runtime_sto.o sso_string.o test_sso_string.o
 
 all: $(LIB) $(TARGET) $(TARGET_BIGDEC) $(TARGET_SSO)
 
 # Static library for linking with compiler
 $(LIB): $(LIB_OBJECTS)
 	$(AR) $(ARFLAGS) $@ $^
-	@echo "✅ TTO runtime library created: $(LIB)"
+	@echo "✅ STO runtime library created: $(LIB)"
 
 $(TARGET): $(TEST_OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $^

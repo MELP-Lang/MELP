@@ -141,9 +141,9 @@ void variable_codegen_declaration(VariableCodegen* codegen, VariableDeclaration*
             fprintf(f, " [dynamic]\n");
         }
         
-        // No .bss allocation - arrays are always heap-allocated via TTO runtime
+        // No .bss allocation - arrays are always heap-allocated via STO runtime
         
-        // Array initialization code with TTO runtime
+        // Array initialization code with STO runtime
         if (decl->value && decl->value[0] == '[') {
             fprintf(f, "\n    ; Initialize array: %s = %s\n", decl->name, decl->value);
             
@@ -171,7 +171,7 @@ void variable_codegen_declaration(VariableCodegen* codegen, VariableDeclaration*
             fprintf(f, "    # Allocate array with %d elements\n", element_count);
             fprintf(f, "    movq $%d, %%rdi      # count\n", element_count);
             fprintf(f, "    movq $8, %%rsi       # elem_size (8 bytes)\n");
-            fprintf(f, "    call tto_array_alloc # Returns pointer in %%rax\n");
+            fprintf(f, "    call sto_array_alloc # Returns pointer in %%rax\n");
             fprintf(f, "    movq %%rax, -%d(%%rbp)  # Store array pointer for %s\n", 
                     8, decl->name);  // Use stack offset (simplified)
             
@@ -219,7 +219,7 @@ void variable_codegen_declaration(VariableCodegen* codegen, VariableDeclaration*
     if (decl->type == VAR_NUMERIC) {
         // Numeric variable
         if (decl->internal_num_type == INTERNAL_INT64) {
-            fprintf(f, "    ; TTO: INT64 optimization\n");
+            fprintf(f, "    ; STO: INT64 optimization\n");
             variable_codegen_bss_section(codegen);
             fprintf(f, "    var_%s: resq 1  ; 64-bit integer\n", decl->name);
             
@@ -247,12 +247,12 @@ void variable_codegen_declaration(VariableCodegen* codegen, VariableDeclaration*
             }
             
         } else if (decl->internal_num_type == INTERNAL_DOUBLE) {
-            fprintf(f, "    ; TTO: DOUBLE optimization\n");
+            fprintf(f, "    ; STO: DOUBLE optimization\n");
             variable_codegen_data_section(codegen);
             fprintf(f, "    var_%s: dq %s  ; 64-bit float\n", decl->name, decl->value);
             
         } else {  // INTERNAL_BIGDECIMAL
-            fprintf(f, "    ; TTO: BIGDECIMAL (large number)\n");
+            fprintf(f, "    ; STO: BIGDECIMAL (large number)\n");
             variable_codegen_bss_section(codegen);
             fprintf(f, "    var_%s: resq 2  ; 128-bit for big decimal\n", decl->name);
         }
@@ -260,19 +260,19 @@ void variable_codegen_declaration(VariableCodegen* codegen, VariableDeclaration*
     } else if (decl->type == VAR_STRING) {
         // String variable
         if (decl->internal_str_type == INTERNAL_SSO) {
-            fprintf(f, "    ; TTO: SSO optimization (≤23 chars)\n");
+            fprintf(f, "    ; STO: SSO optimization (≤23 chars)\n");
             variable_codegen_data_section(codegen);
             fprintf(f, "    var_%s: db \"%s\", 0  ; Small string inline\n", 
                     decl->name, decl->value);
             
         } else if (decl->internal_str_type == INTERNAL_RODATA) {
-            fprintf(f, "    ; TTO: RODATA optimization (constant)\n");
+            fprintf(f, "    ; STO: RODATA optimization (constant)\n");
             variable_codegen_data_section(codegen);
             fprintf(f, "    var_%s: db \"%s\", 0  ; Read-only data\n", 
                     decl->name, decl->value);
             
         } else {  // INTERNAL_HEAP
-            fprintf(f, "    ; TTO: HEAP allocation (>23 chars)\n");
+            fprintf(f, "    ; STO: HEAP allocation (>23 chars)\n");
             variable_codegen_data_section(codegen);
             fprintf(f, "    str_%s_data: db \"%s\", 0\n", decl->name, decl->value);
             variable_codegen_bss_section(codegen);

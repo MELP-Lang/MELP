@@ -2,8 +2,8 @@
 # ======================================
 
 CC = gcc
-CFLAGS = -Wall -g -I../.. -I../../../../runtime/tto
-LDFLAGS = ../../../../runtime/tto/libtto_runtime.a
+CFLAGS = -Wall -g -I../.. -I../../../../runtime/sto
+LDFLAGS = ../../../../runtime/sto/libsto_runtime.a
 
 # Source files
 SOURCES = variable_standalone.c variable.c variable_parser.c variable_codegen.c ../lexer/lexer.c ../comments/comments.c

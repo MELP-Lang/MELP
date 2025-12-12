@@ -107,7 +107,7 @@ void function_register_local_var_with_type(FunctionDeclaration* func, const char
     // Create new local variable entry
     LocalVariable* var = malloc(sizeof(LocalVariable));
     var->name = strdup(name);
-    var->is_numeric = is_numeric;  // TTO: 1=numeric, 0=string
+    var->is_numeric = is_numeric;  // STO: 1=numeric, 0=string
     var->is_array = 0;             // Default: not an array
     var->array_length = 0;         // Default: no length
     var->is_tuple = 0;             // YZ_21: Default: not a tuple

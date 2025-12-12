@@ -10,8 +10,8 @@
 #   - control_flow (modül #6)
 
 CC = gcc
-CFLAGS = -Wall -Wextra -g -I../.. -I../../../../runtime/tto -I../../../../runtime/stdlib
-LDFLAGS = -L../../../../runtime/stdlib -lmlp_stdlib -L../../../../runtime/tto -ltto_runtime -lm
+CFLAGS = -Wall -Wextra -g -I../.. -I../../../../runtime/sto -I../../../../runtime/stdlib
+LDFLAGS = -L../../../../runtime/stdlib -lmlp_stdlib -L../../../../runtime/sto -lsto_runtime -lm
 NASM = nasm
 NASMFLAGS = -f elf64
 LD = ld
@@ -170,7 +170,7 @@ info:
 	@echo ""
 
 # Ana derleyici
-$(TARGET): $(OBJECTS) ../../../../runtime/tto/libtto_runtime.a ../../../../runtime/stdlib/libmlp_stdlib.a
+$(TARGET): $(OBJECTS) ../../../../runtime/sto/libsto_runtime.a ../../../../runtime/stdlib/libmlp_stdlib.a
 	@echo "🔗 Linking: $(TARGET)"
 	$(CC) $(CFLAGS) -o $@ $(OBJECTS) $(LDFLAGS)
 

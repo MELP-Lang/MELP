@@ -61,10 +61,10 @@ int main(int argc, char **argv) {
     while ((decl = variable_parse_declaration(parser)) != NULL) {
         printf("  ✓ Parsed variable: %s\n", decl->name);
         
-        // Phase 2.5: Display TTO analysis
-        if (decl->tto_analyzed && decl->tto_info) {
-            printf("    [TTO] Type: ");
-            switch (decl->tto_info->type) {
+        // Phase 2.5: Display STO analysis
+        if (decl->sto_analyzed && decl->sto_info) {
+            printf("    [STO] Type: ");
+            switch (decl->sto_info->type) {
                 case INTERNAL_TYPE_INT64:
                     printf("INT64 (register/stack, 8 bytes)\n");
                     break;
@@ -87,19 +87,19 @@ int main(int argc, char **argv) {
                     printf("UNKNOWN\n");
             }
             
-            printf("    [TTO] Memory: ");
-            switch (decl->tto_info->mem_location) {
+            printf("    [STO] Memory: ");
+            switch (decl->sto_info->mem_location) {
                 case MEM_REGISTER: printf("REGISTER\n"); break;
                 case MEM_STACK: printf("STACK\n"); break;
                 case MEM_HEAP: printf("HEAP\n"); break;
                 case MEM_RODATA: printf("RODATA\n"); break;
             }
             
-            if (decl->tto_info->is_constant) {
-                printf("    [TTO] Constant: YES\n");
+            if (decl->sto_info->is_constant) {
+                printf("    [STO] Constant: YES\n");
             }
             if (decl->needs_overflow_check) {
-                printf("    [TTO] Overflow check: ENABLED\n");
+                printf("    [STO] Overflow check: ENABLED\n");
             }
         }
         

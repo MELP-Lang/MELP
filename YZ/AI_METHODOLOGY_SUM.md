@@ -50,18 +50,18 @@ Dikkat edeceğim edge case'ler:
 ---
 ```
 
-### ⚠️ TTO Kuralı (Zorunlu)
+### ⚠️ STO Kuralı (Zorunlu)
 
-Eğer görevin TTO (Transparent Type Optimization) yapısını ilgilendiriyorsa:
+Eğer görevin STO (Smart Type Optimization) yapısını ilgilendiriyorsa:
 
 ```
-1. temp/kurallar_kitabı.md → TTO bölümünü oku
-2. Kullanıcıya bildir: "TTO bölümünü okudum, kurallara uyacağım"
+1. temp/kurallar_kitabı.md → STO bölümünü oku
+2. Kullanıcıya bildir: "STO bölümünü okudum, kurallara uyacağım"
 3. Onay al
 4. Kodla
 ```
 
-**TTO'yu ilgilendiren konular:**
+**STO'yu ilgilendiren konular:**
 - Type system değişiklikleri
 - Runtime optimizasyonları
 - Numeric/string/boolean işlemleri
@@ -236,7 +236,7 @@ EOF
 
 # 3. Derle ve çalıştır
 ./modules/functions/functions_compiler test_feature.mlp test_feature.s
-gcc test_feature.s -L../../runtime/stdlib -lmlp_stdlib -L../../runtime/tto -ltto_runtime -lm -o test_feature
+gcc test_feature.s -L../../runtime/stdlib -lmlp_stdlib -L../../runtime/sto -lsto_runtime -lm -o test_feature
 ./test_feature
 echo $?  # Exit code'u kontrol et
 ```

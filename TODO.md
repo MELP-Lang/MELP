@@ -16,11 +16,27 @@
 👉 **`NEXT_AI_START_HERE.md`** - YZ_31 için mission brief (Buradan başla!)
 👉 **`YZ/YZ_HISTORY.md`** - Tüm YZ oturumlarının özeti
 
+**🔴 GIT KURALLARI (ÇOK ÖNEMLİ!):**
+```bash
+# 1. Kendi dalını oluştur
+git checkout -b feature-name_YZ_XX
+
+# 2. Çalış, commit et
+git add .
+git commit -m "YZ_XX: Feature description"
+
+# 3. Push et
+git push origin feature-name_YZ_XX
+
+# 4. ⚠️ ASLA MERGE YAPMA veya PULL REQUEST OLUŞTURMA!
+# Human review yapıp merge edecek.
+```
+
 **📖 SONRA BUNLARI OKU:**  
 Bu TODO'daki görevlere başlamadan önce **MUTLAKA** şu dosyaları oku:
 
-👉 **`temp/kurallar_kitabı.md` - Bölüm 4: Transparent Type Optimization (TTO)**  
-👉 **`ARCHITECTURE.md`** - Mimari kurallar (modülerlik, TTO)  
+👉 **`temp/kurallar_kitabı.md` - Bölüm 4: Smart Type Optimization (STO)**  
+👉 **`ARCHITECTURE.md`** - Mimari kurallar (modülerlik, STO)  
 👉 **`YZ/AI_METHODOLOGY.md`** - 5 adımlı hızlı geliştirme metodu
 
 ---
@@ -107,7 +123,7 @@ Bağımsız okumalar → paralel read_file çağrıları
 
 **3. Trust the Pattern** 🎯
 ```
-✓ TTO principle → 1 bit tracking, basit
+✓ STO principle → 1 bit tracking, basit
 ✓ Modular architecture → izole değişiklikler
 ✓ Stateless parsers → side effect yok
 → Değişiklik küçük, etki lokal, güven yüksek
@@ -144,13 +160,13 @@ Görevin sonunda olması gerekenler:
 
 ### Neden Bu Kadar Önemli?
 
-TTO, MELP'in temel mimari felsefesidir. Bunu anlamadan:
+STO, MELP'in temel mimari felsefesidir. Bunu anlamadan:
 - ❌ String operations codegen'i yanlış yaparsın
 - ❌ Type tracking sistemini bozarsın  
 - ❌ Runtime fonksiyonlarını yanlış çağırırsın
 - ❌ Numeric vs string ayrımını karıştırırsın
 
-### TTO'nun Özeti (Detay için kurallar_kitabı.md oku!)
+### STO'nun Özeti (Detay için kurallar_kitabı.md oku!)
 
 **Kullanıcıya gösterilen:** Sadece 2 tip → `numeric` ve `string`  
 **Arka planda compiler:** Otomatik optimize eder:
@@ -224,10 +240,10 @@ modules/tto/tto_analyzer               (standalone)
 
 ### Okumadan Devam Etme!
 
-Eğer TTO'yu anlamadan TODO'ya başlarsan, çalışan sistemi bozabilirsin.  
-**5-10 dakika** ayır, `temp/kurallar_kitabı.md` dosyasındaki TTO bölümünü oku.
+Eğer STO'yu anlamadan TODO'ya başlarsan, çalışan sistemi bozabilirsin.  
+**5-10 dakika** ayır, `temp/kurallar_kitabı.md` dosyasındaki STO bölümünü oku.
 
-✅ Okudum, TTO'yu anladım → TODO'ya geç  
+✅ Okudum, STO'yu anladım → TODO'ya geç  
 ❌ Okumadım → Önce oku, sonra dön
 
 ---
@@ -245,7 +261,7 @@ Eğer TTO'yu anlamadan TODO'ya başlarsan, çalışan sistemi bozabilirsin.
 - [x] **For Loops** - for i = start to/downto end (YZ_12) ✅
 - [x] **Recursion** - Recursive function calls (Fibonacci works!)
 - [x] **String Literals** - "Hello World" in .rodata section
-- [x] **TTO Type Tracking** - is_numeric flag (1 bit per variable)
+- [x] **STO Type Tracking** - is_numeric flag (1 bit per variable)
 - [x] **Runtime - Numeric I/O** - println(numeric), print(numeric)
 - [x] **Runtime - String I/O** - println(text), print(text)
 - [x] **Runtime - String Ops** - concat(), compare() functions
@@ -665,7 +681,7 @@ Eğer TTO'yu anlamadan TODO'ya başlarsan, çalışan sistemi bozabilirsin.
 - [x] **State Module Implementation** ✅ (YZ_34 completed - 3 hours)
   - `state_init()` - Initialize state manager
   - `state_close()` - Close state manager (optional - auto-cleanup fallback)
-  - `state_set(key, value)` - Store key-value pair (TTO optimized)
+  - `state_set(key, value)` - Store key-value pair (STO optimized)
   - `state_get(key)` - Retrieve value by key
   - `state_has(key)` - Check if key exists
   - `state_delete(key)` - Delete key-value pair
@@ -674,8 +690,8 @@ Eğer TTO'yu anlamadan TODO'ya başlarsan, çalışan sistemi bozabilirsin.
   - `state_load()` - Load state from file (JSON)
   - `state_config_set(key, value)` - Configure state manager
 
-- [x] **State Runtime with TTO** ✅ (YZ_34 completed - 2 hours)
-  - TTO optimization: SSO (≤23 bytes) vs Heap (>23 bytes)
+- [x] **State Runtime with STO** ✅ (YZ_34 completed - 2 hours)
+  - STO optimization: SSO (≤23 bytes) vs Heap (>23 bytes)
   - Auto-cleanup with `__attribute__((destructor))`
   - JSON persistence (save/load cycles)
   - Namespace convention: "shared:", "config:", "temp:"
@@ -690,7 +706,7 @@ Eğer TTO'yu anlamadan TODO'ya başlarsan, çalışan sistemi bozabilirsin.
 - [x] **Testing** ✅ (YZ_34 completed - 1 hour)
   - Test 1: Lifecycle (init, double-init prevention, close, re-init)
   - Test 2: Basic operations (set/get/has/delete/clear)
-  - Test 3: TTO optimization (SSO vs Heap)
+  - Test 3: STO optimization (SSO vs Heap)
   - Test 4: Persistence (save → clear → load)
   - Test 5: Configuration (auto_persist, custom file)
   - Test 6: Namespace convention (shared:, config:, temp:)
@@ -730,12 +746,12 @@ function main() returns numeric
 end function
 ```
 
-**TTO Optimization:**
+**STO Optimization:**
 - Small strings (≤23 bytes): SSO (inline on stack)
 - Large strings (>23 bytes): Heap allocation
 - Example: "Ali" (3 bytes) → SSO, 68-byte doc → Heap
 
-**Deliverable:** ✅ Complete! Optional state management with TTO optimization, auto-cleanup, and persistence!
+**Deliverable:** ✅ Complete! Optional state management with STO optimization, auto-cleanup, and persistence!
 
 ---
 
@@ -924,26 +940,26 @@ end function
 ### Part 1: Documentation Update (YZ_49 - 1 hour) ⭐ START HERE
 **Goal:** Update all markdown files to use consistent terminology
 
-- [ ] **Core Documentation**
-  - [ ] `TODO.md` - Replace "TTO" → "STO" (except in historical YZ references)
-  - [ ] `ARCHITECTURE.md` - Update references
-  - [ ] `NEXT_AI_START_HERE.md` - Update terminology
-  - [ ] `temp/kurallar_kitabı.md` - Already uses STO ✅
-  - [ ] `temp/MELP_VISION.md` - Already uses STO ✅
-  - [ ] `temp/MELP_some_specs.md` - Already uses STO ✅
+- [x] **Core Documentation** ✅
+  - [x] `TODO.md` - Replace "TTO" → "STO" (except in historical YZ references) ✅
+  - [x] `ARCHITECTURE.md` - Update references ✅
+  - [x] `NEXT_AI_START_HERE.md` - Update terminology ✅
+  - [x] `temp/kurallar_kitabı.md` - Already uses STO ✅
+  - [x] `temp/MELP_VISION.md` - Already uses STO ✅
+  - [x] `temp/MELP_some_specs.md` - Already uses STO ✅
 
-- [ ] **Technical Documentation**
-  - [ ] `docs/language/TTO.md` → Rename to `docs/language/STO.md`
-  - [ ] `docs_tr/language/TTO.md` → Rename to `docs_tr/language/STO.md`
-  - [ ] Update content: "Transparent Type Optimization (TTO)" → "Smart Type Optimization (STO)"
-  - [ ] Add alias note: "Previously known as TTO (Transparent Type Optimization)"
+- [x] **Technical Documentation** ✅
+  - [x] `docs/language/TTO.md` → Rename to `docs/language/STO.md` ✅
+  - [x] `docs_tr/language/TTO.md` → Rename to `docs_tr/language/STO.md` ✅
+  - [x] Update content: "Transparent Type Optimization (TTO)" → "Smart Type Optimization (STO)" ✅
+  - [x] Add alias note: "Previously known as TTO (Transparent Type Optimization)" ✅
 
-- [ ] **YZ Documentation**
-  - [ ] `YZ/AI_METHODOLOGY_SUM.md` - Update TTO references
-  - [ ] `YZ/YZ_48.md` - Add note: "Uses legacy tto_runtime (will be renamed to sto_runtime in Phase 12)"
+- [x] **YZ Documentation** ✅
+  - [x] `YZ/AI_METHODOLOGY_SUM.md` - Update TTO references ✅
+  - [x] `temp/user_todo.md` - Synced with TODO.md ✅
   - [ ] Future YZ docs will use STO consistently
 
-**Deliverable:** All documentation uses STO terminology consistently
+**Deliverable:** ✅ All documentation uses STO terminology consistently!
 
 ---
 
@@ -1197,11 +1213,11 @@ grep -r "TTO" --include="*.md" . | grep -v "YZ/" | grep -v "MIGRATION"
 ## 🎉 Major Milestones Achieved
 
 **Phase 1-3 Complete (Core Language):**
-- ✅ **YZ_01** - TTO Architecture cleanup
+- ✅ **YZ_01** - STO Architecture cleanup (originally named TTO)
 - ✅ **YZ_02** - Module system foundation
 - ✅ **YZ_03** - MVC (Minimum Viable Compiler) complete!
 - ✅ **YZ_04** - Control flow codegen (Fibonacci works!)
-- ✅ **YZ_05** - String literals + TTO type tracking
+- ✅ **YZ_05** - String literals + STO type tracking (originally named TTO)
 - ✅ **YZ_06** - String operations runtime
 - ✅ **YZ_07** - String operations codegen (concat + compare) 🎉
 - ✅ **YZ_08** - Linker fix (pipeline_compile, lexer_unget_token)
@@ -1518,7 +1534,7 @@ end function
 ## 📞 Contact Info
 
 - **Architecture:** See `ARCHITECTURE.md`
-- **TTO Details:** See `temp/kurallar_kitabı.md`
+- **STO Details:** See `temp/kurallar_kitabı.md`
 - **Current Status:** See `STATUS_9_ARALIK_2025.md`
 - **Next Steps:** See `NEXT_AI_START_HERE.md`
 - **AI Sessions:** See `YZ/YZ_*.md`

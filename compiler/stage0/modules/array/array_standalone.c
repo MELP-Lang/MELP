@@ -206,10 +206,10 @@ int main(int argc, char** argv) {
     fprintf(output, "\n    msg: db \"Array test OK!\", 10, 0\n");
     fprintf(output, "    msg_len: equ $ - msg\n\n");
     
-    // External TTO functions
-    fprintf(output, "extern tto_array_alloc\n");
-    fprintf(output, "extern tto_list_alloc\n");
-    fprintf(output, "extern tto_list_set\n");
+    // External STO functions
+    fprintf(output, "extern sto_array_alloc\n");
+    fprintf(output, "extern sto_list_alloc\n");
+    fprintf(output, "extern sto_list_set\n");
     fprintf(output, "extern malloc\n");
     fprintf(output, "extern free\n\n");
     

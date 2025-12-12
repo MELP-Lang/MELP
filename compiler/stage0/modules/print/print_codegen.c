@@ -6,20 +6,20 @@
 
 static int string_counter = 0;
 static int is_first_call = 1;
-static bool tto_declarations_emitted = false;
+static bool sto_declarations_emitted = false;
 
-// Emit TTO runtime function declarations (only once)
+// Emit STO runtime function declarations (only once)
 static void emit_tto_declarations(FILE* f) {
-    if (tto_declarations_emitted) return;
+    if (sto_declarations_emitted) return;
     
-    fprintf(f, "; TTO Runtime External Functions\n");
-    fprintf(f, "extern tto_bigdec_to_string\n");
-    fprintf(f, "extern tto_sso_data\n");
-    fprintf(f, "extern tto_print_int64\n");
+    fprintf(f, "; STO Runtime External Functions\n");
+    fprintf(f, "extern sto_bigdec_to_string\n");
+    fprintf(f, "extern sto_sso_data\n");
+    fprintf(f, "extern sto_print_int64\n");
     fprintf(f, "extern printf\n");
     fprintf(f, "extern free\n\n");
     
-    tto_declarations_emitted = true;
+    sto_declarations_emitted = true;
 }
 
 void codegen_print_statement(FILE* f, PrintStatement* stmt) {
@@ -29,7 +29,7 @@ void codegen_print_statement(FILE* f, PrintStatement* stmt) {
     if (is_first_call) {
         fprintf(f, "; MLP Print Module - Generated Assembly\n");
         fprintf(f, "; Target: x86-64 Linux\n");
-        fprintf(f, "; TTO Support: BigDecimal, SSO String\n\n");
+        fprintf(f, "; STO Support: BigDecimal, SSO String\n\n");
         emit_tto_declarations(f);
         is_first_call = 0;
     }
@@ -40,7 +40,7 @@ void codegen_print_statement(FILE* f, PrintStatement* stmt) {
         
         fprintf(f, "\n    ; Print variable: %s\n", var_name);
         fprintf(f, "    mov rdi, [var_%s]  ; Load INT64 value (first argument)\n", var_name);
-        fprintf(f, "    call tto_print_int64\n");
+        fprintf(f, "    call sto_print_int64\n");
         
         string_counter++;
         return;
@@ -77,9 +77,9 @@ void codegen_print_bigdecimal(FILE* f, const char* bigdec_var) {
     fprintf(f, "    mov rbp, rsp\n");
     fprintf(f, "    sub rsp, 16\n");
     
-    // Call tto_bigdec_to_string(bigdec_var)
+    // Call sto_bigdec_to_string(bigdec_var)
     fprintf(f, "    mov rdi, %s             ; BigDecimal pointer\n", bigdec_var);
-    fprintf(f, "    call tto_bigdec_to_string\n");
+    fprintf(f, "    call sto_bigdec_to_string\n");
     fprintf(f, "    mov [rbp-8], rax        ; Save string pointer\n");
     
     // Print the string using printf
@@ -110,9 +110,9 @@ void codegen_print_sso_string(FILE* f, const char* sso_var) {
     fprintf(f, "    mov rbp, rsp\n");
     fprintf(f, "    sub rsp, 16\n");
     
-    // Call tto_sso_data(sso_var)
+    // Call sto_sso_data(sso_var)
     fprintf(f, "    mov rdi, %s             ; SSOString pointer\n", sso_var);
-    fprintf(f, "    call tto_sso_data\n");
+    fprintf(f, "    call sto_sso_data\n");
     fprintf(f, "    mov [rbp-8], rax        ; Save string pointer\n");
     
     // Print the string using printf

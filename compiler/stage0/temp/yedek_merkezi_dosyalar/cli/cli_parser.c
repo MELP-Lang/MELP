@@ -15,7 +15,7 @@ void cli_print_help(const char* program_name) {
 
 void cli_print_version(void) {
     printf("MELP Compiler v0.3.0-alpha (Stage 0)\n");
-    printf("26 modules, TTO-enabled\n");
+    printf("26 modules, STO-enabled\n");
     printf("Build date: 7 Aralık 2025\n");
 }
 

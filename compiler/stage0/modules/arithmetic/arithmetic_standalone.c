@@ -94,12 +94,12 @@ static void arithmetic_parse_file(Lexer* lexer) {
 static void arithmetic_codegen_file(FILE* output) {
     fprintf(output, "; Arithmetic expressions - Full parser/codegen\n");
     
-    // External TTO runtime functions
-    fprintf(output, "extern tto_bigdec_from_int64\n");
-    fprintf(output, "extern tto_bigdec_add\n");
-    fprintf(output, "extern tto_bigdec_sub\n");
-    fprintf(output, "extern tto_bigdec_mul\n");
-    fprintf(output, "extern tto_bigdec_div\n");
+    // External STO runtime functions
+    fprintf(output, "extern sto_bigdec_from_int64\n");
+    fprintf(output, "extern sto_bigdec_add\n");
+    fprintf(output, "extern sto_bigdec_sub\n");
+    fprintf(output, "extern sto_bigdec_mul\n");
+    fprintf(output, "extern sto_bigdec_div\n");
     
     fprintf(output, "\nsection .data\n");
     

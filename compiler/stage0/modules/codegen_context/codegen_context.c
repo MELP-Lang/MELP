@@ -130,13 +130,13 @@ FunctionContext* codegen_context_get_function(CodegenContext* ctx) {
 }
 
 // ============================================================================
-// TTO (Transparent Type Optimization) IMPLEMENTATION
+// STO (Transparent Type Optimization) IMPLEMENTATION
 // ============================================================================
 
 // Infer internal type for numeric literal (compile-time)
-// Renamed to avoid clash with runtime TTO library
-TTOTypeInfo codegen_tto_infer_numeric_type(const char* literal) {
-    TTOTypeInfo info = {0};
+// Renamed to avoid clash with runtime STO library
+STOTypeInfo codegen_tto_infer_numeric_type(const char* literal) {
+    STOTypeInfo info = {0};
     info.is_constant = true;
     info.needs_promotion = false;
     
@@ -182,8 +182,8 @@ TTOTypeInfo codegen_tto_infer_numeric_type(const char* literal) {
 }
 
 // Infer internal type for string literal
-TTOTypeInfo codegen_tto_infer_string_type(const char* literal, bool is_constant) {
-    TTOTypeInfo info = {0};
+STOTypeInfo codegen_tto_infer_string_type(const char* literal, bool is_constant) {
+    STOTypeInfo info = {0};
     info.is_constant = is_constant;
     
     size_t length = strlen(literal);
@@ -209,36 +209,36 @@ TTOTypeInfo codegen_tto_infer_string_type(const char* literal, bool is_constant)
     return info;
 }
 
-// Add variable with TTO info
-void tto_add_var(CodegenContext* ctx, const char* name, TTOTypeInfo info) {
-    if (ctx->tto_var_count >= MAX_GLOBAL_VARS) {
-        fprintf(stderr, "Error: Maximum TTO variables exceeded\n");
+// Add variable with STO info
+void sto_add_var(CodegenContext* ctx, const char* name, STOTypeInfo info) {
+    if (ctx->sto_var_count >= MAX_GLOBAL_VARS) {
+        fprintf(stderr, "Error: Maximum STO variables exceeded\n");
         return;
     }
     
-    ctx->tto_var_types[ctx->tto_var_count].name = strdup(name);
-    ctx->tto_var_types[ctx->tto_var_count].internal_type = info.type;
-    ctx->tto_var_types[ctx->tto_var_count].tto_info = info;
-    ctx->tto_var_count++;
+    ctx->sto_var_types[ctx->sto_var_count].name = strdup(name);
+    ctx->sto_var_types[ctx->sto_var_count].internal_type = info.type;
+    ctx->sto_var_types[ctx->sto_var_count].sto_info = info;
+    ctx->sto_var_count++;
 }
 
-// Get TTO variable info
-TTOVarInfo* tto_get_var(CodegenContext* ctx, const char* name) {
-    for (int i = 0; i < ctx->tto_var_count; i++) {
-        if (strcmp(ctx->tto_var_types[i].name, name) == 0) {
-            return &ctx->tto_var_types[i];
+// Get STO variable info
+STOVarInfo* sto_get_var(CodegenContext* ctx, const char* name) {
+    for (int i = 0; i < ctx->sto_var_count; i++) {
+        if (strcmp(ctx->sto_var_types[i].name, name) == 0) {
+            return &ctx->sto_var_types[i];
         }
     }
     return NULL;
 }
 
 // Check if value fits in int64
-bool tto_should_use_int64(int64_t value) {
+bool sto_should_use_int64(int64_t value) {
     return (value >= INT64_MIN && value <= INT64_MAX);
 }
 
 // Check if float literal should use double
-bool tto_should_use_double(const char* literal) {
+bool sto_should_use_double(const char* literal) {
     // Count significant digits
     int digits = 0;
     bool after_dot = false;
@@ -256,27 +256,27 @@ bool tto_should_use_double(const char* literal) {
 }
 
 // Check if string should use SSO
-bool tto_should_use_sso(size_t string_length) {
+bool sto_should_use_sso(size_t string_length) {
     return (string_length <= 23);
 }
 
 // Generate int64 to BigDecimal promotion code
-void tto_generate_int64_to_bigdec_promotion(CodegenContext* ctx, const char* var_name) {
+void sto_generate_int64_to_bigdec_promotion(CodegenContext* ctx, const char* var_name) {
     FILE* out = ctx->output_file;
     
-    fprintf(out, "    ; TTO: Promote int64 to BigDecimal (%s)\n", var_name);
+    fprintf(out, "    ; STO: Promote int64 to BigDecimal (%s)\n", var_name);
     fprintf(out, "    mov rdi, [rbp-%d]    ; Load int64 value\n", 8); // Example offset
     fprintf(out, "    call bigdec_from_int64\n");
     fprintf(out, "    mov [rbp-%d], rax    ; Store BigDecimal pointer\n", 8);
 }
 
 // Generate overflow check code
-void tto_generate_overflow_check(CodegenContext* ctx, const char* operation) {
+void sto_generate_overflow_check(CodegenContext* ctx, const char* operation) {
     FILE* out = ctx->output_file;
     int overflow_label = codegen_context_next_label(ctx);
     int continue_label = codegen_context_next_label(ctx);
     
-    fprintf(out, "    ; TTO: Overflow check for %s\n", operation);
+    fprintf(out, "    ; STO: Overflow check for %s\n", operation);
     fprintf(out, "    jo .L_overflow_%d    ; Jump if overflow\n", overflow_label);
     fprintf(out, "    jmp .L_continue_%d\n", continue_label);
     fprintf(out, ".L_overflow_%d:\n", overflow_label);

@@ -125,11 +125,11 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
                     // Register array with length for bounds checking
                     function_register_array_var(func, decl->name, element_count, 1);
                     
-                    // Allocate array via TTO runtime
+                    // Allocate array via STO runtime
                     fprintf(output, "    # Allocate array with %d elements\n", element_count);
                     fprintf(output, "    movq $%d, %%rdi      # count\n", element_count);
                     fprintf(output, "    movq $8, %%rsi       # elem_size (8 bytes)\n");
-                    fprintf(output, "    call tto_array_alloc # Returns pointer in %%rax\n");
+                    fprintf(output, "    call sto_array_alloc # Returns pointer in %%rax\n");
                     fprintf(output, "    movq %%rax, %d(%%rbp)  # Store array pointer at %s\n", 
                             offset, decl->name);
                     

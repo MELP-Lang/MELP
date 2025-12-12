@@ -1,4 +1,4 @@
-#include "runtime_tto.h"
+#include "runtime_sto.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
@@ -12,7 +12,7 @@
 // ============================================================================
 
 // Check if INT64 addition will overflow
-bool tto_runtime_add_will_overflow(int64_t a, int64_t b) {
+bool sto_runtime_add_will_overflow(int64_t a, int64_t b) {
     // Overflow occurs when:
     // - Both positive and result wraps to negative
     // - Both negative and result wraps to positive
@@ -27,7 +27,7 @@ bool tto_runtime_add_will_overflow(int64_t a, int64_t b) {
 }
 
 // Check if INT64 subtraction will overflow
-bool tto_runtime_sub_will_overflow(int64_t a, int64_t b) {
+bool sto_runtime_sub_will_overflow(int64_t a, int64_t b) {
     // a - b == a + (-b)
     // Overflow occurs when:
     // - b is INT64_MIN (cannot negate)
@@ -37,11 +37,11 @@ bool tto_runtime_sub_will_overflow(int64_t a, int64_t b) {
         return a > 0;  // Cannot negate INT64_MIN
     }
     
-    return tto_runtime_add_will_overflow(a, -b);
+    return sto_runtime_add_will_overflow(a, -b);
 }
 
 // Check if INT64 multiplication will overflow
-bool tto_runtime_mul_will_overflow(int64_t a, int64_t b) {
+bool sto_runtime_mul_will_overflow(int64_t a, int64_t b) {
     // Special cases
     if (a == 0 || b == 0) {
         return false;  // 0 * anything = 0
@@ -71,8 +71,8 @@ bool tto_runtime_mul_will_overflow(int64_t a, int64_t b) {
 
 // Safe addition with overflow check
 // Returns true if overflow occurred (result invalid)
-bool tto_runtime_safe_add(int64_t a, int64_t b, int64_t* result) {
-    if (tto_runtime_add_will_overflow(a, b)) {
+bool sto_runtime_safe_add(int64_t a, int64_t b, int64_t* result) {
+    if (sto_runtime_add_will_overflow(a, b)) {
         *result = 0;  // Invalid result
         return true;  // Overflow occurred
     }
@@ -82,8 +82,8 @@ bool tto_runtime_safe_add(int64_t a, int64_t b, int64_t* result) {
 }
 
 // Safe subtraction with overflow check
-bool tto_runtime_safe_sub(int64_t a, int64_t b, int64_t* result) {
-    if (tto_runtime_sub_will_overflow(a, b)) {
+bool sto_runtime_safe_sub(int64_t a, int64_t b, int64_t* result) {
+    if (sto_runtime_sub_will_overflow(a, b)) {
         *result = 0;  // Invalid result
         return true;  // Overflow occurred
     }
@@ -93,8 +93,8 @@ bool tto_runtime_safe_sub(int64_t a, int64_t b, int64_t* result) {
 }
 
 // Safe multiplication with overflow check
-bool tto_runtime_safe_mul(int64_t a, int64_t b, int64_t* result) {
-    if (tto_runtime_mul_will_overflow(a, b)) {
+bool sto_runtime_safe_mul(int64_t a, int64_t b, int64_t* result) {
+    if (sto_runtime_mul_will_overflow(a, b)) {
         *result = 0;  // Invalid result
         return true;  // Overflow occurred
     }
@@ -115,7 +115,7 @@ struct BigDecimal {
 };
 
 // Create BigDecimal from INT64
-BigDecimal* tto_bigdec_from_int64(int64_t value) {
+BigDecimal* sto_bigdec_from_int64(int64_t value) {
     BigDecimal* bd = (BigDecimal*)malloc(sizeof(BigDecimal));
     if (!bd) return NULL;
     
@@ -135,7 +135,7 @@ BigDecimal* tto_bigdec_from_int64(int64_t value) {
 }
 
 // Create BigDecimal from string
-BigDecimal* tto_bigdec_from_string(const char* str) {
+BigDecimal* sto_bigdec_from_string(const char* str) {
     if (!str) return NULL;
     
     BigDecimal* bd = (BigDecimal*)malloc(sizeof(BigDecimal));
@@ -153,7 +153,7 @@ BigDecimal* tto_bigdec_from_string(const char* str) {
 }
 
 // BigDecimal operations (basic placeholders)
-BigDecimal* tto_bigdec_add(BigDecimal* a, BigDecimal* b) {
+BigDecimal* sto_bigdec_add(BigDecimal* a, BigDecimal* b) {
     if (!a || !b) return NULL;
     
     // TODO: Proper arbitrary precision addition
@@ -169,10 +169,10 @@ BigDecimal* tto_bigdec_add(BigDecimal* a, BigDecimal* b) {
     if (b->negative) b_val = -b_val;
     
     long long result_val = a_val + b_val;
-    return tto_bigdec_from_int64(result_val);
+    return sto_bigdec_from_int64(result_val);
 }
 
-BigDecimal* tto_bigdec_sub(BigDecimal* a, BigDecimal* b) {
+BigDecimal* sto_bigdec_sub(BigDecimal* a, BigDecimal* b) {
     if (!a || !b) return NULL;
     
     // Convert to integers, subtract, convert back (limited precision)
@@ -184,10 +184,10 @@ BigDecimal* tto_bigdec_sub(BigDecimal* a, BigDecimal* b) {
     if (b->negative) b_val = -b_val;
     
     long long result_val = a_val - b_val;
-    return tto_bigdec_from_int64(result_val);
+    return sto_bigdec_from_int64(result_val);
 }
 
-BigDecimal* tto_bigdec_mul(BigDecimal* a, BigDecimal* b) {
+BigDecimal* sto_bigdec_mul(BigDecimal* a, BigDecimal* b) {
     if (!a || !b) return NULL;
     
     // Convert to integers, multiply, convert back (limited precision)
@@ -199,10 +199,10 @@ BigDecimal* tto_bigdec_mul(BigDecimal* a, BigDecimal* b) {
     if (b->negative) b_val = -b_val;
     
     long long result_val = a_val * b_val;
-    return tto_bigdec_from_int64(result_val);
+    return sto_bigdec_from_int64(result_val);
 }
 
-BigDecimal* tto_bigdec_div(BigDecimal* a, BigDecimal* b) {
+BigDecimal* sto_bigdec_div(BigDecimal* a, BigDecimal* b) {
     if (!a || !b) return NULL;
     
     // Convert to integers, divide, convert back (limited precision)
@@ -215,15 +215,15 @@ BigDecimal* tto_bigdec_div(BigDecimal* a, BigDecimal* b) {
     
     if (b_val == 0) {
         // Division by zero - return NULL or special value
-        return tto_bigdec_from_int64(0);
+        return sto_bigdec_from_int64(0);
     }
     
     long long result_val = a_val / b_val;
-    return tto_bigdec_from_int64(result_val);
+    return sto_bigdec_from_int64(result_val);
 }
 
 // Convert BigDecimal to string
-char* tto_bigdec_to_string(BigDecimal* bd) {
+char* sto_bigdec_to_string(BigDecimal* bd) {
     if (!bd) return NULL;
     
     size_t len = bd->length + (bd->negative ? 2 : 1);
@@ -242,7 +242,7 @@ char* tto_bigdec_to_string(BigDecimal* bd) {
 
 // Compare two BigDecimals
 // Returns: -1 if a < b, 0 if a == b, 1 if a > b
-int tto_bigdec_compare(BigDecimal* a, BigDecimal* b) {
+int sto_bigdec_compare(BigDecimal* a, BigDecimal* b) {
     if (!a || !b) return 0;
     
     // Handle sign differences
@@ -276,7 +276,7 @@ int tto_bigdec_compare(BigDecimal* a, BigDecimal* b) {
 }
 
 // Free BigDecimal
-void tto_bigdec_free(BigDecimal* bd) {
+void sto_bigdec_free(BigDecimal* bd) {
     if (!bd) return;
     
     bd->refcount--;
@@ -291,7 +291,7 @@ void tto_bigdec_free(BigDecimal* bd) {
 // ============================================================================
 
 // Create SSO string from C string
-SSOString* tto_sso_create(const char* str) {
+SSOString* sto_sso_create(const char* str) {
     if (!str) return NULL;
     
     SSOString* sso = (SSOString*)malloc(sizeof(SSOString));
@@ -321,7 +321,7 @@ SSOString* tto_sso_create(const char* str) {
 }
 
 // Get string data (works for both SSO and heap)
-const char* tto_sso_data(SSOString* sso) {
+const char* sto_sso_data(SSOString* sso) {
     if (!sso) return NULL;
     
     if (sso->flags & 1) {
@@ -334,7 +334,7 @@ const char* tto_sso_data(SSOString* sso) {
 }
 
 // Free SSO string
-void tto_sso_free(SSOString* sso) {
+void sto_sso_free(SSOString* sso) {
     if (!sso) return;
     
     if (sso->flags & 1) {

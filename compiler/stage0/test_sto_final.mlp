@@ -1,0 +1,11 @@
+function test_numbers() returns numeric
+    numeric x = 100
+    numeric y = 50
+    numeric z = x + y
+    return z
+end function
+
+function main() returns numeric
+    numeric result = test_numbers()
+    return result
+end function

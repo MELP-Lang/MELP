@@ -23,21 +23,21 @@ char* strdup(const char* s) {
 }
 #endif
 
-// External TTO runtime functions (from libtto_runtime.a)
-extern char* tto_bigdec_to_string(void* bigdec);
+// External TTO runtime functions (from libsto_runtime.a)
+extern char* sto_bigdec_to_string(void* bigdec);
 
 // ============================================================================
 // Core TTO-Aware Functions
 // ============================================================================
 
 // Print numeric value with newline (TTO-aware)
-void mlp_println_numeric(void* value, uint8_t tto_type) {
+void mlp_println_numeric(void* value, uint8_t sto_type) {
     if (!value) {
         printf("(null)\n");
         return;
     }
     
-    switch (tto_type) {
+    switch (sto_type) {
         case TTO_TYPE_INT64:
             printf("%" PRId64 "\n", *(int64_t*)value);
             break;
@@ -47,7 +47,7 @@ void mlp_println_numeric(void* value, uint8_t tto_type) {
             break;
             
         case TTO_TYPE_BIGDECIMAL: {
-            char* str = tto_bigdec_to_string(value);
+            char* str = sto_bigdec_to_string(value);
             if (str) {
                 printf("%s\n", str);
                 free(str);
@@ -58,18 +58,18 @@ void mlp_println_numeric(void* value, uint8_t tto_type) {
         }
         
         default:
-            printf("(unknown numeric type: %d)\n", tto_type);
+            printf("(unknown numeric type: %d)\n", sto_type);
     }
 }
 
 // Print without newline (TTO-aware)
-void mlp_print_numeric(void* value, uint8_t tto_type) {
+void mlp_print_numeric(void* value, uint8_t sto_type) {
     if (!value) {
         printf("(null)");
         return;
     }
     
-    switch (tto_type) {
+    switch (sto_type) {
         case TTO_TYPE_INT64:
             printf("%" PRId64, *(int64_t*)value);
             break;
@@ -79,7 +79,7 @@ void mlp_print_numeric(void* value, uint8_t tto_type) {
             break;
             
         case TTO_TYPE_BIGDECIMAL: {
-            char* str = tto_bigdec_to_string(value);
+            char* str = sto_bigdec_to_string(value);
             if (str) {
                 printf("%s", str);
                 free(str);
@@ -90,16 +90,16 @@ void mlp_print_numeric(void* value, uint8_t tto_type) {
         }
         
         default:
-            printf("(unknown numeric type: %d)", tto_type);
+            printf("(unknown numeric type: %d)", sto_type);
     }
 }
 
 // Convert numeric to string (TTO-aware)
-char* mlp_toString_numeric(void* value, uint8_t tto_type) {
+char* mlp_toString_numeric(void* value, uint8_t sto_type) {
     if (!value) return strdup("null");
     
     char buffer[64];
-    switch (tto_type) {
+    switch (sto_type) {
         case TTO_TYPE_INT64:
             snprintf(buffer, sizeof(buffer), "%" PRId64, *(int64_t*)value);
             return strdup(buffer);
@@ -109,7 +109,7 @@ char* mlp_toString_numeric(void* value, uint8_t tto_type) {
             return strdup(buffer);
             
         case TTO_TYPE_BIGDECIMAL:
-            return tto_bigdec_to_string(value);  // Already allocates
+            return sto_bigdec_to_string(value);  // Already allocates
             
         default:
             return strdup("(unknown)");

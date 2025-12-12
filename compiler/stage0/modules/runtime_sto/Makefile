@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c11 -I.
-TARGET = test_runtime_tto
-SOURCES = runtime_tto.c test_runtime_tto.c
+TARGET = test_runtime_sto
+SOURCES = runtime_sto.c test_runtime_sto.c
 OBJECTS = $(SOURCES:.c=.o)
 
 all: $(TARGET)

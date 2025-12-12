@@ -49,8 +49,8 @@
 #include "modules/codegen_context/codegen_context.h"
 #include "modules/optimization_pass/optimization_pass.h"
 
-// TTO Runtime
-#include "modules/runtime_tto/runtime_tto.h"
+// STO Runtime
+#include "modules/runtime_sto/runtime_sto.h"
 
 // Extra Features
 #include "modules/async/async.h"
@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
     printf("Compiling: %s -> %s\n\n", argv[1], argv[2]);
     
     // Initialize runtime (if needed)
-    // tto_runtime_init();
+    // sto_runtime_init();
     
     // Read source file
     FILE* f = fopen(argv[1], "r");
@@ -184,7 +184,7 @@ int main(int argc, char** argv) {
     // Cleanup
     fclose(out);
     free(source);
-    // tto_runtime_cleanup();
+    // sto_runtime_cleanup();
     
     return 0;
 }

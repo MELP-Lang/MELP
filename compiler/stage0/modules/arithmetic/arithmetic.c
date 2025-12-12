@@ -49,8 +49,8 @@ void arithmetic_expr_free(ArithmeticExpr* expr) {
         collection_free(expr->collection);
     }
     
-    // Phase 2.3: Free TTO info
-    if (expr->tto_info) free(expr->tto_info);
+    // Phase 2.3: Free STO info
+    if (expr->sto_info) free(expr->sto_info);
     
     free(expr);
 }
@@ -60,14 +60,14 @@ void arithmetic_expr_free(ArithmeticExpr* expr) {
 // No implementation needed for Stage 0
 
 // ============================================================================
-// Phase 2.3: TTO Type Propagation Implementation
+// Phase 2.3: STO Type Propagation Implementation
 // ============================================================================
 
-// Note: tto_infer_numeric_type() is implemented in codegen_context.c
+// Note: sto_infer_numeric_type() is implemented in codegen_context.c
 
 // Propagate types through binary operations
-TTOTypeInfo arithmetic_propagate_binary_types(TTOTypeInfo* left, TTOTypeInfo* right, ArithmeticOp op) {
-    TTOTypeInfo result = {0};
+STOTypeInfo arithmetic_propagate_binary_types(STOTypeInfo* left, STOTypeInfo* right, ArithmeticOp op) {
+    STOTypeInfo result = {0};
     result.is_constant = left->is_constant && right->is_constant;
     result.needs_promotion = false;
     
@@ -107,9 +107,9 @@ TTOTypeInfo arithmetic_propagate_binary_types(TTOTypeInfo* left, TTOTypeInfo* ri
     return result;
 }
 
-// Infer TTO type for arithmetic expression (recursive)
+// Infer STO type for arithmetic expression (recursive)
 void arithmetic_infer_tto_type(ArithmeticExpr* expr) {
-    if (!expr || expr->tto_analyzed) {
+    if (!expr || expr->sto_analyzed) {
         return;  // Already analyzed
     }
     
@@ -121,16 +121,16 @@ void arithmetic_infer_tto_type(ArithmeticExpr* expr) {
         arithmetic_infer_tto_type(expr->right);
     }
     
-    // If both children have TTO info, propagate
+    // If both children have STO info, propagate
     if (expr->left && expr->right && 
-        expr->left->tto_analyzed && expr->right->tto_analyzed &&
-        expr->left->tto_info && expr->right->tto_info) {
+        expr->left->sto_analyzed && expr->right->sto_analyzed &&
+        expr->left->sto_info && expr->right->sto_info) {
         
-        TTOTypeInfo* propagated = malloc(sizeof(TTOTypeInfo));
-        *propagated = arithmetic_propagate_binary_types(expr->left->tto_info, expr->right->tto_info, expr->op);
+        STOTypeInfo* propagated = malloc(sizeof(STOTypeInfo));
+        *propagated = arithmetic_propagate_binary_types(expr->left->sto_info, expr->right->sto_info, expr->op);
         
-        expr->tto_info = propagated;
-        expr->tto_analyzed = true;
+        expr->sto_info = propagated;
+        expr->sto_analyzed = true;
         expr->needs_overflow_check = (propagated->type == INTERNAL_TYPE_INT64);
     }
 }

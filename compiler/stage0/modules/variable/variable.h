@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include "../lexer/lexer.h"
-#include "../codegen_context/tto_types.h"
+#include "../codegen_context/sto_types.h"
 
 typedef enum {
     VAR_NUMERIC,
@@ -43,8 +43,8 @@ typedef struct {
     char* name;                          // Variable name
     VarType type;                        // Variable type (numeric, string, boolean, pointer, array)
     char* value;                         // Initial value (string representation)
-    InternalNumericType internal_num_type;  // For TTO optimization (DEPRECATED - use tto_info)
-    InternalStringType internal_str_type;   // For TTO optimization (DEPRECATED - use tto_info)
+    InternalNumericType internal_num_type;  // For STO optimization (DEPRECATED - use sto_info)
+    InternalStringType internal_str_type;   // For STO optimization (DEPRECATED - use sto_info)
     StorageLocation storage;             // Where variable is stored
     int has_decimal_point;               // Flag for numeric type detection
     void* init_expr;                     // Expression* for complex initialization
@@ -55,9 +55,9 @@ typedef struct {
     int is_array;                        // 1 if array type
     int array_size;                      // Array size (0 = dynamic)
     
-    // ========== Phase 2: TTO Integration ==========
-    TTOTypeInfo* tto_info;               // Full TTO analysis result (heap allocated)
-    bool tto_analyzed;                   // Has TTO analysis been performed?
+    // ========== Phase 2: STO Integration ==========
+    STOTypeInfo* sto_info;               // Full STO analysis result (heap allocated)
+    bool sto_analyzed;                   // Has STO analysis been performed?
     bool needs_overflow_check;           // Runtime overflow detection needed?
 } VariableDeclaration;
 
@@ -66,9 +66,9 @@ typedef struct {
     char* name;                          // Variable name
     void* value_expr;                    // Expression* for value
     
-    // ========== Phase 2: TTO Integration ==========
-    TTOTypeInfo* tto_info;               // TTO analysis of assigned value (heap allocated)
-    bool tto_analyzed;                   // Has TTO analysis been performed?
+    // ========== Phase 2: STO Integration ==========
+    STOTypeInfo* sto_info;               // STO analysis of assigned value (heap allocated)
+    bool sto_analyzed;                   // Has STO analysis been performed?
     bool needs_type_promotion;           // Does this need type promotion (int64 -> bigdec)?
     
     // ========== YZ_25: Implicit Declaration ==========
@@ -82,8 +82,8 @@ typedef struct {
     void* index_access;                  // IndexAccess* (forward declaration)
     void* value_expr;                    // Expression* for value to assign
     
-    TTOTypeInfo* tto_info;               // TTO analysis
-    bool tto_analyzed;                   // Has TTO analysis been performed?
+    STOTypeInfo* sto_info;               // STO analysis
+    bool sto_analyzed;                   // Has STO analysis been performed?
 } ArrayAssignment;
 
 #endif

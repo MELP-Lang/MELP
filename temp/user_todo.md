@@ -71,7 +71,7 @@
 | | Namespace Convention (shared:, config:, temp:) | ✅ |
 | | JSON Persistence | ✅ |
 | | Runtime C Tests | ✅ |
-| **Phase 11: Module System** | | ✅ 100% |
+| **Phase 11: Module System & Self-Hosting Prep** | | ✅ 100% |
 | | Import Statement (import module_name) | ✅ YZ_35 |
 | | Module Path Resolution | ✅ YZ_35 |
 | | Module Loading (Recursive Parsing) | ✅ YZ_36 |
@@ -98,16 +98,43 @@
 | | → Part 6.1: Token Structure & Basics | ✅ YZ_46 (2h) |
 | | → Part 6.2: Character Classification | ✅ YZ_46 (1h) |
 | | → Part 6.3: Number & String Tokenization | ⏳ (1.5h) |
+| | **println() Builtin Function** | **✅ Complete!** |
+| | → YZ_47: TOKEN_PRINTLN + Parser | ✅ (1h) |
+| | → YZ_48: Codegen + Integration | ✅ (1h) |
 | | → Part 6.4: Identifier & Keyword Recognition | ⏳ (1h) |
 | | → Part 6.5: Symbol & Operator Tokenization | ⏳ (1h) |
 | | → Part 6.6: Integration & Testing | ⏳ (1-1.5h) |
+| **Phase 12: TTO→STO Refactoring** | | ⏳ 0% ||
+| | **Part 1: Documentation Update** | ⏳ YZ_49 (1h) |
+| | → Core docs (TODO, ARCHITECTURE, etc.) | ⏳ |
+| | → Technical docs (rename TTO.md → STO.md) | ⏳ |
+| | → YZ documentation updates | ⏳ |
+| | **Part 2: Runtime Library Refactoring** | ⏳ YZ_50 (2-3h) |
+| | → Directory rename (runtime/tto → runtime/sto) | ⏳ |
+| | → File rename (tto_runtime.* → sto_runtime.*) | ⏳ |
+| | → Function rename (tto_* → sto_*) | ⏳ |
+| | → Struct rename (TTOTypeInfo → STOTypeInfo) | ⏳ |
+| | **Part 3: Compiler Code Update** | ⏳ YZ_51 (1-2h) |
+| | → Codegen function calls update | ⏳ |
+| | → Include paths update | ⏳ |
+| | → Makefile linker flags | ⏳ |
+| | **Part 4: Integration Testing** | ⏳ YZ_51 (1h) |
+| | → All existing tests pass | ⏳ |
+| | → No regression detected | ⏳ |
+| | **Part 5: Final Cleanup** | ⏳ YZ_51 (30min) |
+| | → Migration guide document | ⏳ |
+| | → Update NEXT_AI_START_HERE.md | ⏳ |
 
 ## Durum Özeti
 
 - **Tamamlanan:** Phase 1-7, Phase 9, Phase 10, Phase 11 (100%)! 🎉🎉🎉
-- **Son Tamamlanan:** YZ_45 (Incremental Compilation - 100% Complete!)
+- **Son Tamamlanan:** YZ_48 (println() Complete!) - 12 Aralık 2025
 - **✅ Incremental Build:** 10-15x speedup! Parse & assembly skip for unchanged modules
 - **✅ Performance:** 0.032s vs 0.5s (15x faster for no-change builds)
+- **✅ println() Builtin:** For loop içinde çalışıyor!
+- **🔥 Sırada:** Phase 12 - TTO→STO Refactoring (5-7h, URGENT!)
+  - Terminoloji tutarlılığı (kod ve belgeler aynı isimleri kullanmalı)
+  - Stage 1 öncesi yapılmalı
 - **Sonraki (Optional):** 
   - **Self-Hosting:** Rewrite lexer in MLP (5-8h)
   - **Advanced Optimization:** Register allocation, inlining
@@ -150,7 +177,9 @@
 | State Persistence | ✅ | JSON save/load cycle validated |
 | State Config | ✅ | auto_persist, persist_file working |
 | State Namespaces | ✅ | shared:, config:, temp: prefixes |
-| **Phase 11: Module System** | | |
+| **Phase 11: Module System & println()** | | |
+| println() in For Loop | ✅ Exit: 0 | `test_for_simple.mlp` → 0 1 2 3 4 5 |
+| println() Basic | ✅ Exit: 0 | "Hello, println!" output |
 | Module Import | ✅ Exit: 42 | `import simple` → test() returns 42 |
 | Module Call | ✅ Exit: 30 | `import math` → add(10,20) = 30 |
 | Multiple Calls | ✅ Exit: 54 | add(5,10) + multiply(15,2) + square(3) = 54 |

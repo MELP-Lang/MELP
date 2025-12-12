@@ -1,14 +1,15 @@
-# Şeffaf Tip Optimizasyonu (TTO)
+# Akıllı Tip Optimizasyonu (STO)
 
-**Versiyon:** 1.0  
-**Son Güncelleme:** 10 Aralık 2025  
-**Durum:** Tasarım Belgesi
+**Versiyon:** 2.0  
+**Son Güncelleme:** 12 Aralık 2025  
+**Durum:** Aktif Uygulama  
+**Diğer Ad:** Eskiden TTO (Transparent Type Optimization - Şeffaf Tip Optimizasyonu) olarak bilinirdi
 
 ---
 
 ## Genel Bakış
 
-TTO (Transparent Type Optimization - Şeffaf Tip Optimizasyonu), MELP'in yüksek performansı korurken basit bir kullanıcı deneyimi sağlama yaklaşımıdır. Kullanıcılar sadece iki temel tip görür (`numeric` ve `string`), ancak derleyici otomatik olarak optimal dahili temsilleri seçer.
+STO (Smart Type Optimization - Akıllı Tip Optimizasyonu), MELP'in yüksek performansı korurken basit bir kullanıcı deneyimi sağlama yaklaşımıdır. Kullanıcılar sadece iki temel tip görür (`numeric` ve `string`), ancak derleyici otomatik olarak optimal dahili temsilleri seçer.
 
 ---
 

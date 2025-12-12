@@ -1,15 +1,15 @@
-#ifndef TTO_RUNTIME_H
-#define TTO_RUNTIME_H
+#ifndef STO_RUNTIME_H
+#define STO_RUNTIME_H
 
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../codegen_context/tto_types.h"
+#include "sto_types.h"
 
 // ============================================================================
-// TTO Runtime Support - Phase 3
+// STO Runtime Support - Phase 3
 // ============================================================================
-// Provides runtime support for TTO optimizations:
+// Provides runtime support for STO optimizations:
 // - Overflow detection and promotion (INT64 → BIGDECIMAL)
 // - BigDecimal operations
 // - SSO string management
@@ -20,23 +20,23 @@
 // ============================================================================
 
 // Check if addition would overflow
-bool tto_would_overflow_add(int64_t a, int64_t b);
+bool sto_would_overflow_add(int64_t a, int64_t b);
 
 // Check if subtraction would overflow
-bool tto_would_overflow_sub(int64_t a, int64_t b);
+bool sto_would_overflow_sub(int64_t a, int64_t b);
 
 // Check if multiplication would overflow
-bool tto_would_overflow_mul(int64_t a, int64_t b);
+bool sto_would_overflow_mul(int64_t a, int64_t b);
 
 // Safe addition with overflow detection
 // Returns true if overflow occurred, result promoted to BigDecimal
-bool tto_safe_add_i64(int64_t a, int64_t b, int64_t* result);
+bool sto_safe_add_i64(int64_t a, int64_t b, int64_t* result);
 
 // Safe subtraction with overflow detection
-bool tto_safe_sub_i64(int64_t a, int64_t b, int64_t* result);
+bool sto_safe_sub_i64(int64_t a, int64_t b, int64_t* result);
 
 // Safe multiplication with overflow detection
-bool tto_safe_mul_i64(int64_t a, int64_t b, int64_t* result);
+bool sto_safe_mul_i64(int64_t a, int64_t b, int64_t* result);
 
 // ============================================================================
 // Phase 3.2: BigDecimal Runtime Library
@@ -131,11 +131,11 @@ void sso_release(SSOString* str);
 // Phase 3.4: Memory Management
 // ============================================================================
 
-// Initialize TTO runtime (call once at program start)
-void tto_runtime_init(void);
+// Initialize STO runtime (call once at program start)
+void sto_runtime_init(void);
 
-// Cleanup TTO runtime (call once at program end)
-void tto_runtime_cleanup(void);
+// Cleanup STO runtime (call once at program end)
+void sto_runtime_cleanup(void);
 
 // Get memory statistics
 typedef struct {
@@ -144,8 +144,56 @@ typedef struct {
     size_t heap_string_count;
     size_t heap_string_bytes;
     size_t total_allocations;
-} TTOMemStats;
+} STOMemStats;
 
-TTOMemStats tto_get_mem_stats(void);
+STOMemStats sto_get_mem_stats(void);
+
+// ============================================================================
+// Phase 3.5: Array/List/Tuple Runtime Support
+// ============================================================================
+
+// Array structure (homogeneous, fixed size)
+typedef struct {
+    void* elements;       // Element data
+    size_t count;         // Number of elements
+    size_t elem_size;     // Size of each element (in bytes)
+    int refcount;         // Reference count for GC
+} STOArray;
+
+// List structure (heterogeneous, dynamic)
+typedef struct {
+    void** elements;      // Array of pointers to elements
+    uint8_t* types;       // Array of element types (VarType)
+    size_t count;         // Current number of elements
+    size_t capacity;      // Allocated capacity
+    int refcount;         // Reference count for GC
+} STOList;
+
+// Tuple structure (heterogeneous, immutable)
+typedef struct {
+    void** elements;      // Array of pointers to elements
+    uint8_t* types;       // Array of element types (VarType)
+    size_t count;         // Number of elements (fixed)
+    int refcount;         // Reference count for GC
+} STOTuple;
+
+// Array operations
+void* sto_array_alloc(size_t count, size_t elem_size);
+void sto_array_set(STOArray* array, size_t index, void* value);
+void* sto_array_get(STOArray* array, size_t index);
+void sto_array_free(STOArray* array);
+
+// List operations
+STOList* sto_list_alloc(size_t capacity);
+void sto_list_set(STOList* list, size_t index, void* value, uint8_t type);
+void* sto_list_get(STOList* list, size_t index);
+void sto_list_append(STOList* list, void* value, uint8_t type);
+void sto_list_free(STOList* list);
+
+// Tuple operations
+STOTuple* sto_tuple_alloc(size_t count);
+void sto_tuple_set(STOTuple* tuple, size_t index, void* value, uint8_t type);
+void* sto_tuple_get(STOTuple* tuple, size_t index);
+void sto_tuple_free(STOTuple* tuple);
 
 #endif

@@ -4,13 +4,13 @@
 // Full implementation of arbitrary precision decimal numbers
 // String-based representation for unlimited precision
 //
-// Architecture: Modular TTO Runtime Component
+// Architecture: Modular STO Runtime Component
 // Author: MLP Compiler Team
 // Date: 7 Aralık 2025
 
 #define _POSIX_C_SOURCE 200809L  // For strdup
 
-#include "runtime_tto.h"
+#include "runtime_sto.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -198,7 +198,7 @@ static char* multiply_positive(const char* a, const char* b) {
 // Public BigDecimal Functions
 // ============================================================================
 
-BigDecimal* tto_bigdec_add(BigDecimal* a, BigDecimal* b) {
+BigDecimal* sto_bigdec_add(BigDecimal* a, BigDecimal* b) {
     if (!a || !b) return NULL;
     
     BigDecimal* result = (BigDecimal*)malloc(sizeof(BigDecimal));
@@ -244,17 +244,17 @@ BigDecimal* tto_bigdec_add(BigDecimal* a, BigDecimal* b) {
     return result;
 }
 
-BigDecimal* tto_bigdec_sub(BigDecimal* a, BigDecimal* b) {
+BigDecimal* sto_bigdec_sub(BigDecimal* a, BigDecimal* b) {
     if (!a || !b) return NULL;
     
     // a - b = a + (-b)
     BigDecimal temp_b = *b;
     temp_b.negative = !b->negative;
     
-    return tto_bigdec_add(a, &temp_b);
+    return sto_bigdec_add(a, &temp_b);
 }
 
-BigDecimal* tto_bigdec_mul(BigDecimal* a, BigDecimal* b) {
+BigDecimal* sto_bigdec_mul(BigDecimal* a, BigDecimal* b) {
     if (!a || !b) return NULL;
     
     BigDecimal* result = (BigDecimal*)malloc(sizeof(BigDecimal));
@@ -280,13 +280,13 @@ BigDecimal* tto_bigdec_mul(BigDecimal* a, BigDecimal* b) {
     return result;
 }
 
-BigDecimal* tto_bigdec_div(BigDecimal* a, BigDecimal* b) {
+BigDecimal* sto_bigdec_div(BigDecimal* a, BigDecimal* b) {
     if (!a || !b) return NULL;
     
     // Check division by zero
     if (strcmp(b->digits, "0") == 0) {
         fprintf(stderr, "Error: Division by zero\n");
-        return tto_bigdec_from_int64(0);
+        return sto_bigdec_from_int64(0);
     }
     
     // TODO: Full arbitrary precision division
@@ -302,5 +302,5 @@ BigDecimal* tto_bigdec_div(BigDecimal* a, BigDecimal* b) {
     if (b->negative) b_val = -b_val;
     
     long long result_val = a_val / b_val;
-    return tto_bigdec_from_int64(result_val);
+    return sto_bigdec_from_int64(result_val);
 }

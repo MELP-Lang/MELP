@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "tto_types.h"  // TTO type definitions
+#include "sto_types.h"  // STO type definitions
 
 // ============================================================================
 // Forward Declarations & Constants
@@ -34,17 +34,17 @@ typedef struct FunctionContext {
 } FunctionContext;
 
 // ============================================================================
-// TTO (Transparent Type Optimization) Definitions
+// STO (Transparent Type Optimization) Definitions
 // ============================================================================
-// Note: TTOTypeInfo and InternalType are defined in tto_types.h
+// Note: STOTypeInfo and InternalType are defined in sto_types.h
 
-// Variable info with TTO
+// Variable info with STO
 typedef struct {
     char* name;
-    InternalType internal_type;  // TTO-inferred type
-    TTOTypeInfo tto_info;        // Full TTO analysis
+    InternalType internal_type;  // STO-inferred type
+    STOTypeInfo sto_info;        // Full STO analysis
     int offset;                  // Stack offset or heap pointer
-} TTOVarInfo;
+} STOVarInfo;
 
 // ============================================================================
 // Original Codegen Context
@@ -66,9 +66,9 @@ typedef struct {
     VarInfo global_var_types[MAX_GLOBAL_VARS];
     int global_var_count;
     
-    // TTO: Enhanced variable tracking
-    TTOVarInfo tto_var_types[MAX_GLOBAL_VARS];
-    int tto_var_count;
+    // STO: Enhanced variable tracking
+    STOVarInfo sto_var_types[MAX_GLOBAL_VARS];
+    int sto_var_count;
     
     // Current function context
     FunctionContext* current_function_ctx;
@@ -76,10 +76,10 @@ typedef struct {
     // Output file handle
     FILE* output_file;
     
-    // TTO: Optimization flags
-    bool tto_enabled;            // Enable TTO optimization
-    bool tto_aggressive;         // Aggressive int64 usage
-    bool tto_track_overflow;     // Runtime overflow detection
+    // STO: Optimization flags
+    bool sto_enabled;            // Enable STO optimization
+    bool sto_aggressive;         // Aggressive int64 usage
+    bool sto_track_overflow;     // Runtime overflow detection
 } CodegenContext;
 
 // Context management
@@ -106,24 +106,24 @@ void codegen_context_set_function(CodegenContext* ctx, FunctionContext* func_ctx
 FunctionContext* codegen_context_get_function(CodegenContext* ctx);
 
 // ============================================================================
-// TTO Functions
+// STO Functions
 // ============================================================================
 
-// Type inference (compile-time, renamed to avoid clash with runtime TTO)
-TTOTypeInfo codegen_tto_infer_numeric_type(const char* literal);
-TTOTypeInfo codegen_tto_infer_string_type(const char* literal, bool is_constant);
+// Type inference (compile-time, renamed to avoid clash with runtime STO)
+STOTypeInfo codegen_tto_infer_numeric_type(const char* literal);
+STOTypeInfo codegen_tto_infer_string_type(const char* literal, bool is_constant);
 
 // Variable tracking
-void tto_add_var(CodegenContext* ctx, const char* name, TTOTypeInfo info);
-TTOVarInfo* tto_get_var(CodegenContext* ctx, const char* name);
+void sto_add_var(CodegenContext* ctx, const char* name, STOTypeInfo info);
+STOVarInfo* sto_get_var(CodegenContext* ctx, const char* name);
 
 // Optimization decisions
-bool tto_should_use_int64(int64_t value);
-bool tto_should_use_double(const char* literal);
-bool tto_should_use_sso(size_t string_length);
+bool sto_should_use_int64(int64_t value);
+bool sto_should_use_double(const char* literal);
+bool sto_should_use_sso(size_t string_length);
 
 // Promotion helpers
-void tto_generate_int64_to_bigdec_promotion(CodegenContext* ctx, const char* var_name);
-void tto_generate_overflow_check(CodegenContext* ctx, const char* operation);
+void sto_generate_int64_to_bigdec_promotion(CodegenContext* ctx, const char* var_name);
+void sto_generate_overflow_check(CodegenContext* ctx, const char* operation);
 
 #endif

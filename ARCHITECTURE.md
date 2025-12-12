@@ -12,14 +12,15 @@
 3. **Work on your branch**, make commits with clear messages
 4. **Before finishing**: `git push origin feature-name_YZ_XX`
 5. **Leave a handoff note** in `/NEXT_AI_START_HERE.md`
+6. **⚠️ NEVER merge or create pull requests** - Human will review and merge
 
 **Example:**
 ```bash
-git checkout -b tto-cleanup_YZ_01
+git checkout -b sto-cleanup_YZ_01
 # ... work ...
 git add .
-git commit -m "TTO: Remove legacy int/float API, pure numeric only"
-git push origin tto-cleanup_YZ_01
+git commit -m "STO: Remove legacy int/float API, pure numeric only"
+git push origin sto-cleanup_YZ_01
 ```
 
 **WHY:** 
@@ -27,9 +28,10 @@ git push origin tto-cleanup_YZ_01
 - Prevent overwriting previous AI's work
 - Easy rollback if needed
 - Clear audit trail
+- **Human reviews and merges** - AI never merges to main
 
-**CURRENT AI:** YZ_05 (String Support + TTO Type Tracking) ✅ COMPLETED
-**PREVIOUS AI:** YZ_04 (9 Aralık 2025 - Control Flow Codegen) ✅ COMPLETED
+**CURRENT AI:** YZ_49 (Phase 12: STO Refactoring - Documentation)
+**PREVIOUS AI:** YZ_48 (12 Aralık 2025 - println() Complete) ✅ COMPLETED
 
 ---
 
@@ -40,7 +42,7 @@ Previous AI agents violated these rules and created a 736-line monolithic `main.
 
 ---
 
-## Rule #0: TTO (Transparent Type Optimization) - CORE PRINCIPLE
+## Rule #0: STO (Smart Type Optimization) - CORE PRINCIPLE
 
 ### 🎯 The Philosophy
 

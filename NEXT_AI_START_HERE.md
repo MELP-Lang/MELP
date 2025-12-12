@@ -1,10 +1,37 @@
-# 🚀 NEXT AI: Start Here (After YZ_48)
+# 🚀 NEXT AI: Start Here (After YZ_49)
 
-**Last Session:** YZ_48 (12 Aralık 2025)  
-**Current Commit:** 49e74d4  
-**Status:** ✅ println() COMPLETE (Parser + Codegen)
+**Last Session:** YZ_49 (12 Aralık 2025)  
+**Current Status:** ✅ Phase 12 Part 1 COMPLETE (Documentation TTO→STO)
 
-**🔥 CRITICAL: Phase 12 TTO→STO Refactoring Planned!**
+**🔥 CRITICAL: Phase 12 Continues - Runtime Refactoring Next!**
+
+---
+
+## 🔴 GIT WORKFLOW - READ FIRST!
+
+**⚠️ IMPORTANT: AI NEVER MERGES!**
+
+```bash
+# 1. Create your branch
+git checkout -b feature-name_YZ_XX
+
+# 2. Work and commit
+git add .
+git commit -m "YZ_XX: Feature description"
+
+# 3. Push to remote
+git push origin feature-name_YZ_XX
+
+# 4. ⚠️ STOP HERE!
+# - DO NOT merge to main
+# - DO NOT create pull requests
+# - Human will review and merge
+```
+
+**Why?**
+- Human reviews all changes
+- Prevents accidental main branch corruption
+- Clear audit trail per AI session
 
 ---
 
@@ -21,9 +48,23 @@
   - Note: Original YZ_47 (token merging) was deleted
 
 **Why Backups:**
-- Phase 12 (TTO→STO refactoring) is major change
+- Phase 12 (STO refactoring) is major change
 - Renames 100+ files and functions
 - Safe rollback point if needed
+
+---
+
+## ✅ YZ_49 Tamamlandı!
+
+**Yapılan:** Phase 12 Part 1 - Documentation Update (TTO→STO)
+
+**Güncellemeler:**
+1. ✅ Core docs: TODO.md, ARCHITECTURE.md, NEXT_AI_START_HERE.md
+2. ✅ Technical docs: TTO.md → STO.md (2 files renamed)
+3. ✅ YZ docs: AI_METHODOLOGY_SUM.md, user_todo.md
+4. ✅ Version 2.0, alias notes added
+
+**Sonuç:** Tüm dokümantasyon artık "STO" kullanıyor! ✨
 
 ---
 
@@ -44,21 +85,20 @@
 
 ## 🎯 Sırada Ne Var?
 
-### 🔥 Seçenek 1: Phase 12 - TTO→STO Refactoring (5-7 saat) ⭐⭐⭐ URGENT!
+### 🔥 Seçenek 1: Phase 12 - STO Refactoring (4-6 saat kaldı) ⭐⭐⭐ URGENT!
 **Dosya:** `TODO.md` - Phase 12 section
 
-**Neden Acil:**
-- TTO (Transparent Type Optimization) → STO (Smart Type Optimization) rename
-- Şu an karışık: belgeler STO, kod TTO kullanıyor
-- Stage 1 (self-hosting) öncesi yapılmalı (sonra 10x zor!)
-- MELP'e özgü yenilik, tutarlı olmalı
+**İlerleme:**
+- ✅ **YZ_49:** Documentation update (1h) - COMPLETE!
+- ⏳ **YZ_50:** Runtime library rename (2-3h) - tto_runtime → sto_runtime
+- ⏳ **YZ_51:** Compiler code update (1-2h) - Function names
+- ⏳ **YZ_51:** Integration testing (1h) - Verify all works
+- ⏳ **YZ_51:** Final cleanup (30min) - Migration guide
 
-**5 Alt-Görev:**
-1. **YZ_49:** Documentation update (1h) - Markdown files
-2. **YZ_50:** Runtime library rename (2-3h) - tto_runtime → sto_runtime
-3. **YZ_51:** Compiler code update (1-2h) - Function names
-4. **YZ_51:** Integration testing (1h) - Verify all works
-5. **YZ_51:** Final cleanup (30min) - Migration guide
+**Neden Devam Et:**
+- Documentation tutarlı ✅
+- Kod hala "tto_runtime" kullanıyor ❌
+- Stage 1 öncesi tamamlanmalı
 
 **Backups:** Already created! Safe to proceed.
 
@@ -107,7 +147,7 @@
 ## 🎯 Recommendation: START WITH PHASE 12!
 
 **Neden önce Phase 12:**
-1. ⚡ Kritik mimari karar (TTO vs STO naming)
+1. ⚡ Kritik mimari karar (legacy TTO vs STO naming)
 2. 🔧 Stage 1 öncesi yapılmalı (bootstrap sonrası zor)
 3. 📚 Tutarlılık (belgeler ve kod aynı terminolojiyi kullanmalı)
 4. ✅ Backups hazır (güvenli deneme ortamı)

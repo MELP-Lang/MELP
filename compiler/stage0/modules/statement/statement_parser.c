@@ -459,8 +459,8 @@ Statement* statement_parse(Parser* parser) {
             ArrayAssignment* arr_assign = malloc(sizeof(ArrayAssignment));
             arr_assign->index_access = (void*)access;  // Store as void*
             arr_assign->value_expr = expr;
-            arr_assign->tto_info = NULL;
-            arr_assign->tto_analyzed = false;
+            arr_assign->sto_info = NULL;
+            arr_assign->sto_analyzed = false;
             
             stmt = statement_create(STMT_ARRAY_ASSIGNMENT);
             stmt->data = arr_assign;
@@ -504,8 +504,8 @@ Statement* statement_parse(Parser* parser) {
                 VariableAssignment* assign = malloc(sizeof(VariableAssignment));
                 assign->name = strdup(tok->value);
                 assign->value_expr = expr;
-                assign->tto_info = NULL;
-                assign->tto_analyzed = false;
+                assign->sto_info = NULL;
+                assign->sto_analyzed = false;
                 assign->needs_type_promotion = false;
                 assign->is_implicit_declaration = is_implicit_declaration;  // YZ_25: Mark if implicit
                 

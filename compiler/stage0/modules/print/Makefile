@@ -5,10 +5,10 @@
 # ═══════════════════════════════════════════════════════════════
 
 CC = gcc
-CFLAGS = -Wall -Wextra -g -I../.. -I../../../../runtime/tto
+CFLAGS = -Wall -Wextra -g -I../.. -I../../../../runtime/sto
 
 # TTO Runtime Library Path
-TTO_LIB = ../../../../runtime/tto/libtto_runtime.a
+TTO_LIB = ../../../../runtime/sto/libsto_runtime.a
 
 # Source files
 SOURCES = print_standalone.c \
@@ -90,7 +90,7 @@ info:
 	@echo "  • logical (Module #5)"
 	@echo "  • control_flow (Module #6)"
 	@echo "  • functions (Module #7)"
-	@echo "  • TTO Runtime (libtto_runtime.a)"
+	@echo "  • TTO Runtime (libsto_runtime.a)"
 	@echo ""
 	@echo "Total source files: $$(echo $(SOURCES) | wc -w)"
 	@echo ""

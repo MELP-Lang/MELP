@@ -2,11 +2,11 @@
 # =========================================
 
 CC = gcc
-CFLAGS = -Wall -g -I../.. -I../../../../runtime/tto
+CFLAGS = -Wall -g -I../.. -I../../../../runtime/sto
 LDFLAGS = -lm
 
 # TTO Runtime library path
-TTO_LIB = ../../../../runtime/tto/libtto_runtime.a
+TTO_LIB = ../../../../runtime/sto/libsto_runtime.a
 
 # Source files
 SOURCES = arithmetic_standalone.c \

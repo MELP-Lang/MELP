@@ -1,15 +1,15 @@
-#ifndef TTO_TYPES_H
-#define TTO_TYPES_H
+#ifndef STO_TYPES_H
+#define STO_TYPES_H
 
 #include <stdint.h>
 #include <stdbool.h>
 
 // ============================================================================
-// TTO (Transparent Type Optimization) Type Definitions
+// STO (Smart Type Optimization) Type Definitions
 // ============================================================================
-// Separated from codegen_context.h to avoid circular dependencies
+// Shared between compiler and runtime
 
-// Internal representation types for TTO
+// Internal representation types for STO
 typedef enum {
     INTERNAL_TYPE_UNKNOWN = 0,
     
@@ -18,7 +18,7 @@ typedef enum {
     INTERNAL_TYPE_DOUBLE,       // IEEE 754 double (8 bytes, XMM register)
     INTERNAL_TYPE_BIGDECIMAL,   // Unlimited precision (heap allocated)
     
-    // String types (user sees: string)
+    // Text types (user sees: string)
     INTERNAL_TYPE_SSO_STRING,   // Small String Optimization (≤23 bytes, stack)
     INTERNAL_TYPE_HEAP_STRING,  // Heap allocated string (>23 bytes)
     INTERNAL_TYPE_RODATA_STRING,// Constant string in .rodata section
@@ -26,14 +26,12 @@ typedef enum {
     // Other types
     INTERNAL_TYPE_BOOLEAN,
     INTERNAL_TYPE_ARRAY,
-    INTERNAL_TYPE_LIST,         // YZ_17: Heterogeneous collection
-    INTERNAL_TYPE_TUPLE,        // YZ_17: Immutable pair/triple
     INTERNAL_TYPE_STRUCT,
     INTERNAL_TYPE_FUNCTION
 } InternalType;
 
-// TTO analysis result
-typedef struct TTOTypeInfo {
+// STO analysis result
+typedef struct STOTypeInfo {
     InternalType type;          // Inferred internal type
     bool is_constant;           // Can be computed at compile time?
     bool needs_promotion;       // May need runtime promotion?
@@ -52,6 +50,6 @@ typedef struct TTOTypeInfo {
         MEM_HEAP,               // Heap allocated
         MEM_RODATA              // Read-only data section
     } mem_location;
-} TTOTypeInfo;
+} STOTypeInfo;
 
 #endif

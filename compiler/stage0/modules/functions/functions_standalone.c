@@ -593,7 +593,7 @@ int main(int argc, char** argv) {
             }
         }
         
-        // Step 3: Link: gcc -o output main.o module1.o module2.o ... -L... -lmlp_stdlib -ltto_runtime -lm
+        // Step 3: Link: gcc -o output main.o module1.o module2.o ... -L... -lmlp_stdlib -lsto_runtime -lm
         // YZ_44 Part 5.1: Build command with all object files
         char link_cmd[4096];
         int offset = snprintf(link_cmd, sizeof(link_cmd), "gcc -o %s %s", output_file, obj_file);
@@ -606,7 +606,7 @@ int main(int argc, char** argv) {
         // Add libraries
         offset += snprintf(link_cmd + offset, sizeof(link_cmd) - offset,
                           " -L../../../../runtime/stdlib -lmlp_stdlib "
-                          "-L../../../../runtime/tto -ltto_runtime -lm 2>&1");
+                          "-L../../../../runtime/sto -lsto_runtime -lm 2>&1");
         
         printf("🔗 Linking: %s", output_file);
         if (module_obj_count > 0) {
@@ -645,7 +645,7 @@ int main(int argc, char** argv) {
         }
         
         printf("✅ Compiled and linked %s -> %s\n", input_file, output_file);
-        printf("   Run with: LD_LIBRARY_PATH=../../../../runtime/stdlib:../../../../runtime/tto ./%s\n", 
+        printf("   Run with: LD_LIBRARY_PATH=../../../../runtime/stdlib:../../../../runtime/sto ./%s\n", 
                output_file);
     }
     

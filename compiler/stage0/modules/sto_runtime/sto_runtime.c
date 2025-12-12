@@ -1,9 +1,9 @@
 /**
- * TTO Runtime Implementation
+ * STO Runtime Implementation
  * Transparent Type Optimization runtime support
  */
 
-#include "tto_runtime.h"
+#include "sto_runtime.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -13,15 +13,15 @@
 // Phase 3.1: Overflow Detection & Promotion
 // ============================================================================
 
-bool tto_would_overflow_add(int64_t a, int64_t b) {
+bool sto_would_overflow_add(int64_t a, int64_t b) {
     return (b > 0 && a > INT64_MAX - b) || (b < 0 && a < INT64_MIN - b);
 }
 
-bool tto_would_overflow_sub(int64_t a, int64_t b) {
+bool sto_would_overflow_sub(int64_t a, int64_t b) {
     return (b < 0 && a > INT64_MAX + b) || (b > 0 && a < INT64_MIN + b);
 }
 
-bool tto_would_overflow_mul(int64_t a, int64_t b) {
+bool sto_would_overflow_mul(int64_t a, int64_t b) {
     if (a == 0 || b == 0) return false;
     if (a > 0 && b > 0 && a > INT64_MAX / b) return true;
     if (a > 0 && b < 0 && b < INT64_MIN / a) return true;
@@ -30,8 +30,8 @@ bool tto_would_overflow_mul(int64_t a, int64_t b) {
     return false;
 }
 
-bool tto_safe_add_i64(int64_t a, int64_t b, int64_t* result) {
-    if (tto_would_overflow_add(a, b)) {
+bool sto_safe_add_i64(int64_t a, int64_t b, int64_t* result) {
+    if (sto_would_overflow_add(a, b)) {
         *result = 0;
         return true;  // Overflow occurred
     }
@@ -39,8 +39,8 @@ bool tto_safe_add_i64(int64_t a, int64_t b, int64_t* result) {
     return false;  // No overflow
 }
 
-bool tto_safe_sub_i64(int64_t a, int64_t b, int64_t* result) {
-    if (tto_would_overflow_sub(a, b)) {
+bool sto_safe_sub_i64(int64_t a, int64_t b, int64_t* result) {
+    if (sto_would_overflow_sub(a, b)) {
         *result = 0;
         return true;
     }
@@ -48,8 +48,8 @@ bool tto_safe_sub_i64(int64_t a, int64_t b, int64_t* result) {
     return false;
 }
 
-bool tto_safe_mul_i64(int64_t a, int64_t b, int64_t* result) {
-    if (tto_would_overflow_mul(a, b)) {
+bool sto_safe_mul_i64(int64_t a, int64_t b, int64_t* result) {
+    if (sto_would_overflow_mul(a, b)) {
         *result = 0;
         return true;
     }
@@ -279,16 +279,16 @@ void sso_release(SSOString* str) {
 // Phase 3.4: Memory Management
 // ============================================================================
 
-static TTOMemStats mem_stats = {0};
+static STOMemStats mem_stats = {0};
 
-void tto_runtime_init(void) {
-    memset(&mem_stats, 0, sizeof(TTOMemStats));
+void sto_runtime_init(void) {
+    memset(&mem_stats, 0, sizeof(STOMemStats));
 }
 
-void tto_runtime_cleanup(void) {
+void sto_runtime_cleanup(void) {
     // Cleanup would happen here if needed
 }
 
-TTOMemStats tto_get_mem_stats(void) {
+STOMemStats sto_get_mem_stats(void) {
     return mem_stats;
 }

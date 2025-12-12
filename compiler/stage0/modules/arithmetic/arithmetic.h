@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include "../lexer/lexer.h"
-#include "../codegen_context/tto_types.h"
+#include "../codegen_context/sto_types.h"
 #include "../array/array.h"  // YZ_14: For IndexAccess struct
 
 // Arithmetic operation types
@@ -47,9 +47,9 @@ typedef struct ArithmeticExpr {
     int is_collection;            // 1 if this is a collection literal
     Collection* collection;       // Collection details (if is_collection)
     
-    // ========== Phase 2.3: TTO Type Propagation ==========
-    TTOTypeInfo* tto_info;        // TTO analysis result (heap allocated)
-    bool tto_analyzed;            // Has TTO analysis been performed?
+    // ========== Phase 2.3: STO Type Propagation ==========
+    STOTypeInfo* sto_info;        // STO analysis result (heap allocated)
+    bool sto_analyzed;            // Has STO analysis been performed?
     bool needs_overflow_check;    // Runtime overflow detection needed?
 } ArithmeticExpr;
 
@@ -63,13 +63,13 @@ typedef struct FunctionCallExpr {
 // Free arithmetic expression
 void arithmetic_expr_free(ArithmeticExpr* expr);
 
-// ========== Phase 2.3: TTO Type Propagation Functions ==========
-// Infer TTO type for arithmetic expression
+// ========== Phase 2.3: STO Type Propagation Functions ==========
+// Infer STO type for arithmetic expression
 void arithmetic_infer_tto_type(ArithmeticExpr* expr);
 
 // Propagate types through binary operations
-TTOTypeInfo arithmetic_propagate_binary_types(TTOTypeInfo* left, TTOTypeInfo* right, ArithmeticOp op);
+STOTypeInfo arithmetic_propagate_binary_types(STOTypeInfo* left, STOTypeInfo* right, ArithmeticOp op);
 
-// Note: tto_infer_numeric_type() is defined in codegen_context.h
+// Note: sto_infer_numeric_type() is defined in codegen_context.h
 
 #endif

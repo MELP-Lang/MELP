@@ -58,7 +58,7 @@ modules: check-monolithic
 
 runtime:
 	@echo "Building runtime libraries..."
-	@$(MAKE) -C ../../runtime/tto
+	@$(MAKE) -C ../../runtime/sto
 	@$(MAKE) -C ../../runtime/stdlib
 
 # ═══════════════════════════════════════════════════════════
@@ -70,7 +70,7 @@ test-functions: modules
 	@cd modules/functions && ./functions_compiler test_mvc.mlp test_mvc.s
 	@cd modules/functions && gcc -no-pie test_mvc.s \
 		-L../../../../runtime/stdlib -lmlp_stdlib \
-		-L../../../../runtime/tto -ltto_runtime -lm \
+		-L../../../../runtime/sto -lsto_runtime -lm \
 		-o test_mvc
 	@cd modules/functions && ./test_mvc
 	@echo "✅ Functions test passed!"
@@ -80,7 +80,7 @@ test-string: modules
 	@cd modules/functions && ./functions_compiler test_string_concat.mlp test_string_concat.s
 	@cd modules/functions && gcc -no-pie test_string_concat.s \
 		-L../../../../runtime/stdlib -lmlp_stdlib \
-		-L../../../../runtime/tto -ltto_runtime -lm \
+		-L../../../../runtime/sto -lsto_runtime -lm \
 		-o test_string_concat
 	@cd modules/functions && ./test_string_concat
 	@echo "✅ String concatenation test passed!"
@@ -99,7 +99,7 @@ clean: check-monolithic
 
 clean-all: clean
 	@echo "Cleaning runtime libraries..."
-	@$(MAKE) -C ../../runtime/tto clean || true
+	@$(MAKE) -C ../../runtime/sto clean || true
 	@$(MAKE) -C ../../runtime/stdlib clean || true
 
 # ═══════════════════════════════════════════════════════════
@@ -118,7 +118,7 @@ help:
 	@echo "Available targets:"
 	@echo "  make all              Build all modular compilers"
 	@echo "  make modules          Build function compiler modules"
-	@echo "  make runtime          Build TTO + stdlib libraries"
+	@echo "  make runtime          Build STO + stdlib libraries"
 	@echo "  make test-functions   Test functions compiler (MVC)"
 	@echo "  make test-string      Test string operations"
 	@echo "  make clean            Clean build artifacts"

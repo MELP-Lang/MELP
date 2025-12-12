@@ -1,5 +1,5 @@
 #include "arithmetic_codegen.h"
-#include "../../../../runtime/tto/runtime_tto.h"
+#include "../../../../runtime/sto/runtime_sto.h"
 #include "../functions/functions.h"  // For FunctionDeclaration type
 #include "../array/array_codegen.h"  // YZ_14: For array access codegen
 #include <stdio.h>
@@ -56,9 +56,9 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
         fprintf(output, "    # println() call\n");
         // Evaluate argument expression → r8
         generate_expr_code(output, expr->func_call->arguments[0], 0, func);
-        // Call TTO print function + manual newline
+        // Call STO print function + manual newline
         fprintf(output, "    movq %%r8, %%rdi\n");
-        fprintf(output, "    call tto_print_int64\n");
+        fprintf(output, "    call sto_print_int64\n");
         fprintf(output, "    movq $10, %%rdi  # newline char\n");
         fprintf(output, "    call putchar\n");
         return;
@@ -91,7 +91,7 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
         // Check if builtin stdlib function
         const char* actual_function = call->function_name;
         if (strcmp(call->function_name, "println") == 0) {
-            // TTO: Check if argument is numeric by looking up in function context
+            // STO: Check if argument is numeric by looking up in function context
             int is_numeric_arg = 1;  // Default: numeric
             if (call->arg_count > 0 && call->arguments[0] && func) {
                 ArithmeticExpr* arg_expr = call->arguments[0];
@@ -102,12 +102,12 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
             }
             
             if (is_numeric_arg) {
-                // Numeric argument - TTO-aware: Pass pointer to value + type
+                // Numeric argument - STO-aware: Pass pointer to value + type
                 // Value is in %rdi, need to save to stack and pass pointer
                 fprintf(output, "    subq $16, %%rsp      # Allocate temp space\n");
                 fprintf(output, "    movq %%rdi, (%%rsp)  # Store value\n");
                 fprintf(output, "    movq %%rsp, %%rdi    # arg1: pointer to value\n");
-                fprintf(output, "    movq $0, %%rsi       # arg2: TTO_TYPE_INT64\n");
+                fprintf(output, "    movq $0, %%rsi       # arg2: STO_TYPE_INT64\n");
                 actual_function = "mlp_println_numeric";
             } else {
                 // Text argument - direct call
@@ -117,13 +117,13 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
             fprintf(output, "    subq $16, %%rsp      # Allocate temp space\n");
             fprintf(output, "    movq %%rdi, (%%rsp)  # Store value\n");
             fprintf(output, "    movq %%rsp, %%rdi    # arg1: pointer to value\n");
-            fprintf(output, "    movq $0, %%rsi       # arg2: TTO_TYPE_INT64\n");
+            fprintf(output, "    movq $0, %%rsi       # arg2: STO_TYPE_INT64\n");
             actual_function = "mlp_print_numeric";
         } else if (strcmp(call->function_name, "toString") == 0) {
             fprintf(output, "    subq $16, %%rsp      # Allocate temp space\n");
             fprintf(output, "    movq %%rdi, (%%rsp)  # Store value\n");
             fprintf(output, "    movq %%rsp, %%rdi    # arg1: pointer to value\n");
-            fprintf(output, "    movq $0, %%rsi       # arg2: TTO_TYPE_INT64\n");
+            fprintf(output, "    movq $0, %%rsi       # arg2: STO_TYPE_INT64\n");
             actual_function = "mlp_toString_numeric";
         } else if (strcmp(call->function_name, "length") == 0) {
             // YZ_22: length(text) -> mlp_string_length(char*)
@@ -206,7 +206,7 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
         // Call the function
         fprintf(output, "    call %s\n", actual_function);
         
-        // Clean up temp space for TTO calls
+        // Clean up temp space for STO calls
         if (strcmp(call->function_name, "println") == 0 ||
             strcmp(call->function_name, "print") == 0 ||
             strcmp(call->function_name, "toString") == 0) {
@@ -247,8 +247,8 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
                 fprintf(output, "    movq %%r8, %%rsi  # Expression index (arg2)\n");
             }
             
-            // Call tto_tuple_get(tuple_ptr, index)
-            fprintf(output, "    call tto_tuple_get  # Returns element pointer in rax\n");
+            // Call sto_tuple_get(tuple_ptr, index)
+            fprintf(output, "    call sto_tuple_get  # Returns element pointer in rax\n");
             
             // Dereference to get actual value (assuming numeric for now)
             fprintf(output, "    movq (%%rax), %%rax  # Dereference to get value\n");
@@ -282,8 +282,8 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
                 fprintf(output, "    movq %%r8, %%rsi  # Expression index (arg2)\n");
             }
             
-            // Call tto_list_get(list_ptr, index)
-            fprintf(output, "    call tto_list_get  # Returns element pointer in rax\n");
+            // Call sto_list_get(list_ptr, index)
+            fprintf(output, "    call sto_list_get  # Returns element pointer in rax\n");
             
             // Dereference to get actual value (assuming numeric for now)
             fprintf(output, "    movq (%%rax), %%rax  # Dereference to get value\n");
@@ -487,12 +487,12 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
                 fprintf(output, "    pushq %%rdi\n");
                 fprintf(output, "    pushq %%rsi\n");
                 fprintf(output, "    movq %%r%d, %%rdi\n", left_reg + 8);
-                fprintf(output, "    call tto_bigdec_from_int64\n");
+                fprintf(output, "    call sto_bigdec_from_int64\n");
                 fprintf(output, "    movq %%rax, %%rdi # First BigDecimal\n");
                 fprintf(output, "    movq %%r%d, %%rsi\n", right_reg + 8);
-                fprintf(output, "    call tto_bigdec_from_int64\n");
+                fprintf(output, "    call sto_bigdec_from_int64\n");
                 fprintf(output, "    movq %%rax, %%rsi # Second BigDecimal\n");
-                fprintf(output, "    call tto_bigdec_add\n");
+                fprintf(output, "    call sto_bigdec_add\n");
                 fprintf(output, "    popq %%rsi\n");
                 fprintf(output, "    popq %%rdi\n");
                 fprintf(output, "    movq %%rax, %%r%d # BigDecimal pointer in result register\n", left_reg + 8);
@@ -508,12 +508,12 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
                 fprintf(output, "    pushq %%rdi\n");
                 fprintf(output, "    pushq %%rsi\n");
                 fprintf(output, "    movq %%r%d, %%rdi\n", left_reg + 8);
-                fprintf(output, "    call tto_bigdec_from_int64\n");
+                fprintf(output, "    call sto_bigdec_from_int64\n");
                 fprintf(output, "    movq %%rax, %%rdi # First BigDecimal\n");
                 fprintf(output, "    movq %%r%d, %%rsi\n", right_reg + 8);
-                fprintf(output, "    call tto_bigdec_from_int64\n");
+                fprintf(output, "    call sto_bigdec_from_int64\n");
                 fprintf(output, "    movq %%rax, %%rsi # Second BigDecimal\n");
-                fprintf(output, "    call tto_bigdec_sub\n");
+                fprintf(output, "    call sto_bigdec_sub\n");
                 fprintf(output, "    popq %%rsi\n");
                 fprintf(output, "    popq %%rdi\n");
                 fprintf(output, "    movq %%rax, %%r%d # BigDecimal pointer in result register\n", left_reg + 8);
@@ -529,12 +529,12 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
                 fprintf(output, "    pushq %%rdi\n");
                 fprintf(output, "    pushq %%rsi\n");
                 fprintf(output, "    movq %%r%d, %%rdi\n", left_reg + 8);
-                fprintf(output, "    call tto_bigdec_from_int64\n");
+                fprintf(output, "    call sto_bigdec_from_int64\n");
                 fprintf(output, "    movq %%rax, %%rdi # First BigDecimal\n");
                 fprintf(output, "    movq %%r%d, %%rsi\n", right_reg + 8);
-                fprintf(output, "    call tto_bigdec_from_int64\n");
+                fprintf(output, "    call sto_bigdec_from_int64\n");
                 fprintf(output, "    movq %%rax, %%rsi # Second BigDecimal\n");
-                fprintf(output, "    call tto_bigdec_mul\n");
+                fprintf(output, "    call sto_bigdec_mul\n");
                 fprintf(output, "    popq %%rsi\n");
                 fprintf(output, "    popq %%rdi\n");
                 fprintf(output, "    movq %%rax, %%r%d # BigDecimal pointer in result register\n", left_reg + 8);

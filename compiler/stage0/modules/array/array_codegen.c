@@ -32,11 +32,11 @@ void codegen_array_literal(FILE* output, Array* arr) {
     // Label for this array
     int arr_id = array_label_counter++;
     
-    // Allocate on heap using TTO
+    // Allocate on heap using STO
     fprintf(output, "    # Allocate array on heap\n");
     fprintf(output, "    movq $%d, %%rdi  # Number of elements\n", arr->length);
     fprintf(output, "    movq $8, %%rsi   # Element size (8 bytes)\n");
-    fprintf(output, "    call tto_array_alloc  # Returns pointer in rax\n");
+    fprintf(output, "    call sto_array_alloc  # Returns pointer in rax\n");
     fprintf(output, "    movq %%rax, %%rbx  # Save array pointer in rbx\n");
     
     // Initialize elements
@@ -80,7 +80,7 @@ void codegen_list_literal(FILE* output, List* list) {
     // Allocate list structure
     fprintf(output, "    # Allocate list\n");
     fprintf(output, "    movq $%d, %%rdi  # Capacity\n", list->capacity);
-    fprintf(output, "    call tto_list_alloc  # Returns list pointer in rax\n");
+    fprintf(output, "    call sto_list_alloc  # Returns list pointer in rax\n");
     fprintf(output, "    movq %%rax, %%rbx  # Save list pointer in rbx\n");
     
     // Initialize elements with type info
@@ -96,19 +96,19 @@ void codegen_list_literal(FILE* output, List* list) {
                 
                 arithmetic_generate_code(output, elem, NULL);  // Result in r8/xmm0
                 
-                // Value must be a pointer for tto_list_set - push to stack
+                // Value must be a pointer for sto_list_set - push to stack
                 fprintf(output, "    pushq %%r8  # Push value to stack\n");
                 fprintf(output, "    movq %%rsp, %%rdx  # arg3: pointer to value on stack\n");
                 
                 // Restore list pointer
                 fprintf(output, "    movq 8(%%rsp), %%rbx  # Load list pointer (skipping value)\n");
                 
-                // Call tto_list_set(list, index, value_ptr, type)
+                // Call sto_list_set(list, index, value_ptr, type)
                 fprintf(output, "    movq %%rbx, %%rdi  # arg1: list pointer\n");
                 fprintf(output, "    movq $%d, %%rsi  # arg2: index\n", i);
                 // rdx already has pointer to value (arg3)
                 fprintf(output, "    movq $%d, %%rcx  # arg4: type\n", list->element_types[i]);
-                fprintf(output, "    call tto_list_set  # Set element with type\n");
+                fprintf(output, "    call sto_list_set  # Set element with type\n");
                 
                 // Clean up stack (value + saved rbx)
                 fprintf(output, "    addq $16, %%rsp  # Pop value and saved list pointer\n");
@@ -125,12 +125,12 @@ void codegen_tuple_literal(FILE* output, Tuple* tuple) {
     
     fprintf(output, "    # Tuple literal: %d elements (immutable)\n", tuple->length);
     
-    // Tuples use runtime allocation (tto_tuple_alloc)
+    // Tuples use runtime allocation (sto_tuple_alloc)
     // Then we set each element with type info
     
-    // Call tto_tuple_alloc(size_t length)
+    // Call sto_tuple_alloc(size_t length)
     fprintf(output, "    movq $%d, %%rdi  # arg1: tuple length\n", tuple->length);
-    fprintf(output, "    call tto_tuple_alloc  # Returns pointer in rax\n");
+    fprintf(output, "    call sto_tuple_alloc  # Returns pointer in rax\n");
     fprintf(output, "    movq %%rax, %%rbx  # Save tuple pointer in rbx\n");
     
     // Initialize tuple elements
@@ -143,15 +143,15 @@ void codegen_tuple_literal(FILE* output, Tuple* tuple) {
                 // Evaluate element expression
                 arithmetic_generate_code(output, elem, NULL);  // Result in r8/xmm0
                 
-                // Push element value to stack (tto_tuple_set expects pointer)
+                // Push element value to stack (sto_tuple_set expects pointer)
                 fprintf(output, "    pushq %%r8  # Push value to stack\n");
                 
-                // Call tto_tuple_set(tuple, index, value_ptr, type)
+                // Call sto_tuple_set(tuple, index, value_ptr, type)
                 fprintf(output, "    movq %%rbx, %%rdi  # arg1: tuple pointer\n");
                 fprintf(output, "    movq $%d, %%rsi  # arg2: index\n", i);
                 fprintf(output, "    movq %%rsp, %%rdx  # arg3: pointer to value on stack\n");
                 fprintf(output, "    movq $%d, %%rcx  # arg4: type\n", tuple->element_types[i]);
-                fprintf(output, "    call tto_tuple_set  # Set element with type\n");
+                fprintf(output, "    call sto_tuple_set  # Set element with type\n");
                 
                 // Clean up stack
                 fprintf(output, "    addq $8, %%rsp  # Pop value\n");

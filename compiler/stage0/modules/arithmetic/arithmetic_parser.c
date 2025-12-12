@@ -61,9 +61,9 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
     expr->right = NULL;
     expr->value = NULL;
     
-    // Phase 2.3: Initialize TTO fields
-    expr->tto_info = NULL;
-    expr->tto_analyzed = false;
+    // Phase 2.3: Initialize STO fields
+    expr->sto_info = NULL;
+    expr->sto_analyzed = false;
     expr->needs_overflow_check = false;
     
     // Boolean literal (true/false)
@@ -74,14 +74,14 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
         expr->is_string = 0;
         expr->is_boolean = 1;
         
-        // TTO analysis for boolean literal
-        TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+        // STO analysis for boolean literal
+        STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
         tto->type = INTERNAL_TYPE_INT64;  // Boolean stored as int (0/1)
         tto->is_constant = true;  // Boolean literals are constant
         tto->needs_promotion = false;
         tto->mem_location = MEM_REGISTER;  // Small value, keep in register
-        expr->tto_info = tto;
-        expr->tto_analyzed = true;
+        expr->sto_info = tto;
+        expr->sto_analyzed = true;
         expr->needs_overflow_check = false;
         
         advance(parser);
@@ -96,14 +96,14 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
         expr->is_string = 1;
         expr->is_boolean = 0;
         
-        // TTO analysis for string literal
-        TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+        // STO analysis for string literal
+        STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
         tto->type = INTERNAL_TYPE_SSO_STRING;  // Small String Optimization
         tto->is_constant = true;  // String literals are constant
         tto->needs_promotion = false;
         tto->mem_location = MEM_RODATA;  // String literals in .rodata
-        expr->tto_info = tto;
-        expr->tto_analyzed = true;
+        expr->sto_info = tto;
+        expr->sto_analyzed = true;
         expr->needs_overflow_check = false;
         
         advance(parser);
@@ -118,11 +118,11 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
         expr->is_string = 0;
         expr->is_boolean = 0;
         
-        // Phase 2.3: TTO analysis for numeric literal
-        TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+        // Phase 2.3: STO analysis for numeric literal
+        STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
         *tto = codegen_tto_infer_numeric_type(expr->value);
-        expr->tto_info = tto;
-        expr->tto_analyzed = true;
+        expr->sto_info = tto;
+        expr->sto_analyzed = true;
         expr->needs_overflow_check = (tto->type == INTERNAL_TYPE_INT64);
         
         advance(parser);
@@ -205,14 +205,14 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
             expr->is_function_call = 1;
             expr->func_call = func_call;
             
-            // TTO info: assume INT64 return value
-            TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+            // STO info: assume INT64 return value
+            STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
             tto->type = INTERNAL_TYPE_INT64;
             tto->is_constant = false;
             tto->needs_promotion = true;
             tto->mem_location = MEM_REGISTER;
-            expr->tto_info = tto;
-            expr->tto_analyzed = true;
+            expr->sto_info = tto;
+            expr->sto_analyzed = true;
             expr->needs_overflow_check = true;
             
             return expr;
@@ -227,15 +227,15 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
         expr->is_function_call = 0;
         expr->func_call = NULL;
         
-        // Phase 2.3: TTO info for variables (unknown at parse time)
+        // Phase 2.3: STO info for variables (unknown at parse time)
         // We assume INT64 initially, will be refined at runtime
-        TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+        STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
         tto->type = INTERNAL_TYPE_INT64;
         tto->is_constant = false;  // Variables can change
         tto->needs_promotion = true;  // May need overflow check
         tto->mem_location = MEM_REGISTER;
-        expr->tto_info = tto;
-        expr->tto_analyzed = true;
+        expr->sto_info = tto;
+        expr->sto_analyzed = true;
         expr->needs_overflow_check = true;
         
         return expr;
@@ -287,17 +287,17 @@ ArithmeticExpr* arithmetic_parse_power(ArithmeticParser* parser) {
         binary->is_string = 0;
         binary->is_boolean = 0;
         
-        // Phase 2.3: TTO type propagation for binary operation
-        binary->tto_info = NULL;
-        binary->tto_analyzed = false;
+        // Phase 2.3: STO type propagation for binary operation
+        binary->sto_info = NULL;
+        binary->sto_analyzed = false;
         binary->needs_overflow_check = false;
         
-        // If both operands have TTO info, propagate types
-        if (left->tto_analyzed && right->tto_analyzed && left->tto_info && right->tto_info) {
-            TTOTypeInfo* propagated = malloc(sizeof(TTOTypeInfo));
-            *propagated = arithmetic_propagate_binary_types(left->tto_info, right->tto_info, ARITH_POW);
-            binary->tto_info = propagated;
-            binary->tto_analyzed = true;
+        // If both operands have STO info, propagate types
+        if (left->sto_analyzed && right->sto_analyzed && left->sto_info && right->sto_info) {
+            STOTypeInfo* propagated = malloc(sizeof(STOTypeInfo));
+            *propagated = arithmetic_propagate_binary_types(left->sto_info, right->sto_info, ARITH_POW);
+            binary->sto_info = propagated;
+            binary->sto_analyzed = true;
             binary->needs_overflow_check = (propagated->type == INTERNAL_TYPE_INT64);
         }
         
@@ -344,16 +344,16 @@ ArithmeticExpr* arithmetic_parse_term(ArithmeticParser* parser) {
         binary->is_float = 0;
         binary->is_boolean = 0;
         
-        // Phase 2.3: TTO type propagation
-        binary->tto_info = NULL;
-        binary->tto_analyzed = false;
+        // Phase 2.3: STO type propagation
+        binary->sto_info = NULL;
+        binary->sto_analyzed = false;
         binary->needs_overflow_check = false;
         
-        if (left->tto_analyzed && right->tto_analyzed && left->tto_info && right->tto_info) {
-            TTOTypeInfo* propagated = malloc(sizeof(TTOTypeInfo));
-            *propagated = arithmetic_propagate_binary_types(left->tto_info, right->tto_info, op);
-            binary->tto_info = propagated;
-            binary->tto_analyzed = true;
+        if (left->sto_analyzed && right->sto_analyzed && left->sto_info && right->sto_info) {
+            STOTypeInfo* propagated = malloc(sizeof(STOTypeInfo));
+            *propagated = arithmetic_propagate_binary_types(left->sto_info, right->sto_info, op);
+            binary->sto_info = propagated;
+            binary->sto_analyzed = true;
             binary->needs_overflow_check = (propagated->type == INTERNAL_TYPE_INT64);
         }
         
@@ -402,16 +402,16 @@ ArithmeticExpr* arithmetic_parse_factor(ArithmeticParser* parser) {
         // This enables: text + text (concat), text + numeric (would need runtime conversion)
         binary->is_string = (left->is_string || right->is_string);
         
-        // Phase 2.3: TTO type propagation
-        binary->tto_info = NULL;
-        binary->tto_analyzed = false;
+        // Phase 2.3: STO type propagation
+        binary->sto_info = NULL;
+        binary->sto_analyzed = false;
         binary->needs_overflow_check = false;
         
-        if (left->tto_analyzed && right->tto_analyzed && left->tto_info && right->tto_info) {
-            TTOTypeInfo* propagated = malloc(sizeof(TTOTypeInfo));
-            *propagated = arithmetic_propagate_binary_types(left->tto_info, right->tto_info, op);
-            binary->tto_info = propagated;
-            binary->tto_analyzed = true;
+        if (left->sto_analyzed && right->sto_analyzed && left->sto_info && right->sto_info) {
+            STOTypeInfo* propagated = malloc(sizeof(STOTypeInfo));
+            *propagated = arithmetic_propagate_binary_types(left->sto_info, right->sto_info, op);
+            binary->sto_info = propagated;
+            binary->sto_analyzed = true;
             binary->needs_overflow_check = (propagated->type == INTERNAL_TYPE_INT64);
         }
         
@@ -458,16 +458,16 @@ ArithmeticExpr* arithmetic_parse_bitwise(ArithmeticParser* parser) {
         binary->is_float = 0;
         binary->is_boolean = 0;
         
-        // Phase 2.3: TTO type propagation
-        binary->tto_info = NULL;
-        binary->tto_analyzed = false;
+        // Phase 2.3: STO type propagation
+        binary->sto_info = NULL;
+        binary->sto_analyzed = false;
         binary->needs_overflow_check = false;
         
-        if (left->tto_analyzed && right->tto_analyzed && left->tto_info && right->tto_info) {
-            TTOTypeInfo* propagated = malloc(sizeof(TTOTypeInfo));
-            *propagated = arithmetic_propagate_binary_types(left->tto_info, right->tto_info, op);
-            binary->tto_info = propagated;
-            binary->tto_analyzed = true;
+        if (left->sto_analyzed && right->sto_analyzed && left->sto_info && right->sto_info) {
+            STOTypeInfo* propagated = malloc(sizeof(STOTypeInfo));
+            *propagated = arithmetic_propagate_binary_types(left->sto_info, right->sto_info, op);
+            binary->sto_info = propagated;
+            binary->sto_analyzed = true;
             binary->needs_overflow_check = (propagated->type == INTERNAL_TYPE_INT64);
         }
         
@@ -561,8 +561,8 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         expr->right->is_boolean = 0;  // Treat as numeric 1, not boolean
         expr->right->left = NULL;
         expr->right->right = NULL;
-        expr->right->tto_info = NULL;
-        expr->right->tto_analyzed = false;
+        expr->right->sto_info = NULL;
+        expr->right->sto_analyzed = false;
         expr->right->needs_overflow_check = false;
         expr->right->is_function_call = 0;
         expr->right->func_call = NULL;
@@ -576,8 +576,8 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         expr->is_float = 0;
         expr->is_string = 0;
         expr->is_boolean = 0;  // Result is also treated as numeric
-        expr->tto_info = NULL;
-        expr->tto_analyzed = false;
+        expr->sto_info = NULL;
+        expr->sto_analyzed = false;
         expr->needs_overflow_check = false;
         expr->is_function_call = 0;
         expr->func_call = NULL;
@@ -610,8 +610,8 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         expr->left->is_boolean = 0;
         expr->left->left = NULL;
         expr->left->right = NULL;
-        expr->left->tto_info = NULL;
-        expr->left->tto_analyzed = false;
+        expr->left->sto_info = NULL;
+        expr->left->sto_analyzed = false;
         expr->left->needs_overflow_check = false;
         expr->left->is_function_call = 0;
         expr->left->func_call = NULL;
@@ -626,8 +626,8 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         expr->is_float = operand->is_float;  // Preserve float type
         expr->is_string = 0;
         expr->is_boolean = 0;
-        expr->tto_info = NULL;
-        expr->tto_analyzed = false;
+        expr->sto_info = NULL;
+        expr->sto_analyzed = false;
         expr->needs_overflow_check = false;
         expr->is_function_call = 0;
         expr->func_call = NULL;
@@ -644,8 +644,8 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
     expr->left = NULL;
     expr->right = NULL;
     expr->value = NULL;
-    expr->tto_info = NULL;
-    expr->tto_analyzed = false;
+    expr->sto_info = NULL;
+    expr->sto_analyzed = false;
     expr->needs_overflow_check = false;
     expr->is_function_call = 0;
     expr->func_call = NULL;
@@ -662,10 +662,10 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         expr->is_string = 0;  // YZ_10: Not a string
         expr->is_boolean = 0;
         
-        TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+        STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
         *tto = codegen_tto_infer_numeric_type(expr->value);
-        expr->tto_info = tto;
-        expr->tto_analyzed = true;
+        expr->sto_info = tto;
+        expr->sto_analyzed = true;
         expr->needs_overflow_check = (tto->type == INTERNAL_TYPE_INT64);
         
         advance_stateless(lexer, current);
@@ -680,14 +680,14 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         expr->is_string = 1;  // YZ_10: This is a string!
         expr->is_boolean = 0;
         
-        // TTO analysis for string literal
-        TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+        // STO analysis for string literal
+        STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
         tto->type = INTERNAL_TYPE_SSO_STRING;  // Small String Optimization
         tto->is_constant = true;  // String literals are constant
         tto->needs_promotion = false;
         tto->mem_location = MEM_RODATA;  // String literals in .rodata
-        expr->tto_info = tto;
-        expr->tto_analyzed = true;
+        expr->sto_info = tto;
+        expr->sto_analyzed = true;
         expr->needs_overflow_check = false;
         
         advance_stateless(lexer, current);
@@ -735,14 +735,14 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
             expr->is_array_access = 1;
             expr->array_access = access;
             
-            // TTO info: result is INT64 (collection element)
-            TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+            // STO info: result is INT64 (collection element)
+            STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
             tto->type = INTERNAL_TYPE_INT64;
             tto->is_constant = false;
             tto->needs_promotion = true;
             tto->mem_location = MEM_REGISTER;
-            expr->tto_info = tto;
-            expr->tto_analyzed = true;
+            expr->sto_info = tto;
+            expr->sto_analyzed = true;
             expr->needs_overflow_check = true;
             
             // array_parse_index_access consumed tokens, update current
@@ -827,14 +827,14 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
             expr->is_function_call = 1;
             expr->func_call = func_call;
             
-            // TTO info: assume INT64 return value
-            TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+            // STO info: assume INT64 return value
+            STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
             tto->type = INTERNAL_TYPE_INT64;
             tto->is_constant = false;
             tto->needs_promotion = true;
             tto->mem_location = MEM_REGISTER;
-            expr->tto_info = tto;
-            expr->tto_analyzed = true;
+            expr->sto_info = tto;
+            expr->sto_analyzed = true;
             expr->needs_overflow_check = true;
             
             return expr;
@@ -847,13 +847,13 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         expr->is_string = 0;  // YZ_10: TODO - Infer from variable type in symbol table
         expr->is_boolean = 0;
         
-        TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+        STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
         tto->type = INTERNAL_TYPE_INT64;
         tto->is_constant = false;
         tto->needs_promotion = true;
         tto->mem_location = MEM_REGISTER;
-        expr->tto_info = tto;
-        expr->tto_analyzed = true;
+        expr->sto_info = tto;
+        expr->sto_analyzed = true;
         expr->needs_overflow_check = true;
         
         return expr;
@@ -877,13 +877,13 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         expr->is_string = 0;
         expr->is_boolean = 0;
         
-        TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+        STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
         tto->type = INTERNAL_TYPE_ARRAY;
         tto->is_constant = false;
         tto->needs_promotion = false;
         tto->mem_location = MEM_HEAP;
-        expr->tto_info = tto;
-        expr->tto_analyzed = true;
+        expr->sto_info = tto;
+        expr->sto_analyzed = true;
         expr->needs_overflow_check = false;
         
         return expr;
@@ -921,13 +921,13 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
             expr->is_string = 0;
             expr->is_boolean = 0;
             
-            TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+            STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
             tto->type = INTERNAL_TYPE_LIST;
             tto->is_constant = false;
             tto->needs_promotion = false;
             tto->mem_location = MEM_HEAP;
-            expr->tto_info = tto;
-            expr->tto_analyzed = true;
+            expr->sto_info = tto;
+            expr->sto_analyzed = true;
             expr->needs_overflow_check = false;
             
             return expr;
@@ -1016,13 +1016,13 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
             expr->is_string = 0;
             expr->is_boolean = 0;
             
-            TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+            STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
             tto->type = INTERNAL_TYPE_LIST;
             tto->is_constant = false;
             tto->needs_promotion = false;
             tto->mem_location = MEM_HEAP;
-            expr->tto_info = tto;
-            expr->tto_analyzed = true;
+            expr->sto_info = tto;
+            expr->sto_analyzed = true;
             expr->needs_overflow_check = false;
             
             return expr;
@@ -1063,13 +1063,13 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
             expr->is_string = 0;
             expr->is_boolean = 0;
             
-            TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+            STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
             tto->type = INTERNAL_TYPE_TUPLE;
             tto->is_constant = false;
             tto->needs_promotion = false;
             tto->mem_location = MEM_HEAP;
-            expr->tto_info = tto;
-            expr->tto_analyzed = true;
+            expr->sto_info = tto;
+            expr->sto_analyzed = true;
             expr->needs_overflow_check = false;
             
             return expr;
@@ -1150,13 +1150,13 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         expr->is_string = 0;
         expr->is_boolean = 0;
         
-        TTOTypeInfo* tto = malloc(sizeof(TTOTypeInfo));
+        STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
         tto->type = INTERNAL_TYPE_TUPLE;
         tto->is_constant = false;
         tto->needs_promotion = false;
         tto->mem_location = MEM_HEAP;
-        expr->tto_info = tto;
-        expr->tto_analyzed = true;
+        expr->sto_info = tto;
+        expr->sto_analyzed = true;
         expr->needs_overflow_check = false;
         
         return expr;
@@ -1190,15 +1190,15 @@ static ArithmeticExpr* parse_power_stateless(Lexer* lexer, Token** current) {
         binary->value = NULL;
         binary->is_float = 0;
         binary->is_boolean = 0;
-        binary->tto_info = NULL;
-        binary->tto_analyzed = false;
+        binary->sto_info = NULL;
+        binary->sto_analyzed = false;
         binary->needs_overflow_check = false;
         
-        if (left->tto_analyzed && right->tto_analyzed && left->tto_info && right->tto_info) {
-            TTOTypeInfo* propagated = malloc(sizeof(TTOTypeInfo));
-            *propagated = arithmetic_propagate_binary_types(left->tto_info, right->tto_info, ARITH_POW);
-            binary->tto_info = propagated;
-            binary->tto_analyzed = true;
+        if (left->sto_analyzed && right->sto_analyzed && left->sto_info && right->sto_info) {
+            STOTypeInfo* propagated = malloc(sizeof(STOTypeInfo));
+            *propagated = arithmetic_propagate_binary_types(left->sto_info, right->sto_info, ARITH_POW);
+            binary->sto_info = propagated;
+            binary->sto_analyzed = true;
             binary->needs_overflow_check = (propagated->type == INTERNAL_TYPE_INT64);
         }
         
@@ -1243,15 +1243,15 @@ static ArithmeticExpr* parse_term_stateless(Lexer* lexer, Token** current) {
         binary->value = NULL;
         binary->is_float = 0;
         binary->is_boolean = 0;
-        binary->tto_info = NULL;
-        binary->tto_analyzed = false;
+        binary->sto_info = NULL;
+        binary->sto_analyzed = false;
         binary->needs_overflow_check = false;
         
-        if (left->tto_analyzed && right->tto_analyzed && left->tto_info && right->tto_info) {
-            TTOTypeInfo* propagated = malloc(sizeof(TTOTypeInfo));
-            *propagated = arithmetic_propagate_binary_types(left->tto_info, right->tto_info, op);
-            binary->tto_info = propagated;
-            binary->tto_analyzed = true;
+        if (left->sto_analyzed && right->sto_analyzed && left->sto_info && right->sto_info) {
+            STOTypeInfo* propagated = malloc(sizeof(STOTypeInfo));
+            *propagated = arithmetic_propagate_binary_types(left->sto_info, right->sto_info, op);
+            binary->sto_info = propagated;
+            binary->sto_analyzed = true;
             binary->needs_overflow_check = (propagated->type == INTERNAL_TYPE_INT64);
         }
         
@@ -1295,15 +1295,15 @@ static ArithmeticExpr* parse_factor_stateless(Lexer* lexer, Token** current) {
         binary->is_float = 0;
         binary->is_string = (left->is_string || right->is_string);  // YZ_10: String propagation
         binary->is_boolean = 0;
-        binary->tto_info = NULL;
-        binary->tto_analyzed = false;
+        binary->sto_info = NULL;
+        binary->sto_analyzed = false;
         binary->needs_overflow_check = false;
         
-        if (left->tto_analyzed && right->tto_analyzed && left->tto_info && right->tto_info) {
-            TTOTypeInfo* propagated = malloc(sizeof(TTOTypeInfo));
-            *propagated = arithmetic_propagate_binary_types(left->tto_info, right->tto_info, op);
-            binary->tto_info = propagated;
-            binary->tto_analyzed = true;
+        if (left->sto_analyzed && right->sto_analyzed && left->sto_info && right->sto_info) {
+            STOTypeInfo* propagated = malloc(sizeof(STOTypeInfo));
+            *propagated = arithmetic_propagate_binary_types(left->sto_info, right->sto_info, op);
+            binary->sto_info = propagated;
+            binary->sto_analyzed = true;
             binary->needs_overflow_check = (propagated->type == INTERNAL_TYPE_INT64);
         }
         
@@ -1348,15 +1348,15 @@ static ArithmeticExpr* parse_bitwise_stateless(Lexer* lexer, Token** current) {
         binary->value = NULL;
         binary->is_float = 0;
         binary->is_boolean = 0;
-        binary->tto_info = NULL;
-        binary->tto_analyzed = false;
+        binary->sto_info = NULL;
+        binary->sto_analyzed = false;
         binary->needs_overflow_check = false;
         
-        if (left->tto_analyzed && right->tto_analyzed && left->tto_info && right->tto_info) {
-            TTOTypeInfo* propagated = malloc(sizeof(TTOTypeInfo));
-            *propagated = arithmetic_propagate_binary_types(left->tto_info, right->tto_info, op);
-            binary->tto_info = propagated;
-            binary->tto_analyzed = true;
+        if (left->sto_analyzed && right->sto_analyzed && left->sto_info && right->sto_info) {
+            STOTypeInfo* propagated = malloc(sizeof(STOTypeInfo));
+            *propagated = arithmetic_propagate_binary_types(left->sto_info, right->sto_info, op);
+            binary->sto_info = propagated;
+            binary->sto_analyzed = true;
             binary->needs_overflow_check = (propagated->type == INTERNAL_TYPE_INT64);
         }
         
