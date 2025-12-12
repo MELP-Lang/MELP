@@ -65,7 +65,7 @@ void arithmetic_expr_free(ArithmeticExpr* expr);
 
 // ========== Phase 2.3: STO Type Propagation Functions ==========
 // Infer STO type for arithmetic expression
-void arithmetic_infer_tto_type(ArithmeticExpr* expr);
+void arithmetic_infer_sto_type(ArithmeticExpr* expr);
 
 // Propagate types through binary operations
 STOTypeInfo arithmetic_propagate_binary_types(STOTypeInfo* left, STOTypeInfo* right, ArithmeticOp op);

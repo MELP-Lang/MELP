@@ -2,7 +2,7 @@
 
 ## 📚 Bileşenler
 
-### 1. TTO Runtime (Transparent Type Optimization)
+### 1. STO Runtime (Smart Type Optimization)
 - Otomatik tip optimizasyonu
 - Overflow tespiti ve BigDecimal'e yükseltme
 - Small String Optimization (SSO)
@@ -26,16 +26,16 @@ Runtime kütüphaneleri, derlenmiş MLP programlarıyla otomatik olarak link edi
 
 ```bash
 # Runtime'ı derle
-cd runtime/tto
+cd runtime/sto
 make
 
 # Programınızla link et
-ld program.o -L./runtime/tto -ltto_runtime -o program
+ld program.o -L./runtime/sto -lsto_runtime -o program
 ```
 
 ## 📖 Dokümantasyon
 
 Her alt dizinde detaylı README.md dosyaları bulunmaktadır:
-- `tto/README.md` - TTO runtime detayları
+- `sto/README.md` - STO runtime detayları
 - `memory/README.md` - Bellek yönetimi
 - `stdlib/README.md` - Standart kütüphane API'si

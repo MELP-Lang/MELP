@@ -1,7 +1,7 @@
 /**
  * MLP Standard Library - I/O Functions Header
  * 
- * Architecture: Works with TTO (Transparent Type Optimization)
+ * Architecture: Works with STO (Smart Type Optimization)
  * User only sees: numeric, string, boolean
  * Runtime handles: int64/BigDecimal, SSO/heap internally
  */
@@ -11,7 +11,7 @@
 
 #include <stdint.h>
 
-// TTO Type codes (matches sto_types.h)
+// STO Type codes (matches sto_types.h)
 #define TTO_TYPE_INT64      0
 #define TTO_TYPE_DOUBLE     1
 #define TTO_TYPE_BIGDECIMAL 2
@@ -19,7 +19,7 @@
 #define TTO_TYPE_BOOLEAN    4
 
 // ============================================================================
-// Core I/O Functions (TTO-aware)
+// Core I/O Functions (STO-aware)
 // ============================================================================
 
 // Print numeric value with newline

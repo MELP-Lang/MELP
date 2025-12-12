@@ -135,7 +135,7 @@ FunctionContext* codegen_context_get_function(CodegenContext* ctx) {
 
 // Infer internal type for numeric literal (compile-time)
 // Renamed to avoid clash with runtime STO library
-STOTypeInfo codegen_tto_infer_numeric_type(const char* literal) {
+STOTypeInfo codegen_sto_infer_numeric_type(const char* literal) {
     STOTypeInfo info = {0};
     info.is_constant = true;
     info.needs_promotion = false;
@@ -182,7 +182,7 @@ STOTypeInfo codegen_tto_infer_numeric_type(const char* literal) {
 }
 
 // Infer internal type for string literal
-STOTypeInfo codegen_tto_infer_string_type(const char* literal, bool is_constant) {
+STOTypeInfo codegen_sto_infer_string_type(const char* literal, bool is_constant) {
     STOTypeInfo info = {0};
     info.is_constant = is_constant;
     

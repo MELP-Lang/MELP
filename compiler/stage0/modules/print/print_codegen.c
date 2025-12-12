@@ -9,7 +9,7 @@ static int is_first_call = 1;
 static bool sto_declarations_emitted = false;
 
 // Emit STO runtime function declarations (only once)
-static void emit_tto_declarations(FILE* f) {
+static void emit_sto_declarations(FILE* f) {
     if (sto_declarations_emitted) return;
     
     fprintf(f, "; STO Runtime External Functions\n");
@@ -30,7 +30,7 @@ void codegen_print_statement(FILE* f, PrintStatement* stmt) {
         fprintf(f, "; MLP Print Module - Generated Assembly\n");
         fprintf(f, "; Target: x86-64 Linux\n");
         fprintf(f, "; STO Support: BigDecimal, SSO String\n\n");
-        emit_tto_declarations(f);
+        emit_sto_declarations(f);
         is_first_call = 0;
     }
     

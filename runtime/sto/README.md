@@ -9,8 +9,8 @@ MLP'nin otomatik tip optimizasyonu için runtime desteği sağlar.
 ### Phase 1: Overflow Detection
 ```c
 // INT64 taşma kontrolü
-bool tto_would_overflow_add(int64_t a, int64_t b);
-bool tto_safe_add_i64(int64_t a, int64_t b, int64_t* result);
+bool sto_would_overflow_add(int64_t a, int64_t b);
+bool sto_safe_add_i64(int64_t a, int64_t b, int64_t* result);
 ```
 
 ### Phase 2: BigDecimal Library
@@ -30,9 +30,9 @@ const char* sso_data(SSOString* str);
 ## 🔨 API
 
 ### Overflow Detection
-- `tto_would_overflow_add(a, b)` - Toplama taşar mı?
-- `tto_would_overflow_sub(a, b)` - Çıkarma taşar mı?
-- `tto_would_overflow_mul(a, b)` - Çarpma taşar mı?
+- `sto_would_overflow_add(a, b)` - Toplama taşar mı?
+- `sto_would_overflow_sub(a, b)` - Çıkarma taşar mı?
+- `sto_would_overflow_mul(a, b)` - Çarpma taşar mı?
 
 ### BigDecimal Operations
 - `bigdec_add(a, b)` - Toplama
@@ -88,4 +88,4 @@ if (tto_would_overflow_add(x, y)) {
 
 ---
 
-*Detaylı implementasyon: tto_runtime.c (260+ satır)*
+*Detaylı implementasyon: sto_runtime.c (260+ satır)*

@@ -108,17 +108,17 @@ STOTypeInfo arithmetic_propagate_binary_types(STOTypeInfo* left, STOTypeInfo* ri
 }
 
 // Infer STO type for arithmetic expression (recursive)
-void arithmetic_infer_tto_type(ArithmeticExpr* expr) {
+void arithmetic_infer_sto_type(ArithmeticExpr* expr) {
     if (!expr || expr->sto_analyzed) {
         return;  // Already analyzed
     }
     
     // Analyze children first
     if (expr->left) {
-        arithmetic_infer_tto_type(expr->left);
+        arithmetic_infer_sto_type(expr->left);
     }
     if (expr->right) {
-        arithmetic_infer_tto_type(expr->right);
+        arithmetic_infer_sto_type(expr->right);
     }
     
     // If both children have STO info, propagate

@@ -1,5 +1,5 @@
 // YZ_34: Phase 8 - State Manager
-// User-controlled lifecycle, TTO-optimized, persistent storage
+// User-controlled lifecycle, STO-optimized, persistent storage
 
 #ifndef MLP_STATE_H
 #define MLP_STATE_H

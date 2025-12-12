@@ -1,7 +1,7 @@
 /**
  * MLP Standard Library - String Operations
  * 
- * Architecture: TTO-compliant string operations
+ * Architecture: STO-compliant string operations
  * Works with both literal strings and heap-allocated strings
  * 
  * Created: 9 Aralık 2025 (YZ_06)

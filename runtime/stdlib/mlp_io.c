@@ -1,7 +1,7 @@
 /**
  * MLP Standard Library - I/O Functions
  * 
- * Architecture: Works with TTO (Transparent Type Optimization)
+ * Architecture: Works with STO (Smart Type Optimization)
  * Handles int64, double, BigDecimal transparently
  */
 
@@ -23,14 +23,14 @@ char* strdup(const char* s) {
 }
 #endif
 
-// External TTO runtime functions (from libsto_runtime.a)
+// External STO runtime functions (from libsto_runtime.a)
 extern char* sto_bigdec_to_string(void* bigdec);
 
 // ============================================================================
-// Core TTO-Aware Functions
+// Core STO-Aware Functions
 // ============================================================================
 
-// Print numeric value with newline (TTO-aware)
+// Print numeric value with newline (STO-aware)
 void mlp_println_numeric(void* value, uint8_t sto_type) {
     if (!value) {
         printf("(null)\n");
@@ -62,7 +62,7 @@ void mlp_println_numeric(void* value, uint8_t sto_type) {
     }
 }
 
-// Print without newline (TTO-aware)
+// Print without newline (STO-aware)
 void mlp_print_numeric(void* value, uint8_t sto_type) {
     if (!value) {
         printf("(null)");
@@ -94,7 +94,7 @@ void mlp_print_numeric(void* value, uint8_t sto_type) {
     }
 }
 
-// Convert numeric to string (TTO-aware)
+// Convert numeric to string (STO-aware)
 char* mlp_toString_numeric(void* value, uint8_t sto_type) {
     if (!value) return strdup("null");
     

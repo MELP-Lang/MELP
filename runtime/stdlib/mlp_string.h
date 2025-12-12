@@ -1,7 +1,7 @@
 /**
  * MLP Standard Library - String Operations Header
  * 
- * TTO-compliant string operations for MELP compiler
+ * STO-compliant string operations for MELP compiler
  * 
  * Created: 9 Aralık 2025 (YZ_06)
  */

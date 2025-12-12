@@ -110,8 +110,8 @@ FunctionContext* codegen_context_get_function(CodegenContext* ctx);
 // ============================================================================
 
 // Type inference (compile-time, renamed to avoid clash with runtime STO)
-STOTypeInfo codegen_tto_infer_numeric_type(const char* literal);
-STOTypeInfo codegen_tto_infer_string_type(const char* literal, bool is_constant);
+STOTypeInfo codegen_sto_infer_numeric_type(const char* literal);
+STOTypeInfo codegen_sto_infer_string_type(const char* literal, bool is_constant);
 
 // Variable tracking
 void sto_add_var(CodegenContext* ctx, const char* name, STOTypeInfo info);

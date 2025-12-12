@@ -1,5 +1,5 @@
 // YZ_34: Phase 8 - State Manager Implementation
-// TTO-optimized (SSO + Heap), File I/O based persistence
+// STO-optimized (SSO + Heap), File I/O based persistence
 
 #include "mlp_state.h"
 #include "mlp_io.h"
@@ -11,14 +11,14 @@
 char* strdup(const char* s);
 #endif
 
-// TTO: Small String Optimization size
+// STO: Small String Optimization size
 #define STATE_SSO_SIZE 24
 
-// State Entry (TTO-optimized)
+// State Entry (STO-optimized)
 typedef struct StateEntry {
     char* key;
     
-    // TTO: Value representation
+    // STO: Value representation
     union {
         char sso_data[STATE_SSO_SIZE];  // ≤23 bytes (inline)
         char* heap_ptr;                  // >23 bytes (heap)
@@ -149,7 +149,7 @@ int64_t mlp_state_set(const char* key, const char* value) {
         }
     }
     
-    // TTO Decision: SSO vs Heap
+    // STO Decision: SSO vs Heap
     if (len < STATE_SSO_SIZE) {
         // Small String Optimization (stack inline)
         memcpy(entry->value.sso_data, value, len + 1);

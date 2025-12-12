@@ -120,7 +120,7 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
         
         // Phase 2.3: STO analysis for numeric literal
         STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
-        *tto = codegen_tto_infer_numeric_type(expr->value);
+        *tto = codegen_sto_infer_numeric_type(expr->value);
         expr->sto_info = tto;
         expr->sto_analyzed = true;
         expr->needs_overflow_check = (tto->type == INTERNAL_TYPE_INT64);
@@ -663,7 +663,7 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         expr->is_boolean = 0;
         
         STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
-        *tto = codegen_tto_infer_numeric_type(expr->value);
+        *tto = codegen_sto_infer_numeric_type(expr->value);
         expr->sto_info = tto;
         expr->sto_analyzed = true;
         expr->needs_overflow_check = (tto->type == INTERNAL_TYPE_INT64);
