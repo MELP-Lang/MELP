@@ -1,337 +1,291 @@
 # MELP Programming Language
 
-Modern, type-safe, and efficient programming language with transparent type optimization (TTO).
+> 🫕 **The Melting Pot of Programming Languages**
+
+Modern, type-safe, and efficient programming language with Smart Type Optimization (STO).
 
 **Core Philosophy:** *Stateless by Default, Stateful by Choice* - MELP is a stateless language where all variables are function-local. For persistent state, explicitly import the `state` module.
+
+📖 **Learn More:** Read [MELP_VISION.md](MELP_VISION.md) for project philosophy and what makes MELP unique.
 
 > **For New AI Assistant (YZ Series)**: Read `/NEXT_AI_START_HERE.md` for current status and your mission. Then read `/ARCHITECTURE.md` for critical rules. All YZ sessions documented in `/YZ/` folder.
 > 
 > **⚠️ CRITICAL: Read `ARCHITECTURE.md` BEFORE coding!** Previous AI agents created monolithic code by violating modularity rules. Follow the YZ workflow: branch naming, commits, handoff docs.
 > 
-> **Current Status**: YZ_03 completed MVC (Minimum Viable Compiler). YZ_04 should implement control flow codegen.
+> **Current Status**: YZ_48 completed println() fix. Phase 12 (TTO→STO refactoring) planned next.
 
-## 🎉 MAJOR MILESTONE: MVC 100% Complete! (9 Aralık 2025)
+---
 
-**YZ_03 Achievement: Minimum Viable Compiler is DONE! 🎊**
-- ✅ **Functions**: Declaration, calls, return values
-- ✅ **Variables**: Numeric type, local in functions
-- ✅ **Arithmetic**: All operations (+, -, *, /)
-- ✅ **Stdlib**: println() working via libmlp_stdlib.a
-- ✅ **Comprehensive Test**: Multi-function program passing!
-- ✅ **Real Programs**: Can write actual MLP code now!
+## 🎉 Current Status: Stage 0 Complete! (Phase 11 - 95%)
 
-**Test Results**:
-```mlp
-function add(numeric a, numeric b) returns numeric
-    numeric result = a + b
-    return result
-end function
+**Achievement: Production-Ready Core Language! 🎊**
 
-function main() returns numeric
-    numeric x = 10
-    numeric y = 20
-    numeric sum = add(x, y)
-    numeric result = println(sum)  # Output: 30
-    return 0
-end function
+### ✅ Core Features Complete:
+- **Variables & Types**: numeric, string, boolean with STO optimization
+- **Functions**: Declaration, calls, return values, recursion
+- **Control Flow**: if/else, while, for loops, exit statements
+- **Collections**: Arrays `[]`, Lists `()`, Tuples `<>`
+- **String Operations**: concat, compare, methods (length, substring, indexOf, etc.)
+- **File I/O**: read_file(), write_file(), file operations
+- **State Management**: Optional state module for persistence
+- **Module System**: import statements, circular detection, caching
+- **Incremental Compilation**: 10-15x speedup with module caching
+- **Error Handling**: Colored messages, typo detection, suggestions
+
+### 🎯 Latest Sessions:
+- ✅ **YZ_46**: Self-hosting Part 6.1 & 6.2 (Token + Char utils)
+- ✅ **YZ_47**: println() parser implementation  
+- ✅ **YZ_48**: println() codegen complete - works in for loops!
+- ⏳ **Phase 12**: TTO→STO refactoring planned (5-7 hours)
+
+### 📊 Completion Status:
+```
+Core Language:     ████████████████████ 100%
+Module System:     ███████████████████░  95%
+Self-Hosting:      ████░░░░░░░░░░░░░░░░  20%
 ```
 
-**YZ Series Progress**:
-- ✅ YZ_01: TTO Runtime + Architecture enforcement
-- ✅ YZ_02: Stdlib integration (println)
-- ✅ YZ_03: MVC completion (text keyword fix)
-- ⏳ YZ_04: Control flow codegen (if/while/for)
-
-**Stage 0 Status**: ~80% (MVC ✅, Control Flow Parsers ✅, Codegen needed)
-
-**Previous Updates:**
-- ✅ **Full English Conversion**: Converted from Turkish (`yazdir`) to English (`print`)
-- ✅ **Token System Cleanup**: `TOKEN_TEXT` → `TOKEN_STRING_TYPE` for type keywords
-- ✅ **Keyword Consistency**: Removed `text` alias, unified on `string` keyword
-- ✅ **Smart Parser**: Strict syntax validation rejecting invalid top-level constructs
-- ✅ **UTF-8 Safe Lexer**: Fixed Turkish character infinite loop bug
-- ✅ **Single Command Compilation**: `melp hello.mlp` wrapper script
+---
 
 ## 📁 Project Structure
 
 ```
 MLP/
-├── compiler/              # MELP Compiler (Stage 0, 1, 2...)
-│   ├── stage0/           # Minimal working compiler (26 modules)
-│   │   ├── melpc_26      # Compiler binary
-│   │   ├── lexer.c/h     # UTF-8 safe lexer with English keywords
-│   │   ├── main.c        # Smart parser with strict validation
-│   │   └── modules/      # 26 feature modules
-│   ├── stage1/           # Variables and arithmetic
-│   ├── stage2/           # Control flow and functions
-│   └── docs/             # Compiler documentation
+├── MELP_VISION.md        # 🫕 Project philosophy & vision
+├── README.md             # This file
+├── TODO.md               # Development roadmap & tasks
+├── NEXT_AI_START_HERE.md # Entry point for AI assistants
+├── ARCHITECTURE.md       # Critical architectural rules
 │
-├── melp                  # 🆕 Single-command wrapper script
-│                         # Usage: melp program.mlp [-v] [--no-run]
+├── compiler/             # MELP Compiler (Stage 0)
+│   └── stage0/          # C-based bootstrap compiler
+│       ├── melpc        # Compiler binary
+│       └── modules/     # 26 feature modules (modular architecture)
 │
-├── runtime/              # Runtime libraries
-│   ├── tto/             # Transparent Type Optimization runtime
-│   ├── memory/          # Memory management
-│   └── stdlib/          # Standard library
+├── runtime/             # Runtime libraries
+│   ├── tto/            # TTO runtime (to be renamed to sto/)
+│   ├── memory/         # Memory management
+│   └── stdlib/         # Standard library (println, etc.)
 │
-├── modules/             # Language modules
-│   ├── core/            # Core modules
-│   ├── advanced/        # Advanced features
-│   └── experimental/    # Experimental features
+├── modules/            # Language feature modules
+│   ├── core/          # Core modules
+│   ├── advanced/      # Advanced features
+│   └── experimental/  # Experimental features
 │
-├── examples/            # Example MELP programs
-│   ├── hello/          # Hello World variations
-│   ├── basics/         # Basic examples
-│   └── advanced/       # Advanced examples
+├── examples/          # Example MELP programs
+│   ├── hello/        # Hello World
+│   ├── basics/       # Basic examples
+│   └── advanced/     # Advanced examples
 │
-├── tests/              # Test files
-│   ├── unit/           # Unit tests
-│   ├── integration/    # Integration tests
-│   └── e2e/            # End-to-end tests
+├── YZ/               # YZ session documentation (AI agents)
+│   ├── YZ_HISTORY.md # Summary of all sessions
+│   ├── YZ_01.md      # TTO Runtime setup
+│   ├── ...
+│   └── YZ_48.md      # Latest: println() complete
 │
-└── docs/               # Documentation
-    ├── language/       # Language specification
-    ├── api/            # API reference
-    └── tutorials/      # Tutorials
+├── docs/             # English documentation
+│   ├── language/     # Language specification
+│   └── api/          # API reference
+│
+├── docs_tr/          # Turkish documentation
+│   └── language/     # Dil belgeleri
+│
+└── tests/            # Test suite
+    ├── unit/         # Unit tests
+    ├── integration/  # Integration tests
+    └── e2e/          # End-to-end tests
 ```
 
 ## 🎯 Language Features
 
-### Current (Stage 0 - MVC Complete!)
-- ✅ **Functions**: Declaration + calls + return values
-- ✅ **Variables**: Numeric type (local in functions)
-- ✅ **Arithmetic**: All operations (+, -, *, /)
-- ✅ **Stdlib**: println() integrated
-- ✅ **Keywords**: `function`, `numeric`, `string`, `boolean`, `if`, `while`, `for`, `return`
-- ✅ **Parsers**: All control flow parsers ready (codegen needed)
-- ✅ **Modular Architecture**: No central files, Unix pipes
-- ✅ **Test Suite**: Comprehensive MVC test passing
+### ✅ Implemented (Stage 0 Complete!)
 
-### Type System
-- **Type Keywords**: 
-  - `numeric` - Integer and floating-point numbers (TTO optimized)
-  - `string` - UTF-8 strings (MLP standard, SSO optimization)
-  - `boolean` - True/false values
-- **TOKEN_STRING_TYPE**: Internal token for type keywords (`string`, `numeric`, `boolean`)
-- **TOKEN_STRING**: Internal token for string literals ("...")
+**Core Language:**
+- Variables & Types: `numeric`, `string`, `boolean`
+- Functions: Declaration, calls, return values, recursion
+- Arithmetic: `+`, `-`, `*`, `/`, unary minus
+- Comparison: `>`, `<`, `>=`, `<=`, `==`, `!=`
+- Boolean Logic: `and`, `or`, `not`
+- Control Flow: `if/else`, `while`, `for`, `exit`, `continue`
 
-### Next Features (YZ_04 Priority)
-- ⏳ **Control Flow Codegen**: if/else, while, for (parsers ready!)
-- ⏳ **Comparison Operations**: >, <, ==, != code generation
-- ⏳ **Boolean Logic**: AND, OR, NOT
-- ⏳ **String Operations**: Concatenation, comparison
-- ⏳ **Array Access**: Index operations
+**Collections:**
+- Arrays: `[1, 2, 3]` - fixed size, fast access
+- Lists: `(1, 2, 3)` - dynamic, mutable
+- Tuples: `<1, 2, 3>` - immutable, lightweight
 
-### Future Features
-- Functions with multiple types
-- Struct types
-- Async/await
-- Memory management
-- Package system
+**String Operations:**
+- Concatenation, comparison
+- Methods: `length()`, `substring()`, `indexOf()`, `toUpperCase()`, `toLowerCase()`
 
-## 📝 Development Roadmap
+**Advanced:**
+- File I/O: `read_file()`, `write_file()`
+- Module System: `import` statements, circular detection
+- State Management: Optional `state` module
+- Incremental Compilation: Module caching (10-15x speedup)
+- Error Recovery: Colored messages, typo detection
 
-### Phase 1: Core Language ✅ COMPLETE
-- [x] Clean project structure
-- [x] UTF-8 safe lexer with English keywords
-- [x] Smart parser with strict validation
-- [x] Print statement implementation
-- [x] Comment support (`--` VB.NET style)
-- [x] Single-command `melp` wrapper
-- [x] Token system cleanup (TOKEN_STRING_TYPE)
-- [x] Remove Turkish keywords and aliases
+**I/O:**
+- `println(value)` - Print with newline
+- `print(value)` - Print without newline
+- `input()` - Read user input
 
-### Phase 2: Variables & Declarations ✅ COMPLETE
-- [x] Type keywords: `numeric`, `string`, `boolean`
-- [x] Variable declarations with initialization
-- [x] Basic value parsing (literals and identifiers)
-- [x] Assembly generation (.data and .bss sections)
+### 🚧 In Progress
 
-### Phase 3: Control Flow ✅ COMPLETE
-- [x] if/then/else statements
-- [x] while/do loops
-- [x] for/to loops
-- [x] Exit statements (exit for, exit while, exit if) - parsing complete
-- [ ] Exit statements - code generation (Phase 3.5)
-- [ ] Match expressions
+**Phase 12: TTO→STO Refactoring** (5-7 hours)
+- Rename TTO (Transparent Type Optimization) → STO (Smart Type Optimization)
+- Update all documentation and code
+- Ensure consistency across 100+ files
 
-**Note**: MELP uses VB.NET-style `exit` instead of `break/continue`:
-- `exit for` - Exit from for loop (early termination)
-- `exit while` - Exit from while loop
-- `exit if` - Exit from if block (guard clause pattern, replaces continue)
-- `exit function` - Return from function (Phase 4)
+### 🔮 Planned (Stage 1 - Self-Hosting)
 
-**Guard Clause Pattern Example**:
-```melp
-for i = 1 to 100
-    if invalidCondition then
-        exit if  -- Skip this iteration (cleaner than else blocks)
-    end if
-    
-    -- Main logic continues here without nesting
-    process(i)
-end
-```
+**Core Missing Features:**
+- Struct/Record Types (4-5h)
+- Try-Catch Exception Handling (3-4h)
+- Type Inference (`var` keyword) (2-3h)
+- Lambda/Closure Integration (2-3h)
+- Enum Types (1-2h)
+- Generics (3-4h)
 
-Benefits: No `continue` keyword needed, cleaner code without nested else blocks
+**Self-Hosting:**
+- Lexer in MELP (8-10h)
+- Parser in MELP (15-20h)
+- Codegen in MELP (15-20h)
 
-### Phase 3.5: Expressions & Operators 🚧 IN PROGRESS
-- [x] Arithmetic expressions (+, -, *, /, mod, ^) - Parser complete
-- [x] Comparison operators (==, !=, <, >, <=, >=) - Parser complete
-- [x] Logical operators (and, or, not) - Parser complete
-- [x] String concatenation (+) - Parser complete
-- [x] Operator precedence - Implemented
-- [x] Parenthesized expressions - Supported
-- [x] Variable initialization with literals - Working
-- [ ] Complex expression code generation (needs TTO runtime linking)
-- [ ] Expression in if/while conditions
-- [ ] Variable usage in expressions
+## 📚 Key Resources
 
-### Phase 4: Functions ⏳ PLANNED
-- [ ] Function definitions
-- [ ] Parameters and return types
-- [ ] Lambda expressions
-- [ ] Higher-order functions (map, filter, reduce)
-- [ ] Closures
-
-### Phase 5: Advanced Features ⏳ PLANNED
-- [ ] Struct types
-- [ ] Arrays and collections
-- [ ] Async/await
-- [ ] Memory management (ownership system)
-- [ ] Package management
-- [ ] Standard library
+- 📖 **[MELP_VISION.md](MELP_VISION.md)** - Project philosophy: Why MELP exists, what makes it unique
+- 🏗️ **[ARCHITECTURE.md](ARCHITECTURE.md)** - Critical rules: Modular architecture, TTO/STO system
+- 📋 **[TODO.md](TODO.md)** - Development roadmap: All phases, current tasks, completion status
+- 🤖 **[NEXT_AI_START_HERE.md](NEXT_AI_START_HERE.md)** - AI assistant entry point: Current status, next tasks
+- 📚 **[docs/language/](docs/language/)** - Language specification: Syntax, types, features
+- 🌐 **[docs_tr/language/](docs_tr/language/)** - Turkish documentation: Türkçe belgeler
 
 ## 🚀 Quick Start
 
-### Option 1: Using `melp` wrapper (Recommended)
+### Compile and Run
 
 ```bash
-# Simple compilation and execution
-./melp examples/hello/hello_world.mlp
-
-# Verbose mode (shows compilation steps)
-./melp examples/hello/hello_world.mlp -v
-
-# Compile only (don't run)
-./melp program.mlp --no-run
-
-# Custom output name
-./melp program.mlp -o myprogram
-```
-
-### Option 2: Manual compilation
-
-```bash
-# Compile MELP compiler
 cd compiler/stage0
 make
 
 # Compile a MELP program
-./melpc_26 hello_world.mlp hello_world.s
+./melpc your_program.mlp -o your_program
 
-# Assemble and link
-nasm -f elf64 hello_world.s -o hello_world.o
-ld hello_world.o -o hello_world
-
-# Run
-./hello_world
+# Run it
+./your_program
 ```
 
 ## 📝 Example Program
 
-```melp
--- MELP v0.3.0 Example
-print("Hello, World!")
-
--- Variables with all types
-numeric age = 25
-string name = "MELP"
-boolean active = true
-
--- Control flow
-if active then
-    print("System is active!")
-end
-
-while active do
-    print("Processing...")
-end
-
-for i = 1 to 5
-    print("Iteration")
-end
-
-print("Program complete!")
+```mlp
+-- MELP Example: For Loop with println
+function main() returns numeric
+    for i = 0 to 5
+        println(i)
+    end for
+    return 0
+end function
 ```
+
+Output:
+```
+0
+1
+2
+3
+4
+5
+```
+
+### More Examples
+
+**Variables & Functions:**
+```mlp
+function add(numeric a, numeric b) returns numeric
+    return a + b
+end function
+
+function main() returns numeric
+    numeric x = 10
+    numeric y = 20
+    numeric result = add(x, y)
+    println(result)  -- Output: 30
+    return 0
+end function
+```
+
+**Collections:**
+```mlp
+-- Arrays (fixed size)
+numeric[] arr = [1, 2, 3, 4, 5]
+
+-- Lists (dynamic)
+numeric() list = (10, 20, 30)
+
+-- Tuples (immutable)
+numeric<> tuple = <100, 200>
+```
+
+**Control Flow:**
+```mlp
+if x > 10 then
+    println("Greater")
+else
+    println("Smaller or equal")
+end if
+
+while x < 100
+    x = x + 1
+end while
+```
+
+---
 
 ## 🔧 Build Requirements
 
 - GCC (C compiler)
-- NASM (Netwide Assembler)
+- NASM (Netwide Assembler)  
 - GNU Make
-- Linux x86_64 (for current runtime)
+- Linux x86_64
 
-## 📊 Project Status
+## 📊 Development Statistics
 
-- **Stage 0**: ✅ 100% Complete (26 modules, working compiler)
-- **Architecture**: ⚠️ **NEEDS REFACTORING** (main.c: 736/300 lines)
-- **Language**: ✅ 100% English (Turkish keywords removed)
-- **Token System**: ✅ 100% Consistent (TOKEN_STRING_TYPE cleanup done)
-- **Parser**: ✅ Smart validation implemented
-- **Lexer**: ✅ UTF-8 safe with proper error handling
-- **Build System**: ✅ Makefile + melp wrapper + **architecture enforcement**
-- **Documentation**: 🚧 In progress
-- **Test Suite**: ⏳ Planned
+- **Total Modules**: 26 (modular architecture)
+- **Lines of Code**: ~20,000+ (Stage 0)
+- **YZ Sessions**: 48 completed
+- **Test Programs**: 100+ test cases
+- **Compilation Speed**: 10-15x faster with caching
 
-### ⚠️ Architecture Issues (MUST FIX)
+## 📚 Documentation
 
-**Problem:** Previous AI agent created monolithic main.c (736 lines)
+- **Philosophy**: [MELP_VISION.md](MELP_VISION.md) - Why MELP exists
+- **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) - Critical rules
+- **Development**: [TODO.md](TODO.md) - Roadmap & phases
+- **AI Handoff**: [NEXT_AI_START_HERE.md](NEXT_AI_START_HERE.md) - Current status
+- **Language Docs**: `docs/language/` - Specifications
+- **API Reference**: `docs/api/` - Runtime API
 
-**Enforcement Active:**
-- ✅ Makefile checks: `make check-architecture`
-- ✅ Pre-commit hook installed
-- ✅ ARCHITECTURE.md rules document
-- ❌ main.c: 736/300 lines (VIOLATION)
-- ❌ Direct module imports in main.c (VIOLATION)
+## 🤝 Contributing
 
-**Fix Required:** Extract inline parsing to pipeline architecture
+MELP is developed iteratively with AI assistance (YZ sessions). Each session is documented in `YZ/` folder.
 
-### Compiler Statistics
-- **Total Modules**: 26
-- **Lines of Code**: ~15,000+ (stage0)
-- **Keywords**: 20+ (all English)
-- **Token Types**: 50+
-- **Binary Size**: ~389 KB (melpc_26)
+**For AI Assistants:**
+1. Read `NEXT_AI_START_HERE.md` first
+2. Follow `ARCHITECTURE.md` rules strictly
+3. Create YZ branch: `git checkout -b feature_YZ_XX`
+4. Document your session in `YZ/YZ_XX.md`
+5. Update `NEXT_AI_START_HERE.md` before finishing
+
+## 📄 License
+
+See LICENSE file for details.
 
 ---
 
-**Last Updated**: 7 Aralık 2025  
-**Status**: Stage 0 Complete - Phase 3 Complete  
-**Version**: 0.3.0-alpha
-
-## 🔧 Development Notes
-
-### Current Implementation Status
-- **Compiler**: `compiler/stage0/melpc_26` (26 modules, ~389 KB)
-- **Wrapper**: `./melp program.mlp` for single-command compilation
-- **Working Features**:
-  - ✅ Variables: `numeric x = 42`, `string s = "text"`, `boolean b = true`
-  - ✅ Print: `print("Hello")` 
-  - ✅ Control Flow: `if/then/else/end`, `while/do/end`, `for i = 1 to 10`
-  - ✅ Exit Statements: `exit for`, `exit while`, `exit if` (parsing only, codegen pending)
-  - ✅ Comments: `-- comment style`
-  - ✅ Expression Parsing: All operators parsed, literal initialization works
-  - 🚧 Complex Expressions: Needs TTO runtime linking for full support
-
-### Implementation Details
-- **Lexer**: `lexer.c/h` - TOKEN_STRING_TYPE for types, TOKEN_STRING for literals
-- **Parser**: `main.c` - Inline simple parsing for variables and control flow
-- **Assembly**: `.data` section for strings, `.bss` for variables
-- **No `continue` keyword**: Use `exit if` pattern instead (VB.NET style)
-- **No `text` keyword**: Removed, only `string` remains
-
-### Next Steps (Phase 3.5 & 4)
+**Project**: [github.com/MELP-Lang/MELP](https://github.com/MELP-Lang/MELP)  
+**Status**: Stage 0 Complete (Phase 11 - 95%)  
+**Last Updated**: 12 Aralık 2025  
+**Version**: 1.0.0-stage0
 1. **TTO Runtime Linking**: Link TTO runtime library for complex expression support
 2. **Expression in Conditions**: Use expressions in if/while/for conditions
 3. **Variable Usage**: Use variables in expressions (currently only literals work)
