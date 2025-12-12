@@ -1,5 +1,5 @@
 # 🎯 MELP Compiler - TODO List
-**Güncel Durum:** 12 Aralık 2025, ~23:00  
+**Güncel Durum:** 12 Aralık 2025, ~23:30  
 **Son Tamamlanan:** YZ_56 (String Parameter Bug FIX) ✅  
 **Stage:** Stage 0 - Core Compiler Development  
 **Completion:** 100% Core + File I/O + State + Module System + STO Refactoring COMPLETE! 🎉
@@ -9,6 +9,12 @@
 **🎉 PHASE 12 (100%) COMPLETE:** TTO→STO refactoring done!
 **✅ PHASE 13 (70%):** Self-hosting lexer - NO BLOCKERS!
 **✅ NEXT:** Phase 13 Part 6.3 completion → Part 6.4 (Identifier tokenization)
+
+**📝 Language Features Status:**
+- ✅ Global Variables: **NOT SUPPORTED** (by design - only function-local vars)
+- ⏳ Try-Catch: **FUTURE** (planned, not implemented)
+- ⏳ Struct Types: **FUTURE** (planned, not implemented)
+- ✅ Relative Paths: **FIXED** in YZ_56 (absolute paths for libraries)
 
 ---
 
@@ -40,6 +46,12 @@ Bu TODO'daki görevlere başlamadan önce **MUTLAKA** şu dosyaları oku:
 👉 **`temp/kurallar_kitabı.md` - Bölüm 4: Smart Type Optimization (STO)**  
 👉 **`ARCHITECTURE.md`** - Mimari kurallar (modülerlik, STO)  
 👉 **`YZ/AI_METHODOLOGY.md`** - 5 adımlı hızlı geliştirme metodu
+
+**⚠️ BİLİNEN SINIRLAMALAR:**
+- **Global Variables:** MELP'te global variable YOK (sadece function-local)
+- **Try-Catch:** Henüz implement edilmedi (future feature)
+- **Struct Types:** Henüz implement edilmedi (future feature)
+- **Relative Paths:** YZ_56'da düzeltildi (runtime'da absolute path kullanılıyor)
 
 ---
 

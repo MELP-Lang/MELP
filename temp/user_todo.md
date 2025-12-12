@@ -3,6 +3,9 @@
 > **Not:** Bu tablo `TODO.md` ile senkronize tutulmalıdır!
 > Her YZ oturumu sonunda her iki dosyayı da güncelleyin.
 
+**Son Güncelleme:** YZ_56 (12 Aralık 2025)  
+**Durum:** Phase 11-12 (100%), Phase 13 (70%) - String parameter bug FIXED! ✅
+
 | Phase | Alt Başlık | Bitti |
 |-------|-----------|-------|
 | **Phase 1: String Operations** | | ✅ 100% |
@@ -127,17 +130,35 @@
 | | → Migration guide created | ✅ |
 | | → Final grep cleanup (0 TTO refs) | ✅ |
 | | → Update NEXT_AI_START_HERE.md | ✅ |
+| **Phase 13: Bootstrap Stage 1** | | ⏳ 70% |
+| | → Part 6.1: Token Structure | ✅ YZ_46 |
+| | → Part 6.2: Character Classification | ✅ YZ_46 |
+| | → Part 6.3: Literal Tokenization | ⏳ YZ_54/55 (70%) |
+| | → String Parameter Bug Fix | ✅ YZ_56 |
+| | → Part 6.4: Identifier Tokenization | ⏳ TODO |
+| | → Part 6.5: Operator Tokenization | ⏳ TODO |
+| | → Part 6.6: Integration & Testing | ⏳ TODO |
+| **⚠️ Not Implemented (Future)** | | |
+| | Global Variables | ❌ NOT PLANNED |
+| | Try-Catch Exception Handling | ⏳ FUTURE |
+| | Struct Types | ⏳ FUTURE |
+| | Enums | ⏳ FUTURE |
 
 ## Durum Özeti
 
 - **Tamamlanan:** Phase 1-7, Phase 9, Phase 10, Phase 11 (100%), Phase 12 (100%)! 🎉🎉🎉
-- **Son Tamamlanan:** YZ_53 (Phase 12 Complete - TTO→STO Refactoring) - 12 Aralık 2025
+- **Son Tamamlanan:** YZ_56 (String Parameter Bug Fix) - 12 Aralık 2025
 - **✅ Phase 11:** Module system + incremental compilation complete! 15x speedup! ✅
 - **✅ Phase 12:** TTO→STO refactoring complete! 7 hours, 80+ files, 453+ renames, 0 regressions
+- **✅ Phase 13:** 70% complete - String parameter bug FIXED! ✅
 - **✅ Incremental Build:** 10-15x speedup! Parse & assembly skip for unchanged modules
 - **✅ Performance:** 0.032s vs 0.5s (15x faster for no-change builds)
 - **✅ println() Builtin:** For loop içinde çalışıyor!
-- **🔥 Sırada:** Phase 13 - Bootstrap Stage 1 (Self-hosting lexer/parser)
+- **🔥 Sırada:** Phase 13 Part 6.3 completion → Part 6.4 (NO BLOCKERS!)
+- **⚠️ Bilinen Sınırlamalar:**
+  - Global Variables: MELP'te YOK (sadece function-local vars)
+  - Try-Catch: Henüz implement edilmedi
+  - Struct Types: Henüz implement edilmedi
 - **Sonraki (Optional):** 
   - **Self-Hosting:** Continue lexer rewrite in MLP (Part 6.3+)
   - **Advanced Optimization:** Register allocation, inlining
