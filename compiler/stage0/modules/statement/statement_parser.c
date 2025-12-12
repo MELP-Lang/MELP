@@ -302,7 +302,8 @@ Statement* statement_parse(Parser* parser) {
         return stmt;
     }
     
-    // ✅ YZ_48: PRINTLN builtin - Reserved keyword
+    // ✅ YZ_47: PRINTLN builtin - Reserved keyword (parser)
+    // ✅ YZ_48: FunctionCallExpr creation fixed
     if (tok->type == TOKEN_PRINTLN) {
         token_free(tok);
         

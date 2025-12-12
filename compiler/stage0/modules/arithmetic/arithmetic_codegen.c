@@ -49,6 +49,7 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
     if (!expr) return;
     
     // YZ_48: Simple println() codegen for for-loop support
+    // (YZ_47: TOKEN_PRINTLN parser, YZ_48: codegen)
     if (expr->is_function_call && expr->func_call && 
         strcmp(expr->func_call->function_name, "println") == 0 && 
         expr->func_call->arg_count == 1) {
