@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>  // YZ_45: For smart linking mtime checks
+#include <unistd.h>    // YZ_56: For readlink
+#include <libgen.h>    // YZ_56: For dirname
 #include "../lexer/lexer.h"
 #include "../error/error.h"
 #include "../import/import.h"          // YZ_35: Import statement
@@ -15,6 +17,42 @@
 #include "functions.h"
 #include "functions_parser.h"
 #include "functions_codegen.h"
+
+// YZ_56: Get the MELP compiler base directory (where /runtime, /compiler are)
+static const char* get_compiler_base_dir(void) {
+    static char base_dir[1024] = {0};
+    
+    if (base_dir[0] != '\0') {
+        return base_dir;  // Cached
+    }
+    
+    // Get executable path
+    char exe_path[1024];
+    ssize_t len = readlink("/proc/self/exe", exe_path, sizeof(exe_path) - 1);
+    if (len != -1) {
+        exe_path[len] = '\0';
+        
+        // Go up from /compiler/stage0/modules/functions/functions_compiler
+        // to /home/pardus/projeler/MLP/MLP
+        // Find last 5 slashes and cut there (was 4, now 5 to reach MLP root)
+        int slashes = 0;
+        for (int i = len - 1; i >= 0 && slashes < 5; i--) {
+            if (exe_path[i] == '/') {
+                slashes++;
+                if (slashes == 5) {
+                    exe_path[i] = '\0';
+                    break;
+                }
+            }
+        }
+        snprintf(base_dir, sizeof(base_dir), "%s", exe_path);
+    } else {
+        // Fallback: assume we're in modules/functions
+        snprintf(base_dir, sizeof(base_dir), "../../../..");
+    }
+    
+    return base_dir;
+}
 
 // Read entire file into string
 static char* read_file(const char* path) {
@@ -604,9 +642,18 @@ int main(int argc, char** argv) {
         }
         
         // Add libraries
+        // YZ_56: Use absolute paths for libraries (works from any directory)
+        const char* compiler_dir = get_compiler_base_dir();
+        char stdlib_path[1024], sto_path[1024];
+        snprintf(stdlib_path, sizeof(stdlib_path), "%s/runtime/stdlib", compiler_dir);
+        snprintf(sto_path, sizeof(sto_path), "%s/runtime/sto", compiler_dir);
+        
         offset += snprintf(link_cmd + offset, sizeof(link_cmd) - offset,
-                          " -L../../../../runtime/stdlib -lmlp_stdlib "
-                          "-L../../../../runtime/sto -lsto_runtime -lm 2>&1");
+                          " -L%s -lmlp_stdlib -L%s -lsto_runtime -lm 2>&1",
+                          stdlib_path, sto_path);
+        
+        // YZ_56 Debug: Print link command
+        // fprintf(stderr, "DEBUG: Link command: %s\n", link_cmd);
         
         printf("🔗 Linking: %s", output_file);
         if (module_obj_count > 0) {
@@ -619,14 +666,16 @@ int main(int argc, char** argv) {
             char line[512];
             int has_error = 0;
             while (fgets(line, sizeof(line), gcc_link)) {
-                // Only report actual errors, not warnings
-                if (strstr(line, "error:") || strstr(line, "undefined reference")) {
+                // YZ_56: Only show errors, not warnings
+                if (strstr(line, "error:") || strstr(line, "undefined reference") || 
+                    strstr(line, "collect2: error")) {
                     fprintf(stderr, "   gcc: %s", line);
                     has_error = 1;
                 }
             }
-            int status = pclose(gcc_link);
-            if (status != 0 && has_error) {
+            pclose(gcc_link);
+            // YZ_56: Only fail if we detected actual errors (not just warnings)
+            if (has_error) {
                 error_fatal("Linking failed: %s", output_file);
                 return 1;
             }

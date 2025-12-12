@@ -1,0 +1,15 @@
+function test() returns numeric
+    numeric i = 0
+    string ch = ""
+    
+    while i < 3
+        ch = "a"
+        i = i + 1
+    end while
+    
+    return i
+end function
+
+function main() returns numeric
+    return test()
+end function

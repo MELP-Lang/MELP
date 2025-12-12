@@ -385,7 +385,7 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
     // YZ_17: Collection literals (Array, List, Tuple)
     if (expr->is_collection && expr->collection) {
         fprintf(output, "    # Collection literal\n");
-        codegen_collection(output, expr->collection);
+        codegen_collection(output, expr->collection, func);
         // Result is in rax, move to target register
         fprintf(output, "    movq %%rax, %%r%d  # Collection pointer\n", target_reg + 8);
         return;

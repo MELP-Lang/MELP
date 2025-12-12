@@ -1,0 +1,335 @@
+-- ============================================================================
+-- Integration Test: Literal Tokenization
+-- Tests scan_number() and scan_string() from tokenize_literals.mlp
+-- ============================================================================
+
+-- Note: Since we can't import yet, we'll copy necessary functions
+-- TODO: Enable when module import system supports ../.. paths
+
+-- Token Creation (from tokenize_literals.mlp)
+function create_token(numeric token_type, string token_value, numeric line_num, numeric col_num) returns list
+    return [token_type, token_value, line_num, col_num]
+end function
+
+-- Digit check helper
+function is_digit(string ch) returns boolean
+    if ch == "0" then return 1 end if
+    if ch == "1" then return 1 end if
+    if ch == "2" then return 1 end if
+    if ch == "3" then return 1 end if
+    if ch == "4" then return 1 end if
+    if ch == "5" then return 1 end if
+    if ch == "6" then return 1 end if
+    if ch == "7" then return 1 end if
+    if ch == "8" then return 1 end if
+    if ch == "9" then return 1 end if
+    return 0
+end function
+
+-- Char code helper
+function char_code(string c) returns numeric
+    if c == " " then return 32 end if
+    if c == "0" then return 48 end if
+    if c == "1" then return 49 end if
+    if c == "2" then return 50 end if
+    if c == "3" then return 51 end if
+    if c == "4" then return 52 end if
+    if c == "5" then return 53 end if
+    if c == "6" then return 54 end if
+    if c == "7" then return 55 end if
+    if c == "8" then return 56 end if
+    if c == "9" then return 57 end if
+    if c == "." then return 46 end if
+    return 34
+end function
+
+-- Number scanner (simplified for testing)
+function scan_number(string source, numeric pos, numeric line, numeric col) returns list
+    string num_value = ""
+    numeric start_col = col
+    numeric start_line = line
+    boolean has_decimal = 0
+    numeric source_len = length(source)
+    string ch = ""
+    string next_ch = ""
+    boolean ch_is_digit = 0
+    boolean next_is_digit = 0
+    numeric next_pos = 0
+    
+    while pos < source_len
+        ch = substring(source, pos, 1)
+        ch_is_digit = is_digit(ch)
+        
+        if ch_is_digit then
+            num_value = num_value + ch
+            pos = pos + 1
+            col = col + 1
+        else
+            if ch == "." then
+                if has_decimal == 0 then
+                    next_pos = pos + 1
+                    if next_pos < source_len then
+                        next_ch = substring(source, pos + 1, 1)
+                        next_is_digit = is_digit(next_ch)
+                        if next_is_digit then
+                            has_decimal = 1
+                            num_value = num_value + ch
+                            pos = pos + 1
+                            col = col + 1
+                        else
+                            exit while
+                        end if
+                    else
+                        exit while
+                    end if
+                else
+                    exit while
+                end if
+            else
+                exit while
+            end if
+        end if
+    end while
+    
+    list token = create_token(30, num_value, start_line, start_col)
+    return [token, pos, col]
+end function
+
+-- String scanner (simplified for testing)
+function scan_string(string source, numeric pos, numeric line, numeric col) returns list
+    string str_value = ""
+    numeric start_col = col
+    numeric start_line = line
+    numeric source_len = length(source)
+    boolean terminated = 0
+    string ch = ""
+    numeric next_pos = 0
+    string next_ch = ""
+    numeric quote_ascii = 34
+    
+    pos = pos + 1
+    col = col + 1
+    
+    while pos < source_len
+        ch = substring(source, pos, 1)
+        numeric ch_code = char_code(ch)
+        
+        if ch_code == quote_ascii then
+            terminated = 1
+            pos = pos + 1
+            col = col + 1
+            exit while
+        else
+            if ch == "\\" then
+                next_pos = pos + 1
+                if next_pos < source_len then
+                    next_ch = substring(source, pos + 1, 1)
+                    
+                    if next_ch == "n" then
+                        str_value = str_value + "\n"
+                        pos = pos + 2
+                        col = col + 2
+                    else
+                        if next_ch == "t" then
+                            str_value = str_value + "\t"
+                            pos = pos + 2
+                            col = col + 2
+                        else
+                            str_value = str_value + next_ch
+                            pos = pos + 2
+                            col = col + 2
+                        end if
+                    end if
+                else
+                    str_value = str_value + ch
+                    pos = pos + 1
+                    col = col + 1
+                end if
+            else
+                str_value = str_value + ch
+                pos = pos + 1
+                col = col + 1
+            end if
+        end if
+    end while
+    
+    if terminated == 0 then
+        return []
+    end if
+    
+    list token = create_token(31, str_value, start_line, start_col)
+    return [token, pos, col]
+end function
+
+function main() returns numeric
+    -- Test Variables
+    numeric result = 0
+    numeric pos = 0
+    numeric line = 1
+    numeric col = 1
+    numeric token_type = 0
+    string token_value = ""
+    
+    -- Use placeholder values instead of empty lists
+    -- WORKAROUND: Empty list literals [] don't work in assembly
+    list token_data = [0, 0, 0]  -- Will be replaced by scan_* functions
+    list token = [0, "", 0, 0]   -- Will be replaced by indexing
+    
+    -- ========================================================================
+    -- Test 1: Integer Literal
+    -- ========================================================================
+    println("Test 1: Integer '42'")
+    pos = 0
+    col = 1
+    token_data = scan_number("42", pos, line, col)
+    token = token_data[0]
+    token_type = token[0]
+    token_value = token[1]
+    
+    if token_type == 30 then
+        if token_value == "42" then
+            println("  PASS: Integer tokenized correctly")
+        else
+            println("  FAIL: Wrong value")
+            result = 1
+        end if
+    else
+        println("  FAIL: Wrong token type")
+        result = 1
+    end if
+    
+    -- ========================================================================
+    -- Test 2: Decimal Number
+    -- ========================================================================
+    println("Test 2: Decimal '3.14'")
+    pos = 0
+    col = 1
+    token_data = scan_number("3.14", pos, line, col)
+    token = token_data[0]
+    token_type = token[0]
+    token_value = token[1]
+    
+    if token_type == 30 then
+        if token_value == "3.14" then
+            println("  PASS: Decimal tokenized correctly")
+        else
+            println("  FAIL: Wrong value")
+            result = 1
+        end if
+    else
+        println("  FAIL: Wrong token type")
+        result = 1
+    end if
+    
+    -- ========================================================================
+    -- Test 3: Simple String
+    -- ========================================================================
+    println("Test 3: String 'hello'")
+    string test_str = ""
+    numeric quote_char = 34
+    test_str = chr(quote_char) + "hello" + chr(quote_char)
+    pos = 0
+    col = 1
+    token_data = scan_string(test_str, pos, line, col)
+    token = token_data[0]
+    token_type = token[0]
+    token_value = token[1]
+    
+    if token_type == 31 then
+        if token_value == "hello" then
+            println("  PASS: String tokenized correctly")
+        else
+            println("  FAIL: Wrong value")
+            result = 1
+        end if
+    else
+        println("  FAIL: Wrong token type")
+        result = 1
+    end if
+    
+    -- ========================================================================
+    -- Test 4: String with Newline Escape
+    -- ========================================================================
+    println("Test 4: String with newline escape")
+    test_str = chr(quote_char) + "hello\\nworld" + chr(quote_char)
+    pos = 0
+    col = 1
+    token_data = scan_string(test_str, pos, line, col)
+    token = token_data[0]
+    token_type = token[0]
+    token_value = token[1]
+    
+    if token_type == 31 then
+        println("  PASS: String with escape tokenized")
+    else
+        println("  FAIL: Wrong token type")
+        result = 1
+    end if
+    
+    -- ========================================================================
+    -- Test 5: Number Position Tracking
+    -- ========================================================================
+    println("Test 5: Position tracking")
+    pos = 0
+    col = 1
+    token_data = scan_number("123", pos, line, col)
+    numeric new_pos = token_data[1]
+    numeric new_col = token_data[2]
+    
+    if new_pos == 3 then
+        if new_col == 4 then
+            println("  PASS: Position tracking correct")
+        else
+            println("  FAIL: Column tracking wrong")
+            result = 1
+        end if
+    else
+        println("  FAIL: Position tracking wrong")
+        result = 1
+    end if
+    
+    -- ========================================================================
+    -- Test 6: Zero
+    -- ========================================================================
+    println("Test 6: Zero '0'")
+    pos = 0
+    col = 1
+    token_data = scan_number("0", pos, line, col)
+    token = token_data[0]
+    token_value = token[1]
+    
+    if token_value == "0" then
+        println("  PASS: Zero tokenized correctly")
+    else
+        println("  FAIL: Zero tokenization failed")
+        result = 1
+    end if
+    
+    -- ========================================================================
+    -- Test 7: Large Number
+    -- ========================================================================
+    println("Test 7: Large number '123456789'")
+    pos = 0
+    col = 1
+    token_data = scan_number("123456789", pos, line, col)
+    token = token_data[0]
+    token_value = token[1]
+    
+    if token_value == "123456789" then
+        println("  PASS: Large number tokenized correctly")
+    else
+        println("  FAIL: Large number failed")
+        result = 1
+    end if
+    
+    -- ========================================================================
+    -- Results
+    -- ========================================================================
+    if result == 0 then
+        println("All tests PASSED!")
+    else
+        println("Some tests FAILED!")
+    end if
+    
+    return result
+end function

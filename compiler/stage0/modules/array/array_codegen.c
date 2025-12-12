@@ -7,24 +7,24 @@
 static int array_label_counter = 0;
 
 // Generate code for Collection literal (main entry point)
-void codegen_collection(FILE* output, Collection* coll) {
+void codegen_collection(FILE* output, Collection* coll, FunctionDeclaration* func) {
     if (!coll) return;
     
     switch (coll->type) {
         case COLL_ARRAY:
-            codegen_array_literal(output, &coll->data.array);
+            codegen_array_literal(output, &coll->data.array, func);
             break;
         case COLL_LIST:
-            codegen_list_literal(output, &coll->data.list);
+            codegen_list_literal(output, &coll->data.list, func);
             break;
         case COLL_TUPLE:
-            codegen_tuple_literal(output, &coll->data.tuple);
+            codegen_tuple_literal(output, &coll->data.tuple, func);
             break;
     }
 }
 
 // Generate array literal: [1, 2, 3]
-void codegen_array_literal(FILE* output, Array* arr) {
+void codegen_array_literal(FILE* output, Array* arr, FunctionDeclaration* func) {
     if (!arr) return;
     
     fprintf(output, "    # Array literal: %d elements, type=%d\n", arr->length, arr->element_type);
@@ -51,7 +51,7 @@ void codegen_array_literal(FILE* output, Array* arr) {
                 // Save array pointer on stack
                 fprintf(output, "    pushq %%rbx\n");
                 
-                arithmetic_generate_code(output, elem, NULL);  // Result in r8 or xmm0
+                arithmetic_generate_code(output, elem, func);  // Result in r8 or xmm0
                 
                 // Move result to rax
                 fprintf(output, "    movq %%r8, %%rax  # Move result to rax\n");
@@ -70,7 +70,7 @@ void codegen_array_literal(FILE* output, Array* arr) {
 }
 
 // Generate list literal: (1; "text"; 3.14;)
-void codegen_list_literal(FILE* output, List* list) {
+void codegen_list_literal(FILE* output, List* list, FunctionDeclaration* func) {
     if (!list) return;
     
     fprintf(output, "    # List literal: %d elements (heterogeneous)\n", list->length);
@@ -94,7 +94,7 @@ void codegen_list_literal(FILE* output, List* list) {
                 // Save list pointer on stack
                 fprintf(output, "    pushq %%rbx\n");
                 
-                arithmetic_generate_code(output, elem, NULL);  // Result in r8/xmm0
+                arithmetic_generate_code(output, elem, func);  // Result in r8/xmm0
                 
                 // Value must be a pointer for sto_list_set - push to stack
                 fprintf(output, "    pushq %%r8  # Push value to stack\n");
@@ -120,7 +120,7 @@ void codegen_list_literal(FILE* output, List* list) {
 }
 
 // Generate tuple literal: <42, "text">
-void codegen_tuple_literal(FILE* output, Tuple* tuple) {
+void codegen_tuple_literal(FILE* output, Tuple* tuple, FunctionDeclaration* func) {
     if (!tuple) return;
     
     fprintf(output, "    # Tuple literal: %d elements (immutable)\n", tuple->length);
@@ -141,7 +141,7 @@ void codegen_tuple_literal(FILE* output, Tuple* tuple) {
                 fprintf(output, "    # Tuple element %d (type=%d)\n", i, tuple->element_types[i]);
                 
                 // Evaluate element expression
-                arithmetic_generate_code(output, elem, NULL);  // Result in r8/xmm0
+                arithmetic_generate_code(output, elem, func);  // Result in r8/xmm0
                 
                 // Push element value to stack (sto_tuple_set expects pointer)
                 fprintf(output, "    pushq %%r8  # Push value to stack\n");

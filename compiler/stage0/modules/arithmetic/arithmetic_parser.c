@@ -75,12 +75,12 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
         expr->is_boolean = 1;
         
         // STO analysis for boolean literal
-        STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
-        tto->type = INTERNAL_TYPE_INT64;  // Boolean stored as int (0/1)
-        tto->is_constant = true;  // Boolean literals are constant
-        tto->needs_promotion = false;
-        tto->mem_location = MEM_REGISTER;  // Small value, keep in register
-        expr->sto_info = tto;
+        STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
+        sto_info->type = INTERNAL_TYPE_INT64;  // Boolean stored as int (0/1)
+        sto_info->is_constant = true;  // Boolean literals are constant
+        sto_info->needs_promotion = false;
+        sto_info->mem_location = MEM_REGISTER;  // Small value, keep in register
+        expr->sto_info = sto_info;
         expr->sto_analyzed = true;
         expr->needs_overflow_check = false;
         
@@ -97,12 +97,12 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
         expr->is_boolean = 0;
         
         // STO analysis for string literal
-        STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
-        tto->type = INTERNAL_TYPE_SSO_STRING;  // Small String Optimization
-        tto->is_constant = true;  // String literals are constant
-        tto->needs_promotion = false;
-        tto->mem_location = MEM_RODATA;  // String literals in .rodata
-        expr->sto_info = tto;
+        STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
+        sto_info->type = INTERNAL_TYPE_SSO_STRING;  // Small String Optimization
+        sto_info->is_constant = true;  // String literals are constant
+        sto_info->needs_promotion = false;
+        sto_info->mem_location = MEM_RODATA;  // String literals in .rodata
+        expr->sto_info = sto_info;
         expr->sto_analyzed = true;
         expr->needs_overflow_check = false;
         
@@ -119,11 +119,11 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
         expr->is_boolean = 0;
         
         // Phase 2.3: STO analysis for numeric literal
-        STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
-        *tto = codegen_sto_infer_numeric_type(expr->value);
-        expr->sto_info = tto;
+        STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
+        *sto_info = codegen_sto_infer_numeric_type(expr->value);
+        expr->sto_info = sto_info;
         expr->sto_analyzed = true;
-        expr->needs_overflow_check = (tto->type == INTERNAL_TYPE_INT64);
+        expr->needs_overflow_check = (sto_info->type == INTERNAL_TYPE_INT64);
         
         advance(parser);
         return expr;
@@ -206,12 +206,12 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
             expr->func_call = func_call;
             
             // STO info: assume INT64 return value
-            STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
-            tto->type = INTERNAL_TYPE_INT64;
-            tto->is_constant = false;
-            tto->needs_promotion = true;
-            tto->mem_location = MEM_REGISTER;
-            expr->sto_info = tto;
+            STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
+            sto_info->type = INTERNAL_TYPE_INT64;
+            sto_info->is_constant = false;
+            sto_info->needs_promotion = true;
+            sto_info->mem_location = MEM_REGISTER;
+            expr->sto_info = sto_info;
             expr->sto_analyzed = true;
             expr->needs_overflow_check = true;
             
@@ -229,12 +229,12 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
         
         // Phase 2.3: STO info for variables (unknown at parse time)
         // We assume INT64 initially, will be refined at runtime
-        STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
-        tto->type = INTERNAL_TYPE_INT64;
-        tto->is_constant = false;  // Variables can change
-        tto->needs_promotion = true;  // May need overflow check
-        tto->mem_location = MEM_REGISTER;
-        expr->sto_info = tto;
+        STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
+        sto_info->type = INTERNAL_TYPE_INT64;
+        sto_info->is_constant = false;  // Variables can change
+        sto_info->needs_promotion = true;  // May need overflow check
+        sto_info->mem_location = MEM_REGISTER;
+        expr->sto_info = sto_info;
         expr->sto_analyzed = true;
         expr->needs_overflow_check = true;
         
@@ -662,11 +662,11 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         expr->is_string = 0;  // YZ_10: Not a string
         expr->is_boolean = 0;
         
-        STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
-        *tto = codegen_sto_infer_numeric_type(expr->value);
-        expr->sto_info = tto;
+        STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
+        *sto_info = codegen_sto_infer_numeric_type(expr->value);
+        expr->sto_info = sto_info;
         expr->sto_analyzed = true;
-        expr->needs_overflow_check = (tto->type == INTERNAL_TYPE_INT64);
+        expr->needs_overflow_check = (sto_info->type == INTERNAL_TYPE_INT64);
         
         advance_stateless(lexer, current);
         return expr;
@@ -681,12 +681,12 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         expr->is_boolean = 0;
         
         // STO analysis for string literal
-        STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
-        tto->type = INTERNAL_TYPE_SSO_STRING;  // Small String Optimization
-        tto->is_constant = true;  // String literals are constant
-        tto->needs_promotion = false;
-        tto->mem_location = MEM_RODATA;  // String literals in .rodata
-        expr->sto_info = tto;
+        STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
+        sto_info->type = INTERNAL_TYPE_SSO_STRING;  // Small String Optimization
+        sto_info->is_constant = true;  // String literals are constant
+        sto_info->needs_promotion = false;
+        sto_info->mem_location = MEM_RODATA;  // String literals in .rodata
+        expr->sto_info = sto_info;
         expr->sto_analyzed = true;
         expr->needs_overflow_check = false;
         
@@ -736,12 +736,12 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
             expr->array_access = access;
             
             // STO info: result is INT64 (collection element)
-            STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
-            tto->type = INTERNAL_TYPE_INT64;
-            tto->is_constant = false;
-            tto->needs_promotion = true;
-            tto->mem_location = MEM_REGISTER;
-            expr->sto_info = tto;
+            STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
+            sto_info->type = INTERNAL_TYPE_INT64;
+            sto_info->is_constant = false;
+            sto_info->needs_promotion = true;
+            sto_info->mem_location = MEM_REGISTER;
+            expr->sto_info = sto_info;
             expr->sto_analyzed = true;
             expr->needs_overflow_check = true;
             
@@ -828,12 +828,12 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
             expr->func_call = func_call;
             
             // STO info: assume INT64 return value
-            STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
-            tto->type = INTERNAL_TYPE_INT64;
-            tto->is_constant = false;
-            tto->needs_promotion = true;
-            tto->mem_location = MEM_REGISTER;
-            expr->sto_info = tto;
+            STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
+            sto_info->type = INTERNAL_TYPE_INT64;
+            sto_info->is_constant = false;
+            sto_info->needs_promotion = true;
+            sto_info->mem_location = MEM_REGISTER;
+            expr->sto_info = sto_info;
             expr->sto_analyzed = true;
             expr->needs_overflow_check = true;
             
@@ -847,12 +847,12 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         expr->is_string = 0;  // YZ_10: TODO - Infer from variable type in symbol table
         expr->is_boolean = 0;
         
-        STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
-        tto->type = INTERNAL_TYPE_INT64;
-        tto->is_constant = false;
-        tto->needs_promotion = true;
-        tto->mem_location = MEM_REGISTER;
-        expr->sto_info = tto;
+        STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
+        sto_info->type = INTERNAL_TYPE_INT64;
+        sto_info->is_constant = false;
+        sto_info->needs_promotion = true;
+        sto_info->mem_location = MEM_REGISTER;
+        expr->sto_info = sto_info;
         expr->sto_analyzed = true;
         expr->needs_overflow_check = true;
         
@@ -877,12 +877,12 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         expr->is_string = 0;
         expr->is_boolean = 0;
         
-        STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
-        tto->type = INTERNAL_TYPE_ARRAY;
-        tto->is_constant = false;
-        tto->needs_promotion = false;
-        tto->mem_location = MEM_HEAP;
-        expr->sto_info = tto;
+        STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
+        sto_info->type = INTERNAL_TYPE_ARRAY;
+        sto_info->is_constant = false;
+        sto_info->needs_promotion = false;
+        sto_info->mem_location = MEM_HEAP;
+        expr->sto_info = sto_info;
         expr->sto_analyzed = true;
         expr->needs_overflow_check = false;
         
@@ -921,12 +921,12 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
             expr->is_string = 0;
             expr->is_boolean = 0;
             
-            STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
-            tto->type = INTERNAL_TYPE_LIST;
-            tto->is_constant = false;
-            tto->needs_promotion = false;
-            tto->mem_location = MEM_HEAP;
-            expr->sto_info = tto;
+            STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
+            sto_info->type = INTERNAL_TYPE_LIST;
+            sto_info->is_constant = false;
+            sto_info->needs_promotion = false;
+            sto_info->mem_location = MEM_HEAP;
+            expr->sto_info = sto_info;
             expr->sto_analyzed = true;
             expr->needs_overflow_check = false;
             
@@ -1016,12 +1016,12 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
             expr->is_string = 0;
             expr->is_boolean = 0;
             
-            STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
-            tto->type = INTERNAL_TYPE_LIST;
-            tto->is_constant = false;
-            tto->needs_promotion = false;
-            tto->mem_location = MEM_HEAP;
-            expr->sto_info = tto;
+            STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
+            sto_info->type = INTERNAL_TYPE_LIST;
+            sto_info->is_constant = false;
+            sto_info->needs_promotion = false;
+            sto_info->mem_location = MEM_HEAP;
+            expr->sto_info = sto_info;
             expr->sto_analyzed = true;
             expr->needs_overflow_check = false;
             
@@ -1063,12 +1063,12 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
             expr->is_string = 0;
             expr->is_boolean = 0;
             
-            STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
-            tto->type = INTERNAL_TYPE_TUPLE;
-            tto->is_constant = false;
-            tto->needs_promotion = false;
-            tto->mem_location = MEM_HEAP;
-            expr->sto_info = tto;
+            STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
+            sto_info->type = INTERNAL_TYPE_TUPLE;
+            sto_info->is_constant = false;
+            sto_info->needs_promotion = false;
+            sto_info->mem_location = MEM_HEAP;
+            expr->sto_info = sto_info;
             expr->sto_analyzed = true;
             expr->needs_overflow_check = false;
             
@@ -1150,12 +1150,12 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         expr->is_string = 0;
         expr->is_boolean = 0;
         
-        STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
-        tto->type = INTERNAL_TYPE_TUPLE;
-        tto->is_constant = false;
-        tto->needs_promotion = false;
-        tto->mem_location = MEM_HEAP;
-        expr->sto_info = tto;
+        STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
+        sto_info->type = INTERNAL_TYPE_TUPLE;
+        sto_info->is_constant = false;
+        sto_info->needs_promotion = false;
+        sto_info->mem_location = MEM_HEAP;
+        expr->sto_info = sto_info;
         expr->sto_analyzed = true;
         expr->needs_overflow_check = false;
         

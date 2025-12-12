@@ -1,0 +1,225 @@
+-- ============================================================================
+-- MELP Self-Hosting: Identifier & Keyword Tokenization
+-- File: modules/lexer_mlp/tokenize_identifiers.mlp
+-- Author: YZ_57
+-- Date: 12 Aralık 2025
+-- Purpose: Scan and tokenize identifiers and keywords
+-- Status: PHASE 13 PART 6.4
+-- ============================================================================
+
+-- Token Type Constants
+-- IDENTIFIER = 32
+-- Keywords: FUNCTION=1, END=2, IF=3, THEN=4, ELSE=5, WHILE=6, FOR=7, 
+--           RETURN=8, NUMERIC=10, STRING=11, BOOLEAN=12, LIST=13, etc.
+
+-- ============================================================================
+-- Character Classification Helpers
+-- ============================================================================
+
+function is_alpha(string ch) returns boolean
+    -- Check if character is a-z or A-Z
+    if ch == "a" then return 1 end if
+    if ch == "b" then return 1 end if
+    if ch == "c" then return 1 end if
+    if ch == "d" then return 1 end if
+    if ch == "e" then return 1 end if
+    if ch == "f" then return 1 end if
+    if ch == "g" then return 1 end if
+    if ch == "h" then return 1 end if
+    if ch == "i" then return 1 end if
+    if ch == "j" then return 1 end if
+    if ch == "k" then return 1 end if
+    if ch == "l" then return 1 end if
+    if ch == "m" then return 1 end if
+    if ch == "n" then return 1 end if
+    if ch == "o" then return 1 end if
+    if ch == "p" then return 1 end if
+    if ch == "q" then return 1 end if
+    if ch == "r" then return 1 end if
+    if ch == "s" then return 1 end if
+    if ch == "t" then return 1 end if
+    if ch == "u" then return 1 end if
+    if ch == "v" then return 1 end if
+    if ch == "w" then return 1 end if
+    if ch == "x" then return 1 end if
+    if ch == "y" then return 1 end if
+    if ch == "z" then return 1 end if
+    if ch == "A" then return 1 end if
+    if ch == "B" then return 1 end if
+    if ch == "C" then return 1 end if
+    if ch == "D" then return 1 end if
+    if ch == "E" then return 1 end if
+    if ch == "F" then return 1 end if
+    if ch == "G" then return 1 end if
+    if ch == "H" then return 1 end if
+    if ch == "I" then return 1 end if
+    if ch == "J" then return 1 end if
+    if ch == "K" then return 1 end if
+    if ch == "L" then return 1 end if
+    if ch == "M" then return 1 end if
+    if ch == "N" then return 1 end if
+    if ch == "O" then return 1 end if
+    if ch == "P" then return 1 end if
+    if ch == "Q" then return 1 end if
+    if ch == "R" then return 1 end if
+    if ch == "S" then return 1 end if
+    if ch == "T" then return 1 end if
+    if ch == "U" then return 1 end if
+    if ch == "V" then return 1 end if
+    if ch == "W" then return 1 end if
+    if ch == "X" then return 1 end if
+    if ch == "Y" then return 1 end if
+    if ch == "Z" then return 1 end if
+    return 0
+end function
+
+function is_digit(string ch) returns boolean
+    if ch == "0" then return 1 end if
+    if ch == "1" then return 1 end if
+    if ch == "2" then return 1 end if
+    if ch == "3" then return 1 end if
+    if ch == "4" then return 1 end if
+    if ch == "5" then return 1 end if
+    if ch == "6" then return 1 end if
+    if ch == "7" then return 1 end if
+    if ch == "8" then return 1 end if
+    if ch == "9" then return 1 end if
+    return 0
+end function
+
+function is_underscore(string ch) returns boolean
+    if ch == "_" then
+        return 1
+    end if
+    return 0
+end function
+
+function is_identifier_start(string ch) returns boolean
+    boolean ch_is_alpha = 0
+    boolean ch_is_underscore = 0
+    
+    ch_is_alpha = is_alpha(ch)
+    if ch_is_alpha then
+        return 1
+    end if
+    
+    ch_is_underscore = is_underscore(ch)
+    if ch_is_underscore then
+        return 1
+    end if
+    
+    return 0
+end function
+
+function is_identifier_char(string ch) returns boolean
+    boolean ch_is_alpha = 0
+    boolean ch_is_digit = 0
+    boolean ch_is_underscore = 0
+    
+    ch_is_alpha = is_alpha(ch)
+    if ch_is_alpha then
+        return 1
+    end if
+    
+    ch_is_digit = is_digit(ch)
+    if ch_is_digit then
+        return 1
+    end if
+    
+    ch_is_underscore = is_underscore(ch)
+    if ch_is_underscore then
+        return 1
+    end if
+    
+    return 0
+end function
+
+-- ============================================================================
+-- Keyword Detection
+-- ============================================================================
+
+function get_keyword_type(string word) returns numeric
+    -- Returns keyword token type, or 32 (IDENTIFIER) if not a keyword
+    
+    -- Control Flow Keywords
+    if word == "if" then return 3 end if
+    if word == "then" then return 4 end if
+    if word == "else" then return 5 end if
+    if word == "while" then return 6 end if
+    if word == "for" then return 7 end if
+    if word == "exit" then return 16 end if
+    
+    -- Function Keywords
+    if word == "function" then return 1 end if
+    if word == "end" then return 2 end if
+    if word == "return" then return 8 end if
+    if word == "returns" then return 9 end if
+    
+    -- Type Keywords
+    if word == "numeric" then return 10 end if
+    if word == "string" then return 11 end if
+    if word == "boolean" then return 12 end if
+    if word == "list" then return 13 end if
+    if word == "array" then return 14 end if
+    if word == "tuple" then return 15 end if
+    
+    -- Module Keywords
+    if word == "import" then return 17 end if
+    if word == "export" then return 18 end if
+    
+    -- Logical Operators (as keywords)
+    if word == "and" then return 40 end if
+    if word == "or" then return 41 end if
+    if word == "not" then return 42 end if
+    
+    -- Not a keyword - it's an identifier
+    return 32
+end function
+
+-- ============================================================================
+-- Identifier Tokenization
+-- ============================================================================
+
+-- Creates a token [type, value, line, column]
+function create_token(numeric token_type, string token_value, numeric line_num, numeric col_num) returns list
+    return [token_type, token_value, line_num, col_num]
+end function
+
+-- Scan an identifier or keyword
+-- Returns: [token, new_pos, new_col]
+function scan_identifier(string source, numeric pos, numeric line, numeric col) returns list
+    string id_value = ""
+    numeric start_col = col
+    numeric start_line = line
+    numeric source_len = length(source)
+    string ch = ""
+    boolean ch_is_id_char = 0
+    
+    while pos < source_len
+        ch = substring(source, pos, 1)
+        ch_is_id_char = is_identifier_char(ch)
+        
+        if ch_is_id_char then
+            id_value = id_value + ch
+            pos = pos + 1
+            col = col + 1
+        else
+            exit while
+        end if
+    end while
+    
+    -- Check if it's a keyword
+    numeric token_type = 0
+    token_type = get_keyword_type(id_value)
+    
+    list token = create_token(token_type, id_value, start_line, start_col)
+    return [token, pos, col]
+end function
+
+-- ============================================================================
+-- Main (for testing)
+-- ============================================================================
+
+function main() returns numeric
+    return 0
+end function

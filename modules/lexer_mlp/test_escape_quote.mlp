@@ -1,0 +1,13 @@
+function test() returns numeric
+    string ch = "\""
+    
+    if ch == "\"" then
+        return 1
+    end if
+    
+    return 0
+end function
+
+function main() returns numeric
+    return test()
+end function

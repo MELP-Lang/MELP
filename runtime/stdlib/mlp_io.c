@@ -38,15 +38,15 @@ void mlp_println_numeric(void* value, uint8_t sto_type) {
     }
     
     switch (sto_type) {
-        case TTO_TYPE_INT64:
+        case INTERNAL_TYPE_INT64:
             printf("%" PRId64 "\n", *(int64_t*)value);
             break;
             
-        case TTO_TYPE_DOUBLE:
+        case INTERNAL_TYPE_DOUBLE:
             printf("%g\n", *(double*)value);
             break;
             
-        case TTO_TYPE_BIGDECIMAL: {
+        case INTERNAL_TYPE_BIGDECIMAL: {
             char* str = sto_bigdec_to_string(value);
             if (str) {
                 printf("%s\n", str);
@@ -70,15 +70,15 @@ void mlp_print_numeric(void* value, uint8_t sto_type) {
     }
     
     switch (sto_type) {
-        case TTO_TYPE_INT64:
+        case INTERNAL_TYPE_INT64:
             printf("%" PRId64, *(int64_t*)value);
             break;
             
-        case TTO_TYPE_DOUBLE:
+        case INTERNAL_TYPE_DOUBLE:
             printf("%g", *(double*)value);
             break;
             
-        case TTO_TYPE_BIGDECIMAL: {
+        case INTERNAL_TYPE_BIGDECIMAL: {
             char* str = sto_bigdec_to_string(value);
             if (str) {
                 printf("%s", str);
@@ -100,15 +100,15 @@ char* mlp_toString_numeric(void* value, uint8_t sto_type) {
     
     char buffer[64];
     switch (sto_type) {
-        case TTO_TYPE_INT64:
+        case INTERNAL_TYPE_INT64:
             snprintf(buffer, sizeof(buffer), "%" PRId64, *(int64_t*)value);
             return strdup(buffer);
             
-        case TTO_TYPE_DOUBLE:
+        case INTERNAL_TYPE_DOUBLE:
             snprintf(buffer, sizeof(buffer), "%g", *(double*)value);
             return strdup(buffer);
             
-        case TTO_TYPE_BIGDECIMAL:
+        case INTERNAL_TYPE_BIGDECIMAL:
             return sto_bigdec_to_string(value);  // Already allocates
             
         default:

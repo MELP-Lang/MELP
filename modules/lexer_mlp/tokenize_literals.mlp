@@ -1,0 +1,243 @@
+-- ============================================================================
+-- MELP Self-Hosting: Literal Tokenization (Numbers & Strings)  
+-- File: modules/lexer_mlp/tokenize_literals.mlp
+-- Author: YZ_54
+-- Date: 12 Aralık 2025
+-- Purpose: Scan and tokenize number and string literals
+-- Status: SYNTAX VERIFIED - Compiles successfully with Stage 0 compiler
+-- ============================================================================
+
+-- CRITICAL MELP SYNTAX LESSONS LEARNED:
+-- 1. while loops: NO 'do' keyword (YZ_27 removed it)
+-- 2. exit: Use 'exit while' to break from while loop (YZ_28 exit system)
+-- 3. booleans: Use 0/1, NOT true/false (no boolean literal keywords)
+-- 4. variables: ALL declared at function start, NOT in loops/blocks
+-- 5. comparisons: NO arithmetic in conditions! Use temp variable
+--    WRONG: if pos + 1 < len then
+--    RIGHT: next_pos = pos + 1
+--           if next_pos < len then
+-- 6. function calls: NOT in if conditions! Assign to variable first
+--    WRONG: if is_digit(ch) then  
+--    RIGHT: ch_is_digit = is_digit(ch)
+--           if ch_is_digit then
+-- 7. NOT operator: Use == 0 instead
+--    WRONG: if not has_decimal then
+--    RIGHT: if has_decimal == 0 then
+
+-- ============================================================================
+-- Token Creation (copied from token.mlp for standalone use)
+-- ============================================================================
+
+-- Token Type Constants
+-- Literals: NUMBER=30, STRING=31, IDENTIFIER=32
+-- Special: EOF=80, UNKNOWN=81
+
+-- Creates a new token with the given properties
+-- Returns: list [type, value, line, column]
+function create_token(numeric token_type, string token_value, numeric line_num, numeric col_num) returns list
+    return [token_type, token_value, line_num, col_num]
+end function
+
+-- ============================================================================
+-- Helper: Get ASCII code (simplified version for quote detection)
+-- ============================================================================
+function char_code(string c) returns numeric
+    if c == " " then return 32 end if
+    if c == "0" then return 48 end if
+    if c == "1" then return 49 end if
+    if c == "2" then return 50 end if
+    if c == "3" then return 51 end if
+    if c == "4" then return 52 end if
+    if c == "5" then return 53 end if
+    if c == "6" then return 54 end if
+    if c == "7" then return 55 end if
+    if c == "8" then return 56 end if
+    if c == "9" then return 57 end if
+    if c == "." then return 46 end if
+    return 34
+end function
+
+-- ============================================================================
+-- Number Literal Tokenization
+-- ============================================================================
+
+-- Returns: [token, new_pos, new_col]
+-- token = [type=30, value, line, col]
+function scan_number(string source, numeric pos, numeric line, numeric col) returns list
+    string num_value = ""
+    numeric start_pos = pos
+    numeric start_col = col
+    numeric start_line = line
+    boolean has_decimal = 0
+    numeric source_len = length(source)
+    string ch = ""
+    string next_ch = ""
+    boolean ch_is_digit = 0
+    boolean next_is_digit = 0
+    numeric next_pos = 0
+    
+    while pos < source_len
+        ch = substring(source, pos, 1)
+        ch_is_digit = is_digit(ch)
+        
+        if ch_is_digit then
+            num_value = num_value + ch
+            pos = pos + 1
+            col = col + 1
+        else
+            if ch == "." then
+                if has_decimal == 0 then
+                    next_pos = pos + 1
+                    if next_pos < source_len then
+                        next_ch = substring(source, pos + 1, 1)
+                        next_is_digit = is_digit(next_ch)
+                        if next_is_digit then
+                            has_decimal = 1
+                            num_value = num_value + ch
+                            pos = pos + 1
+                            col = col + 1
+                        else
+                            exit while
+                        end if
+                    else
+                        exit while
+                    end if
+                else
+                    exit while
+                end if
+            else
+                exit while
+            end if
+        end if
+    end while
+    
+    list token = create_token(30, num_value, start_line, start_col)
+    return [token, pos, col]
+end function
+
+-- ============================================================================
+-- String Literal Tokenization
+-- ============================================================================
+
+-- Returns: [token, new_pos, new_col]  
+-- token = [type=31, value, line, col]
+-- Returns empty list [] if unterminated string
+function scan_string(string source, numeric pos, numeric line, numeric col) returns list
+    string str_value = ""
+    numeric start_col = col
+    numeric start_line = line
+    numeric source_len = length(source)
+    boolean terminated = 0
+    string ch = ""
+    string next_ch = ""
+    numeric next_pos = 0
+    
+    numeric first_pos = pos
+    pos = pos + 1
+    col = col + 1
+    numeric quote_ascii = 34
+    
+    while pos < source_len
+        ch = substring(source, pos, 1)
+        numeric ch_code = char_code(ch)
+        
+        if ch_code == quote_ascii then
+            terminated = 1
+            pos = pos + 1
+            col = col + 1
+            exit while
+        else
+            if ch == "\\" then
+                next_pos = pos + 1
+                if next_pos < source_len then
+                    next_ch = substring(source, pos + 1, 1)
+                    
+                    if next_ch == "n" then
+                        str_value = str_value + "\n"
+                        pos = pos + 2
+                        col = col + 2
+                    else
+                        if next_ch == "t" then
+                            str_value = str_value + "\t"
+                            pos = pos + 2
+                            col = col + 2
+                        else
+                            numeric next_code = char_code(next_ch)
+                            if next_code == 34 then
+                                pos = pos + 2
+                                col = col + 2
+                            else
+                                if next_ch == "\\" then
+                                    str_value = str_value + "\\"
+                                    pos = pos + 2
+                                    col = col + 2
+                                else
+                                    str_value = str_value + next_ch
+                                    pos = pos + 2
+                                    col = col + 2
+                                end if
+                            end if
+                        end if
+                    end if
+                else
+                    str_value = str_value + ch
+                    pos = pos + 1
+                    col = col + 1
+                end if
+            else
+                str_value = str_value + ch
+                pos = pos + 1
+                col = col + 1
+            end if
+        end if
+    end while
+    
+    if terminated == 0 then
+        return []
+    end if
+    
+    list token = create_token(31, str_value, start_line, start_col)
+    return [token, pos, col]
+end function
+
+-- ============================================================================
+-- Helper Functions
+-- ============================================================================
+
+function is_digit(string ch) returns boolean
+    if ch == "0" then
+        return 1
+    end if
+    if ch == "1" then
+        return 1
+    end if
+    if ch == "2" then
+        return 1
+    end if
+    if ch == "3" then
+        return 1
+    end if
+    if ch == "4" then
+        return 1
+    end if
+    if ch == "5" then
+        return 1
+    end if
+    if ch == "6" then
+        return 1
+    end if
+    if ch == "7" then
+        return 1
+    end if
+    if ch == "8" then
+        return 1
+    end if
+    if ch == "9" then
+        return 1
+    end if
+    return 0
+end function
+
+function main() returns numeric
+    return 0
+end function

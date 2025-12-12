@@ -1,0 +1,166 @@
+-- ============================================================================
+-- Test: Operator Tokenization
+-- Tests scan_operator() and related functions
+-- ============================================================================
+
+-- Helper functions
+function create_token(numeric token_type, string token_value, numeric line_num, numeric col_num) returns list
+    return [token_type, token_value, line_num, col_num]
+end function
+
+function create_empty_two_char_result() returns list
+    return [0, 0, ""]
+end function
+
+function create_empty_token() returns list
+    return [0, "", 0, 0]
+end function
+
+-- Two-char operator detection
+function check_two_char_operator(string source, numeric pos) returns list
+    numeric source_len = length(source)
+    numeric next_pos = 0
+    string ch = ""
+    string next_ch = ""
+    
+    ch = substring(source, pos, 1)
+    
+    next_pos = pos + 1
+    if next_pos < source_len then
+        next_ch = substring(source, next_pos, 1)
+        
+        if ch == "=" then
+            if next_ch == "=" then
+                return [1, 46, "=="]
+            end if
+        end if
+        
+        if ch == "!" then
+            if next_ch == "=" then
+                return [1, 47, "!="]
+            end if
+        end if
+        
+        if ch == "<" then
+            if next_ch == "=" then
+                return [1, 50, "<="]
+            end if
+        end if
+        
+        if ch == ">" then
+            if next_ch == "=" then
+                return [1, 51, ">="]
+            end if
+        end if
+        
+        if ch == "-" then
+            if next_ch == "-" then
+                return [1, 82, "--"]
+            end if
+        end if
+    end if
+    
+    return [0, 0, ""]
+end function
+
+-- Single-char token detection
+function get_single_char_token_type(string ch) returns numeric
+    if ch == "+" then return 40 end if
+    if ch == "-" then return 41 end if
+    if ch == "*" then return 42 end if
+    if ch == "/" then return 43 end if
+    if ch == "=" then return 45 end if
+    if ch == "<" then return 48 end if
+    if ch == ">" then return 49 end if
+    if ch == "(" then return 60 end if
+    if ch == ")" then return 61 end if
+    if ch == "[" then return 62 end if
+    if ch == "]" then return 63 end if
+    if ch == "," then return 66 end if
+    return 0
+end function
+
+function main() returns numeric
+    numeric result = 0
+    numeric token_type = 0
+    list two_char_check = create_empty_two_char_result()
+    numeric is_two_char = 0
+    
+    println("Test 1: Single-char operators")
+    
+    -- Test +
+    token_type = get_single_char_token_type("+")
+    if token_type == 40 then
+        println("  PASS: + = PLUS (40)")
+    else
+        println("  FAIL: + token type wrong")
+        result = 1
+    end if
+    
+    -- Test (
+    token_type = get_single_char_token_type("(")
+    if token_type == 60 then
+        println("  PASS: ( = LPAREN (60)")
+    else
+        println("  FAIL: ( token type wrong")
+        result = 1
+    end if
+    
+    println("Test 2: Two-char operators")
+    
+    -- Test ==
+    two_char_check = check_two_char_operator("==x", 0)
+    is_two_char = two_char_check[0]
+    token_type = two_char_check[1]
+    if is_two_char == 1 then
+        if token_type == 46 then
+            println("  PASS: == = EQUALS (46)")
+        else
+            println("  FAIL: == token type wrong")
+            result = 1
+        end if
+    else
+        println("  FAIL: == not detected as two-char")
+        result = 1
+    end if
+    
+    -- Test <=
+    two_char_check = check_two_char_operator("<=x", 0)
+    is_two_char = two_char_check[0]
+    token_type = two_char_check[1]
+    if is_two_char == 1 then
+        if token_type == 50 then
+            println("  PASS: <= = LESS_EQUAL (50)")
+        else
+            println("  FAIL: <= token type wrong")
+            result = 1
+        end if
+    else
+        println("  FAIL: <= not detected as two-char")
+        result = 1
+    end if
+    
+    -- Test comment marker --
+    two_char_check = check_two_char_operator("-- comment", 0)
+    is_two_char = two_char_check[0]
+    token_type = two_char_check[1]
+    if is_two_char == 1 then
+        if token_type == 82 then
+            println("  PASS: -- = COMMENT (82)")
+        else
+            println("  FAIL: -- token type wrong")
+            result = 1
+        end if
+    else
+        println("  FAIL: -- not detected as two-char")
+        result = 1
+    end if
+    
+    if result == 0 then
+        println("All tests PASSED! ✓")
+    else
+        println("Some tests FAILED!")
+    end if
+    
+    return result
+end function

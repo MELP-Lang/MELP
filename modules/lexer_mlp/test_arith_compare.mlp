@@ -1,0 +1,14 @@
+function test() returns numeric
+    numeric pos = 0
+    numeric source_len = 3
+    
+    if pos + 1 < source_len then
+        return 1
+    end if
+    
+    return 0
+end function
+
+function main() returns numeric
+    return test()
+end function

@@ -157,17 +157,17 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
         decl->value = strdup(tok->value);
         
         // Phase 2: STO analysis for string literals
-        STOTypeInfo* tto = malloc(sizeof(STOTypeInfo));
-        *tto = codegen_sto_infer_string_type(decl->value, true);  // true = is constant
-        decl->sto_info = tto;
+        STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
+        *sto_info = codegen_sto_infer_string_type(decl->value, true);  // true = is constant
+        decl->sto_info = sto_info;
         decl->sto_analyzed = true;
         
         // Update internal type based on STO (backward compatibility)
-        if (tto->type == INTERNAL_TYPE_SSO_STRING) {
+        if (sto_info->type == INTERNAL_TYPE_SSO_STRING) {
             decl->internal_str_type = INTERNAL_SSO;
-        } else if (tto->type == INTERNAL_TYPE_HEAP_STRING) {
+        } else if (sto_info->type == INTERNAL_TYPE_HEAP_STRING) {
             decl->internal_str_type = INTERNAL_HEAP;
-        } else if (tto->type == INTERNAL_TYPE_RODATA_STRING) {
+        } else if (sto_info->type == INTERNAL_TYPE_RODATA_STRING) {
             decl->internal_str_type = INTERNAL_RODATA;
         }
         
