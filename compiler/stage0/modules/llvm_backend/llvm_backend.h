@@ -29,11 +29,19 @@ struct LLVMContext {
     StringGlobal* string_globals;  // YZ_61: Linked list of string constants
 };
 
+// YZ_64: LLVM Value Type
+typedef enum {
+    LLVM_TYPE_I64 = 0,      // numeric (default)
+    LLVM_TYPE_I8_PTR = 1,   // string (i8*)
+    LLVM_TYPE_I1 = 2        // boolean (for future use)
+} LLVMValueType;
+
 // LLVM Value - represents a value in IR (register or constant)
 struct LLVMValue {
     char* name;             // Register name (e.g., "%result")
     int is_constant;        // 1 if constant, 0 if register
     int64_t const_value;    // Value if constant
+    LLVMValueType type;     // YZ_64: Track value type
 };
 
 // ============================================================================
@@ -189,6 +197,10 @@ char* llvm_emit_string_global(LLVMContext* ctx, const char* str_value);
 // YZ_61: Emit all collected string globals to output
 // Should be called after module header, before function definitions
 void llvm_emit_all_string_globals(LLVMContext* ctx);
+
+// YZ_64: Emit getelementptr to convert string global to i8*
+// Takes global name (@.str.N) and returns pointer LLVMValue
+LLVMValue* llvm_emit_string_ptr(LLVMContext* ctx, const char* global_name, size_t str_len);
 
 // ============================================================================
 // Printf Integration (for println)

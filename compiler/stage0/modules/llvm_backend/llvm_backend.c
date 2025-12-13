@@ -116,6 +116,7 @@ LLVMValue* llvm_emit_alloca(LLVMContext* ctx, const char* var_name) {
     ptr->name = malloc(strlen(var_name) + 2);
     sprintf(ptr->name, "%%%s", var_name);
     ptr->is_constant = 0;
+    ptr->type = LLVM_TYPE_I64;  // YZ_64: Alloca returns pointer (treated as i64)
     
     fprintf(ctx->output, "    %s = alloca i64, align 8\n", ptr->name);
     return ptr;
@@ -135,6 +136,7 @@ LLVMValue* llvm_emit_load(LLVMContext* ctx, LLVMValue* ptr) {
     LLVMValue* result = malloc(sizeof(LLVMValue));
     result->name = llvm_new_temp(ctx);
     result->is_constant = 0;
+    result->type = LLVM_TYPE_I64;  // YZ_64: Load always returns i64 for now
     
     fprintf(ctx->output, "    %s = load i64, i64* %s, align 8\n",
             result->name, ptr->name);
@@ -150,6 +152,7 @@ static LLVMValue* llvm_emit_binop(LLVMContext* ctx, const char* op,
     LLVMValue* result = malloc(sizeof(LLVMValue));
     result->name = llvm_new_temp(ctx);
     result->is_constant = 0;
+    result->type = LLVM_TYPE_I64;  // YZ_64: Arithmetic always returns i64
     
     const char* left_str = left->is_constant ? "" : left->name;
     const char* right_str = right->is_constant ? "" : right->name;
@@ -208,6 +211,7 @@ LLVMValue* llvm_emit_div(LLVMContext* ctx, LLVMValue* left, LLVMValue* right) {
     LLVMValue* result = malloc(sizeof(LLVMValue));
     result->name = llvm_new_temp(ctx);
     result->is_constant = 0;
+    result->type = LLVM_TYPE_I64;  // YZ_64: Division always returns i64
     
     fprintf(ctx->output, "    %s = sdiv i64 ", result->name);
     
@@ -238,6 +242,7 @@ static LLVMValue* llvm_emit_logical_binop(LLVMContext* ctx, const char* op,
     LLVMValue* result = malloc(sizeof(LLVMValue));
     result->name = llvm_new_temp(ctx);
     result->is_constant = 0;
+    result->type = LLVM_TYPE_I64;  // YZ_64: Logical ops return i64
     
     if (left->is_constant && right->is_constant) {
         // Both constants - fold at compile time
@@ -290,6 +295,7 @@ LLVMValue* llvm_emit_icmp(LLVMContext* ctx, const char* op,
     LLVMValue* result = malloc(sizeof(LLVMValue));
     result->name = llvm_new_temp(ctx);
     result->is_constant = 0;
+    result->type = LLVM_TYPE_I1;  // YZ_64: Comparison returns i1 (boolean)
     
     fprintf(ctx->output, "    %s = icmp %s i64 ", result->name, op);
     
@@ -338,13 +344,19 @@ LLVMValue* llvm_emit_call(LLVMContext* ctx, const char* func_name,
     LLVMValue* result = malloc(sizeof(LLVMValue));
     result->name = llvm_new_temp(ctx);
     result->is_constant = 0;
+    result->type = LLVM_TYPE_I64;  // YZ_64: Return type always i64 for now
     
     fprintf(ctx->output, "    %s = call i64 @%s(", result->name, func_name);
     
     for (int i = 0; i < arg_count; i++) {
         if (i > 0) fprintf(ctx->output, ", ");
         
-        fprintf(ctx->output, "i64 ");
+        // YZ_64: Emit correct type based on argument type
+        if (args[i]->type == LLVM_TYPE_I8_PTR) {
+            fprintf(ctx->output, "i8* ");
+        } else {
+            fprintf(ctx->output, "i64 ");
+        }
         
         if (args[i]->is_constant) {
             fprintf(ctx->output, "%ld", args[i]->const_value);
@@ -366,6 +378,7 @@ LLVMValue* llvm_const_i64(int64_t value) {
     result->name = NULL;
     result->is_constant = 1;
     result->const_value = value;
+    result->type = LLVM_TYPE_I64;  // YZ_64: Default to i64
     return result;
 }
 
@@ -374,6 +387,7 @@ LLVMValue* llvm_reg(const char* name) {
     result->name = malloc(strlen(name) + 2);
     sprintf(result->name, "%%%s", name);
     result->is_constant = 0;
+    result->type = LLVM_TYPE_I64;  // YZ_64: Default to i64
     return result;
 }
 
@@ -453,6 +467,20 @@ void llvm_emit_all_string_globals(LLVMContext* ctx) {
     }
     
     fprintf(ctx->output, "\n");
+}
+
+// YZ_64: Emit getelementptr to get i8* from string global
+LLVMValue* llvm_emit_string_ptr(LLVMContext* ctx, const char* global_name, size_t str_len) {
+    LLVMValue* result = malloc(sizeof(LLVMValue));
+    result->name = llvm_new_temp(ctx);
+    result->is_constant = 0;
+    result->type = LLVM_TYPE_I8_PTR;  // String pointer type
+    
+    // getelementptr inbounds [N x i8], [N x i8]* @.str.X, i64 0, i64 0
+    fprintf(ctx->output, "    %s = getelementptr inbounds [%zu x i8], [%zu x i8]* %s, i64 0, i64 0\n",
+            result->name, str_len, str_len, global_name);
+    
+    return result;
 }
 
 // ============================================================================

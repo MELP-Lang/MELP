@@ -60,6 +60,19 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
     
     // Handle literals
     if (arith->is_literal) {
+        // YZ_64: Handle string literals
+        if (arith->is_string && arith->value) {
+            // Register string global and get global name
+            char* global_name = llvm_emit_string_global(ctx->llvm_ctx, arith->value);
+            
+            // Emit getelementptr to get i8* pointer
+            size_t str_len = strlen(arith->value) + 1;  // +1 for null terminator
+            LLVMValue* str_ptr = llvm_emit_string_ptr(ctx->llvm_ctx, global_name, str_len);
+            
+            free(global_name);
+            return str_ptr;
+        }
+        
         // Handle boolean literals
         if (strcmp(arith->value, "true") == 0) {
             return llvm_const_i64(1);
@@ -78,9 +91,12 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
         // Check if this is a parameter (no need to load, already in register)
         FunctionParam* param = ctx->current_func->params;
         int is_param = 0;
+        FunctionParamType param_type = FUNC_PARAM_NUMERIC;  // Default
+        
         while (param) {
             if (strcmp(param->name, arith->value) == 0) {
                 is_param = 1;
+                param_type = param->type;
                 break;
             }
             param = param->next;
@@ -88,13 +104,42 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
         
         if (is_param) {
             // Parameter - already a value, just return register reference
-            return llvm_reg(arith->value);
+            LLVMValue* val = llvm_reg(arith->value);
+            // YZ_64: Set type based on parameter type
+            val->type = (param_type == FUNC_PARAM_TEXT) ? LLVM_TYPE_I8_PTR : LLVM_TYPE_I64;
+            return val;
         } else {
-            // Local variable - need to load from stack
-            LLVMValue* var_ptr = llvm_reg(arith->value);
-            LLVMValue* loaded = llvm_emit_load(ctx->llvm_ctx, var_ptr);
-            llvm_value_free(var_ptr);
-            return loaded;
+            // YZ_64: Local variable - check if string or numeric
+            // Look up variable type from local_vars registry
+            int is_string_var = 0;
+            LocalVariable* local = ctx->current_func->local_vars;
+            while (local) {
+                if (strcmp(local->name, arith->value) == 0) {
+                    is_string_var = !local->is_numeric;  // is_numeric=0 means string
+                    break;
+                }
+                local = local->next;
+            }
+            
+            if (is_string_var || arith->is_string) {
+                // String variable: load i8* from i8**
+                // Note: String variables are stored with _ptr suffix
+                LLVMValue* loaded = malloc(sizeof(LLVMValue));
+                loaded->name = llvm_new_temp(ctx->llvm_ctx);
+                loaded->is_constant = 0;
+                loaded->type = LLVM_TYPE_I8_PTR;
+                
+                fprintf(ctx->llvm_ctx->output, "    %s = load i8*, i8** %%%s_ptr, align 8\n",
+                        loaded->name, arith->value);
+                
+                return loaded;
+            } else {
+                // Numeric variable - need to load from stack
+                LLVMValue* var_ptr = llvm_reg(arith->value);
+                LLVMValue* loaded = llvm_emit_load(ctx->llvm_ctx, var_ptr);
+                llvm_value_free(var_ptr);
+                return loaded;
+            }
         }
     }
     
