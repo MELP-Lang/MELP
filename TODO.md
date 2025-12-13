@@ -1,8 +1,8 @@
 # 📋 MELP Project TODO - Multi-Phase LLVM Backend Development
 
 **Created:** 13 Aralık 2025  
-**Current Status:** Phase 15 ✅ Complete | Ready for Phase 16+  
-**Branch:** phase15-stdlib-integration_YZ_61
+**Current Status:** Phase 17 🔄 In Progress (15% complete)  
+**Branch:** phase17-string-support_YZ_61
 
 ---
 
@@ -47,23 +47,38 @@
 
 ## 🔤 Phase 17: String Support in LLVM
 
-**DURUM: 🔵 BAŞLAMADI**  
+**DURUM: 🔄 DEVAM EDİYOR (15% tamamlandı - YZ_61)**  
 **TAHMİNİ SÜRE:** 5-6 saat  
 **ÖNCELİK:** Yüksek
 
 **AMAÇ:** String literal ve operasyonları eklemek.
 
-### Görevler:
+### Tamamlanan Görevler (YZ_61):
 
-- [ ] String literal support (global .rodata)
-- [ ] `print "Hello World"` syntax
-- [ ] String concatenation (+)
+- [x] Git branch oluşturuldu: `phase17-string-support_YZ_61`
+- [x] String literal support (global .rodata)
+  - [x] `llvm_emit_string_global()` implementasyonu
+  - [x] `StringGlobal` linked list yapısı
+  - [x] Deferred emission (fonksiyonlardan sonra)
+  - [x] UTF-8 karakter desteği
+- [x] `print("Hello World")` syntax
+  - [x] `print_parser` stateless pattern'e güncellendi
+  - [x] `mlp_println_string` entegrasyonu
+  - [x] Escape sequence handling (\n, \t, \\, ")
+- [x] İlk test suite (test_string_literal.mlp, test_multiline.mlp)
+- [x] Tüm değişiklikler commit ve push edildi
+
+### Kalan Görevler:
+
+- [ ] String variable declaration (`string x = "test"`)
+- [ ] String concatenation (`x + " world"`)
 - [ ] String comparison (==, !=)
 - [ ] String methods (length, substring, indexOf)
 - [ ] STO string type integration
-- [ ] String variable declaration
-- [ ] Memory management
+- [ ] Memory management (heap allocation for strings)
 - [ ] Comprehensive string tests
+
+**NOT:** String literal support tamamlandı ve çalışıyor. Variable declarations ve operations kaldı.
 
 ---
 

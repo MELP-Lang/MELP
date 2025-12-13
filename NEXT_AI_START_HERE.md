@@ -1,347 +1,307 @@
-# 🚀 MELP - Next AI Session Start Here
+# 🚀 MELP - Next AI Session Start Here (YZ_62)
 
-**Last Session:** 13 Aralık 2025 - YZ_59 (Phase 13.5 Complete)  
-**Current Session:** YZ_60 - Phase 14 Parser Enhancement (Starting)  
-**Status:** Phase 14 - While/For Loop Parser Implementation  
-**Branch:** `phase14-parser-enhancement` (to be created)
+**Last Session:** 13 Aralık 2025 - YZ_61 (Phase 17 - String Literals Complete)  
+**Current Session:** YZ_62 - Phase 17 String Support (Continuing)  
+**Status:** Phase 17 - String Variable Declarations & Operations (15% → 40%)  
+**Branch:** `phase17-string-support_YZ_61` (already exists)
 
 ---
 
-## 📊 Current Status
+## 📊 YZ_61 Summary - What Was Completed
 
-### ✅ Phase 13: Self-Hosting Lexer (100% Complete)
-- All 4 lexer modules implemented in MELP
-- 38 functions, 56 token types
-- Merged to main: commit `071d39b`
+### ✅ String Literal Support (COMPLETED)
 
-### 🚧 Phase 13.5: LLVM Backend Migration ✅ COMPLETE (100%)
+**Implemented Features:**
+1. **Global String Constants**
+   - `llvm_emit_string_global()` - Creates @.str.N globals
+   - `StringGlobal` linked list for deferred emission
+   - Globals emitted AFTER functions (valid LLVM IR)
+   - UTF-8 character support (Merhaba Dünya! works)
 
-**Completed Parts:**
-- ✅ Part 1: LLVM IR examples & mapping guide
-- ✅ Part 2: LLVM backend module implementation
-- ✅ Part 3: LLVM IR emission functions
-- ✅ Part 4: functions_compiler integration
-- ✅ Part 5.1: Control flow (if/else, assignment, comparisons)
-- ✅ Part 5.2: Boolean operations (AND, OR, literals)
-- ✅ Part 5.3: Comprehensive testing (8/8 tests passing)
-- ✅ Part 5.4: Architecture documentation (Rule #6 added)
-- ✅ Part 5.5: Performance benchmarking (LLVM 53% smaller, comparable speed)
-- ✅ Part 5.6: README.md update with LLVM guide
-- ✅ Part 5.7: Merge preparation (backup branch, commit, push)
+2. **Print String Literals**
+   - `print("Hello")` syntax fully working
+   - `print_parser.c` updated to stateless pattern (receives token)
+   - `mlp_println_string(i8*)` runtime integration
+   - Escape sequences: `\n`, `\t`, `\\`, `"`
 
-**Final Implementation:**
-- LLVM IR backend fully functional
-- `--backend=llvm` flag working
-- Test results: ✅ All passing (8/8)
-  - `test_basic.mlp`: 10 + 20 = Exit 30
-  - `test_sanity.mlp`: return 100 = Exit 100
-  - `test_llvm_functions.mlp`: add(15, 27) = Exit 42
-  - `test_llvm_if.mlp`: if 15 > 10 then 1 else 0 = Exit 1
-  - `test_llvm_assign.mlp`: x=30, y=25 = Exit 25
-  - `test_boolean_and.mlp`: true and false = Exit 0
-  - `test_boolean_and_true.mlp`: true and true = Exit 1
-  - `test_boolean_or.mlp`: true or false = Exit 1
+3. **Test Suite**
+   - test_string_literal.mlp - 3 different strings
+   - test_multiline.mlp - Multiple print statements
+   - All tests passing ✅
+
+**Files Modified (YZ_61):**
+- `compiler/stage0/modules/llvm_backend/llvm_backend.h/c`
+- `compiler/stage0/modules/functions/functions_codegen_llvm.c/h`
+- `compiler/stage0/modules/functions/functions_standalone.c`
+- `compiler/stage0/modules/print/print_parser.h/c`
+- `compiler/stage0/modules/statement/statement_parser.c`
 
 **Git Status:**
-- Main branch: `phase13.5-llvm-backend`
-- Backup: `melp_stage0_phase13.5_yz59_complete_20251213`
-- Last commit: `281e0c2` - YZ_59 completion
+- Commit: `897ff27` - YZ_61: Phase 17 - String literal support
 - Pushed to GitHub: ✅
 
-**Features Implemented:**
-- ✅ Arithmetic operations (+, -, *, /)
-- ✅ Function declarations and calls
-- ✅ Variable declarations and assignments
-- ✅ If/else statements with conditional branches
-- ✅ Comparison operators (>, <, ==, !=, >=, <=)
-- ✅ Boolean literals (true, false)
-- ✅ Logical operations (AND, OR)
-- ✅ Performance benchmarking complete
-- ✅ Documentation complete (ARCHITECTURE.md, README.md)
-- ⚠️ While loops: Codegen ready, parser limitation
-- ⚠️ For loops: Codegen ready, parser limitation
+---
 
-**Phase 13.5 Complete!**
-- All tasks finished (Parts 1-5.7)
-- Ready for human review and merge
-- Next: Phase 14 or other features
+## 🎯 YZ_62 Mission - String Variables
+
+### Goal: Implement String Variable Support
+
+**What You Need to Do:**
+
+### Task 1: String Variable Declaration (Priority 1)
+**Target:** `string x = "test"` syntax
+
+**Steps:**
+1. Check `variable_parser.c` for string type handling
+2. Add string variable parsing if missing
+3. Update LLVM codegen for string variables
+   - Allocate i8* on stack (alloca)
+   - Store pointer to global constant
+4. Test: Create test_string_var_decl.mlp
+
+**LLVM IR Pattern:**
+```llvm
+; Allocate string pointer
+%x = alloca i8*, align 8
+
+; Get pointer to global "@.str.1"
+%tmp1 = getelementptr inbounds [5 x i8], [5 x i8]* @.str.1, i64 0, i64 0
+
+; Store to variable
+store i8* %tmp1, i8** %x, align 8
+```
+
+### Task 2: Print String Variable (Priority 1)
+**Target:** `print(x)` where x is string
+
+**Steps:**
+1. Update `functions_codegen_llvm.c` STMT_PRINT case
+2. Check if variable is string type
+3. Load i8* from variable
+4. Call mlp_println_string
+5. Test: test_string_var_print.mlp
+
+**LLVM IR Pattern:**
+```llvm
+; Load string pointer from variable
+%tmp2 = load i8*, i8** %x, align 8
+
+; Print it
+call void @mlp_println_string(i8* %tmp2)
+```
+
+### Task 3: String Concatenation (Optional - Priority 2)
+**Target:** `string z = x + y`
+
+**This is complex, may need:**
+- Runtime function `mlp_string_concat(i8*, i8*)`
+- Memory allocation (malloc)
+- Can skip for now and focus on Tasks 1-2
 
 ---
 
-## 🎯 Your Mission (Phase 14 - Parser Enhancement)
+## 📁 Files You'll Work With
 
-### Goal: Complete Control Flow Support in LLVM Backend
+### To Modify:
+```
+compiler/stage0/modules/
+├── variable/
+│   ├── variable_parser.c       # Check string parsing
+│   └── variable_codegen.c      # May need updates
+├── llvm_backend/
+│   └── llvm_backend.c          # Add llvm_emit_string_alloc()?
+└── functions/
+    └── functions_codegen_llvm.c # STMT_PRINT + string vars
+```
 
-**Objective:**
-Add while and for loop parsing to `functions_parser.c` to unlock the already-implemented LLVM codegen for these constructs.
-
-### Current Status:
-- ✅ LLVM backend codegen for while/for loops **already implemented** (YZ_58)
-- ⚠️ Parser doesn't recognize while/for statements yet
-- 🎯 Need to add AST generation for these constructs
-
-### Tasks Overview:
-
-**Part 1: While Loop Parser** (90 min)
-1. Study existing parser structure (15 min)
-2. Implement while statement parsing (30 min)
-3. Test while loop parsing (30 min)
-4. Documentation (15 min)
-
-**Part 2: For Loop Parser** (90 min)
-1. Study for loop requirements (15 min)
-2. Implement for statement parsing (30 min)
-3. Test for loop parsing (30 min)
-4. Documentation (15 min)
-
-**Part 3: AST Integration & Error Handling** (60 min)
-1. AST validation (20 min)
-2. Error handling (20 min)
-3. Edge cases (20 min)
-
-**Part 4: Comprehensive Testing** (60 min)
-1. Create test suite (6+ tests) (20 min)
-2. Run test suite (20 min)
-3. Regression testing (20 min)
-
-**Part 5: Documentation & Finalization** (30 min)
-1. Update documentation (15 min)
-2. Git workflow (15 min)
-
-**Total Estimated Time:** 5.5-6 hours
+### To Create:
+```
+compiler/stage0/
+├── test_string_var_decl.mlp    # string x = "hello"
+├── test_string_var_print.mlp   # print(x)
+└── test_string_full.mlp        # Combined test
+```
 
 ---
 
-## 📁 Key Files
+## 🔧 Quick Start Commands
 
-### LLVM Backend Module
-```
-compiler/stage0/modules/llvm_backend/
-├── llvm_backend.h          # API definitions
-├── llvm_backend.c          # IR emission functions
-├── Makefile               # Build system
-└── test_llvm_backend.c    # Unit tests
+### 1. Checkout Branch
+```bash
+cd /home/pardus/projeler/MLP/MLP
+git checkout phase17-string-support_YZ_61
+git status  # Should be clean
 ```
 
-### Integration Layer
+### 2. Build Compiler
+```bash
+cd compiler/stage0
+make clean
+make modules
 ```
-compiler/stage0/modules/functions/
-├── functions_codegen_llvm.h   # LLVM codegen wrapper
-├── functions_codegen_llvm.c   # Statement/expression IR generation
-└── functions_standalone.c     # --backend=llvm flag
+
+### 3. Test Existing String Literals (Verify YZ_61 Work)
+```bash
+cd modules/functions
+./functions_compiler --compile-only --backend=llvm ../../test_string_literal.mlp test.ll
+cat test.ll  # Check LLVM IR
+clang -c test.ll -o test.o 2>&1 | grep -v warning
+clang test.o -L../../../../runtime/stdlib -lmlp_stdlib \
+             -L../../../../runtime/sto -lsto_runtime -lm -o test_exe
+LD_LIBRARY_PATH=../../../../runtime/stdlib:../../../../runtime/sto ./test_exe
 ```
+
+**Expected Output:**
+```
+Merhaba Dünya!
+MELP String Support
+Escape test: \n\t\\
+```
+
+### 4. Create Your Test File
+```bash
+cd /home/pardus/projeler/MLP/MLP/compiler/stage0
+cat > test_string_var.mlp << 'EOF'
+function main() returns numeric
+    string message = "Hello from variable"
+    print(message)
+    return 0
+end
+EOF
+```
+
+### 5. Compile and Test (Will fail initially)
+```bash
+cd modules/functions
+./functions_compiler --compile-only --backend=llvm ../../test_string_var.mlp var.ll
+# Will likely error - your job is to fix it!
+```
+
+---
+
+## 💡 Implementation Hints
+
+### Hint 1: Check Current Variable Parsing
+```bash
+grep -n "TOKEN_STRING" compiler/stage0/modules/variable/variable_parser.c
+grep -n "string" compiler/stage0/modules/variable/variable_parser.c
+```
+
+### Hint 2: Look at Numeric Variable Pattern
+Study how numeric variables work, then adapt for strings:
+```c
+// Numeric (existing):
+%x = alloca i64, align 8
+store i64 42, i64* %x, align 8
+%loaded = load i64, i64* %x, align 8
+
+// String (to implement):
+%x = alloca i8*, align 8
+store i8* @.str.1, i8** %x, align 8
+%loaded = load i8*, i8** %x, align 8
+```
+
+### Hint 3: Type Checking
+You may need to track variable types:
+- Add `char* type` field to VariableDeclaration?
+- Check type in print statement handler
+- String = i8*, Numeric = i64
+
+---
+
+## 📖 Important References
+
+### Code to Study
+1. `compiler/stage0/modules/llvm_backend/llvm_backend.c` lines 373-440
+   - `llvm_emit_string_global()` - How string globals are created
+   
+2. `compiler/stage0/modules/functions/functions_codegen_llvm.c` lines 299-350
+   - STMT_PRINT case - Print statement handler
+   - Look for PRINT_VARIABLE handling
+   
+3. `compiler/stage0/modules/variable/variable_parser.c`
+   - Current variable parsing logic
+   - Check for string support
 
 ### Documentation
+- `docs/LLVM_IR_GUIDE.md` - LLVM IR patterns
+- `compiler/stage0/ARCHITECTURE.md` - Module rules
+- `TODO.md` - Phase 17 tasks
+
+---
+
+## ✅ Success Criteria
+
+When you're done, this should work:
+
+```melp
+function main() returns numeric
+    string greeting = "Hello"
+    string name = "MELP"
+    
+    print(greeting)
+    print(name)
+    
+    return 0
+end
 ```
-docs/LLVM_IR_GUIDE.md         # Comprehensive MELP→LLVM mapping
-examples/llvm/                # IR examples
-├── test_basic.ll
-├── test_function_call.ll
-└── test_println_simple.ll
+
+**Expected Output:**
+```
+Hello
+MELP
 ```
 
 ---
 
-## 🔧 Quick Commands
+## 🐛 Common Issues to Watch For
 
-### Build Functions Compiler
+1. **Type System:** MLP may not have explicit string type in variable_parser
+   - May need to add TOKEN_STRING recognition
+   - Or use string literal detection
+
+2. **Memory:** String = pointer (8 bytes), not value
+   - Use alloca i8*, not alloca i8
+   - Store/load pointer, not content
+
+3. **LLVM IR Syntax:** 
+   - Double pointer: i8** for string variable pointer
+   - Single pointer: i8* for string content
+
+4. **Linking:** Don't forget stdlib and sto runtime
+   - `-lmlp_stdlib -lsto_runtime -lm`
+
+---
+
+## 📝 Commit Template
+
+When done:
 ```bash
-cd compiler/stage0/modules/functions
-make clean && make
-```
+git add -A
+git commit -m "YZ_62: Phase 17 - String variable support
 
-### Compile MELP to LLVM IR
-```bash
-./functions_compiler -c --backend=llvm input.mlp output.ll
-```
+- Added string variable declaration parsing
+- Implemented LLVM IR for string variables (i8* alloca/store/load)
+- Updated STMT_PRINT for string variable printing
+- Tests: test_string_var_decl.mlp, test_string_var_print.mlp
+- All tests passing
 
-### Compile IR to Binary
-```bash
-clang output.ll -o program
-./program
-echo "Exit code: $?"
-```
+Status: Phase 17 - 40% complete (string literals + variables)"
 
-### Test LLVM Backend Module
-```bash
-cd compiler/stage0/modules/llvm_backend
-make test
+git push origin phase17-string-support_YZ_61
 ```
 
 ---
 
-## 📚 Architecture Overview
+## 🎯 Estimated Time
 
-### LLVM Backend Flow
-```
-MELP Source (.mlp)
-    ↓
-Parser (functions_parser.c)
-    ↓
-AST (FunctionDeclaration, Statement, ArithmeticExpr)
-    ↓
-LLVM Codegen (functions_codegen_llvm.c)
-    ↓
-LLVM Backend (llvm_backend.c)
-    ↓
-LLVM IR (.ll)
-    ↓
-Clang
-    ↓
-Binary (executable)
-```
+- Task 1: String declaration (90 min)
+- Task 2: String printing (60 min)
+- Testing & debugging (60 min)
+- Documentation & commit (30 min)
 
-### Key Design Decisions
-- **SSA Form:** All values single-assignment
-- **Stack Allocation:** Variables use alloca/load/store
-- **Parameters:** Passed as i64 values (not pointers)
-- **Printf:** Temporary solution for println (TODO: use mlp_println_numeric)
-- **No Optimization:** Focus on correctness first
+**Total: 4-4.5 hours**
 
 ---
 
-## 🐛 Known Issues
-
-1. **Control Flow Not Implemented**
-   - If/while/for statements not yet supported in LLVM backend
-   - Need to add: br, label, phi instructions
-   - Reference: `docs/LLVM_IR_GUIDE.md` sections on control flow
-
-2. **Standard Library Integration Incomplete**
-   - Currently using printf for println
-   - Need to link with libmlp_stdlib.a and libsto_runtime.a
-   - STO type tracking not implemented
-
-3. **Limited Expression Support**
-   - Only arithmetic operations working
-   - Comparisons, logical ops not implemented
-   - Array/list/tuple access pending
-
----
-
-## 📖 Documentation to Read
-
-1. **LLVM IR Guide** - `docs/LLVM_IR_GUIDE.md`
-   - Complete MELP→LLVM mapping
-   - Control flow examples
-   - Standard library integration
-
-2. **Phase 13 Report** - `YZ/YZ_57.md`
-   - Self-hosting lexer implementation
-   - Lessons learned from Phase 13
-
-3. **TODO** - `TODO.md`
-   - Phase 13.5 detailed task list
-   - Future phases overview
-
----
-
-## 🧪 Testing Strategy
-
-### Unit Tests
-```bash
-# LLVM backend module tests
-cd compiler/stage0/modules/llvm_backend
-make test
-
-# Output: test_output.ll compiles and runs (exit 30)
-```
-
-### Integration Tests
-```bash
-# Test basic arithmetic
-./functions_compiler -c --backend=llvm ../../test_basic.mlp test.ll
-clang test.ll -o test && ./test
-# Expected: Exit 30
-
-# Test function calls
-./functions_compiler -c --backend=llvm ../../test_llvm_functions.mlp test.ll
-clang test.ll -o test && ./test
-# Expected: Exit 42
-```
-
-### Comparison Tests
-```bash
-# Compare Assembly vs LLVM output
-./functions_compiler -c test.mlp test.s          # Assembly
-./functions_compiler -c --backend=llvm test.mlp test.ll  # LLVM
-
-# Both should produce same exit code
-gcc -no-pie test.s -o test_asm && ./test_asm
-clang test.ll -o test_llvm && ./test_llvm
-```
-
----
-
-## 🎓 Learning Resources
-
-### LLVM IR Syntax
-- **Types:** `i64` (64-bit integer), `i8*` (byte pointer)
-- **Instructions:** `add`, `sub`, `mul`, `sdiv`, `load`, `store`, `call`, `ret`
-- **Control Flow:** `br`, `br i1 %cond, label %then, label %else`
-- **Labels:** `entry:`, `then_block:`, `after_if:`
-
-### Example IR
-```llvm
-define i64 @add(i64 %a, i64 %b) {
-entry:
-    %result = add nsw i64 %a, %b
-    ret i64 %result
-}
-```
-
----
-
-## 💡 Tips for Next Session
-
-1. **Start Small:** Test control flow with simple if statement first
-2. **Use Examples:** Copy patterns from `examples/llvm/`
-3. **Check IR:** Always inspect generated `.ll` files
-4. **Incremental:** One feature at a time, test immediately
-5. **Reference:** LLVM_IR_GUIDE.md has all mappings
-
----
-
-## 🔄 Git Workflow
-
-**Current Branch:** `phase13.5-llvm-backend`
-**Last Commit:** `1e18a5c` - "Phase 13.5 Part 1-4: LLVM Backend Implementation"
-
-**Next Steps:**
-1. Continue work on current branch
-2. When Part 5 complete, create detailed commit message
-3. Push to GitHub
-4. Merge to main with backup branch
-
----
-
-## 📞 Quick Reference
-
-### LLVM Backend API
-```c
-LLVMContext* llvm_context_create(FILE* output);
-void llvm_emit_function_start(ctx, name, params, count);
-void llvm_emit_function_entry(ctx);
-LLVMValue* llvm_emit_alloca(ctx, var_name);
-LLVMValue* llvm_emit_load(ctx, ptr);
-void llvm_emit_store(ctx, value, ptr);
-LLVMValue* llvm_emit_add(ctx, left, right);
-LLVMValue* llvm_emit_call(ctx, func_name, args, count);
-void llvm_emit_return(ctx, value);
-void llvm_emit_function_end(ctx);
-```
-
-### Statement Types to Handle
-```c
-STMT_EXPRESSION      // Done ✓
-STMT_VARIABLE_DECL   // Done ✓
-STMT_ASSIGNMENT      // TODO
-STMT_IF              // TODO
-STMT_WHILE           // TODO
-STMT_FOR             // TODO
-STMT_RETURN          // Done ✓
-```
-
----
-
-**Ready to continue! Load this file, check the mission, and let's complete Phase 13.5!** 🚀
+**Good luck YZ_62! You're building on solid work from YZ_61. String support is almost there! 🚀**
