@@ -1,203 +1,298 @@
-# 🚀 MELP - Next AI Session Start Here (YZ_62)
+# 🚀 MELP - Next AI Session Start Here (YZ_63)
 
-**Last Session:** 13 Aralık 2025 - YZ_61 (Phase 17 - String Literals Complete)  
-**Current Session:** YZ_62 - Phase 17 String Support (Continuing)  
-**Status:** Phase 17 - String Variable Declarations & Operations (15% → 40%)  
+**Last Session:** 13 Aralık 2025 - YZ_62 (Phase 17 - String Variables Complete)  
+**Current Session:** YZ_63 - Phase 17 String Support (Continuing)  
+**Status:** Phase 17 - String Variable Declarations & Operations (40% → 60%)  
 **Branch:** `phase17-string-support_YZ_61` (already exists)
 
 ---
 
-## 📊 YZ_61 Summary - What Was Completed
+## 📊 YZ_62 Summary - What Was Completed
 
-### ✅ String Literal Support (COMPLETED)
+### ✅ String Variable Support (COMPLETED)
 
 **Implemented Features:**
-1. **Global String Constants**
-   - `llvm_emit_string_global()` - Creates @.str.N globals
-   - `StringGlobal` linked list for deferred emission
-   - Globals emitted AFTER functions (valid LLVM IR)
-   - UTF-8 character support (Merhaba Dünya! works)
+1. **String Variable Declaration**
+   - `string x = "hello"` syntax fully working
+   - LLVM IR: `i8*` alloca on stack
+   - Store pointer to global string constant
+   - Naming: `%varname_ptr` for consistent access
 
-2. **Print String Literals**
-   - `print("Hello")` syntax fully working
-   - `print_parser.c` updated to stateless pattern (receives token)
-   - `mlp_println_string(i8*)` runtime integration
-   - Escape sequences: `\n`, `\t`, `\\`, `"`
+2. **Print String Variables**
+   - `print(x)` where x is string variable
+   - Type detection via function body scan
+   - Load `i8*` and call `mlp_println_string`
 
 3. **Test Suite**
-   - test_string_literal.mlp - 3 different strings
-   - test_multiline.mlp - Multiple print statements
-   - All tests passing ✅
+   - test_string_var.mlp - Single string variable ✅
+   - test_string_var_multi.mlp - Multiple variables ✅
+   - test_string_full.mlp - Mix of literals + variables ✅
+   - test_string_literal.mlp - YZ_61 regression ✅
+   - UTF-8 support: "MELP Dünya" works perfectly
 
-**Files Modified (YZ_61):**
-- `compiler/stage0/modules/llvm_backend/llvm_backend.h/c`
-- `compiler/stage0/modules/functions/functions_codegen_llvm.c/h`
-- `compiler/stage0/modules/functions/functions_standalone.c`
-- `compiler/stage0/modules/print/print_parser.h/c`
-- `compiler/stage0/modules/statement/statement_parser.c`
+**Files Modified (YZ_62):**
+- `compiler/stage0/modules/functions/functions_codegen_llvm.c`
+  - STMT_VARIABLE_DECL: String variable codegen (i8* alloca/store)
+  - STMT_PRINT: String variable printing (type detection + load)
 
 **Git Status:**
-- Commit: `897ff27` - YZ_61: Phase 17 - String literal support
+- Commit: `2f7ba5e` - YZ_62: Phase 17 - String variable support
 - Pushed to GitHub: ✅
-
----
-
-## 🎯 YZ_62 Mission - String Variables
-
-### Goal: Implement String Variable Support
-
-**What You Need to Do:**
-
-### Task 1: String Variable Declaration (Priority 1)
-**Target:** `string x = "test"` syntax
-
-**Steps:**
-1. Check `variable_parser.c` for string type handling
-2. Add string variable parsing if missing
-3. Update LLVM codegen for string variables
-   - Allocate i8* on stack (alloca)
-   - Store pointer to global constant
-4. Test: Create test_string_var_decl.mlp
 
 **LLVM IR Pattern:**
 ```llvm
 ; Allocate string pointer
-%x = alloca i8*, align 8
+%message_ptr = alloca i8*, align 8
 
-; Get pointer to global "@.str.1"
-%tmp1 = getelementptr inbounds [5 x i8], [5 x i8]* @.str.1, i64 0, i64 0
+; Get pointer to global
+%tmp1 = getelementptr inbounds [20 x i8], [20 x i8]* @.str.1, i64 0, i64 0
 
 ; Store to variable
-store i8* %tmp1, i8** %x, align 8
-```
+store i8* %tmp1, i8** %message_ptr, align 8
 
-### Task 2: Print String Variable (Priority 1)
-**Target:** `print(x)` where x is string
-
-**Steps:**
-1. Update `functions_codegen_llvm.c` STMT_PRINT case
-2. Check if variable is string type
-3. Load i8* from variable
-4. Call mlp_println_string
-5. Test: test_string_var_print.mlp
-
-**LLVM IR Pattern:**
-```llvm
-; Load string pointer from variable
-%tmp2 = load i8*, i8** %x, align 8
-
-; Print it
+; Load and print
+%tmp2 = load i8*, i8** %message_ptr, align 8
 call void @mlp_println_string(i8* %tmp2)
 ```
 
-### Task 3: String Concatenation (Optional - Priority 2)
+---
+
+## 🎯 YZ_63 Mission - Next Steps for String Support
+
+**Current Status:** String literals + variables work perfectly!
+
+### Option A: String Concatenation (Priority 2)
 **Target:** `string z = x + y`
 
-**This is complex, may need:**
-- Runtime function `mlp_string_concat(i8*, i8*)`
-- Memory allocation (malloc)
-- Can skip for now and focus on Tasks 1-2
+**Challenges:**
+- Needs runtime function `mlp_string_concat(i8*, i8*) -> i8*`
+- Memory allocation (malloc) for result
+- Need to add to stdlib
+- Complex for current stage
+
+**Recommendation:** Skip for now, implement in Phase 18
+
+### Option B: Numeric Variables + Mixed Printing (Priority 1)
+**Target:** Make sure numeric variables still work alongside strings
+
+**Test:**
+```melp
+function main() returns numeric
+    numeric x = 42
+    string msg = "The answer is"
+    print(msg)
+    print(x)
+    return 0
+end
+```
+
+**Action:** Create test and verify no regressions
+
+### Option C: Move to Phase 18 - Function Parameters
+**Target:** String parameters in functions
+
+**Example:**
+```melp
+function greet(string name) returns numeric
+    print(name)
+    return 0
+end
+
+function main() returns numeric
+    greet("MELP")
+    return 0
+end
+```
+
+**This requires:**
+- Function parameter type tracking (already exists: FunctionParam)
+- String parameter passing in LLVM IR
+- May be easier than concatenation!
 
 ---
 
-## 📁 Files You'll Work With
+## 📁 Recommended Path: Option B + C
 
-### To Modify:
-```
-compiler/stage0/modules/
-├── variable/
-│   ├── variable_parser.c       # Check string parsing
-│   └── variable_codegen.c      # May need updates
-├── llvm_backend/
-│   └── llvm_backend.c          # Add llvm_emit_string_alloc()?
-└── functions/
-    └── functions_codegen_llvm.c # STMT_PRINT + string vars
+### Task 1: Regression Test (30 min)
+Create comprehensive test with mixed types:
+
+```melp
+function main() returns numeric
+    numeric count = 3
+    string name = "MELP"
+    boolean flag = true
+    
+    print("Count:")
+    print(count)
+    print("Name:")
+    print(name)
+    print("Flag:")
+    print(flag)
+    
+    return 0
+end
 ```
 
-### To Create:
-```
-compiler/stage0/
-├── test_string_var_decl.mlp    # string x = "hello"
-├── test_string_var_print.mlp   # print(x)
-└── test_string_full.mlp        # Combined test
+### Task 2: String Function Parameters (2-3 hours)
+Implement string parameters:
+
+1. **Check current parameter handling:**
+   - `compiler/stage0/modules/functions/functions.h` - FunctionParam struct
+   - Already has `char* type` field!
+   
+2. **Update LLVM codegen for string params:**
+   - Parameters passed as `i8*` directly (no alloca needed)
+   - Just use the parameter register
+   
+3. **Test:**
+```melp
+function greet(string msg) returns numeric
+    print(msg)
+    return 0
+end
+
+function main() returns numeric
+    greet("Hello from parameter!")
+    string x = "Variable test"
+    greet(x)
+    return 0
+end
 ```
 
 ---
 
-## 🔧 Quick Start Commands
+## 🔧 Quick Start for Option B (Regression Test)
 
-### 1. Checkout Branch
-```bash
-cd /home/pardus/projeler/MLP/MLP
-git checkout phase17-string-support_YZ_61
-git status  # Should be clean
-```
-
-### 2. Build Compiler
-```bash
-cd compiler/stage0
-make clean
-make modules
-```
-
-### 3. Test Existing String Literals (Verify YZ_61 Work)
-```bash
-cd modules/functions
-./functions_compiler --compile-only --backend=llvm ../../test_string_literal.mlp test.ll
-cat test.ll  # Check LLVM IR
-clang -c test.ll -o test.o 2>&1 | grep -v warning
-clang test.o -L../../../../runtime/stdlib -lmlp_stdlib \
-             -L../../../../runtime/sto -lsto_runtime -lm -o test_exe
-LD_LIBRARY_PATH=../../../../runtime/stdlib:../../../../runtime/sto ./test_exe
-```
-
-**Expected Output:**
-```
-Merhaba Dünya!
-MELP String Support
-Escape test: \n\t\\
-```
-
-### 4. Create Your Test File
+### 1. Create Test File
 ```bash
 cd /home/pardus/projeler/MLP/MLP/compiler/stage0
-cat > test_string_var.mlp << 'EOF'
+cat > test_mixed_types.mlp << 'EOF'
 function main() returns numeric
-    string message = "Hello from variable"
-    print(message)
+    numeric count = 42
+    string name = "MELP Language"
+    boolean ready = true
+    
+    print("Testing mixed types:")
+    print(count)
+    print(name)
+    print(ready)
+    
     return 0
 end
 EOF
 ```
 
-### 5. Compile and Test (Will fail initially)
+### 2. Test
 ```bash
 cd modules/functions
-./functions_compiler --compile-only --backend=llvm ../../test_string_var.mlp var.ll
-# Will likely error - your job is to fix it!
+./functions_compiler --compile-only --backend=llvm ../../test_mixed_types.mlp mixed.ll
+clang -c mixed.ll -o mixed.o 2>&1 | grep -v warning
+clang mixed.o -L../../../../runtime/stdlib -lmlp_stdlib -L../../../../runtime/sto -lsto_runtime -lm -o mixed_exe
+LD_LIBRARY_PATH=../../../../runtime/stdlib:../../../../runtime/sto ./mixed_exe
+```
+
+**Expected Output:**
+```
+Testing mixed types:
+42
+MELP Language
+true
 ```
 
 ---
 
-## 💡 Implementation Hints
+## 🔧 Quick Start for Option C (String Parameters)
 
-### Hint 1: Check Current Variable Parsing
+### 1. Check Current Code
 ```bash
-grep -n "TOKEN_STRING" compiler/stage0/modules/variable/variable_parser.c
-grep -n "string" compiler/stage0/modules/variable/variable_parser.c
+grep -n "FunctionParam" compiler/stage0/modules/functions/functions.h
+grep -A 20 "define.*@" compiler/stage0/modules/functions/*.ll
 ```
 
-### Hint 2: Look at Numeric Variable Pattern
-Study how numeric variables work, then adapt for strings:
-```c
-// Numeric (existing):
-%x = alloca i64, align 8
-store i64 42, i64* %x, align 8
-%loaded = load i64, i64* %x, align 8
+### 2. Modify Function Call Codegen
+Look at how parameters are currently passed in LLVM IR.
 
-// String (to implement):
-%x = alloca i8*, align 8
-store i8* @.str.1, i8** %x, align 8
+For string parameters:
+```llvm
+define i64 @greet(i8* %msg) {
+entry:
+  call void @mlp_println_string(i8* %msg)
+  ret i64 0
+}
+```
+
+### 3. Test Files
+Create:
+- `test_string_param_literal.mlp` - Pass string literal
+- `test_string_param_var.mlp` - Pass string variable
+- `test_string_param_multiple.mlp` - Multiple calls
+
+---
+
+## 💡 My Recommendation
+
+**Do Option B first (30 min), then decide:**
+- If regression test passes → Do Option C (string params)
+- If regression test fails → Fix numeric variables
+
+**Why Option C over Option A:**
+- String parameters are more useful than concatenation right now
+- Easier to implement (no malloc, no new runtime functions)
+- Natural progression: literals → variables → parameters
+- Concatenation can wait for Phase 18
+
+---
+
+## ✅ Success Criteria for YZ_63
+
+**Option B Complete:**
+- Mixed type test passes
+- Numeric, string, boolean all work together
+
+**Option C Complete:**
+- String parameters work with literals
+- String parameters work with variables
+- Multiple string parameters work
+
+---
+
+## 📝 Commit Template (Option B)
+
+```bash
+git add -A
+git commit -m "YZ_63: Phase 17 - Mixed type regression test
+
+- Created test_mixed_types.mlp
+- Verified numeric, string, boolean coexistence
+- All types print correctly
+- No regressions from YZ_62
+
+Status: Phase 17 - 45% complete"
+
+git push origin phase17-string-support_YZ_61
+```
+
+---
+
+## 📝 Commit Template (Option C)
+
+```bash
+git add -A
+git commit -m "YZ_63: Phase 17 - String function parameters
+
+- Added string parameter support in LLVM codegen
+- Parameters passed as i8* directly
+- Works with string literals and variables
+- Tests: test_string_param_*.mlp - All passing
+
+Status: Phase 17 - 60% complete"
+
+git push origin phase17-string-support_YZ_61
+```
+
+---
+
+**Good luck YZ_63! String support is getting really solid! 🚀**
 %loaded = load i8*, i8** %x, align 8
 ```
 
