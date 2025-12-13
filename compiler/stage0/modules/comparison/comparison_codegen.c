@@ -65,9 +65,8 @@ void comparison_generate_code(FILE* output, ComparisonExpr* expr, void* context)
         fprintf(output, "    # String comparison (text vs text)\n");
         fprintf(output, "    movq %%r8, %%rdi  # arg1: first string\n");
         fprintf(output, "    movq %%r9, %%rsi  # arg2: second string\n");
-        fprintf(output, "    call mlp_string_compare  # Returns <0, 0, or >0\n");
-        fprintf(output, "    # Compare result: <0 (less), 0 (equal), >0 (greater)\n");
-        fprintf(output, "    cmpq $0, %%rax\n");
+        fprintf(output, "    call mlp_string_compare  # Returns <0, 0, or >0 (int/32-bit)\n");
+        fprintf(output, "    cmpl $0, %%eax  # Compare result with 0 (YZ_69: use eax for int)\n");
     }
     // Compare
     else if (expr->is_float) {
@@ -76,28 +75,56 @@ void comparison_generate_code(FILE* output, ComparisonExpr* expr, void* context)
         fprintf(output, "    cmpq %%r9, %%r8\n");
     }
     
-    // Set result based on comparison
-    fprintf(output, "    movq $0, %%rax          # Default false\n");
+    // Set result based on comparison (for non-string comparisons)
+    if (!expr->is_string) {
+        fprintf(output, "    movq $0, %%rax          # Default false\n");
+    }
     
-    switch (expr->op) {
-        case CMP_EQUAL:
-            fprintf(output, "    sete %%al             # Set if equal\n");
-            break;
-        case CMP_NOT_EQUAL:
-            fprintf(output, "    setne %%al            # Set if not equal\n");
-            break;
-        case CMP_LESS:
-            fprintf(output, "    setl %%al             # Set if less\n");
-            break;
-        case CMP_LESS_EQUAL:
-            fprintf(output, "    setle %%al            # Set if less or equal\n");
-            break;
-        case CMP_GREATER:
-            fprintf(output, "    setg %%al             # Set if greater\n");
-            break;
-        case CMP_GREATER_EQUAL:
-            fprintf(output, "    setge %%al            # Set if greater or equal\n");
-            break;
+    // YZ_69: String comparison - use sign-based set instructions after cmpl $0
+    if (expr->is_string) {
+        switch (expr->op) {
+            case CMP_EQUAL:
+                fprintf(output, "    sete %%al             # Set if equal (ZF=1)\n");
+                break;
+            case CMP_NOT_EQUAL:
+                fprintf(output, "    setne %%al            # Set if not equal (ZF=0)\n");
+                break;
+            case CMP_LESS:
+                fprintf(output, "    sets %%al             # Set if sign (eax < 0, SF=1)\n");
+                break;
+            case CMP_LESS_EQUAL:
+                fprintf(output, "    setle %%al            # Set if <= (ZF=1 or SF=1)\n");
+                break;
+            case CMP_GREATER:
+                fprintf(output, "    setg %%al             # Set if > (ZF=0 and SF=0)\n");
+                break;
+            case CMP_GREATER_EQUAL:
+                fprintf(output, "    setns %%al            # Set if not sign (eax >= 0, SF=0)\n");
+                break;
+        }
+        fprintf(output, "    movzbl %%al, %%eax        # Zero-extend al to eax (YZ_69)\n");
+        fprintf(output, "    movslq %%eax, %%rax       # Sign-extend eax to rax\n");
+    } else {
+        switch (expr->op) {
+            case CMP_EQUAL:
+                fprintf(output, "    sete %%al             # Set if equal\n");
+                break;
+            case CMP_NOT_EQUAL:
+                fprintf(output, "    setne %%al            # Set if not equal\n");
+                break;
+            case CMP_LESS:
+                fprintf(output, "    setl %%al             # Set if less\n");
+                break;
+            case CMP_LESS_EQUAL:
+                fprintf(output, "    setle %%al            # Set if less or equal\n");
+                break;
+            case CMP_GREATER:
+                fprintf(output, "    setg %%al             # Set if greater\n");
+                break;
+            case CMP_GREATER_EQUAL:
+                fprintf(output, "    setge %%al            # Set if greater or equal\n");
+                break;
+        }
     }
     
     fprintf(output, "    # Result in rax (0=false, 1=true)\n");
@@ -119,7 +146,7 @@ void comparison_generate_conditional_jump(FILE* output, ComparisonExpr* expr, co
         fprintf(output, "    movq %%r8, %%rdi  # arg1: first string\n");
         fprintf(output, "    movq %%r9, %%rsi  # arg2: second string\n");
         fprintf(output, "    call mlp_string_compare\n");
-        fprintf(output, "    cmpq $0, %%rax  # Compare result with 0\n");
+        fprintf(output, "    cmpl $0, %%eax  # Compare result with 0 (YZ_69: use eax for int)\n");
     }
     // Compare
     else if (expr->is_float) {
@@ -129,25 +156,49 @@ void comparison_generate_conditional_jump(FILE* output, ComparisonExpr* expr, co
     }
     
     // Jump based on condition
-    switch (expr->op) {
-        case CMP_EQUAL:
-            fprintf(output, "    je %s\n", label);
-            break;
-        case CMP_NOT_EQUAL:
-            fprintf(output, "    jne %s\n", label);
-            break;
-        case CMP_LESS:
-            fprintf(output, "    jl %s\n", label);
-            break;
-        case CMP_LESS_EQUAL:
-            fprintf(output, "    jle %s\n", label);
-            break;
-        case CMP_GREATER:
-            fprintf(output, "    jg %s\n", label);
-            break;
-        case CMP_GREATER_EQUAL:
-            fprintf(output, "    jge %s\n", label);
-            break;
+    // YZ_67: String comparison uses cmp so we can use normal jump instructions
+    if (expr->is_string) {
+        switch (expr->op) {
+            case CMP_EQUAL:
+                fprintf(output, "    je %s  # Jump if equal (rax == 0)\n", label);
+                break;
+            case CMP_NOT_EQUAL:
+                fprintf(output, "    jne %s  # Jump if not equal (rax != 0)\n", label);
+                break;
+            case CMP_LESS:
+                fprintf(output, "    jl %s  # Jump if less (rax < 0)\n", label);
+                break;
+            case CMP_LESS_EQUAL:
+                fprintf(output, "    jle %s  # Jump if <= (rax <= 0)\n", label);
+                break;
+            case CMP_GREATER:
+                fprintf(output, "    jg %s  # Jump if > (rax > 0)\n", label);
+                break;
+            case CMP_GREATER_EQUAL:
+                fprintf(output, "    jge %s  # Jump if >= (rax >= 0)\n", label);
+                break;
+        }
+    } else {
+        switch (expr->op) {
+            case CMP_EQUAL:
+                fprintf(output, "    je %s\n", label);
+                break;
+            case CMP_NOT_EQUAL:
+                fprintf(output, "    jne %s\n", label);
+                break;
+            case CMP_LESS:
+                fprintf(output, "    jl %s\n", label);
+                break;
+            case CMP_LESS_EQUAL:
+                fprintf(output, "    jle %s\n", label);
+                break;
+            case CMP_GREATER:
+                fprintf(output, "    jg %s\n", label);
+                break;
+            case CMP_GREATER_EQUAL:
+                fprintf(output, "    jge %s\n", label);
+                break;
+        }
     }
 }
 
@@ -168,9 +219,8 @@ void comparison_generate_code_with_chain(FILE* output, ComparisonExpr* expr, voi
         fprintf(output, "    # String comparison (text vs text)\n");
         fprintf(output, "    movq %%r8, %%rdi  # arg1: first string\n");
         fprintf(output, "    movq %%r9, %%rsi  # arg2: second string\n");
-        fprintf(output, "    call mlp_string_compare  # Returns <0, 0, or >0\n");
-        fprintf(output, "    # Compare result: <0 (less), 0 (equal), >0 (greater)\n");
-        fprintf(output, "    cmpq $0, %%rax\n");
+        fprintf(output, "    call mlp_string_compare  # Returns <0, 0, or >0 (int/32-bit)\n");
+        fprintf(output, "    cmpl $0, %%eax  # Compare result with 0 (YZ_69: use eax for int)\n");
     }
     // Compare numeric values
     else if (expr->is_float) {
@@ -179,15 +229,32 @@ void comparison_generate_code_with_chain(FILE* output, ComparisonExpr* expr, voi
         fprintf(output, "    cmpq %%r9, %%r8\n");
     }
     
-    // Set result for first comparison
-    fprintf(output, "    movq $0, %%rax\n");
-    switch (expr->op) {
-        case CMP_EQUAL:       fprintf(output, "    sete %%al\n"); break;
-        case CMP_NOT_EQUAL:   fprintf(output, "    setne %%al\n"); break;
-        case CMP_LESS:        fprintf(output, "    setl %%al\n"); break;
-        case CMP_LESS_EQUAL:  fprintf(output, "    setle %%al\n"); break;
-        case CMP_GREATER:     fprintf(output, "    setg %%al\n"); break;
-        case CMP_GREATER_EQUAL: fprintf(output, "    setge %%al\n"); break;
+    // Set result for first comparison (for non-string comparisons)
+    if (!expr->is_string) {
+        fprintf(output, "    movq $0, %%rax\n");
+    }
+    
+    // YZ_69: String comparison - use sign-based set instructions after cmpl $0
+    if (expr->is_string) {
+        switch (expr->op) {
+            case CMP_EQUAL:       fprintf(output, "    sete %%al\n"); break;
+            case CMP_NOT_EQUAL:   fprintf(output, "    setne %%al\n"); break;
+            case CMP_LESS:        fprintf(output, "    sets %%al\n"); break;  // SF=1 (negative)
+            case CMP_LESS_EQUAL:  fprintf(output, "    setle %%al\n"); break;
+            case CMP_GREATER:     fprintf(output, "    setg %%al\n"); break;
+            case CMP_GREATER_EQUAL: fprintf(output, "    setns %%al\n"); break; // SF=0 (non-negative)
+        }
+        fprintf(output, "    movzbl %%al, %%eax        # Zero-extend al to eax (YZ_69)\n");
+        fprintf(output, "    movslq %%eax, %%rax       # Sign-extend eax to rax\n");
+    } else {
+        switch (expr->op) {
+            case CMP_EQUAL:       fprintf(output, "    sete %%al\n"); break;
+            case CMP_NOT_EQUAL:   fprintf(output, "    setne %%al\n"); break;
+            case CMP_LESS:        fprintf(output, "    setl %%al\n"); break;
+            case CMP_LESS_EQUAL:  fprintf(output, "    setle %%al\n"); break;
+            case CMP_GREATER:     fprintf(output, "    setg %%al\n"); break;
+            case CMP_GREATER_EQUAL: fprintf(output, "    setge %%al\n"); break;
+        }
     }
     
     // Handle logical chaining
