@@ -26,7 +26,8 @@ MAIN_SRC = functions_standalone.c
 FUNCTIONS_SOURCES = \
 	functions.c \
 	functions_parser.c \
-	functions_codegen.c
+	functions_codegen.c \
+	functions_codegen_llvm.c
 
 # Variable modülü (Modül #1)
 VARIABLE_DIR = ../variable
@@ -115,6 +116,10 @@ CODEGEN_CONTEXT_SOURCES = $(CODEGEN_CONTEXT_DIR)/codegen_context.c
 ERROR_DIR = ../error
 ERROR_SOURCES = $(ERROR_DIR)/error.c
 
+# LLVM Backend modülü (YZ_58)
+LLVM_BACKEND_DIR = ../llvm_backend
+LLVM_BACKEND_SOURCES = $(LLVM_BACKEND_DIR)/llvm_backend.c
+
 # Tüm kaynak dosyalar
 SOURCES = \
 	$(MAIN_SRC) \
@@ -132,6 +137,7 @@ SOURCES = \
 	$(PARSER_CORE_SOURCES) \
 	$(CODEGEN_CONTEXT_SOURCES) \
 	$(ERROR_SOURCES) \
+	$(LLVM_BACKEND_SOURCES) \
 	$(LEXER_SOURCES)
 
 # Object dosyaları

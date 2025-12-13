@@ -17,6 +17,7 @@
 #include "functions.h"
 #include "functions_parser.h"
 #include "functions_codegen.h"
+#include "functions_codegen_llvm.h"  // YZ_58: LLVM backend
 
 // YZ_56: Get the MELP compiler base directory (where /runtime, /compiler are)
 static const char* get_compiler_base_dir(void) {
@@ -148,6 +149,7 @@ int main(int argc, char** argv) {
     
     // YZ_38: Parse command-line arguments
     int compile_only = 0;  // Flag for -c or --compile-only
+    int use_llvm = 0;      // YZ_58: Flag for --backend=llvm
     const char* input_file = NULL;
     const char* output_file = NULL;
     
@@ -155,6 +157,8 @@ int main(int argc, char** argv) {
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-c") == 0 || strcmp(argv[i], "--compile-only") == 0) {
             compile_only = 1;
+        } else if (strcmp(argv[i], "--backend=llvm") == 0) {
+            use_llvm = 1;  // YZ_58: Enable LLVM backend
         } else if (!input_file) {
             input_file = argv[i];
         } else if (!output_file) {
@@ -164,8 +168,9 @@ int main(int argc, char** argv) {
     
     // Check required arguments
     if (!input_file || !output_file) {
-        error_io("Usage: %s [-c|--compile-only] <input.mlp> <output.s>", argv[0]);
+        error_io("Usage: %s [-c|--compile-only] [--backend=llvm] <input.mlp> <output.s|output.ll>", argv[0]);
         error_io("  -c, --compile-only    Generate assembly only (no linking)");
+        error_io("  --backend=llvm        Generate LLVM IR instead of assembly");
         return 1;
     }
     
@@ -446,7 +451,7 @@ int main(int argc, char** argv) {
         return 0;  // Not an error, just nothing to do
     }
     
-    // YZ_39: For compile-only mode, generate assembly now
+    // YZ_39: For compile-only mode, generate assembly/LLVM IR now
     if (compile_only) {
         // Open output file
         FILE* output = fopen(output_file, "w");
@@ -455,21 +460,39 @@ int main(int argc, char** argv) {
             return 1;
         }
         
-        // Generate assembly header
-        // Phase 6: Add .rodata section for runtime error messages
-        fprintf(output, ".section .rodata\n");
-        fprintf(output, ".div_zero_msg:\n");
-        fprintf(output, "    .string \"Division by zero is not allowed!\"\n");
-        fprintf(output, "\n");
-        
-        // Generate AT&T syntax assembly (default for GCC)
-        fprintf(output, ".text\n\n");
-        
-        // Generate code for each function
-        FunctionDeclaration* func = functions;
-        while (func) {
-            function_generate_declaration(output, func);
-            func = func->next;
+        // YZ_58: Check which backend to use
+        if (use_llvm) {
+            // LLVM IR backend
+            function_generate_module_header_llvm(output);
+            
+            // Generate IR for each function
+            FunctionLLVMContext* llvm_ctx = function_llvm_context_create(output);
+            FunctionDeclaration* func = functions;
+            while (func) {
+                function_generate_declaration_llvm(llvm_ctx, func);
+                func = func->next;
+            }
+            function_llvm_context_free(llvm_ctx);
+            
+            function_generate_module_footer_llvm(output);
+        } else {
+            // Assembly backend (original)
+            // Generate assembly header
+            // Phase 6: Add .rodata section for runtime error messages
+            fprintf(output, ".section .rodata\n");
+            fprintf(output, ".div_zero_msg:\n");
+            fprintf(output, "    .string \"Division by zero is not allowed!\"\n");
+            fprintf(output, "\n");
+            
+            // Generate AT&T syntax assembly (default for GCC)
+            fprintf(output, ".text\n\n");
+            
+            // Generate code for each function
+            FunctionDeclaration* func = functions;
+            while (func) {
+                function_generate_declaration(output, func);
+                func = func->next;
+            }
         }
         
         // Close output
@@ -478,6 +501,13 @@ int main(int argc, char** argv) {
     
     // Free source code
     free(source);
+    
+    // YZ_58: LLVM backend doesn't need assembly step
+    if (use_llvm && compile_only) {
+        printf("✅ Compiled %s -> %s (LLVM IR)\n", input_file, output_file);
+        printf("   Compile to binary: clang %s -o <output>\n", output_file);
+        return 0;
+    }
     
     // YZ_39: Generate object files and link if needed
     if (compile_only) {
