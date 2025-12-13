@@ -2,7 +2,46 @@
 
 **Created:** 13 Aralık 2025  
 **Current Focus:** LLVM IR Backend Implementation  
-**Status:** Phase 13 ✅ Complete | Phase 13.5 🚧 In Progress
+**Status:** Phase 13 ✅ Complete | Phase 13.5 🚧 In Progress (75% - Parts 1-4 Done)
+
+---
+
+## ⚠️ BAŞLAMADAN ÖNCE - YENİ AI İÇİN KRİTİK UYARI
+
+**📖 ZORUNLU OKUMA (ÖNCE BURAYI OKU!):**  
+👉 **`NEXT_AI_START_HERE.md`** - Current session için mission brief (Buradan başla!)  
+👉 **`YZ/YZ_HISTORY.md`** - Tüm YZ oturumlarının özeti
+
+**🔴 GIT KURALLARI (ÇOK ÖNEMLİ!):**
+```bash
+# 1. Kendi dalını oluştur (veya mevcut feature branch'e devam et)
+git checkout -b feature-name_YZ_XX
+# Mevcut: phase13.5-llvm-backend (YZ_57-58)
+
+# 2. Çalış, commit et
+git add .
+git commit -m "YZ_XX: Feature description"
+
+# 3. Push et
+git push origin feature-name_YZ_XX
+
+# 4. ⚠️ ASLA MERGE YAPMA veya PULL REQUEST OLUŞTURMA!
+# Human review yapıp merge edecek.
+```
+
+**📖 SONRA BUNLARI OKU:**  
+Bu TODO'daki görevlere başlamadan önce **MUTLAKA** şu dosyaları oku:
+
+👉 **`temp/kurallar_kitabı.md` - Bölüm 4: Smart Type Optimization (STO)**  
+👉 **`ARCHITECTURE.md`** - Mimari kurallar (modülerlik, STO)  
+👉 **`YZ/AI_METHODOLOGY.md`** - 5 adımlı hızlı geliştirme metodu  
+👉 **`docs/LLVM_IR_GUIDE.md`** - MELP → LLVM IR mapping patterns (YZ_57'de oluşturuldu)
+
+**⚠️ BİLİNEN SINIRLAMALAR:**
+- **Global Variables:** MELP'te global variable YOK (sadece function-local)
+- **Try-Catch:** Henüz implement edilmedi (future feature)
+- **Struct Types:** Henüz implement edilmedi (future feature)
+- **Relative Paths:** YZ_56'da düzeltildi (runtime'da absolute path kullanılıyor)
 
 ---
 
@@ -22,62 +61,97 @@
 
 ## 📦 Phase 13.5 Tasks
 
-### Part 1: LLVM IR Basics & Study (3-4 hours) 🚧
-- [ ] Create LLVM IR examples (arithmetic, functions, control flow)
-- [ ] Document MELP → LLVM IR mapping patterns
-- [ ] Test workflow: `.mlp` → `.ll` → `clang` → binary
-- [ ] Write LLVM IR cheat sheet for team
+### Part 1: LLVM IR Basics & Study ✅ COMPLETE (YZ_57)
+- [x] Create LLVM IR examples (arithmetic, functions, control flow)
+- [x] Document MELP → LLVM IR mapping patterns
+- [x] Test workflow: `.mlp` → `.ll` → `clang` → binary
+- [x] Write LLVM IR cheat sheet for team
 
 **Deliverables:**
-- `docs/LLVM_IR_GUIDE.md` - Comprehensive mapping guide
-- `examples/llvm/` - Sample IR files
-- Test verification (hello world working ✅)
+- `docs/LLVM_IR_GUIDE.md` - Comprehensive mapping guide (753 lines) ✅
+- `examples/llvm/` - Sample IR files (test_basic, test_function_call, test_println) ✅
+- Test verification (clang compilation working) ✅
 
 ---
 
-### Part 2: LLVM Backend Module (4-6 hours)
-- [ ] Create `compiler/stage0/modules/llvm_backend/` directory
-- [ ] Implement `llvm_backend.h` - API definitions
-- [ ] Implement `llvm_backend.c` - IR emission functions
-  - `llvm_emit_function_header()`
-  - `llvm_emit_arithmetic()` 
-  - `llvm_emit_variable()`
-  - `llvm_emit_return()`
-- [ ] Implement `llvm_types.c` - Type mapping (numeric → i64, text → i8*)
-- [ ] Create `Makefile` for module
-- [ ] Write unit tests
+### Part 2: LLVM Backend Module ✅ COMPLETE (YZ_57)
+- [x] Create `compiler/stage0/modules/llvm_backend/` directory
+- [x] Implement `llvm_backend.h` - API definitions (177 lines)
+- [x] Implement `llvm_backend.c` - IR emission functions (378 lines)
+  - [x] `llvm_emit_function_start/end/entry()`
+  - [x] `llvm_emit_arithmetic()` (add, sub, mul, div with constant folding)
+  - [x] `llvm_emit_alloca/load/store()` (variable operations)
+  - [x] `llvm_emit_return()`
+  - [x] `llvm_emit_call()` (function calls)
+  - [x] `llvm_emit_printf_support/println()` (printf integration)
+- [x] Create `Makefile` for module
+- [x] Write unit tests (`test_llvm_backend.c`)
 
 **Deliverables:**
-- LLVM backend module (clean API)
-- Test: Simple function compiles to valid LLVM IR
+- LLVM backend module (clean API) ✅
+- Test: Simple function compiles to valid LLVM IR (exit 30) ✅
 
 ---
 
-### Part 3: Integration with functions_compiler (4-6 hours)
-- [ ] Modify `functions_standalone.c`:
-  - Add `--backend=llvm` flag
-  - Switch between assembly/LLVM output
-- [ ] Update `functions_codegen.c` to use LLVM backend
-- [ ] Update `Makefile`:
-  - Link LLVM backend module
-  - Add `.ll` → binary compilation step
-- [ ] Test existing `.mlp` files with LLVM backend
+### Part 3: Integration with functions_compiler ✅ COMPLETE (YZ_57)
+- [x] Modify `functions_standalone.c`:
+  - [x] Add `--backend=llvm` flag
+  - [x] Switch between assembly/LLVM output
+  - [x] Skip assembly step for LLVM IR
+- [x] Create `functions_codegen_llvm.c/h` - Integration layer (245 lines)
+  - [x] Statement generation (STMT_VARIABLE_DECL, STMT_RETURN)
+  - [x] Expression generation (literals, variables, binary ops, function calls)
+  - [x] Parameter vs local variable distinction
+- [x] Update `Makefile`:
+  - [x] Link LLVM backend module
+  - [x] Add LLVM sources to build
+- [x] Test existing `.mlp` files with LLVM backend
 
 **Deliverables:**
-- `functions_compiler --backend=llvm test.mlp test.ll`
-- Zero regressions on existing tests
+- `functions_compiler --backend=llvm test.mlp test.ll` ✅
+- Tests passing: test_basic.mlp (exit 30), test_llvm_functions.mlp (exit 42) ✅
 
 ---
 
-### Part 4: Comprehensive Testing (2-3 hours)
-- [ ] Run all Phase 13 tests with LLVM backend
-- [ ] Performance comparison (Assembly vs LLVM)
-- [ ] Verify output correctness
-- [ ] Fix any edge cases
+### Part 4: Basic Testing ✅ COMPLETE (YZ_57)
+- [x] Unit tests (llvm_backend module)
+- [x] Integration tests (test_basic, test_llvm_functions)
+- [x] Verify output correctness
+- [x] Fix compilation errors (struct fields, includes)
+- [x] Fix runtime errors (parameter vs local variable handling)
 
 **Deliverables:**
-- Test report: All tests passing
-- Performance metrics documented
+- All basic tests passing ✅
+- Git branch created: phase13.5-llvm-backend ✅
+- Committed and pushed to GitHub ✅
+
+---
+
+### Part 5: Advanced Features 🚧 NEXT (YZ_58)
+- [ ] Control Flow IR generation
+  - [ ] `llvm_emit_br()` - Unconditional branch
+  - [ ] `llvm_emit_br_cond()` - Conditional branch
+  - [ ] `llvm_emit_label()` - Label emission
+  - [ ] Update `generate_statement_llvm()` for STMT_IF, STMT_WHILE, STMT_FOR
+- [ ] Standard Library Integration
+  - [ ] Replace printf with `mlp_println_numeric()`
+  - [ ] Link with `libmlp_stdlib.a` and `libsto_runtime.a`
+  - [ ] Handle STO type tags correctly
+- [ ] Comprehensive Testing
+  - [ ] Run all Stage 0 tests with `--backend=llvm`
+  - [ ] Compare outputs: Assembly vs LLVM
+  - [ ] Performance benchmarking (compile time, binary size, runtime)
+- [ ] Documentation & Finalization
+  - [ ] Update `ARCHITECTURE.md` with LLVM backend section
+  - [ ] Create `YZ/YZ_58.md` session report
+  - [ ] Update this TODO marking Phase 13.5 complete
+  - [ ] Create backup branch: `melp_stage0_phase13.5_complete_20251213`
+  - [ ] Merge to main after human review
+
+**Deliverables:**
+- Full test suite passing
+- Complete LLVM backend
+- Ready for Phase 14 (self-hosting with LLVM)
 
 ---
 
