@@ -14,20 +14,30 @@
 
 **🔴 GIT KURALLARI (ÇOK ÖNEMLİ!):**
 ```bash
-# 1. Kendi dalını oluştur (veya mevcut feature branch'e devam et)
-git checkout -b feature-name_YZ_XX
-# Mevcut: phase13.5-llvm-backend (YZ_57-58)
-# Son commit: 3f1245c (YZ_58: Control Flow Implementation)
+# ⚠️ HER YZ AYRI DAL OLUŞTURMALIDIR! ⚠️
+
+# 1. YENİ DAL OLUŞTUR (her zaman main/master'dan)
+git checkout main
+git pull origin main
+git checkout -b feature-description_YZ_XX
+
+# ÖRNEK:
+# YZ_57: git checkout -b phase13.5-llvm-backend_YZ_57
+# YZ_58: git checkout -b phase13.5-control-flow_YZ_58
+# YZ_59: git checkout -b phase13.5-testing_YZ_59
 
 # 2. Çalış, commit et
 git add .
 git commit -m "YZ_XX: Feature description"
 
-# 3. Push et
-git push origin feature-name_YZ_XX
+# 3. KENDI DALINA push et
+git push origin feature-description_YZ_XX
 
 # 4. ⚠️ ASLA MERGE YAPMA veya PULL REQUEST OLUŞTURMA!
 # Human review yapıp merge edecek.
+
+# NOT: Başka YZ'nin dalına ASLA commit yapma!
+# Her YZ kendi dalında çalışır, human merge yapar.
 ```
 
 **📖 SONRA BUNLARI OKU:**  
