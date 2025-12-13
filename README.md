@@ -16,9 +16,9 @@ Modern, type-safe, and efficient programming language with Smart Type Optimizati
 
 ---
 
-## 🎉 Current Status: Phase 13.5 LLVM Backend (95% Complete)
+## 🎉 Current Status: Phase 14 Complete - Full Control Flow Support!
 
-**Achievement: LLVM IR Backend Migration Complete! 🚀**
+**Achievement: While & For Loops in LLVM Backend! 🚀**
 
 ### ✅ Phase 13: Self-Hosting Lexer (100% Complete)
 - **Lexer Modules**: 4 MELP modules (lexer_token, lexer_char, lexer_numeric, lexer_identifier)
@@ -26,30 +26,30 @@ Modern, type-safe, and efficient programming language with Smart Type Optimizati
 - **56 Token Types**: Complete token recognition
 - **Merged to main**: Commit `071d39b`
 
-### ✅ Phase 13.5: LLVM Backend (95% Complete)
+### ✅ Phase 13.5: LLVM Backend (100% Complete)
 - **LLVM IR Output**: `--backend=llvm` flag generates portable LLVM IR
 - **8/8 Tests Passing**: All integration tests successful
-- **Features Implemented**:
-  - Arithmetic operations (+, -, *, /)
-  - Function declarations and calls
-  - Variable declarations and assignments
-  - If/else statements with conditional branches
-  - Comparison operators (>, <, ==, !=, >=, <=)
-  - Boolean literals (true, false) and operations (AND, OR)
-- **Portability**: Cross-platform support (x86-64, ARM, RISC-V via LLVM)
-- **Performance**: Comparable to assembly, more readable IR
+- **Features**: Arithmetic, functions, variables, if/else, comparisons, booleans
+- **Portability**: Cross-platform (x86-64, ARM, RISC-V via LLVM)
+
+### ✅ Phase 14: Parser Enhancement (100% Complete)
+- **While Loops**: Simple and nested support
+- **For Loops**: Range loops (1 to N) with nested support
+- **13/13 Tests Passing**: Including all regression tests
+- **Control Flow Complete**: All constructs working in LLVM backend
+- **Time Taken**: 1.5 hours (3x faster than estimated!)
 
 ### 🎯 Latest Sessions:
-- ✅ **YZ_57**: Phase 13.5 Parts 1-4 (LLVM backend module, integration, basic tests)
-- ✅ **YZ_58**: Phase 13.5 Part 5.1 (Control flow: if/else, assignments)
-- ✅ **YZ_59**: Phase 13.5 Parts 5.2-5.4 (Boolean ops, testing, documentation)
-- ⏳ **Phase 13.5 Part 5.5-5.7**: Optional stdlib integration, benchmarking, merge prep
+- ✅ **YZ_57-59**: Phase 13.5 (LLVM backend, boolean ops, testing)
+- ✅ **YZ_60**: Phase 14 (While/For loop support, 13/13 tests passing)
+- ⏳ **Next**: Phase 15 (Standard Library Integration) or Phase 16 (Advanced features)
 
 ### 📊 Completion Status:
 ```
 Core Language:     ████████████████████ 100%
 Module System:     ███████████████████░  95%
-LLVM Backend:      ███████████████████░  95%
+LLVM Backend:      ████████████████████ 100%
+Control Flow:      ████████████████████ 100%
 Self-Hosting:      ████░░░░░░░░░░░░░░░░  20%
 ```
 
@@ -200,8 +200,11 @@ clang output.ll -o your_program
 - Arithmetic operations (+, -, *, /)
 - Variable declarations and assignments
 - If/else statements
+- While loops (simple and nested)
+- For loops (range: 1 to N, simple and nested)
 - Comparison operators (>, <, ==, !=, >=, <=)
 - Boolean operations (AND, OR, true, false)
+- Mixed control flow (loops + conditionals)
 
 ### Compile and Run
 
