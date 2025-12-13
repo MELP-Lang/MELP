@@ -1,8 +1,8 @@
-# 📋 MELP Project TODO - Phase 13.5 (LLVM Backend Migration)
+# 📋 MELP Project TODO - Phase 14 (Parser Enhancement for Control Flow)
 
 **Created:** 13 Aralık 2025  
-**Current Focus:** LLVM IR Backend Implementation  
-**Status:** Phase 13 ✅ Complete | Phase 13.5 ✅ Complete (100%)
+**Current Focus:** While/For Loop Parser Implementation  
+**Status:** Phase 13.5 ✅ Complete | Phase 14 🚀 Starting
 
 ---
 
@@ -22,9 +22,8 @@ git pull origin main
 git checkout -b feature-description_YZ_XX
 
 # ÖRNEK:
-# YZ_57: git checkout -b phase13.5-llvm-backend_YZ_57
-# YZ_58: git checkout -b phase13.5-control-flow_YZ_58
-# YZ_59: git checkout -b phase13.5-testing_YZ_59
+# YZ_60: git checkout -b phase14-parser-enhancement_YZ_60
+# YZ_61: git checkout -b phase14-testing_YZ_61
 
 # 2. Çalış, commit et
 git add .
@@ -35,328 +34,390 @@ git push origin feature-description_YZ_XX
 
 # 4. ⚠️ ASLA MERGE YAPMA veya PULL REQUEST OLUŞTURMA!
 # Human review yapıp merge edecek.
-
-# NOT: Başka YZ'nin dalına ASLA commit yapma!
-# Her YZ kendi dalında çalışır, human merge yapar.
 ```
 
 **📖 SONRA BUNLARI OKU:**  
-Bu TODO'daki görevlere başlamadan önce **MUTLAKA** şu dosyaları oku:
-
-👉 **`temp/kurallar_kitabı.md` - Bölüm 4: Smart Type Optimization (STO)**  
-👉 **`ARCHITECTURE.md`** - Mimari kurallar (modülerlik, STO)  
+👉 **`ARCHITECTURE.md`** - Mimari kurallar (modülerlik, STO, LLVM Backend)  
 👉 **`YZ/AI_METHODOLOGY.md`** - 5 adımlı hızlı geliştirme metodu  
-👉 **`docs/LLVM_IR_GUIDE.md`** - MELP → LLVM IR mapping patterns (YZ_57'de oluşturuldu)
-
-**⚠️ BİLİNEN SINIRLAMALAR:**
-- **Global Variables:** MELP'te global variable YOK (sadece function-local)
-- **Try-Catch:** Henüz implement edilmedi (future feature)
-- **Struct Types:** Henüz implement edilmedi (future feature)
-- **Relative Paths:** YZ_56'da düzeltildi (runtime'da absolute path kullanılıyor)
+👉 **`docs/LLVM_IR_GUIDE.md`** - LLVM IR mapping patterns  
+👉 **`temp/TODO_phase13.5_complete_20251213.md`** - Completed Phase 13.5 reference
 
 ---
 
-## 🎯 Current Milestone: Phase 13.5 - LLVM Backend Migration ✅ COMPLETE
+## 🎯 Current Milestone: Phase 14 - Parser Enhancement for Control Flow
 
-### Strategy: Option C (Two-Stage Approach)
-1. **Stage 0 Migration:** ✅ Port C compiler from Assembly → LLVM IR output
-2. **Continue Self-Hosting:** Use LLVM backend for subsequent phases
+### Goal
+Add while and for loop parsing support to `functions_parser.c` to enable full control flow in LLVM backend.
 
-### Why LLVM?
-- **Portability:** ✅ Cross-platform support (x86-64, ARM, RISC-V)
-- **Optimization:** ✅ Industrial-grade optimization passes
-- **Maintainability:** ✅ No manual assembly code
-- **Future-Proof:** ✅ Better foundation for self-hosting compiler
+### Context
+- LLVM backend codegen for while/for loops is **already implemented** (YZ_58)
+- Parser currently doesn't recognize while/for statements
+- Need to add AST generation for these constructs
 
-### Achievement Summary
-- **Tests:** 8/8 passing (100% success rate)
-- **Code Quality:** 53% smaller IR, comparable performance
-- **Documentation:** Complete (ARCHITECTURE.md, README.md, YZ_59.md)
-- **Git:** Committed and pushed (backup branch created)
-- **Time Taken:** ~5 hours total (YZ_57, YZ_58, YZ_59)
+### Why This Matters
+- Completes the LLVM backend feature set
+- Enables writing real-world programs with loops
+- Unlocks full potential of MELP's control flow system
 
 ---
 
-## 📦 Phase 13.5 Tasks
+## 📦 Phase 14 Tasks
 
-### Part 1: LLVM IR Basics & Study ✅ COMPLETE (YZ_57)
-- [x] Create LLVM IR examples (arithmetic, functions, control flow)
-- [x] Document MELP → LLVM IR mapping patterns
-- [x] Test workflow: `.mlp` → `.ll` → `clang` → binary
-- [x] Write LLVM IR cheat sheet for team
+### Part 1: While Loop Parser Implementation (90 min)
+
+#### Task 1.1: Study Existing Parser Structure (15 min)
+- [x] Read `compiler/stage0/modules/functions/functions_parser.c`
+- [x] Understand current statement parsing flow
+- [x] Review control_flow module integration
+- [x] Check how if/else statements are parsed
+
+**Files to Review:**
+- `compiler/stage0/modules/control_flow/control_flow_parser.h`
+- `compiler/stage0/modules/functions/functions_parser.c`
+- `compiler/stage0/modules/statement/statement.h` (AST definitions)
+
+#### Task 1.2: Implement While Statement Parsing (30 min)
+- [ ] Add while keyword recognition
+- [ ] Parse while condition expression
+- [ ] Parse while body (statement list)
+- [ ] Create WhileStatement AST node
+- [ ] Add to statement parsing switch
+
+**Implementation Steps:**
+```c
+// 1. In parse_statement():
+case TOKEN_WHILE:
+    return parse_while_statement(lexer, current);
+
+// 2. Implement parse_while_statement():
+Statement* parse_while_statement(Lexer* lexer, Token** current) {
+    // Parse: while <condition> ... end while
+    // 1. Consume 'while' keyword
+    // 2. Parse condition expression
+    // 3. Parse body statements until 'end'
+    // 4. Consume 'end while'
+    // 5. Return STMT_WHILE with condition and body
+}
+```
+
+**Files to Modify:**
+- `compiler/stage0/modules/functions/functions_parser.c`
+
+#### Task 1.3: Test While Loop Parsing (30 min)
+- [ ] Create test file: `test_while_loop.mlp`
+- [ ] Compile with `--backend=llvm`
+- [ ] Verify LLVM IR generation
+- [ ] Test execution and output
+- [ ] Fix any parsing errors
+
+**Test Case:**
+```mlp
+function main() returns numeric
+    numeric x = 0
+    while x < 5
+        x = x + 1
+    end while
+    return x  -- Should return 5
+end function
+```
+
+#### Task 1.4: Documentation (15 min)
+- [ ] Update parser comments
+- [ ] Document while loop syntax
+- [ ] Add to test suite
 
 **Deliverables:**
-- `docs/LLVM_IR_GUIDE.md` - Comprehensive mapping guide (753 lines) ✅
-- `examples/llvm/` - Sample IR files (test_basic, test_function_call, test_println) ✅
-- Test verification (clang compilation working) ✅
+- While loops working in functions_compiler ✓
+- Test case passing ✓
+- Parser documentation updated ✓
 
 ---
 
-### Part 2: LLVM Backend Module ✅ COMPLETE (YZ_57)
-- [x] Create `compiler/stage0/modules/llvm_backend/` directory
-- [x] Implement `llvm_backend.h` - API definitions (177 lines)
-- [x] Implement `llvm_backend.c` - IR emission functions (378 lines)
-  - [x] `llvm_emit_function_start/end/entry()`
-  - [x] `llvm_emit_arithmetic()` (add, sub, mul, div with constant folding)
-  - [x] `llvm_emit_alloca/load/store()` (variable operations)
-  - [x] `llvm_emit_return()`
-  - [x] `llvm_emit_call()` (function calls)
-  - [x] `llvm_emit_printf_support/println()` (printf integration)
-- [x] Create `Makefile` for module
-- [x] Write unit tests (`test_llvm_backend.c`)
+### Part 2: For Loop Parser Implementation (90 min)
+
+#### Task 2.1: Study For Loop Requirements (15 min)
+- [ ] Review existing for loop codegen (YZ_58)
+- [ ] Check AST structure needed
+- [ ] Understand `for i = start to end` syntax
+- [ ] Review increment/decrement logic
+
+**Reference:**
+- `compiler/stage0/modules/control_flow/control_flow_codegen.c`
+- Look for `control_flow_generate_for()`
+
+#### Task 2.2: Implement For Statement Parsing (30 min)
+- [ ] Add for keyword recognition
+- [ ] Parse iterator variable
+- [ ] Parse start expression
+- [ ] Parse end expression
+- [ ] Parse optional step (future enhancement)
+- [ ] Parse for body
+- [ ] Create ForStatement AST node
+
+**Implementation Steps:**
+```c
+// Parse: for i = start to end ... end for
+Statement* parse_for_statement(Lexer* lexer, Token** current) {
+    // 1. Consume 'for' keyword
+    // 2. Parse iterator variable name
+    // 3. Consume '=' token
+    // 4. Parse start expression
+    // 5. Consume 'to' keyword
+    // 6. Parse end expression
+    // 7. Parse body statements
+    // 8. Consume 'end for'
+    // 9. Return STMT_FOR
+}
+```
+
+**Files to Modify:**
+- `compiler/stage0/modules/functions/functions_parser.c`
+
+#### Task 2.3: Test For Loop Parsing (30 min)
+- [ ] Create test file: `test_for_loop.mlp`
+- [ ] Compile with `--backend=llvm`
+- [ ] Verify LLVM IR generation
+- [ ] Test execution and output
+- [ ] Fix any parsing errors
+
+**Test Cases:**
+```mlp
+function main() returns numeric
+    numeric sum = 0
+    for i = 1 to 5
+        sum = sum + i
+    end for
+    return sum  -- Should return 15 (1+2+3+4+5)
+end function
+```
+
+#### Task 2.4: Documentation (15 min)
+- [ ] Update parser comments
+- [ ] Document for loop syntax
+- [ ] Add to test suite
 
 **Deliverables:**
-- LLVM backend module (clean API) ✅
-- Test: Simple function compiles to valid LLVM IR (exit 30) ✅
+- For loops working in functions_compiler ✓
+- Test cases passing ✓
+- Parser documentation updated ✓
 
 ---
 
-### Part 3: Integration with functions_compiler ✅ COMPLETE (YZ_57)
-- [x] Modify `functions_standalone.c`:
-  - [x] Add `--backend=llvm` flag
-  - [x] Switch between assembly/LLVM output
-  - [x] Skip assembly step for LLVM IR
-- [x] Create `functions_codegen_llvm.c/h` - Integration layer (245 lines)
-  - [x] Statement generation (STMT_VARIABLE_DECL, STMT_RETURN)
-  - [x] Expression generation (literals, variables, binary ops, function calls)
-  - [x] Parameter vs local variable distinction
-- [x] Update `Makefile`:
-  - [x] Link LLVM backend module
-  - [x] Add LLVM sources to build
-- [x] Test existing `.mlp` files with LLVM backend
+### Part 3: AST Integration & Error Handling (60 min)
+
+#### Task 3.1: AST Validation (20 min)
+- [ ] Verify WhileStatement structure
+- [ ] Verify ForStatement structure
+- [ ] Check field initialization
+- [ ] Test memory management (no leaks)
+
+**AST Structures to Verify:**
+```c
+typedef struct WhileStatement {
+    Expression* condition;
+    Statement** body;
+    int body_count;
+} WhileStatement;
+
+typedef struct ForStatement {
+    char* iterator;
+    Expression* start;
+    Expression* end;
+    Statement** body;
+    int body_count;
+} ForStatement;
+```
+
+#### Task 3.2: Error Handling (20 min)
+- [ ] Add syntax error messages
+- [ ] Handle missing 'end while'
+- [ ] Handle missing 'end for'
+- [ ] Handle invalid conditions
+- [ ] Handle missing iterator in for loop
+
+**Error Cases to Handle:**
+```mlp
+-- Missing end while
+while x < 10
+    x = x + 1
+-- ERROR: Expected 'end while'
+
+-- Missing iterator
+for = 1 to 10
+    -- ...
+-- ERROR: Expected iterator variable
+```
+
+#### Task 3.3: Edge Cases (20 min)
+- [ ] Empty loop bodies
+- [ ] Nested loops (while in while, for in for)
+- [ ] Mixed nesting (for in while, while in for)
+- [ ] Loops with if/else inside
+
+**Test Cases:**
+```mlp
+-- Nested for loops
+for i = 1 to 3
+    for j = 1 to 3
+        -- sum = sum + (i * j)
+    end for
+end for
+```
 
 **Deliverables:**
-- `functions_compiler --backend=llvm test.mlp test.ll` ✅
-- Tests passing: test_basic.mlp (exit 30), test_llvm_functions.mlp (exit 42) ✅
+- Robust error handling ✓
+- Edge cases covered ✓
+- No memory leaks ✓
 
 ---
 
-### Part 4: Basic Testing ✅ COMPLETE (YZ_57)
-- [x] Unit tests (llvm_backend module)
-- [x] Integration tests (test_basic, test_llvm_functions)
-- [x] Verify output correctness
-- [x] Fix compilation errors (struct fields, includes)
-- [x] Fix runtime errors (parameter vs local variable handling)
+### Part 4: Comprehensive Testing (60 min)
+
+#### Task 4.1: Create Test Suite (20 min)
+- [ ] `test_while_simple.mlp` - Basic while loop
+- [ ] `test_while_nested.mlp` - Nested while
+- [ ] `test_for_simple.mlp` - Basic for loop
+- [ ] `test_for_nested.mlp` - Nested for
+- [ ] `test_loop_mixed.mlp` - While + for + if/else
+- [ ] `test_loop_empty.mlp` - Empty loop bodies
+
+#### Task 4.2: Run Test Suite (20 min)
+- [ ] Compile all tests with LLVM backend
+- [ ] Verify LLVM IR output
+- [ ] Execute all binaries
+- [ ] Check exit codes
+- [ ] Document results
+
+**Test Automation:**
+```bash
+#!/bin/bash
+# test_parser_loops.sh
+
+for test in test_while_*.mlp test_for_*.mlp; do
+    echo "Testing: $test"
+    ./functions_compiler -c --backend=llvm "$test" "${test%.mlp}.ll"
+    clang "${test%.mlp}.ll" -o "${test%.mlp}"
+    ./"${test%.mlp}"
+    echo "Exit code: $?"
+done
+```
+
+#### Task 4.3: Regression Testing (20 min)
+- [ ] Re-run all Phase 13.5 tests (8 tests)
+- [ ] Verify no regressions
+- [ ] Check assembly backend still works
+- [ ] Document any breaking changes
+
+**Expected Results:**
+- All Phase 13.5 tests still pass ✓
+- New loop tests pass ✓
+- Zero regressions ✓
 
 **Deliverables:**
-- All basic tests passing ✅
-- Git branch created: phase13.5-llvm-backend ✅
-- Committed and pushed to GitHub ✅
+- 6+ new test cases ✓
+- Automated test script ✓
+- Regression test results ✓
 
 ---
 
-### Part 5: Advanced Features 🚧 IN PROGRESS (YZ_58)
+### Part 5: Documentation & Finalization (30 min)
 
-#### Part 5.1: Control Flow IR Generation ✅ COMPLETE (YZ_58)
-- [x] `llvm_emit_br()` - Unconditional branch
-- [x] `llvm_emit_br_cond()` - Conditional branch
-- [x] `llvm_emit_label()` - Label emission
-- [x] `llvm_emit_icmp()` - Comparison instructions
-- [x] `generate_comparison_llvm()` - Comparison expression generation
-- [x] Update `generate_statement_llvm()` for:
-  - [x] STMT_IF (with if/else branches)
-  - [x] STMT_ASSIGNMENT (variable reassignment)
-  - [x] STMT_WHILE (codegen ready, parser limitation ⚠️)
-  - [x] STMT_FOR (codegen ready, parser limitation ⚠️)
-
-**Test Results:**
-- [x] `test_llvm_if.mlp` - Exit 1 ✅ (15 > 10 → true)
-- [x] `test_llvm_assign.mlp` - Exit 25 ✅ (x=30, y=25)
-- [x] No regressions (test_basic, test_llvm_functions still passing) ✅
-
-**Known Limitations:**
-- ⚠️ While/for loops: Codegen ready but parser doesn't support them yet
-- 📝 Solution: Defer to Phase 14 or enhance parser in Part 5.2
-
----
-
-#### Part 5.2: Boolean Operations ✅ COMPLETE (YZ_59)
-- [x] Boolean literal support (true=1, false=0)
-- [x] `llvm_emit_and()` - Logical AND operation
-- [x] `llvm_emit_or()` - Logical OR operation
-- [x] Boolean expression evaluation in variables
-- [x] Fix: Boolean literals in variable declarations
-- [x] Fix: Logical ops without nsw flag
-
-**Test Results:**
-- [x] `test_boolean_and.mlp` - Exit 0 ✅ (true and false → 0)
-- [x] `test_boolean_and_true.mlp` - Exit 1 ✅ (true and true → 1)
-- [x] `test_boolean_or.mlp` - Exit 1 ✅ (true or false → 1)
-
----
-
-#### Part 5.3: Comprehensive Testing ✅ COMPLETE (YZ_59)
-- [x] Create test suite script (`test_llvm_suite.sh`)
-- [x] Run all basic tests with `--backend=llvm`
-- [x] Verify all test outputs match expected results
-- [x] Document test results (8/8 tests passing)
-
-**Test Coverage:**
-- [x] Basic arithmetic (test_basic.mlp)
-- [x] Function calls (test_llvm_functions.mlp)
-- [x] Control flow (test_llvm_if.mlp)
-- [x] Assignments (test_llvm_assign.mlp)
-- [x] Boolean logic (test_boolean_and/or.mlp)
-- [x] Sanity checks (test_sanity.mlp)
-
----
-
-#### Part 5.4: Documentation & Architecture ✅ COMPLETE (YZ_59)
-- [x] Update `ARCHITECTURE.md` with LLVM backend section (Rule #6)
-- [x] Document LLVM backend API design
-- [x] Update AI Agent Progress Log (YZ_57-YZ_59)
-- [x] Document implemented features and limitations
-- [x] Update `NEXT_AI_START_HERE.md` with current status
-
-**Deliverables:**
-- ARCHITECTURE.md: New Rule #6 (LLVM Backend) ✅
-- Complete feature documentation ✅
-- Test results summary ✅
-
----
-
-#### Part 5.5: Standard Library Integration ⏳ TODO (Optional)
-- [ ] Replace printf with `mlp_println_numeric()`
-- [ ] Link with `libmlp_stdlib.a` and `libsto_runtime.a`
-- [ ] Handle STO type tags correctly
-- [ ] External function declarations in LLVM IR
-
-**Note:** Printf currently works for basic testing. Can defer to future phase.
-
-**Priority:** Low (current implementation sufficient for Phase 13.5)
-
----
-
-#### Part 5.6: Performance Benchmarking ✅ COMPLETE (YZ_59)
-- [x] Compile time comparison (Assembly vs LLVM)
-- [x] Binary size comparison
-- [x] Runtime performance comparison
-- [x] Document results
-
-**Results:**
-- Generated code: LLVM 53% smaller (865 vs 1,838 bytes)
-- Binary size: LLVM 27% smaller (16K vs 22K)
-- Runtime: Comparable performance (0.06s vs 0.07s for 100 runs)
-- Readability: LLVM significantly better
-
-**Priority:** ✅ Complete
-
----
-
-#### Part 5.7: Final Merge Preparation ✅ COMPLETE (YZ_59)
-- [x] Create backup branch: `melp_stage0_phase13.5_yz59_complete_20251213`
-- [x] Update this TODO marking Phase 13.5 complete
-- [x] Final commit with summary (281e0c2)
-- [x] Push to GitHub
-- [x] Prepare merge notes for human review
-
-**Git Status:**
-- Branch: `phase13.5-llvm-backend` ✅
-- Backup: `melp_stage0_phase13.5_yz59_complete_20251213` ✅
-- Commit: `281e0c2` - YZ_59 completion ✅
-- Pushed to origin ✅
-
-**Priority:** ✅ Complete
-
----
-
-### Part 5: Documentation & Cleanup (DEPRECATED - Split into 5.2-5.7)
-- [ ] Update `ARCHITECTURE.md` - LLVM backend section
-- [ ] Update `README.md` - Build instructions
-- [ ] Create `LLVM_BACKEND.md` - Technical deep dive
+#### Task 5.1: Update Documentation (15 min)
+- [ ] Update `ARCHITECTURE.md` if needed
+- [ ] Update `README.md` examples
 - [ ] Update `NEXT_AI_START_HERE.md`
-- [ ] Git workflow:
-  - Branch: `phase13.5-llvm-backend`
-  - Commit messages clear
-  - Merge to main
+- [ ] Create `YZ_60.md` session report
+
+#### Task 5.2: Git Workflow (15 min)
+- [ ] Commit all changes with clear message
+- [ ] Create backup branch: `phase14_parser_complete_YZ60_20251213`
+- [ ] Push to GitHub
+- [ ] Update TODO.md marking Phase 14 complete
 
 **Deliverables:**
-- Complete documentation
-- Clean git history
-- YZ_58.md session report
+- Complete documentation ✓
+- Clean git history ✓
+- YZ_60 session report ✓
 
 ---
 
-## 🔄 Future Phases (Post-LLVM Migration)
+## 🔄 Success Criteria
 
-### Phase 14: Self-Hosting Parser (5 parts)
-- Parser written in MELP (generates LLVM IR)
-- Estimated: 20-25 hours
-
-### Phase 15: Self-Hosting Code Generator
-- Code generator written in MELP (emits LLVM IR)
-- Estimated: 15-20 hours
-
-### Phase 16: Bootstrap Complete
-- MELP compiler fully self-hosting
-- Stage 1 replaces Stage 0
-
----
-
-## ✅ Recently Completed
-
-### Phase 13: Self-Hosting Lexer (Complete - 13 Aralık 2025)
-- ✅ Part 6.3: Literal tokenization
-- ✅ Part 6.4: Identifier tokenization (24 keywords)
-- ✅ Part 6.5: Operator tokenization (26 token types)
-- ✅ Part 6.6: Lexer integration
-- **Total:** 4 modules, 38 functions, 56 token types
-- **Git:** Merged to main (commit 071d39b)
-- **Backup:** Branch `melp_stage1_phase13_complete_20251213`
-
----
-
-## 📊 Project Statistics
-
-### Compiler Implementation
-- **Stage 0 (C):** ~8,000 lines (modular architecture)
-- **Stage 1 (MELP):** ~1,500 lines (lexer modules)
-- **Tests:** 60+ test files
-- **Modules:** 15+ independent modules
-
-### Build System
-- **Incremental Compilation:** 15x faster (modules cached)
-- **Smart Linking:** Only recompile changed dependencies
-- **Module Cache:** `.mlp.cache/` directory
-
----
-
-## 🎯 Success Metrics
-
-### Phase 13.5 Definition of Done
-- [ ] All existing tests pass with LLVM backend
+### Phase 14 Definition of Done
+- [ ] While loops parse correctly
+- [ ] For loops parse correctly
+- [ ] LLVM IR generation works for loops
+- [ ] All new tests pass (6+)
+- [ ] Zero regressions (Phase 13.5 tests still pass)
 - [ ] Documentation complete
-- [ ] Zero performance regression
-- [ ] Clean git history
-- [ ] YZ session report finalized
+- [ ] Git backup created and pushed
+
+---
+
+## 📊 Time Estimates
+
+| Part | Task | Estimated Time |
+|------|------|----------------|
+| Part 1 | While Loop Parser | 90 min |
+| Part 2 | For Loop Parser | 90 min |
+| Part 3 | AST & Error Handling | 60 min |
+| Part 4 | Comprehensive Testing | 60 min |
+| Part 5 | Documentation | 30 min |
+| **Total** | | **5.5 hours** |
+
+**Buffer:** 30 min for unexpected issues  
+**Total Estimate:** 6 hours
+
+---
+
+## 🎯 Next Phase Preview
+
+### Phase 15: Standard Library Integration (Optional)
+- Replace printf with `mlp_println_numeric()`
+- Link with libmlp_stdlib.a
+- Handle STO type tags
+- **Estimated:** 1-2 hours
+
+### Phase 16: Advanced LLVM Features (Optional)
+- Optimization passes
+- Debug information
+- Error messages in IR
+- **Estimated:** 3-4 hours
+
+### Phase 17: Self-Hosting Parser (Major)
+- Parser written in MELP
+- Generates LLVM IR
+- **Estimated:** 15-20 hours
 
 ---
 
 ## 📝 Notes & Decisions
 
-### LLVM Version
-- **Installed:** Clang 14.0.6, LLVM 14
-- **Platform:** Debian 12, x86-64
-- **Test:** Simple hello world ✅ working
+### Parser Design Decisions
+- Follow existing if/else parsing pattern
+- Use control_flow module for AST structures
+- Keep parser stateless (no global state)
+- Maintain backward compatibility
 
-### Design Decisions
-- Keep assembly backend for reference
-- Use `--backend` flag for output selection
-- LLVM IR unoptimized initially (focus: correctness)
-- Optimization passes later (Phase 13.6)
+### Testing Strategy
+- Unit tests for parser functions
+- Integration tests with LLVM backend
+- Regression tests for existing features
+- Edge case coverage
 
 ---
 
 ## 🔗 Related Documents
 
-- **Previous TODO:** `temp/TODO_old_phase13_20251213.md`
+- **Previous TODO:** `temp/TODO_phase13.5_complete_20251213.md`
 - **Architecture:** `ARCHITECTURE.md`
-- **Phase 13 Report:** `YZ/YZ_57.md`
+- **YZ Reports:** `YZ/YZ_57.md`, `YZ/YZ_58.md`, `YZ/YZ_59.md`
 - **Next Session:** `NEXT_AI_START_HERE.md`
-- **LLVM Guide:** `docs/LLVM_IR_GUIDE.md` (to be created)
+- **LLVM Guide:** `docs/LLVM_IR_GUIDE.md`
 
 ---
 
 **Last Updated:** 13 Aralık 2025  
-**Responsible:** YZ_57 → YZ_58 (transition)  
-**Target Completion:** Phase 13.5 - 18 Aralık 2025 (estimated)
+**Created By:** YZ_59 (Phase 13.5 completion)  
+**Next Session:** YZ_60 (Phase 14 start)  
+**Target Completion:** 13 Aralık 2025 (same day, ~6 hours)

@@ -8,6 +8,7 @@
 #include "../statement/statement.h"  // YZ_58: Statement types
 #include "../comparison/comparison.h"  // YZ_58: Comparison expressions
 #include "../control_flow/control_flow.h"  // YZ_58: Control flow structures
+#include "../for_loop/for_loop.h"  // YZ_60: For loop structures
 #include <stdlib.h>
 #include <string.h>
 
@@ -403,19 +404,28 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
         }
         
         case STMT_FOR: {
-            ForStatement* for_stmt = (ForStatement*)stmt->data;
+            // Note: Parser returns ForLoop, but we need to convert it
+            ForLoop* for_loop = (ForLoop*)stmt->data;
+            
+            // For loop only works with range loops currently
+            if (for_loop->loop_type != FOR_TYPE_RANGE) {
+                fprintf(stderr, "Error: For-each loops not yet supported in LLVM backend\n");
+                return NULL;
+            }
             
             // Allocate iterator variable
-            LLVMValue* iter_ptr = llvm_emit_alloca(ctx->llvm_ctx, for_stmt->iterator);
+            LLVMValue* iter_ptr = llvm_emit_alloca(ctx->llvm_ctx, for_loop->var_name);
             
             // Initialize iterator with start value
-            LLVMValue* start_val = generate_expression_llvm(ctx, for_stmt->start);
+            LLVMValue* start_val = llvm_const_i64(for_loop->start_value);
             llvm_emit_store(ctx->llvm_ctx, start_val, iter_ptr);
             llvm_value_free(start_val);
             
-            // Generate end value (evaluated once)
-            LLVMValue* end_val = generate_expression_llvm(ctx, for_stmt->end);
-            LLVMValue* end_ptr = llvm_emit_alloca(ctx->llvm_ctx, "__for_end");
+            // Create constant for end value with unique name
+            char end_var_name[64];
+            snprintf(end_var_name, sizeof(end_var_name), "__for_end_%d", ctx->llvm_ctx->temp_counter++);
+            LLVMValue* end_val = llvm_const_i64(for_loop->end_value);
+            LLVMValue* end_ptr = llvm_emit_alloca(ctx->llvm_ctx, end_var_name);
             llvm_emit_store(ctx->llvm_ctx, end_val, end_ptr);
             llvm_value_free(end_val);
             
@@ -440,18 +450,23 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
             
             // Body block
             llvm_emit_label(ctx->llvm_ctx, body_label);
-            Statement* body_stmt = for_stmt->body;
+            Statement* body_stmt = for_loop->body;
             while (body_stmt) {
                 generate_statement_llvm(ctx, body_stmt);
                 body_stmt = body_stmt->next;
             }
             llvm_emit_br(ctx->llvm_ctx, inc_label);
             
-            // Increment: i = i + 1
+            // Increment: i = i + 1 (or decrement for downto)
             llvm_emit_label(ctx->llvm_ctx, inc_label);
             LLVMValue* iter_val_inc = llvm_emit_load(ctx->llvm_ctx, iter_ptr);
             LLVMValue* one = llvm_const_i64(1);
-            LLVMValue* inc_result = llvm_emit_add(ctx->llvm_ctx, iter_val_inc, one);
+            LLVMValue* inc_result;
+            if (for_loop->direction == FOR_TO) {
+                inc_result = llvm_emit_add(ctx->llvm_ctx, iter_val_inc, one);
+            } else {
+                inc_result = llvm_emit_sub(ctx->llvm_ctx, iter_val_inc, one);
+            }
             llvm_emit_store(ctx->llvm_ctx, inc_result, iter_ptr);
             llvm_value_free(iter_val_inc);
             llvm_value_free(one);

@@ -1,0 +1,9 @@
+function main() returns numeric
+    numeric count = 0
+    for i = 1 to 10
+        if i > 5 then
+            count = count + 1
+        end if
+    end for
+    return count
+end function

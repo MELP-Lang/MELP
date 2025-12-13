@@ -1,8 +1,9 @@
 # 🚀 MELP - Next AI Session Start Here
 
-**Last Session:** 13 Aralık 2025 - YZ_59  
-**Status:** Phase 13.5 LLVM Backend - Complete (100%)  
-**Branch:** `phase13.5-llvm-backend`
+**Last Session:** 13 Aralık 2025 - YZ_59 (Phase 13.5 Complete)  
+**Current Session:** YZ_60 - Phase 14 Parser Enhancement (Starting)  
+**Status:** Phase 14 - While/For Loop Parser Implementation  
+**Branch:** `phase14-parser-enhancement` (to be created)
 
 ---
 
@@ -67,47 +68,47 @@
 
 ---
 
-## 🎯 Your Mission (Phase 14 or Next Feature)
+## 🎯 Your Mission (Phase 14 - Parser Enhancement)
 
-### Completed: Phase 13.5 - LLVM Backend Migration ✅
+### Goal: Complete Control Flow Support in LLVM Backend
 
-**Achievement:**
-- Full LLVM IR backend implementation
-- 8/8 tests passing
-- Documentation complete
-- Performance benchmarking done
-- Git backup and push complete
+**Objective:**
+Add while and for loop parsing to `functions_parser.c` to unlock the already-implemented LLVM codegen for these constructs.
 
-### Options for Next Session:
+### Current Status:
+- ✅ LLVM backend codegen for while/for loops **already implemented** (YZ_58)
+- ⚠️ Parser doesn't recognize while/for statements yet
+- 🎯 Need to add AST generation for these constructs
 
-**Option A: Phase 14 - Parser Enhancement** (2-3 hours)
-- Add while/for loop parsing to functions_parser.c
-- Test with existing while/for test files
-- Complete control flow support in LLVM backend
-- Tasks:
-  1. Parse while statements (30 min)
-  2. Parse for statements (30 min)
-  3. Update AST handling (30 min)
-  4. Test suite (30 min)
-  5. Documentation (30 min)
+### Tasks Overview:
 
-**Option B: Standard Library Integration** (1-2 hours)
-- Replace printf with mlp_println_numeric()
-- Link with libmlp_stdlib.a and libsto_runtime.a
-- Handle STO type tags correctly
-- Tasks:
-  1. External function declarations (30 min)
-  2. Library linking (30 min)
-  3. Testing (30 min)
+**Part 1: While Loop Parser** (90 min)
+1. Study existing parser structure (15 min)
+2. Implement while statement parsing (30 min)
+3. Test while loop parsing (30 min)
+4. Documentation (15 min)
 
-**Option C: Continue Self-Hosting** (Phase 15+)
-- Parser in MELP (15-20 hours)
-- Code generator in MELP (15-20 hours)
-- Full bootstrap (Stage 1)
+**Part 2: For Loop Parser** (90 min)
+1. Study for loop requirements (15 min)
+2. Implement for statement parsing (30 min)
+3. Test for loop parsing (30 min)
+4. Documentation (15 min)
 
-**Recommendation:** Option A (Parser Enhancement) - Completes the LLVM backend feature set
+**Part 3: AST Integration & Error Handling** (60 min)
+1. AST validation (20 min)
+2. Error handling (20 min)
+3. Edge cases (20 min)
 
-**Time Estimate:** 2-3 hours
+**Part 4: Comprehensive Testing** (60 min)
+1. Create test suite (6+ tests) (20 min)
+2. Run test suite (20 min)
+3. Regression testing (20 min)
+
+**Part 5: Documentation & Finalization** (30 min)
+1. Update documentation (15 min)
+2. Git workflow (15 min)
+
+**Total Estimated Time:** 5.5-6 hours
 
 ---
 

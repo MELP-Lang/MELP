@@ -1,6 +1,11 @@
 function main() returns numeric
     numeric x = 0
-    while x < 5
+    numeric y = 0
+    while x < 3
+        y = 0
+        while y < 2
+            y = y + 1
+        end while
         x = x + 1
     end while
     return x
