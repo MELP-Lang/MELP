@@ -2,7 +2,7 @@
 
 **Created:** 13 Aralık 2025  
 **Current Focus:** LLVM IR Backend Implementation  
-**Status:** Phase 13 ✅ Complete | Phase 13.5 🚧 In Progress (75% - Parts 1-4 Done)
+**Status:** Phase 13 ✅ Complete | Phase 13.5 🚧 In Progress (85% - Parts 1-5.1 Done)
 
 ---
 
@@ -17,6 +17,7 @@
 # 1. Kendi dalını oluştur (veya mevcut feature branch'e devam et)
 git checkout -b feature-name_YZ_XX
 # Mevcut: phase13.5-llvm-backend (YZ_57-58)
+# Son commit: 3f1245c (YZ_58: Control Flow Implementation)
 
 # 2. Çalış, commit et
 git add .
@@ -127,26 +128,60 @@ Bu TODO'daki görevlere başlamadan önce **MUTLAKA** şu dosyaları oku:
 
 ---
 
-### Part 5: Advanced Features 🚧 NEXT (YZ_58)
-- [ ] Control Flow IR generation
-  - [ ] `llvm_emit_br()` - Unconditional branch
-  - [ ] `llvm_emit_br_cond()` - Conditional branch
-  - [ ] `llvm_emit_label()` - Label emission
-  - [ ] Update `generate_statement_llvm()` for STMT_IF, STMT_WHILE, STMT_FOR
-- [ ] Standard Library Integration
-  - [ ] Replace printf with `mlp_println_numeric()`
-  - [ ] Link with `libmlp_stdlib.a` and `libsto_runtime.a`
-  - [ ] Handle STO type tags correctly
-- [ ] Comprehensive Testing
-  - [ ] Run all Stage 0 tests with `--backend=llvm`
-  - [ ] Compare outputs: Assembly vs LLVM
-  - [ ] Performance benchmarking (compile time, binary size, runtime)
-- [ ] Documentation & Finalization
-  - [ ] Update `ARCHITECTURE.md` with LLVM backend section
-  - [ ] Create `YZ/YZ_58.md` session report
-  - [ ] Update this TODO marking Phase 13.5 complete
-  - [ ] Create backup branch: `melp_stage0_phase13.5_complete_20251213`
-  - [ ] Merge to main after human review
+### Part 5: Advanced Features 🚧 IN PROGRESS (YZ_58)
+
+#### Part 5.1: Control Flow IR Generation ✅ COMPLETE (YZ_58)
+- [x] `llvm_emit_br()` - Unconditional branch
+- [x] `llvm_emit_br_cond()` - Conditional branch
+- [x] `llvm_emit_label()` - Label emission
+- [x] `llvm_emit_icmp()` - Comparison instructions
+- [x] `generate_comparison_llvm()` - Comparison expression generation
+- [x] Update `generate_statement_llvm()` for:
+  - [x] STMT_IF (with if/else branches)
+  - [x] STMT_ASSIGNMENT (variable reassignment)
+  - [x] STMT_WHILE (codegen ready, parser limitation ⚠️)
+  - [x] STMT_FOR (codegen ready, parser limitation ⚠️)
+
+**Test Results:**
+- [x] `test_llvm_if.mlp` - Exit 1 ✅ (15 > 10 → true)
+- [x] `test_llvm_assign.mlp` - Exit 25 ✅ (x=30, y=25)
+- [x] No regressions (test_basic, test_llvm_functions still passing) ✅
+
+**Known Limitations:**
+- ⚠️ While/for loops: Codegen ready but parser doesn't support them yet
+- 📝 Solution: Defer to Phase 14 or enhance parser in Part 5.2
+
+---
+
+#### Part 5.2: Standard Library Integration ⏳ TODO
+- [ ] Replace printf with `mlp_println_numeric()`
+- [ ] Link with `libmlp_stdlib.a` and `libsto_runtime.a`
+- [ ] Handle STO type tags correctly
+- [ ] External function declarations in LLVM IR
+
+**Note:** Printf currently works for basic testing. Can defer to future phase.
+
+---
+
+#### Part 5.3: Comprehensive Testing ⏳ TODO
+- [ ] Run all Stage 0 tests with `--backend=llvm`
+- [ ] Compare outputs: Assembly vs LLVM
+- [ ] Performance benchmarking (compile time, binary size, runtime)
+- [ ] Document any incompatibilities or limitations
+
+**Priority:** Medium (basic tests already passing)
+
+---
+
+#### Part 5.4: Documentation & Finalization ⏳ TODO
+- [x] Create `YZ/YZ_58.md` session report ✅
+- [x] Update `NEXT_AI_START_HERE.md` with progress ✅
+- [ ] Update `ARCHITECTURE.md` with LLVM backend section
+- [ ] Update this TODO marking Phase 13.5 complete
+- [ ] Create backup branch: `melp_stage0_phase13.5_complete_20251213`
+- [ ] Prepare merge to main (after human review)
+
+**Status:** Partially done (session reports complete)
 
 **Deliverables:**
 - Full test suite passing
