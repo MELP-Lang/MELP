@@ -1,7 +1,7 @@
 # 🚀 MELP - Next AI Session Start Here
 
 **Last Session:** 13 Aralık 2025 - YZ_58  
-**Status:** Phase 13.5 LLVM Backend - Parts 1-4 Complete (75%)  
+**Status:** Phase 13.5 LLVM Backend - Parts 1-4 Complete + Control Flow (85%)  
 **Branch:** `phase13.5-llvm-backend`
 
 ---
@@ -13,13 +13,14 @@
 - 38 functions, 56 token types
 - Merged to main: commit `071d39b`
 
-### 🚧 Phase 13.5: LLVM Backend Migration (75% Complete)
+### 🚧 Phase 13.5: LLVM Backend Migration (85% Complete)
 
 **Completed Parts:**
 - ✅ Part 1: LLVM IR examples & mapping guide
 - ✅ Part 2: LLVM backend module implementation
 - ✅ Part 3: LLVM IR emission functions
 - ✅ Part 4: functions_compiler integration
+- ✅ Part 5.1: Control flow (if/else, assignment, comparisons)
 
 **Current Implementation:**
 - LLVM IR backend fully functional
@@ -27,41 +28,47 @@
 - Test results: ✅ All passing
   - `test_basic.mlp`: 10 + 20 = Exit 30
   - `test_llvm_functions.mlp`: add(15, 27) = Exit 42
+  - `test_llvm_if.mlp`: if 15 > 10 then 1 else 0 = Exit 1
+  - `test_llvm_assign.mlp`: x=30, y=25 = Exit 25
+
+**Control Flow Status:**
+- ✅ If/else statements with conditional branches
+- ✅ Comparison operators (>, <, ==, !=, >=, <=)
+- ✅ Assignment statements
+- ✅ Label generation and branching
+- ⚠️ While loops: Parser limitation (not in AST)
+- ⚠️ For loops: Parser limitation (not in AST)
 
 **Pending:**
-- Part 5: Advanced features (control flow, stdlib integration)
-- Full test suite validation
-- Performance benchmarking
-- Documentation finalization
+- Part 5.2: While/for loop support (requires parser enhancement)
+- Part 5.3: Full test suite validation
+- Part 5.4: Performance benchmarking
+- Part 5.5: Documentation finalization
 
 ---
 
-## 🎯 Your Mission (Phase 13.5 Part 5)
+## 🎯 Your Mission (Phase 13.5 Completion)
 
-### Goal: Complete LLVM Backend Implementation
+### Goal: Finalize LLVM Backend & Documentation
 
 **Tasks:**
-1. **Control Flow IR Generation** (2-3 hours)
-   - If/then/else → LLVM br, label, phi
-   - While loops → LLVM loop structure
-   - For loops integration
+1. **Parser Enhancement for Loops** (2-3 hours) ⚠️ OPTIONAL
+   - Add while/for loop parsing to functions_parser.c
+   - Test with existing while/for test files
+   - Or: Document as known limitation for Phase 14
 
-2. **Standard Library Integration** (1-2 hours)
-   - Fix println to use MELP stdlib instead of printf
-   - Test with STO runtime linking
-   - Verify all stdlib functions work
-
-3. **Full Test Suite** (1-2 hours)
+2. **Full Test Suite** (1-2 hours)
    - Run all existing Stage 0 tests with LLVM backend
    - Compare output: Assembly vs LLVM
-   - Document any regressions
+   - Document any regressions or limitations
 
-4. **Documentation & Merge** (1 hour)
-   - Update ARCHITECTURE.md
+3. **Documentation & Merge** (1 hour)
+   - Update ARCHITECTURE.md with LLVM backend
    - Create YZ_58.md session report
-   - Merge to main branch
+   - Update NEXT_AI_START_HERE.md for next session
+   - Prepare merge to main branch
 
-**Time Estimate:** 5-8 hours total
+**Time Estimate:** 4-6 hours total (or 2-3 if skipping parser enhancement)
 
 ---
 

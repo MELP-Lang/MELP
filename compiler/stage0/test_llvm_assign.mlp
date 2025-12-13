@@ -1,0 +1,9 @@
+function main() returns numeric
+    numeric x = 10
+    numeric y = 20
+    
+    x = x + y
+    y = x - 5
+    
+    return y
+end function

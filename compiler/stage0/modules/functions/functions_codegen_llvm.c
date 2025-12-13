@@ -1,11 +1,13 @@
 // LLVM IR Code Generator for Functions
 // Wrapper around llvm_backend module for functions compiler
-// YZ_58 - Phase 13.5 Part 3
+// YZ_58 - Phase 13.5 Part 3-5
 
 #include "functions_codegen_llvm.h"
 #include "../arithmetic/arithmetic_parser.h"
 #include "../variable/variable.h"
 #include "../statement/statement.h"  // YZ_58: Statement types
+#include "../comparison/comparison.h"  // YZ_58: Comparison expressions
+#include "../control_flow/control_flow.h"  // YZ_58: Control flow structures
 #include <stdlib.h>
 #include <string.h>
 
@@ -42,6 +44,7 @@ void function_generate_module_footer_llvm(FILE* output) {
 // Forward declaration for statement generation
 static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* stmt);
 static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr);
+static LLVMValue* generate_comparison_llvm(FunctionLLVMContext* ctx, ComparisonExpr* cmp);
 
 // Generate LLVM IR for expression
 static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr) {
@@ -146,6 +149,100 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
     return llvm_const_i64(0);
 }
 
+// Generate LLVM IR for comparison expression
+static LLVMValue* generate_comparison_llvm(FunctionLLVMContext* ctx, ComparisonExpr* cmp) {
+    if (!cmp) {
+        return llvm_const_i64(0);
+    }
+    
+    LLVMValue* left = NULL;
+    LLVMValue* right = NULL;
+    
+    // Generate left operand
+    if (cmp->left) {
+        left = generate_expression_llvm(ctx, cmp->left);
+    } else if (cmp->left_value) {
+        if (cmp->left_is_literal) {
+            long val = atol(cmp->left_value);
+            left = llvm_const_i64(val);
+        } else {
+            // Variable reference
+            FunctionParam* param = ctx->current_func->params;
+            int is_param = 0;
+            while (param) {
+                if (strcmp(param->name, cmp->left_value) == 0) {
+                    is_param = 1;
+                    break;
+                }
+                param = param->next;
+            }
+            
+            if (is_param) {
+                left = llvm_reg(cmp->left_value);
+            } else {
+                LLVMValue* var_ptr = llvm_reg(cmp->left_value);
+                left = llvm_emit_load(ctx->llvm_ctx, var_ptr);
+                llvm_value_free(var_ptr);
+            }
+        }
+    } else {
+        left = llvm_const_i64(0);
+    }
+    
+    // Generate right operand
+    if (cmp->right) {
+        right = generate_expression_llvm(ctx, cmp->right);
+    } else if (cmp->right_value) {
+        if (cmp->right_is_literal) {
+            long val = atol(cmp->right_value);
+            right = llvm_const_i64(val);
+        } else {
+            // Variable reference
+            FunctionParam* param = ctx->current_func->params;
+            int is_param = 0;
+            while (param) {
+                if (strcmp(param->name, cmp->right_value) == 0) {
+                    is_param = 1;
+                    break;
+                }
+                param = param->next;
+            }
+            
+            if (is_param) {
+                right = llvm_reg(cmp->right_value);
+            } else {
+                LLVMValue* var_ptr = llvm_reg(cmp->right_value);
+                right = llvm_emit_load(ctx->llvm_ctx, var_ptr);
+                llvm_value_free(var_ptr);
+            }
+        }
+    } else {
+        right = llvm_const_i64(0);
+    }
+    
+    // Map comparison operator to LLVM icmp predicate
+    const char* llvm_op = NULL;
+    switch (cmp->op) {
+        case CMP_EQUAL:         llvm_op = "eq";  break;
+        case CMP_NOT_EQUAL:     llvm_op = "ne";  break;
+        case CMP_LESS:          llvm_op = "slt"; break;
+        case CMP_LESS_EQUAL:    llvm_op = "sle"; break;
+        case CMP_GREATER:       llvm_op = "sgt"; break;
+        case CMP_GREATER_EQUAL: llvm_op = "sge"; break;
+        default:                llvm_op = "eq";  break;
+    }
+    
+    // Emit comparison instruction
+    LLVMValue* result = llvm_emit_icmp(ctx->llvm_ctx, llvm_op, left, right);
+    
+    llvm_value_free(left);
+    llvm_value_free(right);
+    
+    // TODO: Handle logical chaining (AND/OR) if cmp->next is set
+    
+    return result;
+}
+
 // Generate LLVM IR for statement
 static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* stmt) {
     if (!stmt) {
@@ -201,8 +298,176 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
             return NULL;
         }
         
+        case STMT_IF: {
+            IfStatement* if_stmt = (IfStatement*)stmt->data;
+            
+            // Generate unique labels
+            char* then_label = llvm_new_label(ctx->llvm_ctx);
+            char* else_label = if_stmt->has_else ? llvm_new_label(ctx->llvm_ctx) : NULL;
+            char* after_label = llvm_new_label(ctx->llvm_ctx);
+            
+            // Generate condition
+            LLVMValue* cond = generate_comparison_llvm(ctx, (ComparisonExpr*)if_stmt->condition);
+            
+            // Emit conditional branch
+            if (if_stmt->has_else) {
+                llvm_emit_br_cond(ctx->llvm_ctx, cond, then_label, else_label);
+            } else {
+                llvm_emit_br_cond(ctx->llvm_ctx, cond, then_label, after_label);
+            }
+            llvm_value_free(cond);
+            
+            // Then block
+            llvm_emit_label(ctx->llvm_ctx, then_label);
+            Statement* then_stmt = if_stmt->then_body;
+            while (then_stmt) {
+                generate_statement_llvm(ctx, then_stmt);
+                then_stmt = then_stmt->next;
+            }
+            llvm_emit_br(ctx->llvm_ctx, after_label);
+            
+            // Else block (if exists)
+            if (if_stmt->has_else) {
+                llvm_emit_label(ctx->llvm_ctx, else_label);
+                Statement* else_stmt = if_stmt->else_body;
+                while (else_stmt) {
+                    generate_statement_llvm(ctx, else_stmt);
+                    else_stmt = else_stmt->next;
+                }
+                llvm_emit_br(ctx->llvm_ctx, after_label);
+                free(else_label);
+            }
+            
+            // After if
+            llvm_emit_label(ctx->llvm_ctx, after_label);
+            
+            free(then_label);
+            free(after_label);
+            return NULL;
+        }
+        
+        case STMT_WHILE: {
+            WhileStatement* while_stmt = (WhileStatement*)stmt->data;
+            
+            // Generate unique labels
+            char* cond_label = llvm_new_label(ctx->llvm_ctx);
+            char* body_label = llvm_new_label(ctx->llvm_ctx);
+            char* end_label = llvm_new_label(ctx->llvm_ctx);
+            
+            // Jump to condition check
+            llvm_emit_br(ctx->llvm_ctx, cond_label);
+            
+            // Condition block
+            llvm_emit_label(ctx->llvm_ctx, cond_label);
+            LLVMValue* cond = generate_comparison_llvm(ctx, (ComparisonExpr*)while_stmt->condition);
+            llvm_emit_br_cond(ctx->llvm_ctx, cond, body_label, end_label);
+            llvm_value_free(cond);
+            
+            // Body block
+            llvm_emit_label(ctx->llvm_ctx, body_label);
+            Statement* body_stmt = while_stmt->body;
+            while (body_stmt) {
+                generate_statement_llvm(ctx, body_stmt);
+                body_stmt = body_stmt->next;
+            }
+            llvm_emit_br(ctx->llvm_ctx, cond_label);  // Loop back
+            
+            // End block
+            llvm_emit_label(ctx->llvm_ctx, end_label);
+            
+            free(cond_label);
+            free(body_label);
+            free(end_label);
+            return NULL;
+        }
+        
+        case STMT_FOR: {
+            ForStatement* for_stmt = (ForStatement*)stmt->data;
+            
+            // Allocate iterator variable
+            LLVMValue* iter_ptr = llvm_emit_alloca(ctx->llvm_ctx, for_stmt->iterator);
+            
+            // Initialize iterator with start value
+            LLVMValue* start_val = generate_expression_llvm(ctx, for_stmt->start);
+            llvm_emit_store(ctx->llvm_ctx, start_val, iter_ptr);
+            llvm_value_free(start_val);
+            
+            // Generate end value (evaluated once)
+            LLVMValue* end_val = generate_expression_llvm(ctx, for_stmt->end);
+            LLVMValue* end_ptr = llvm_emit_alloca(ctx->llvm_ctx, "__for_end");
+            llvm_emit_store(ctx->llvm_ctx, end_val, end_ptr);
+            llvm_value_free(end_val);
+            
+            // Generate unique labels
+            char* cond_label = llvm_new_label(ctx->llvm_ctx);
+            char* body_label = llvm_new_label(ctx->llvm_ctx);
+            char* inc_label = llvm_new_label(ctx->llvm_ctx);
+            char* end_label = llvm_new_label(ctx->llvm_ctx);
+            
+            // Jump to condition
+            llvm_emit_br(ctx->llvm_ctx, cond_label);
+            
+            // Condition: i <= end
+            llvm_emit_label(ctx->llvm_ctx, cond_label);
+            LLVMValue* iter_val = llvm_emit_load(ctx->llvm_ctx, iter_ptr);
+            LLVMValue* end_val_loaded = llvm_emit_load(ctx->llvm_ctx, end_ptr);
+            LLVMValue* cond = llvm_emit_icmp(ctx->llvm_ctx, "sle", iter_val, end_val_loaded);
+            llvm_emit_br_cond(ctx->llvm_ctx, cond, body_label, end_label);
+            llvm_value_free(iter_val);
+            llvm_value_free(end_val_loaded);
+            llvm_value_free(cond);
+            
+            // Body block
+            llvm_emit_label(ctx->llvm_ctx, body_label);
+            Statement* body_stmt = for_stmt->body;
+            while (body_stmt) {
+                generate_statement_llvm(ctx, body_stmt);
+                body_stmt = body_stmt->next;
+            }
+            llvm_emit_br(ctx->llvm_ctx, inc_label);
+            
+            // Increment: i = i + 1
+            llvm_emit_label(ctx->llvm_ctx, inc_label);
+            LLVMValue* iter_val_inc = llvm_emit_load(ctx->llvm_ctx, iter_ptr);
+            LLVMValue* one = llvm_const_i64(1);
+            LLVMValue* inc_result = llvm_emit_add(ctx->llvm_ctx, iter_val_inc, one);
+            llvm_emit_store(ctx->llvm_ctx, inc_result, iter_ptr);
+            llvm_value_free(iter_val_inc);
+            llvm_value_free(one);
+            llvm_value_free(inc_result);
+            llvm_emit_br(ctx->llvm_ctx, cond_label);  // Loop back
+            
+            // End block
+            llvm_emit_label(ctx->llvm_ctx, end_label);
+            
+            llvm_value_free(iter_ptr);
+            llvm_value_free(end_ptr);
+            free(cond_label);
+            free(body_label);
+            free(inc_label);
+            free(end_label);
+            return NULL;
+        }
+        
+        case STMT_ASSIGNMENT: {
+            VariableAssignment* assign = (VariableAssignment*)stmt->data;
+            
+            // Generate value expression
+            LLVMValue* value = generate_expression_llvm(ctx, assign->value_expr);
+            
+            // Get variable pointer (already allocated)
+            LLVMValue* var_ptr = llvm_reg(assign->name);
+            
+            // Store value
+            llvm_emit_store(ctx->llvm_ctx, value, var_ptr);
+            
+            llvm_value_free(value);
+            llvm_value_free(var_ptr);
+            return NULL;
+        }
+        
         default:
-            // TODO: Handle other statement types (if, while, for)
+            // TODO: Handle other statement types
             return NULL;
     }
 }

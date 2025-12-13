@@ -1,0 +1,18 @@
+function test_if(numeric x) returns numeric
+    numeric result = 0
+    
+    if x > 10 then
+        result = 1
+    else
+        result = 0
+    end if
+    
+    return result
+end function
+
+function main() returns numeric
+    numeric a = test_if(15)
+    numeric b = test_if(5)
+    
+    return a
+end function

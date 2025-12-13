@@ -1,0 +1,11 @@
+function main() returns numeric
+    numeric sum = 0
+    numeric i = 1
+    
+    while i <= 10 do
+        sum = sum + i
+        i = i + 1
+    end while
+    
+    return sum
+end function
