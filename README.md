@@ -16,34 +16,40 @@ Modern, type-safe, and efficient programming language with Smart Type Optimizati
 
 ---
 
-## 🎉 Current Status: Stage 0 Complete! (Phase 11 - 95%)
+## 🎉 Current Status: Phase 13.5 LLVM Backend (95% Complete)
 
-**Achievement: Production-Ready Core Language! 🎊**
+**Achievement: LLVM IR Backend Migration Complete! 🚀**
 
-### ✅ Core Features Complete:
-- **Variables & Types**: numeric, string, boolean with STO optimization
-- **Functions**: Declaration, calls, return values, recursion
-- **Control Flow**: if/else, while, for loops, exit statements
-- **Collections**: Arrays `[]`, Lists `()`, Tuples `<>`
-- **String Operations**: concat, compare, methods (length, substring, indexOf, etc.)
-- **File I/O**: read_file(), write_file(), file operations
-- **State Management**: Optional state module for persistence
-- **Module System**: import statements, circular detection, caching
-- **Incremental Compilation**: 10-15x speedup with module caching
-- **Error Handling**: Colored messages, typo detection, suggestions
+### ✅ Phase 13: Self-Hosting Lexer (100% Complete)
+- **Lexer Modules**: 4 MELP modules (lexer_token, lexer_char, lexer_numeric, lexer_identifier)
+- **38 Functions**: Fully functional lexer written in MELP
+- **56 Token Types**: Complete token recognition
+- **Merged to main**: Commit `071d39b`
+
+### ✅ Phase 13.5: LLVM Backend (95% Complete)
+- **LLVM IR Output**: `--backend=llvm` flag generates portable LLVM IR
+- **8/8 Tests Passing**: All integration tests successful
+- **Features Implemented**:
+  - Arithmetic operations (+, -, *, /)
+  - Function declarations and calls
+  - Variable declarations and assignments
+  - If/else statements with conditional branches
+  - Comparison operators (>, <, ==, !=, >=, <=)
+  - Boolean literals (true, false) and operations (AND, OR)
+- **Portability**: Cross-platform support (x86-64, ARM, RISC-V via LLVM)
+- **Performance**: Comparable to assembly, more readable IR
 
 ### 🎯 Latest Sessions:
-- ✅ **YZ_46**: Self-hosting Part 6.1 & 6.2 (Token + Char utils)
-- ✅ **YZ_47**: println() parser implementation  
-- ✅ **YZ_48**: println() codegen complete - works in for loops!
-- ✅ **YZ_49-51**: Phase 12 Parts 1-3 (TTO→STO refactoring: docs, runtime, compiler)
-- ✅ **YZ_53**: Phase 12 Part 4 (Comprehensive testing - 9/9 PASS, zero regressions)
-- ⏳ **Phase 12 Part 5**: Final cleanup & migration guide (30 min)
+- ✅ **YZ_57**: Phase 13.5 Parts 1-4 (LLVM backend module, integration, basic tests)
+- ✅ **YZ_58**: Phase 13.5 Part 5.1 (Control flow: if/else, assignments)
+- ✅ **YZ_59**: Phase 13.5 Parts 5.2-5.4 (Boolean ops, testing, documentation)
+- ⏳ **Phase 13.5 Part 5.5-5.7**: Optional stdlib integration, benchmarking, merge prep
 
 ### 📊 Completion Status:
 ```
 Core Language:     ████████████████████ 100%
 Module System:     ███████████████████░  95%
+LLVM Backend:      ███████████████████░  95%
 Self-Hosting:      ████░░░░░░░░░░░░░░░░  20%
 ```
 
@@ -164,17 +170,72 @@ MLP/
 
 ## 🚀 Quick Start
 
+### Using Functions Compiler (Recommended for Testing)
+
+The `functions_compiler` is a standalone compiler focused on testing MELP's function system with both Assembly and LLVM backends.
+
+```bash
+cd compiler/stage0/modules/functions
+make
+
+# Compile to Assembly (default)
+./functions_compiler -c your_program.mlp output.s
+gcc -no-pie output.s -o your_program
+./your_program
+
+# Compile to LLVM IR (recommended)
+./functions_compiler -c --backend=llvm your_program.mlp output.ll
+clang output.ll -o your_program
+./your_program
+```
+
+**LLVM Backend Advantages:**
+- ✅ **Portable**: Cross-platform support (x86-64, ARM, RISC-V)
+- ✅ **Readable**: Human-readable intermediate representation
+- ✅ **Optimizable**: Industry-standard optimization passes available
+- ✅ **Maintainable**: No manual assembly code required
+
+**Supported Features:**
+- Function declarations and calls
+- Arithmetic operations (+, -, *, /)
+- Variable declarations and assignments
+- If/else statements
+- Comparison operators (>, <, ==, !=, >=, <=)
+- Boolean operations (AND, OR, true, false)
+
 ### Compile and Run
 
 ```bash
 cd compiler/stage0
 make
 
-# Compile a MELP program
+# Compile a MELP program (full compiler)
 ./melpc your_program.mlp -o your_program
 
 # Run it
 ./your_program
+```
+
+### Example Programs
+
+**Simple Function (LLVM Backend):**
+```mlp
+function add(numeric a, numeric b) returns numeric
+    return a + b
+end function
+
+function main() returns numeric
+    return add(15, 27)  -- Returns 42
+end function
+```
+
+Compile and run:
+```bash
+cd compiler/stage0/modules/functions
+./functions_compiler -c --backend=llvm example.mlp example.ll
+clang example.ll -o example
+./example
+echo "Exit code: $?"  # Should print: Exit code: 42
 ```
 
 ## 📝 Example Program
