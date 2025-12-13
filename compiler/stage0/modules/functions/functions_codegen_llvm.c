@@ -56,6 +56,14 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
     
     // Handle literals
     if (arith->is_literal) {
+        // Handle boolean literals
+        if (strcmp(arith->value, "true") == 0) {
+            return llvm_const_i64(1);
+        }
+        if (strcmp(arith->value, "false") == 0) {
+            return llvm_const_i64(0);
+        }
+        
         // Parse numeric literal
         long value = atol(arith->value);
         return llvm_const_i64(value);
@@ -134,6 +142,12 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
                 break;
             case ARITH_DIV:
                 result = llvm_emit_div(ctx->llvm_ctx, left, right);
+                break;
+            case ARITH_AND:
+                result = llvm_emit_and(ctx->llvm_ctx, left, right);
+                break;
+            case ARITH_OR:
+                result = llvm_emit_or(ctx->llvm_ctx, left, right);
                 break;
             default:
                 result = llvm_const_i64(0);
@@ -263,7 +277,14 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
                 llvm_value_free(init_val);
             } else if (decl->value) {
                 // Fallback: use string value
-                long val = atol(decl->value);
+                long val;
+                if (strcmp(decl->value, "true") == 0) {
+                    val = 1;
+                } else if (strcmp(decl->value, "false") == 0) {
+                    val = 0;
+                } else {
+                    val = atol(decl->value);
+                }
                 LLVMValue* init_val = llvm_const_i64(val);
                 llvm_emit_store(ctx->llvm_ctx, init_val, var_ptr);
                 llvm_value_free(init_val);

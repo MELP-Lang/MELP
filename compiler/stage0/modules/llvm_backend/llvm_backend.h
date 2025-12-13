@@ -111,6 +111,18 @@ LLVMValue* llvm_emit_mul(LLVMContext* ctx, LLVMValue* left, LLVMValue* right);
 LLVMValue* llvm_emit_div(LLVMContext* ctx, LLVMValue* left, LLVMValue* right);
 
 // ============================================================================
+// Logical Emission (Boolean Operations)
+// ============================================================================
+
+// Emit logical AND
+// Example: %result = and i64 %a, %b
+LLVMValue* llvm_emit_and(LLVMContext* ctx, LLVMValue* left, LLVMValue* right);
+
+// Emit logical OR
+// Example: %result = or i64 %a, %b
+LLVMValue* llvm_emit_or(LLVMContext* ctx, LLVMValue* left, LLVMValue* right);
+
+// ============================================================================
 // Comparison Emission
 // ============================================================================
 

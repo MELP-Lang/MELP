@@ -215,6 +215,58 @@ LLVMValue* llvm_emit_div(LLVMContext* ctx, LLVMValue* left, LLVMValue* right) {
 }
 
 // ============================================================================
+// Logical Operations (Boolean AND/OR)
+// ============================================================================
+
+static LLVMValue* llvm_emit_logical_binop(LLVMContext* ctx, const char* op,
+                                           LLVMValue* left, LLVMValue* right) {
+    LLVMValue* result = malloc(sizeof(LLVMValue));
+    result->name = llvm_new_temp(ctx);
+    result->is_constant = 0;
+    
+    if (left->is_constant && right->is_constant) {
+        // Both constants - fold at compile time
+        int64_t result_val = 0;
+        if (strcmp(op, "and") == 0) {
+            result_val = left->const_value & right->const_value;
+        } else if (strcmp(op, "or") == 0) {
+            result_val = left->const_value | right->const_value;
+        }
+        result->is_constant = 1;
+        result->const_value = result_val;
+        return result;
+    }
+    
+    // Logical ops don't use nsw flag
+    fprintf(ctx->output, "    %s = %s i64 ", result->name, op);
+    
+    if (left->is_constant) {
+        fprintf(ctx->output, "%ld", left->const_value);
+    } else {
+        fprintf(ctx->output, "%s", left->name);
+    }
+    
+    fprintf(ctx->output, ", ");
+    
+    if (right->is_constant) {
+        fprintf(ctx->output, "%ld", right->const_value);
+    } else {
+        fprintf(ctx->output, "%s", right->name);
+    }
+    
+    fprintf(ctx->output, "\n");
+    return result;
+}
+
+LLVMValue* llvm_emit_and(LLVMContext* ctx, LLVMValue* left, LLVMValue* right) {
+    return llvm_emit_logical_binop(ctx, "and", left, right);
+}
+
+LLVMValue* llvm_emit_or(LLVMContext* ctx, LLVMValue* left, LLVMValue* right) {
+    return llvm_emit_logical_binop(ctx, "or", left, right);
+}
+
+// ============================================================================
 // Comparison Emission
 // ============================================================================
 

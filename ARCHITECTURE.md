@@ -291,6 +291,142 @@ text msg = "Hello"   # No type annotations needed
 
 ---
 
+## Rule #6: LLVM Backend (Phase 13.5) 🆕
+
+### 🎯 Compiler Backend Architecture
+
+**Design Decision:** Two-backend system for flexibility and portability
+
+**Backend Options:**
+1. **Assembly Backend** (x86-64) - Direct assembly generation
+2. **LLVM IR Backend** (Portable) - LLVM IR text format (`.ll`)
+
+**Selection:** Via `--backend` flag (default: assembly)
+
+```bash
+# Assembly backend (original, x86-64 only)
+./functions_compiler -c input.mlp output.s
+
+# LLVM backend (portable, multi-platform)
+./functions_compiler -c --backend=llvm input.mlp output.ll
+clang output.ll -o program
+```
+
+### 📁 LLVM Backend Module Structure
+
+```
+compiler/stage0/modules/
+├── llvm_backend/           # Core LLVM IR emission
+│   ├── llvm_backend.h      # API definitions (174 lines)
+│   ├── llvm_backend.c      # IR generation (368 lines)
+│   ├── Makefile           # Independent build system
+│   └── test_llvm_backend.c # Unit tests
+│
+└── functions/              # Integration layer
+    ├── functions_codegen_llvm.h   # LLVM codegen wrapper
+    ├── functions_codegen_llvm.c   # Statement/expression IR gen (535 lines)
+    └── functions_standalone.c     # CLI with --backend flag
+```
+
+### 🔧 LLVM Backend API Design
+
+**Principle:** Clean abstraction over LLVM IR text format
+
+```c
+// Context management
+LLVMContext* ctx = llvm_context_create(output_file);
+
+// Module-level
+llvm_emit_module_header(ctx);
+llvm_emit_function_start(ctx, "main", params, count);
+llvm_emit_function_entry(ctx);
+
+// Variables
+LLVMValue* ptr = llvm_emit_alloca(ctx, "x");
+LLVMValue* val = llvm_const_i64(42);
+llvm_emit_store(ctx, val, ptr);
+LLVMValue* loaded = llvm_emit_load(ctx, ptr);
+
+// Arithmetic
+LLVMValue* sum = llvm_emit_add(ctx, left, right);
+LLVMValue* diff = llvm_emit_sub(ctx, left, right);
+
+// Logical (Boolean)
+LLVMValue* and_result = llvm_emit_and(ctx, a, b);
+LLVMValue* or_result = llvm_emit_or(ctx, a, b);
+
+// Comparison
+LLVMValue* cmp = llvm_emit_icmp(ctx, "sgt", a, b);  // signed greater than
+
+// Control flow
+llvm_emit_br_cond(ctx, condition, "then_label", "else_label");
+llvm_emit_label(ctx, "then_label");
+llvm_emit_br(ctx, "after_if");
+
+// Function end
+llvm_emit_return(ctx, result);
+llvm_emit_function_end(ctx);
+llvm_emit_module_footer(ctx);
+```
+
+### ✅ Implemented Features (Phase 13.5)
+
+**Part 1-4: Core Infrastructure** (YZ_57)
+- ✅ LLVM backend module (llvm_backend.c/h)
+- ✅ Integration with functions_compiler
+- ✅ `--backend=llvm` CLI flag
+- ✅ Basic arithmetic operations (+, -, *, /)
+- ✅ Function calls and parameters
+- ✅ Variable declarations and assignments
+
+**Part 5.1: Control Flow** (YZ_58)
+- ✅ If/else statements with conditional branches
+- ✅ Comparison operators (>, <, ==, !=, >=, <=)
+- ✅ Label generation and branching
+- ✅ Assignment statements
+
+**Part 5.2: Boolean Operations** (YZ_59)
+- ✅ Boolean literals (true=1, false=0)
+- ✅ Logical AND operation (`and i64`)
+- ✅ Logical OR operation (`or i64`)
+- ✅ Boolean expression evaluation
+
+### 📊 Test Results
+
+**All tests passing (8/8):**
+```bash
+✅ test_basic.mlp          # 10 + 20 = Exit 30
+✅ test_sanity.mlp         # return 100 = Exit 100
+✅ test_llvm_functions.mlp # add(15, 27) = Exit 42
+✅ test_llvm_if.mlp        # if 15 > 10 then 1 else 0 = Exit 1
+✅ test_llvm_assign.mlp    # x=30, y=25 = Exit 25
+✅ test_boolean_and.mlp    # true and false = Exit 0
+✅ test_boolean_and_true.mlp # true and true = Exit 1
+✅ test_boolean_or.mlp     # true or false = Exit 1
+```
+
+### ⚠️ Known Limitations
+
+1. **While/For Loops:** Codegen ready, parser doesn't support them yet
+2. **Standard Library:** Using printf temporarily (TODO: mlp_println_numeric)
+3. **Optimization:** No LLVM opt passes yet (focus on correctness)
+4. **String Operations:** Not implemented in LLVM backend
+
+### 🔜 Next Steps (Phase 14)
+
+- Parser enhancement for while/for loops
+- Standard library integration (mlp_println_numeric)
+- Self-hosting lexer/parser with LLVM backend
+- Performance benchmarking vs Assembly backend
+
+### 📚 Documentation
+
+- **LLVM IR Guide:** `docs/LLVM_IR_GUIDE.md` (753 lines)
+- **Examples:** `examples/llvm/*.ll` (working IR samples)
+- **Session Reports:** `YZ/YZ_57.md`, `YZ/YZ_58.md`, `YZ/YZ_59.md`
+
+---
+
 ## Current Architecture Status
 
 ### ✅ RESOLVED: TTO Duplicate Definition (9 Aralık 2025 - YZ_02)
@@ -395,6 +531,39 @@ If you violate these, you're breaking MELP's core vision.
 ---
 
 ## 📊 AI Agent Progress Log
+
+### YZ_59 (13 Aralık 2025) - LLVM Boolean Operations ✅
+- **Branch:** `phase13.5-llvm-backend` (active)
+- **Duration:** ~2 hours
+- **Token Usage:** 56K / 1M (5.6%)
+- **Achievements:**
+  - ✅ Boolean literal support (true=1, false=0)
+  - ✅ Logical AND operation (`and i64`)
+  - ✅ Logical OR operation (`or i64`)
+  - ✅ All 8 LLVM tests passing
+- **Documentation:** Part of Phase 13.5 (YZ_57-YZ_59)
+- **Status:** Phase 13.5 ~95% complete
+
+### YZ_58 (13 Aralık 2025) - LLVM Control Flow ✅
+- **Branch:** `phase13.5-llvm-backend` (active)
+- **Achievements:**
+  - ✅ If/else statements with conditional branches
+  - ✅ Comparison operators (>, <, ==, !=, >=, <=)
+  - ✅ Assignment statements
+  - ✅ Label generation and branching
+- **Documentation:** `/YZ/YZ_58.md`
+- **Status:** Control flow complete
+
+### YZ_57 (12-13 Aralık 2025) - LLVM Backend Core ✅
+- **Branch:** `phase13.5-llvm-backend` (active)
+- **Duration:** ~6 hours
+- **Achievements:**
+  - ✅ LLVM backend module (llvm_backend.c/h)
+  - ✅ Integration with functions_compiler
+  - ✅ `--backend=llvm` flag working
+  - ✅ Basic arithmetic and function calls
+- **Documentation:** `/YZ/YZ_57.md`, `docs/LLVM_IR_GUIDE.md`
+- **Status:** Foundation complete
 
 ### YZ_02 (9 Aralık 2025) - Stdlib Integration ✅
 - **Branch:** `stdlib-integration_YZ_02` (pushed)
