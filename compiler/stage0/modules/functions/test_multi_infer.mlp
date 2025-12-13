@@ -1,8 +1,0 @@
-function main() returns numeric
-    -- Multiple implicit declarations
-    a = 10;
-    b = 20;
-    c = a + b;
-    
-    return c
-end function

@@ -16,11 +16,21 @@ LLVMContext* llvm_context_create(FILE* output) {
     ctx->temp_counter = 1;
     ctx->label_counter = 1;
     ctx->string_counter = 1;
+    ctx->string_globals = NULL;  // YZ_61: Initialize globals list
     return ctx;
 }
 
 void llvm_context_free(LLVMContext* ctx) {
     if (ctx) {
+        // YZ_61: Free string globals list
+        StringGlobal* current = ctx->string_globals;
+        while (current) {
+            StringGlobal* next = current->next;
+            free(current->name);
+            free(current->content);
+            free(current);
+            current = next;
+        }
         free(ctx);
     }
 }
@@ -371,6 +381,75 @@ void llvm_value_free(LLVMValue* value) {
     }
 }
 
+// YZ_61: Phase 17 - String Support
+// Register string global constant (doesn't emit immediately)
+char* llvm_emit_string_global(LLVMContext* ctx, const char* str_value) {
+    // Generate unique global name
+    char* global_name = malloc(64);
+    snprintf(global_name, 64, "@.str.%d", ctx->string_counter++);
+    
+    // Create string global node
+    StringGlobal* sg = malloc(sizeof(StringGlobal));
+    sg->name = strdup(global_name);
+    sg->content = strdup(str_value);
+    sg->next = ctx->string_globals;
+    ctx->string_globals = sg;
+    
+    return global_name;
+}
+
+// YZ_61: Emit all collected string globals
+void llvm_emit_all_string_globals(LLVMContext* ctx) {
+    if (!ctx->string_globals) {
+        return;  // No strings to emit
+    }
+    
+    fprintf(ctx->output, "\n; String Constants\n");
+    
+    // Reverse the list to maintain declaration order
+    StringGlobal* reversed = NULL;
+    StringGlobal* current = ctx->string_globals;
+    while (current) {
+        StringGlobal* next = current->next;
+        current->next = reversed;
+        reversed = current;
+        current = next;
+    }
+    
+    // Emit each string global
+    current = reversed;
+    while (current) {
+        size_t len = strlen(current->content) + 1;
+        
+        fprintf(ctx->output, "%s = private unnamed_addr constant [%zu x i8] c\"", 
+                current->name, len);
+        
+        // Emit string content with escape sequences
+        for (const char* p = current->content; *p != '\0'; p++) {
+            switch (*p) {
+                case '\n': fprintf(ctx->output, "\\0A"); break;
+                case '\t': fprintf(ctx->output, "\\09"); break;
+                case '\r': fprintf(ctx->output, "\\0D"); break;
+                case '\\': fprintf(ctx->output, "\\\\"); break;
+                case '"':  fprintf(ctx->output, "\\22"); break;
+                default:
+                    if (*p >= 32 && *p <= 126) {
+                        fprintf(ctx->output, "%c", *p);
+                    } else {
+                        fprintf(ctx->output, "\\%02X", (unsigned char)*p);
+                    }
+            }
+        }
+        
+        // Null terminator
+        fprintf(ctx->output, "\\00\", align 1\n");
+        
+        current = current->next;
+    }
+    
+    fprintf(ctx->output, "\n");
+}
+
 // ============================================================================
 // MLP Standard Library Integration (YZ_61 - Phase 15)
 // ============================================================================
@@ -378,7 +457,9 @@ void llvm_value_free(LLVMValue* value) {
 void llvm_emit_printf_support(LLVMContext* ctx) {
     fprintf(ctx->output, "; MLP Standard Library - I/O Functions\n");
     fprintf(ctx->output, "; void mlp_println_numeric(void* value, uint8_t sto_type)\n");
-    fprintf(ctx->output, "declare void @mlp_println_numeric(i8*, i8)\n\n");
+    fprintf(ctx->output, "declare void @mlp_println_numeric(i8*, i8)\n");
+    fprintf(ctx->output, "; void mlp_println_string(const char* str)\n");
+    fprintf(ctx->output, "declare void @mlp_println_string(i8*)\n\n");
 }
 
 LLVMValue* llvm_emit_println(LLVMContext* ctx, LLVMValue* value) {

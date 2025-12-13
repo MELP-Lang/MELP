@@ -1,0 +1,6 @@
+function main() returns numeric
+    print("Line 1")
+    print("Line 2")
+    print("Merhaba MELP!")
+    return 0
+end

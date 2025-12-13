@@ -1,7 +1,0 @@
-function test() returns numeric
-    numeric a = 5
-    numeric b = 10
-    numeric c = a + b
-    numeric d = c * 2
-    return d
-end function

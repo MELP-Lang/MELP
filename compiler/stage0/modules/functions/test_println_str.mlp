@@ -1,5 +1,0 @@
-function main() returns numeric
-    string msg = "hello"
-    println(msg)
-    return 0
-end function

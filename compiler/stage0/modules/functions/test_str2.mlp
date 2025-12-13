@@ -1,4 +1,0 @@
-function main() returns numeric
-    string msg = "hello"
-    return 0
-end function

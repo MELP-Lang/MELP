@@ -1,4 +1,0 @@
-function main() returns numeric
-    numeric y = 42
-    return y
-end function

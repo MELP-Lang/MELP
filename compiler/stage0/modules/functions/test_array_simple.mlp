@@ -1,7 +1,0 @@
-function main() returns numeric
-    numeric[] numbers = [5, 10, 15]
-    numeric first = numbers[0]
-    numeric second = numbers[1]
-    numeric result = first + second
-    return result
-end function

@@ -1,4 +1,0 @@
-function main() returns numeric
-    write_file("test.txt", "Hello")
-    return 0
-end function

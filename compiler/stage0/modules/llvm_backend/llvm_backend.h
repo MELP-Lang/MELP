@@ -11,6 +11,14 @@
 // Forward declarations
 typedef struct LLVMContext LLVMContext;
 typedef struct LLVMValue LLVMValue;
+typedef struct StringGlobal StringGlobal;
+
+// YZ_61: String global definition (linked list)
+struct StringGlobal {
+    char* name;         // @.str.1
+    char* content;      // Original string value
+    StringGlobal* next;
+};
 
 // LLVM Context - manages IR generation state
 struct LLVMContext {
@@ -18,6 +26,7 @@ struct LLVMContext {
     int temp_counter;       // Counter for %1, %2, etc.
     int label_counter;      // Counter for labels
     int string_counter;     // Counter for string constants
+    StringGlobal* string_globals;  // YZ_61: Linked list of string constants
 };
 
 // LLVM Value - represents a value in IR (register or constant)
@@ -170,6 +179,15 @@ LLVMValue* llvm_reg(const char* name);
 
 // Free LLVM value
 void llvm_value_free(LLVMValue* value);
+
+// YZ_61: Phase 17 - String Support
+// Create string global constant
+// Returns global name (@.str.N) - doesn't emit immediately
+char* llvm_emit_string_global(LLVMContext* ctx, const char* str_value);
+
+// YZ_61: Emit all collected string globals to output
+// Should be called after module header, before function definitions
+void llvm_emit_all_string_globals(LLVMContext* ctx);
 
 // ============================================================================
 // Printf Integration (for println)

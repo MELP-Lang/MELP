@@ -1,7 +1,0 @@
-import math_cache_test
-
-function main() returns numeric
-    numeric a = add(5, 10)
-    numeric b = multiply(3, 4)
-    return a + b
-end function

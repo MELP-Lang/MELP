@@ -1,7 +1,0 @@
-function main() returns numeric
-    boolean flag = true
-    boolean isReady = false
-    numeric x = 1
-    numeric y = 0
-    return x - y
-end function

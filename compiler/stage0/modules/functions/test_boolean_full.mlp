@@ -1,8 +1,0 @@
-function main() returns numeric
-    boolean isTrue = true
-    boolean isFalse = false
-    numeric result = 0
-    numeric trueVal = 1
-    numeric falseVal = 0
-    return trueVal - falseVal
-end function

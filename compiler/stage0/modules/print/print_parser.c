@@ -4,18 +4,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-PrintStatement* parse_print_statement(Lexer* lexer) {
-    // Expect 'print' keyword
-    Token* tok = lexer_next_token(lexer);
-    if (tok->type != TOKEN_PRINT) {
+// YZ_61: Stateless pattern - receives already-read 'print' token
+PrintStatement* parse_print_statement(Lexer* lexer, Token* print_token) {
+    // Verify it's actually a print token (sanity check)
+    if (print_token->type != TOKEN_PRINT) {
         fprintf(stderr, "Error: Expected 'print' keyword\n");
-        token_free(tok);
         return NULL;
     }
-    token_free(tok);
     
     // Expect '('
-    tok = lexer_next_token(lexer);
+    Token* tok = lexer_next_token(lexer);
     if (tok->type != TOKEN_LPAREN) {
         fprintf(stderr, "Error: Expected '(' after 'print'\n");
         token_free(tok);

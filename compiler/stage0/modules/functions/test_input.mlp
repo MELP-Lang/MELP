@@ -1,9 +1,0 @@
--- Test input functions
-function main() returns numeric
-    -- Test input_numeric
-    numeric x = input_numeric()
-    numeric y = input_numeric()
-    numeric result = x + y
-    println(result)
-    return result
-end function

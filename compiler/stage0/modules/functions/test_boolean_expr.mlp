@@ -1,5 +1,0 @@
-function main() returns numeric
-    boolean flag = true
-    numeric x = flag
-    return x
-end function

@@ -1,9 +1,0 @@
-function main() returns numeric
-    text password = "secret"
-    if password == "secret" then
-        println("Access granted")
-    else
-        println("Access denied")
-    end if
-    return 0
-end function

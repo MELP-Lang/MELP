@@ -1,5 +1,0 @@
-function main() returns numeric
-    string message = "Hello World"
-    numeric x = 42
-    return x
-end function

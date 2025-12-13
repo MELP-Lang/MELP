@@ -1,9 +1,0 @@
-function main() returns numeric
-    numeric a = -10
-    
-    if a == -10 then
-        return 100
-    end if
-    
-    return 0
-end function

@@ -13,6 +13,7 @@
 typedef struct {
     LLVMContext* llvm_ctx;
     FunctionDeclaration* current_func;
+    int globals_emitted;  // YZ_61: Flag to emit globals only once
 } FunctionLLVMContext;
 
 // Initialize LLVM codegen context

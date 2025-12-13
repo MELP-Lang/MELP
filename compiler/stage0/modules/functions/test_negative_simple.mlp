@@ -1,8 +1,0 @@
-function main() returns numeric
-    numeric a = -10
-    numeric b = -5
-    numeric sum = a + b
-    numeric diff = a - b
-    numeric prod = a * b
-    return sum
-end function

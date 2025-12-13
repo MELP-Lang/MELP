@@ -1,6 +1,0 @@
-import math
-
-function main() returns numeric
-    numeric result = add(10, 20)
-    return result
-end function

@@ -1,5 +1,0 @@
-function main() returns numeric
-    numeric[] arr = [5, 10, 15]
-    numeric sum = 30
-    return sum
-end function

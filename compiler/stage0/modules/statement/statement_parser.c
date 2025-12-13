@@ -293,27 +293,20 @@ Statement* statement_parse(Parser* parser) {
         return stmt;
     }
     
-    // ✅ PRINT statement - use print module
+    // ✅ YZ_61: PRINT statement - use print module parser
     if (tok->type == TOKEN_PRINT) {
-        // Expect variable name
-        Token* var_tok = lexer_next_token(parser->lexer);
-        if (!var_tok || var_tok->type != TOKEN_IDENTIFIER) {
-            error_parser(0, "Expected variable name after 'print'");
-            token_free(tok);
-            if (var_tok) token_free(var_tok);
+        // Delegate to print_parser module (stateless pattern - pass token)
+        PrintStatement* print_stmt = parse_print_statement(parser->lexer, tok);
+        token_free(tok);
+        tok = NULL;
+        
+        if (!print_stmt) {
             return NULL;
         }
-        
-        PrintStatement* print_stmt = malloc(sizeof(PrintStatement));
-        print_stmt->type = PRINT_VARIABLE;
-        print_stmt->value = strdup(var_tok->value);
         
         stmt = statement_create(STMT_PRINT);
         stmt->data = print_stmt;
         stmt->next = NULL;
-        
-        token_free(tok);
-        token_free(var_tok);
         return stmt;
     }
     

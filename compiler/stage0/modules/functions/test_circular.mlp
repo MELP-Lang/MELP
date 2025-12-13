@@ -1,5 +1,0 @@
-import module_a
-
-function main() returns numeric
-    return func_a()
-end function

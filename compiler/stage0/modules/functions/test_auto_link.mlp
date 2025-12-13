@@ -1,6 +1,0 @@
-function main() returns numeric
-    numeric a = 15
-    numeric b = 25
-    numeric result = a + b
-    return result
-end function

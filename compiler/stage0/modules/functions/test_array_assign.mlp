@@ -1,8 +1,0 @@
-function main() returns numeric
-    numeric[] arr = [10, 20, 30]
-    numeric x = arr[0]
-    arr[0] = 100
-    numeric y = arr[0]
-    numeric result = y - x
-    return result
-end function

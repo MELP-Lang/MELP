@@ -1,9 +1,0 @@
-import math
-
-function main() returns numeric
-    numeric a = add(5, 10)
-    numeric b = multiply(a, 2)
-    numeric c = square(3)
-    numeric result = a + b + c
-    return result
-end function

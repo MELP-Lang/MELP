@@ -18,6 +18,7 @@ FunctionLLVMContext* function_llvm_context_create(FILE* output) {
     FunctionLLVMContext* ctx = malloc(sizeof(FunctionLLVMContext));
     ctx->llvm_ctx = llvm_context_create(output);
     ctx->current_func = NULL;
+    ctx->globals_emitted = 0;  // YZ_61: Initialize flag
     return ctx;
 }
 
@@ -38,9 +39,10 @@ void function_generate_module_header_llvm(FILE* output) {
 
 // Generate LLVM IR module footer
 void function_generate_module_footer_llvm(FILE* output) {
-    LLVMContext* ctx = llvm_context_create(output);
-    llvm_emit_module_footer(ctx);
-    llvm_context_free(ctx);
+    // This function is called with a new context, can't access globals
+    // So we don't emit anything here
+    // Globals are emitted at end of last function
+    (void)output;  // Unused
 }
 
 // Forward declaration for statement generation
@@ -297,20 +299,35 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
         }
         
         case STMT_PRINT: {
-            // YZ_61: Phase 15 - Print statement with stdlib integration
+            // YZ_61: Phase 15 & 17 - Print statement with stdlib integration
             PrintStatement* print_stmt = (PrintStatement*)stmt->data;
             
-            // Get the value to print (for now, only variables supported)
+            if (print_stmt->type == PRINT_STRING_LITERAL) {
+                // YZ_61: Phase 17 - String literal support
+                // Create global string constant
+                char* global_name = llvm_emit_string_global(ctx->llvm_ctx, print_stmt->value);
+                
+                // Get pointer to first character
+                char* str_ptr = llvm_new_temp(ctx->llvm_ctx);
+                size_t str_len = strlen(print_stmt->value) + 1;
+                fprintf(ctx->llvm_ctx->output, "  %s = getelementptr inbounds [%zu x i8], [%zu x i8]* %s, i64 0, i64 0\n",
+                        str_ptr, str_len, str_len, global_name);
+                
+                // Call mlp_println_string
+                fprintf(ctx->llvm_ctx->output, "  call void @mlp_println_string(i8* %s)\n", str_ptr);
+                
+                free(global_name);
+                free(str_ptr);
+                return NULL;
+            }
+            
+            // Get the value to print (for variables)
             LLVMValue* value = NULL;
             if (print_stmt->type == PRINT_VARIABLE) {
                 // Get variable pointer and load value
                 LLVMValue* var_ptr = llvm_reg(print_stmt->value);
                 value = llvm_emit_load(ctx->llvm_ctx, var_ptr);
                 llvm_value_free(var_ptr);
-            } else if (print_stmt->type == PRINT_STRING_LITERAL) {
-                // TODO: String literal support
-                fprintf(stderr, "Warning: String literals not yet supported in LLVM print\n");
-                return NULL;
             }
             
             if (!value) {

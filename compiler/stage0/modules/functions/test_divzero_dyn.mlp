@@ -1,9 +1,0 @@
-function divide(numeric a, numeric b) returns numeric
-    numeric result = a / b
-    return result
-end function
-
-function main() returns numeric
-    numeric x = divide(10, 0)
-    return x
-end function

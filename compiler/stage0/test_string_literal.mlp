@@ -1,0 +1,6 @@
+function main() returns numeric
+    print("Merhaba Dünya!")
+    print("MELP String Support")
+    print("Escape test: \n\t\\")
+    return 0
+end

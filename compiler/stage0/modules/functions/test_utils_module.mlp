@@ -1,8 +1,0 @@
--- Utils module
-function double_value(numeric n) returns numeric
-    return n + n
-end function
-
-function triple_value(numeric n) returns numeric
-    return n + n + n
-end function

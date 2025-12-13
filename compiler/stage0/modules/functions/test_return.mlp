@@ -1,5 +1,0 @@
-function test() returns numeric
-    numeric x = 5
-    numeric y = 10
-    return x + y
-end function

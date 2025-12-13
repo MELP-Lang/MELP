@@ -1,6 +1,0 @@
-import broken
-
-function main() returns numeric
-    numeric result = test()
-    return result
-end function

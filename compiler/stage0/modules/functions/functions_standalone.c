@@ -467,11 +467,16 @@ int main(int argc, char** argv) {
             
             // Generate IR for each function
             FunctionLLVMContext* llvm_ctx = function_llvm_context_create(output);
+            
             FunctionDeclaration* func = functions;
             while (func) {
                 function_generate_declaration_llvm(llvm_ctx, func);
                 func = func->next;
             }
+            
+            // YZ_61: Emit string globals after all functions
+            llvm_emit_all_string_globals(llvm_ctx->llvm_ctx);
+            
             function_llvm_context_free(llvm_ctx);
             
             function_generate_module_footer_llvm(output);

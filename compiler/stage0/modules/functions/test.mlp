@@ -1,3 +1,0 @@
-function main() returns numeric
-    return 42
-end function

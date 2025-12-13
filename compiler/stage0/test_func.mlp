@@ -1,0 +1,3 @@
+function test_func() returns numeric
+    return 0
+end

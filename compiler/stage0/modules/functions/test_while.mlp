@@ -1,9 +1,0 @@
-function main() returns numeric
-    numeric i = 0
-    numeric sum = 0
-    while i < 5 do
-        sum = sum + i
-        i = i + 1
-    end while
-    return sum
-end function

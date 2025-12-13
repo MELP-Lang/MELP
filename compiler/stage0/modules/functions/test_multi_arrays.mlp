@@ -1,6 +1,0 @@
-function main() returns numeric
-    numeric[] first = [1, 2, 3]
-    numeric[] second = [10, 20]
-    numeric result = 42
-    return result
-end function
