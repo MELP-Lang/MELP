@@ -1,9 +1,9 @@
 # 📋 MELP Project TODO - Multi-Phase LLVM Backend Development
 
 **Created:** 13 Aralık 2025  
-**Current Status:** Phase 17 🔄 In Progress (40% complete)  
+**Current Status:** Phase 17 🔄 In Progress (60% complete)  
 **Branch:** phase17-string-support_YZ_61  
-**Last Updated:** 13 Aralık 2025 (YZ_62)
+**Last Updated:** 13 Aralık 2025 (YZ_63)
 
 ---
 
@@ -48,7 +48,7 @@
 
 ## 🔤 Phase 17: String Support in LLVM
 
-**DURUM: 🔄 DEVAM EDİYOR (40% tamamlandı - YZ_62)**  
+**DURUM: 🔄 DEVAM EDİYOR (60% tamamlandı - YZ_63)**  
 **TAHMİNİ SÜRE:** 5-6 saat  
 **ÖNCELİK:** Yüksek
 
@@ -86,17 +86,39 @@
 - [x] UTF-8 variable support ("MELP Dünya" works)
 - [x] Tüm değişiklikler commit ve push edildi
 
-### Kalan Görevler:
+### Tamamlanan Görevler (YZ_63):
 
-- [ ] String function parameters (`function greet(string msg)`)
-- [ ] Mixed type support verification (numeric + string + boolean)
+- [x] String function parameters (`function greet(string msg)`)
+  - [x] LLVM backend param_types array support
+  - [x] `llvm_emit_function_start()` signature updated
+  - [x] i8* parameters in LLVM IR
+  - [x] String params can be printed inside function
+- [x] Mixed type support verified (numeric + string + boolean)
+  - [x] test_mixed_types.mlp - All types coexist ✅
+- [x] Critical bug fixes:
+  - [x] Multi-function parsing (end function check removed)
+  - [x] Statement parser token ungetting fixed
+  - [x] TOKEN_STRING_TYPE vs TOKEN_STRING recognition
+- [x] Test suite expanded
+  - [x] test_string_param_literal.mlp (partial)
+  - [x] test_string_param_var.mlp
+  - [x] test_string_param_multiple.mlp
+  - [x] test_two_funcs.mlp (regression)
+- [x] Tüm değişiklikler commit ve push edildi
+
+### Kalan Görevler (YZ_64):
+
+- [ ] Function calls with string arguments
+  - [ ] String literal as argument (`greet("Hello")`)
+  - [ ] String variable as argument (`greet(msg)`)
+  - [ ] Expression codegen update needed
 - [ ] String concatenation (`x + " world"`)
 - [ ] String comparison (==, !=)
 - [ ] String methods (length, substring, indexOf)
 - [ ] STO string type integration
 - [ ] Memory management (heap allocation for strings)
 
-**NOT:** String literals ✅ ve variables ✅ tamamlandı. Function parameters sırada (YZ_63).
+**NOT:** String literals ✅, variables ✅, ve function parameters ✅ tamamlandı. Function call arguments sırada (YZ_64).
 
 ---
 
@@ -148,6 +170,5 @@
 ---
 
 **Son Güncelleme:** 13 Aralık 2025  
-**YZ Session:** YZ_62  
-**Durum:** Phase 15 ✅ Complete | Phase 17 🔄 40% (String variables working!)
-**Durum:** Phase 15 ✅ Complete | Ready for next phase
+**YZ Session:** YZ_63  
+**Durum:** Phase 15 ✅ Complete | Phase 17 🔄 60% (String parameters working!)
