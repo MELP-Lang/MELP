@@ -48,8 +48,8 @@
 
 ## 🔤 Phase 17: String Support in LLVM
 
-**DURUM: 🔄 DEVAM EDİYOR (75% tamamlandı - YZ_64)**  
-**TAHMİNİ SÜRE:** 5-6 saat (2.5 saat kaldı)  
+**DURUM: 🔄 DEVAM EDİYOR (85% tamamlandı - YZ_65)**  
+**TAHMİNİ SÜRE:** 5-6 saat (1-2 saat kaldı)  
 **ÖNCELİK:** Yüksek
 
 **AMAÇ:** String literal ve operasyonları eklemek.
@@ -118,28 +118,22 @@
   - [x] Test: test_string_param_literal.mlp ✅ PASSING
 - [x] Tüm değişiklikler commit ve push edildi
 
-### Kalan Görevler (YZ_65 - Option B):
+### Tamamlanan Görevler (YZ_65):
 
-**⏰ TAHMİNİ SÜRE: 2.5-3 saat (Güvenli yol)**
+- [x] **Function calls with string VARIABLE arguments** ✅ ÇALIŞIYOR!
+  - [x] Statement parser'a function call desteği eklendi
+  - [x] TOKEN_LPAREN kontrolü ile function call detection
+  - [x] LLVM backend için LocalVariable registry population
+  - [x] scan_statement_for_variables() fonksiyonu eklendi
+  - [x] Variable type tracking (is_numeric flag) çalışıyor
+  - [x] String variables: i8* load doğru yapılıyor
+  - [x] Test: test_string_param_var.mlp ✅ PASSING
+  - [x] Test: test_string_param_multiple.mlp ✅ PASSING
+  - [x] Mixed arguments: `greet("Hello", name)` ✅ PASSING
+  - [x] Regression test: test_string_param_literal.mlp ✅ PASSING
+- [x] Tüm değişiklikler commit ve push edildi
 
-- [ ] **Function calls with string VARIABLE arguments** (2-3 saat)
-  - [ ] Parser fix: `ArithmeticExpr->is_string` flag propagation
-  - [ ] Update `arithmetic_parse_primary_stateless()` için variable type lookup
-  - [ ] Variable registry'den tip bilgisi çekme (LocalVariable->is_numeric)
-  - [ ] `greet(greeting)` where greeting is string variable
-  - [ ] Test: test_string_param_var.mlp ⏳ TODO
-  - [ ] Test: test_string_param_multiple.mlp ⏳ TODO
-  - [ ] Mixed arguments: `greet("Hello", name)` ⏳ TODO
-  
-  **Detaylı Adımlar:**
-  1. `compiler/stage0/modules/arithmetic/arithmetic_parser.c` aç
-  2. `parse_primary_stateless()` içinde `TOKEN_IDENTIFIER` case'i bul
-  3. Variable parse edilirken tip lookup ekle:
-     - FunctionDeclaration->local_vars registry'den ara
-     - Variable type'ı bul (is_numeric == 0 → string)
-     - `expr->is_string = (var_type == VAR_STRING)` set et
-  4. Test ve debug (30-45 dk)
-  5. Edge cases (nested calls, mixed types)
+### Kalan Görevler (Phase 17 - String Operations):
 
 - [ ] String concatenation (`x + " world"`) (2-3 saat)
 - [ ] String comparison (==, !=) (1-2 saat)
@@ -170,9 +164,9 @@
 ---
 
 **Son Güncelleme:** 13 Aralık 2025  
-**YZ Session:** YZ_64  
-**Durum:** Phase 15 ✅ Complete | Phase 17 🔄 75% (String literal arguments working! 🎉)  
-**Next:** YZ_65 - String variable arguments (Option B, 2.5-3 saat)
+**YZ Session:** YZ_65  
+**Durum:** Phase 15 ✅ Complete | Phase 17 🔄 85% (String variable arguments WORKING! 🎉)  
+**Next:** YZ_66 - String concatenation veya documentation
 ---
 
 ## 📝 Phase 19: Documentation & Reporting

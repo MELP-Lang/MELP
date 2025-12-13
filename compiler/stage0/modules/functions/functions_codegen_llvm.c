@@ -49,6 +49,57 @@ void function_generate_module_footer_llvm(FILE* output) {
 static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* stmt);
 static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr);
 static LLVMValue* generate_comparison_llvm(FunctionLLVMContext* ctx, ComparisonExpr* cmp);
+static void scan_statement_for_variables(FunctionDeclaration* func, Statement* stmt);
+
+// YZ_65: Scan statements to populate local_vars registry
+static void scan_statement_for_variables(FunctionDeclaration* func, Statement* stmt) {
+    if (!stmt) return;
+    
+    // Register variable declaration
+    if (stmt->type == STMT_VARIABLE_DECL) {
+        VariableDeclaration* decl = (VariableDeclaration*)stmt->data;
+        if (decl && decl->name) {
+            // Register with type flag (1=numeric, 0=string)
+            int is_numeric = (decl->type != VAR_STRING) ? 1 : 0;
+            function_register_local_var_with_type(func, decl->name, is_numeric);
+        }
+    }
+    
+    // Recursively scan nested blocks
+    if (stmt->type == STMT_IF) {
+        IfStatement* if_stmt = (IfStatement*)stmt->data;
+        if (if_stmt) {
+            Statement* nested = if_stmt->then_body;
+            while (nested) {
+                scan_statement_for_variables(func, nested);
+                nested = nested->next;
+            }
+            if (if_stmt->has_else) {
+                nested = if_stmt->else_body;
+                while (nested) {
+                    scan_statement_for_variables(func, nested);
+                    nested = nested->next;
+                }
+            }
+        }
+    }
+    
+    if (stmt->type == STMT_WHILE) {
+        WhileStatement* while_stmt = (WhileStatement*)stmt->data;
+        if (while_stmt) {
+            Statement* nested = while_stmt->body;
+            while (nested) {
+                scan_statement_for_variables(func, nested);
+                nested = nested->next;
+            }
+        }
+    }
+    
+    // Scan next statement
+    if (stmt->next) {
+        scan_statement_for_variables(func, stmt->next);
+    }
+}
 
 // Generate LLVM IR for expression
 static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr) {
@@ -109,10 +160,11 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
             val->type = (param_type == FUNC_PARAM_TEXT) ? LLVM_TYPE_I8_PTR : LLVM_TYPE_I64;
             return val;
         } else {
-            // YZ_64: Local variable - check if string or numeric
+            // YZ_65: Local variable - check if string or numeric
             // Look up variable type from local_vars registry
             int is_string_var = 0;
             LocalVariable* local = ctx->current_func->local_vars;
+            
             while (local) {
                 if (strcmp(local->name, arith->value) == 0) {
                     is_string_var = !local->is_numeric;  // is_numeric=0 means string
@@ -712,6 +764,13 @@ void function_generate_declaration_llvm(FunctionLLVMContext* ctx, FunctionDeclar
     if (!func) return;
     
     ctx->current_func = func;
+    
+    // YZ_65: First pass - scan for local variables to populate registry
+    Statement* scan_stmt = func->body;
+    while (scan_stmt) {
+        scan_statement_for_variables(func, scan_stmt);
+        scan_stmt = scan_stmt->next;
+    }
     
     // Collect parameter names and types
     const char** param_names = NULL;

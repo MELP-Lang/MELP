@@ -407,10 +407,34 @@ Statement* statement_parse(Parser* parser) {
         return NULL;
     }
     
-    // ✅ Variable assignment - check if identifier followed by '=' or '['
+    // ✅ Variable assignment or function call - check if identifier followed by '=', '[', or '('
     if (tok->type == TOKEN_IDENTIFIER) {
-        // Need to look ahead for '=' or '['
+        // Need to look ahead for '=', '[', or '('
         Token* next_tok = lexer_next_token(parser->lexer);
+        
+        // YZ_65: Check for function call: func(args)
+        if (next_tok && next_tok->type == TOKEN_LPAREN) {
+            // Function call as statement (return value ignored)
+            // Put the '(' back, arithmetic parser will consume it
+            lexer_unget_token(parser->lexer, next_tok);
+            
+            // Parse function call using arithmetic parser
+            ArithmeticExpr* call_expr = arithmetic_parse_expression_stateless(parser->lexer, tok);
+            
+            if (!call_expr) {
+                token_free(tok);
+                error_parser(0, "Failed to parse function call");
+                return NULL;
+            }
+            
+            // tok is now owned by call_expr, don't free it
+            
+            // Create expression statement
+            stmt = statement_create(STMT_EXPRESSION);
+            stmt->data = call_expr;
+            stmt->next = NULL;
+            return stmt;
+        }
         
         // YZ_15: Check for array assignment: arr[i] = value
         if (next_tok && next_tok->type == TOKEN_LBRACKET) {
