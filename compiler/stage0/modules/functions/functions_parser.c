@@ -13,7 +13,8 @@
 static FunctionParamType token_to_param_type(TokenType type) {
     switch (type) {
         case TOKEN_NUMERIC: return FUNC_PARAM_NUMERIC;
-        case TOKEN_STRING: return FUNC_PARAM_TEXT;
+        case TOKEN_STRING_TYPE: return FUNC_PARAM_TEXT;  // YZ_63: string type keyword
+        case TOKEN_STRING: return FUNC_PARAM_TEXT;        // Legacy: string literal token
         case TOKEN_BOOLEAN: return FUNC_PARAM_BOOLEAN;
         default: return FUNC_PARAM_NUMERIC;
     }
@@ -23,7 +24,8 @@ static FunctionParamType token_to_param_type(TokenType type) {
 static FunctionReturnType token_to_return_type(TokenType type) {
     switch (type) {
         case TOKEN_NUMERIC: return FUNC_RETURN_NUMERIC;
-        case TOKEN_STRING: return FUNC_RETURN_TEXT;
+        case TOKEN_STRING_TYPE: return FUNC_RETURN_TEXT;  // YZ_63: string type keyword
+        case TOKEN_STRING: return FUNC_RETURN_TEXT;        // Legacy: string literal token
         case TOKEN_BOOLEAN: return FUNC_RETURN_BOOLEAN;
         default: return FUNC_RETURN_VOID;
     }
@@ -90,11 +92,15 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
         
         // Read type first
         FunctionParamType param_type = token_to_param_type(tok->type);
-        if (param_type == FUNC_PARAM_NUMERIC) {  // Valid type
+        // YZ_63: Check if we consumed a type token
+        // Type tokens: TOKEN_NUMERIC, TOKEN_STRING_TYPE, TOKEN_BOOLEAN
+        if (tok->type == TOKEN_NUMERIC || tok->type == TOKEN_STRING_TYPE || tok->type == TOKEN_BOOLEAN) {
+            // Valid type found, consume it and read parameter name
             token_free(tok);
             tok = lexer_next_token(lexer);
         } else {
-            param_type = FUNC_PARAM_NUMERIC;  // Default if no type
+            // No type specified, default to numeric, current token is param name
+            param_type = FUNC_PARAM_NUMERIC;
         }
         
         // Then parameter name
@@ -138,11 +144,14 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
             
             // Read type
             param_type = token_to_param_type(tok->type);
-            if (param_type == FUNC_PARAM_NUMERIC) {  // Valid type
+            // YZ_63: Check if we consumed a type token
+            if (tok->type == TOKEN_NUMERIC || tok->type == TOKEN_STRING_TYPE || tok->type == TOKEN_BOOLEAN) {
+                // Valid type found, consume it and read parameter name
                 token_free(tok);
                 tok = lexer_next_token(lexer);
             } else {
-                param_type = FUNC_PARAM_NUMERIC;  // Default
+                // No type specified, default to numeric
+                param_type = FUNC_PARAM_NUMERIC;
             }
             
             // Then parameter name

@@ -207,13 +207,8 @@ int main(int argc, char** argv) {
         
         // Look for 'function' keyword
         if (tok->type == TOKEN_FUNCTION) {
-            // Skip 'end function' pattern (prev token was 'end')
-            if (prev_tok && prev_tok->type == TOKEN_END) {
-                // This is 'end function', not a new function declaration
-                if (prev_tok) token_free(prev_tok);
-                prev_tok = tok;
-                continue;
-            }
+            // YZ_63: Removed 'end function' check - MLP uses only 'end', not 'end function'
+            // Every TOKEN_FUNCTION is a new function declaration
             
             func_count++;
             // Next token should be function name

@@ -1,0 +1,10 @@
+function greet(string msg) returns numeric
+    print(msg)
+    return 0
+end
+
+function main() returns numeric
+    string message = "MELP string variable"
+    greet(message)
+    return 0
+end

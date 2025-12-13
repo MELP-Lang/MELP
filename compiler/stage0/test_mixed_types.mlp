@@ -1,0 +1,12 @@
+function main() returns numeric
+    numeric count = 42
+    string name = "MELP Language"
+    boolean ready = true
+    
+    print("Testing mixed types:")
+    print(count)
+    print(name)
+    print(ready)
+    
+    return 0
+end

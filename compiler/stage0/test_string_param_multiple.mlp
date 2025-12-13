@@ -1,0 +1,16 @@
+function show(string msg1, string msg2) returns numeric
+    print(msg1)
+    print(msg2)
+    return 0
+end
+
+function main() returns numeric
+    string first = "First message"
+    string second = "Second message"
+    
+    show("Test 1:", "Literal params")
+    show(first, second)
+    show("Mixed:", first)
+    
+    return 0
+end

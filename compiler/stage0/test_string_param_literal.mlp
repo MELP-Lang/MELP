@@ -1,0 +1,9 @@
+function greet(string msg) returns numeric
+    print(msg)
+    return 0
+end
+
+function main() returns numeric
+    numeric result = greet("Hello from string parameter!")
+    return result
+end

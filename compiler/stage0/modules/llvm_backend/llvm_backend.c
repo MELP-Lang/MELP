@@ -73,13 +73,18 @@ void llvm_emit_module_footer(LLVMContext* ctx) {
 // ============================================================================
 
 void llvm_emit_function_start(LLVMContext* ctx, const char* name,
-                               const char** param_names, int param_count) {
+                               const char** param_names, int* param_types, int param_count) {
     fprintf(ctx->output, "\n; Function: %s\n", name);
     fprintf(ctx->output, "define i64 @%s(", name);
     
     for (int i = 0; i < param_count; i++) {
         if (i > 0) fprintf(ctx->output, ", ");
-        fprintf(ctx->output, "i64 %%%s", param_names[i]);
+        // YZ_63: param_types[i] == 1 means string (i8*), 0 means numeric (i64)
+        if (param_types && param_types[i] == 1) {
+            fprintf(ctx->output, "i8* %%%s", param_names[i]);
+        } else {
+            fprintf(ctx->output, "i64 %%%s", param_names[i]);
+        }
     }
     
     fprintf(ctx->output, ") {\n");

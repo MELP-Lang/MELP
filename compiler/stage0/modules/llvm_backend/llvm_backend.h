@@ -68,8 +68,9 @@ void llvm_emit_module_footer(LLVMContext* ctx);
 
 // Emit function definition start
 // Example: define i64 @add(i64 %a, i64 %b) {
+// YZ_63: Now supports parameter types (0=numeric/i64, 1=string/i8*)
 void llvm_emit_function_start(LLVMContext* ctx, const char* name, 
-                               const char** param_names, int param_count);
+                               const char** param_names, int* param_types, int param_count);
 
 // Emit function entry label
 // Example: entry:

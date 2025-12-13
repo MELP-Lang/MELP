@@ -46,8 +46,8 @@ Statement* statement_parse(Parser* parser) {
         if (next && (next->type == TOKEN_WHILE || 
                      next->type == TOKEN_FOR ||
                      next->type == TOKEN_FUNCTION)) {
-            // End of block - don't consume these tokens
-            token_free(next);
+            // YZ_63: End of block - put next token back, consume end
+            lexer_unget_token(parser->lexer, next);
             token_free(tok);
             return NULL;  // End of block
         }

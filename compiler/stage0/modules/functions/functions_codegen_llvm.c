@@ -353,18 +353,39 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
                 // For now, we'll check if it's a known string variable
                 // TODO: Add proper symbol table with type info
                 
-                // Try to find variable in function's local variables
+                // YZ_63: Check if it's a string variable or parameter
                 Statement* stmt_iter = ctx->current_func->body;
                 int is_string_var = 0;
-                while (stmt_iter) {
-                    if (stmt_iter->type == STMT_VARIABLE_DECL) {
-                        VariableDeclaration* decl = (VariableDeclaration*)stmt_iter->data;
-                        if (strcmp(decl->name, print_stmt->value) == 0 && decl->type == VAR_STRING) {
-                            is_string_var = 1;
-                            break;
-                        }
+                int is_string_param = 0;
+                
+                // Check function parameters first
+                FunctionParam* param = ctx->current_func->params;
+                while (param) {
+                    if (strcmp(param->name, print_stmt->value) == 0 && param->type == FUNC_PARAM_TEXT) {
+                        is_string_param = 1;
+                        break;
                     }
-                    stmt_iter = stmt_iter->next;
+                    param = param->next;
+                }
+                
+                // If not a parameter, check local variables
+                if (!is_string_param) {
+                    while (stmt_iter) {
+                        if (stmt_iter->type == STMT_VARIABLE_DECL) {
+                            VariableDeclaration* decl = (VariableDeclaration*)stmt_iter->data;
+                            if (strcmp(decl->name, print_stmt->value) == 0 && decl->type == VAR_STRING) {
+                                is_string_var = 1;
+                                break;
+                            }
+                        }
+                        stmt_iter = stmt_iter->next;
+                    }
+                }
+                
+                if (is_string_param) {
+                    // String parameter: already i8*, just use it directly
+                    fprintf(ctx->llvm_ctx->output, "  call void @mlp_println_string(i8* %%%s)\n", print_stmt->value);
+                    return NULL;
                 }
                 
                 if (is_string_var) {
@@ -647,8 +668,9 @@ void function_generate_declaration_llvm(FunctionLLVMContext* ctx, FunctionDeclar
     
     ctx->current_func = func;
     
-    // Collect parameter names
+    // Collect parameter names and types
     const char** param_names = NULL;
+    int* param_types = NULL;
     int param_count = 0;
     
     FunctionParam* param = func->params;
@@ -659,16 +681,20 @@ void function_generate_declaration_llvm(FunctionLLVMContext* ctx, FunctionDeclar
     
     if (param_count > 0) {
         param_names = malloc(sizeof(char*) * param_count);
+        param_types = malloc(sizeof(int) * param_count);
         param = func->params;
         int i = 0;
         while (param) {
-            param_names[i++] = param->name;
+            param_names[i] = param->name;
+            // YZ_63: FUNC_PARAM_TEXT (1) -> string type (i8*)
+            param_types[i] = (param->type == FUNC_PARAM_TEXT) ? 1 : 0;
+            i++;
             param = param->next;
         }
     }
     
     // Emit function start
-    llvm_emit_function_start(ctx->llvm_ctx, func->name, param_names, param_count);
+    llvm_emit_function_start(ctx->llvm_ctx, func->name, param_names, param_types, param_count);
     llvm_emit_function_entry(ctx->llvm_ctx);
     
     // Generate body statements
@@ -684,5 +710,8 @@ void function_generate_declaration_llvm(FunctionLLVMContext* ctx, FunctionDeclar
     // Cleanup
     if (param_names) {
         free((void*)param_names);
+    }
+    if (param_types) {
+        free(param_types);
     }
 }
