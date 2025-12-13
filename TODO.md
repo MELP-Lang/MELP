@@ -48,8 +48,8 @@
 
 ## 🔤 Phase 17: String Support in LLVM
 
-**DURUM: 🔄 DEVAM EDİYOR (60% tamamlandı - YZ_63)**  
-**TAHMİNİ SÜRE:** 5-6 saat  
+**DURUM: 🔄 DEVAM EDİYOR (75% tamamlandı - YZ_64)**  
+**TAHMİNİ SÜRE:** 5-6 saat (2.5 saat kaldı)  
 **ÖNCELİK:** Yüksek
 
 **AMAÇ:** String literal ve operasyonları eklemek.
@@ -106,19 +106,50 @@
   - [x] test_two_funcs.mlp (regression)
 - [x] Tüm değişiklikler commit ve push edildi
 
-### Kalan Görevler (YZ_64):
+### Tamamlanan Görevler (YZ_64):
 
-- [ ] Function calls with string arguments
-  - [ ] String literal as argument (`greet("Hello")`)
-  - [ ] String variable as argument (`greet(msg)`)
-  - [ ] Expression codegen update needed
-- [ ] String concatenation (`x + " world"`)
-- [ ] String comparison (==, !=)
-- [ ] String methods (length, substring, indexOf)
-- [ ] STO string type integration
-- [ ] Memory management (heap allocation for strings)
+- [x] **Function calls with string LITERAL arguments** ✅
+  - [x] Extended LLVMValue with type field (LLVM_TYPE_I64, LLVM_TYPE_I8_PTR, LLVM_TYPE_I1)
+  - [x] Added `llvm_emit_string_ptr()` for getelementptr emission
+  - [x] Updated `llvm_emit_call()` to emit correct argument types
+  - [x] Modified `generate_expression_llvm()` to handle string literals
+  - [x] String literals → i8* pointers in function calls
+  - [x] `greet("Hello MELP")` now works! 🎉
+  - [x] Test: test_string_param_literal.mlp ✅ PASSING
+- [x] Tüm değişiklikler commit ve push edildi
 
-**NOT:** String literals ✅, variables ✅, ve function parameters ✅ tamamlandı. Function call arguments sırada (YZ_64).
+### Kalan Görevler (YZ_65 - Option B):
+
+**⏰ TAHMİNİ SÜRE: 2.5-3 saat (Güvenli yol)**
+
+- [ ] **Function calls with string VARIABLE arguments** (2-3 saat)
+  - [ ] Parser fix: `ArithmeticExpr->is_string` flag propagation
+  - [ ] Update `arithmetic_parse_primary_stateless()` için variable type lookup
+  - [ ] Variable registry'den tip bilgisi çekme (LocalVariable->is_numeric)
+  - [ ] `greet(greeting)` where greeting is string variable
+  - [ ] Test: test_string_param_var.mlp ⏳ TODO
+  - [ ] Test: test_string_param_multiple.mlp ⏳ TODO
+  - [ ] Mixed arguments: `greet("Hello", name)` ⏳ TODO
+  
+  **Detaylı Adımlar:**
+  1. `compiler/stage0/modules/arithmetic/arithmetic_parser.c` aç
+  2. `parse_primary_stateless()` içinde `TOKEN_IDENTIFIER` case'i bul
+  3. Variable parse edilirken tip lookup ekle:
+     - FunctionDeclaration->local_vars registry'den ara
+     - Variable type'ı bul (is_numeric == 0 → string)
+     - `expr->is_string = (var_type == VAR_STRING)` set et
+  4. Test ve debug (30-45 dk)
+  5. Edge cases (nested calls, mixed types)
+
+- [ ] String concatenation (`x + " world"`) (2-3 saat)
+- [ ] String comparison (==, !=) (1-2 saat)
+- [ ] String methods (length, substring, indexOf) (3-4 saat)
+- [ ] STO string type integration (2-3 saat)
+- [ ] Memory management (heap allocation for strings) (2-3 saat)
+
+**NOT:** 
+- String literals ✅, variables ✅, function parameters ✅, ve literal arguments ✅ tamamlandı!
+- Variable arguments için parser fix gerekli (YZ_65)
 
 ---
 
@@ -136,11 +167,12 @@
 - [ ] Array indexing (arr[i])
 - [ ] Bounds checking
 - [ ] Array operations (length, push, pop)
-- [ ] Multi-dimensional arrays
-- [ ] Array slicing
-- [ ] Memory management
-- [ ] For-each iteration support
+---
 
+**Son Güncelleme:** 13 Aralık 2025  
+**YZ Session:** YZ_64  
+**Durum:** Phase 15 ✅ Complete | Phase 17 🔄 75% (String literal arguments working! 🎉)  
+**Next:** YZ_65 - String variable arguments (Option B, 2.5-3 saat)
 ---
 
 ## 📝 Phase 19: Documentation & Reporting

@@ -1,79 +1,79 @@
-# 🚀 MELP - Next AI Session Start Here (YZ_64)
+# 🚀 MELP - Next AI Session Start Here (YZ_65)
 
-**Last Session:** 13 Aralık 2025 - YZ_63 (Phase 17 - String Parameters & Multi-function Fix)  
-**Current Session:** YZ_64 - Phase 17 String Support (Continuing)  
-**Status:** Phase 17 - String Support (60% → 75%)  
+**Last Session:** 13 Aralık 2025 - YZ_64 (Phase 17 - String Literal Arguments ✅)  
+**Current Session:** YZ_65 - Phase 17 String Support (Continuing)  
+**Status:** Phase 17 - String Support (75% → 85%)  
 **Branch:** `phase17-string-support_YZ_61` (already exists)
 
 ---
 
-## 📊 YZ_63 Summary - What Was Completed
+## 📊 YZ_64 Summary - What Was Completed
 
-### ✅ String Function Parameters (COMPLETED)
+### ✅ String Function Call Arguments - LITERALS WORKING! 🎉
 
 **Implemented Features:**
-1. **String Function Parameter Declaration**
-   - `function greet(string msg)` syntax fully working
-   - LLVM IR: `i8* %msg` parameter type
-   - Updated `llvm_emit_function_start()` with param_types array
-   - TOKEN_STRING_TYPE recognition in parser
+1. **LLVMValue Type System**
+   - Added `LLVMValueType` enum: I64, I8_PTR, I1
+   - All LLVMValue allocations now initialize `type` field
+   - Type tracking through entire codegen pipeline
 
-2. **String Parameter Printing**
-   - `print(msg)` where msg is string parameter
-   - Direct call to mlp_println_string (no load needed)
-   - Parameters already i8*, not stored on stack
+2. **String Pointer Emission**
+   - `llvm_emit_string_ptr()` helper function
+   - Emits `getelementptr inbounds [N x i8]* @.str.X`
+   - Converts string global to `i8*` pointer
 
-3. **Mixed Type Support**
-   - test_mixed_types.mlp - numeric, string, boolean ✅
-   - All types coexist and print correctly
-   - No regressions from YZ_62
+3. **Expression Codegen for String Literals**
+   - `generate_expression_llvm()` handles string literals
+   - Flow: String literal → llvm_emit_string_global() → llvm_emit_string_ptr()
+   - Returns LLVMValue with type = LLVM_TYPE_I8_PTR
 
-4. **Critical Bug Fixes**
-   - Multi-function parsing: Removed incorrect 'end function' check
-   - Statement parser: Fixed TOKEN_FUNCTION ungetting after 'end'
-   - Parameter parsing: TOKEN_STRING_TYPE vs TOKEN_STRING handling
-   - First pass now finds all functions correctly
+4. **Function Call Type Support**
+   - `llvm_emit_call()` uses argument types
+   - Emits `i8*` for strings, `i64` for numerics
+   - Correct LLVM IR: `call i64 @greet(i8* %ptr)`
 
-**Files Modified (YZ_63):**
+**Files Modified (YZ_64):**
+- `compiler/stage0/modules/llvm_backend/llvm_backend.h`
+  - LLVMValueType enum added
+  - LLVMValue struct extended with `type` field
+  - llvm_emit_string_ptr() declaration
+- `compiler/stage0/modules/llvm_backend/llvm_backend.c`
+  - llvm_emit_string_ptr() implementation
+  - llvm_emit_call() updated for type-aware emission
+  - All LLVMValue allocations initialize type field
 - `compiler/stage0/modules/functions/functions_codegen_llvm.c`
-  - String parameter type detection and print handling
-  - param_types array collection and passing
-- `compiler/stage0/modules/llvm_backend/llvm_backend.c/h`
-  - llvm_emit_function_start() signature updated
-  - i8* emission for string parameters
-- `compiler/stage0/modules/functions/functions_parser.c`
-  - TOKEN_STRING_TYPE support in token_to_param_type()
-  - Fixed parameter type consumption logic
-- `compiler/stage0/modules/functions/functions_standalone.c`
-  - Removed 'end function' pattern check (MLP uses 'end' only)
-- `compiler/stage0/modules/statement/statement_parser.c`
-  - Fixed token ungetting for multi-function files
+  - generate_expression_llvm() handles string literals
+  - Variable type lookup from LocalVariable registry (partial)
 
 **Git Status:**
-- Commit: `1949def` - YZ_63: String parameters + Multi-function fix
+- Commit: `097d0f2` - YZ_64: String literal arguments
 - Pushed to GitHub: ✅
 
-**LLVM IR Pattern (String Parameter):**
+**LLVM IR Pattern (Working!):**
 ```llvm
-; String parameter function
-define i64 @greet(i8* %msg) {
-entry:
-  call void @mlp_println_string(i8* %msg)
-  ret i64 0
-}
+; String literal argument
+%tmp1 = getelementptr inbounds [11 x i8], [11 x i8]* @.str.1, i64 0, i64 0
+%tmp2 = call i64 @greet(i8* %tmp1)  # ✅ Correct!
+
+; String global
+@.str.1 = private unnamed_addr constant [11 x i8] c"Hello MELP\00", align 1
 ```
 
 **Test Results:**
-- test_mixed_types.mlp: ✅ All types working
-- test_two_funcs.mlp: ✅ Multi-function fixed
-- test_string_param_literal.mlp: ⏳ Needs function call arg support
-- String parameters can be printed: ✅ Working
+- test_string_param_literal.mlp: ✅ WORKS! `greet("Hello MELP")` compiled and ran!
+- test_string_param_var.mlp: ❌ Parser issue (is_string flag not propagated)
+
+**Output:**
+```bash
+$ ./test_string_exec
+Hello MELP  # ✅ SUCCESS!
+```
 
 ---
 
-## 🎯 YZ_64 Mission - Function Call Arguments (String Support)
+## 🎯 YZ_65 Mission - String Variable Arguments (Option B)
 
-**Current Gap:** Function parameters work, but calling with string arguments doesn't!
+**Current Gap:** String literal arguments work, but variable arguments don't!
 
 ### Problem Statement
 
@@ -84,232 +84,224 @@ function greet(string msg) returns numeric
 end
 
 function main() returns numeric
-    greet("Hello")  # ❌ Compiles to: call i64 @greet(i64 0) - WRONG!
-    
-    string x = "World"
-    greet(x)        # ❌ Also generates wrong argument type
-    
+    string greeting = "Hello from variable"
+    greet(greeting)  # ❌ Generates wrong IR!
     return 0
 end
 ```
 
 **Current LLVM IR (WRONG):**
 ```llvm
-%tmp1 = call i64 @greet(i64 0)  # Should be: call i64 @greet(i8* @.str.1)
+%greeting_ptr = alloca i8*, align 8
+%tmp1 = getelementptr inbounds [20 x i8], [20 x i8]* @.str.1, i64 0, i64 0
+store i8* %tmp1, i8** %greeting_ptr, align 8
+%tmp2 = load i64, i64* %greeting, align 8  # ❌ Wrong! Should be i8* load
+%tmp3 = call i64 @greet(i64 %tmp2)          # ❌ Wrong type!
 ```
 
 **Expected LLVM IR (CORRECT):**
 ```llvm
-; String literal argument
-%str_ptr = getelementptr inbounds [6 x i8], [6 x i8]* @.str.1, i64 0, i64 0
-%tmp1 = call i64 @greet(i8* %str_ptr)
-
-; String variable argument
-%loaded_str = load i8*, i8** %x_ptr, align 8
-%tmp2 = call i64 @greet(i8* %loaded_str)
+%greeting_ptr = alloca i8*, align 8
+%tmp1 = getelementptr inbounds [20 x i8], [20 x i8]* @.str.1, i64 0, i64 0
+store i8* %tmp1, i8** %greeting_ptr, align 8
+%tmp2 = load i8*, i8** %greeting_ptr, align 8  # ✅ Correct!
+%tmp3 = call i64 @greet(i8* %tmp2)             # ✅ Correct!
 ```
+
+**Root Cause:** When parsing `greet(greeting)`, the `greeting` variable is parsed as an
+ArithmeticExpr, but `is_string` flag is never set. The parser doesn't know the variable type.
 
 ---
 
-## 🔧 YZ_64 Implementation Plan
+## 🔧 YZ_65 Implementation Plan (Option B - Safe Path)
 
-### Task 1: Update Expression Codegen for String Literals (2 hours)
+### ⏰ Estimated Time: 2.5-3 hours
 
-**Location:** `compiler/stage0/modules/arithmetic/arithmetic_codegen_llvm.c`
+### Task 1: Parser - Variable Type Lookup (1.5-2 hours)
 
-**Current Issue:** String literals in expressions return `i64 0`
+**Location:** `compiler/stage0/modules/arithmetic/arithmetic_parser.c`
+
+**Function:** `parse_primary_stateless()`
+
+**Current Issue:** Variable parsed as ArithmeticExpr but `is_string` not set
 
 **Fix Required:**
-1. Check if expression `is_string == 1`
-2. If yes, call `llvm_emit_string_global()` to get global name
-3. Emit `getelementptr` to get i8* pointer
-4. Return LLVMValue with i8* type (need to extend LLVMValue struct?)
+1. In `TOKEN_IDENTIFIER` case, after creating expression
+2. Look up variable in current function's local_vars registry
+3. Or check global variable registry
+4. Set `expr->is_string` based on variable type
 
-**Code to Modify:**
+**Code Pattern:**
 ```c
-// In codegen_expression_llvm()
-if (expr->is_string && expr->is_literal) {
-    // Get or create string global
-    char* global_name = llvm_emit_string_global(ctx->llvm_ctx, expr->value);
+// In parse_primary_stateless() - TOKEN_IDENTIFIER case
+case TOKEN_IDENTIFIER: {
+    ArithmeticExpr* expr = malloc(sizeof(ArithmeticExpr));
+    expr->is_literal = 0;
+    expr->value = strdup(token->value);
     
-    // Emit getelementptr to get i8*
-    char* str_ptr = llvm_new_temp(ctx->llvm_ctx);
-    // ... emit getelementptr instruction
+    // YZ_65: Look up variable type
+    // TODO: Need access to FunctionDeclaration or variable registry
+    // Option 1: Pass function context to parser
+    // Option 2: Use global variable registry
+    // Option 3: Defer to codegen (already partially done)
     
-    // Return as string pointer (need type info in LLVMValue)
-    return llvm_value_with_type(str_ptr, TYPE_STRING);
+    // Set is_string flag
+    expr->is_string = variable_is_string(expr->value);
+    
+    return expr;
 }
 ```
 
-### Task 2: Track Argument Types in Function Calls (1.5 hours)
+**Challenge:** Parser is stateless and doesn't have access to FunctionDeclaration!
+
+**Solutions:**
+- **A) Pass context to parser** (requires signature change)
+- **B) Codegen-time resolution** (already attempted, needs completion)
+- **C) Two-pass parsing** (complex, overkill)
+
+### Task 2: Complete Codegen Variable Type Lookup (1 hour)
+
+### Task 2: Complete Codegen Variable Type Lookup (1 hour)
 
 **Location:** `compiler/stage0/modules/functions/functions_codegen_llvm.c`
 
-**Current Issue:** `generate_function_call_llvm()` doesn't know param types
+**Current State:** Partial implementation exists (YZ_64)
+- Variable type lookup from `LocalVariable` registry implemented
+- BUT: Registry may not be populated correctly
+- OR: is_numeric flag not set during variable declaration
 
 **Fix Required:**
-1. Look up function declaration in registry
-2. Get parameter types from FunctionParam list
-3. Pass correct types when emitting call instruction
+1. Verify `LocalVariable` registry is populated during parsing
+2. Check `is_numeric` field is set correctly (0 for strings, 1 for numeric)
+3. Ensure lookup works for both local vars and function params
+4. Test edge cases (undefined variables, mixed scopes)
 
-**Challenge:** Need function registry for user-defined functions
-
-### Task 3: Extend LLVMValue Type System (1 hour)
-
-**Location:** `compiler/stage0/modules/llvm_backend/llvm_backend.h`
-
-**Current LLVMValue:**
+**Current Code (YZ_64 - Partial):**
 ```c
-struct LLVMValue {
-    char* name;             // Register name
-    int is_constant;        // 1 if constant
-    int64_t const_value;    // Value if constant
-};
+// In generate_expression_llvm() - variable handling
+int is_string_var = 0;
+LocalVariable* local = ctx->current_func->local_vars;
+while (local) {
+    if (strcmp(local->name, arith->value) == 0) {
+        is_string_var = !local->is_numeric;  // is_numeric=0 means string
+        break;
+    }
+    local = local->next;
+}
+
+if (is_string_var || arith->is_string) {
+    // String variable: load i8* from i8**
+    LLVMValue* loaded = malloc(sizeof(LLVMValue));
+    loaded->name = llvm_new_temp(ctx->llvm_ctx);
+    loaded->is_constant = 0;
+    loaded->type = LLVM_TYPE_I8_PTR;
+    
+    fprintf(ctx->llvm_ctx->output, "    %s = load i8*, i8** %%%s_ptr, align 8\n",
+            loaded->name, arith->value);
+    
+    return loaded;
+}
 ```
 
-**Needed:**
-```c
-typedef enum {
-    LLVM_TYPE_I64,      // numeric
-    LLVM_TYPE_I8_PTR,   // string (i8*)
-    LLVM_TYPE_I1        // boolean
-} LLVMType;
+**Testing:** Add debug prints to verify:
+- LocalVariable registry contents
+- is_numeric flag values
+- Variable lookup success/failure
 
-struct LLVMValue {
-    char* name;
-    int is_constant;
-    int64_t const_value;
-    LLVMType type;      // YZ_64: Track value type
-};
-```
+### Task 3: Test and Debug (30-45 min)
 
-### Task 4: Update Function Call Emission (1 hour)
+**Test Files:**
+1. **test_string_param_var.mlp** - String variable argument
+   ```mlp
+   function greet(string msg) returns numeric
+       print(msg)
+       return 0
+   end
+   
+   function main() returns numeric
+       string greeting = "Hello from variable"
+       numeric result = greet(greeting)
+       return 0
+   end
+   ```
+   **Expected:** Prints "Hello from variable"
 
-**Location:** `compiler/stage0/modules/llvm_backend/llvm_backend.c`
+2. **test_string_param_multiple.mlp** - Multiple string arguments
+   ```mlp
+   function show(string a, string b) returns numeric
+       print(a)
+       print(b)
+       return 0
+   end
+   
+   function main() returns numeric
+       show("First", "Second")
+       return 0
+   end
+   ```
+   **Expected:** Prints "First" then "Second"
 
-**Function:** `llvm_emit_call()`
+3. **test_string_mixed_args.mlp** - Mixed literal and variable
+   ```mlp
+   function greet(string greeting, string name) returns numeric
+       print(greeting)
+       print(name)
+       return 0
+   end
+   
+   function main() returns numeric
+       string userName = "MELP"
+       greet("Hello", userName)
+       return 0
+   end
+   ```
+   **Expected:** Prints "Hello" then "MELP"
 
-**Current:** Assumes all args are i64
+### Task 4: Edge Cases (15-30 min)
 
-**Fix:** Accept type array, emit correct types
+- [ ] Nested function calls: `greet(getName())`
+- [ ] String parameters as arguments: `greet(msg)` inside function
+- [ ] Undefined variable handling
+- [ ] Empty strings: `greet("")`
+- [ ] UTF-8 strings: `greet("Merhaba")`
 
 ---
 
-## 🎯 Quick Start (Recommended Path)
+## 💡 Recommended Approach
 
-### Option A: Minimal Fix (String Literals Only - 2 hours)
-
-**Goal:** Make `greet("Hello")` work
-
-**Steps:**
-1. Update `codegen_expression_llvm()` for string literals
-2. Hardcode string type detection in function call
-3. Test with test_string_param_literal.mlp
-
-**Pros:** Fast, unblocks testing  
-**Cons:** Doesn't handle string variables as arguments
-
-### Option B: Complete Fix (String Literals + Variables - 4 hours)
-
-**Goal:** Make both `greet("Hello")` and `greet(x)` work
-
-**Steps:**
-1. Extend LLVMValue with type info
-2. Update expression codegen
-3. Update function call codegen with type tracking
-4. Test all cases
-
-**Pros:** Complete solution  
-**Cons:** More complex, takes longer
-
----
-
-## 📝 Test Cases for YZ_64
-
-### Test 1: String Literal Argument
-```mlp
-function greet(string msg) returns numeric
-    print(msg)
-    return 0
-end
-
-function main() returns numeric
-    greet("Hello MELP")
-    return 0
-end
-```
-
-**Expected Output:** `Hello MELP`
-
-### Test 2: String Variable Argument
-```mlp
-function greet(string msg) returns numeric
-    print(msg)
-    return 0
-end
-
-function main() returns numeric
-    string greeting = "Hello from variable"
-    greet(greeting)
-    return 0
-end
-```
-
-**Expected Output:** `Hello from variable`
-
-### Test 3: Multiple String Arguments
-```mlp
-function show(string a, string b) returns numeric
-    print(a)
-    print(b)
-    return 0
-end
-
-function main() returns numeric
-    show("First", "Second")
-    return 0
-end
-```
-
-**Expected Output:**
-```
-First
-Second
-```
-
----
-
-## 💡 My Recommendation
-
-**Start with Option A (String Literals Only)**
+**Start with Codegen-Only Solution (Faster - 1.5-2 hours)**
 
 Why:
-1. Fastest path to working code (2 hours vs 4 hours)
-2. Unblocks testing and progress
-3. String variables as arguments are less common initially
-4. Can be extended to Option B later if needed
+1. Parser changes are complex and risky
+2. Codegen already has context (FunctionDeclaration)
+3. LocalVariable registry should have all info we need
+4. Less code changes, more contained
 
-**Implementation Order:**
-1. (30 min) Study current expression codegen
-2. (60 min) Add string literal handling in expression codegen
-3. (30 min) Update function call to detect string arguments
-4. (30 min) Test and debug
+**Implementation Steps:**
+1. (15 min) Debug LocalVariable registry - print contents
+2. (30 min) Fix variable declaration to set is_numeric correctly
+3. (30 min) Test variable type lookup in codegen
+4. (15 min) Test string variable arguments
+5. (15-30 min) Edge cases and cleanup
+
+**If codegen solution fails, then consider parser changes (adds 1-1.5 hours)**
 
 ---
 
-## ✅ Success Criteria for YZ_64
+## ✅ Success Criteria for YZ_65
 
-**Minimum (Option A):**
-- `greet("Hello")` compiles and runs ✅
-- String literal arguments work in function calls ✅
-- test_string_param_literal.mlp passes ✅
-
-**Complete (Option B):**
-- String literal arguments work ✅
-- String variable arguments work ✅
-- Multiple string arguments work ✅
+**Minimum:**
+- `greet(greeting)` where greeting is string variable ✅
 - test_string_param_var.mlp passes ✅
+- LLVM IR shows correct i8* load and call ✅
+
+**Complete:**
+- String variable arguments work ✅
+- String literal arguments still work (regression test) ✅
+- Multiple string arguments work ✅
+- Mixed literal + variable arguments work ✅
 - test_string_param_multiple.mlp passes ✅
+- test_string_mixed_args.mlp passes ✅
 
 ---
 
@@ -317,23 +309,96 @@ Why:
 
 ```bash
 git add -A
-git commit -m "YZ_64: Phase 17 - String function call arguments
+git commit -m "YZ_65: Phase 17 - String variable arguments (Option B)
 
-- Added string literal support in expression codegen
-- Updated function call emission for string arguments
-- Extended LLVMValue with type tracking (optional)
-- String arguments now pass i8* correctly
+- Fixed LocalVariable registry population for string variables
+- Variable type lookup now works correctly in codegen
+- String variable arguments pass correct i8* type to functions
+- Added comprehensive test suite for variable arguments
+
+Implementation:
+- Ensured is_numeric flag is set during variable declaration
+- Variable lookup uses LocalVariable registry correctly
+- Both literal and variable string arguments now work
 
 Tests:
-- test_string_param_literal.mlp ✅
-- test_string_param_var.mlp ✅ (if Option B)
-- test_string_param_multiple.mlp ✅ (if Option B)
+- test_string_param_literal.mlp ✅ (regression)
+- test_string_param_var.mlp ✅
+- test_string_param_multiple.mlp ✅
+- test_string_mixed_args.mlp ✅
 
-Status: Phase 17 - 75% complete"
+Status: Phase 17 - 85% complete (Option B done!)"
 
 git push origin phase17-string-support_YZ_61
 ```
 
 ---
 
-**Good luck YZ_64! String support is almost complete! 🚀**
+## 🐛 Known Issues from YZ_64
+
+**Problem:** `%tmp2 = load i64, i64* %greeting, align 8`
+- Should be: `%tmp2 = load i8*, i8** %greeting_ptr, align 8`
+- Variable name mismatch (`%greeting` vs `%greeting_ptr`)
+- Type mismatch (`i64` vs `i8*`)
+
+**Root Causes:**
+1. LocalVariable registry may not contain "greeting"
+2. is_numeric flag may be incorrectly set
+3. Variable name lookup uses wrong name (missing _ptr suffix)
+
+**Fix:** Debug registry and ensure correct population during parsing
+
+---
+
+**Good luck YZ_65! Let's get variable arguments working! 🚀**
+
+**Estimated Time:** 2.5-3 hours  
+**Priority:** High (completes core string support)  
+**Difficulty:** Medium (debugging and registry management)
+
+---
+
+**Good luck YZ_65! Let's get variable arguments working! 🚀**
+
+**Estimated Time:** 2.5-3 hours  
+**Priority:** High (completes core string support)  
+**Difficulty:** Medium (debugging and registry management)
+
+---
+
+## 📚 Reference - What's Already Working (YZ_64)
+
+### ✅ String Literals as Arguments
+```mlp
+greet("Hello MELP")  # ✅ Works!
+```
+
+### ✅ String Parameters
+```mlp
+function greet(string msg) returns numeric  # ✅ Works!
+    print(msg)  # ✅ Works!
+    return 0
+end
+```
+
+### ✅ String Variables
+```mlp
+string greeting = "Hello"  # ✅ Works!
+print(greeting)            # ✅ Works!
+```
+
+### ❌ String Variables as Arguments
+```mlp
+string x = "World"
+greet(x)  # ❌ Doesn't work - YZ_65 will fix this!
+```
+
+---
+
+## 🔗 Quick Links
+
+- **Tests:** `examples/basics/test_string_param_*.mlp`
+- **Parser:** `compiler/stage0/modules/arithmetic/arithmetic_parser.c`
+- **Codegen:** `compiler/stage0/modules/functions/functions_codegen_llvm.c`
+- **Backend:** `compiler/stage0/modules/llvm_backend/llvm_backend.c`
+- **Docs:** `TODO.md`, `YZ/YZ_64.md` (create after completion)
