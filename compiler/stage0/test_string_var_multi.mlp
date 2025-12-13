@@ -1,0 +1,11 @@
+function main() returns numeric
+    string greeting = "Merhaba"
+    string name = "MELP Dünya"
+    string message = "String variables work!"
+    
+    print(greeting)
+    print(name)
+    print(message)
+    
+    return 0
+end

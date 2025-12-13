@@ -1,0 +1,5 @@
+function main() returns numeric
+    string message = "Hello from variable"
+    print(message)
+    return 0
+end

@@ -271,6 +271,32 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
         case STMT_VARIABLE_DECL: {
             VariableDeclaration* decl = (VariableDeclaration*)stmt->data;
             
+            // YZ_62: Phase 17 - Handle string variables
+            if (decl->type == VAR_STRING && decl->value) {
+                // String variable: string x = "hello"
+                // Allocate i8* pointer on stack using variable name + _ptr suffix
+                char var_ptr_name[256];
+                snprintf(var_ptr_name, sizeof(var_ptr_name), "%%%s_ptr", decl->name);
+                fprintf(ctx->llvm_ctx->output, "  %s = alloca i8*, align 8\n", var_ptr_name);
+                
+                // Create global string constant
+                char* global_name = llvm_emit_string_global(ctx->llvm_ctx, decl->value);
+                
+                // Get pointer to first character
+                char* str_ptr = llvm_new_temp(ctx->llvm_ctx);
+                size_t str_len = strlen(decl->value) + 1;
+                fprintf(ctx->llvm_ctx->output, "  %s = getelementptr inbounds [%zu x i8], [%zu x i8]* %s, i64 0, i64 0\n",
+                        str_ptr, str_len, str_len, global_name);
+                
+                // Store string pointer to variable
+                fprintf(ctx->llvm_ctx->output, "  store i8* %s, i8** %s, align 8\n", str_ptr, var_ptr_name);
+                
+                free(global_name);
+                free(str_ptr);
+                return NULL;
+            }
+            
+            // Numeric/boolean variables
             // Allocate variable
             LLVMValue* var_ptr = llvm_emit_alloca(ctx->llvm_ctx, decl->name);
             
@@ -321,7 +347,46 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
                 return NULL;
             }
             
-            // Get the value to print (for variables)
+            // YZ_62: Phase 17 - Handle string variable printing
+            if (print_stmt->type == PRINT_VARIABLE) {
+                // Need to determine if variable is string or numeric
+                // For now, we'll check if it's a known string variable
+                // TODO: Add proper symbol table with type info
+                
+                // Try to find variable in function's local variables
+                Statement* stmt_iter = ctx->current_func->body;
+                int is_string_var = 0;
+                while (stmt_iter) {
+                    if (stmt_iter->type == STMT_VARIABLE_DECL) {
+                        VariableDeclaration* decl = (VariableDeclaration*)stmt_iter->data;
+                        if (strcmp(decl->name, print_stmt->value) == 0 && decl->type == VAR_STRING) {
+                            is_string_var = 1;
+                            break;
+                        }
+                    }
+                    stmt_iter = stmt_iter->next;
+                }
+                
+                if (is_string_var) {
+                    // String variable: load i8* and call mlp_println_string
+                    char* var_ptr_name = llvm_new_temp(ctx->llvm_ctx);
+                    char* loaded_str = llvm_new_temp(ctx->llvm_ctx);
+                    
+                    // Load string pointer from variable
+                    // We need to find the alloca'd pointer
+                    fprintf(ctx->llvm_ctx->output, "  %s = load i8*, i8** %%%s_ptr, align 8\n", 
+                            loaded_str, print_stmt->value);
+                    
+                    // Call mlp_println_string
+                    fprintf(ctx->llvm_ctx->output, "  call void @mlp_println_string(i8* %s)\n", loaded_str);
+                    
+                    free(var_ptr_name);
+                    free(loaded_str);
+                    return NULL;
+                }
+            }
+            
+            // Get the value to print (for numeric variables)
             LLVMValue* value = NULL;
             if (print_stmt->type == PRINT_VARIABLE) {
                 // Get variable pointer and load value

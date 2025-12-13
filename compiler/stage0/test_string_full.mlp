@@ -1,0 +1,13 @@
+function main() returns numeric
+    print("Direct string literal")
+    
+    string name = "MELP Language"
+    print(name)
+    
+    print("---")
+    string status = "Phase 17 Complete!"
+    print(status)
+    print("All tests passing!")
+    
+    return 0
+end
