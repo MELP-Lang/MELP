@@ -2,6 +2,7 @@
 #include "../control_flow/control_flow_parser.h"  // ✅ While/If parsing
 #include "../for_loop/for_loop_parser.h"           // ✅ For loop parsing
 #include "../print/print_parser.h"                 // ✅ Print parsing
+#include "../print/print.h"                        // ✅ YZ_61: PrintStatement struct
 #include "../variable/variable_parser.h"           // ✅ Variable declarations
 #include "../arithmetic/arithmetic_parser.h"       // ✅ Expressions
 #include "../arithmetic/arithmetic.h"              // ✅ ArithmeticExpr
@@ -294,11 +295,25 @@ Statement* statement_parse(Parser* parser) {
     
     // ✅ PRINT statement - use print module
     if (tok->type == TOKEN_PRINT) {
-        token_free(tok);
+        // Expect variable name
+        Token* var_tok = lexer_next_token(parser->lexer);
+        if (!var_tok || var_tok->type != TOKEN_IDENTIFIER) {
+            error_parser(0, "Expected variable name after 'print'");
+            token_free(tok);
+            if (var_tok) token_free(var_tok);
+            return NULL;
+        }
         
-        // TODO: Use print_parse() from print module
+        PrintStatement* print_stmt = malloc(sizeof(PrintStatement));
+        print_stmt->type = PRINT_VARIABLE;
+        print_stmt->value = strdup(var_tok->value);
+        
         stmt = statement_create(STMT_PRINT);
+        stmt->data = print_stmt;
         stmt->next = NULL;
+        
+        token_free(tok);
+        token_free(var_tok);
         return stmt;
     }
     

@@ -1,0 +1,8 @@
+function main() returns numeric
+    numeric sum = 0
+    for i = 1 to 5
+        sum = sum + i
+        print sum
+    end for
+    return 0
+end function

@@ -372,15 +372,13 @@ void llvm_value_free(LLVMValue* value) {
 }
 
 // ============================================================================
-// Printf Integration (for println)
+// MLP Standard Library Integration (YZ_61 - Phase 15)
 // ============================================================================
 
 void llvm_emit_printf_support(LLVMContext* ctx) {
-    fprintf(ctx->output, "; External C library function\n");
-    fprintf(ctx->output, "declare i32 @printf(i8*, ...)\n\n");
-    
-    fprintf(ctx->output, "; Format string for numeric println\n");
-    fprintf(ctx->output, "@.fmt_num = private unnamed_addr constant [5 x i8] c\"%%ld\\0A\\00\", align 1\n\n");
+    fprintf(ctx->output, "; MLP Standard Library - I/O Functions\n");
+    fprintf(ctx->output, "; void mlp_println_numeric(void* value, uint8_t sto_type)\n");
+    fprintf(ctx->output, "declare void @mlp_println_numeric(i8*, i8)\n\n");
 }
 
 LLVMValue* llvm_emit_println(LLVMContext* ctx, LLVMValue* value) {

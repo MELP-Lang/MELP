@@ -1,8 +1,8 @@
-# 📋 MELP Project TODO - Phase 14 (Parser Enhancement for Control Flow)
+# 📋 MELP Project TODO - Phase 15: Standard Library Integration (LLVM)
 
 **Created:** 13 Aralık 2025  
-**Current Focus:** ✅ Phase 14 Complete - Control Flow Support  
-**Status:** Phase 14 ✅ Complete (100% - 13/13 tests passing)
+**Current Focus:** Phase 15 - Standard Library Integration  
+**Status:** Phase 15 🚧 Not Started (0%)
 
 ---
 
@@ -23,7 +23,7 @@ git checkout -b feature-description_YZ_XX
 
 # ÖRNEK:
 # YZ_60: git checkout -b phase14-parser-enhancement_YZ_60
-# YZ_61: git checkout -b phase14-testing_YZ_61
+# YZ_61: git checkout -b phase15-stdlib-integration_YZ_61
 
 # 2. Çalış, commit et
 git add .
@@ -40,317 +40,277 @@ git push origin feature-description_YZ_XX
 👉 **`ARCHITECTURE.md`** - Mimari kurallar (modülerlik, STO, LLVM Backend)  
 👉 **`YZ/AI_METHODOLOGY.md`** - 5 adımlı hızlı geliştirme metodu  
 👉 **`docs/LLVM_IR_GUIDE.md`** - LLVM IR mapping patterns  
-👉 **`temp/TODO_phase13.5_complete_20251213.md`** - Completed Phase 13.5 reference
+👉 **`temp/TODO_phase14_complete_20251213.md`** - Completed Phase 14 reference
 
 ---
 
-## 🎯 Current Milestone: Phase 14 - Parser Enhancement for Control Flow
+## 🎯 Current Milestone: Phase 15 - Standard Library Integration
 
 ### Goal
-Add while and for loop parsing support to `functions_parser.c` to enable full control flow in LLVM backend.
+LLVM backend'inin, C standart kütüphanesindeki `printf` gibi harici fonksiyonlara olan bağımlılığını ortadan kaldırıp, MELP'in kendi standart kütüphanesini (`libmlp_stdlib.a`) ve STO runtime'ını (`libsto_runtime.a`) kullanmasını sağlamak.
 
 ### Context
-- LLVM backend codegen for while/for loops is **already implemented** (YZ_58)
-- Parser currently doesn't recognize while/for statements
-- Need to add AST generation for these constructs
+- Phase 14'te LLVM backend tam kontrol akışı desteğini kazandı (if/else, while, for)
+- Şu anda `printf` kullanarak çıktı alıyoruz (harici C kütüphanesi bağımlılığı)
+- MELP'in kendi `mlp_println_numeric()` fonksiyonu var (`runtime/stdlib/src/io.c`)
+- STO (Symbolic Type Object) runtime'ı zaten mevcut (`runtime/sto/`)
 
 ### Why This Matters
-- Completes the LLVM backend feature set
-- Enables writing real-world programs with loops
-- Unlocks full potential of MELP's control flow system
+- LLVM backend'ini projenin geri kalanıyla entegre eder
+- Harici bağımlılıkları azaltır (self-contained sistem)
+- STO tip sistemiyle uyumlu hale getirir
+- Gelecekteki string, array gibi tipler için altyapı oluşturur
 
 ---
 
-## 📦 Phase 14 Tasks
+## 📦 Phase 15 Tasks
 
-### Part 1: While Loop Parser Implementation (90 min)
+### Part 1: Hazırlık ve Planlama (15 dakika)
 
-#### Task 1.1: Study Existing Parser Structure (15 min)
-- [x] Read `compiler/stage0/modules/functions/functions_parser.c`
-- [x] Understand current statement parsing flow
-- [x] Review control_flow module integration
-- [x] Check how if/else statements are parsed
+#### Task 1.1: Git Branch Oluşturma (5 min)
+- [ ] Yeni branch oluştur: `phase15-stdlib-integration_YZ_61`
+- [ ] Branch'i push et
+
+#### Task 1.2: Mevcut Kodu İnceleme (10 min)
+- [ ] `functions_codegen_llvm.c` içinde `printf` kullanımını bul
+- [ ] `runtime/stdlib/src/io.c` içinde `mlp_println_numeric` fonksiyonunu incele
+- [ ] `runtime/sto/sto.h` içinde STO yapısını anla
+- [ ] Mevcut linking yapısını kontrol et (`Makefile`)
 
 **Files to Review:**
-- `compiler/stage0/modules/control_flow/control_flow_parser.h`
-- `compiler/stage0/modules/functions/functions_parser.c`
-- `compiler/stage0/modules/statement/statement.h` (AST definitions)
+- `compiler/stage0/modules/functions/functions_codegen_llvm.c`
+- `runtime/stdlib/src/io.c`
+- `runtime/sto/sto.h`
+- `compiler/stage0/Makefile`
 
-#### Task 1.2: Implement While Statement Parsing (30 min)
-- [ ] Add while keyword recognition
-- [ ] Parse while condition expression
-- [ ] Parse while body (statement list)
-- [ ] Create WhileStatement AST node
-- [ ] Add to statement parsing switch
+---
+
+### Part 2: `printf` Bağımlılığını Kaldırma (1 saat)
+
+#### Task 2.1: `printf` Kullanımını Bul (10 min)
+- [ ] `functions_codegen_llvm.c` içinde `printf` çağrılarını tespit et
+- [ ] Hangi statement türlerinde kullanıldığını belirle
+- [ ] Mevcut LLVM IR çıktısını incele
+
+#### Task 2.2: `mlp_println_numeric` Deklarasyonu Ekle (20 min)
+- [ ] `llvm_backend.c` veya uygun modülde fonksiyon prototipi ekle
+- [ ] LLVM IR'de external function declaration oluştur
+- [ ] Fonksiyon signature: `void mlp_println_numeric(STO*)`
 
 **Implementation Steps:**
 ```c
-// 1. In parse_statement():
-case TOKEN_WHILE:
-    return parse_while_statement(lexer, current);
-
-// 2. Implement parse_while_statement():
-Statement* parse_while_statement(Lexer* lexer, Token** current) {
-    // Parse: while <condition> ... end while
-    // 1. Consume 'while' keyword
-    // 2. Parse condition expression
-    // 3. Parse body statements until 'end'
-    // 4. Consume 'end while'
-    // 5. Return STMT_WHILE with condition and body
+// In llvm_backend.c or functions_codegen_llvm.c
+// Add function declaration
+void llvm_declare_stdlib_functions(LLVMContext* ctx) {
+    // declare void @mlp_println_numeric(%STO*)
+    fprintf(ctx->output, "declare void @mlp_println_numeric(%%STO*)\n");
 }
 ```
 
-**Files to Modify:**
-- `compiler/stage0/modules/functions/functions_parser.c`
+#### Task 2.3: `printf` Yerine `mlp_println_numeric` Kullan (30 min)
+- [ ] STO nesnesi oluşturma kodunu yaz
+- [ ] Numerik değeri STO wrapper'a koy
+- [ ] `mlp_println_numeric` çağrısını oluştur
+- [ ] Eski `printf` kodunu kaldır
 
-#### Task 1.3: Test While Loop Parsing (30 min)
-- [ ] Create test file: `test_while_loop.mlp`
-- [ ] Compile with `--backend=llvm`
-- [ ] Verify LLVM IR generation
-- [ ] Test execution and output
-- [ ] Fix any parsing errors
+**Implementation Steps:**
+```c
+// Eski kod (printf ile):
+// call i32 (i8*, ...) @printf(i8* getelementptr(...), i32 %value)
+
+// Yeni kod (mlp_println_numeric ile):
+// 1. STO nesnesi için alan ayır
+// %sto = alloca %STO
+// 2. STO'yu numerik değerle doldur
+// %sto_ptr = getelementptr %STO, %STO* %sto, i32 0, i32 0
+// store i32 1, i32* %sto_ptr  ; type = NUMERIC
+// %value_ptr = getelementptr %STO, %STO* %sto, i32 0, i32 1
+// store i32 %value, i32* %value_ptr
+// 3. Fonksiyonu çağır
+// call void @mlp_println_numeric(%STO* %sto)
+```
+
+**Files to Modify:**
+- `compiler/stage0/modules/functions/functions_codegen_llvm.c`
+- Possibly `compiler/stage0/modules/llvm_backend/llvm_backend.c`
+
+---
+
+### Part 3: STO Type System Integration (45 dakika)
+
+#### Task 3.1: STO Struct Definition (15 min)
+- [ ] LLVM IR'de STO struct tanımı ekle
+- [ ] Type enum değerlerini belirle (NUMERIC = 1)
+- [ ] Struct layout'u doğrula
+
+**STO Structure:**
+```c
+// C definition (from runtime/sto/sto.h)
+typedef struct STO {
+    int type;      // 1 = NUMERIC, 2 = STRING, etc.
+    union {
+        int numeric_value;
+        char* string_value;
+        // ...
+    } data;
+} STO;
+
+// LLVM IR definition
+%STO = type { i32, i32 }  ; Simplified: type + numeric_value
+```
+
+#### Task 3.2: Helper Functions for STO Creation (20 min)
+- [ ] `llvm_create_numeric_sto()` fonksiyonu ekle
+- [ ] Geçici değişken isimlerini yönet
+- [ ] Memory allocation ve initialization kodunu üret
+
+#### Task 3.3: Test STO Integration (10 min)
+- [ ] Basit bir test case derle
+- [ ] LLVM IR çıktısını kontrol et
+- [ ] STO struct'ın doğru oluşturulduğunu doğrula
+
+---
+
+### Part 4: Linker Configuration (30 dakika)
+
+#### Task 4.1: Runtime Libraries'i Derle (10 min)
+- [ ] `runtime/stdlib/` dizininde `make` çalıştır
+- [ ] `libmlp_stdlib.a` oluştuğunu doğrula
+- [ ] `runtime/sto/` dizininde `make` çalıştır
+- [ ] `libsto_runtime.a` oluştuğunu doğrula
+
+**Commands:**
+```bash
+cd runtime/stdlib
+make
+ls -la bin/libmlp_stdlib.a
+
+cd ../sto
+make
+ls -la bin/libsto_runtime.a
+```
+
+#### Task 4.2: Makefile'ı Güncelle (20 min)
+- [ ] `compiler/stage0/Makefile` dosyasını aç
+- [ ] `run_llvm` hedefini bul
+- [ ] Linker flags ekle: `-Lruntime/stdlib/bin -Lruntime/sto/bin`
+- [ ] Library flags ekle: `-lmlp_stdlib -lsto_runtime`
+- [ ] Test et
+
+**Makefile Changes:**
+```makefile
+run_llvm: functions_compiler
+	./functions_compiler -c --backend=llvm $(file) $(file:.mlp=.ll)
+	clang $(file:.mlp=.ll) \
+		-Lruntime/stdlib/bin -Lruntime/sto/bin \
+		-lmlp_stdlib -lsto_runtime \
+		-o $(file:.mlp=)
+	./$(file:.mlp=)
+```
+
+**Files to Modify:**
+- `compiler/stage0/Makefile`
+
+---
+
+### Part 5: Testing & Validation (45 dakika)
+
+#### Task 5.1: Create Basic Test (15 min)
+- [ ] `test_stdlib_print.mlp` oluştur
+- [ ] Basit numerik değer yazdır
+- [ ] Compile ve run
 
 **Test Case:**
 ```mlp
 function main() returns numeric
-    numeric x = 0
-    while x < 5
-        x = x + 1
-    end while
-    return x  -- Should return 5
+    numeric x = 123
+    -- Bu satır artık mlp_println_numeric kullanmalı
+    return 0
 end function
 ```
 
-#### Task 1.4: Documentation (15 min)
-- [ ] Update parser comments
-- [ ] Document while loop syntax
-- [ ] Add to test suite
+#### Task 5.2: Update Existing Tests (20 min)
+- [ ] Phase 14'ten gelen test dosyalarını güncelle
+- [ ] Print statements ekle
+- [ ] Tüm testleri yeniden çalıştır
+- [ ] Regression kontrolü yap
 
-**Deliverables:**
-- While loops working in functions_compiler ✓
-- Test case passing ✓
-- Parser documentation updated ✓
+**Tests to Update:**
+- `test_while_simple.mlp`
+- `test_for_simple.mlp`
+- `test_nested_for.mlp`
+- `test_loop_with_if.mlp`
+- `test_while_nested.mlp`
 
----
-
-### Part 2: For Loop Parser Implementation (90 min)
-
-#### Task 2.1: Study For Loop Requirements (15 min)
-- [ ] Review existing for loop codegen (YZ_58)
-- [ ] Check AST structure needed
-- [ ] Understand `for i = start to end` syntax
-- [ ] Review increment/decrement logic
-
-**Reference:**
-- `compiler/stage0/modules/control_flow/control_flow_codegen.c`
-- Look for `control_flow_generate_for()`
-
-#### Task 2.2: Implement For Statement Parsing (30 min)
-- [ ] Add for keyword recognition
-- [ ] Parse iterator variable
-- [ ] Parse start expression
-- [ ] Parse end expression
-- [ ] Parse optional step (future enhancement)
-- [ ] Parse for body
-- [ ] Create ForStatement AST node
-
-**Implementation Steps:**
-```c
-// Parse: for i = start to end ... end for
-Statement* parse_for_statement(Lexer* lexer, Token** current) {
-    // 1. Consume 'for' keyword
-    // 2. Parse iterator variable name
-    // 3. Consume '=' token
-    // 4. Parse start expression
-    // 5. Consume 'to' keyword
-    // 6. Parse end expression
-    // 7. Parse body statements
-    // 8. Consume 'end for'
-    // 9. Return STMT_FOR
-}
-```
-
-**Files to Modify:**
-- `compiler/stage0/modules/functions/functions_parser.c`
-
-#### Task 2.3: Test For Loop Parsing (30 min)
-- [ ] Create test file: `test_for_loop.mlp`
-- [ ] Compile with `--backend=llvm`
-- [ ] Verify LLVM IR generation
-- [ ] Test execution and output
-- [ ] Fix any parsing errors
-
-**Test Cases:**
-```mlp
-function main() returns numeric
-    numeric sum = 0
-    for i = 1 to 5
-        sum = sum + i
-    end for
-    return sum  -- Should return 15 (1+2+3+4+5)
-end function
-```
-
-#### Task 2.4: Documentation (15 min)
-- [ ] Update parser comments
-- [ ] Document for loop syntax
-- [ ] Add to test suite
-
-**Deliverables:**
-- For loops working in functions_compiler ✓
-- Test cases passing ✓
-- Parser documentation updated ✓
-
----
-
-### Part 3: AST Integration & Error Handling (60 min)
-
-#### Task 3.1: AST Validation (20 min)
-- [ ] Verify WhileStatement structure
-- [ ] Verify ForStatement structure
-- [ ] Check field initialization
-- [ ] Test memory management (no leaks)
-
-**AST Structures to Verify:**
-```c
-typedef struct WhileStatement {
-    Expression* condition;
-    Statement** body;
-    int body_count;
-} WhileStatement;
-
-typedef struct ForStatement {
-    char* iterator;
-    Expression* start;
-    Expression* end;
-    Statement** body;
-    int body_count;
-} ForStatement;
-```
-
-#### Task 3.2: Error Handling (20 min)
-- [ ] Add syntax error messages
-- [ ] Handle missing 'end while'
-- [ ] Handle missing 'end for'
-- [ ] Handle invalid conditions
-- [ ] Handle missing iterator in for loop
-
-**Error Cases to Handle:**
-```mlp
--- Missing end while
-while x < 10
-    x = x + 1
--- ERROR: Expected 'end while'
-
--- Missing iterator
-for = 1 to 10
-    -- ...
--- ERROR: Expected iterator variable
-```
-
-#### Task 3.3: Edge Cases (20 min)
-- [ ] Empty loop bodies
-- [ ] Nested loops (while in while, for in for)
-- [ ] Mixed nesting (for in while, while in for)
-- [ ] Loops with if/else inside
-
-**Test Cases:**
-```mlp
--- Nested for loops
-for i = 1 to 3
-    for j = 1 to 3
-        -- sum = sum + (i * j)
-    end for
-end for
-```
-
-**Deliverables:**
-- Robust error handling ✓
-- Edge cases covered ✓
-- No memory leaks ✓
-
----
-
-### Part 4: Comprehensive Testing (60 min)
-
-#### Task 4.1: Create Test Suite (20 min)
-- [ ] `test_while_simple.mlp` - Basic while loop
-- [ ] `test_while_nested.mlp` - Nested while
-- [ ] `test_for_simple.mlp` - Basic for loop
-- [ ] `test_for_nested.mlp` - Nested for
-- [ ] `test_loop_mixed.mlp` - While + for + if/else
-- [ ] `test_loop_empty.mlp` - Empty loop bodies
-
-#### Task 4.2: Run Test Suite (20 min)
-- [ ] Compile all tests with LLVM backend
-- [ ] Verify LLVM IR output
-- [ ] Execute all binaries
-- [ ] Check exit codes
-- [ ] Document results
+#### Task 5.3: Comprehensive Testing (10 min)
+- [ ] Tüm testleri derle ve çalıştır
+- [ ] Çıktıların doğruluğunu kontrol et
+- [ ] Memory leaks kontrolü (valgrind)
+- [ ] Performance karşılaştırması (printf vs mlp_println)
 
 **Test Automation:**
 ```bash
 #!/bin/bash
-# test_parser_loops.sh
+# test_stdlib_integration.sh
 
-for test in test_while_*.mlp test_for_*.mlp; do
+echo "=== Testing Standard Library Integration ==="
+for test in test_*.mlp; do
     echo "Testing: $test"
-    ./functions_compiler -c --backend=llvm "$test" "${test%.mlp}.ll"
-    clang "${test%.mlp}.ll" -o "${test%.mlp}"
-    ./"${test%.mlp}"
-    echo "Exit code: $?"
+    make run_llvm file="$test"
+    if [ $? -eq 0 ]; then
+        echo "✅ PASS: $test"
+    else
+        echo "❌ FAIL: $test"
+    fi
 done
 ```
 
-#### Task 4.3: Regression Testing (20 min)
-- [ ] Re-run all Phase 13.5 tests (8 tests)
-- [ ] Verify no regressions
-- [ ] Check assembly backend still works
-- [ ] Document any breaking changes
-
-**Expected Results:**
-- All Phase 13.5 tests still pass ✓
-- New loop tests pass ✓
-- Zero regressions ✓
-
-**Deliverables:**
-- 6+ new test cases ✓
-- Automated test script ✓
-- Regression test results ✓
-
 ---
 
-### Part 5: Documentation & Finalization (30 min)
+### Part 6: Documentation & Finalization (30 dakika)
 
-#### Task 5.1: Update Documentation (15 min)
-- [ ] Update `ARCHITECTURE.md` if needed
-- [ ] Update `README.md` examples
-- [ ] Update `NEXT_AI_START_HERE.md`
-- [ ] Create `YZ_60.md` session report
+#### Task 6.1: Update Documentation (15 min)
+- [ ] `README.md` güncelle
+- [ ] LLVM backend bölümüne stdlib entegrasyonunu ekle
+- [ ] Usage examples güncelle
+- [ ] `NEXT_AI_START_HERE.md` güncelle
 
-#### Task 5.2: Git Workflow (15 min)
-- [ ] Commit all changes with clear message
-- [ ] Create backup branch: `phase14_parser_complete_YZ60_20251213`
-- [ ] Push to GitHub
-- [ ] Update TODO.md marking Phase 14 complete
+#### Task 6.2: Create Session Report (10 min)
+- [ ] `YZ/YZ_61.md` oluştur
+- [ ] Yapılan değişiklikleri belgele
+- [ ] Karşılaşılan zorlukları yaz
+- [ ] Test sonuçlarını ekle
 
-**Deliverables:**
-- Complete documentation ✓
-- Clean git history ✓
-- YZ_60 session report ✓
+#### Task 6.3: Git Commit & Push (5 min)
+- [ ] Tüm değişiklikleri stage et
+- [ ] Descriptive commit message yaz
+- [ ] `phase15-stdlib-integration_YZ_61` branch'ine push et
+
+**Commit Message:**
+```
+YZ_61: Phase 15 - Standard Library Integration for LLVM Backend
+
+- Replaced printf with mlp_println_numeric()
+- Added STO type system support in LLVM IR generation
+- Integrated libmlp_stdlib.a and libsto_runtime.a
+- Updated Makefile with proper linking flags
+- All tests passing with new stdlib integration
+
+Phase 15: 100% Complete ✅
+```
 
 ---
 
 ## 🔄 Success Criteria
 
-### Phase 14 Definition of Done
-- [ ] While loops parse correctly
-- [ ] For loops parse correctly
-- [ ] LLVM IR generation works for loops
-- [ ] All new tests pass (6+)
-- [ ] Zero regressions (Phase 13.5 tests still pass)
-- [ ] Documentation complete
-- [ ] Git backup created and pushed
+### Phase 15 Definition of Done
+- [ ] `printf` tamamen kaldırıldı
+- [ ] `mlp_println_numeric` çalışıyor
+- [ ] STO struct'lar doğru oluşturuluyor
+- [ ] Runtime libraries doğru linkleniyor
+- [ ] Tüm testler geçiyor (regression-free)
+- [ ] Documentation tamamlandı
+- [ ] Git commit & push yapıldı
 
 ---
 
@@ -358,66 +318,82 @@ done
 
 | Part | Task | Estimated Time |
 |------|------|----------------|
-| Part 1 | While Loop Parser | 90 min |
-| Part 2 | For Loop Parser | 90 min |
-| Part 3 | AST & Error Handling | 60 min |
-| Part 4 | Comprehensive Testing | 60 min |
-| Part 5 | Documentation | 30 min |
-| **Total** | | **5.5 hours** |
+| Part 1 | Hazırlık | 15 min |
+| Part 2 | Printf Replacement | 60 min |
+| Part 3 | STO Integration | 45 min |
+| Part 4 | Linker Config | 30 min |
+| Part 5 | Testing | 45 min |
+| Part 6 | Documentation | 30 min |
+| **Total** | | **3.5 hours** |
 
 **Buffer:** 30 min for unexpected issues  
-**Total Estimate:** 6 hours
+**Total Estimate:** 4 hours
 
 ---
 
 ## 🎯 Next Phase Preview
 
-### Phase 15: Standard Library Integration (Optional)
-- Replace printf with `mlp_println_numeric()`
-- Link with libmlp_stdlib.a
-- Handle STO type tags
-- **Estimated:** 1-2 hours
-
 ### Phase 16: Advanced LLVM Features (Optional)
-- Optimization passes
-- Debug information
-- Error messages in IR
+- Optimization passes (-O1, -O2, -O3)
+- Debug information generation
+- Better error messages
 - **Estimated:** 3-4 hours
 
-### Phase 17: Self-Hosting Parser (Major)
+### Phase 17: String Support (Major)
+- String literals in LLVM IR
+- String concatenation
+- String comparison
+- **Estimated:** 5-6 hours
+
+### Phase 18: Self-Hosting Parser (Major)
 - Parser written in MELP
 - Generates LLVM IR
 - **Estimated:** 15-20 hours
 
 ---
 
-## 📝 Notes & Decisions
+## 📝 Notes & Important Context
 
-### Parser Design Decisions
-- Follow existing if/else parsing pattern
-- Use control_flow module for AST structures
-- Keep parser stateless (no global state)
-- Maintain backward compatibility
+### STO Type System
+```c
+// Type constants (from runtime/sto/sto.h)
+#define STO_TYPE_NUMERIC 1
+#define STO_TYPE_STRING 2
+#define STO_TYPE_BOOLEAN 3
+#define STO_TYPE_ARRAY 4
+```
 
-### Testing Strategy
-- Unit tests for parser functions
-- Integration tests with LLVM backend
-- Regression tests for existing features
-- Edge case coverage
+### Current LLVM Backend Capabilities
+- ✅ Basic arithmetic (+, -, *, /)
+- ✅ Variable declarations
+- ✅ Control flow (if/else, while, for)
+- ✅ Function definitions
+- ✅ Return statements
+- 🚧 Standard library integration (this phase)
+- ❌ String support (future)
+- ❌ Array support (future)
+
+### Critical Files for This Phase
+1. `compiler/stage0/modules/functions/functions_codegen_llvm.c` - Main codegen
+2. `compiler/stage0/modules/llvm_backend/llvm_backend.c` - LLVM utilities
+3. `runtime/stdlib/src/io.c` - mlp_println_numeric implementation
+4. `runtime/sto/sto.h` - STO struct definition
+5. `compiler/stage0/Makefile` - Build & link configuration
 
 ---
 
 ## 🔗 Related Documents
 
-- **Previous TODO:** `temp/TODO_phase13.5_complete_20251213.md`
+- **Previous Phase:** `temp/TODO_phase14_complete_20251213.md`
 - **Architecture:** `ARCHITECTURE.md`
-- **YZ Reports:** `YZ/YZ_57.md`, `YZ/YZ_58.md`, `YZ/YZ_59.md`
+- **YZ Reports:** `YZ/YZ_59.md` (Phase 13.5), `YZ/YZ_60.md` (Phase 14)
 - **Next Session:** `NEXT_AI_START_HERE.md`
 - **LLVM Guide:** `docs/LLVM_IR_GUIDE.md`
+- **STO Guide:** `runtime/sto/README.md` (if exists)
 
 ---
 
 **Last Updated:** 13 Aralık 2025  
-**Created By:** YZ_59 (Phase 13.5 completion)  
-**Next Session:** YZ_60 (Phase 14 start)  
-**Target Completion:** 13 Aralık 2025 (same day, ~6 hours)
+**Created By:** YZ_60 (Phase 14 completion)  
+**Next Session:** YZ_61 (Phase 15 start)  
+**Target Completion:** 13 Aralık 2025 (~4 hours)

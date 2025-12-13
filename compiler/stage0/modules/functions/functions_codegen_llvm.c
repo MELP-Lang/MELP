@@ -9,6 +9,7 @@
 #include "../comparison/comparison.h"  // YZ_58: Comparison expressions
 #include "../control_flow/control_flow.h"  // YZ_58: Control flow structures
 #include "../for_loop/for_loop.h"  // YZ_60: For loop structures
+#include "../print/print.h"  // YZ_61: Print statement
 #include <stdlib.h>
 #include <string.h>
 
@@ -292,6 +293,56 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
             }
             
             llvm_value_free(var_ptr);
+            return NULL;
+        }
+        
+        case STMT_PRINT: {
+            // YZ_61: Phase 15 - Print statement with stdlib integration
+            PrintStatement* print_stmt = (PrintStatement*)stmt->data;
+            
+            // Get the value to print (for now, only variables supported)
+            LLVMValue* value = NULL;
+            if (print_stmt->type == PRINT_VARIABLE) {
+                // Get variable pointer and load value
+                LLVMValue* var_ptr = llvm_reg(print_stmt->value);
+                value = llvm_emit_load(ctx->llvm_ctx, var_ptr);
+                llvm_value_free(var_ptr);
+            } else if (print_stmt->type == PRINT_STRING_LITERAL) {
+                // TODO: String literal support
+                fprintf(stderr, "Warning: String literals not yet supported in LLVM print\n");
+                return NULL;
+            }
+            
+            if (!value) {
+                return NULL;
+            }
+            
+            // Call mlp_println_numeric(void* value, uint8_t sto_type)
+            // For now, we pass the i64 value directly as a pointer
+            // and type = INTERNAL_TYPE_INT64 (1)
+            
+            // Allocate space for the value on stack
+            char* temp_name = llvm_new_temp(ctx->llvm_ctx);
+            fprintf(ctx->llvm_ctx->output, "  %s = alloca i64\n", temp_name);
+            
+            // Store the value
+            fprintf(ctx->llvm_ctx->output, "  store i64 %s, i64* %s\n", 
+                    value->name, temp_name);
+            
+            // Cast to void* (i8*)
+            char* void_ptr_name = llvm_new_temp(ctx->llvm_ctx);
+            fprintf(ctx->llvm_ctx->output, "  %s = bitcast i64* %s to i8*\n",
+                    void_ptr_name, temp_name);
+            
+            // Call mlp_println_numeric(i8* value, i8 type)
+            // type = 1 (INTERNAL_TYPE_INT64)
+            fprintf(ctx->llvm_ctx->output, "  call void @mlp_println_numeric(i8* %s, i8 1)\n",
+                    void_ptr_name);
+            
+            llvm_value_free(value);
+            free(temp_name);
+            free(void_ptr_name);
+            
             return NULL;
         }
         

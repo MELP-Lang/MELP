@@ -78,6 +78,13 @@ FOR_LOOP_SOURCES = \
 	$(FOR_LOOP_DIR)/for_loop_parser.c \
 	$(FOR_LOOP_DIR)/for_loop_codegen.c
 
+# Print modülü (YZ_61 - Phase 15)
+PRINT_DIR = ../print
+PRINT_SOURCES = \
+	$(PRINT_DIR)/print.c \
+	$(PRINT_DIR)/print_parser.c \
+	$(PRINT_DIR)/print_codegen.c
+
 # Array modülü (YZ_14 - Array indexing)
 ARRAY_DIR = ../array
 ARRAY_SOURCES = \
@@ -131,6 +138,7 @@ SOURCES = \
 	$(LOGICAL_SOURCES) \
 	$(CONTROL_FLOW_SOURCES) \
 	$(FOR_LOOP_SOURCES) \
+	$(PRINT_SOURCES) \
 	$(ARRAY_SOURCES) \
 	$(STATEMENT_SOURCES) \
 	$(IMPORT_SOURCES) \
@@ -244,6 +252,17 @@ test: $(TARGET)
 clean:
 	@echo "🧹 Temizlik yapılıyor..."
 	rm -f $(OBJECTS) $(TARGET) $(TEST_SOURCE) $(TEST_ASM) $(TEST_OBJ) $(TEST_EXEC)
+	rm -f *.ll *.o test_* *.mlp
 	@echo "✅ Temizlendi!"
 
-.PHONY: all info test clean
+# LLVM test (YZ_61 - Phase 15)
+test_llvm: $(TARGET)
+	@echo "Testing LLVM backend with stdlib integration..."
+	./$(TARGET) -c --backend=llvm $(file) $(file:.mlp=.ll)
+	clang $(file:.mlp=.ll) \
+		-L../../../../runtime/stdlib -lmlp_stdlib \
+		-L../../../../runtime/sto -lsto_runtime -lm \
+		-o $(file:.mlp=)
+	./$(file:.mlp=)
+
+.PHONY: all info test clean test_llvm
