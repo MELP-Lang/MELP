@@ -7,6 +7,60 @@
 
 ---
 
+## 🚨 PERMANENT WARNING: Don't Make HACKS Like YZ_63!
+
+### ⛔ ANTI-PATTERN Example - Learn from YZ_63's Mistake:
+
+**What YZ_63 Did (WRONG!):**
+1. ❌ Changed a comment: "MLP uses only 'end', not 'end function'"
+2. ❌ Removed validation code without understanding full impact
+3. ❌ Only tested single-function files (incomplete testing)
+4. ❌ Left inconsistent code: skip_to_end_function() STILL uses "end function"
+
+**Result:** 
+- Multi-function files BROKEN for months
+- Inconsistent codebase (comment says one thing, code does another)
+- Future developers misled by false comments
+
+### ✅ CORRECT Approach When Fixing Bugs:
+
+1. **Understand the FULL system first**
+   - Why does this code exist?
+   - What other parts depend on it?
+   - Read related functions completely
+
+2. **Test ALL scenarios**
+   - Single function files ✅
+   - Multi-function files ✅
+   - Nested functions ✅
+   - Edge cases ✅
+
+3. **Make CONSISTENT changes**
+   - If you remove `end function` check, remove it EVERYWHERE
+   - If you keep it, keep it EVERYWHERE
+   - Comments must match code reality
+
+4. **Document your reasoning**
+   - Why is this better?
+   - What are the trade-offs?
+   - What tests prove it works?
+
+### 📋 Current YZ_63 BUG (Priority: HIGH - Fix in YZ_75+):
+
+**Problem:** Multi-function files fail to parse  
+**Files Affected:** Any .mlp with 2+ functions  
+**Evidence:** `examples/basics/test_string_param_var.mlp` → Error line 8  
+
+**Fix Options:**
+- **Option A:** Restore `end function` pattern (conservative, safe)
+- **Option B:** Implement depth tracking without `end function` (complex, risky)
+
+**Recommendation:** Option A first (safe), then Option B if needed (optimization)
+
+**DO NOT** just change comments and hope it works!
+
+---
+
 ## ⚠️ CRITICAL: MELP Syntax - Current Implementation & BUG
 
 **MELP = Multi Language Programming (Çok Dilli Çok Sözdizimli)**
@@ -122,6 +176,81 @@ else if (type == TOKEN_END) {
   - Line 103-110: skip_to_end_function() uses "end function"
   - Line 210: YZ_63 removed check (BROKE multi-function)
 - Test: `examples/basics/test_string_param_var.mlp` (2 functions, FAILS)
+
+---
+
+## 🎯 YZ_75 PRIORITY TASK: Fix YZ_63 Multi-Function Bug
+
+**Before starting Phase 18.2 (Array Indexing), fix this critical bug!**
+
+### Task: Restore Multi-Function File Support
+
+**Step 1: Verify Bug**
+```bash
+./compiler/stage0/modules/functions/functions_compiler \
+  examples/basics/test_string_param_var.mlp /tmp/test.ll
+# Expected: Error line 8 "Expected 'function' keyword"
+```
+
+**Step 2: Fix (Option A - Recommended)**
+
+Restore the removed code in `functions_standalone.c` around line 210:
+```c
+// Look for 'function' keyword
+if (tok->type == TOKEN_FUNCTION) {
+    // Check if previous token was 'end' - this is 'end function'
+    if (prev_tok && prev_tok->type == TOKEN_END) {
+        // This is 'end function', not a new function declaration
+        if (prev_tok) token_free(prev_tok);
+        prev_tok = tok;
+        continue;
+    }
+    
+    func_count++;
+    // ...rest of code
+}
+```
+
+**Step 3: Test ALL scenarios**
+```bash
+# Single function
+./compiler/stage0/modules/functions/functions_compiler \
+  examples/basics/test_array_minimal.mlp /tmp/test1.ll
+
+# Two functions
+./compiler/stage0/modules/functions/functions_compiler \
+  examples/basics/test_string_param_var.mlp /tmp/test2.ll
+
+# Both should succeed ✅
+```
+
+**Step 4: Update Comment**
+
+Change comment to reflect reality:
+```c
+// YZ_75: Restored 'end function' check for multi-function file support
+// Pattern: 'end function' marks end of function, not new declaration
+```
+
+**Step 5: Commit**
+```bash
+git add compiler/stage0/modules/functions/functions_standalone.c
+git commit -m "YZ_75: Fix YZ_63 bug - Restore multi-function file support
+
+BUGFIX: YZ_63 broke multi-function files by removing 'end function' check
+- Restored prev_tok check for 'end function' pattern
+- skip_to_end_function() already uses 'end function' - now consistent
+- All multi-function files work again
+
+Tests:
+- test_string_param_var.mlp (2 functions) ✅ 
+- test_array_minimal.mlp (1 function) ✅
+
+Reference: YZ_74 bug discovery commit bf6ac6c"
+```
+
+**Estimated Time:** 15-30 minutes  
+**Priority:** CRITICAL - Blocks multi-function development
 
 ---
 
