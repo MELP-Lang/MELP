@@ -7,51 +7,72 @@
 
 ---
 
-## ⚠️ CRITICAL: MELP Syntax Rules (PMPL - Pragmatic MLP)
+## ⚠️ CRITICAL: MELP Pipeline & PMPL (Pragmatic MLP)
 
-**MELP uses PMPL (Pragmatic MLP) base syntax - NOT C-style!**
+**MELP = Multi Language Programming (Çok Dilli Çok Sözdizimli)**
 
-This is the intermediate language that the lexer and parser see after syntax normalization.
+### 🔄 3-Stage Pipeline:
 
-### Core Rules:
-1. **Function Blocks:**
-   - ✅ `function name() ... end` - Correct
-   - ❌ `function name() { ... }` - WRONG! No braces!
-   - ✅ `end` alone - Correct (NOT `end function`)
+```
+Stage 1: Syntax Normalization
+  Kullanıcı Kodu (C-style {}, Python-style :, vb.)
+       ↓
+  [syntax.json ile normalize]
+       ↓
+  MLP Base Syntax (end if, end function, vb.)
 
-2. **Comments:**
-   - ✅ `-- Single line comment` - Correct
-   - ❌ `// Comment` - WRONG! Will cause lexer error
+Stage 2: Language Translation  
+  MLP Base Syntax + Herhangi Dil (TR/RU/AR/vb.)
+       ↓
+  [diller.json ile çeviri]
+       ↓
+  PMPL = Pragmatic MLP (English keywords + MLP syntax)
 
-3. **Return Statements:**
-   - ✅ `return variable_name` - Correct
-   - ⚠️ `return 0` - Bug! Parsed as string literal "0"
-   - **Workaround:** Use variable: `numeric result = 0; return result`
+Stage 3: Compilation (AI BURADAN SONRA ÇALIŞIR ⚠️)
+  PMPL Source Code
+       ↓
+  [Lexer] → "end if" (2 kelime) → END_IF (1 token)
+       ↓
+  [Parser] → AST
+       ↓
+  [Codegen] → Assembly
+```
 
-4. **Code Structure:**
-   - Function body starts immediately after parameter list
-   - No braces needed for blocks
-   - `end` closes all block types
+### 🎯 AI Agents İçin Kritik Bilgi:
 
-### Example (Correct PMPL Syntax):
+**Siz Stage 3'tesiniz!** Gördüğünüz kod zaten PMPL formatında (English + MLP base syntax).
+
+**PMPL Özellikleri:**
+- MLP base syntax kullanır: `end if`, `end function`, `end while` (2 kelime)
+- Lexer bunları tek token'a birleştirir: `END_IF`, `END_FUNCTION`, `END_WHILE`
+- C-style braces yok: `{` `}` kullanılmaz
+- MLP-style comments: `--` kullanılır (NOT `//`)
+
+### Example (PMPL Format - AI'nin gördüğü):
 ```mlp
--- This is a comment
+-- This is a comment (MLP style)
 function main() returns numeric
     numeric[] arr = [1, 2, 3]
     numeric result = 0
     return result
-end
+end function
 ```
 
-### Why This Matters:
-MELP = Multi Language Programming. Users can write in any syntax (C-style, Python-style, custom), but:
+**Lexer çıktısı:**
 ```
-User Code → diller.json + syntax.json → Normalize → PMPL (English + Pragmatic syntax) → Lexer → Parser
+TOKEN_FUNCTION, TOKEN_IDENTIFIER(main), TOKEN_LPAREN, TOKEN_RPAREN, 
+TOKEN_RETURNS, TOKEN_NUMERIC, TOKEN_IDENTIFIER(arr), TOKEN_LBRACKET, 
+..., TOKEN_END_FUNCTION
 ```
 
-**AI agents work AFTER normalization**, so you only see PMPL syntax!
+### 📌 Önemli Notlar:
 
-**Reference:** See `kurallar_kitabı.md` section "MLP Mimarisi" for full pipeline details.
+1. **"end if" → END_IF:** Lexer 2 kelimeyi 1 token'a birleştirir (Token Birleştirme)
+2. **Kullanıcı syntax'ını görmezsiniz:** Kullanıcı C-style yazsa bile siz MLP base syntax görürsünüz
+3. **PMPL değişebilir:** Dil tasarımı için PMPL'yi değiştirebilirsiniz (kullanıcı onayı ile)
+4. **Runtime C'de kalır:** Sadece compiler MELP'te yazılacak
+
+**Detay:** `temp/kurallar_kitabı.md` - "MLP Mimarisi" ve "Lexer Token Birleştirme" bölümleri
 
 ---
 
