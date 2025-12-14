@@ -200,17 +200,24 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
     // Optional return type: returns numeric
     tok = lexer_next_token(lexer);
     
-    if (tok->type == TOKEN_RETURNS) {
+    if (tok && tok->type == TOKEN_RETURNS) {
         token_free(tok);
         tok = lexer_next_token(lexer);
         func->return_type = token_to_return_type(tok->type);
         token_free(tok);
-        tok = NULL;  // Will read fresh for body
+        tok = NULL;  // YZ_74: Mark as consumed
+    } else {
+        // YZ_74: No return type - tok is first token of function body
+        // Put it back so statement_parse can read it
+        if (tok) {
+            lexer_unget_token(lexer, tok);
+        }
     }
     
     // ✅ Function body - use statement parser (modular!)
     // Create temporary Parser wrapper for statement_parse compatibility
-    Parser temp_parser = { .lexer = lexer, .current_token = tok };
+    // YZ_74: Set current_token to NULL so statement_parse reads from lexer
+    Parser temp_parser = { .lexer = lexer, .current_token = NULL };
     Parser* parser = &temp_parser;
     
     Statement* body_head = NULL;

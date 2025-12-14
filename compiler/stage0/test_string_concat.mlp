@@ -1,0 +1,7 @@
+function main() returns numeric
+    string greeting = "Hello"
+    string name = "MELP"
+    string message = greeting + " " + name
+    print(message)
+    return 0
+end

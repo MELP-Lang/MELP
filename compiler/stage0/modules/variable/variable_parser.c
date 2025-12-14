@@ -24,6 +24,8 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
         base_type = VAR_STRING;
     } else if (type_token->type == TOKEN_BOOLEAN) {
         base_type = VAR_BOOLEAN;
+    } else if (type_token->type == TOKEN_ARRAY) {
+        base_type = VAR_ARRAY;  // YZ_74: Array type keyword
     } else if (type_token->type == TOKEN_LIST) {
         base_type = VAR_LIST;
     } else if (type_token->type == TOKEN_TUPLE) {

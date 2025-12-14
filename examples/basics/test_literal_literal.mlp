@@ -1,0 +1,6 @@
+function main() returns numeric
+    if "test" == "test" then
+        print("OK")
+    end if
+    return 0
+end

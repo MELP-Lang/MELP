@@ -1,0 +1,6 @@
+-- YZ_74: Minimal array test
+function main() returns numeric
+    numeric[] arr = [1, 2, 3]
+    numeric result = 42
+    return result
+end
