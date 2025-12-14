@@ -897,3 +897,280 @@ Stage 0'da advanced features (struct, try-catch, generics) **kasıtlı olarak YO
 **Başarı:** 
 - 31 Mart 2026 - MELP kendini derliyor! 🚀
 - 31 Mayıs 2026 - Advanced features eklendi! (MELP ile) 🎉
+
+---
+
+## 📚 Terminoloji Sözlüğü
+
+### Derleme Süreci Terimleri
+
+**Compiler (Derleyici):**
+Yüksek seviyeli bir programlama dilini (örn. MELP) makine koduna veya ara koda çeviren program. Lexer, Parser, Semantic Analyzer, Optimizer ve Code Generator bileşenlerinden oluşur.
+
+**Lexer (Lexical Analyzer / Sözcüksel Çözümleyici):**
+Kaynak kodunu tokenlara (sözcük birimlerine) ayıran compiler'ın ilk aşaması. Örneğin `x = 42 + y` kodunu `[ID("x"), ASSIGN, NUMBER(42), PLUS, ID("y")]` token dizisine dönüştürür.
+
+**Parser (Sözdizimsel Çözümleyici):**
+Token dizisini alıp dilin gramer kurallarına göre kontrol eden ve AST (Abstract Syntax Tree) oluşturan compiler aşaması. Örneğin `if x > 5 then y = 10` ifadesini IF-THEN düğümü içeren bir ağaç yapısına dönüştürür.
+
+**AST (Abstract Syntax Tree / Soyut Sözdizim Ağacı):**
+Programın yapısını hiyerarşik ağaç formatında temsil eden veri yapısı. Parantez, noktalama gibi sözdizimi detayları dışlanır, sadece anlamsal yapı tutulur. Örnek:
+```
+    =
+   / \
+  x   +
+     / \
+    42  y
+```
+
+**Semantic Analysis (Anlamsal Analiz):**
+AST'yi kontrol ederek tip uyumluluğu, değişken tanımları, kapsam kuralları gibi anlamsal hataları bulan compiler aşaması. Örneğin `x: Int = "merhaba"` kodunda tip uyumsuzluğunu tespit eder.
+
+**IR (Intermediate Representation / Ara Gösterim):**
+Kaynak kodu ile makine kodu arasında bir ara formattır. Optimizasyon ve hedef platform bağımsızlığı sağlar. LLVM IR, Java bytecode, .NET CIL örnekleridir.
+
+**CodeGen (Code Generator / Kod Üretici):**
+AST veya IR'den hedef platform için assembly veya makine kodu üreten compiler'ın son aşaması. MELP Stage 0'da C dilinden x86-64 assembly kodu üretir.
+
+**Optimizer (Optimize Edici):**
+Programın işlevselliğini değiştirmeden daha hızlı ve/veya küçük kod üreten compiler bileşeni. Dead code elimination, constant folding, inlining gibi teknikler kullanır.
+
+### Backend & Target Terimleri
+
+**LLVM (Low Level Virtual Machine):**
+Modüler compiler altyapısı ve araç zinciri. Platform bağımsız IR (LLVM IR) kullanır, 30+ hedef platformu destekler. Rust, Swift, Julia, Kotlin/Native gibi diller LLVM kullanır. MELP Stage 0'da LLVM backend kullanılıyor.
+
+**GCC (GNU Compiler Collection):**
+C, C++, Fortran gibi dilleri destekleyen açık kaynak compiler paketi. x86, ARM, RISC-V gibi birçok hedef platformu destekler. MELP'te LLVM alternatifi olarak kullanılabilir.
+
+**Backend (Arka Uç):**
+Compiler'ın platforma özgü kod üreten kısmı. MELP'te LLVM backend sayesinde aynı kod Windows/Linux/macOS için derlenebiliyor.
+
+**x86-64 / AMD64:**
+64-bit Intel ve AMD işlemciler için instruction set architecture (ISA). Modern PC ve sunucularda standart. MELP Stage 0 direkt x86-64 assembly üretiyor.
+
+**Assembly (Makine Dili):**
+İşlemcinin anlayabileceği komutların insan-okunabilir metinsel hali. Örnek: `movq $42, %rax` - 42 sayısını RAX registerına yükle.
+
+**Register (Yazmaç):**
+İşlemci içinde ultra hızlı veri depolama alanı. x86-64'te %rax, %rbx, %rcx gibi 64-bit registerlar var. 32-bit halleri %eax, %ebx şeklindedir.
+
+**ABI (Application Binary Interface):**
+Fonksiyon çağrılarında parametrelerin nasıl geçileceği, registerların nasıl kullanılacağı gibi binary-level kurallar. Örnek: x86-64 System V ABI'de ilk parametre %rdi'ye gelir.
+
+**Cross-Platform (Platformlar Arası):**
+Aynı kodun farklı işletim sistemleri ve donanımlar üzerinde çalışabilmesi. LLVM sayesinde MELP cross-platform.
+
+### Runtime Terimleri
+
+**Runtime (Çalışma Zamanı):**
+Programın çalışması sırasında sağlanan servisler ve altyapı. Garbage collection, tip kontrolleri, standart kütüphane fonksiyonları runtime'a dahildir.
+
+**Garbage Collection (Çöp Toplama):**
+Kullanılmayan belleği otomatik olarak temizleyen runtime mekanizması. MELP'te şu anda manuel memory management var, ileride GC eklenecek.
+
+**Memory Management (Bellek Yönetimi):**
+Programın heap ve stack belleği nasıl kullandığının kontrolü. Stack: otomatik yerel değişkenler, Heap: dinamik allocasyonlar.
+
+**Standard Library (Standart Kütüphane):**
+Dille birlikte gelen temel fonksiyon ve modül seti. String işleme, dosya I/O, matematiksel fonksiyonlar gibi. MELP'te `runtime/stdlib/` altında.
+
+**STO (String Type Object):**
+MELP'in string veri yapısı. Uzunluk (length), kapasite (capacity) ve karakter dizisi (data) içerir. Dinamik boyutlandırma destekler.
+
+**TTO (Text Type Object):**
+MELP'in eski string sistemi (deprecated). STO'ya geçildi çünkü TTO'da performans ve bellek sorunları vardı.
+
+### Self-Hosting Terimleri
+
+**Self-Hosting (Kendi Kendini Derleme):**
+Bir compiler'ın kendi dilinde yazılıp kendi kendini derlemesi. Örnek: C compiler C'de yazılır, MELP compiler MELP'te yazılacak.
+
+**Bootstrap (Önyükleme):**
+Bir dili başka bir dilde yazıp (Stage 0), sonra kendi dilinde yeniden yazma (Stage 1) ve kendi kendini derleme süreci. Tavuk-yumurta probleminin çözümü.
+
+**Stage 0 (Aşama 0):**
+Bootstrap için gerekli ilk compiler. Genellikle başka bir dilde yazılır (MELP Stage 0 C dilinde). "Good enough" - sadece temel özellikler içerir.
+
+**Stage 1 (Aşama 1):**
+Hedef dilde yazılmış compiler. Stage 0 tarafından derlenir. MELP Stage 1, MELP dilinde yazılacak ve Stage 0 tarafından derlenecek.
+
+**Stage 2 (Aşama 2):**
+Stage 1'in kendisini derlemesiyle oluşan compiler. Artık tamamen bağımsız ve optimize edilmiş. Çok dilli destek gibi advanced özellikler buraya eklenir.
+
+**Dogfooding (Kendi Ürününü Kullanma):**
+Yazılım geliştiricilerin kendi ürününü kullanması. Self-hosting compiler'lar için en iyi test yöntemi.
+
+### Dil Özellikleri Terimleri
+
+**Type System (Tip Sistemi):**
+Değişkenlerin, fonksiyonların ve ifadelerin veri tiplerinin tanımlanması ve kontrol edilmesi sistemi. MELP statik tip sistemine sahip (compile-time kontrol).
+
+**Static Typing (Statik Tipleme):**
+Tiplerin compile-time'da kontrol edilmesi. Hataları erken yakalar, performans avantajı sağlar. Örnek: `x: Int = 42`
+
+**Dynamic Typing (Dinamik Tipleme):**
+Tiplerin runtime'da kontrol edilmesi. Daha esnek ama daha yavaş. Python, JavaScript örnektir. MELP statik tip sistemli.
+
+**Struct (Yapı):**
+İlişkili verileri gruplandıran kullanıcı tanımlı veri tipi. Örnek:
+```melp
+struct Person {
+    name: String
+    age: Int
+}
+```
+
+**Generic (Genel Tip):**
+Tip parametreleri alan, farklı tiplerle çalışabilen kod yapıları. Örnek: `Array<T>` hem `Array<Int>` hem `Array<String>` olabilir.
+
+**Exception Handling (İstisna Yönetimi):**
+Hata durumlarını yakalama ve işleme mekanizması. `try-catch-finally` blokları kullanılır.
+
+**Array (Dizi):**
+Aynı tipte birden fazla elemanı ardışık bellekte saklayan veri yapısı. Örnek: `nums: Array<Int> = [1, 2, 3]`
+
+**Operator Overloading (Operatör Aşırı Yükleme):**
+Kullanıcı tanımlı tipler için +, -, * gibi operatörlerin özel tanımlanması. Örnek: `Point` tipi için + operatörü iki noktayı toplar.
+
+### Optimizasyon Terimleri
+
+**Dead Code Elimination (Ölü Kod Eleme):**
+Hiç çalışmayan veya kullanılmayan kodun temizlenmesi. Örnek: `if (false) { ... }` bloğu tamamen silinir.
+
+**Constant Folding (Sabit Katlama):**
+Compile-time'da hesaplanabilen ifadelerin önceden hesaplanması. Örnek: `x = 5 + 3` → `x = 8`
+
+**Inlining (İçe Yerleştirme):**
+Küçük fonksiyonların çağrıldığı yere direkt kopyalanması. Fonksiyon çağrı maliyetini ortadan kaldırır.
+
+**Loop Unrolling (Döngü Açma):**
+Döngü iterasyonlarının tekrarlı kod olarak yazılması. Branch prediction ve paralellik avantajı sağlar.
+
+**Register Allocation (Register Tahsisi):**
+Değişkenlerin hangi CPU registerlarında tutulacağına karar verme. İyi register allocation büyük performans kazancı sağlar.
+
+### Test & Debug Terimleri
+
+**Unit Test (Birim Test):**
+Kodun küçük birimlerinin (fonksiyon, sınıf) izole şekilde test edilmesi. `tests/` klasöründeki testler.
+
+**Integration Test (Entegrasyon Testi):**
+Farklı bileşenlerin birlikte çalışmasının test edilmesi. Örnek: Lexer + Parser + CodeGen'in birlikte test edilmesi.
+
+**E2E Test (End-to-End Test):**
+Tüm sistemin baştan sona gerçek kullanım senaryolarıyla test edilmesi. `.mlp` dosyasından çalıştırılabilir program üretme testi.
+
+**Debugging (Hata Ayıklama):**
+Programdaki hataları bulma ve düzeltme süreci. GDB, LLDB gibi debugger'lar kullanılır.
+
+**GDB (GNU Debugger):**
+C/C++ ve assembly kodunu adım adım çalıştırıp değişkenleri inceleyebilen debugger. MELP runtime kodunu debug etmek için kullanılıyor.
+
+**Assertion (İddia):**
+Kodun belirli bir noktada bir koşulun doğru olması gerektiğini kontrol eden ifade. Yanlışsa program durur. Örnek: `assert(x > 0)`
+
+### Mimari Terimler
+
+**Module System (Modül Sistemi):**
+Kodun mantıksal birimlere ayrılması ve yeniden kullanılabilirliği sağlayan sistem. `import`, `export` gibi mekanizmalar.
+
+**Namespace (İsim Alanı):**
+İsimlerin çakışmasını önlemek için mantıksal gruplama. Örnek: `Math.sqrt()` vs `String.sqrt()` farklı namespace'ler.
+
+**API (Application Programming Interface):**
+Bir yazılımın diğer yazılımlar tarafından kullanılması için sunduğu fonksiyon ve yapılar. MELP runtime API.
+
+**CLI (Command Line Interface):**
+Programın terminal/komut satırından kullanılması. MELP compiler CLI: `melp build file.mlp`
+
+**REPL (Read-Eval-Print Loop):**
+Etkileşimli programlama ortamı. Kod yaz → çalıştır → sonuç gör → tekrarla. Python, Node.js gibi.
+
+**Toolchain (Araç Zinciri):**
+Geliştirme sürecinde kullanılan araçlar bütünü. Compiler, linker, debugger, package manager vs.
+
+### Performans Terimleri
+
+**Benchmark (Kıyaslama):**
+Performans ölçümü için standart testler. Örnek: Fibonacci(40) hesaplama süresi, string concat hızı.
+
+**Latency (Gecikme):**
+Bir işlemin başlangıç ile bitişi arasındaki süre. Örnek: Fonksiyon çağrısı latency'si 10ns.
+
+**Throughput (İşlem Hacmi):**
+Birim zamanda yapılan işlem sayısı. Örnek: Saniyede 1000 HTTP isteği işleme.
+
+**JIT (Just-In-Time Compilation):**
+Programın çalışma sırasında derlenmesi. V8 (JavaScript), JVM (Java) JIT kullanır. MELP'te şimdilik yok, ileride eklenebilir.
+
+**AOT (Ahead-of-Time Compilation):**
+Programın çalıştırılmadan önce tamamen derlenmesi. MELP AOT compiler. C, C++, Rust, Go gibi.
+
+### Git & Geliştirme Terimleri
+
+**Branch (Dal):**
+Git'te bağımsız geliştirme hattı. Örnek: `phase17-string-support` branch'inde string özellikleri geliştiriliyor.
+
+**Commit (İşleme):**
+Kod değişikliklerinin Git'e kaydedilmesi. Her commit bir snapshot'tır. Örnek: `git commit -m "Fix string comparison bug"`
+
+**Merge (Birleştirme):**
+Bir branch'teki değişikliklerin başka bir branch'e dahil edilmesi. Örnek: `phase17` → `main` merge.
+
+**PR (Pull Request):**
+GitHub/GitLab'da kod değişikliklerinin incelenmesi ve ana branch'e dahil edilmesi talebi.
+
+**CI/CD (Continuous Integration/Deployment):**
+Kodun otomatik test edilmesi ve deploy edilmesi süreci. GitHub Actions, GitLab CI gibi.
+
+**Refactoring (Yeniden Yapılandırma):**
+Kodun işlevselliğini değiştirmeden iç yapısını iyileştirme. Okunabilirlik ve bakım kolaylığı için.
+
+### Platform & Ekosistem
+
+**Cross-Compilation (Çapraz Derleme):**
+Bir platformda (örn. Linux) başka platform (örn. Windows) için kod üretme. LLVM cross-compilation destekler.
+
+**Package Manager (Paket Yöneticisi):**
+Kütüphanelerin indirilmesi, kurulması ve güncellenmesini yöneten araç. npm (JavaScript), cargo (Rust), pip (Python) gibi.
+
+**Dependency (Bağımlılık):**
+Bir projenin çalışması için gerekli harici kütüphane veya modül. MELP'in LLVM'e dependency'si var.
+
+**Linker (Bağlayıcı):**
+Object dosyalarını birleştirip executable üreten program. GCC, LLVM linker kullanır.
+
+**Object File (.o):**
+Derlenmiş ama henüz link edilmemiş makine kodu dosyası. Birden fazla .o dosyası linker ile birleştirilerek executable oluşur.
+
+**Executable (Çalıştırılabilir Dosya):**
+İşletim sistemi tarafından direkt çalıştırılabilen program. Linux'ta genellikle uzantısız, Windows'ta .exe.
+
+### Özel MELP Terimleri
+
+**MELP:**
+**M**odern **E**asy **L**earning **P**rogramming language. Türkçe dokümantasyon, kolay sözdizimi, performans odaklı dil.
+
+**Phase (Aşama):**
+MELP geliştirme sürecindeki her ana özellik grubu. Phase 1: Variables, Phase 17: String Support gibi.
+
+**YZ (Yapay Zeka):**
+AI assistant oturumlarının numaralandırılması. YZ_01, YZ_69 gibi. Her YZ bir geliştirme oturumunu temsil eder.
+
+**Good Enough Strategy (Yeterince İyi Stratejisi):**
+Stage 0'a sadece temel özellikleri koymak, advanced özellikleri Stage 1.5'e bırakmak. Duplicate work'ten kaçınma stratejisi.
+
+**Hybrid Architecture (Hibrit Mimari):**
+MELP compiler logic'i MELP'te, performance-critical runtime C'de, LLVM her ikisini optimize ediyor. En iyi performans stratejisi.
+
+---
+
+**Sözlük Kullanım Önerileri:**
+
+1. **Yeni Katkıcılar:** Sözlüğü baştan sona okuyun, temel kavramları öğrenin
+2. **Geliştirme Sırasında:** Anlamadığınız terim olduğunda buraya dönün
+3. **Dokümantasyon Yazarken:** Teknik terimleri tutarlı kullanın
+4. **Code Review'da:** Herkesin aynı terminolojiyi kullandığından emin olun
+
+**Not:** Bu sözlük MELP projesi ilerledikçe güncellenecektir. Yeni terimler eklendiğinde bu bölüm genişletilecektir.
