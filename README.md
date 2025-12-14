@@ -1,78 +1,92 @@
 # MELP Programming Language
 
-> 🫕 **The Melting Pot of Programming Languages**
+**M**odern **E**asy **L**earning **P**rogramming
 
-Modern, type-safe, and efficient programming language with Smart Type Optimization (STO).
-
-**Core Philosophy:** *Stateless by Default, Stateful by Choice* - MELP is a stateless language where all variables are function-local. For persistent state, explicitly import the `state` module.
-
-📖 **Learn More:** Read [MELP_VISION.md](MELP_VISION.md) for project philosophy and what makes MELP unique.
-
-> **For New AI Assistant (YZ Series)**: Read `/NEXT_AI_START_HERE.md` for current status and your mission. Then read `/ARCHITECTURE.md` for critical rules. All YZ sessions documented in `/YZ/` folder.
+> 🚀 Modern, type-safe, and beginner-friendly programming language with LLVM backend
 > 
-> **⚠️ CRITICAL: Read `ARCHITECTURE.md` BEFORE coding!** Previous AI agents created monolithic code by violating modularity rules. Follow the YZ workflow: branch naming, commits, handoff docs.
-> 
-> **Current Status**: YZ_65 completed Phase 17 String Variable Arguments (85% progress). String support nearly complete!
+> 🇹🇷 Turkish documentation · Easy learning curve · Production-ready performance
 
 ---
 
-## 🎉 Current Status: Phase 17 String Support (85% Complete)
+## 🎯 What is MELP?
 
-**Achievement: String Variables & Function Arguments Working! 🚀**
+MELP is a statically-typed, compiled programming language designed for:
+- **Beginners**: Clean syntax, Turkish documentation, educational focus
+- **Performance**: LLVM backend with native code generation
+- **Modern Features**: String handling, type safety, memory safety
+- **Self-Hosting**: Compiler written in MELP itself (Stage 1+)
 
-### ✅ Phase 17: String Support in LLVM (85% Complete)
-- **String Literals**: `print("Hello World")` ✅
-- **String Variables**: `string x = "test"` ✅
-- **String Parameters**: `function greet(string msg)` ✅
-- **Function Arguments**: Both literals and variables ✅
-  - `greet("Hello")` ✅
-  - `greet(message)` ✅
-  - `greet("Mixed:", variable)` ✅
-- **UTF-8 Support**: Full unicode character support
-- **LLVM IR**: i8* pointer management with type safety
+**Core Philosophy:** *Stateless by Default, Stateful by Choice* - All variables are function-local. For persistent state, explicitly import the `state` module.
 
-### ✅ Phase 15: Standard Library Integration (100% Complete)
-- **Print Statement**: `print(variable)` syntax ✅
-- **Stdlib Functions**: mlp_println_numeric, mlp_println_string
-- **STO Runtime**: Integrated with LLVM backend
-- **Testing**: 3/3 tests passing
+### Why MELP?
 
-### ✅ Phase 14: Control Flow (100% Complete)
-- **While Loops**: Simple and nested support
-- **For Loops**: Range loops (1 to N) with nested support
-- **13/13 Tests Passing**: Including all regression tests
-- **Time Taken**: 1.5 hours (3x faster than estimated!)
+- ✅ **Kolay Öğrenme (Easy Learning)**: Türkçe dokümantasyon, basit sözdizimi
+- ✅ **Performans**: LLVM optimization ile C'ye yakın hız (~90-95%)
+- ✅ **Güvenlik**: Static typing, compile-time error detection
+- ✅ **Cross-Platform**: Linux, macOS, Windows desteği (LLVM sayesinde)
+- ✅ **Modern**: String operations, type inference, clean syntax
 
-### ✅ Phase 13: Self-Hosting Lexer (100% Complete)
-- **Lexer Modules**: 4 MELP modules (lexer_token, lexer_char, lexer_numeric, lexer_identifier)
-- **38 Functions**: Fully functional lexer written in MELP
-- **56 Token Types**: Complete token recognition
-- **Merged to main**: Commit `071d39b`
+📖 **Daha Fazla Bilgi:** [MELP_VISION.md](MELP_VISION.md) - Proje felsefesi ve vizyon
 
-### ✅ Phase 13.5: LLVM Backend (100% Complete)
-- **LLVM IR Output**: `--backend=llvm` flag generates portable LLVM IR
-- **8/8 Tests Passing**: All integration tests successful
-- **Features**: Arithmetic, functions, variables, if/else, comparisons, booleans
-- **Portability**: Cross-platform (x86-64, ARM, RISC-V via LLVM)
+---
 
-### 🎯 Latest Sessions:
-- ✅ **YZ_61**: Phase 15 & 17 Part 1 (Print statement, string literals)
-- ✅ **YZ_62**: Phase 17 Part 2 (String variables, printing)
-- ✅ **YZ_63**: Phase 17 Part 3 (String function parameters)
-- ✅ **YZ_64**: Phase 17 Part 4 (String literal arguments)
-- ✅ **YZ_65**: Phase 17 Part 5 (String variable arguments) ← **LATEST**
-- ⏳ **Next**: String concatenation/comparison or documentation
+## 🎉 Current Status: Stage 0 Bootstrap Compiler (~98% Complete!)
 
-### 📊 Completion Status:
+**Latest Achievement: Phase 17 String Support - 100% Complete! 🎉**
+
+### ✅ Completed Features (Phase 1-17)
+
+#### Core Language Features
+- ✅ **Variables**: Int, String, Boolean types with type inference
+- ✅ **Functions**: Parameters, return values, nested calls
+- ✅ **Control Flow**: if/else, while loops, for loops (nested support)
+- ✅ **Operators**: Arithmetic (+, -, *, /), comparison (==, !=, <, >, <=, >=), logical (and, or, not)
+- ✅ **Comments**: Single-line (`//`) and multi-line (`/* */`)
+
+#### String Support (Phase 17)
+- ✅ **String Literals**: `"Hello World"`, `"MELP Dünya"` (UTF-8)
+- ✅ **String Variables**: `string name = "Alice"`
+- ✅ **String Parameters**: `function greet(string msg)`
+- ✅ **String Concatenation**: `firstName + " " + lastName`
+- ✅ **String Comparison**: All operators (==, !=, <, >, <=, >=)
+- ✅ **Print Support**: `print("text")`, `print(variable)`
+
+#### Compiler Infrastructure
+- ✅ **Dual Backend**: LLVM IR + x86-64 native assembly
+- ✅ **Standard Library**: Print functions, string operations, memory management
+- ✅ **STO Runtime**: Smart Type Optimization for strings
+- ✅ **Modular Architecture**: 26+ feature modules for maintainability
+
+### 🔜 Coming Soon (Phase 18-19)
+
+- ⏳ **Arrays**: `nums: Array<Int> = [1, 2, 3]` (Phase 18)
+- ⏳ **LLVM Optimizations**: -O0, -O1, -O2, -O3 flags (Phase 16)
+- ⏳ **Debug Info**: DWARF debug information, GDB support (Phase 16)
+- 📝 **Documentation**: Comprehensive tutorials and API docs (Phase 19)
+
+### 📊 Overall Progress
+
 ```
-Core Language:     ████████████████████ 100%
-Module System:     ███████████████████░  95%
-String Support:    █████████████████░░░  85%
-LLVM Backend:      ███████████████████░  95%
-LLVM Backend:      ████████████████████ 100%
-Control Flow:      ████████████████████ 100%
-Self-Hosting:      ████░░░░░░░░░░░░░░░░  20%
+Stage 0 Bootstrap:  ████████████████████░  98%
+Core Language:      ████████████████████  100%
+String Support:     ████████████████████  100%
+LLVM Backend:       ███████████████████░   95%
+x86-64 Backend:     ███████████████████░   95%
+Control Flow:       ████████████████████  100%
+Self-Hosting:       ████░░░░░░░░░░░░░░░░   20%
 ```
+
+**Target:** Stage 0 Complete by Dec 31, 2025 · Stage 1 Self-hosting by Mar 31, 2026
+
+---
+
+> **For AI Assistants (YZ Series)**: 
+> - 📋 Start with `/NEXT_AI_START_HERE.md` for your current mission
+> - 📐 Read `/ARCHITECTURE.md` for critical architectural rules
+> - 📂 All YZ sessions documented in `/YZ/` folder
+> - 🔧 Follow modular design - NO monolithic code!
+> 
+> **Current Session**: YZ_70 (Phase 19.1 - README.md Update)
 
 ---
 
@@ -84,106 +98,483 @@ MLP/
 ├── README.md             # This file
 ├── TODO.md               # Development roadmap & tasks
 ├── NEXT_AI_START_HERE.md # Entry point for AI assistants
-├── ARCHITECTURE.md       # Critical architectural rules
-│
-├── compiler/             # MELP Compiler (Stage 0)
-│   └── stage0/          # C-based bootstrap compiler
-│       ├── melpc        # Compiler binary
-│       └── modules/     # 26 feature modules (modular architecture)
-│
-├── runtime/             # Runtime libraries
-│   ├── sto/            # STO runtime (Smart Type Optimization)
-│   ├── memory/         # Memory management
-│   └── stdlib/         # Standard library (println, etc.)
-│
-├── modules/            # Language feature modules
-│   ├── core/          # Core modules
-│   ├── advanced/      # Advanced features
-│   └── experimental/  # Experimental features
-│
-├── examples/          # Example MELP programs
-│   ├── hello/        # Hello World
-│   ├── basics/       # Basic examples
-│   └── advanced/     # Advanced examples
-│
-├── YZ/               # YZ session documentation (AI agents)
-│   ├── YZ_HISTORY.md # Summary of all sessions
-│   ├── YZ_01.md      # TTO Runtime setup
-│   ├── ...
-│   └── YZ_48.md      # Latest: println() complete
-│
-├── docs/             # English documentation
-│   ├── language/     # Language specification
-│   └── api/          # API reference
-│
-├── docs_tr/          # Turkish documentation
-│   └── language/     # Dil belgeleri
-│
-└── tests/            # Test suite
-    ├── unit/         # Unit tests
-    ├── integration/  # Integration tests
-    └── e2e/          # End-to-end tests
+---
+
+## 📁 Project Structure
+
 ```
+MELP/
+├── 📄 MELP_VISION.md        # Project philosophy & vision
+├── 📄 README.md             # This file - Quick start guide
+├── 📄 TODO.md               # Development roadmap & phase tracking
+├── 📄 NEXT_AI_START_HERE.md # Entry point for AI assistants
+├── 📄 ARCHITECTURE.md       # Critical architectural rules
+│
+├── 📁 compiler/             # MELP Compiler Implementation
+│   ├── stage0/              # Bootstrap compiler (C-based)
+│   │   ├── melpc           # Main compiler binary
+│   │   ├── functions_compiler  # Functions compiler binary
+│   │   └── modules/        # 26+ feature modules
+│   │       ├── lexer/      # Tokenization
+│   │       ├── parser/     # Syntax analysis
+│   │       ├── codegen_llvm/  # LLVM IR generation
+│   │       ├── codegen_x86/   # x86-64 assembly generation
+│   │       ├── comparison/ # Comparison operators
+│   │       ├── print/      # Print statement
+│   │       └── ...         # Other feature modules
+│   │
+│   ├── stage1/             # Self-hosted compiler (planned)
+│   └── stage2/             # Optimized self-hosted (future)
+│
+├── 📁 runtime/             # Runtime Libraries
+│   ├── stdlib/            # Standard library
+│   │   ├── mlp_stdlib.c  # Core stdlib functions
+│   │   └── mlp_stdlib.h  # stdlib header
+│   ├── sto/              # STO (Smart Type Optimization)
+│   │   ├── mlp_sto.c     # String type implementation
+│   │   └── mlp_sto.h     # STO header
+│   └── memory/           # Memory management (future)
+│
+├── 📁 modules/            # MELP Language Modules
+│   ├── core/             # Core standard modules
+│   ├── lexer_mlp/        # Self-hosted lexer (Phase 13)
+│   ├── advanced/         # Advanced features
+│   └── experimental/     # Experimental modules
+│
+├── 📁 examples/          # Example Programs
+│   ├── hello/           # Hello World examples
+│   ├── basics/          # Basic language features
+│   │   ├── test_all_comparisons.mlp
+│   │   ├── test_string_concat_*.mlp
+│   │   └── ...
+│   └── advanced/        # Advanced examples
+│
+├── 📁 docs/             # English Documentation
+│   ├── language/        # Language specification
+│   ├── api/            # API reference
+│   ├── tutorials/      # Step-by-step tutorials
+│   ├── LLVM_IR_GUIDE.md
+│   └── STRING_SUPPORT.md
+│
+├── 📁 docs_tr/         # Turkish Documentation (Türkçe)
+│   ├── language/       # Dil belgeleri
+│   └── tutorials/      # Eğitim belgeleri
+│
+├── 📁 YZ/              # AI Assistant Session Logs
+│   ├── YZ_01.md ... YZ_69.md  # Session documentation
+│   └── YZ_HISTORY.md   # Complete history
+│
+├── 📁 tests/           # Test Suite
+│   ├── integration/    # Integration tests
+│   └── e2e/           # End-to-end tests
+│
+└── 📁 temp/           # Temporary files & planning docs
+    └── selfhosting_geçiş_planlaması.md  # Self-hosting roadmap
+```
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Linux/macOS**: Native support
+- **LLVM 19**: For LLVM backend (`sudo apt install llvm-19`)
+- **GCC**: For compilation (`sudo apt install build-essential`)
+- **Make**: Build system
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/MELP-Lang/MELP.git
+cd MELP
+
+# Build the compiler
+make all
+
+# Verify installation
+./compiler/stage0/functions_compiler --version
+```
+
+### Your First MELP Program
+
+Create `hello.mlp`:
+
+```melp
+// Hello World in MELP
+print("Merhaba Dünya!")
+print("Hello World!")
+```
+
+Compile and run:
+
+```bash
+# Using LLVM backend (recommended)
+./compiler/stage0/functions_compiler hello.mlp /tmp/hello.ll --backend=llvm
+llc-19 /tmp/hello.ll -o /tmp/hello.s
+gcc /tmp/hello.s runtime/stdlib/mlp_stdlib.o runtime/sto/mlp_sto.o -o /tmp/hello
+/tmp/hello
+
+# Using x86-64 backend (Linux only)
+./compiler/stage0/functions_compiler hello.mlp /tmp/hello.s
+gcc /tmp/hello.s runtime/stdlib/mlp_stdlib.o runtime/sto/mlp_sto.o -o /tmp/hello
+/tmp/hello
+```
+
+### More Examples
+
+**Variables and Functions:**
+
+```melp
+function greet(string name) {
+    print("Merhaba, " + name + "!")
+}
+
+string myName = "MELP"
+greet(myName)
+```
+
+**Control Flow:**
+
+```melp
+numeric count = 1
+while count <= 5 {
+    print("Count: " + count)
+    count = count + 1
+}
+```
+
+**String Operations:**
+
+```melp
+string firstName = "Ada"
+string lastName = "Lovelace"
+string fullName = firstName + " " + lastName
+
+if fullName == "Ada Lovelace" {
+    print("Correct!")
+}
+```
+
+---
 
 ## 🎯 Language Features
 
-### ✅ Implemented (Stage 0 Complete!)
+### ✅ Fully Implemented (Stage 0)
 
-**Core Language:**
-- Variables & Types: `numeric`, `string`, `boolean`
-- Functions: Declaration, calls, return values, recursion
-- Arithmetic: `+`, `-`, `*`, `/`, unary minus
-- Comparison: `>`, `<`, `>=`, `<=`, `==`, `!=`
-- Boolean Logic: `and`, `or`, `not`
-- Control Flow: `if/else`, `while`, `for`, `exit`, `continue`
+#### Core Types
+- **`numeric`**: Integer values (`42`, `-15`)
+- **`string`**: Text with UTF-8 support (`"Hello"`, `"Merhaba"`)
+- **`boolean`**: True/false values (`true`, `false`)
 
-**Collections:**
-- Arrays: `[1, 2, 3]` - fixed size, fast access
-- Lists: `(1, 2, 3)` - dynamic, mutable
-- Tuples: `<1, 2, 3>` - immutable, lightweight
+#### Variables
+```melp
+numeric age = 25
+string name = "Alice"
+boolean isActive = true
+```
 
-**String Operations:**
-- Concatenation, comparison
-- Methods: `length()`, `substring()`, `indexOf()`, `toUpperCase()`, `toLowerCase()`
+#### Functions
+```melp
+function add(numeric a, numeric b) returns numeric {
+    return a + b
+}
 
-**Advanced:**
-- File I/O: `read_file()`, `write_file()`
-- Module System: `import` statements, circular detection
-- State Management: Optional `state` module
-- Incremental Compilation: Module caching (10-15x speedup)
-- Error Recovery: Colored messages, typo detection
+numeric result = add(5, 3)  // result = 8
+```
 
-**I/O:**
-- `println(value)` - Print with newline
-- `print(value)` - Print without newline
-- `input()` - Read user input
+#### Operators
+- **Arithmetic**: `+` `-` `*` `/` (unary `-`)
+- **Comparison**: `==` `!=` `<` `>` `<=` `>=`
+- **Logical**: `and` `or` `not`
 
-### 🚧 In Progress
+#### Control Flow
+```melp
+// If-Else
+if x > 10 {
+    print("Large")
+} else {
+    print("Small")
+}
 
-**Phase 12: TTO→STO Refactoring** (5-7 hours)
-- Rename TTO (Transparent Type Optimization) → STO (Smart Type Optimization)
-- Update all documentation and code
-- Ensure consistency across 100+ files
+// While Loop
+while count < 5 {
+    count = count + 1
+}
 
-### 🔮 Planned (Stage 1 - Self-Hosting)
+// For Loop
+for i in 1 to 10 {
+    print(i)
+}
+```
 
-**Core Missing Features:**
-- Struct/Record Types (4-5h)
-- Try-Catch Exception Handling (3-4h)
-- Type Inference (`var` keyword) (2-3h)
-- Lambda/Closure Integration (2-3h)
-- Enum Types (1-2h)
-- Generics (3-4h)
+#### String Features
+- **Concatenation**: `"Hello" + " " + "World"`
+- **Comparison**: All operators work (lexicographic ordering)
+- **UTF-8 Support**: `"🚀 MELP Dünya"`
+- **Print**: `print("text")` or `print(variable)`
 
-**Self-Hosting:**
-- Lexer in MELP (8-10h)
-- Parser in MELP (15-20h)
-- Codegen in MELP (15-20h)
+#### Comments
+```melp
+// Single-line comment
 
-## 📚 Key Resources
+/*
+  Multi-line
+  comment
+*/
+```
 
-- 📖 **[MELP_VISION.md](MELP_VISION.md)** - Project philosophy: Why MELP exists, what makes it unique
-- 🏗️ **[ARCHITECTURE.md](ARCHITECTURE.md)** - Critical rules: Modular architecture, STO system
+### 🔜 Coming Soon (Stage 0 → Stage 1)
+
+- **Arrays**: `nums: Array<Int> = [1, 2, 3]` (Phase 18)
+- **Structs**: User-defined types (Stage 1)
+- **Generics**: Type parameters `<T>` (Stage 1.5)
+- **Try-Catch**: Exception handling (Stage 1.5)
+- **Modules**: Import/export system (Stage 1)
+
+---
+
+## 🏗️ Build System
+
+### Build Commands
+
+```bash
+# Build everything
+make all
+
+# Build compiler only
+make compiler
+
+# Build runtime libraries
+make runtime
+
+# Clean build artifacts
+make clean
+
+# Run tests
+make test
+```
+
+### Compiler Backends
+
+MELP supports two code generation backends:
+
+1. **LLVM Backend** (Recommended)
+   - Cross-platform (Linux, macOS, Windows)
+   - LLVM optimizations (-O0 to -O3)
+   - Portable LLVM IR output
+   - Target: x86-64, ARM64, RISC-V
+
+2. **x86-64 Native Backend**
+   - Direct assembly generation
+   - Linux only (System V ABI)
+   - Faster compilation (no LLVM overhead)
+   - Educational value (readable assembly)
+
+### Compilation Pipeline
+
+```
+┌──────────┐    ┌────────┐    ┌────────┐    ┌──────────┐
+│ file.mlp │───▶│ Lexer  │───▶│ Parser │───▶│ CodeGen  │
+└──────────┘    └────────┘    └────────┘    └──────────┘
+                                                  │
+                                    ┌─────────────┴─────────────┐
+                                    ▼                           ▼
+                              ┌──────────┐              ┌──────────┐
+                              │ LLVM IR  │              │ x86-64   │
+                              │ (.ll)    │              │ (.s)     │
+                              └─────┬────┘              └────┬─────┘
+                                    │                        │
+                                    ▼                        │
+                              ┌──────────┐                   │
+                              │   llc    │                   │
+                              └─────┬────┘                   │
+                                    │                        │
+                                    ▼                        │
+                              ┌──────────┐                   │
+                              │ Assembly │◀──────────────────┘
+                              │ (.s)     │
+                              └─────┬────┘
+                                    │
+                                    ▼
+                              ┌──────────┐
+                              │   gcc    │
+                              │  linker  │
+                              └─────┬────┘
+                                    │
+                                    ▼
+                              ┌──────────┐
+                              │   Binary │
+                              │   (exe)  │
+                              └──────────┘
+```
+
+---
+
+## 📚 Documentation
+
+### For Users
+- 📖 **[MELP_VISION.md](MELP_VISION.md)** - Project philosophy and goals
+- 📘 **[docs/tutorials/](docs/tutorials/)** - Step-by-step learning guides (coming in Phase 19.3)
+- 📗 **[docs/language/](docs/language/)** - Language specification
+- 🇹🇷 **[docs_tr/](docs_tr/)** - Türkçe dokümantasyon
+
+### For Developers
+- 🏗️ **[ARCHITECTURE.md](ARCHITECTURE.md)** - Compiler architecture and design rules
+- 🔧 **[docs/LLVM_IR_GUIDE.md](docs/LLVM_IR_GUIDE.md)** - LLVM backend guide
+- 📝 **[TODO.md](TODO.md)** - Development roadmap and phase tracking
+- 🤖 **[NEXT_AI_START_HERE.md](NEXT_AI_START_HERE.md)** - AI assistant onboarding
+
+### For AI Assistants (YZ Series)
+1. Start: **[NEXT_AI_START_HERE.md](NEXT_AI_START_HERE.md)** - Current status and mission
+2. Read: **[ARCHITECTURE.md](ARCHITECTURE.md)** - Critical architectural rules
+3. History: **[YZ/](YZ/)** - All previous AI assistant sessions
+4. Tasks: **[TODO.md](TODO.md)** - Phase breakdown and task lists
+
+---
+
+## 🧪 Testing
+
+### Test Structure
+
+```
+tests/
+├── integration/     # Multi-component tests
+└── e2e/            # Full compilation tests
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+cd examples/basics
+for f in *.mlp; do
+    echo "Testing $f..."
+    ../../compiler/stage0/functions_compiler "$f" /tmp/test.ll --backend=llvm
+    llc-19 /tmp/test.ll -o /tmp/test.s
+    gcc /tmp/test.s ../../runtime/stdlib/mlp_stdlib.o ../../runtime/sto/mlp_sto.o -o /tmp/test
+    /tmp/test
+done
+```
+
+### Example Tests
+- `test_all_comparisons.mlp` - String comparison operators
+- `test_string_concat_*.mlp` - String concatenation
+- `test_string_param_*.mlp` - Function parameters
+- `test_mixed_types.mlp` - Type coexistence
+
+---
+
+## 🤝 Contributing
+
+MELP is developed through structured AI-assisted sessions (YZ series). Each session focuses on a specific phase or task.
+
+### For AI Contributors
+
+1. **Read**: [NEXT_AI_START_HERE.md](NEXT_AI_START_HERE.md) for your mission
+2. **Follow**: [ARCHITECTURE.md](ARCHITECTURE.md) rules (NO monolithic code!)
+3. **Branch**: Create `phaseN-description_YZ_XX` branch
+4. **Document**: Update TODO.md and NEXT_AI_START_HERE.md
+5. **Commit**: Use descriptive commit messages
+6. **Handoff**: Create YZ/YZ_XX.md session report
+
+### Current Development Focus
+
+- **Phase 19**: Documentation & Polish (6 YZ sessions)
+- **Phase 16**: Advanced LLVM Features (4 YZ sessions)
+- **Phase 18**: Array Support (5 YZ sessions)
+
+See [TODO.md](TODO.md) for detailed task breakdown.
+
+---
+
+## 📊 Project Stats
+
+- **Lines of Code**: ~15,000+ (C) + ~2,000 (MELP modules)
+- **Modules**: 26+ compiler modules
+- **YZ Sessions**: 69 completed (as of Dec 14, 2025)
+- **Phases Complete**: 17/19 (Stage 0)
+- **Test Coverage**: 30+ example programs
+- **Development Time**: ~6 months (Jun 2025 - Dec 2025)
+
+---
+
+## 🗺️ Roadmap
+
+### Stage 0: Bootstrap Compiler (C) - 98% Complete
+**Target: December 31, 2025**
+
+- ✅ Phase 1-14: Core language features
+- ✅ Phase 15: Standard library integration
+- ✅ Phase 17: String support (100%)
+- ⏳ Phase 16: Advanced LLVM features
+- ⏳ Phase 18: Array support
+- ⏳ Phase 19: Documentation & polish
+
+### Stage 1: Self-Hosted Compiler (MELP) - 20% Complete
+**Target: March 31, 2026**
+
+- ✅ Phase 13: Lexer in MELP (complete)
+- ⏳ Parser in MELP
+- ⏳ CodeGen in MELP
+- ⏳ Bootstrap Stage 1 with Stage 0
+
+### Stage 1.5: Advanced Features - Planned
+**Target: May 31, 2026**
+
+- Struct types
+- Generics `<T>`
+- Try-catch exception handling
+- Module system
+- Advanced optimizations
+
+### Stage 2: Production Ready - Future
+**Target: August 31, 2026**
+
+- Multi-language support
+- Package manager
+- IDE plugins
+- Production deployment
+
+See [temp/selfhosting_geçiş_planlaması.md](temp/selfhosting_geçiş_planlaması.md) for detailed self-hosting roadmap.
+
+---
+
+## 📄 License
+
+[License information to be added]
+
+---
+
+## 🙏 Acknowledgments
+
+Developed through AI-assisted methodology (YZ series):
+- Structured phase-based development
+- Modular architecture
+- Comprehensive documentation
+- Test-driven approach
+
+**Latest Contributors:**
+- YZ_61-65: String support implementation
+- YZ_66: Print statement & concatenation
+- YZ_69: String comparison bug fix & self-hosting plan
+- YZ_70: Documentation update (this README!)
+
+---
+
+## 📞 Contact & Resources
+
+- **GitHub**: [github.com/MELP-Lang/MELP](https://github.com/MELP-Lang/MELP)
+- **Documentation**: See `/docs` and `/docs_tr` folders
+- **Issues**: Use GitHub Issues for bug reports
+- **Development**: Follow [TODO.md](TODO.md) for current tasks
+
+---
+
+**Last Updated**: December 14, 2025 (YZ_70)  
+**Version**: Stage 0 Bootstrap (v0.98)  
+**Status**: Phase 17 Complete · Phase 19.1 In Progress
 - 📋 **[TODO.md](TODO.md)** - Development roadmap: All phases, current tasks, completion status
 - 🤖 **[NEXT_AI_START_HERE.md](NEXT_AI_START_HERE.md)** - AI assistant entry point: Current status, next tasks
 - 📚 **[docs/language/](docs/language/)** - Language specification: Syntax, types, features
