@@ -106,7 +106,11 @@ continue_for    -- TOKEN_CONTINUE_FOR
 continue_while  -- TOKEN_CONTINUE_WHILE
 ```
 
-### Debug Blokları
+### Debug Sözdizimi
+
+PMPL'de **iki tür debug** sözdizimi vardır:
+
+#### 1. Block Debug (Çok Satırlı)
 
 ```pmpl
 -- Debug bloğu (production'da tamamen silinir)
@@ -115,35 +119,82 @@ debug
     print("Debug: hesaplama başlıyor")
     print("x değeri: " + x)
     
-    -- Debug içinde istediğiniz kodu yazabilirsiniz
     numeric debug_sayac = 0
     
-    -- Etiket ve goto kullanabilirsiniz
-    tekrar:
+    tekrar:  -- Debug label (sadece debug içinde)
     debug_sayac = debug_sayac + 1
     print("Adım: " + debug_sayac)
     
     if debug_sayac < 5 then
-        goto tekrar
+        goto tekrar  -- Debug goto (sadece debug içinde)
     end_if
+    
+    pause  -- Debug pause (sadece debug içinde)
 end_debug
+```
 
--- Örnek: Fonksiyon içinde debug kullanımı
+#### 2. Single-Line Debug (Tek Satır)
+
+```pmpl
+-- Tek satır debug (end_debug YOK)
+debug print("x = " + x)
+debug if a == b then c = d
+debug numeric temp = x * 2 : print(temp)
+
+-- Debug-only keywords (sadece debug satırında)
+debug baslangic:           -- Etiket tanımla
+debug goto baslangic       -- Etikete git
+debug pause                -- Debugger'ı duraklat
+```
+
+#### Debug-Only Keywords (Sadece Debug Context'inde)
+
+Bu keyword'ler **sadece debug bloğu veya debug satırında** kullanılabilir:
+
+| Keyword | Kullanım | Açıklama |
+|---------|----------|----------|
+| `label:` | `debug baslangic:` | Etiket tanımla |
+| `goto` | `debug goto baslangic` | Etikete git |
+| `pause` | `debug pause` | Debugger'ı duraklat |
+
+**Hata Örnekleri:**
+```pmpl
+-- ❌ HATA: goto debug dışında kullanılamaz
+function test()
+    goto start  -- DERLEME HATASI!
+end_function
+
+-- ❌ HATA: label debug dışında kullanılamaz
+function test()
+    start:      -- DERLEME HATASI!
+    print("test")
+end_function
+
+-- ❌ HATA: pause debug dışında kullanılamaz
+function test()
+    pause       -- DERLEME HATASI!
+end_function
+```
+
+**Doğru Kullanım:**
+```pmpl
 function hesapla(numeric x) returns numeric
-    debug
-        print("hesapla() çağrıldı, x = " + x)
-        
-        if x < 0 then
-            print("UYARI: Negatif değer!")
-        end_if
-    end_debug
+    debug print("hesapla() çağrıldı: x = " + x)
     
     if x < 0 then
+        debug print("UYARI: Negatif değer!")
         return 0
     end_if
     
     debug
-        print("Sonuç: " + (x * 2))
+        numeric step = 0
+        tekrar:
+        step = step + 1
+        print("Adım: " + step)
+        if step < 3 then
+            goto tekrar
+        end_if
+        pause  -- Debugger'da dur
     end_debug
     
     return x * 2
@@ -151,14 +202,14 @@ end_function
 ```
 
 **Compiler Davranışı:**
-- **Development mode (varsayılan):** Debug blokları normal çalışır
-- **Production mode (`--release` flag):** Debug blokları tamamen silinir (lexer seviyesinde)
+- **Development mode (varsayılan):** Debug satırları/blokları çalışır
+- **Production mode (`--release` flag):** Debug tamamen silinir (lexer seviyesinde)
 
 **Avantajları:**
-- ✅ Tek kural: `debug` ... `end_debug` bloğu production'da silinir
-- ✅ Blok içinde istediğiniz kodu yazabilirsiniz (print, if, while, goto, vs.)
-- ✅ Basit implementasyon: Sadece TOKEN_DEBUG ve TOKEN_END_DEBUG
-- ✅ Production binary'de debug kodu yok (sıfır overhead)
+- ✅ Tek satır: `debug print(x)` - hızlı debug
+- ✅ Çok satır: `debug ... end_debug` - karmaşık debug logic
+- ✅ Debug-only features: goto, label, pause
+- ✅ Production binary'de sıfır overhead
 
 ---
 
@@ -201,6 +252,8 @@ end_function
 | `false` | TOKEN_FALSE | Boolean yanlış |
 | `for` | TOKEN_FOR | For döngüsü |
 | `function` | TOKEN_FUNCTION | Fonksiyon bildirimi |
+| `goto` | TOKEN_GOTO | Debug goto (sadece debug içinde) |
+| `pause` | TOKEN_PAUSE | Debug pause (sadece debug içinde) |
 | `if` | TOKEN_IF | If ifadesi |
 | `import` | TOKEN_IMPORT | Modül içe aktarma |
 | `in` | TOKEN_IN | For-each iteratörü |

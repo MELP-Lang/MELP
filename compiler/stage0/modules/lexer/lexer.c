@@ -160,6 +160,8 @@ static Token* read_identifier(Lexer* lexer) {
     // ⭐ PMPL Debug Block (RF_YZ_2)
     else if (strcmp(value, "debug") == 0) type = TOKEN_DEBUG;
     else if (strcmp(value, "end_debug") == 0) type = TOKEN_END_DEBUG;
+    else if (strcmp(value, "goto") == 0) type = TOKEN_GOTO;
+    else if (strcmp(value, "pause") == 0) type = TOKEN_PAUSE;
     
     // ⭐ PMPL State Keywords (RF_YZ_2)
     else if (strcmp(value, "shared_state") == 0) type = TOKEN_SHARED_STATE;

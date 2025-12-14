@@ -106,48 +106,42 @@ continue_for    -- TOKEN_CONTINUE_FOR
 continue_while  -- TOKEN_CONTINUE_WHILE
 ```
 
-### Debug Blocks
+### Debug Syntax
 
+Two types of debug:
+
+**1. Block Debug:**
 ```pmpl
--- Debug block (removed in production)
 debug
-    -- Everything here is removed with --release flag
-    print("Debug: starting calculation")
-    print("x = " + x)
-    
-    -- Any code allowed inside debug blocks
+    print("Debug info")
     numeric step = 0
     
-    -- Labels and goto work
-    start:
+    start:  -- label (debug-only)
     step = step + 1
-    print("Step: " + step)
-    
     if step < 3 then
-        goto start
+        goto start  -- goto (debug-only)
     end_if
+    pause  -- pause (debug-only)
 end_debug
-
--- Example
-function calculate(numeric x) returns numeric
-    debug
-        print("calculate() called: x = " + x)
-        if x < 0 then
-            print("WARNING: negative!")
-        end_if
-    end_debug
-    
-    if x < 0 then
-        return 0
-    end_if
-    
-    return x * 2
-end_function
 ```
 
-**Behavior:**
-- **Development:** Debug blocks execute
-- **Production (`--release`):** Debug blocks completely removed (zero overhead)
+**2. Single-Line Debug:**
+```pmpl
+debug print("x = " + x)
+debug if a == b then c = d
+debug start:           -- label
+debug goto start       -- goto
+debug pause            -- pause
+```
+
+**Debug-Only Keywords:**
+- `goto` - Only in debug context
+- `label:` - Only in debug context  
+- `pause` - Only in debug context
+
+**Compiler Behavior:**
+- Development: Debug executes
+- Production (`--release`): Debug removed (zero overhead)
 
 ---
 
@@ -189,6 +183,8 @@ end_function
 | `false` | TOKEN_FALSE | Boolean false |
 | `for` | TOKEN_FOR | For loop |
 | `function` | TOKEN_FUNCTION | Function declaration |
+| `goto` | TOKEN_GOTO | Debug goto (debug-only) |
+| `pause` | TOKEN_PAUSE | Debug pause (debug-only) |
 | `if` | TOKEN_IF | If statement |
 | `import` | TOKEN_IMPORT | Import module |
 | `in` | TOKEN_IN | For-each iterator |

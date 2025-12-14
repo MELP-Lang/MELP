@@ -73,8 +73,10 @@ typedef enum {
     TOKEN_CONTINUE_WHILE,  // continue_while
     
     // ⭐ PMPL Debug Block
-    TOKEN_DEBUG,           // debug (block start)
+    TOKEN_DEBUG,           // debug (block start or single-line prefix)
     TOKEN_END_DEBUG,       // end_debug (block end)
+    TOKEN_GOTO,            // goto (debug-only)
+    TOKEN_PAUSE,           // pause (debug-only)
     
     // ⭐ PMPL State Keywords
     TOKEN_SHARED_STATE,    // shared_state

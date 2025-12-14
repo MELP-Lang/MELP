@@ -228,44 +228,95 @@ continue_for    -- Continue for loop explicitly
 continue_while  -- Continue while loop explicitly
 ```
 
-### 3.1 Debug Blocks
+### 3.1 Debug Syntax
+
+PMPL supports **two types of debug** syntax:
+
+#### 1. Block Debug (Multi-line)
 
 ```pmpl
 -- Debug block (completely removed in production)
 debug
-    -- Everything in this block is removed in production builds
+    -- Everything here is removed in production builds
     print("Debug: calculation starting")
     print("x value: " + x)
     
-    -- You can write any code inside debug blocks
     numeric debug_counter = 0
     
-    -- Labels and goto are allowed
-    repeat:
+    repeat:  -- Debug label (only inside debug)
     debug_counter = debug_counter + 1
     print("Step: " + debug_counter)
     
     if debug_counter < 5 then
-        goto repeat
+        goto repeat  -- Debug goto (only inside debug)
     end_if
+    
+    pause  -- Debug pause (only inside debug)
 end_debug
+```
 
--- Example: Debug in function
+#### 2. Single-Line Debug
+
+```pmpl
+-- Single-line debug (NO end_debug)
+debug print("x = " + x)
+debug if a == b then c = d
+debug numeric temp = x * 2 : print(temp)
+
+-- Debug-only keywords (only in debug context)
+debug start:           -- Define label
+debug goto start       -- Jump to label
+debug pause            -- Pause debugger
+```
+
+#### Debug-Only Keywords
+
+These keywords can **only be used in debug blocks or debug lines**:
+
+| Keyword | Usage | Description |
+|---------|-------|-------------|
+| `label:` | `debug start:` | Define debug label |
+| `goto` | `debug goto start` | Jump to label |
+| `pause` | `debug pause` | Pause debugger |
+
+**Error Examples:**
+```pmpl
+-- ❌ ERROR: goto cannot be used outside debug
+function test()
+    goto start  -- COMPILE ERROR!
+end_function
+
+-- ❌ ERROR: label cannot be used outside debug
+function test()
+    start:      -- COMPILE ERROR!
+    print("test")
+end_function
+
+-- ❌ ERROR: pause cannot be used outside debug
+function test()
+    pause       -- COMPILE ERROR!
+end_function
+```
+
+**Correct Usage:**
+```pmpl
 function calculate(numeric x) returns numeric
-    debug
-        print("calculate() called, x = " + x)
-        
-        if x < 0 then
-            print("WARNING: Negative value!")
-        end_if
-    end_debug
+    debug print("calculate() called: x = " + x)
     
     if x < 0 then
+        debug print("WARNING: Negative value!")
         return 0
     end_if
     
     debug
-        print("Result: " + (x * 2))
+        numeric step = 0
+        repeat:
+        step = step + 1
+        print("Step: " + step)
+        if step < 3 then
+            goto repeat
+        end_if
+        pause  -- Stop in debugger
     end_debug
     
     return x * 2
@@ -273,13 +324,13 @@ end_function
 ```
 
 **Compiler Behavior:**
-- **Development mode (default):** Debug blocks execute normally
-- **Production mode (`--release` flag):** Debug blocks are completely removed at lexer level
+- **Development mode (default):** Debug lines/blocks execute
+- **Production mode (`--release` flag):** Debug completely removed at lexer level
 
 **Benefits:**
-- ✅ Single rule: `debug` ... `end_debug` block removed in production
-- ✅ Write any code inside debug blocks (print, if, while, goto, etc.)
-- ✅ Simple implementation: Only TOKEN_DEBUG and TOKEN_END_DEBUG
+- ✅ Single-line: `debug print(x)` - quick debug
+- ✅ Multi-line: `debug ... end_debug` - complex debug logic
+- ✅ Debug-only features: goto, label, pause
 - ✅ Zero overhead in production binary
 
 ---

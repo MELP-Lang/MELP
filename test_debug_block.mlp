@@ -1,37 +1,56 @@
--- Test PMPL debug block syntax
+-- Test PMPL debug syntax (both block and single-line)
 
-function test_debug_block() returns numeric
+function test_single_line_debug() returns numeric
     numeric x = 10
     
-    debug
-        -- This entire block will be removed in production
-        print("Debug: x = ")
-        print(x)
-        
-        numeric debug_counter = 0
-        while debug_counter < 3 do
-            print("Debug iteration: ")
-            print(debug_counter)
-            debug_counter = debug_counter + 1
-        end_while
-    end_debug
+    -- Single-line debug (no end_debug)
+    debug print("Single-line debug: x = ")
+    debug print(x)
     
-    -- Normal code
     x = x * 2
     
-    debug
-        print("Debug: After multiplication, x = ")
-        print(x)
-    end_debug
+    debug print("After multiplication: x = ")
+    debug print(x)
     
     return x
 end_function
 
-function main() returns numeric
-    numeric result = test_debug_block()
+function test_block_debug() returns numeric
+    numeric x = 5
     
-    print("Result: ")
-    print(result)
+    -- Block debug with goto, label, pause
+    debug
+        print("Block debug started")
+        print("x = ")
+        print(x)
+        
+        numeric step = 0
+        
+        repeat:  -- Debug label (only in debug)
+        step = step + 1
+        print("Step: ")
+        print(step)
+        
+        if step < 3 then
+            goto repeat  -- Debug goto (only in debug)
+        end_if
+        
+        pause  -- Debug pause (only in debug)
+        print("After pause")
+    end_debug
+    
+    return x * 2
+end_function
+
+function main() returns numeric
+    numeric result1 = test_single_line_debug()
+    numeric result2 = test_block_debug()
+    
+    print("Single-line result: ")
+    print(result1)
+    
+    print("Block result: ")
+    print(result2)
     
     return 0
 end_function
