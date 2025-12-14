@@ -9,10 +9,10 @@
 ## 📊 GENEL DURUM
 
 ```
-[███░░░░░░░] 10% Complete
+[████████░░] 40% Complete
 
-RF_YZ_1: 🟡 IN PROGRESS ← ŞUAN BURASI
-RF_YZ_2: 🔴 NOT STARTED  
+RF_YZ_1: 🟢 COMPLETE ✅
+RF_YZ_2: 🟡 IN PROGRESS ← ŞUAN BURASI
 RF_YZ_3: 🔴 NOT STARTED
 ```
 
@@ -21,31 +21,33 @@ RF_YZ_3: 🔴 NOT STARTED
 ## 📋 YZ DETAYLARI
 
 ### RF_YZ_1: Normalize Layer
-**Durum:** 🟡 IN PROGRESS ← ŞU AN BURADA!  
+**Durum:** 🟢 COMPLETE ✅  
 **Başlangıç:** 14 Aralık 2025  
-**Süre:** 2-3 saat  
+**Bitiş:** 14 Aralık 2025  
+**Süre:** ~2 saat  
 **Görev:** User input → PMPL dönüştürücü katmanı  
 
 **Dosyalar:**
-- [ ] `compiler/stage0/normalize/normalize.c`
-- [ ] `compiler/stage0/normalize/normalize.h`
-- [ ] `compiler/stage0/normalize/syntax_rules.h`
-- [ ] `compiler/stage0/normalize/test_normalize.c`
+- [x] `compiler/stage0/normalize/normalize.c` (~200 satır)
+- [x] `compiler/stage0/normalize/normalize.h`
+- [x] `compiler/stage0/normalize/syntax_rules.h` (22 kural)
+- [x] `compiler/stage0/normalize/test_normalize.c` (26 test)
 
 **Testler:**
-- [ ] `./test_normalize` geçiyor
+- [x] `./test_normalize` geçiyor ✅ (26/26)
 
-**Rapor:** `YZ_refactor/RF_YZ_1.md` (oluşturuluyor...)  
-**Commit:** Yapılmadı  
+**Rapor:** `YZ_refactor/RF_YZ_1.md` ✅  
+**Commit:** 5bd322b ✅  
 
 ---
 
 ### RF_YZ_2: Lexer Refactor
-**Durum:** 🔴 NOT STARTED (RF_YZ_1 bekliyor)  
+**Durum:** 🟡 IN PROGRESS ← ŞU AN BURADA!  
+**Başlangıç:** 14 Aralık 2025  
 **Süre:** 2-3 saat  
 **Görev:** PMPL underscore keyword tokenization  
 
-**Bağımlılık:** ⚠️ RF_YZ_1 tamamlanmalı!
+**Bağımlılık:** ✅ RF_YZ_1 tamamlandı!
 
 **Dosyalar:**
 - [ ] `compiler/stage0/modules/lexer/lexer.h` (token enum'lar)
@@ -55,7 +57,7 @@ RF_YZ_3: 🔴 NOT STARTED
 **Testler:**
 - [ ] `./test_lexer` geçiyor
 
-**Rapor:** `YZ_refactor/RF_YZ_2.md` (henüz yok)  
+**Rapor:** `YZ_refactor/RF_YZ_2.md` (oluşturuluyor...)  
 **Commit:** Yapılmadı  
 
 ---
@@ -135,8 +137,8 @@ RF_YZ_3: 🟢 COMPLETE ✅
 | Tarih | YZ | Olay |
 |-------|-----|------|
 | 14 Ara 2025 | - | Refactor planı oluşturuldu |
-| 14 Ara 2025 | RF_YZ_1 | 🟡 BAŞLADI - Normalize Layer |
-| | RF_YZ_2 | Bekliyor... |
+| 14 Ara 2025 | RF_YZ_1 | 🟢 TAMAMLANDI - Normalize Layer (26/26 test) |
+| 14 Ara 2025 | RF_YZ_2 | 🟡 BAŞLADI - Lexer Refactor |
 | | RF_YZ_3 | Bekliyor... |
 | | RF_YZ_3 | Bekliyor... |
 

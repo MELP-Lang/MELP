@@ -46,6 +46,38 @@ typedef enum {
     TOKEN_EACH,            // for each item in collection
     TOKEN_IN,              // for each item in collection
     TOKEN_EXIT,            // exit, exit for, exit while, exit if, exit function
+    
+    // ⭐ PMPL Block Terminators (underscore keywords)
+    TOKEN_END_IF,          // end_if
+    TOKEN_END_WHILE,       // end_while
+    TOKEN_END_FOR,         // end_for
+    TOKEN_END_FUNCTION,    // end_function
+    TOKEN_END_STRUCT,      // end_struct
+    TOKEN_END_SWITCH,      // end_switch
+    TOKEN_END_MATCH,       // end_match
+    TOKEN_END_OPERATOR,    // end_operator
+    TOKEN_END_TRY,         // end_try
+    
+    // ⭐ PMPL Control Flow
+    TOKEN_ELSE_IF,         // else_if
+    
+    // ⭐ PMPL Loop Control
+    TOKEN_EXIT_IF,         // exit_if
+    TOKEN_EXIT_FOR,        // exit_for
+    TOKEN_EXIT_WHILE,      // exit_while
+    TOKEN_EXIT_FUNCTION,   // exit_function
+    TOKEN_EXIT_SWITCH,     // exit_switch
+    TOKEN_CONTINUE_FOR,    // continue_for
+    TOKEN_CONTINUE_WHILE,  // continue_while
+    
+    // ⭐ PMPL Debug Keywords
+    TOKEN_DEBUG_GOTO,      // debug_goto
+    TOKEN_DEBUG_PAUSE,     // debug_pause
+    TOKEN_DEBUG_LABEL,     // debug_label
+    TOKEN_DEBUG_PRINT,     // debug_print
+    
+    // ⭐ PMPL State Keywords
+    TOKEN_SHARED_STATE,    // shared_state
     // Function keywords
     TOKEN_FUNCTION,
     TOKEN_RETURN,

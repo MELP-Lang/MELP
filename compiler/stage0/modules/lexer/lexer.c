@@ -131,7 +131,40 @@ static Token* read_identifier(Lexer* lexer) {
     else if (strcmp(value, "tuple") == 0) type = TOKEN_TUPLE;
     else if (strcmp(value, "true") == 0) type = TOKEN_TRUE;
     else if (strcmp(value, "false") == 0) type = TOKEN_FALSE;
-    // Control flow keywords
+    
+    // ⭐ PMPL Block Terminators (underscore keywords - RF_YZ_2)
+    else if (strcmp(value, "end_if") == 0) type = TOKEN_END_IF;
+    else if (strcmp(value, "end_while") == 0) type = TOKEN_END_WHILE;
+    else if (strcmp(value, "end_for") == 0) type = TOKEN_END_FOR;
+    else if (strcmp(value, "end_function") == 0) type = TOKEN_END_FUNCTION;
+    else if (strcmp(value, "end_struct") == 0) type = TOKEN_END_STRUCT;
+    else if (strcmp(value, "end_switch") == 0) type = TOKEN_END_SWITCH;
+    else if (strcmp(value, "end_match") == 0) type = TOKEN_END_MATCH;
+    else if (strcmp(value, "end_operator") == 0) type = TOKEN_END_OPERATOR;
+    else if (strcmp(value, "end_try") == 0) type = TOKEN_END_TRY;
+    
+    // ⭐ PMPL Control Flow (RF_YZ_2)
+    else if (strcmp(value, "else_if") == 0) type = TOKEN_ELSE_IF;
+    
+    // ⭐ PMPL Loop Control (RF_YZ_2)
+    else if (strcmp(value, "exit_if") == 0) type = TOKEN_EXIT_IF;
+    else if (strcmp(value, "exit_for") == 0) type = TOKEN_EXIT_FOR;
+    else if (strcmp(value, "exit_while") == 0) type = TOKEN_EXIT_WHILE;
+    else if (strcmp(value, "exit_function") == 0) type = TOKEN_EXIT_FUNCTION;
+    else if (strcmp(value, "exit_switch") == 0) type = TOKEN_EXIT_SWITCH;
+    else if (strcmp(value, "continue_for") == 0) type = TOKEN_CONTINUE_FOR;
+    else if (strcmp(value, "continue_while") == 0) type = TOKEN_CONTINUE_WHILE;
+    
+    // ⭐ PMPL Debug Keywords (RF_YZ_2)
+    else if (strcmp(value, "debug_goto") == 0) type = TOKEN_DEBUG_GOTO;
+    else if (strcmp(value, "debug_pause") == 0) type = TOKEN_DEBUG_PAUSE;
+    else if (strcmp(value, "debug_label") == 0) type = TOKEN_DEBUG_LABEL;
+    else if (strcmp(value, "debug_print") == 0) type = TOKEN_DEBUG_PRINT;
+    
+    // ⭐ PMPL State Keywords (RF_YZ_2)
+    else if (strcmp(value, "shared_state") == 0) type = TOKEN_SHARED_STATE;
+    
+    // Control flow keywords (single keywords - existing)
     else if (strcmp(value, "if") == 0) type = TOKEN_IF;
     else if (strcmp(value, "then") == 0) type = TOKEN_THEN;
     else if (strcmp(value, "else") == 0) type = TOKEN_ELSE;
