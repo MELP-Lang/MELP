@@ -56,11 +56,20 @@ PrintStatement* parse_print_statement(Lexer* lexer, Token* print_token) {
             stmt->value = (char*)expr;  // Store ArithmeticExpr* as void*
             // Don't free tok - arithmetic parser consumed it
         } else {
-            // Simple variable: print(x)
+            // Simple variable: print(x) - convert to expression
             if (next) lexer_unget_token(lexer, next);
-            stmt->type = PRINT_VARIABLE;
-            stmt->value = strdup(tok->value);
-            token_free(tok);
+            
+            // Create simple variable expression
+            ArithmeticExpr* var_expr = arithmetic_parse_expression_stateless(lexer, tok);
+            if (!var_expr) {
+                token_free(tok);
+                free(stmt);
+                return NULL;
+            }
+            
+            stmt->type = PRINT_EXPRESSION;
+            stmt->value = (char*)var_expr;
+            // Don't free tok - arithmetic parser consumed it
         }
     } else {
         // Try to parse as general expression (numbers, etc.)

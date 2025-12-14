@@ -1,5 +1,6 @@
 #include "print_codegen.h"
 #include "print.h"
+#include "../functions/functions.h"            // ✅ For FunctionDeclaration
 #include "../arithmetic/arithmetic.h"          // ✅ For ArithmeticExpr
 #include "../arithmetic/arithmetic_codegen.h"  // ✅ For expression codegen
 #include <stdio.h>
@@ -14,36 +15,27 @@ static bool sto_declarations_emitted = false;
 static void emit_sto_declarations(FILE* f) {
     if (sto_declarations_emitted) return;
     
-    fprintf(f, "; STO Runtime External Functions\n");
-    fprintf(f, "extern sto_bigdec_to_string\n");
-    fprintf(f, "extern sto_sso_data\n");
-    fprintf(f, "extern sto_print_int64\n");
-    fprintf(f, "extern printf\n");
-    fprintf(f, "extern free\n\n");
+    // No need to declare extern in GAS - runtime library provides them
+    fprintf(f, "    # STO Runtime Functions: sto_print_int64, printf, free\n\n");
     
     sto_declarations_emitted = true;
 }
 
-void codegen_print_statement(FILE* f, PrintStatement* stmt) {
+void codegen_print_statement(FILE* f, PrintStatement* stmt, FunctionDeclaration* func) {
     if (!stmt || !stmt->value) return;
     
-    // On first call, emit program header
+    // On first call, emit program header (as comments in .text section)
     if (is_first_call) {
-        fprintf(f, "; MLP Print Module - Generated Assembly\n");
-        fprintf(f, "; Target: x86-64 Linux\n");
-        fprintf(f, "; STO Support: BigDecimal, SSO String\n\n");
+        fprintf(f, "    # MLP Print Module - Generated Assembly\n");
+        fprintf(f, "    # Target: x86-64 Linux\n");
+        fprintf(f, "    # STO Support: BigDecimal, SSO String\n\n");
         emit_sto_declarations(f);
         is_first_call = 0;
     }
     
-    // Handle variable printing
+    // Handle variable printing (DEPRECATED - now handled as PRINT_EXPRESSION)
     if (stmt->type == PRINT_VARIABLE) {
-        const char* var_name = stmt->value;
-        
-        fprintf(f, "\n    ; Print variable: %s\n", var_name);
-        fprintf(f, "    mov rdi, [var_%s]  ; Load INT64 value (first argument)\n", var_name);
-        fprintf(f, "    call sto_print_int64\n");
-        
+        fprintf(f, "\n    # Error: PRINT_VARIABLE deprecated - should use PRINT_EXPRESSION\n");
         string_counter++;
         return;
     }
@@ -52,12 +44,12 @@ void codegen_print_statement(FILE* f, PrintStatement* stmt) {
     if (stmt->type == PRINT_EXPRESSION) {
         ArithmeticExpr* expr = (ArithmeticExpr*)stmt->value;
         
-        fprintf(f, "\n    ; Print expression\n");
+        fprintf(f, "\n    # Print expression\n");
         
         // Generate expression code (result will be in r8 or xmm0)
-        arithmetic_generate_code(f, expr, NULL);
+        arithmetic_generate_code(f, expr, func);
         
-        fprintf(f, "    mov rdi, %%r8  ; Move result to first argument\n");
+        fprintf(f, "    mov %%r8, %%rdi  # Move result to first argument (AT&T syntax)\n");
         fprintf(f, "    call sto_print_int64\n");
         
         string_counter++;

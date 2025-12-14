@@ -5,8 +5,11 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+// Forward declaration
+typedef struct FunctionDeclaration FunctionDeclaration;
+
 // Generate code for print statement
-void codegen_print_statement(FILE* f, PrintStatement* stmt);
+void codegen_print_statement(FILE* f, PrintStatement* stmt, FunctionDeclaration* func);
 
 // Generate code for printing BigDecimal
 void codegen_print_bigdecimal(FILE* f, const char* bigdec_var);

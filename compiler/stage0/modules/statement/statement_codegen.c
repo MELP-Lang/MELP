@@ -72,9 +72,11 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
         }
         
         case STMT_PRINT: {
-            // ✅ Use print module
-            // TODO: print_generate_code(output, stmt->data);
-            fprintf(output, "    # Print statement\n");
+            // ✅ Use print module for all print types (literal, variable, expression)
+            PrintStatement* print_stmt = (PrintStatement*)stmt->data;
+            if (print_stmt) {
+                codegen_print_statement(output, print_stmt, func);
+            }
             break;
         }
         
