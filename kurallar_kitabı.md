@@ -7,16 +7,177 @@
 **Milestone:** Phase 18 Complete - State Management 🎉  
 **Amaç:** Tüm kritik proje bilgisini tek merkezi dokümanda toplamak
 
-# ÇOK ÖNEMLİ:
-**MELP'in felsefesi:** MLP yani Multi Language Programming çok dilli çok sözdizimli bir programlama dilidir. MLP ye aynı zamanda kullanışlı olması açısından MELP diyoruz.
-Bir çok dili ve bir çok sözdizimini tek bir potada erittiği için eritme potası anlamında MELP kullanımı uygun bulunmuştur.
-**Melp'in mimari yapısı:** 
-kullanıcı kod (1)> diller.json + sozdizimi.json (2)> normalize edici (3)> English + English pragmatik MLP base syntax (4)> lexer (5)> parser (6)> generator (7)> ...
+# 🚨 YENİ AI İÇİN KRİTİK UYARI:
 
-Melp kullanan bir kullanıcı istediği dilde diller.json dosyasını (örneğin Türkçe, İngilizce, Rusça, Arapça) ve istediği stilde örneğin syntax.json dosyasını (C style, Python style, MLP style) kullanarak kodlama yapabilir. 
-Ancak yeni gelen AI'nin zincirin bu tarafıyla bir ilgisi yoktur. Yeni gelen AI sadece zincirin sadece 4. halkasından sonraki bölüm ile ilgilenecektir. MLP'de iki dil paralel gitmektedir. Biri kullanıcıların göreceği syntax.json da yer alan MLP dili diğeri kullanıcıların asla görmeyeceği arka planda çalışan pragmatik kodlama dili "English pragmatik MLP base syntax" ya da PMPL (Pragmatik MLP) dediğimiz ara dil. Bu aradil lexer ve parser için kullanışlı olması amacıyla geliştirilmiştir. örneğin MLP'de if kod bloğu "end if" ile bitmektedir ama C'de "}" ile bitmektedir. lexer ve parserde karışıklık çıkmaması için "end if" 'i de tek tokene indirmegemek amacıyla PMLP de "end_if" kullanılmaktadır. Yani eğer karşılaştığınız bir problem dil tasarımında değişiklik gerektiriyorsa kullanıcıdan onay alarak PMLP yi değiştirebilirsiniz. Bu yapı sayesinde MELP hiç bir zaman kullanıcının hangi dilde hangi sözdiziminde kodlama yaptığıyla ilgilenmez. MELP derleyicisi sadece PMLP yi görür. Bu da dil tasarmında tutarlıltaık sağlamaktadır.
-MELP her şeyi tek bir compiler.c dosyasına yaptıran monolitik yapıyı değil 
-her bir bileşene özel modüler yapıyı benimsemektedir. Modüller melp/bootstrap/codegen konumundadır.Bu nedenle yapacağınız iyileştirmeler yine bu dizindeki bileşenler üzerinde gerçekleşecektir. 
+## SEN SADECE PMPL İLE ÇALIŞIYORSUN!
+
+**DİKKAT:** MELP'te **İKİ FARKLI DİL** var:
+
+1. **MLP** - Kullanıcıların gördüğü dil (Türkçe, C style, Python style, vs.)
+   - ❌ **SEN BUNUNLA İLGİLENMİYORSUN!**
+   - ❌ **MLP syntax'ı KODDA KULLANMA!**
+   - ❌ **"end if", "end while" GİBİ İKİ KELİMELİ SYNTAX YAZMA!**
+
+2. **PMPL** (Pragmatic MLP) - Compiler'ın gördüğü TEK dil
+   - ✅ **SEN SADECE BUNUNLA ÇALIŞIYORSUN!**
+   - ✅ **PMPL syntax'ı KULLAN: `end_if`, `end_while`, `else_if`**
+   - ✅ **Tüm keyword'ler UNDERSCORE ile birleşik!**
+
+---
+
+## 📊 MİMARİ KATMANLAR (Hangi Katmanda Çalışıyorsun?)
+
+```
+[1] Kullanıcı Kodu (MLP)
+    ├─ Türkçe: "eğer x > 5 ise"
+    ├─ C style: "if (x > 5) { }"
+    ├─ Python style: "if x > 5:"
+    └─ MLP style: "if x > 5 then ... end if"
+    
+    ↓ (diller.json + syntax.json)
+    
+[2] Normalize Edici
+    └─ Tüm syntax'ları PMPL'ye çevirir
+    
+    ↓
+    
+[3] PMPL (Pragmatic MLP) ← 🎯 SEN BURADA ÇALIŞIYORSUN!
+    └─ if x > 5 then
+            statement
+        end_if    ← UNDERSCORE ile!
+    
+    ↓
+    
+[4] Lexer (PMPL okur)
+    └─ "end_if" → TOKEN_END_IF (TEK TOKEN!)
+    
+    ↓
+    
+[5] Parser (TOKEN'ları işler)
+    
+    ↓
+    
+[6] Codegen
+    
+    ↓
+    
+[7] Assembly/LLVM
+```
+
+**SONUÇ:** Sen katman [3]'ten başlıyorsun! MLP'yi UNUTUN, SADECE PMPL!
+
+---
+
+## ⚠️ PMPL SYNTAX KURALLARI (EZBERLE!)
+
+### Block Terminators (Blok Sonlandırıcılar):
+
+```pmpl
+if condition then
+    statement
+end_if          ← UNDERSCORE! "end if" DEĞİL!
+
+while condition do
+    statement
+end_while       ← UNDERSCORE!
+
+for i = 1 to 10 do
+    statement
+end_for         ← UNDERSCORE!
+
+function name()
+    statement
+end_function    ← UNDERSCORE!
+
+struct Point
+    x: numeric
+end_struct      ← UNDERSCORE!
+```
+
+**KURAL:** Tüm "end X" keyword'leri → `end_X` (UNDERSCORE ile birleşik!)
+
+### Else If:
+
+```pmpl
+if x > 10 then
+    statement
+else_if x > 5 then    ← UNDERSCORE! "else if" DEĞİL!
+    statement
+else
+    statement
+end_if
+```
+
+### Loop Control:
+
+```pmpl
+exit_for        ← UNDERSCORE! "exit for" DEĞİL!
+exit_while      ← UNDERSCORE!
+continue_for    ← UNDERSCORE!
+continue_while  ← UNDERSCORE!
+```
+
+---
+
+## 🎯 MELP MİMARİ FELSEFESİ
+
+**MELP Projesi:**
+- **Multi Language Programming** - Çok dilli, çok sözdizimli
+- Kullanıcı istediği dilde (Türkçe/İngilizce/Rusça) kod yazar
+- Kullanıcı istediği syntax'ta (C/Python/MLP) kod yazar
+- **Normalize edici** tüm syntax'ları **PMPL'ye çevirir**
+- **Compiler SADECE PMPL görür!**
+
+**SENİN GÖREVIN:**
+- Lexer PMPL okur → TOKEN üretir
+- Parser TOKEN'ları işler
+- Codegen assembly üretir
+- **MLP syntax'ı ile ASLA İLGİLENME!**
+
+**MLP vs PMPL Karışıklığı Örneği:**
+
+❌ **YANLIŞ (MLP syntax kullanma!):**
+```c
+// lexer.c - YANLIŞ!
+if (strcmp(value, "end") == 0) {
+    // Sonraki kelimeye bak...
+    // Bu MLP yaklaşımı, PMPL'de geçersiz!
+}
+```
+
+✅ **DOĞRU (PMPL syntax kullan!):**
+```c
+// lexer.c - DOĞRU!
+if (strcmp(value, "end_if") == 0) return TOKEN_END_IF;
+if (strcmp(value, "end_while") == 0) return TOKEN_END_WHILE;
+if (strcmp(value, "end_for") == 0) return TOKEN_END_FOR;
+// Underscore ile tek keyword!
+```
+
+---
+
+## 📚 PMPL REFERANSı
+
+**Detaylı PMPL örnekleri ve diğer dillerden dönüşüm:**
+- `docs_tr/migration.md` - Tüm dillerin PMPL'ye normalize kuralları
+- **SEN SADECE PMPL KULLAN!** MLP syntax'ı kullanma!
+
+---
+
+## 🔧 MODÜLER YAPI
+
+MELP her şeyi tek compiler.c dosyasına yaptıran monolitik yapıyı değil, 
+her bileşene özel modüler yapıyı benimsemektedir.
+
+**Modüller:** `compiler/stage0/modules/`
+- lexer/ - PMPL keyword'lerini tokenize eder
+- parser/ - TOKEN'ları parse eder  
+- statement/ - Statement'ları işler
+- control_flow/ - If/while/for parsing
+- functions/ - Function parsing
+- vs.
+
+**Yapacağın iyileştirmeler bu modüller üzerinde gerçekleşir.** 
 
 
 ---
@@ -401,13 +562,22 @@ mov [rbp-56], rax      ; heap pointer
 
 ---
 
-## 5. Söz Dizimi Referansı
+## 5. Söz Dizimi Referansı - PMPL (Pragmatic MLP)
 
-### ⚠️ YORUM SATIRLARI (KRİTİK!)
+### 🚨 KRİTİK UYARI: SEN SADECE PMPL KULLANIYORSUN!
 
-MLP'de yorum satırları `//` veya `#` DEĞİL, `--` kullanır:
+**PMPL = Compiler'ın gördüğü TEK syntax!**
 
-```mlp
+- ✅ **SEN BUNU KULLAN:** `end_if`, `else_if`, `end_while` (underscore ile)
+- ❌ **BUNU KULLANMA:** "end if", "else if" (iki kelime, MLP user syntax!)
+
+**Diğer syntax'lar için:** `docs_tr/migration.md` dosyasına bak (C, Python, Go, Rust, vb.)
+
+### ⚠️ YORUM SATIRLARI
+
+PMPL'de yorum satırları:
+
+```pmpl
 -- Bu tek satır yorum
 
 ---
@@ -418,104 +588,105 @@ Birden fazla satır yazabilirsin
 numeric x = 10  -- Satır sonu yorumu
 ```
 
-**DİKKAT:** `//` kullanırsan HATA alırsın!
+**NOT:** Kullanıcı kodda `//` veya `#` kullanabilir ama normalize edici bunu `--`'ye çevirir.
 
-### Pragmatik MLP Base Syntax
-(Stage 1-2'den sonra compiler'ın gördüğü)
+### PMPL Temel Syntax (Compiler'ın Gördüğü)
 
 #### Değişken Tanımlama
-```mlp
+```pmpl
 numeric x = 10
 string name = "Ali"
 boolean flag = true
 ```
 
-**Karışık ve Akıllı Değişken Tanımlama:**
-```mlp
-numeric, string, boolean a,b,c 
-veya
-numeric a, string b, boolean c  
-c,d,e = 10, "Ali", false -- otomatik tip çıkarımı
-
+**Çoklu Değişken Tanımlama:**
+```pmpl
+numeric a, string b, boolean c
+c,d,e = 10, "Ali", false
 ```
 
 #### Fonksiyon Tanımı
-```mlp
+```pmpl
 function add(numeric a, numeric b)
     return a + b
-end function
+end_function    ← UNDERSCORE!
 ```
 
 #### Struct Tanımı
-```mlp
+```pmpl
 struct Person
     string name
     numeric age
-end struct
+end_struct    ← UNDERSCORE!
 ```
 
 #### Kontrol Akışı
-```mlp
+```pmpl
 if x > 5 then
     print x
-end if
+end_if    ← UNDERSCORE!
 
-while x < 10
+while x < 10 do
     x = x + 1
-end while
+end_while    ← UNDERSCORE!
 
-for i = 0 to 10
+for i = 0 to 10 do
     print i
-end for
+end_for    ← UNDERSCORE!
 ```
 
 #### Liste İşlemleri
-```mlp
+```pmpl
 numeric list() numbers = list()
 numbers.add(10)
 numbers.add(20)
 numeric val = numbers.get(0)
 ```
 
-### VB.NET-Style Keywords (Çıkış Komutları)
-```mlp
-exit if         -- if bloğundan çık
-exit for        -- for döngüsünden çık
-exit while      -- while döngüsünden çık
-exit function   -- fonksiyondan çık
-exit switch     -- switch bloğundan çık
-goto @label     -- etikete atla
-stop            -- programı durdur
+### Loop/Block Exit Keywords (PMPL)
+```pmpl
+exit_if         ← UNDERSCORE! "exit if" DEĞİL!
+exit_for        ← UNDERSCORE!
+exit_while      ← UNDERSCORE!
+exit_function   ← UNDERSCORE!
+exit_switch     ← UNDERSCORE!
+goto @label
+stop
 ```
 
-**Not:** `break` ve `continue` YOK. VB.NET felsefesi: herhangi bir bloktan çıkabilirsin.
+**NOT:** 
+- `break` ve `continue` YOK (VB.NET felsefesi)
+- Tüm exit keyword'leri UNDERSCORE ile birleşik!
+- **Kullanıcı kodda** "exit for" yazabilir ama **normalize edici** bunu `exit_for`'a çevirir
 
-### Debug Keyword'leri (MLP'ye Özel)
+### Debug Keyword'leri (PMPL)
 
-```mlp
-debug goto @label    -- Debug modunda etikete atla
-debug pause          -- Debug modunda dur (breakpoint)
-debug label @name    -- Debug etiketi tanımla
-debug print x        -- Debug modunda değişken yazdır
+```pmpl
+debug_goto @label    ← UNDERSCORE!
+debug_pause          ← UNDERSCORE!
+debug_label @name    ← UNDERSCORE!
+debug_print x        ← UNDERSCORE!
 ```
 
-**Not:** Bu keyword'ler sadece `--debug` flag'i ile derleme yapılırsa aktif olur.
+**NOT:** 
+- Sadece `--debug` flag ile aktif
+- **Kullanıcı** "debug goto" yazabilir → normalize edici `debug_goto`'ya çevirir
 
 ### Null Safety Operatörleri (Phase 15)
 
-```mlp
--- Null coalescing: ilk null olmayan değeri döndürür
+```pmpl
+-- Null coalescing
 numeric result = maybeNull ?? defaultValue
 numeric chained = a ?? b ?? c ?? 999
 
--- Optional chaining: null ise erken çıkış
-numeric? name = person?.name    -- person null ise name = null
+-- Optional chaining
+numeric? name = person?.name
 
 -- Null literal
 numeric x = null
 if x == null then
     print("x is null")
-end if
+end_if    ← UNDERSCORE!
 
 -- Nullable type annotation
 numeric? maybeNum = null
@@ -529,24 +700,23 @@ string? maybeStr = null
 
 ### Operator Overloading (Phase 16)
 
-```mlp
--- Struct için operator tanımı
+```pmpl
+-- Struct tanımı
 struct Vector
     numeric x
     numeric y
-end struct
+end_struct    ← UNDERSCORE!
 
--- + operatörünü Vector için tanımla
+-- Operator tanımları
 operator +(Vector a, Vector b) returns numeric
     numeric result
     result = a.x + b.x + a.y + b.y
     return result
-end operator
+end_operator    ← UNDERSCORE!
 
--- - operatörünü Vector için tanımla
 operator -(Vector a, Vector b) returns numeric
     return a.x - b.x + a.y - b.y
-end operator
+end_operator    ← UNDERSCORE!
 
 -- Kullanım
 Vector v1
@@ -572,34 +742,33 @@ numeric diff = v1 - v2    -- __op_Vector_sub çağrılır -> 10
 
 ### Pattern Matching (Phase 17)
 
-```mlp
--- Temel match ifadesi
+```pmpl
+-- Temel match
 numeric x = 3
 match x
     case 1 => print(100)
     case 2 => print(200)
     case 3 => print(300)
     case _ => print(999)
-end match
+end_match    ← UNDERSCORE!
 
--- Virgülle ayrılmış birden fazla değer
+-- Çoklu değer
 numeric y = 5
 match y
     case 1, 2 => print(110)
     case 3, 4, 5 => print(220)
     case 6, 7 => print(330)
     case _ => print(999)
-end match
+end_match    ← UNDERSCORE!
 
--- Range (aralık) pattern
+-- Range pattern
 numeric z = 7
 match z
     case 1 to 5 => print(111)
     case 6 to 10 => print(222)
     case 11 to 20 => print(333)
     case _ => print(999)
-end match
-```
+end_match    ← UNDERSCORE!
 
 **Pattern Tipleri:**
 - **Single Value:** `case 1 => ...` - Tek değer eşleşmesi
@@ -614,35 +783,31 @@ end match
 
 ### State Management (Phase 18)
 
-```mlp
--- State değişken tanımlama
+```pmpl
+-- State tanımlama
 state numeric counter = 100
 state string message = "Hello"
-shared state numeric global_counter = 1000
+shared_state numeric global_counter = 1000    ← UNDERSCORE!
 
--- State değişken okuma ve yazdırma
+-- State okuma/yazma
 print(counter)
-
--- State değişken atama
 counter = 200
-print(counter)
 
--- State ile aritmetik işlemler
+-- State aritmetik
 counter = counter + 50
 total = counter * multiplier
 
--- State koşul ifadelerinde
+-- State koşullarda
 if counter > 100 then
     print("Counter is high")
-end if
+end_if    ← UNDERSCORE!
 
 -- State döngülerde
 state numeric sum = 0
-for i in range(1, 5)
+for i in range(1, 5) do
     sum = sum + i
-end for
-print(sum)  -- 10 yazdırır (1+2+3+4)
-```
+end_for    ← UNDERSCORE!
+print(sum)
 
 **State Türleri:**
 - **state:** Modül/dosya kapsamında global değişken
@@ -751,94 +916,94 @@ end function
 
 ---
 
-## 6. Kontrol Akışı
+## 6. Kontrol Akışı (PMPL)
 
 ### If-Then-Else
-```mlp
+```pmpl
 if condition then
     -- kod
 else
     -- kod
-end if
+end_if    ← UNDERSCORE!
 ```
 
 ### Else-If Chains ✅ (Phase 10)
-```mlp
+```pmpl
 if condition1 then
     -- kod
-else if condition2 then
+else_if condition2 then    ← UNDERSCORE!
     -- kod
-else if condition3 then
+else_if condition3 then    ← UNDERSCORE!
     -- kod
 else
     -- kod
-end if
+end_if    ← UNDERSCORE!
 ```
 
 ### While
-```mlp
-while condition
+```pmpl
+while condition do
     -- kod
     if break_condition then
-        exit while
-    end if
-end while
+        exit_while    ← UNDERSCORE!
+    end_if    ← UNDERSCORE!
+end_while    ← UNDERSCORE!
 ```
 
 ### Do-While ✅ (Phase 10)
-```mlp
+```pmpl
 do
-    -- kod (en az 1 kez çalışır)
+    -- kod (en az 1 kez)
 while condition
 ```
 
 ### For
-```mlp
-for i = 0 to 10
+```pmpl
+for i = 0 to 10 do
     if skip_condition then
-        exit for
-    end if
+        exit_for    ← UNDERSCORE!
+    end_if    ← UNDERSCORE!
     print i
-end for
+end_for    ← UNDERSCORE!
 ```
 
 ### For-In (Iterator) ✅ (Phase 14)
-```mlp
+```pmpl
 numeric[] arr = [1, 2, 3, 4, 5]
-for x in arr
+for x in arr do
     print(x)
-end for
+end_for    ← UNDERSCORE!
 
 -- range() ile
-for i in range(5)
-    print(i)  -- 0, 1, 2, 3, 4
-end for
+for i in range(5) do
+    print(i)
+end_for    ← UNDERSCORE!
 
-for i in range(2, 8)
-    print(i)  -- 2, 3, 4, 5, 6, 7
-end for
+for i in range(2, 8) do
+    print(i)
+end_for    ← UNDERSCORE!
 
-for i in range(0, 10, 2)
-    print(i)  -- 0, 2, 4, 6, 8
-end for
+for i in range(0, 10, 2) do
+    print(i)
+end_for    ← UNDERSCORE!
 ```
 
 ### Generator Fonksiyonlar ✅ (Phase 14)
-```mlp
+```pmpl
 function squares(numeric n) yields numeric
-    for i = 0 to n
+    for i = 0 to n do
         yield i * i
-    end for
-end function
+    end_for    ← UNDERSCORE!
+end_function    ← UNDERSCORE!
 
 -- Kullanım
-for sq in squares(5)
-    print(sq)  -- 0, 1, 4, 9, 16, 25
-end for
+for sq in squares(5) do
+    print(sq)
+end_for    ← UNDERSCORE!
 ```
 
 ### Switch-Case ✅ (Phase 10)
-```mlp
+```pmpl
 switch value
     case 1
         print "bir"
@@ -846,7 +1011,7 @@ switch value
         print "iki"
     default
         print "diğer"
-end switch
+end_switch    ← UNDERSCORE!
 ```
 
 **Not:** Switch statement'ta her case otomatik olarak break yapılır (fall-through yok).
@@ -1451,10 +1616,10 @@ cd /home/pardus/projeler/MLP/MLP/melp
 ## 12. Exception Handling (29 Kasım 2025) ✅
 
 ### Genel Bakış
-MELP'e tam özellikli istisna yönetimi eklendi. setjmp/longjmp tabanlı, modern try-catch-finally syntax destekliyor.
+MELP'e tam özellikli istisna yönetimi eklendi. setjmp/longjmp tabanlı.
 
-### Sözdizimi
-```mlp
+### PMPL Sözdizimi
+```pmpl
 try
     throw RuntimeError("Hata!")
 catch RuntimeError e
@@ -1465,8 +1630,10 @@ catch e
     print("Diğer hatalar")
 finally
     print("Her zaman çalışır")
-end try
+end_try    ← UNDERSCORE!
 ```
+
+**NOT:** Kullanıcı "end try" yazabilir ama normalize edici `end_try`'a çevirir.
 
 ### Özellikler
 - ✅ Çoklu catch blokları (tip kontrolü)
