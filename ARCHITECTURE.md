@@ -587,5 +587,1309 @@ If you violate these, you're breaking MELP's core vision.
 
 ---
 
-**Last Updated:** 9 Aralık 2025  
-**Status:** Architecture rules active, enforcement in progress
+## 🏗️ COMPILER ARCHITECTURE OVERVIEW
+
+### Stage 0: Bootstrap Compiler Architecture
+
+**Philosophy:** MELP's Stage 0 compiler is written in C to bootstrap the language. It's designed for radical modularity and eventual self-hosting.
+
+**Three-Stage Vision:**
+- **Stage 0** (Current): C-based bootstrap compiler - Core features only
+- **Stage 1**: MELP compiler written in MELP (self-hosting)
+- **Stage 2**: Advanced features, multi-language support, full optimization
+
+### Pipeline Architecture (Unix Philosophy)
+
+```
+┌─────────────┐
+│  Source.mlp │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────────────────────────────────┐
+│  LEXER (modules/lexer_mlp/)                 │
+│  • Tokenization                             │
+│  • UTF-8 support                            │
+│  • String/numeric/keyword recognition       │
+└──────┬──────────────────────────────────────┘
+       │ tokens.json (or in-memory Token[])
+       ▼
+┌─────────────────────────────────────────────┐
+│  PARSER (modules/parser_core/)              │
+│  • Variable parser (modules/variable/)      │
+│  • Function parser (modules/functions/)     │
+│  • Statement parser (modules/statement/)    │
+│  • Expression parser (modules/arithmetic/)  │
+│  • Control flow (modules/control_flow/)     │
+└──────┬──────────────────────────────────────┘
+       │ AST (Abstract Syntax Tree)
+       ▼
+┌─────────────────────────────────────────────┐
+│  STO ANALYZER (modules/sto_runtime/)        │
+│  • Smart Type Optimization hints            │
+│  • Numeric type inference (int64/double)    │
+│  • String optimization (SSO/heap/constant)  │
+└──────┬──────────────────────────────────────┘
+       │ AST + STO annotations
+       ▼
+       ┌────────────────┐
+       │ BACKEND SELECT │
+       └────┬──────┬────┘
+            │      │
+    ┌───────┘      └───────┐
+    ▼                      ▼
+┌───────────────┐    ┌─────────────────┐
+│ LLVM BACKEND  │    │ x86-64 BACKEND  │
+│ (llvm_backend)│    │ (functions/     │
+│               │    │  *_codegen.c)   │
+│ • LLVM IR     │    │ • Direct ASM    │
+│ • Portable    │    │ • Linux x86-64  │
+│ • Multi-arch  │    │ • Native speed  │
+└───────┬───────┘    └────────┬────────┘
+        │                     │
+        ▼                     ▼
+    output.ll             output.s
+        │                     │
+        ▼                     ▼
+    clang/llc             gcc/as
+        │                     │
+        └──────────┬──────────┘
+                   ▼
+            ┌──────────────┐
+            │  Executable  │
+            │  (linked w/  │
+            │   stdlib +   │
+            │   runtime)   │
+            └──────────────┘
+```
+
+### Dual Backend Architecture
+
+**Why Two Backends?**
+
+1. **LLVM Backend** (Primary - Portable)
+   - Cross-platform (x86-64, ARM, RISC-V, WebAssembly)
+   - Optimization passes available
+   - Industry-standard IR
+   - Easier to maintain (high-level IR)
+   - **Use case:** Production, multi-platform deployment
+
+2. **x86-64 Assembly Backend** (Secondary - Educational)
+   - Direct assembly generation
+   - No dependencies (except GCC/AS)
+   - Educational value (understand code generation)
+   - Fast development iteration
+   - **Use case:** Learning, debugging, Linux-only quick tests
+
+**Selection Mechanism:**
+```bash
+# LLVM backend (default now, portable)
+./functions_compiler --backend=llvm input.mlp output.ll
+clang output.ll -o program
+
+# x86-64 backend (direct assembly)
+./functions_compiler --backend=x86-64 input.mlp output.s
+gcc output.s -o program
+```
+
+### Module Structure
+
+```
+compiler/stage0/modules/
+│
+├── lexer_mlp/              # Tokenization (standalone)
+│   ├── lexer_mlp.c/.h      # UTF-8 lexer
+│   ├── Makefile            # Independent build
+│   └── test_lexer.c        # Unit tests
+│
+├── parser_core/            # Base parsing utilities
+│   ├── parser_utils.c/.h   # Token management
+│   └── ast.h               # AST node definitions
+│
+├── variable/               # Variable declarations
+│   ├── variable_parser.c   # `numeric x = 5` parsing
+│   └── variable_codegen.c  # Stack allocation codegen
+│
+├── functions/              # Function definitions & calls
+│   ├── functions_parser.c          # Function syntax parsing
+│   ├── functions_codegen.c         # x86-64 function codegen
+│   ├── functions_codegen_llvm.c    # LLVM function codegen
+│   └── functions_standalone.c      # Main compiler binary
+│
+├── statement/              # Statements (print, return, assign)
+│   ├── statement_parser.c  # Statement-level parsing
+│   └── statement_codegen.c # x86-64 statement codegen
+│
+├── arithmetic/             # Arithmetic expressions (+, -, *, /)
+│   ├── arithmetic.c/.h     # Expression tree building
+│   └── arithmetic_codegen.c # x86-64 arithmetic codegen
+│
+├── comparison/             # Comparison operators (>, <, ==, etc)
+│   ├── comparison.c/.h     # Comparison parsing
+│   └── comparison_codegen.c # x86-64 comparison codegen
+│
+├── logical/                # Boolean operations (and, or, not)
+│   ├── logical.c/.h        # Logical expression parsing
+│   └── logical_codegen.c   # x86-64 logical codegen
+│
+├── control_flow/           # If/while/for statements
+│   ├── if_else.c/.h        # If/else parsing & codegen
+│   ├── while_loop.c/.h     # While loop
+│   └── for_loop.c/.h       # For loop
+│
+├── array/                  # Array/list support
+│   ├── array_parser.c      # Array literal [1,2,3]
+│   └── array_codegen.c     # Array allocation & indexing
+│
+├── string_operations/      # String methods
+│   ├── string_ops.c/.h     # length, substring, indexOf
+│   └── string_codegen.c    # String operation codegen
+│
+├── llvm_backend/           # LLVM IR generation (core)
+│   ├── llvm_backend.c/.h   # LLVM IR API wrapper
+│   ├── llvm_context.c      # Context management
+│   └── Makefile            # Independent build
+│
+├── sto_runtime/            # Smart Type Optimization
+│   ├── sto_numeric.c       # Numeric STO hints
+│   └── sto_string.c        # String STO hints
+│
+└── print/                  # Print statement
+    ├── print_parser.c      # Print syntax parsing
+    └── print_codegen.c     # x86-64 print codegen
+```
+
+**Key Design Principles:**
+
+1. **Each module is standalone** - Has own Makefile, can compile independently
+2. **No circular dependencies** - Modules communicate via well-defined APIs
+3. **Stateless parsing** - Parser functions don't maintain global state
+4. **Token ownership** - Clear memory management (tokens passed/returned)
+5. **Dual codegen** - Each feature has both LLVM and x86-64 codegen
+
+---
+
+## 🔧 COMPONENT DOCUMENTATION
+
+### 1. Lexer Module (`modules/lexer_mlp/`)
+
+**Purpose:** Convert source code text into tokens
+
+**Key Features:**
+- UTF-8 support (handles "MELP Dünya")
+- String literal recognition with escape sequences (`\n`, `\t`, `\"`, `\\`)
+- Numeric literals (integers and floats)
+- Keywords (function, if, while, for, return, etc.)
+- Operators (+, -, *, /, ==, !=, <, >, <=, >=, and, or, not)
+- Comments (-- single line, /* multi-line */)
+
+**Token Types:**
+```c
+typedef enum {
+    TOKEN_NUMERIC,      // 42, 3.14
+    TOKEN_STRING,       // "Hello World"
+    TOKEN_IDENTIFIER,   // variable names, function names
+    TOKEN_KEYWORD,      // function, if, while, for, return
+    TOKEN_OPERATOR,     // +, -, *, /, ==, etc.
+    TOKEN_LPAREN,       // (
+    TOKEN_RPAREN,       // )
+    TOKEN_COMMA,        // ,
+    TOKEN_NEWLINE,      // \n
+    TOKEN_EOF,          // End of file
+    // ... more token types
+} TokenType;
+```
+
+**Example Input/Output:**
+```mlp
+function add(numeric a, numeric b) returns numeric
+    return a + b
+end function
+```
+
+**Tokens:**
+```
+TOKEN_KEYWORD("function")
+TOKEN_IDENTIFIER("add")
+TOKEN_LPAREN
+TOKEN_NUMERIC_TYPE("numeric")
+TOKEN_IDENTIFIER("a")
+TOKEN_COMMA
+TOKEN_NUMERIC_TYPE("numeric")
+TOKEN_IDENTIFIER("b")
+TOKEN_RPAREN
+TOKEN_KEYWORD("returns")
+TOKEN_NUMERIC_TYPE("numeric")
+TOKEN_NEWLINE
+TOKEN_KEYWORD("return")
+TOKEN_IDENTIFIER("a")
+TOKEN_OPERATOR("+")
+TOKEN_IDENTIFIER("b")
+TOKEN_NEWLINE
+TOKEN_KEYWORD("end")
+TOKEN_KEYWORD("function")
+TOKEN_EOF
+```
+
+### 2. Parser Module (`modules/parser_core/`, `modules/functions/`, etc.)
+
+**Purpose:** Convert tokens into Abstract Syntax Tree (AST)
+
+**Architecture:** Distributed parsing (no central parser)
+- Each module parses its own syntax
+- Stateless pattern (`parse_*_stateless()` functions)
+- Token passing/returning for memory safety
+
+**Key Components:**
+
+**Variable Parser** (`modules/variable/`)
+```c
+// Parses: numeric x = 42
+// Parses: string msg = "Hello"
+ASTNode* parse_variable_declaration(Token** tokens);
+```
+
+**Function Parser** (`modules/functions/`)
+```c
+// Parses entire function definition
+// Handles parameters, return type, body
+FunctionNode* parse_function_definition(Token** tokens);
+```
+
+**Statement Parser** (`modules/statement/`)
+```c
+// Parses: print(x)
+// Parses: return 42
+// Parses: x = 10
+ASTNode* parse_statement(Token** tokens);
+```
+
+**Expression Parser** (`modules/arithmetic/`, `modules/comparison/`, `modules/logical/`)
+```c
+// Parses: a + b * c (with precedence)
+// Parses: x > 10 and y < 20
+// Parses: not (a == b)
+ExpressionNode* parse_expression(Token** tokens);
+```
+
+**AST Node Example:**
+```c
+typedef struct ASTNode {
+    ASTNodeType type;  // STMT_PRINT, STMT_RETURN, EXPR_ADD, etc.
+    union {
+        struct {
+            char* name;
+            ExpressionNode* value;
+        } variable;
+        
+        struct {
+            ExpressionNode* left;
+            ExpressionNode* right;
+            ArithmeticOp op;  // ADD, SUB, MUL, DIV
+        } arithmetic;
+        
+        struct {
+            ExpressionNode* condition;
+            ASTNode* then_block;
+            ASTNode* else_block;
+        } if_stmt;
+    } data;
+} ASTNode;
+```
+
+### 3. LLVM Backend Module (`modules/llvm_backend/`)
+
+**Purpose:** Generate LLVM IR text format from AST
+
+**API Design Philosophy:**
+- Clean abstraction over LLVM IR text syntax
+- Context-based (LLVMContext tracks state)
+- Type-safe value representation (LLVMValue)
+- Automatic register naming (%1, %2, %3, ...)
+
+**Core API:**
+
+```c
+// Context management
+LLVMContext* llvm_context_create(FILE* output);
+void llvm_context_destroy(LLVMContext* ctx);
+
+// Module structure
+void llvm_emit_module_header(LLVMContext* ctx);
+void llvm_emit_module_footer(LLVMContext* ctx);
+
+// Function structure
+void llvm_emit_function_start(LLVMContext* ctx, const char* name, 
+                              const char** param_types, int param_count);
+void llvm_emit_function_entry(LLVMContext* ctx);
+void llvm_emit_function_end(LLVMContext* ctx);
+
+// Variables (stack allocation)
+LLVMValue* llvm_emit_alloca(LLVMContext* ctx, const char* var_name);
+void llvm_emit_store(LLVMContext* ctx, LLVMValue* value, LLVMValue* ptr);
+LLVMValue* llvm_emit_load(LLVMContext* ctx, LLVMValue* ptr);
+
+// Arithmetic
+LLVMValue* llvm_emit_add(LLVMContext* ctx, LLVMValue* left, LLVMValue* right);
+LLVMValue* llvm_emit_sub(LLVMContext* ctx, LLVMValue* left, LLVMValue* right);
+LLVMValue* llvm_emit_mul(LLVMContext* ctx, LLVMValue* left, LLVMValue* right);
+LLVMValue* llvm_emit_sdiv(LLVMContext* ctx, LLVMValue* left, LLVMValue* right);
+
+// Comparison
+LLVMValue* llvm_emit_icmp(LLVMContext* ctx, const char* predicate, 
+                         LLVMValue* left, LLVMValue* right);
+// Predicates: "sgt", "slt", "eq", "ne", "sge", "sle"
+
+// Control flow
+void llvm_emit_label(LLVMContext* ctx, const char* label);
+void llvm_emit_br(LLVMContext* ctx, const char* label);
+void llvm_emit_br_cond(LLVMContext* ctx, LLVMValue* condition,
+                      const char* true_label, const char* false_label);
+
+// Function calls
+LLVMValue* llvm_emit_call(LLVMContext* ctx, const char* func_name,
+                         LLVMValue** args, int arg_count);
+
+// Return
+void llvm_emit_return(LLVMContext* ctx, LLVMValue* value);
+```
+
+**LLVMValue Type System:**
+```c
+typedef enum {
+    LLVM_TYPE_I64,      // 64-bit integer (numeric)
+    LLVM_TYPE_I8_PTR,   // char* (string)
+    LLVM_TYPE_I1,       // 1-bit integer (boolean)
+    LLVM_TYPE_VOID      // void (no return)
+} LLVMType;
+
+typedef struct {
+    char register_name[32];  // "%1", "%x_ptr", etc.
+    LLVMType type;
+} LLVMValue;
+```
+
+**Generated LLVM IR Example:**
+```llvm
+; ModuleID = 'melp_module'
+target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-pc-linux-gnu"
+
+define i64 @add(i64 %a, i64 %b) {
+entry:
+    %a_ptr = alloca i64
+    store i64 %a, i64* %a_ptr
+    %b_ptr = alloca i64
+    store i64 %b, i64* %b_ptr
+    %1 = load i64, i64* %a_ptr
+    %2 = load i64, i64* %b_ptr
+    %3 = add i64 %1, %2
+    ret i64 %3
+}
+```
+
+### 4. x86-64 Assembly Backend (`modules/functions/*_codegen.c`)
+
+**Purpose:** Generate native x86-64 assembly directly from AST
+
+**Architecture:**
+- Direct assembly emission (no intermediate representation)
+- Stack-based variable allocation
+- System V AMD64 ABI calling convention
+- Register allocation strategy
+
+**Key Components:**
+
+**Function Codegen** (`functions_codegen.c`)
+```c
+// Generates function prologue/epilogue
+void codegen_function(FunctionNode* func, FILE* output);
+
+// Function structure:
+// .globl function_name
+// function_name:
+//     pushq %rbp
+//     movq %rsp, %rbp
+//     subq $stack_size, %rsp
+//     ... function body ...
+//     leave
+//     ret
+```
+
+**Statement Codegen** (`statement_codegen.c`)
+```c
+// Generates assembly for statements
+void codegen_statement(ASTNode* stmt, FILE* output, 
+                      LocalVariable* locals, int* label_counter);
+
+// Handles:
+// - print statements → call puts@PLT
+// - return statements → movq value, %rax; leave; ret
+// - assignments → movq value, offset(%rbp)
+```
+
+**Arithmetic Codegen** (`arithmetic_codegen.c`)
+```c
+// Generates arithmetic operations
+void codegen_arithmetic(ExpressionNode* expr, FILE* output,
+                       LocalVariable* locals);
+
+// Strategy:
+// 1. Evaluate left operand → %rax
+// 2. Push %rax to stack
+// 3. Evaluate right operand → %rax
+// 4. Pop left operand → %rbx
+// 5. Perform operation (addq, subq, imulq, idivq)
+// 6. Result in %rax
+```
+
+**Register Usage:**
+```
+%rax - Return value, arithmetic operations
+%rbx - Temporary storage (left operand)
+%rcx - Temporary storage (right operand)
+%rdx - Division operations (remainder)
+%rdi - 1st function argument
+%rsi - 2nd function argument
+%rdx - 3rd function argument
+%rcx - 4th function argument (note: conflicts with temp)
+%r8  - 5th function argument
+%r9  - 6th function argument
+%rbp - Frame pointer
+%rsp - Stack pointer
+```
+
+**Example Generated Assembly:**
+```asm
+.globl add
+add:
+    pushq %rbp
+    movq %rsp, %rbp
+    subq $16, %rsp           # Allocate stack for 2 params
+    movq %rdi, -8(%rbp)      # Store param a
+    movq %rsi, -16(%rbp)     # Store param b
+    movq -8(%rbp), %rax      # Load a
+    movq -16(%rbp), %rbx     # Load b
+    addq %rbx, %rax          # a + b → %rax
+    leave
+    ret
+```
+
+### 5. Runtime Library (`runtime/`)
+
+**Structure:**
+```
+runtime/
+├── stdlib/                 # Standard library functions
+│   ├── mlp_print.c         # mlp_println_numeric()
+│   ├── mlp_string.c        # mlp_println_string()
+│   ├── mlp_string_concat.c # mlp_string_concat()
+│   ├── mlp_string_compare.c # mlp_string_compare(), mlp_string_equals()
+│   └── Makefile            # Build libmelp_stdlib.a
+│
+└── sto/                    # Smart Type Optimization runtime
+    ├── sto_numeric.c       # Numeric type inference
+    ├── sto_string.c        # String optimization (SSO/heap)
+    └── Makefile            # Build libtto_runtime.a
+```
+
+**Standard Library Functions:**
+
+```c
+// Print functions
+void mlp_println_numeric(int64_t value);
+void mlp_println_string(const char* str);
+
+// String operations
+char* mlp_string_concat(const char* a, const char* b);
+int mlp_string_compare(const char* a, const char* b);  // Returns -1, 0, 1
+int mlp_string_equals(const char* a, const char* b);   // Returns 0 or 1
+
+// Future: String methods
+int mlp_string_length(const char* str);
+char* mlp_string_substring(const char* str, int start, int length);
+int mlp_string_indexOf(const char* str, const char* search);
+```
+
+**STO Runtime Functions:**
+
+```c
+// Numeric type inference (used by compiler, not user)
+NumericType codegen_tto_infer_numeric_type(const char* value);
+// Returns: TYPE_INT64, TYPE_DOUBLE, TYPE_BIGDECIMAL
+
+// String optimization hints
+StringStorageType codegen_tto_infer_string_type(const char* value);
+// Returns: STORAGE_SSO, STORAGE_HEAP, STORAGE_CONSTANT
+```
+
+**Linking Order (Critical!):**
+```bash
+gcc output.s \
+    -L./runtime/stdlib -lmelp_stdlib \    # stdlib first
+    -L./runtime/sto -ltto_runtime \       # then STO runtime
+    -o executable
+```
+
+---
+
+## 📝 CODE FLOW EXAMPLES
+
+### Example 1: Simple Program Compilation (LLVM Backend)
+
+**Source Code:** `hello.mlp`
+```mlp
+function main() returns numeric
+    print("Hello MELP")
+    return 0
+end function
+```
+
+**Step-by-Step Flow:**
+
+**1. Lexing:**
+```bash
+./lexer_mlp hello.mlp
+```
+Output (conceptual):
+```
+TOKEN_KEYWORD("function")
+TOKEN_IDENTIFIER("main")
+TOKEN_LPAREN
+TOKEN_RPAREN
+TOKEN_KEYWORD("returns")
+TOKEN_NUMERIC_TYPE("numeric")
+TOKEN_NEWLINE
+TOKEN_KEYWORD("print")
+TOKEN_LPAREN
+TOKEN_STRING("Hello MELP")
+TOKEN_RPAREN
+TOKEN_NEWLINE
+TOKEN_KEYWORD("return")
+TOKEN_NUMERIC("0")
+TOKEN_NEWLINE
+TOKEN_KEYWORD("end")
+TOKEN_KEYWORD("function")
+TOKEN_EOF
+```
+
+**2. Parsing:**
+```c
+// Parse function definition
+FunctionNode* func = parse_function_definition(&tokens);
+// func->name = "main"
+// func->return_type = TYPE_NUMERIC
+// func->params = NULL (no parameters)
+// func->body = [
+//   STMT_PRINT("Hello MELP"),
+//   STMT_RETURN(0)
+// ]
+```
+
+**3. LLVM IR Generation:**
+```bash
+./functions_compiler --backend=llvm hello.mlp hello.ll
+```
+
+Generated `hello.ll`:
+```llvm
+; ModuleID = 'melp_module'
+target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-pc-linux-gnu"
+
+@.str = private unnamed_addr constant [11 x i8] c"Hello MELP\00"
+
+declare void @mlp_println_string(i8*)
+
+define i64 @main() {
+entry:
+    %1 = getelementptr [11 x i8], [11 x i8]* @.str, i32 0, i32 0
+    call void @mlp_println_string(i8* %1)
+    ret i64 0
+}
+```
+
+**4. Compilation to Executable:**
+```bash
+clang hello.ll \
+    -L./runtime/stdlib -lmelp_stdlib \
+    -L./runtime/sto -ltto_runtime \
+    -o hello
+```
+
+**5. Execution:**
+```bash
+./hello
+# Output: Hello MELP
+# Exit code: 0
+```
+
+### Example 2: Arithmetic with Variables (x86-64 Backend)
+
+**Source Code:** `calc.mlp`
+```mlp
+function calculate(numeric x, numeric y) returns numeric
+    numeric result = x * 2 + y
+    return result
+end function
+
+function main() returns numeric
+    return calculate(10, 5)
+end function
+```
+
+**Parsing Output (AST):**
+```
+Function: calculate
+├── Parameters: [x: numeric, y: numeric]
+├── Return Type: numeric
+└── Body:
+    ├── Variable Declaration: result = EXPR_ADD(
+    │   ├── EXPR_MUL(x, 2)
+    │   └── y
+    │   )
+    └── Return: result
+
+Function: main
+├── Parameters: []
+├── Return Type: numeric
+└── Body:
+    └── Return: CALL(calculate, [10, 5])
+```
+
+**x86-64 Assembly Generation:**
+```bash
+./functions_compiler --backend=x86-64 calc.mlp calc.s
+```
+
+Generated `calc.s`:
+```asm
+.globl calculate
+calculate:
+    pushq %rbp
+    movq %rsp, %rbp
+    subq $24, %rsp                  # Space for x, y, result
+    
+    # Store parameters
+    movq %rdi, -8(%rbp)             # x at -8(%rbp)
+    movq %rsi, -16(%rbp)            # y at -16(%rbp)
+    
+    # Compute x * 2
+    movq -8(%rbp), %rax             # Load x
+    movq $2, %rbx
+    imulq %rbx, %rax                # x * 2 → %rax
+    
+    # Add y
+    movq -16(%rbp), %rbx            # Load y
+    addq %rbx, %rax                 # (x*2) + y → %rax
+    
+    # Store in result
+    movq %rax, -24(%rbp)            # result at -24(%rbp)
+    
+    # Return result
+    movq -24(%rbp), %rax
+    leave
+    ret
+
+.globl main
+main:
+    pushq %rbp
+    movq %rsp, %rbp
+    
+    # Call calculate(10, 5)
+    movq $10, %rdi                  # 1st arg: 10
+    movq $5, %rsi                   # 2nd arg: 5
+    call calculate
+    
+    # Return value already in %rax
+    leave
+    ret
+```
+
+**Assembly & Link:**
+```bash
+gcc calc.s \
+    -L./runtime/stdlib -lmelp_stdlib \
+    -L./runtime/sto -ltto_runtime \
+    -o calc
+```
+
+**Execution:**
+```bash
+./calc
+echo $?  # Exit code: 25 (10*2 + 5)
+```
+
+### Example 3: String Concatenation (Both Backends)
+
+**Source Code:** `concat.mlp`
+```mlp
+function greet(string name) returns numeric
+    string message = "Hello " + name
+    print(message)
+    return 0
+end function
+
+function main() returns numeric
+    return greet("MELP")
+end function
+```
+
+**LLVM IR Generation:**
+```llvm
+@.str.0 = private unnamed_addr constant [7 x i8] c"Hello \00"
+@.str.1 = private unnamed_addr constant [5 x i8] c"MELP\00"
+
+declare i8* @mlp_string_concat(i8*, i8*)
+declare void @mlp_println_string(i8*)
+
+define i64 @greet(i8* %name) {
+entry:
+    %name_ptr = alloca i8*
+    store i8* %name, i8** %name_ptr
+    %message_ptr = alloca i8*
+    
+    ; Concatenate "Hello " + name
+    %1 = getelementptr [7 x i8], [7 x i8]* @.str.0, i32 0, i32 0
+    %2 = load i8*, i8** %name_ptr
+    %3 = call i8* @mlp_string_concat(i8* %1, i8* %2)
+    store i8* %3, i8** %message_ptr
+    
+    ; Print message
+    %4 = load i8*, i8** %message_ptr
+    call void @mlp_println_string(i8* %4)
+    
+    ret i64 0
+}
+
+define i64 @main() {
+entry:
+    %1 = getelementptr [5 x i8], [5 x i8]* @.str.1, i32 0, i32 0
+    %2 = call i64 @greet(i8* %1)
+    ret i64 %2
+}
+```
+
+**x86-64 Assembly Generation:**
+```asm
+.section .rodata
+.str0:
+    .string "Hello "
+.str1:
+    .string "MELP"
+
+.text
+.globl greet
+greet:
+    pushq %rbp
+    movq %rsp, %rbp
+    subq $16, %rsp
+    
+    movq %rdi, -8(%rbp)              # Store name parameter
+    
+    # Concatenate "Hello " + name
+    movq $.str0, %rdi                # 1st arg: "Hello "
+    movq -8(%rbp), %rsi              # 2nd arg: name
+    call mlp_string_concat@PLT
+    movq %rax, -16(%rbp)             # Store message
+    
+    # Print message
+    movq -16(%rbp), %rdi
+    call mlp_println_string@PLT
+    
+    movq $0, %rax
+    leave
+    ret
+
+.globl main
+main:
+    pushq %rbp
+    movq %rsp, %rbp
+    
+    movq $.str1, %rdi                # arg: "MELP"
+    call greet
+    
+    leave
+    ret
+```
+
+### Example 4: Control Flow (If/Else)
+
+**Source Code:** `compare.mlp`
+```mlp
+function max(numeric a, numeric b) returns numeric
+    if a > b then
+        return a
+    else
+        return b
+    end if
+end function
+```
+
+**LLVM IR Generation:**
+```llvm
+define i64 @max(i64 %a, i64 %b) {
+entry:
+    %a_ptr = alloca i64
+    store i64 %a, i64* %a_ptr
+    %b_ptr = alloca i64
+    store i64 %b, i64* %b_ptr
+    
+    %1 = load i64, i64* %a_ptr
+    %2 = load i64, i64* %b_ptr
+    %3 = icmp sgt i64 %1, %2         ; a > b (signed greater than)
+    br i1 %3, label %then, label %else
+
+then:
+    %4 = load i64, i64* %a_ptr
+    ret i64 %4
+
+else:
+    %5 = load i64, i64* %b_ptr
+    ret i64 %5
+}
+```
+
+**x86-64 Assembly Generation:**
+```asm
+.globl max
+max:
+    pushq %rbp
+    movq %rsp, %rbp
+    subq $16, %rsp
+    
+    movq %rdi, -8(%rbp)              # Store a
+    movq %rsi, -16(%rbp)             # Store b
+    
+    # Compare a > b
+    movq -8(%rbp), %rax              # Load a
+    cmpq -16(%rbp), %rax             # Compare with b
+    jle .L_else                      # Jump if a <= b
+    
+.L_then:
+    movq -8(%rbp), %rax              # Return a
+    leave
+    ret
+    
+.L_else:
+    movq -16(%rbp), %rax             # Return b
+    leave
+    ret
+```
+
+---
+
+## 🎨 DESIGN DECISIONS
+
+### Decision 1: Why Dual Backend (LLVM + x86-64)?
+
+**Context:** Most compilers choose one backend approach.
+
+**Options Considered:**
+1. ❌ **LLVM only** - Portable but adds dependency, harder to learn
+2. ❌ **x86-64 Assembly only** - Fast to develop but not portable
+3. ✅ **Both LLVM and x86-64** - Best of both worlds
+
+**Decision: Dual Backend Architecture**
+
+**Rationale:**
+
+**Educational Value:**
+- x86-64 backend teaches direct code generation
+- LLVM backend teaches IR-based compilation
+- Developers can compare approaches
+
+**Practical Benefits:**
+- LLVM: Production deployment (cross-platform)
+- x86-64: Quick testing on Linux (no LLVM dependency)
+- Flexibility: Choose backend per use case
+
+**Self-Hosting Path:**
+- Stage 0 (C): Both backends maintained
+- Stage 1 (MELP): Focus on LLVM backend
+- Stage 2: Advanced features via LLVM
+
+**Trade-offs:**
+- ⚠️ Maintenance burden (two codegen paths)
+- ✅ Mitigated: Shared parser/AST, only codegen differs
+- ✅ Tests run on both backends (validation)
+
+**Conclusion:** Dual backend provides maximum flexibility with manageable complexity.
+
+---
+
+### Decision 2: Why C for Stage 0?
+
+**Context:** Self-hosting language needs a bootstrap compiler.
+
+**Options Considered:**
+1. ❌ **Python** - Easy to write, but slow and adds runtime dependency
+2. ❌ **Rust** - Modern and safe, but steep learning curve
+3. ❌ **Go** - Simple and fast, but large binary size
+4. ✅ **C** - Universal, fast, minimal dependencies
+
+**Decision: C for Bootstrap Compiler**
+
+**Rationale:**
+
+**Universal Compatibility:**
+- C compilers on every platform
+- No runtime dependencies
+- Small binary size
+
+**Performance:**
+- Native speed (important for compiler)
+- Direct system access
+- Minimal overhead
+
+**Educational Value:**
+- Most developers know C
+- Teaches low-level programming
+- Closer to assembly
+
+**Self-Hosting Strategy:**
+- Stage 0 (C): Core features only
+- Stage 1 (MELP): Full MELP compiler in MELP
+- Stage 2+: Advanced features in MELP
+
+**"Good Enough" Philosophy:**
+- Stage 0 doesn't need perfection
+- Stage 0 doesn't need all features
+- Stage 0 just needs to compile Stage 1
+
+**Trade-offs:**
+- ⚠️ Manual memory management
+- ⚠️ Less safety than Rust
+- ✅ Mitigated: Stateless design, unit tests, clear ownership
+
+**Conclusion:** C provides the fastest path to self-hosting with maximum compatibility.
+
+---
+
+### Decision 3: STO (Smart Type Optimization) vs TTO Migration
+
+**Context:** MELP originally had "TTO" (Transparent Type Optimization), renamed to "STO" (Smart Type Optimization).
+
+**Timeline:**
+- **Phase 1-10:** Called "TTO"
+- **Phase 11+:** Renamed to "STO"
+- **Current:** Both terms exist in codebase
+
+**Why the Change?**
+
+**Marketing/Branding:**
+- "Smart" is more user-friendly than "Transparent"
+- STO sounds more modern
+- Easier to explain to beginners
+
+**Technical Accuracy:**
+- Optimization is "smart" (compiler makes decisions)
+- Optimization is still "transparent" (user doesn't see it)
+- Both names are technically correct
+
+**Migration Status:**
+
+**Completed:**
+- ✅ Architecture docs use "STO"
+- ✅ New code uses "STO" terminology
+- ✅ User-facing docs use "STO"
+
+**Pending:**
+- ⚠️ Runtime library still uses `tto_` prefix
+- ⚠️ Some internal functions use "TTO"
+- ⚠️ Old documentation uses "TTO"
+
+**Migration Strategy:**
+
+**Phase 1:** User-facing rename (DONE)
+- Documentation updated
+- New features use STO terminology
+
+**Phase 2:** Internal rename (FUTURE - Phase 20)
+- Rename `tto_runtime` → `sto_runtime`
+- Rename functions: `tto_infer_*` → `sto_infer_*`
+- Update all internal references
+
+**Phase 3:** Legacy cleanup (FUTURE)
+- Remove old TTO references
+- Update historical documentation
+
+**Decision:** Gradual migration, user-facing first, internal later.
+
+**Rationale:**
+- Don't break existing code during active development
+- User-facing consistency is most important
+- Internal rename can wait until Stage 0 is stable
+
+---
+
+### Decision 4: Why LLVM 19?
+
+**Context:** LLVM has many versions (3.x, 7.x, 11.x, 14.x, 17.x, 18.x, 19.x).
+
+**Options Considered:**
+1. ❌ **LLVM 11** - Older, stable, widely available
+2. ❌ **LLVM 14** - LTS version
+3. ❌ **LLVM 17** - Recent stable
+4. ✅ **LLVM 19** - Latest stable (2024)
+
+**Decision: LLVM 19**
+
+**Rationale:**
+
+**Modern Features:**
+- Better optimization passes
+- Improved error messages
+- Enhanced debugging support
+- Latest WebAssembly support
+
+**Future-Proofing:**
+- Won't need upgrade soon
+- Aligns with modern toolchains
+- Better for long-term maintenance
+
+**Ecosystem Alignment:**
+- Rust uses LLVM 19
+- Swift uses LLVM 19
+- Industry standard
+
+**Trade-offs:**
+- ⚠️ Not available on all systems (need manual install)
+- ⚠️ Larger binary size
+- ✅ Mitigated: Documentation includes install instructions
+- ✅ Worth it for modern features
+
+**Installation:**
+```bash
+# Ubuntu/Debian
+wget https://apt.llvm.org/llvm.sh
+chmod +x llvm.sh
+sudo ./llvm.sh 19
+
+# Arch Linux
+sudo pacman -S llvm
+
+# macOS
+brew install llvm@19
+```
+
+**Conclusion:** LLVM 19 provides best modern features, worth the installation effort.
+
+---
+
+### Decision 5: Stateless Parser Design
+
+**Context:** Most compilers use stateful parsers with global state.
+
+**Traditional Approach (Stateful):**
+```c
+// Global state (BAD for modularity)
+static Token* current_token;
+static Token* token_stream;
+static int token_index;
+
+void advance() {
+    token_index++;
+    current_token = &token_stream[token_index];
+}
+
+ASTNode* parse_expression() {
+    // Uses global current_token
+    if (current_token->type == TOKEN_NUMERIC) {
+        // ...
+    }
+}
+```
+
+**MELP Approach (Stateless):**
+```c
+// No global state - tokens passed as parameter
+ASTNode* parse_expression_stateless(Token** tokens) {
+    Token* current = *tokens;
+    
+    if (current->type == TOKEN_NUMERIC) {
+        ASTNode* node = create_numeric_node(current->value);
+        *tokens = current->next;  // Advance token pointer
+        return node;
+    }
+    // ...
+}
+```
+
+**Decision: Stateless Parser Functions**
+
+**Rationale:**
+
+**Modularity:**
+- No global state = independent modules
+- Each parser function is self-contained
+- Easy to test in isolation
+
+**Memory Safety:**
+- Clear token ownership (passed/returned)
+- No hidden state mutations
+- Easier to reason about memory
+
+**Parallelization Ready:**
+- Multiple parsers can run concurrently
+- No shared state = no race conditions
+- Future optimization potential
+
+**Self-Hosting:**
+- Easier to rewrite in MELP
+- No hidden dependencies
+- Clear function contracts
+
+**Token Ownership Pattern:**
+```c
+// Caller owns tokens before call
+Token* tokens = lexer_tokenize(source);
+
+// Parser borrows tokens (pointer-to-pointer)
+ASTNode* ast = parse_function_stateless(&tokens);
+
+// Caller still owns tokens after call
+// tokens pointer has advanced to next unconsumed token
+
+// Caller frees tokens when done
+free_tokens(tokens);
+```
+
+**Trade-offs:**
+- ⚠️ More verbose (pass `Token**` everywhere)
+- ⚠️ Caller must manage token lifetime
+- ✅ Worth it for clarity and modularity
+
+**Conclusion:** Stateless design aligns with MELP's modularity goals and simplifies self-hosting.
+
+---
+
+### Decision 6: No Central Files (Radical Modularity)
+
+**Context:** Most compilers have central orchestration files (main.c, compiler.c, orchestrator.c).
+
+**Traditional Approach:**
+```c
+// main.c (central orchestration)
+int main() {
+    tokens = lexer_tokenize(source);    // ❌ Direct function call
+    ast = parser_parse(tokens);         // ❌ Direct function call
+    ir = codegen_generate(ast);         // ❌ Direct function call
+    // ... etc
+}
+```
+
+**MELP Approach (Radical Modularity):**
+```bash
+# No central orchestration - Unix pipes only
+./lexer_mlp < source.mlp > tokens.json
+./parser < tokens.json > ast.json
+./codegen < ast.json > output.s
+```
+
+**Decision: No Central Files, Modules Communicate via Pipes/JSON**
+
+**Rationale:**
+
+**Self-Hosting Path:**
+- Each module can be rewritten in MELP independently
+- No C-level dependencies between modules
+- Language-agnostic architecture
+
+**Testability:**
+- Test each module with simple text files
+- No need to compile entire compiler
+- Mock modules by creating JSON files
+
+**AI-Friendly Development:**
+- AI agents work on one module at a time
+- Can't create monolithic code (no place to put it!)
+- Forced to respect module boundaries
+
+**Replaceability:**
+- Rewrite lexer in Rust? No problem (JSON interface)
+- Swap parser? Easy (JSON input/output)
+- Experiment with new codegen? Independent module
+
+**Enforcement:**
+```bash
+# Step 1: Backup central files
+mkdir temp/yedek_merkezi_dosyalar/
+mv main.c orchestrator.c helpers.c temp/yedek_merkezi_dosyalar/
+
+# Step 2: Update Makefile to check architecture
+make check-architecture  # Fails if central files exist
+
+# Step 3: AI agents literally CANNOT violate (no files to edit!)
+```
+
+**Trade-offs:**
+- ⚠️ More complex build process
+- ⚠️ JSON serialization overhead
+- ✅ Worth it for modularity and self-hosting
+- ✅ "Good Enough" - performance not critical for compiler
+
+**Current Status:**
+- ✅ Central files removed and backed up
+- ⚠️ Current implementation: Modules still linked as libraries
+- 🔜 Future: Full pipe-based architecture (Phase 20+)
+
+**Conclusion:** Radical modularity forces good architecture and enables self-hosting.
+
+---
+
+### Decision 7: "Good Enough" Philosophy for Stage 0
+
+**Context:** Perfectionism can delay self-hosting.
+
+**Traditional Approach:**
+- Implement all features in Stage 0
+- Perfect optimization before moving on
+- Complete error handling
+- Full standard library
+
+**MELP Approach: "Good Enough" Philosophy**
+
+**Decision: Minimal Stage 0, Full Features in Stage 1**
+
+**Rationale:**
+
+**Avoid Duplicate Work:**
+- Don't perfect C code that will be replaced
+- Implement core features in C, advanced features in MELP
+- Focus effort on MELP-written compiler
+
+**Faster Self-Hosting:**
+- Stage 0 goal: Compile Stage 1 (MELP compiler in MELP)
+- Stage 0 doesn't need: structs, generics, advanced optimization
+- Stage 1 can add those features (in MELP)
+
+**What Stage 0 MUST Have:**
+- ✅ Variables (numeric, string, boolean)
+- ✅ Functions (parameters, return values)
+- ✅ Control flow (if/else, while, for)
+- ✅ Arrays/Lists (basic indexing)
+- ✅ String operations (concat, compare, methods)
+- ✅ LLVM backend (for portability)
+- ✅ Standard library (print, string ops, file I/O)
+
+**What Stage 0 Can SKIP:**
+- ❌ Struct definitions (Stage 1 feature)
+- ❌ Generics / Templates (Stage 1 feature)
+- ❌ Exception handling (Stage 1 feature)
+- ❌ Advanced optimization (LLVM does this)
+- ❌ Multiple return values (Stage 1 feature)
+- ❌ Operator overloading (Stage 1 feature)
+
+**Timeline:**
+- **Dec 31, 2025:** Stage 0 Complete (core features)
+- **Mar 31, 2026:** Stage 1 Self-hosting (MELP in MELP)
+- **May 31, 2026:** Stage 1.5 Advanced features (in MELP)
+- **Aug 31, 2026:** Stage 2 Multi-language support
+
+**Conclusion:** "Good enough" gets us to self-hosting faster, then we improve in MELP.
+
+---
+
+**Last Updated:** 14 Aralık 2025 (YZ_71)  
+**Status:** Architecture rules active, detailed documentation added
