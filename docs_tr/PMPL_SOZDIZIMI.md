@@ -106,28 +106,59 @@ continue_for    -- TOKEN_CONTINUE_FOR
 continue_while  -- TOKEN_CONTINUE_WHILE
 ```
 
-### Debug Anahtar Kelimeleri
+### Debug Blokları
 
 ```pmpl
--- Debug özellikleri (--debug flag ile aktif)
-debug_print(değişken)    -- TOKEN_DEBUG_PRINT - Debug bilgisi yazdır
-debug_pause              -- TOKEN_DEBUG_PAUSE - Çalışmayı duraklat
-debug_label @isim        -- TOKEN_DEBUG_LABEL - Debug etiketi belirle
-debug_goto @etiket       -- TOKEN_DEBUG_GOTO - Debug etiketine atla
+-- Debug bloğu (production'da tamamen silinir)
+debug
+    -- Bu bloktaki her şey production'da silinir
+    print("Debug: hesaplama başlıyor")
+    print("x değeri: " + x)
+    
+    -- Debug içinde istediğiniz kodu yazabilirsiniz
+    numeric debug_sayac = 0
+    
+    -- Etiket ve goto kullanabilirsiniz
+    tekrar:
+    debug_sayac = debug_sayac + 1
+    print("Adım: " + debug_sayac)
+    
+    if debug_sayac < 5 then
+        goto tekrar
+    end_if
+end_debug
 
--- Örnek
+-- Örnek: Fonksiyon içinde debug kullanımı
 function hesapla(numeric x) returns numeric
-    debug_print(x)         -- --debug aktifken x değerini yazdır
-    debug_label @baslangic -- Debug noktası işaretle
+    debug
+        print("hesapla() çağrıldı, x = " + x)
+        
+        if x < 0 then
+            print("UYARI: Negatif değer!")
+        end_if
+    end_debug
     
     if x < 0 then
-        debug_pause        -- İnceleme için duraklat
         return 0
     end_if
+    
+    debug
+        print("Sonuç: " + (x * 2))
+    end_debug
     
     return x * 2
 end_function
 ```
+
+**Compiler Davranışı:**
+- **Development mode (varsayılan):** Debug blokları normal çalışır
+- **Production mode (`--release` flag):** Debug blokları tamamen silinir (lexer seviyesinde)
+
+**Avantajları:**
+- ✅ Tek kural: `debug` ... `end_debug` bloğu production'da silinir
+- ✅ Blok içinde istediğiniz kodu yazabilirsiniz (print, if, while, goto, vs.)
+- ✅ Basit implementasyon: Sadece TOKEN_DEBUG ve TOKEN_END_DEBUG
+- ✅ Production binary'de debug kodu yok (sıfır overhead)
 
 ---
 
@@ -143,15 +174,13 @@ end_function
 | `continue` | TOKEN_CONTINUE | Döngüye devam (standalone) |
 | `continue_for` | TOKEN_CONTINUE_FOR | For döngüsüne devam |
 | `continue_while` | TOKEN_CONTINUE_WHILE | While döngüsüne devam |
-| `debug_goto` | TOKEN_DEBUG_GOTO | Debug goto etiketi |
-| `debug_label` | TOKEN_DEBUG_LABEL | Debug etiket işaretçisi |
-| `debug_pause` | TOKEN_DEBUG_PAUSE | Debug çalışmayı duraklat |
-| `debug_print` | TOKEN_DEBUG_PRINT | Debug değer yazdır |
+| `debug` | TOKEN_DEBUG | Debug bloğu başlangıcı |
 | `do` | TOKEN_DO | Döngü gövdesi işaretçisi |
 | `downto` | TOKEN_DOWNTO | For döngüsü azalan |
 | `each` | TOKEN_EACH | For-each döngüsü |
 | `else` | TOKEN_ELSE | Else cümlesi |
 | `else_if` | TOKEN_ELSE_IF | Else-if cümlesi |
+| `end_debug` | TOKEN_END_DEBUG | Debug bloğu bitişi |
 | `enum` | TOKEN_ENUM | Enum bildirimi |
 | `end_enum` | TOKEN_END_ENUM | Enum bitişi |
 | `end_for` | TOKEN_END_FOR | For döngüsü bitişi |

@@ -106,28 +106,48 @@ continue_for    -- TOKEN_CONTINUE_FOR
 continue_while  -- TOKEN_CONTINUE_WHILE
 ```
 
-### Debug Keywords
+### Debug Blocks
 
 ```pmpl
--- Debug features (enabled with --debug flag)
-debug_print(variable)    -- TOKEN_DEBUG_PRINT - Print debug info
-debug_pause              -- TOKEN_DEBUG_PAUSE - Pause execution
-debug_label @name        -- TOKEN_DEBUG_LABEL - Set debug label
-debug_goto @label        -- TOKEN_DEBUG_GOTO - Jump to debug label
+-- Debug block (removed in production)
+debug
+    -- Everything here is removed with --release flag
+    print("Debug: starting calculation")
+    print("x = " + x)
+    
+    -- Any code allowed inside debug blocks
+    numeric step = 0
+    
+    -- Labels and goto work
+    start:
+    step = step + 1
+    print("Step: " + step)
+    
+    if step < 3 then
+        goto start
+    end_if
+end_debug
 
 -- Example
 function calculate(numeric x) returns numeric
-    debug_print(x)         -- Print x value when --debug enabled
-    debug_label @start     -- Mark debug point
+    debug
+        print("calculate() called: x = " + x)
+        if x < 0 then
+            print("WARNING: negative!")
+        end_if
+    end_debug
     
     if x < 0 then
-        debug_pause        -- Pause for inspection
         return 0
     end_if
     
     return x * 2
 end_function
 ```
+
+**Behavior:**
+- **Development:** Debug blocks execute
+- **Production (`--release`):** Debug blocks completely removed (zero overhead)
 
 ---
 
@@ -143,16 +163,13 @@ end_function
 | `continue` | TOKEN_CONTINUE | Continue loop (standalone) |
 | `continue_for` | TOKEN_CONTINUE_FOR | Continue for loop |
 | `continue_while` | TOKEN_CONTINUE_WHILE | Continue while loop |
-| `debug_goto` | TOKEN_DEBUG_GOTO | Debug goto label |
-| `debug_label` | TOKEN_DEBUG_LABEL | Debug label marker |
-| `debug_pause` | TOKEN_DEBUG_PAUSE | Debug pause execution |
-| `debug_print` | TOKEN_DEBUG_PRINT | Debug print value |
+| `debug` | TOKEN_DEBUG | Debug block start |
 | `do` | TOKEN_DO | Loop body marker |
 | `downto` | TOKEN_DOWNTO | For loop descending |
 | `each` | TOKEN_EACH | For-each loop |
 | `else` | TOKEN_ELSE | Else clause |
-| `enum` | TOKEN_ENUM | Enum declaration |
 | `else_if` | TOKEN_ELSE_IF | Else-if clause |
+| `end_debug` | TOKEN_END_DEBUG | End debug block |
 | `end_for` | TOKEN_END_FOR | End for loop |
 | `end_function` | TOKEN_END_FUNCTION | End function |
 | `end_if` | TOKEN_END_IF | End if statement |

@@ -157,11 +157,9 @@ static Token* read_identifier(Lexer* lexer) {
     else if (strcmp(value, "continue_for") == 0) type = TOKEN_CONTINUE_FOR;
     else if (strcmp(value, "continue_while") == 0) type = TOKEN_CONTINUE_WHILE;
     
-    // ⭐ PMPL Debug Keywords (RF_YZ_2)
-    else if (strcmp(value, "debug_goto") == 0) type = TOKEN_DEBUG_GOTO;
-    else if (strcmp(value, "debug_pause") == 0) type = TOKEN_DEBUG_PAUSE;
-    else if (strcmp(value, "debug_label") == 0) type = TOKEN_DEBUG_LABEL;
-    else if (strcmp(value, "debug_print") == 0) type = TOKEN_DEBUG_PRINT;
+    // ⭐ PMPL Debug Block (RF_YZ_2)
+    else if (strcmp(value, "debug") == 0) type = TOKEN_DEBUG;
+    else if (strcmp(value, "end_debug") == 0) type = TOKEN_END_DEBUG;
     
     // ⭐ PMPL State Keywords (RF_YZ_2)
     else if (strcmp(value, "shared_state") == 0) type = TOKEN_SHARED_STATE;

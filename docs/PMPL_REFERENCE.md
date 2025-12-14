@@ -228,34 +228,59 @@ continue_for    -- Continue for loop explicitly
 continue_while  -- Continue while loop explicitly
 ```
 
-### 3.1 Debug Keywords
+### 3.1 Debug Blocks
 
 ```pmpl
--- Debug features (enabled with --debug flag)
-debug_print(variable)    -- TOKEN_DEBUG_PRINT - Print debug info
-debug_pause              -- TOKEN_DEBUG_PAUSE - Pause execution
-debug_label @name        -- TOKEN_DEBUG_LABEL - Set debug label
-debug_goto @label        -- TOKEN_DEBUG_GOTO - Jump to debug label
+-- Debug block (completely removed in production)
+debug
+    -- Everything in this block is removed in production builds
+    print("Debug: calculation starting")
+    print("x value: " + x)
+    
+    -- You can write any code inside debug blocks
+    numeric debug_counter = 0
+    
+    -- Labels and goto are allowed
+    repeat:
+    debug_counter = debug_counter + 1
+    print("Step: " + debug_counter)
+    
+    if debug_counter < 5 then
+        goto repeat
+    end_if
+end_debug
 
--- Example
+-- Example: Debug in function
 function calculate(numeric x) returns numeric
-    debug_print(x)         -- Print x value when --debug enabled
-    debug_label @start     -- Mark debug point
+    debug
+        print("calculate() called, x = " + x)
+        
+        if x < 0 then
+            print("WARNING: Negative value!")
+        end_if
+    end_debug
     
     if x < 0 then
-        debug_pause        -- Pause for inspection
         return 0
     end_if
+    
+    debug
+        print("Result: " + (x * 2))
+    end_debug
     
     return x * 2
 end_function
 ```
 
-**Debug Token Reference:**
-- `debug_print` → TOKEN_DEBUG_PRINT
-- `debug_pause` → TOKEN_DEBUG_PAUSE
-- `debug_label` → TOKEN_DEBUG_LABEL
-- `debug_goto` → TOKEN_DEBUG_GOTO
+**Compiler Behavior:**
+- **Development mode (default):** Debug blocks execute normally
+- **Production mode (`--release` flag):** Debug blocks are completely removed at lexer level
+
+**Benefits:**
+- ✅ Single rule: `debug` ... `end_debug` block removed in production
+- ✅ Write any code inside debug blocks (print, if, while, goto, etc.)
+- ✅ Simple implementation: Only TOKEN_DEBUG and TOKEN_END_DEBUG
+- ✅ Zero overhead in production binary
 
 ---
 
@@ -524,10 +549,8 @@ end_try
 | `continue` | TOKEN_CONTINUE | Continue loop (standalone) |
 | `continue_for` | TOKEN_CONTINUE_FOR | Continue for |
 | `continue_while` | TOKEN_CONTINUE_WHILE | Continue while |
-| `debug_goto` | TOKEN_DEBUG_GOTO | Debug goto label |
-| `debug_label` | TOKEN_DEBUG_LABEL | Debug label marker |
-| `debug_pause` | TOKEN_DEBUG_PAUSE | Debug pause execution |
-| `debug_print` | TOKEN_DEBUG_PRINT | Debug print value |
+| `debug` | TOKEN_DEBUG | Debug block start |
+| `end_debug` | TOKEN_END_DEBUG | Debug block end |
 | `enum` | TOKEN_ENUM | Enum declaration |
 | `end_enum` | TOKEN_END_ENUM | End enum |
 | `struct` | TOKEN_STRUCT | Struct declaration |
