@@ -1,0 +1,4 @@
+function main() returns numeric
+    print("Hello PMPL")
+    return 0
+end_function

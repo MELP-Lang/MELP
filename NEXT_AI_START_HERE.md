@@ -1,9 +1,147 @@
-# 🚀 MELP - Next AI Session Start Here (YZ_75)
+# 🚀 MELP - Next AI Session Start Here (YZ_77)
 
-**Last Session:** 14 Aralık 2025 - YZ_74 (Phase 18.1: Array Literals ✅)  
-**Current Session:** YZ_75 - Phase 18.2: Array Indexing & Operations  
-**Status:** Phase 18.1 Complete ✅ | Next: Array indexing (arr[0])  
+**Last Session:** 14 Aralık 2025 - YZ_75 (PMPL Architecture Crisis Discovery 🚨)  
+**Current Session:** YZ_77 - 🔴 **MAJOR REFACTOR: PMPL ARCHITECTURE RESTORATION**  
+**Status:** ⚡⚡ **MİMARİ FELSEFESİNE AYKIRI - SELF-HOSTING BLOCKER!**  
 **Branch:** `phase18-array-support_YZ_74`
+
+---
+
+## 🚨 **ACİL - MİMARİ KRİZ TESPİT EDİLDİ!**
+
+### **PMPL FELSEFESİ ÇALIŞMIYOR! MİMARİ TAMAMEN BOZUK!**
+
+YZ_75 investigation sırasında **temel mimari sorun** keşfedildi:
+
+**PMPL Felsefesi (kurallar_kitabı.md:17):**
+> "Lexer ve parserde karışıklık çıkmaması için 'end if'i tek tokene indirgemek 
+> amacıyla PMPL'de 'end_if' kullanılmaktadır."
+> 
+> "MELP derleyicisi sadece PMPL'yi görür."
+
+**Gerçek Durum:**
+```
+❌ Normalize edici YOK! (syntax → PMPL dönüşümü yapılmıyor)
+❌ Lexer PMPL görmüyor! ("end if" → 2 token: TOKEN_END + TOKEN_IF)
+❌ Parser manual pattern matching! (her yerde hack kodu)
+❌ Self-hosting imkansız! (PMPL compiler kendi syntax'ını parse edemiyor)
+❌ Multi-syntax desteği çöküyor! (C/Python/Go her biri özel kod gerektirir)
+```
+
+**DETAYLI RAPOR:** `PMPL_ARCHITECTURE_CRISIS.md` (MUTLAKA OKU!)  
+**ACİL GÖREV:** YZ_77 ile normalize edici + lexer + parser refactor!
+
+### YZ_77 Major Refactor (6-8 saat):
+1. **Normalize edici modülü** yaz (syntax → PMPL)
+2. **Lexer refactor** (TOKEN_END_IF vs. - underscore keywords)
+3. **Parser simplification** (pattern matching kaldır)
+4. **Self-hosting test** (PMPL compiler PMPL okuyabilmeli!)
+
+**ÖNCELİK:** ⚡⚡ Tüm işler beklet, önce mimariyi düzelt!  
+**SEBEP:** Self-hosting olmadan multi-syntax/multi-language çalışmaz!
+
+---
+
+## 🎯 MELP MİMARİSİ - YENİ AI İÇİN KRİTİK BİLGİ
+
+### MELP = Multi Language Programming (Çok Dilli Çok Sözdizimli)
+
+MELP, kullanıcıların **istediği dilde** (Türkçe, İngilizce, Rusça, Arapça...) ve **istediği syntax'ta** (C-style, Python-style, MLP-style...) kod yazabilmesini sağlar.
+
+### 📊 Mimari Katmanlar:
+
+```
+[1] Kullanıcı Kodu
+    ↓ (Türkçe "yazdır", C-style {}, vs...)
+    
+[2] diller.json + syntax.json
+    ↓ (Normalize edici)
+    
+[3] Pragmatic MLP (PMPL) - English + MLP Base Syntax
+    ↓ (BU KATMANI SEN GÖRÜRSÜN!)
+    
+[4] Lexer → [5] Parser → [6] Codegen → [7] Assembly/LLVM
+```
+
+### 🚨 SENİN GÖREVIN:
+
+**YENİ GELEN AI SADECE 3. KATMANDAN SONRASIYLA İLGİLENİR!**
+
+✅ **YAPMAN GEREKENLER:**
+- Lexer, Parser, Codegen üzerinde çalış
+- PMPL syntax'ını anla ve kullan
+- `compiler/stage0/modules/` altındaki modülleri geliştir
+
+❌ **YAPMAN GEREKMEYENLER:**
+- diller.json/syntax.json dosyalarıyla uğraşma
+- Normalize katmanıyla ilgilenme
+- Kullanıcının hangi dilde yazdığını umursama
+
+### 📖 PMPL (Pragmatic MLP) Nedir?
+
+**Compiler'ın gördüğü standart ara dil:**
+
+| Kullanıcı Yazabilir | PMPL'de Ne Görürsün |
+|---------------------|---------------------|
+| `if ... { ... }` (C-style) | `if ... then ... end if` |
+| `def foo():` (Python-style) | `function foo()` |
+| `yazdır("Merhaba")` (Türkçe) | `print("Merhaba")` |
+
+**PMPL Özellikleri:**
+- English keywords (`function`, `numeric`, `string`, `if`, `while`, `for`)
+- MLP base syntax (`end if`, `end while`, `end for` - 2 kelime ama tek pattern)
+- `--` yorumlar (SADECE `--`, asla `//` veya `#` değil!)
+- Tutarlı sözdizimi (lexer/parser karışıklığı önlenir)
+
+**Örnek PMPL Kodu:**
+```mlp
+-- This is PMPL (what compiler sees)
+function main() returns numeric
+    numeric x = 10
+    
+    if x > 5 then
+        print(x)
+    end if           -- 2 kelime: "end" + "if"
+    
+    while x > 0
+        x = x - 1
+    end while        -- 2 kelime: "end" + "while"
+    
+    for i = 0 to 10
+        print(i)
+    end for          -- 2 kelime: "end" + "for"
+    
+    return x
+end                  -- Sadece "end" (function için)
+```
+
+### 🏗️ Modüler Mimari:
+
+MELP monolitik değil, **modüler yapı** kullanır:
+
+```
+compiler/stage0/modules/
+├── functions/      - Fonksiyon parsing/codegen
+├── variable/       - Değişken yönetimi
+├── arithmetic/     - Aritmetik işlemler
+├── control_flow/   - if/while/for
+├── array/          - Array desteği (YZ_74'te eklendi)
+├── lexer/          - Token üretimi
+└── ...
+```
+
+**Her modül bağımsız çalışır** - bir modülü değiştirirken diğerlerini bozmaman gerekir!
+
+### ⚠️ DİL TASARIMI DEĞİŞİKLİĞİ:
+
+Eğer karşılaştığın bir problem **PMPL'de değişiklik gerektiriyorsa**:
+
+1. ❌ **ASLA kendin karar verme!**
+2. ✅ **Kullanıcıdan onay al**
+3. ✅ **Değişikliği dokümante et**
+4. ✅ **Tutarlılığı kontrol et** (tüm modüllerde uyumlu olmalı)
+
+**PMPL değişikliği çok ciddidir!** Tüm compiler katmanlarını etkiler.
 
 ---
 
@@ -11,39 +149,59 @@
 
 ### ⛔ ANTI-PATTERN Example - Learn from YZ_63's Mistake:
 
+**Context:** YZ_63, PMPL syntax'ını tam anlamadan kod değiştirdi!
+
 **What YZ_63 Did (WRONG!):**
-1. ❌ Changed a comment: "MLP uses only 'end', not 'end function'"
-2. ❌ Removed validation code without understanding full impact
+1. ❌ Changed comment: "MLP uses only 'end', not 'end function'"
+2. ❌ Removed `end function` validation without understanding PMPL
 3. ❌ Only tested single-function files (incomplete testing)
 4. ❌ Left inconsistent code: skip_to_end_function() STILL uses "end function"
+5. ❌ **DIDN'T UNDERSTAND:** PMPL uses patterns, not single tokens!
+
+**The PMPL Reality:**
+- `end if` = 2 kelime ama tek PATTERN (parser'da birlikte kontrol edilir)
+- `end while` = 2 kelime ama tek PATTERN
+- `end function` = 2 kelime ama tek PATTERN
+- Sadece `end` = function bitişi için (backward compatibility)
 
 **Result:** 
-- Multi-function files BROKEN for months
-- Inconsistent codebase (comment says one thing, code does another)
-- Future developers misled by false comments
+- Multi-function files BROKEN for months! 💔
+- Inconsistent codebase (comment vs code mismatch)
+- Future developers misled by false documentation
+- **ROOT CAUSE:** YZ_63 didn't read about PMPL architecture!
 
-### ✅ CORRECT Approach When Fixing Bugs:
+### ✅ CORRECT Approach When Working with PMPL:
 
-1. **Understand the FULL system first**
+1. **Understand PMPL FIRST** ⚠️
+   - Read "MELP MİMARİSİ" section above
+   - PMPL uses multi-word patterns (`end if`, `end while`)
+   - Lexer may combine tokens, but parser sees patterns
+   - Don't assume syntax based on comments!
+
+2. **Understand the FULL system**
    - Why does this code exist?
    - What other parts depend on it?
    - Read related functions completely
+   - Check skip_to_end_function(), lexer, parser ALL together
 
-2. **Test ALL scenarios**
+3. **Test ALL scenarios**
    - Single function files ✅
    - Multi-function files ✅
    - Nested functions ✅
    - Edge cases ✅
 
-3. **Make CONSISTENT changes**
-   - If you remove `end function` check, remove it EVERYWHERE
+4. **Make CONSISTENT changes**
+   - If you remove `end function`, remove it EVERYWHERE
    - If you keep it, keep it EVERYWHERE
    - Comments must match code reality
+   - Lexer, parser, codegen must agree on PMPL syntax
 
-4. **Document your reasoning**
+5. **Document your reasoning**
    - Why is this better?
+   - Does it break PMPL consistency?
    - What are the trade-offs?
    - What tests prove it works?
+   - **DID YOU ASK USER for PMPL changes?**
 
 ### 📋 Current YZ_63 BUG (Priority: HIGH - Fix in YZ_75+):
 
@@ -61,42 +219,48 @@
 
 ---
 
-## ⚠️ CRITICAL: MELP Syntax - Current Implementation & BUG
+## ⚠️ CRITICAL: Current PMPL Implementation & YZ_63 BUG
 
-**MELP = Multi Language Programming (Çok Dilli Çok Sözdizimli)**
+**Remember:** Sen PMPL katmanında çalışıyorsun! Kullanıcı farklı syntax kullanabilir ama sen hep PMPL görürsün.
 
-### 🎯 **CURRENT SYNTAX (Stage 0 Compiler):**
+### 🎯 **CURRENT PMPL SYNTAX (Stage 0 Compiler):**
 
 **Compiler Behavior:**
-- ✅ `end if`, `end while`, `end for` - Parser seviyesinde pattern matching ile çalışır
-- ⚠️ `end` (function için) - **BUG: Çoklu fonksiyon dosyalarında başarısız!**
-- ✅ `--` - Comments
-- ⚠️ `return 0` bug var - variable kullan
+- ✅ `end if`, `end while`, `end for` - Parser seviyesinde **PATTERN MATCHING**
+  - Lexer: TOKEN_END + TOKEN_IF (2 token)
+  - Parser: Birlikte kontrol edilir (tek pattern gibi davranır)
+- ⚠️ `end` + `function` - **BUG: Multi-function dosyalarda pattern bozuk!**
+  - skip_to_end_function() `end function` pattern'ini kullanıyor
+  - Ama first-pass parse'da bu kontrol YZ_63 tarafından kaldırılmış
+  - Inconsistency: Code'un bir yerinde var, diğer yerinde yok!
+- ✅ `--` - Comments (SADECE `--`, asla `//` değil!)
+- ✅ `returns numeric` - Function return type (PMPL standardı)
 
-**Working Example (Single Function):**
+**Working PMPL Example (Single Function):**
 ```mlp
--- Comment
+-- PMPL syntax example
 function main() returns numeric
     numeric x = 10
     
     if x > 5 then
         print(x)
-    end if           -- ✅ Parser: TOKEN_END + TOKEN_IF birlikte kontrol edilir
+    end if           -- ✅ Parser: TOKEN_END + TOKEN_IF pattern
     
     while x > 0
         x = x - 1
-    end while        -- ✅ Parser: TOKEN_END + TOKEN_WHILE
+    end while        -- ✅ Parser: TOKEN_END + TOKEN_WHILE pattern
     
     for i = 0 to 10
         print(i)
-    end for          -- ✅ Parser: TOKEN_END + TOKEN_FOR
+    end for          -- ✅ Parser: TOKEN_END + TOKEN_FOR pattern
     
     return x
-end                  -- ✅ Tek fonksiyon için çalışır
+end                  -- ✅ Tek fonksiyon için çalışır (backward compat)
 ```
 
-**BROKEN Example (Multiple Functions):**
+**BROKEN PMPL Example (Multiple Functions):**
 ```mlp
+-- First function
 function greet(string msg) returns numeric
     print(msg)
     return 0
@@ -110,46 +274,86 @@ end
 
 ### 🐛 **YZ_63 BUG - Multi-Function Files:**
 
-**Problem:**
+**Problem:** PMPL pattern matching inconsistency!
+
+**Technical Details:**
 - First pass: 2 fonksiyon bulur ✅ (greet, main registered)
 - Second pass: Parse başarısız ❌ (line 8: Expected 'function' keyword)
 
-**Root Cause:**
-YZ_63 şu kodu kaldırdı:
+**Root Cause - PMPL Pattern Mismatch:**
+
+YZ_63 şu kodu kaldırdı (functions_standalone.c):
 ```c
-// Skip 'end function' pattern (prev token was 'end')
+// Check if previous token was 'end' - this is 'end function' PATTERN
 if (prev_tok && prev_tok->type == TOKEN_END) {
     // This is 'end function', not a new function declaration
     continue;  // Skip this TOKEN_FUNCTION
 }
 ```
 
-**Sonuç:** `end` sonrası gelen `TOKEN_FUNCTION` yeni fonksiyon mu yoksa `end function` pattern'inin parçası mı - ayırt edilemiyor!
+**Sonuç:** 
+- `end` sonrası gelen `TOKEN_FUNCTION` → Yeni fonksiyon mu? `end function` pattern'i mi?
+- Parser ayırt edemiyor!
+- skip_to_end_function() HALA `end function` pattern arıyor (line 103-110)
+- **PMPL inconsistency:** Code'un bir yeri pattern kullanıyor, diğer yeri yok!
 
-**YZ_63 Claim:** "MLP uses only 'end', not 'end function'"  
-**Reality:** Code STILL checks for `end function` in skip_to_end_function() (line 103-110)
+**YZ_63's False Claim:** "MLP uses only 'end', not 'end function'"  
+**PMPL Reality:** 
+- `end function` = Valid PMPL pattern (2 token, tek anlam)
+- `end` alone = Backward compatibility için geçici çözüm
+- skip_to_end_function() zaten `end function` pattern'ini kullanıyor!
 
-### 🔧 **Implementation Details:**
-
-**Lexer Tokens:**
-- `TOKEN_END` - Tek bir token
-- `TOKEN_IF`, `TOKEN_WHILE`, `TOKEN_FOR`, `TOKEN_FUNCTION` - Ayrı tokenlar
-
-**Parser Behavior:**
-- `TOKEN_END` görünce sonraki token'a bakar
-- `TOKEN_IF` / `TOKEN_WHILE` / `TOKEN_FOR` ise → birlikte yorumlar ✅
-- `TOKEN_FUNCTION` ise → ??? (YZ_63 broke this) ❌
-
-**skip_to_end_function() Still Uses "end function":**
+**Proof of Inconsistency:**
 ```c
 // Line 103-110: functions_standalone.c
+// skip_to_end_function() STILL checks for "end function" pattern:
 else if (type == TOKEN_END) {
     Token* next = lexer_next_token(lexer);
-    if (next && next->type == TOKEN_FUNCTION) {  // Checks "end function"!
+    if (next && next->type == TOKEN_FUNCTION) {  // "end function" pattern!
         // ...
     }
 }
 ```
+
+YZ_63, kodu tam okumadan yorum değiştirdi ve pattern check'i kaldırdı. Result: BROKEN!
+
+### 🔧 **PMPL Implementation Details:**
+
+**Lexer Tokens (What lexer produces):**
+- `TOKEN_END` - Single keyword "end"
+- `TOKEN_IF`, `TOKEN_WHILE`, `TOKEN_FOR`, `TOKEN_FUNCTION` - Separate keywords
+
+**Parser Behavior (Pattern matching):**
+- `TOKEN_END` görünce → sonraki token'a bakar
+- `TOKEN_IF` / `TOKEN_WHILE` / `TOKEN_FOR` ise → Birlikte yorumlar (tek pattern) ✅
+- `TOKEN_FUNCTION` ise → `end function` pattern mı, yeni declaration mı? ⚠️
+
+**PMPL Pattern Examples:**
+```
+"end if"       → Lexer: [TOKEN_END, TOKEN_IF]       → Parser: END_IF pattern ✅
+"end while"    → Lexer: [TOKEN_END, TOKEN_WHILE]    → Parser: END_WHILE pattern ✅
+"end for"      → Lexer: [TOKEN_END, TOKEN_FOR]      → Parser: END_FOR pattern ✅
+"end function" → Lexer: [TOKEN_END, TOKEN_FUNCTION] → Parser: ??? (YZ_63 broke this) ❌
+"end"          → Lexer: [TOKEN_END]                 → Parser: END (backward compat) ✅
+```
+
+**skip_to_end_function() Implementation:**
+```c
+// Line 103-110: functions_standalone.c
+// This function EXPECTS "end function" PMPL pattern:
+else if (type == TOKEN_END) {
+    Token* next = lexer_next_token(lexer);
+    if (next && next->type == TOKEN_FUNCTION) {  
+        // Found "end function" pattern
+        // This is valid PMPL syntax!
+    }
+}
+```
+
+**The Inconsistency:**
+- ❌ First-pass: YZ_63 removed `end function` pattern check
+- ✅ skip_to_end_function(): Still uses `end function` pattern
+- 💥 Result: Pattern mismatch → Multi-function parse fails!
 
 ### 📊 **Test Results:**
 
@@ -159,98 +363,143 @@ else if (type == TOKEN_END) {
 | test_string_param_var.mlp | 2 (greet, main) | ❌ Error line 8 |
 | Most examples/* | 1 function | ✅ Works |
 
-### 🎯 **Sonuç: YZ_63 HACK Yaptı!**
+### 🎯 **Sonuç: YZ_63 PMPL'yi Anlamadan HACK Yaptı!**
 
-**Kanıt:**
-1. Yorumu "MLP uses only 'end'" diye değiştirdi
-2. Ama skip_to_end_function() HALA "end function" arıyor
-3. Multi-function dosyaları KIRILDI
-4. Tek-fonksiyon dosyaları tesadüfen çalışıyor
+**Kanıt #1 - PMPL Pattern Ignorance:**
+- PMPL'de `end if`, `end while`, `end for` = multi-word patterns
+- `end function` de aynı şekilde pattern olmalı (consistent!)
+- YZ_63 bu PMPL prensibini görmezden geldi!
 
-**Fix Needed:**
-- Seçenek A: `end function` pattern'ini geri getir (DOĞRU)
-- Seçenek B: Parser'ı function depth tracking ile düzelt (COMPLEX)
+**Kanıt #2 - Code Inconsistency:**
+1. Yorumu "MLP uses only 'end'" diye değiştirdi ❌
+2. First-pass'te `end function` check'ini kaldırdı ❌  
+3. Ama skip_to_end_function() HALA `end function` pattern'ini arıyor ✅
+4. Result: Kod'un yarısı pattern kullanıyor, yarısı kullanmıyor!
 
-**Reference:** 
+**Kanıt #3 - Incomplete Testing:**
+- Tek-fonksiyon dosyaları → Tesadüfen çalışıyor ✅
+- Multi-function dosyaları → KIRILDI ❌
+- YZ_63 multi-function test yapmadı!
+
+**Fix Options:**
+- **Seçenek A:** `end function` pattern'ini geri getir (SAFE, PMPL-consistent)
+- **Seçenek B:** Parser'ı function depth tracking ile düzelt (COMPLEX, risky)
+- **Seçenek C:** PMPL syntax'ını değiştir - `end` ONLY (REQUIRES USER APPROVAL!)
+
+**Recommendation:** Seçenek A (restore PMPL pattern consistency)
+
+**Reference Files:** 
 - `compiler/stage0/modules/functions/functions_standalone.c` 
-  - Line 103-110: skip_to_end_function() uses "end function"
-  - Line 210: YZ_63 removed check (BROKE multi-function)
+  - Line 103-110: skip_to_end_function() uses `end function` pattern ✅
+  - Line ~210: YZ_63 removed first-pass check ❌ (BROKE consistency)
 - Test: `examples/basics/test_string_param_var.mlp` (2 functions, FAILS)
+
+**🚨 KEY LESSONS FOR NEW AI:**
+1. **PMPL patterns are sacred!** Don't change without understanding full impact
+2. **Always check consistency** across lexer, parser, and codegen
+3. **Test multi-file, multi-function scenarios** - not just simple cases!
+4. **Read temp/kurallar_kitabı.md** for PMPL architecture details
 
 ---
 
 ## 🎯 YZ_75 PRIORITY TASK: Fix YZ_63 Multi-Function Bug
 
-**Before starting Phase 18.2 (Array Indexing), fix this critical bug!**
+**Before starting Phase 18.2 (Array Indexing), fix this critical PMPL pattern bug!**
 
-### Task: Restore Multi-Function File Support
+### Task: Restore PMPL Pattern Consistency
+
+**Understanding the Problem:**
+- PMPL uses multi-word patterns: `end if`, `end while`, `end for`
+- `end function` should also be a valid pattern (consistency!)
+- YZ_63 broke this by removing pattern check in first-pass
+- But skip_to_end_function() still expects the pattern
+- Result: Inconsistent PMPL implementation
 
 **Step 1: Verify Bug**
 ```bash
 ./compiler/stage0/modules/functions/functions_compiler \
   examples/basics/test_string_param_var.mlp /tmp/test.ll
 # Expected: Error line 8 "Expected 'function' keyword"
+# Root cause: PMPL pattern mismatch
 ```
 
-**Step 2: Fix (Option A - Recommended)**
+**Step 2: Fix (Option A - Restore PMPL Pattern Consistency)**
 
-Restore the removed code in `functions_standalone.c` around line 210:
+Restore the `end function` pattern check in `functions_standalone.c` around line 210:
 ```c
 // Look for 'function' keyword
 if (tok->type == TOKEN_FUNCTION) {
-    // Check if previous token was 'end' - this is 'end function'
+    // YZ_75: Restored 'end function' PMPL pattern check
+    // PMPL uses multi-word patterns: "end if", "end while", "end function"
+    // This maintains consistency with skip_to_end_function()
     if (prev_tok && prev_tok->type == TOKEN_END) {
-        // This is 'end function', not a new function declaration
-        if (prev_tok) token_free(prev_tok);
-        prev_tok = tok;
-        continue;
+        // This is 'end function' pattern, not a new function declaration
+        token_free(tok);  // Free current TOKEN_FUNCTION
+        tok = NULL;       // Mark as processed
+    } else {
+        func_count++;
+        // ... rest of function registration code
     }
-    
-    func_count++;
-    // ...rest of code
 }
 ```
 
-**Step 3: Test ALL scenarios**
+**Step 3: Test ALL scenarios (PMPL compliance)**
 ```bash
-# Single function
+# Single function (backward compat with "end" alone)
 ./compiler/stage0/modules/functions/functions_compiler \
   examples/basics/test_array_minimal.mlp /tmp/test1.ll
 
-# Two functions
+# Two functions (PMPL "end function" pattern)
 ./compiler/stage0/modules/functions/functions_compiler \
   examples/basics/test_string_param_var.mlp /tmp/test2.ll
 
 # Both should succeed ✅
+# This proves PMPL pattern consistency is restored
 ```
 
-**Step 4: Update Comment**
+**Step 4: Update Comment (PMPL Documentation)**
 
-Change comment to reflect reality:
+Change comment to reflect PMPL reality:
 ```c
-// YZ_75: Restored 'end function' check for multi-function file support
-// Pattern: 'end function' marks end of function, not new declaration
+// YZ_75: Restored 'end function' PMPL pattern for consistency
+// PMPL Principle: Multi-word patterns ("end if", "end while", "end function")
+// Pattern check ensures: "end function" ≠ new function declaration
+// Matches skip_to_end_function() implementation (lines 103-110)
+// Tested: Single-function ✅, Multi-function ✅
 ```
 
-**Step 5: Commit**
+**Step 5: Commit (Document PMPL Fix)**
 ```bash
 git add compiler/stage0/modules/functions/functions_standalone.c
-git commit -m "YZ_75: Fix YZ_63 bug - Restore multi-function file support
+git commit -m "YZ_75: Fix YZ_63 PMPL pattern bug - Restore multi-function support
 
-BUGFIX: YZ_63 broke multi-function files by removing 'end function' check
-- Restored prev_tok check for 'end function' pattern
-- skip_to_end_function() already uses 'end function' - now consistent
+BUGFIX: YZ_63 broke PMPL pattern consistency
+- PMPL uses multi-word patterns: 'end if', 'end while', 'end function'
+- YZ_63 removed 'end function' pattern check → inconsistency
+- skip_to_end_function() still expected the pattern
+- Result: Multi-function files broken
+
+Fix: Restored 'end function' pattern check in first-pass
+- Consistent with skip_to_end_function() implementation
+- Maintains PMPL architecture principles
 - All multi-function files work again
 
 Tests:
 - test_string_param_var.mlp (2 functions) ✅ 
 - test_array_minimal.mlp (1 function) ✅
 
-Reference: YZ_74 bug discovery commit bf6ac6c"
+PMPL Lesson: Pattern consistency is critical!
+Reference: temp/kurallar_kitabı.md - PMPL architecture"
 ```
 
 **Estimated Time:** 15-30 minutes  
-**Priority:** CRITICAL - Blocks multi-function development
+**Priority:** CRITICAL - PMPL integrity at stake!
+
+**Why This Matters:**
+- ✅ Restores PMPL pattern consistency
+- ✅ Fixes multi-function file support
+- ✅ Teaches proper PMPL understanding
+- ✅ Prevents future hack attempts
 
 ---
 

@@ -1,9 +1,127 @@
 # 📋 MELP Project TODO - Multi-Phase LLVM Backend Development
 
 **Created:** 13 Aralık 2025  
-**Current Status:** Phase 17 ✅ COMPLETE | Next: Phase 18 Array Support  
-**Branch:** phase17-string-support_YZ_61 (ready to merge)  
-**Last Updated:** 14 Aralık 2025 (YZ_69)
+**Current Status:** 🚨 ASSEMBLY SYNTAX CRISIS DETECTED - YZ_76 ACİL!  
+**Branch:** phase18-array-support_YZ_74  
+**Last Updated:** 14 Aralık 2025 (YZ_75)
+
+---
+
+## 🚨 **ACİL: YZ_77 - PMPL ARCHITECTURE CRISIS (MAJOR REFACTOR)**
+
+**DURUM:** 🔴 **KRİTİK - MİMARİ FELSEFESİNE AYKIRI!**  
+**ÖNCELIK:** ⚡⚡ **EN YÜKSEK - SELF-HOSTING BLOCKER!**  
+**TAHMİNİ SÜRE:** 6-8 saat (major architectural fix)  
+**DETAYLI RAPOR:** `PMPL_ARCHITECTURE_CRISIS.md`
+
+### 🔍 Tespit Edilen Sorun:
+
+**PMPL Felsefesi:**
+> "MELP derleyicisi sadece PMPL'yi görür. Lexer ve parserde karışıklık çıkmaması için 
+> 'end if'i tek tokene indirgemek amacıyla PMPL'de 'end_if' kullanılmaktadır."
+
+**Gerçek Durum:**
+```
+❌ Normalize edici YOK (syntax → PMPL dönüşümü yapılmıyor!)
+❌ Lexer PMPL görmüyor ("end if" → 2 token üretiyor)
+❌ Parser manual pattern matching yapıyor (mimari hack!)
+❌ Self-hosting imkansız (PMPL compiler kendi syntax'ını parse edemiyor)
+❌ Multi-syntax desteği çöküyor (her syntax için parser hack gerekiyor)
+```
+
+**Örnek:**
+```mlp
+# Kullanıcı kodu (MLP style):
+if x > 5 then
+    print("Yes")
+end if    ← İKİ KELİME!
+
+# Normalize edici çıktısı (OLMALI):
+end_if    ← TEK KELİME! (PMPL standardı)
+
+# Lexer çıktısı (OLMALI):
+TOKEN_END_IF    ← TEK TOKEN!
+
+# ŞU AN NE OLUYOR:
+TOKEN_END + TOKEN_IF    ← İKİ AYRI TOKEN! ❌
+Parser manual birleştiriyor! ❌
+```
+
+### 📋 Major Refactor Görevleri (YZ_77):
+
+#### Adım 1: Normalize Edici Oluştur (2 saat)
+- [ ] `compiler/normalize/normalizer.c` modülü yaz
+- [ ] `syntax.json` okuma (C/Python/MLP style → PMPL)
+- [ ] `diller.json` okuma (tr/en/ru → PMPL)
+- [ ] Syntax dönüşümü: "}" → "end_if", "end if" → "end_if"
+- [ ] Test: Tüm syntax'lar → aynı PMPL çıktısı
+
+#### Adım 2: Lexer Refactor (1.5 saat)
+- [ ] Token definitions: `TOKEN_END_IF`, `TOKEN_END_WHILE`, vs. (20+ token)
+- [ ] Keyword recognition: "end_if" → `TOKEN_END_IF` (underscore!)
+- [ ] Legacy tokens kaldır: `TOKEN_END` deprecated
+- [ ] Test: "end_if" → tek token
+
+#### Adım 3: Parser Simplification (2 saat)
+- [ ] Pattern matching kaldır (`if (TOKEN_END && peek() == TOKEN_IF)` HACK!)
+- [ ] `statement_parser.c` temizle
+- [ ] `control_flow_parser.c` simplify
+- [ ] `functions_standalone.c` first pass fix
+- [ ] Test: Parser basitleşti, end_if/end_while doğrudan işleniyor
+
+#### Adım 4: Integration & Testing (1.5 saat)
+- [ ] Build system güncelle (normalize → lexer → parser)
+- [ ] Multi-syntax test suite
+- [ ] Self-hosting test (PMPL compiler PMPL okuyabilmeli!)
+- [ ] Performance check
+
+### ✅ Başarı Kriterleri:
+
+```bash
+# Test 1: MLP style
+echo 'if x > 5 then
+    print("Yes")
+end if' | ./normalize | ./lexer | grep "TOKEN_END_IF"
+# Beklenen: TOKEN_END_IF (tek token)
+
+# Test 2: C style
+echo 'if (x > 5) {
+    print("Yes");
+}' | ./normalize | ./lexer | grep "TOKEN_END_IF"
+# Beklenen: TOKEN_END_IF (tek token - aynı!)
+
+# Test 3: Self-hosting
+./mlpc_pmpl compiler_pmpl.mlp test.s
+# Beklenen: SUCCESS (PMPL compiler PMPL okuyabilmeli)
+```
+
+### 🎯 Kurallar Kitabı Uyumluluğu:
+
+```markdown
+Birleştirilecek Keyword Listesi (kurallar_kitabı.md:910):
+- end: if, while, for, function, struct, enum, switch
+- exit: if, for, while, function, switch  
+- continue: for, while
+```
+
+**Tüm bunlar PMPL'de underscore ile:** `end_if`, `exit_for`, `continue_while`
+
+**İlgili Dosyalar:**
+- `PMPL_ARCHITECTURE_CRISIS.md` - Detaylı analiz
+- `compiler/normalize/` - YENİ (normalize edici modülü)
+- `syntax.json`, `diller.json` - YENİ (compiler root'ta)
+- `compiler/stage0/modules/lexer/*` - REFACTOR
+- `compiler/stage0/modules/statement/statement_parser.c` - SIMPLIFY
+- `kurallar_kitabı.md` - PMPL felsefesi
+
+---
+
+## ⏸️ **ERTELENDİ: YZ_76 - Print Fix**
+
+**Not:** Print bug gerçek ama **önce mimari düzeltilmeli**!  
+Print fix YZ_77'den sonra 30 dakika sürer (mimari düzeldikten sonra basit).
+
+---
 
 ---
 

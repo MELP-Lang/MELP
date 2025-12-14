@@ -39,43 +39,121 @@ Statement* statement_parse(Parser* parser) {
     
     Statement* stmt = NULL;
     
-    // Check for end of block
-    if (tok->type == TOKEN_END) {
-        // Peek at next token to see what kind of end
-        Token* next = lexer_next_token(parser->lexer);
-        if (next && (next->type == TOKEN_WHILE || 
-                     next->type == TOKEN_FOR ||
-                     next->type == TOKEN_FUNCTION)) {
-            // YZ_63: End of block - put next token back, consume end
-            lexer_unget_token(parser->lexer, next);
+    // ⭐ RF_YZ_3: PMPL block terminators (single tokens, no pattern matching!)
+    switch (tok->type) {
+        case TOKEN_END_IF:
+            // Check if there's an "else" or "else_if" after "end_if"
+            {
+                Token* after = lexer_next_token(parser->lexer);
+                if (after) {
+                    parser->current_token = after;  // Save for parent parser
+                }
+                token_free(tok);
+                return NULL;
+            }
+        
+        case TOKEN_END_WHILE:
+        case TOKEN_END_FOR:
+        case TOKEN_END_FUNCTION:
+        case TOKEN_END_STRUCT:
+        case TOKEN_END_SWITCH:
+        case TOKEN_END_MATCH:
+        case TOKEN_END_OPERATOR:
+        case TOKEN_END_TRY:
             token_free(tok);
             return NULL;  // End of block
-        }
         
-        // ✅ Special case: "end if" - consume "if" and check what's after
-        if (next && next->type == TOKEN_IF) {
-            token_free(next);  // Consume "if"
-            // Check if there's an "else" after "end if"
-            Token* after_if = lexer_next_token(parser->lexer);
-            if (after_if) {
-                parser->current_token = after_if;  // Save for parent parser
-            }
-            token_free(tok);
-            return NULL;  // End of "end if"
-        }
-        
-        // For other cases, put the next token back
-        if (next) {
-            parser->current_token = next;  // Save for parent parser
-        }
-        token_free(tok);
-        return NULL;
+        default:
+            // Not a block terminator, continue parsing
+            break;
     }
     
     // ✅ ELSE keyword - not a statement, return NULL and keep token for parent if parser
     if (tok->type == TOKEN_ELSE) {
         parser->current_token = tok;  // Keep token for parent parser
         return NULL;
+    }
+    
+    // ✅ ELSE_IF keyword - treat as else clause with nested if
+    if (tok->type == TOKEN_ELSE_IF) {
+        token_free(tok);  // Consume else_if token
+        
+        // Create a synthetic TOKEN_IF to reuse if parsing logic
+        Token* synthetic_if = malloc(sizeof(Token));
+        synthetic_if->type = TOKEN_IF;
+        synthetic_if->value = strdup("if");
+        synthetic_if->line = parser->lexer->line;
+        synthetic_if->has_leading_whitespace = 0;
+        
+        // Parse as new if statement using existing if logic
+        IfStatement* if_data = control_flow_parse_if(parser->lexer, synthetic_if);
+        token_free(synthetic_if);
+        
+        if (if_data) {
+            stmt = statement_create(STMT_IF);
+            stmt->data = if_data;
+            stmt->next = NULL;
+            
+            // Parse then body recursively
+            Statement* body_head = NULL;
+            Statement* body_tail = NULL;
+            
+            while (1) {
+                Statement* body_stmt = statement_parse(parser);
+                if (!body_stmt) {
+                    break;
+                }
+                
+                if (!body_head) {
+                    body_head = body_stmt;
+                    body_tail = body_stmt;
+                } else {
+                    body_tail->next = body_stmt;
+                    body_tail = body_stmt;
+                }
+            }
+            
+            if_data->then_body = body_head;
+            
+            // Check for chained else/else_if after this else_if's end_if
+            Token* check_tok = parser->current_token;
+            if (check_tok && check_tok->type == TOKEN_ELSE) {
+                parser->current_token = NULL;
+                token_free(check_tok);
+                if_data->has_else = 1;
+                
+                // Parse else body recursively
+                Statement* else_head = NULL;
+                Statement* else_tail = NULL;
+                
+                while (1) {
+                    Statement* body_stmt = statement_parse(parser);
+                    if (!body_stmt) {
+                        break;
+                    }
+                    
+                    if (!else_head) {
+                        else_head = body_stmt;
+                        else_tail = body_stmt;
+                    } else {
+                        else_tail->next = body_stmt;
+                        else_tail = body_stmt;
+                    }
+                }
+                
+                if_data->else_body = else_head;
+            }
+        }
+        
+        // Signal parent that this was an else_if by putting synthetic ELSE in current_token
+        Token* synthetic_else = malloc(sizeof(Token));
+        synthetic_else->type = TOKEN_ELSE;
+        synthetic_else->value = strdup("else");
+        synthetic_else->line = parser->lexer->line;
+        synthetic_else->has_leading_whitespace = 0;
+        parser->current_token = synthetic_else;
+        
+        return stmt;
     }
     
     // ✅ YZ_35: IMPORT statement - use import module
@@ -397,6 +475,15 @@ Statement* statement_parse(Parser* parser) {
         token_free(tok);
         
         if (decl) {
+            // ✅ RF_YZ_3: Consume optional trailing semicolon
+            Token* maybe_semicolon = lexer_next_token(parser->lexer);
+            if (maybe_semicolon && maybe_semicolon->type == TOKEN_SEMICOLON) {
+                token_free(maybe_semicolon);  // Consume semicolon
+            } else if (maybe_semicolon) {
+                // Not a semicolon - put it back for next statement
+                lexer_unget_token(parser->lexer, maybe_semicolon);
+            }
+            
             stmt = statement_create(STMT_VARIABLE_DECL);
             stmt->data = decl;
             stmt->next = NULL;

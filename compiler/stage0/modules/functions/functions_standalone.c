@@ -14,6 +14,7 @@
 #include "../import/import_parser.h"   // YZ_35: Import parser
 #include "../import/import_cache.h"    // YZ_42: Module caching
 #include "../import/import_cache_persist.h"  // YZ_43: Persistent cache
+#include "../../normalize/normalize.h"  // ⭐ RF_YZ_1: Normalize layer
 #include "functions.h"
 #include "functions_parser.h"
 #include "functions_codegen.h"
@@ -91,6 +92,7 @@ static int skip_to_sync_point(Lexer* lexer) {
             return 0;  // No more input
         }
         
+        // ⭐ RF_YZ_3: PMPL block terminators (single tokens)
         // Track function nesting
         if (type == TOKEN_FUNCTION) {
             if (depth == 0) {
@@ -99,19 +101,12 @@ static int skip_to_sync_point(Lexer* lexer) {
                 return 1;
             }
             depth++;
-        } else if (type == TOKEN_END) {
-            // Peek next token to see if it's "function"
-            Token* next = lexer_next_token(lexer);
-            if (next && next->type == TOKEN_FUNCTION) {
-                token_free(next);
-                if (depth > 0) depth--;
-                if (depth == 0) {
-                    // We've finished a function block, next should be clean
-                    return 1;
-                }
-            } else if (next) {
-                // Not "end function", just some other "end"
-                token_free(next);
+        } else if (type == TOKEN_END_FUNCTION) {
+            // End of function block (single token!)
+            if (depth > 0) depth--;
+            if (depth == 0) {
+                // We've finished a function block, next should be clean
+                return 1;
             }
         }
     }
@@ -181,6 +176,12 @@ int main(int argc, char** argv) {
         return 1;
     }
     
+    // ⭐ RF_YZ_1: NORMALIZE LAYER - Transform user syntax to PMPL
+    // This converts "end if" -> "end_if", "else if" -> "else_if", etc.
+    char* normalized_source = normalize_to_pmpl(source);
+    free(source);  // Free original
+    source = normalized_source;  // Use normalized version
+    
     // Phase 6: Set source code for enhanced error messages
     error_set_source(source, input_file);
     
@@ -205,11 +206,39 @@ int main(int argc, char** argv) {
             break;
         }
         
+        // DEBUG: Print token types (disabled)
+        // printf("   Token: type=%d, value=%s, prev_type=%d\n", 
+        //        tok->type, tok->value ? tok->value : "(null)", 
+        //        prev_tok ? prev_tok->type : -1);
+        
+        // ⭐ RF_YZ_3: PMPL block terminators (single tokens, no pattern matching!)
+        if (tok->type == TOKEN_END_FUNCTION) {
+            // End of function block
+            token_free(tok);
+            if (prev_tok) token_free(prev_tok);
+            prev_tok = NULL;
+            continue;
+        }
+        
+        // Other block terminators (not function-specific)
+        if (tok->type == TOKEN_END_IF || 
+            tok->type == TOKEN_END_WHILE ||
+            tok->type == TOKEN_END_FOR ||
+            tok->type == TOKEN_END_STRUCT ||
+            tok->type == TOKEN_END_SWITCH ||
+            tok->type == TOKEN_END_MATCH ||
+            tok->type == TOKEN_END_OPERATOR ||
+            tok->type == TOKEN_END_TRY) {
+            // These don't affect function parsing, just skip
+            token_free(tok);
+            if (prev_tok) token_free(prev_tok);
+            prev_tok = NULL;
+            continue;
+        }
+        
         // Look for 'function' keyword
         if (tok->type == TOKEN_FUNCTION) {
-            // YZ_63: Removed 'end function' check - MLP uses only 'end', not 'end function'
-            // Every TOKEN_FUNCTION is a new function declaration
-            
+            // This is a real function declaration (not part of "end function")
             func_count++;
             // Next token should be function name
             Token* name_tok = lexer_next_token(lexer);
@@ -222,6 +251,7 @@ int main(int argc, char** argv) {
             if (name_tok) token_free(name_tok);
         }
         
+        // Update prev_tok for next iteration
         if (prev_tok) token_free(prev_tok);
         prev_tok = tok;
     }

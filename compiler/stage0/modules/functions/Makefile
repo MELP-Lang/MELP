@@ -112,9 +112,6 @@ PARSER_CORE_DIR = ../parser_core
 PARSER_CORE_SOURCES = \
 	$(PARSER_CORE_DIR)/parser_core.c
 
-# Lexer (merkezi)
-LEXER_SOURCES = ../lexer/lexer.c
-
 # Codegen Context (TTO desteği için)
 CODEGEN_CONTEXT_DIR = ../codegen_context
 CODEGEN_CONTEXT_SOURCES = $(CODEGEN_CONTEXT_DIR)/codegen_context.c
@@ -126,6 +123,14 @@ ERROR_SOURCES = $(ERROR_DIR)/error.c
 # LLVM Backend modülü (YZ_58)
 LLVM_BACKEND_DIR = ../llvm_backend
 LLVM_BACKEND_SOURCES = $(LLVM_BACKEND_DIR)/llvm_backend.c
+
+# Lexer modülü
+LEXER_DIR = ../lexer
+LEXER_SOURCES = $(LEXER_DIR)/lexer.c
+
+# ⭐ RF_YZ_1: Normalize modülü (user syntax -> PMPL transformation)
+NORMALIZE_DIR = ../../normalize
+NORMALIZE_SOURCES = $(NORMALIZE_DIR)/normalize.c
 
 # Tüm kaynak dosyalar
 SOURCES = \
@@ -146,6 +151,7 @@ SOURCES = \
 	$(CODEGEN_CONTEXT_SOURCES) \
 	$(ERROR_SOURCES) \
 	$(LLVM_BACKEND_SOURCES) \
+	$(NORMALIZE_SOURCES) \
 	$(LEXER_SOURCES)
 
 # Object dosyaları

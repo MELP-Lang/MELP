@@ -1,0 +1,3 @@
+function main() returns numeric
+    numeric x = 5;
+end_function
