@@ -7,82 +7,67 @@
 
 ---
 
-## ⚠️ CRITICAL: MELP Pipeline & Current Syntax Status
+## ⚠️ CRITICAL: MELP Syntax - Current Implementation
 
 **MELP = Multi Language Programming (Çok Dilli Çok Sözdizimli)**
 
-### 🔄 3-Stage Pipeline (Theoretical):
+### 🎯 **CURRENT SYNTAX (Stage 0 Compiler):**
 
-```
-Stage 1: Syntax Normalization
-  Kullanıcı Kodu (C-style {}, Python-style :, vb.)
-       ↓
-  [syntax.json ile normalize]
-       ↓
-  MLP Base Syntax (end if, end function, vb.)
-
-Stage 2: Language Translation  
-  MLP Base Syntax + Herhangi Dil (TR/RU/AR/vb.)
-       ↓
-  [diller.json ile çeviri]
-       ↓
-  PMPL = Pragmatic MLP (English keywords + MLP syntax)
-
-Stage 3: Compilation (AI BURADAN SONRA ÇALIŞIR ⚠️)
-  PMPL Source Code
-       ↓
-  [Lexer] → "end if" (2 kelime) → END_IF (1 token)
-       ↓
-  [Parser] → AST
-       ↓
-  [Codegen] → Assembly
-```
-
-### 🎯 **CURRENT IMPLEMENTATION STATUS:**
-
-**⚠️ IMPORTANT:** Token birleştirme henüz implement edilmemiş!
-
-**Mevcut Compiler (Stage 0) Kullanılan Syntax:**
-```mlp
--- Comment (OK)
-function main() returns numeric
-    numeric[] arr = [1, 2, 3]
-    numeric result = 0
-    return result
-end                    -- ✅ CURRENT: Sadece 'end' kullanılıyor
-```
-
-**PMPL Hedef Syntax (Gelecek - Token Birleştirme ile):**
-```mlp
--- Comment (OK)
-function main() returns numeric
-    numeric[] arr = [1, 2, 3]
-    numeric result = 0
-    return result
-end function          -- 🎯 TARGET: Lexer bunu END_FUNCTION token'ına çevirecek
-```
-
-### 📌 AI Agents İçin Pratik Kurallar:
-
-**Şu an kod yazarken kullan:**
-- ✅ `end` - Function/if/while/for bloklarını kapat
+**Compiler Behavior:**
+- ✅ `end if`, `end while`, `end for` - Parser seviyesinde pattern matching ile çalışır
+- ✅ `end` (function için) - YZ_63'te `end function` kaldırıldı, sadece `end` yeterli
 - ✅ `--` - Comments
-- ✅ MLP base syntax (no braces)
 - ⚠️ `return 0` bug var - variable kullan
 
-**Gelecekte (token birleştirme sonrası):**
-- 🎯 `end function`, `end if`, `end while` - 2 kelime
-- 🎯 Lexer bunları tek token'a çevirecek
-
-**Lexer Token Listesi (Mevcut):**
+**Working Example:**
+```mlp
+-- Comment
+function main() returns numeric
+    numeric x = 10
+    
+    if x > 5 then
+        print(x)
+    end if           -- ✅ Parser: TOKEN_END + TOKEN_IF birlikte kontrol edilir
+    
+    while x > 0
+        x = x - 1
+    end while        -- ✅ Parser: TOKEN_END + TOKEN_WHILE
+    
+    for i = 0 to 10
+        print(i)
+    end for          -- ✅ Parser: TOKEN_END + TOKEN_FOR
+    
+    return x
+end                  -- ✅ Function için sadece 'end' (YZ_63 decision)
 ```
-TOKEN_END       -- Tek token, tüm bloklar için
-TOKEN_FUNCTION
-TOKEN_IF
-TOKEN_WHILE
-```
 
-**Reference:** `temp/kurallar_kitabı.md` - "Lexer Token Birleştirme" bölümü (future plan)
+### 🔧 **Implementation Details:**
+
+**Lexer Tokens:**
+- `TOKEN_END` - Tek bir token
+- `TOKEN_IF`, `TOKEN_WHILE`, `TOKEN_FOR`, `TOKEN_FUNCTION` - Ayrı tokenlar
+
+**Parser Behavior:**
+- `TOKEN_END` görünce sonraki token'a bakar
+- `TOKEN_IF` / `TOKEN_WHILE` / `TOKEN_FOR` ise → birlikte yorumlar
+- Function için: Sadece `TOKEN_END` yeterli (YZ_63 commit)
+
+**Why no TOKEN_END_FUNCTION?**
+- YZ_63 session'ında kasıtlı olarak kaldırıldı
+- Comment: "MLP uses only 'end', not 'end function'"
+- Basitleştirme kararı
+
+### 📚 **Future PMPL Vision (kurallar_kitabı.md):**
+
+Teorik mimari: Lexer seviyesinde token birleştirme
+- "end if" (2 word) → END_IF (1 token)
+- "end function" (2 word) → END_FUNCTION (1 token)
+
+**Henüz implement edilmedi!** Şu an parser manuel pattern matching kullanıyor.
+
+**Reference:** 
+- `compiler/stage0/modules/statement/statement_parser.c` line 55-65 (end if handling)
+- `compiler/stage0/modules/functions/functions_standalone.c` line 210 (YZ_63 comment)
 
 ---
 
