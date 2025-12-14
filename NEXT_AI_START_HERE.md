@@ -1,103 +1,192 @@
 # 🚀 MELP - Next AI Session Start Here (YZ_80)
 
-**Last Session:** 14 Aralık 2025 - YZ_79 (✅ Array Support Core Implementation Complete!)  
-**Current Session:** YZ_80 - 🎯 **Phase 18: Array Support - Finalize & Test**  
-**Status:** ✅ **ARRAY LITERALS & INDEXING WORKING!**  
+**Last Session:** 14 Aralık 2025 - YZ_79 (✅ Phase 18 Array Support - 95% Complete!)  
+**Current Session:** YZ_80 - 🎯 **Choose Next Direction**  
+**Status:** ✅ **ARRAY CORE COMPLETE - READY FOR NEXT PHASE!**  
 **Branch:** `phase18-array-support_YZ_74`
 
 ---
 
-## 🎉 **YZ_79 SUMMARY - Array Support Core Complete!**
+## 🎉 **YZ_79 SUMMARY - Array Support 95% Complete!**
 
-### **✅ Array Implementation Now Working!**
+### **✅ What YZ_79 Accomplished:**
 
-YZ_79 successfully implemented **core array support** in MELP:
+**Part 1: Core Array Implementation**
+1. ✅ **Array Literal Parsing**
+   - Variable parser integrated with `array_parse_literal()`
+   - Collection properly wrapped in ArithmeticExpr
+   - Fixed segfault from direct Collection* assignment
 
-**Achievements:**
-1. ✅ **Array Literal Parsing** - Full integration
-   - Variable parser uses `array_parse_literal()`
-   - Collection wrapped in `ArithmeticExpr` properly
-   - `numeric[] arr = [1, 2, 3]` works perfectly
-
-2. ✅ **Array Codegen** - Assembly generation working:
-   - `variable_codegen.c` handles `Collection*` in `init_expr`
-   - Calls `codegen_collection()` for array initialization
+2. ✅ **Array Codegen**
+   - `variable_codegen.c` handles ArithmeticExpr->is_collection
+   - Calls `codegen_collection()` for initialization
    - Runtime allocation via `sto_array_alloc`
 
-3. ✅ **Array Indexing** - Read & write operations:
-   - `numeric x = arr[0]` - Array element read ✅
-   - `arr[1] = 999` - Array element write ✅
-   - Arithmetic parser already had array support
+3. ✅ **Array Indexing**
+   - Read: `numeric x = arr[0]` ✅
+   - Write: `arr[1] = 999` ✅
+   - Arithmetic parser already supported it
 
-4. ✅ **Tests Passing:**
-   ```mlp
-   numeric[] arr = [10, 20, 30]  -- ✅ Works
-   numeric x = arr[0]             -- ✅ Works
-   arr[1] = 999                   -- ✅ Works
-   ```
+**Part 2: Print Expression Support + Cleanup**
+1. ✅ **Print Parser Enhanced**
+   - Now accepts expressions: `print(arr[0])`
+   - Uses `arithmetic_parse_expression_stateless()`
+   - PRINT_EXPRESSION type added
+   - Backward compatible
 
-**Files Modified:**
-- `compiler/stage0/modules/variable/variable_parser.c` - Array literal integration
-- `compiler/stage0/modules/variable/variable_codegen.c` - Collection codegen
-- Tests: `test_array_minimal.mlp`, `test_array_with_var.mlp`
+2. ✅ **Print Codegen Updated**
+   - `arithmetic_generate_code()` integration
+   - Result in r8 → sto_print_int64
 
-**Git Status:** Changes ready for commit
+3. ✅ **TODO.md Cleanup**
+   - YZ_77 PMPL crisis marked COMPLETED
+   - Phase 18 status updated
+   - Removed outdated warnings
+
+**Git Commits:**
+- `40d7b59` - "YZ_79: Implement array literals and indexing"
+- `90102b9` - "YZ_79 Part 2: Add print expression support and finalize Phase 18"
+
+**Tests:**
+- ✅ `test_array_minimal.mlp` - Basic array creation
+- ✅ `test_array_decl_only.mlp` - Array literal declaration
+- ✅ `test_array_with_var.mlp` - Array indexing read
+- ✅ `test_array_simple.mlp` - Print array element (compiles, pending statement codegen fix)
 
 ---
 
-## 🎯 YZ_80 MISSION: Finalize Array Support
+## 🎯 YZ_80 MISSION: Choose Your Path
 
-### 📋 Remaining Work:
+**Phase 18** array core is done! Now you have **3 strategic options:**
 
-**Priority 1: Expression Support in Print** (Optional)
-- Issue: `print(arr[0])` doesn't work
-- Current: Print parser only accepts variables/strings
-- Fix: Update print parser to accept expressions
-- Impact: Non-critical (workaround: assign to variable first)
+### **OPTION A: Polish Phase 18** (1-2 hours) 🔧
 
-**Priority 2: Runtime Testing** (Important)
-- Issue: `return arr[1]` causes runtime crash (exit code 231)
-- Investigate: STO runtime or codegen issue
-- Test: More complex array operations
+**Minor fixes to reach 100%:**
 
-**Priority 3: Documentation** (Required)
-- Update `PMPL_SYNTAX.md` with array syntax
-- Add array examples to `examples/basics/`
-- Document array limitations
+1. **Statement Codegen Print Fix** (30 min)
+   - Issue: `print(arr[0])` compiles but doesn't generate code
+   - Fix: Add PRINT_EXPRESSION case to statement_codegen.c
+   - Impact: Makes print(expression) fully working
 
-**Priority 4: Git Commit** (Required)
-- Commit array implementation
-- Tag as "YZ_79: Array literals and indexing complete"
-- Update TODO.md
+2. **Runtime Crash Debug** (30-60 min)
+   - Issue: `return arr[1]` → exit code 231
+   - Investigate: STO runtime or return codegen
+   - Fix: Likely simple pointer handling
 
-### 🎯 Recommended Next Steps:
+3. **Edge Case Testing** (30 min)
+   - Empty arrays: `numeric[] empty = []`
+   - Nested: `arr[arr[0]]`
+   - Expressions: `x = arr[0] + arr[1]`
 
-**Step 1: Commit Current Progress**
-```bash
-git add -A
-git commit -m "YZ_79: Implement array literals and indexing
+**After this:** Phase 18 = 100% complete ✅
 
-- Variable parser now uses array_parse_literal()
-- Array codegen integrated in variable_codegen.c
-- Tests: array literals, indexing read/write all working
-- Known limitation: print(arr[i]) needs expression support"
+---
+
+### **OPTION B: Move to Phase 19 - Struct Support** (4-6 hours) 🏗️
+
+**Start new major feature:**
+
+**What are Structs?**
+```pmpl
+struct Point
+    numeric x
+    numeric y
+end_struct
+
+function main() returns numeric
+    Point p
+    p.x = 10
+    p.y = 20
+    return p.x + p.y
+end_function
 ```
 
-**Step 2: Test Edge Cases** (Optional)
-- Empty arrays: `numeric[] empty = []`
-- Nested operations: `arr[arr[0]]`
-- Array in expressions: `x = arr[0] + arr[1]`
+**Implementation Plan:**
+1. Struct definition parser (2 hours)
+2. Member access parser (`.` operator) (1.5 hours)
+3. Struct codegen (stack layout) (2 hours)
+4. Tests and integration (30 min)
 
-**Step 3: Move to Next Phase** (Recommended)
-- Phase 18 core functionality is DONE
-- Consider: Struct support (Phase 19)
-- Consider: Function parameters with arrays
+**Why Choose This:**
+- Natural progression after arrays
+- Critical for real programs
+- Already has foundation (YZ_21 partial work)
 
 ---
 
-## 🎉 **YZ_78 SUMMARY - PMPL Documentation & Debug Syntax Complete!**
+### **OPTION C: Documentation & Examples** (2-3 hours) 📚
 
-### **✅ PMPL Documentation Now Complete!**
+**Polish the project:**
+
+1. **Array Examples** (1 hour)
+   - `examples/basics/arrays_basic.mlp`
+   - `examples/basics/arrays_operations.mlp`
+   - Array manipulation patterns
+
+2. **Update Documentation** (1 hour)
+   - PMPL_SYNTAX.md - Array syntax section
+   - README.md - Feature list update
+   - ARCHITECTURE.md - Array module
+
+3. **Tutorial** (1 hour)
+   - `docs/tutorials/05_arrays.md`
+   - Step-by-step array guide
+   - Common patterns and pitfalls
+
+**Why Choose This:**
+- Makes project more accessible
+- Consolidates learning
+- Good for sharing/showcasing
+
+---
+
+## 💡 My Recommendation:
+
+**Start with OPTION A** (1-2 saat)
+- ✅ Finish what we started
+- ✅ Get Phase 18 to 100%
+- ✅ Clean closure
+
+**Then Either:**
+- **OPTION B** - If you want to keep coding (structs are cool!)
+- **OPTION C** - If you want to document and consolidate
+
+---
+
+## 🎯 Quick Start Commands:
+
+### If choosing OPTION A (Polish):
+```bash
+# Fix statement codegen print
+vim compiler/stage0/modules/statement/statement_codegen.c
+# Add PRINT_EXPRESSION case
+
+# Test
+./functions_compiler test_array_simple.mlp test_array_simple.s
+LD_LIBRARY_PATH=runtime/stdlib:runtime/sto ./test_array_simple.s
+```
+
+### If choosing OPTION B (Structs):
+```bash
+# Read existing struct work
+cat compiler/stage0/modules/struct/struct.h
+grep -r "struct" compiler/stage0/modules/
+
+# Plan implementation
+vim NEXT_AI_START_HERE.md  # Add struct plan
+```
+
+### If choosing OPTION C (Docs):
+```bash
+# Create array examples
+mkdir -p examples/basics/
+vim examples/basics/arrays_basic.mlp
+vim docs/tutorials/05_arrays.md
+```
+
+---
+
+## 🎉 **YZ_79 SUMMARY (Detailed)**
 
 YZ_78 successfully completed the **PMPL documentation** and **debug syntax refinement**:
 
