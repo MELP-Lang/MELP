@@ -138,6 +138,7 @@ static Token* read_identifier(Lexer* lexer) {
     else if (strcmp(value, "end_for") == 0) type = TOKEN_END_FOR;
     else if (strcmp(value, "end_function") == 0) type = TOKEN_END_FUNCTION;
     else if (strcmp(value, "end_struct") == 0) type = TOKEN_END_STRUCT;
+    else if (strcmp(value, "end_enum") == 0) type = TOKEN_END_ENUM;
     else if (strcmp(value, "end_switch") == 0) type = TOKEN_END_SWITCH;
     else if (strcmp(value, "end_match") == 0) type = TOKEN_END_MATCH;
     else if (strcmp(value, "end_operator") == 0) type = TOKEN_END_OPERATOR;
@@ -147,6 +148,7 @@ static Token* read_identifier(Lexer* lexer) {
     else if (strcmp(value, "else_if") == 0) type = TOKEN_ELSE_IF;
     
     // ⭐ PMPL Loop Control (RF_YZ_2)
+    else if (strcmp(value, "continue") == 0) type = TOKEN_CONTINUE;
     else if (strcmp(value, "exit_if") == 0) type = TOKEN_EXIT_IF;
     else if (strcmp(value, "exit_for") == 0) type = TOKEN_EXIT_FOR;
     else if (strcmp(value, "exit_while") == 0) type = TOKEN_EXIT_WHILE;
@@ -183,8 +185,9 @@ static Token* read_identifier(Lexer* lexer) {
     else if (strcmp(value, "returns") == 0) type = TOKEN_RETURNS;
     // Module keywords
     else if (strcmp(value, "import") == 0) type = TOKEN_IMPORT;
-    else if (strcmp(value, "module") == 0) type = TOKEN_MODULE;
     // Struct keywords
+    else if (strcmp(value, "struct") == 0) type = TOKEN_STRUCT;
+    else if (strcmp(value, "enum") == 0) type = TOKEN_ENUM;
     else if (strcmp(value, "struct") == 0) type = TOKEN_STRUCT;
     // Logical keywords (also bitwise for integers - VB.NET style)
     else if (strcasecmp(value, "and") == 0) type = TOKEN_AND;

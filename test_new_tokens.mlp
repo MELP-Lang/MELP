@@ -1,0 +1,64 @@
+-- Test new PMPL tokens: enum, debug keywords, standalone exit/continue
+
+function test_enum()
+    -- Enum will be implemented later, just testing token recognition
+    -- enum Color
+    --     RED
+    --     GREEN
+    --     BLUE
+    -- end_enum
+    
+    print("Enum tokens recognized")
+end_function
+
+function test_debug()
+    numeric x = 10
+    
+    -- Debug keywords (only active with --debug flag)
+    debug_print(x)
+    debug_label @start
+    
+    if x > 5 then
+        debug_pause
+        print("Debug test")
+    end_if
+    
+    debug_goto @start
+end_function
+
+function test_standalone_exit()
+    numeric i = 0
+    
+    while i < 10 do
+        i = i + 1
+        
+        if i == 5 then
+            exit        -- standalone exit (break)
+        end_if
+    end_while
+    
+    print("Exit test done")
+end_function
+
+function test_standalone_continue()
+    numeric i = 0
+    
+    while i < 10 do
+        i = i + 1
+        
+        if i mod 2 == 0 then
+            continue    -- standalone continue
+        end_if
+        
+        print("Odd number")
+    end_while
+end_function
+
+function main() returns numeric
+    test_enum()
+    test_debug()
+    test_standalone_exit()
+    test_standalone_continue()
+    
+    return 0
+end_function

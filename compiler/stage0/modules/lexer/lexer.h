@@ -53,6 +53,7 @@ typedef enum {
     TOKEN_END_FOR,         // end_for
     TOKEN_END_FUNCTION,    // end_function
     TOKEN_END_STRUCT,      // end_struct
+    TOKEN_END_ENUM,        // end_enum
     TOKEN_END_SWITCH,      // end_switch
     TOKEN_END_MATCH,       // end_match
     TOKEN_END_OPERATOR,    // end_operator
@@ -62,6 +63,7 @@ typedef enum {
     TOKEN_ELSE_IF,         // else_if
     
     // ⭐ PMPL Loop Control
+    TOKEN_CONTINUE,        // continue (standalone - current loop)
     TOKEN_EXIT_IF,         // exit_if
     TOKEN_EXIT_FOR,        // exit_for
     TOKEN_EXIT_WHILE,      // exit_while
@@ -84,6 +86,7 @@ typedef enum {
     TOKEN_RETURNS,         // returns (for return type declaration)
     // Struct keywords
     TOKEN_STRUCT,
+    TOKEN_ENUM,
     // Module keywords
     TOKEN_IMPORT,          // import module_name
     TOKEN_MODULE,          // module keyword

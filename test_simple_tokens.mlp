@@ -1,0 +1,45 @@
+-- Test new PMPL tokens: standalone exit/continue recognition
+
+function test_standalone_exit() returns numeric
+    numeric i = 0
+    
+    while i < 10 do
+        i = i + 1
+        
+        if i == 5 then
+            exit        -- standalone exit (break) - TOKEN_EXIT
+        end_if
+    end_while
+    
+    return i
+end_function
+
+function test_standalone_continue() returns numeric
+    numeric count = 0
+    numeric i = 0
+    
+    while i < 10 do
+        i = i + 1
+        
+        if i mod 2 == 0 then
+            continue    -- standalone continue - TOKEN_CONTINUE
+        end_if
+        
+        count = count + 1
+    end_while
+    
+    return count
+end_function
+
+function main() returns numeric
+    numeric exit_result = test_standalone_exit()
+    numeric continue_result = test_standalone_continue()
+    
+    print("Exit result:")
+    print(exit_result)
+    
+    print("Continue result:")
+    print(continue_result)
+    
+    return 0
+end_function

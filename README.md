@@ -807,6 +807,7 @@ end while
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) - Critical rules
 - **Development**: [TODO.md](TODO.md) - Roadmap & phases
 - **AI Handoff**: [NEXT_AI_START_HERE.md](NEXT_AI_START_HERE.md) - Current status
+- **PMPL Syntax**: [PMPL_SYNTAX.md](PMPL_SYNTAX.md) - Internal compiler language (🆕)
 - **Language Docs**: `docs/language/` - Specifications
 - **API Reference**: `docs/api/` - Runtime API
 
