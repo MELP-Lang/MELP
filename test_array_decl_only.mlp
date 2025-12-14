@@ -1,0 +1,5 @@
+-- Test array literal declaration only
+function main() returns numeric
+    numeric[] numbers = [1, 2, 3, 4, 5]
+    return 0
+end_function

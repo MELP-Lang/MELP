@@ -1,0 +1,5 @@
+-- Minimal array test
+function main() returns numeric
+    numeric[] arr = [42]
+    return 0
+end_function

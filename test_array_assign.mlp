@@ -1,0 +1,6 @@
+-- Test array assignment
+function main() returns numeric
+    numeric[] arr = [100, 200, 300]
+    arr[1] = 999
+    return arr[1]
+end_function

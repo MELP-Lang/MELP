@@ -1,5 +1,7 @@
 #include "print_codegen.h"
 #include "print.h"
+#include "../arithmetic/arithmetic.h"          // ✅ For ArithmeticExpr
+#include "../arithmetic/arithmetic_codegen.h"  // ✅ For expression codegen
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
@@ -40,6 +42,22 @@ void codegen_print_statement(FILE* f, PrintStatement* stmt) {
         
         fprintf(f, "\n    ; Print variable: %s\n", var_name);
         fprintf(f, "    mov rdi, [var_%s]  ; Load INT64 value (first argument)\n", var_name);
+        fprintf(f, "    call sto_print_int64\n");
+        
+        string_counter++;
+        return;
+    }
+    
+    // Handle expression printing (including array indexing)
+    if (stmt->type == PRINT_EXPRESSION) {
+        ArithmeticExpr* expr = (ArithmeticExpr*)stmt->value;
+        
+        fprintf(f, "\n    ; Print expression\n");
+        
+        // Generate expression code (result will be in r8 or xmm0)
+        arithmetic_generate_code(f, expr, NULL);
+        
+        fprintf(f, "    mov rdi, %%r8  ; Move result to first argument\n");
         fprintf(f, "    call sto_print_int64\n");
         
         string_counter++;

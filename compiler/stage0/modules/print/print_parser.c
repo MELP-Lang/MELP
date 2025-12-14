@@ -1,4 +1,5 @@
 #include "print_parser.h"
+#include "../arithmetic/arithmetic_parser.h"  // ✅ For expression parsing
 #include "../lexer/lexer.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,7 +22,7 @@ PrintStatement* parse_print_statement(Lexer* lexer, Token* print_token) {
     }
     token_free(tok);
     
-    // Expect string literal or identifier (variable)
+    // Parse expression using arithmetic parser (supports all expressions including array indexing)
     tok = lexer_next_token(lexer);
     
     PrintStatement* stmt = malloc(sizeof(PrintStatement));
@@ -32,15 +33,48 @@ PrintStatement* parse_print_statement(Lexer* lexer, Token* print_token) {
         stmt->value = strdup(tok->value);
         token_free(tok);
     } else if (tok->type == TOKEN_IDENTIFIER) {
-        // Variable name: print(x)
-        stmt->type = PRINT_VARIABLE;
-        stmt->value = strdup(tok->value);
-        token_free(tok);
+        // Could be variable or expression starting with identifier
+        // Peek ahead to check for operators or indexing
+        Token* next = lexer_next_token(lexer);
+        
+        if (next && (next->type == TOKEN_LBRACKET ||   // arr[i]
+                     next->type == TOKEN_PLUS ||        // x + y
+                     next->type == TOKEN_MINUS ||
+                     next->type == TOKEN_MULTIPLY ||
+                     next->type == TOKEN_DIVIDE)) {
+            // It's an expression - use arithmetic parser
+            lexer_unget_token(lexer, next);
+            
+            ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok);
+            if (!expr) {
+                token_free(tok);
+                free(stmt);
+                return NULL;
+            }
+            
+            stmt->type = PRINT_EXPRESSION;
+            stmt->value = (char*)expr;  // Store ArithmeticExpr* as void*
+            // Don't free tok - arithmetic parser consumed it
+        } else {
+            // Simple variable: print(x)
+            if (next) lexer_unget_token(lexer, next);
+            stmt->type = PRINT_VARIABLE;
+            stmt->value = strdup(tok->value);
+            token_free(tok);
+        }
     } else {
-        fprintf(stderr, "Error: Expected string literal or variable name in print()\n");
-        token_free(tok);
-        free(stmt);
-        return NULL;
+        // Try to parse as general expression (numbers, etc.)
+        ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok);
+        if (!expr) {
+            fprintf(stderr, "Error: Expected expression in print()\n");
+            token_free(tok);
+            free(stmt);
+            return NULL;
+        }
+        
+        stmt->type = PRINT_EXPRESSION;
+        stmt->value = (char*)expr;  // Store ArithmeticExpr* as void*
+        // Don't free tok - arithmetic parser consumed it
     }
     
     // Expect ')'

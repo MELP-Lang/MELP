@@ -1,0 +1,6 @@
+-- Simple array test
+function main() returns numeric
+    numeric[] numbers = [1, 2, 3, 4, 5]
+    print(numbers[0])
+    return 0
+end_function

@@ -1,0 +1,7 @@
+-- Test array with variable access
+function main() returns numeric
+    numeric[] numbers = [10, 20, 30]
+    numeric x = numbers[0]
+    print(x)
+    return 0
+end_function
