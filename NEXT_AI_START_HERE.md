@@ -7,6 +7,54 @@
 
 ---
 
+## ⚠️ CRITICAL: MELP Syntax Rules (PMPL - Pragmatic MLP)
+
+**MELP uses PMPL (Pragmatic MLP) base syntax - NOT C-style!**
+
+This is the intermediate language that the lexer and parser see after syntax normalization.
+
+### Core Rules:
+1. **Function Blocks:**
+   - ✅ `function name() ... end` - Correct
+   - ❌ `function name() { ... }` - WRONG! No braces!
+   - ✅ `end` alone - Correct (NOT `end function`)
+
+2. **Comments:**
+   - ✅ `-- Single line comment` - Correct
+   - ❌ `// Comment` - WRONG! Will cause lexer error
+
+3. **Return Statements:**
+   - ✅ `return variable_name` - Correct
+   - ⚠️ `return 0` - Bug! Parsed as string literal "0"
+   - **Workaround:** Use variable: `numeric result = 0; return result`
+
+4. **Code Structure:**
+   - Function body starts immediately after parameter list
+   - No braces needed for blocks
+   - `end` closes all block types
+
+### Example (Correct PMPL Syntax):
+```mlp
+-- This is a comment
+function main() returns numeric
+    numeric[] arr = [1, 2, 3]
+    numeric result = 0
+    return result
+end
+```
+
+### Why This Matters:
+MELP = Multi Language Programming. Users can write in any syntax (C-style, Python-style, custom), but:
+```
+User Code → diller.json + syntax.json → Normalize → PMPL (English + Pragmatic syntax) → Lexer → Parser
+```
+
+**AI agents work AFTER normalization**, so you only see PMPL syntax!
+
+**Reference:** See `kurallar_kitabı.md` section "MLP Mimarisi" for full pipeline details.
+
+---
+
 ## ✅ YZ_74 Summary - Array Literal Support WORKING! 🎉
 
 **Achievement:** Phase 18.1 - Array Literals Fully Functional ✅
