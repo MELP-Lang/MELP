@@ -7,11 +7,11 @@
 
 ---
 
-## ⚠️ CRITICAL: MELP Pipeline & PMPL (Pragmatic MLP)
+## ⚠️ CRITICAL: MELP Pipeline & Current Syntax Status
 
 **MELP = Multi Language Programming (Çok Dilli Çok Sözdizimli)**
 
-### 🔄 3-Stage Pipeline:
+### 🔄 3-Stage Pipeline (Theoretical):
 
 ```
 Stage 1: Syntax Normalization
@@ -38,41 +38,51 @@ Stage 3: Compilation (AI BURADAN SONRA ÇALIŞIR ⚠️)
   [Codegen] → Assembly
 ```
 
-### 🎯 AI Agents İçin Kritik Bilgi:
+### 🎯 **CURRENT IMPLEMENTATION STATUS:**
 
-**Siz Stage 3'tesiniz!** Gördüğünüz kod zaten PMPL formatında (English + MLP base syntax).
+**⚠️ IMPORTANT:** Token birleştirme henüz implement edilmemiş!
 
-**PMPL Özellikleri:**
-- MLP base syntax kullanır: `end if`, `end function`, `end while` (2 kelime)
-- Lexer bunları tek token'a birleştirir: `END_IF`, `END_FUNCTION`, `END_WHILE`
-- C-style braces yok: `{` `}` kullanılmaz
-- MLP-style comments: `--` kullanılır (NOT `//`)
-
-### Example (PMPL Format - AI'nin gördüğü):
+**Mevcut Compiler (Stage 0) Kullanılan Syntax:**
 ```mlp
--- This is a comment (MLP style)
+-- Comment (OK)
 function main() returns numeric
     numeric[] arr = [1, 2, 3]
     numeric result = 0
     return result
-end function
+end                    -- ✅ CURRENT: Sadece 'end' kullanılıyor
 ```
 
-**Lexer çıktısı:**
+**PMPL Hedef Syntax (Gelecek - Token Birleştirme ile):**
+```mlp
+-- Comment (OK)
+function main() returns numeric
+    numeric[] arr = [1, 2, 3]
+    numeric result = 0
+    return result
+end function          -- 🎯 TARGET: Lexer bunu END_FUNCTION token'ına çevirecek
 ```
-TOKEN_FUNCTION, TOKEN_IDENTIFIER(main), TOKEN_LPAREN, TOKEN_RPAREN, 
-TOKEN_RETURNS, TOKEN_NUMERIC, TOKEN_IDENTIFIER(arr), TOKEN_LBRACKET, 
-..., TOKEN_END_FUNCTION
+
+### 📌 AI Agents İçin Pratik Kurallar:
+
+**Şu an kod yazarken kullan:**
+- ✅ `end` - Function/if/while/for bloklarını kapat
+- ✅ `--` - Comments
+- ✅ MLP base syntax (no braces)
+- ⚠️ `return 0` bug var - variable kullan
+
+**Gelecekte (token birleştirme sonrası):**
+- 🎯 `end function`, `end if`, `end while` - 2 kelime
+- 🎯 Lexer bunları tek token'a çevirecek
+
+**Lexer Token Listesi (Mevcut):**
+```
+TOKEN_END       -- Tek token, tüm bloklar için
+TOKEN_FUNCTION
+TOKEN_IF
+TOKEN_WHILE
 ```
 
-### 📌 Önemli Notlar:
-
-1. **"end if" → END_IF:** Lexer 2 kelimeyi 1 token'a birleştirir (Token Birleştirme)
-2. **Kullanıcı syntax'ını görmezsiniz:** Kullanıcı C-style yazsa bile siz MLP base syntax görürsünüz
-3. **PMPL değişebilir:** Dil tasarımı için PMPL'yi değiştirebilirsiniz (kullanıcı onayı ile)
-4. **Runtime C'de kalır:** Sadece compiler MELP'te yazılacak
-
-**Detay:** `temp/kurallar_kitabı.md` - "MLP Mimarisi" ve "Lexer Token Birleştirme" bölümleri
+**Reference:** `temp/kurallar_kitabı.md` - "Lexer Token Birleştirme" bölümü (future plan)
 
 ---
 
