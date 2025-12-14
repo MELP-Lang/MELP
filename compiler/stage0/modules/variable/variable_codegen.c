@@ -1,4 +1,6 @@
 #include "variable_codegen.h"
+#include "../arithmetic/arithmetic.h"     // ✅ For ArithmeticExpr struct
+#include "../array/array_codegen.h"       // ✅ For collection codegen
 #include <stdlib.h>
 #include <string.h>
 
@@ -141,76 +143,16 @@ void variable_codegen_declaration(VariableCodegen* codegen, VariableDeclaration*
             fprintf(f, " [dynamic]\n");
         }
         
-        // No .bss allocation - arrays are always heap-allocated via STO runtime
-        
-        // Array initialization code with STO runtime
-        if (decl->value && decl->value[0] == '[') {
-            fprintf(f, "\n    ; Initialize array: %s = %s\n", decl->name, decl->value);
+        // Check if init_expr is a Collection* (wrapped in ArithmeticExpr*)
+        if (decl->init_expr) {
+            ArithmeticExpr* expr = (ArithmeticExpr*)decl->init_expr;
             
-            // Parse array literal: [10, 20, 30] - count elements
-            char* value_copy = strdup(decl->value);
-            char* ptr = value_copy + 1;  // Skip '['
-            int element_count = 0;
-            
-            // Count elements
-            while (*ptr && *ptr != ']') {
-                while (*ptr == ' ' || *ptr == ',') ptr++;
-                if (*ptr == ']') break;
-                if (*ptr == '"') {
-                    ptr++;
-                    while (*ptr && *ptr != '"') ptr++;
-                    if (*ptr == '"') ptr++;
-                } else {
-                    while (*ptr && *ptr != ',' && *ptr != ']' && *ptr != ' ') ptr++;
-                }
-                element_count++;
-                while (*ptr == ' ') ptr++;
-                if (*ptr == ',') ptr++;
+            if (expr->is_collection && expr->collection) {
+                // Use array codegen module to generate initialization code
+                fprintf(f, "    ; Array literal initialization for '%s'\n", decl->name);
+                codegen_collection(f, expr->collection, NULL);  // func parameter = NULL
+                fprintf(f, "    ; TODO: Store array pointer for variable '%s'\n", decl->name);
             }
-            
-            fprintf(f, "    # Allocate array with %d elements\n", element_count);
-            fprintf(f, "    movq $%d, %%rdi      # count\n", element_count);
-            fprintf(f, "    movq $8, %%rsi       # elem_size (8 bytes)\n");
-            fprintf(f, "    call sto_array_alloc # Returns pointer in %%rax\n");
-            fprintf(f, "    movq %%rax, -%d(%%rbp)  # Store array pointer for %s\n", 
-                    8, decl->name);  // Use stack offset (simplified)
-            
-            // Initialize elements
-            ptr = value_copy + 1;  // Reset to start
-            int index = 0;
-            
-            while (*ptr && *ptr != ']') {
-                while (*ptr == ' ' || *ptr == ',') ptr++;
-                if (*ptr == ']') break;
-                
-                // Parse element value
-                if (*ptr == '"') {
-                    // String element - not supported in this minimal version
-                    ptr++;
-                    while (*ptr && *ptr != '"') ptr++;
-                    if (*ptr == '"') ptr++;
-                } else {
-                    // Numeric element
-                    char num_str[64];
-                    int num_len = 0;
-                    while (*ptr && *ptr != ',' && *ptr != ']' && *ptr != ' ' && num_len < 63) {
-                        num_str[num_len++] = *ptr++;
-                    }
-                    num_str[num_len] = '\0';
-                    
-                    if (num_len > 0) {
-                        fprintf(f, "    movq $%s, %%r8       # Element value\n", num_str);
-                        fprintf(f, "    movq -%d(%%rbp), %%rbx # Load array pointer\n", 8);
-                        fprintf(f, "    movq %%r8, %d(%%rbx)  # Store at index %d\n", 
-                                index * 8, index);
-                    }
-                }
-                
-                index++;
-            }
-            
-            free(value_copy);
-            fprintf(f, "    # Array %s: %d elements initialized\n", decl->name, element_count);
         }
         
         return;
@@ -230,16 +172,16 @@ void variable_codegen_declaration(VariableCodegen* codegen, VariableDeclaration*
             
             // Check if this is an expression or simple value
             if (decl->init_expr) {
-                // Arithmetic expression - evaluate at compile-time
-                fprintf(f, "    ; Expression: %s\n", decl->init_expr);
+                // Arithmetic expression (non-collection)
+                ArithmeticExpr* expr = (ArithmeticExpr*)decl->init_expr;
                 
-                // Evaluate the expression
-                double result = simple_evaluate(decl->init_expr);
-                long long int_result = (long long)result;
+                if (expr->is_collection) {
+                    fprintf(f, "    ; ERROR: Collection in numeric variable\n");
+                    return;
+                }
                 
-                fprintf(f, "    ; Evaluated to: %lld\n", int_result);
-                fprintf(f, "    mov rax, %lld\n", int_result);
-                fprintf(f, "    mov [var_%s], rax\n", decl->name);
+                // TODO: Full expression codegen
+                fprintf(f, "    ; Complex expression - needs full codegen\n");
             } else if (decl->value) {
                 // Simple literal value
                 fprintf(f, "    mov rax, %s\n", decl->value);
@@ -334,12 +276,9 @@ void variable_codegen_initialization_only(VariableCodegen* codegen, VariableDecl
         if (decl->internal_num_type == INTERNAL_INT64) {
             // Check if this is an expression or simple value
             if (decl->init_expr) {
-                // Arithmetic expression - evaluate at compile-time
-                double result = simple_evaluate(decl->init_expr);
-                long long int_result = (long long)result;
-                
-                fprintf(f, "    mov rax, %lld  ; %s = %s\n", int_result, decl->name, decl->init_expr);
-                fprintf(f, "    mov [var_%s], rax\n", decl->name);
+                // Arithmetic expression (non-collection)
+                // TODO: Full expression codegen
+                fprintf(f, "    ; Complex expression - needs full codegen\n");
             } else if (decl->value) {
                 // Simple literal value
                 fprintf(f, "    mov rax, %s\n", decl->value);

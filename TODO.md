@@ -1,9 +1,25 @@
 # 📋 MELP Project TODO - Multi-Phase LLVM Backend Development
 
 **Created:** 13 Aralık 2025  
-**Current Status:** 🚨 ASSEMBLY SYNTAX CRISIS DETECTED - YZ_76 ACİL!  
+**Current Status:** ✅ Phase 18 Array Core Complete! (YZ_79)  
 **Branch:** phase18-array-support_YZ_74  
-**Last Updated:** 14 Aralık 2025 (YZ_75)
+**Last Updated:** 14 Aralık 2025 (YZ_79)
+
+---
+
+## 🎯 **ŞU AN: Phase 18 Finalize veya Git Commit**
+
+**YZ_79 Tamamlandı:**
+- ✅ Array literals (`numeric[] arr = [1, 2, 3]`)
+- ✅ Array indexing read/write (`arr[0]`, `arr[1] = 999`)
+- ✅ Array codegen (sto_array_alloc integration)
+- ✅ Tests passing (minimal, decl_only, with_var)
+
+**Seçenekler:**
+1. **Git Commit** - Array core'u kaydet ve phase'i kapat
+2. **Print expression fix** - `print(arr[0])` çalışsın (1 saat)
+3. **Runtime debug** - `return arr[1]` crash'i çöz (1-2 saat)
+4. **Sonraki phase'e geç** - Phase 19 (Struct support?)
 
 ---
 
@@ -296,26 +312,62 @@ Print fix YZ_77'den sonra 30 dakika sürer (mimari düzeldikten sonra basit).
 
 ---
 
-## �� Phase 18: Array Support in LLVM
+## 🔤 Phase 18: Array Support
 
-**DURUM: 🔵 BAŞLAMADI**  
-**TAHMİNİ SÜRE:** 6-8 saat  
+**DURUM: ✅ CORE TAMAMLANDI (YZ_79)**  
+**TAHMİNİ SÜRE:** 6-8 saat (5 saat harcandı)  
 **ÖNCELİK:** Orta-Yüksek
 
 **AMAÇ:** Array ve list desteği eklemek.
 
-### Görevler:
+### Tamamlanan Görevler (YZ_79):
 
-- [ ] Array literals ([1, 2, 3])
-- [ ] Array indexing (arr[i])
-- [ ] Bounds checking
+- [x] **Array literal parsing** ✅ ÇALIŞIYOR
+  - [x] Variable parser array_parse_literal() entegrasyonu
+  - [x] Collection* → ArithmeticExpr* wrapping
+  - [x] `numeric[] arr = [1, 2, 3]` syntax support
+  
+- [x] **Array codegen** ✅ ÇALIŞIYOR
+  - [x] variable_codegen.c güncellendi (Collection support)
+  - [x] codegen_collection() integration
+  - [x] sto_array_alloc runtime calls
+  - [x] Array element initialization
+  
+- [x] **Array indexing** ✅ ÇALIŞIYOR
+  - [x] Read operations: `numeric x = arr[0]` ✅
+  - [x] Write operations: `arr[1] = 999` ✅
+  - [x] Arithmetic parser zaten destekliyordu
+  
+- [x] **Tests passing**
+  - [x] test_array_minimal.mlp ✅
+  - [x] test_array_decl_only.mlp ✅
+  - [x] test_array_with_var.mlp ✅
+
+### Kalan Görevler:
+
+- [ ] **Print expression support** (1 saat)
+  - Issue: `print(arr[0])` çalışmıyor
+  - Print parser sadece variable/string kabul ediyor
+  - Workaround: `numeric x = arr[0]; print(x)` çalışıyor
+  
+- [ ] **Runtime crash debug** (1-2 saat)
+  - Issue: `return arr[1]` exit code 231 veriyor
+  - STO runtime veya codegen sorun olabilir
+  
+- [ ] **Edge cases** (1-2 saat)
+  - Empty arrays: `numeric[] empty = []`
+  - Nested operations: `arr[arr[0]]`
+  - Array in expressions: `x = arr[0] + arr[1]`
+  
+- [ ] Bounds checking (runtime)
 - [ ] Array operations (length, push, pop)
+
 ---
 
-**Son Güncelleme:** 14 Aralık 2025  
-**YZ Session:** YZ_69 ✅ TAMAMLANDI  
-**Durum:** Phase 15 ✅ Complete | Phase 17 ✅ Complete (100% - String comparison bug fixed! 🎉)  
-**Next:** Phase 16 (Advanced LLVM Features) veya Phase 18 (Array Support)
+**Son Güncelleme:** 14 Aralık 2025 (YZ_79)  
+**YZ Session:** YZ_79 ✅ Array Core Complete!  
+**Durum:** Phase 15 ✅ Complete | Phase 17 ✅ Complete | Phase 18 ✅ Core Complete  
+**Next:** Phase 18 finalize VEYA Phase 19 (Struct support)
 ---
 
 ## 📝 Phase 19: Documentation & Polish

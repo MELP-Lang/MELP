@@ -2,6 +2,7 @@
 #include "../codegen_context/codegen_context.h"
 #include "../arithmetic/arithmetic_parser.h"  // ✅ For expression parsing
 #include "../arithmetic/arithmetic.h"         // ✅ ArithmeticExpr
+#include "../array/array_parser.h"            // ✅ For array literal parsing
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -185,64 +186,30 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
         return decl;
     } else if (tok->type == TOKEN_LBRACKET) {
         // Array literal: [1, 2, 3]
-        // For now, store the literal string representation
-        // Full parsing happens in array module
-        char array_literal[1024] = "[";
-        int pos = 1;
+        // Use array module's parser to create Collection*
+        Collection* coll = array_parse_literal(lexer, tok);
         
-        token_free(tok);  // consume '['
-        tok = lexer_next_token(lexer);
-        
-        while (tok && 
-               tok->type != TOKEN_RBRACKET &&
-               tok->type != TOKEN_EOF) {
-            
-            // Append current token value
-            if (tok->type == TOKEN_NUMBER ||
-                tok->type == TOKEN_STRING ||
-                tok->type == TOKEN_IDENTIFIER) {
-                int len = strlen(tok->value);
-                if (pos + len + 5 < 1024) {
-                    if (tok->type == TOKEN_STRING) {
-                        array_literal[pos++] = '"';
-                    }
-                    strcpy(array_literal + pos, tok->value);
-                    pos += len;
-                    if (tok->type == TOKEN_STRING) {
-                        array_literal[pos++] = '"';
-                    }
-                }
-            }
-            
+        if (!coll) {
+            fprintf(stderr, "Error: Failed to parse array literal\n");
             token_free(tok);
-            tok = lexer_next_token(lexer);
-            
-            // Check for comma
-            if (tok && tok->type == TOKEN_COMMA) {
-                if (pos + 2 < 1024) {
-                    array_literal[pos++] = ',';
-                    array_literal[pos++] = ' ';
-                }
-                token_free(tok);  // consume ','
-                tok = lexer_next_token(lexer);
-            }
-        }
-        
-        if (tok && tok->type == TOKEN_RBRACKET) {
-            if (pos + 2 < 1024) {
-                array_literal[pos++] = ']';
-                array_literal[pos] = '\0';
-            }
-            token_free(tok);  // consume ']'
-            
-            decl->value = strdup(array_literal);
-            return decl;
-        } else {
-            fprintf(stderr, "Error: Expected ']' in array literal\n");
-            if (tok) token_free(tok);
             variable_declaration_free(decl);
             return NULL;
         }
+        
+        // Wrap Collection* in ArithmeticExpr*
+        ArithmeticExpr* expr = malloc(sizeof(ArithmeticExpr));
+        memset(expr, 0, sizeof(ArithmeticExpr));
+        expr->is_collection = 1;
+        expr->collection = coll;
+        expr->is_literal = 0;
+        
+        // Store as init_expr (void* → ArithmeticExpr*)
+        decl->init_expr = (void*)expr;
+        decl->storage = STORAGE_BSS;  // Runtime initialization
+        decl->sto_analyzed = false;
+        
+        // tok is borrowed by array_parse_literal, so don't free here
+        return decl;
     } else {
         fprintf(stderr, "Error: Expected value after '='\n");
         token_free(tok);
