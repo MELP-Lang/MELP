@@ -7,7 +7,7 @@
 
 ---
 
-## ⚠️ CRITICAL: MELP Syntax - Current Implementation
+## ⚠️ CRITICAL: MELP Syntax - Current Implementation & BUG
 
 **MELP = Multi Language Programming (Çok Dilli Çok Sözdizimli)**
 
@@ -15,11 +15,11 @@
 
 **Compiler Behavior:**
 - ✅ `end if`, `end while`, `end for` - Parser seviyesinde pattern matching ile çalışır
-- ✅ `end` (function için) - YZ_63'te `end function` kaldırıldı, sadece `end` yeterli
+- ⚠️ `end` (function için) - **BUG: Çoklu fonksiyon dosyalarında başarısız!**
 - ✅ `--` - Comments
 - ⚠️ `return 0` bug var - variable kullan
 
-**Working Example:**
+**Working Example (Single Function):**
 ```mlp
 -- Comment
 function main() returns numeric
@@ -38,8 +38,42 @@ function main() returns numeric
     end for          -- ✅ Parser: TOKEN_END + TOKEN_FOR
     
     return x
-end                  -- ✅ Function için sadece 'end' (YZ_63 decision)
+end                  -- ✅ Tek fonksiyon için çalışır
 ```
+
+**BROKEN Example (Multiple Functions):**
+```mlp
+function greet(string msg) returns numeric
+    print(msg)
+    return 0
+end                  -- ❌ Problem: 'end' sonrası yeni 'function' keyword
+
+function main() returns numeric    -- ❌ Parser error: "Expected 'function' keyword"
+    numeric result = greet("Hi")
+    return 0
+end
+```
+
+### 🐛 **YZ_63 BUG - Multi-Function Files:**
+
+**Problem:**
+- First pass: 2 fonksiyon bulur ✅ (greet, main registered)
+- Second pass: Parse başarısız ❌ (line 8: Expected 'function' keyword)
+
+**Root Cause:**
+YZ_63 şu kodu kaldırdı:
+```c
+// Skip 'end function' pattern (prev token was 'end')
+if (prev_tok && prev_tok->type == TOKEN_END) {
+    // This is 'end function', not a new function declaration
+    continue;  // Skip this TOKEN_FUNCTION
+}
+```
+
+**Sonuç:** `end` sonrası gelen `TOKEN_FUNCTION` yeni fonksiyon mu yoksa `end function` pattern'inin parçası mı - ayırt edilemiyor!
+
+**YZ_63 Claim:** "MLP uses only 'end', not 'end function'"  
+**Reality:** Code STILL checks for `end function` in skip_to_end_function() (line 103-110)
 
 ### 🔧 **Implementation Details:**
 
@@ -49,25 +83,45 @@ end                  -- ✅ Function için sadece 'end' (YZ_63 decision)
 
 **Parser Behavior:**
 - `TOKEN_END` görünce sonraki token'a bakar
-- `TOKEN_IF` / `TOKEN_WHILE` / `TOKEN_FOR` ise → birlikte yorumlar
-- Function için: Sadece `TOKEN_END` yeterli (YZ_63 commit)
+- `TOKEN_IF` / `TOKEN_WHILE` / `TOKEN_FOR` ise → birlikte yorumlar ✅
+- `TOKEN_FUNCTION` ise → ??? (YZ_63 broke this) ❌
 
-**Why no TOKEN_END_FUNCTION?**
-- YZ_63 session'ında kasıtlı olarak kaldırıldı
-- Comment: "MLP uses only 'end', not 'end function'"
-- Basitleştirme kararı
+**skip_to_end_function() Still Uses "end function":**
+```c
+// Line 103-110: functions_standalone.c
+else if (type == TOKEN_END) {
+    Token* next = lexer_next_token(lexer);
+    if (next && next->type == TOKEN_FUNCTION) {  // Checks "end function"!
+        // ...
+    }
+}
+```
 
-### 📚 **Future PMPL Vision (kurallar_kitabı.md):**
+### 📊 **Test Results:**
 
-Teorik mimari: Lexer seviyesinde token birleştirme
-- "end if" (2 word) → END_IF (1 token)
-- "end function" (2 word) → END_FUNCTION (1 token)
+| File | Functions | Status |
+|------|-----------|--------|
+| test_array_minimal.mlp | 1 (main) | ✅ Works |
+| test_string_param_var.mlp | 2 (greet, main) | ❌ Error line 8 |
+| Most examples/* | 1 function | ✅ Works |
 
-**Henüz implement edilmedi!** Şu an parser manuel pattern matching kullanıyor.
+### 🎯 **Sonuç: YZ_63 HACK Yaptı!**
+
+**Kanıt:**
+1. Yorumu "MLP uses only 'end'" diye değiştirdi
+2. Ama skip_to_end_function() HALA "end function" arıyor
+3. Multi-function dosyaları KIRILDI
+4. Tek-fonksiyon dosyaları tesadüfen çalışıyor
+
+**Fix Needed:**
+- Seçenek A: `end function` pattern'ini geri getir (DOĞRU)
+- Seçenek B: Parser'ı function depth tracking ile düzelt (COMPLEX)
 
 **Reference:** 
-- `compiler/stage0/modules/statement/statement_parser.c` line 55-65 (end if handling)
-- `compiler/stage0/modules/functions/functions_standalone.c` line 210 (YZ_63 comment)
+- `compiler/stage0/modules/functions/functions_standalone.c` 
+  - Line 103-110: skip_to_end_function() uses "end function"
+  - Line 210: YZ_63 removed check (BROKE multi-function)
+- Test: `examples/basics/test_string_param_var.mlp` (2 functions, FAILS)
 
 ---
 
