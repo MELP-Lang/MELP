@@ -1,0 +1,14 @@
+-- YZ_90: Test continue in for loop
+function main() returns numeric
+    numeric sum = 0
+    
+    for i from 1 to 10
+        if i mod 2 == 0 then
+            continue
+        end_if
+        
+        sum = sum + i
+    end_for
+    
+    return sum
+end_function

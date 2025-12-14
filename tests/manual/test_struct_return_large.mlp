@@ -1,0 +1,38 @@
+// YZ_85: Test large struct return (>64 bytes) - STO: HIDDEN_PTR
+// BigData struct is 80 bytes (10 × numeric = 10 × 8 bytes)
+// Expected: Hidden pointer + memcpy
+
+struct BigData
+    numeric a
+    numeric b
+    numeric c
+    numeric d
+    numeric e
+    numeric f
+    numeric g
+    numeric h
+    numeric i
+    numeric j
+end_struct
+
+function create_big() returns BigData
+    BigData data
+    data.a = 1
+    data.b = 2
+    data.c = 3
+    data.d = 4
+    data.e = 5
+    data.f = 6
+    data.g = 7
+    data.h = 8
+    data.i = 9
+    data.j = 10
+    return data
+end_function
+
+function main() returns numeric
+    BigData result
+    result = create_big()
+    // Sum all fields: 1+2+3+4+5+6+7+8+9+10 = 55
+    return result.a + result.b + result.c + result.d + result.e + result.f + result.g + result.h + result.i + result.j
+end_function

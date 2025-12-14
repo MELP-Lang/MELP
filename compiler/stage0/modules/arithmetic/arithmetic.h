@@ -47,6 +47,14 @@ typedef struct ArithmeticExpr {
     int is_collection;            // 1 if this is a collection literal
     Collection* collection;       // Collection details (if is_collection)
     
+    // ========== YZ_82: Struct Member Access ==========
+    int is_member_access;         // 1 if this is member access (p.x)
+    void* member_access;          // MemberAccess* (if is_member_access)
+    
+    // ========== YZ_86: Struct Method Call ==========
+    int is_method_call;           // 1 if this is method call (p.method())
+    void* method_call;            // MethodCall* (if is_method_call)
+    
     // ========== Phase 2.3: STO Type Propagation ==========
     STOTypeInfo* sto_info;        // STO analysis result (heap allocated)
     bool sto_analyzed;            // Has STO analysis been performed?

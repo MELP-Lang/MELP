@@ -1,0 +1,13 @@
+function main() returns numeric
+    numeric sum = 0
+    
+    for i from 1 to 100
+        sum = sum + i
+        
+        if sum > 10 then
+            exit
+        end_if
+    end_for
+    
+    return sum
+end_function

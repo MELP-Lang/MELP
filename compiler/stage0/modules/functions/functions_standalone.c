@@ -9,11 +9,14 @@
 #include <unistd.h>    // YZ_56: For readlink
 #include <libgen.h>    // YZ_56: For dirname
 #include "../lexer/lexer.h"
+#include "../parser_core/parser_core.h"  // YZ_88: Parser context
 #include "../error/error.h"
 #include "../import/import.h"          // YZ_35: Import statement
 #include "../import/import_parser.h"   // YZ_35: Import parser
 #include "../import/import_cache.h"    // YZ_42: Module caching
 #include "../import/import_cache_persist.h"  // YZ_43: Persistent cache
+#include "../struct/struct.h"          // YZ_81: Struct definitions
+#include "../struct/struct_parser.h"   // YZ_81: Struct parser
 #include "../../normalize/normalize.h"  // ⭐ RF_YZ_1: Normalize layer
 #include "functions.h"
 #include "functions_parser.h"
@@ -236,6 +239,22 @@ int main(int argc, char** argv) {
             continue;
         }
         
+        // YZ_81/YZ_85: Skip struct definitions in first pass (will parse in second pass)
+        if (tok->type == TOKEN_STRUCT) {
+            // Skip entire struct block
+            int depth = 1;
+            token_free(tok);
+            Token* struct_tok;
+            while (depth > 0 && (struct_tok = lexer_next_token(lexer)) != NULL) {
+                if (struct_tok->type == TOKEN_STRUCT) depth++;
+                else if (struct_tok->type == TOKEN_END_STRUCT) depth--;
+                token_free(struct_tok);
+            }
+            if (prev_tok) token_free(prev_tok);
+            prev_tok = NULL;
+            continue;
+        }
+        
         // Look for 'function' keyword
         if (tok->type == TOKEN_FUNCTION) {
             // This is a real function declaration (not part of "end function")
@@ -273,10 +292,13 @@ int main(int argc, char** argv) {
     
     // Parse all functions with ERROR RECOVERY (SECOND PASS)
     // YZ_35: Also handle import statements at top-level
+    // YZ_81: Also handle struct definitions at top-level
     FunctionDeclaration* functions = NULL;
     FunctionDeclaration* last_func = NULL;
     ImportStatement* imports = NULL;    // YZ_35: Store imports
     ImportStatement* last_import = NULL;
+    StructDef* structs = NULL;          // YZ_81: Store struct definitions
+    StructDef* last_struct = NULL;
     
     while (1) {
         // Check if we should stop due to too many errors
@@ -342,7 +364,124 @@ int main(int argc, char** argv) {
             continue;
         }
         
-        // Not an import, put token back for function parser
+        // YZ_81: Handle struct definition
+        if (tok->type == TOKEN_STRUCT) {
+            token_free(tok);  // Consume TOKEN_STRUCT
+            
+            // YZ_88: Create temporary parser for struct parsing (needs Parser context for method bodies)
+            Parser* temp_parser = parser_create(lexer);
+            StructDef* struct_def = parse_struct_definition(temp_parser);
+            parser_free(temp_parser);
+            
+            if (struct_def) {
+                // YZ_82: Register struct definition for instance lookups
+                struct_register_definition(struct_def);
+                
+                // YZ_83: IMPORTANT: Clear struct_def->next before adding to our list
+                // struct_register_definition adds to its own internal list
+                struct_def->next = NULL;
+                
+                // Add to linked list
+                if (!structs) {
+                    structs = struct_def;
+                    last_struct = struct_def;
+                } else {
+                    // Link to previous struct
+                    last_struct->next = struct_def;
+                    last_struct = struct_def;
+                }
+                
+                // Count members
+                int member_count = 0;
+                StructMember* m = struct_def->members;
+                while (m) {
+                    member_count++;
+                    m = m->next;
+                }
+                
+                printf("📋 Struct: %s (%zu bytes, %d member%s)\n", 
+                       struct_def->name, struct_def->total_size, 
+                       member_count, member_count == 1 ? "" : "s");
+                
+                // YZ_86: Convert struct methods to functions
+                StructMethod* method = struct_def->methods;
+                while (method) {
+                    // Create function name: StructName_methodname
+                    char func_name[256];
+                    snprintf(func_name, sizeof(func_name), "%s_%s", 
+                             struct_def->name, method->name);
+                    
+                    // Determine return type
+                    FunctionReturnType ret_type = FUNC_RETURN_VOID;
+                    char* ret_struct_type = NULL;
+                    
+                    if (strcmp(method->return_type, "numeric") == 0) {
+                        ret_type = FUNC_RETURN_NUMERIC;
+                    } else if (strcmp(method->return_type, "string") == 0) {
+                        ret_type = FUNC_RETURN_TEXT;
+                    } else if (strcmp(method->return_type, "boolean") == 0) {
+                        ret_type = FUNC_RETURN_BOOLEAN;
+                    } else if (strcmp(method->return_type, "void") != 0) {
+                        // Assume it's a struct type
+                        ret_type = FUNC_RETURN_STRUCT;
+                        ret_struct_type = strdup(method->return_type);
+                    }
+                    
+                    FunctionDeclaration* method_func = function_create(func_name, ret_type);
+                    if (ret_struct_type) {
+                        method_func->return_struct_type = ret_struct_type;
+                    }
+                    
+                    // Add 'self' as first parameter (pointer to struct)
+                    function_add_struct_param(method_func, "self", struct_def->name);
+                    
+                    // Add remaining parameters
+                    MethodParam* param = method->params;
+                    while (param) {
+                        FunctionParamType param_type = FUNC_PARAM_NUMERIC;
+                        
+                        if (strcmp(param->type, "numeric") == 0) {
+                            param_type = FUNC_PARAM_NUMERIC;
+                        } else if (strcmp(param->type, "string") == 0) {
+                            param_type = FUNC_PARAM_TEXT;
+                        } else if (strcmp(param->type, "boolean") == 0) {
+                            param_type = FUNC_PARAM_BOOLEAN;
+                        } else {
+                            // Assume struct type
+                            param_type = FUNC_PARAM_STRUCT;
+                        }
+                        
+                        if (param_type == FUNC_PARAM_STRUCT) {
+                            function_add_struct_param(method_func, param->name, param->type);
+                        } else {
+                            function_add_param(method_func, param->name, param_type);
+                        }
+                        
+                        param = param->next;
+                    }
+                    
+                    // Set body (copy from method)
+                    method_func->body = method->body;
+                    
+                    // Add to function list
+                    if (!functions) {
+                        functions = method_func;
+                        last_func = method_func;
+                    } else {
+                        last_func->next = method_func;
+                        last_func = method_func;
+                    }
+                    
+                    printf("   📝 Method: %s() -> Function: %s()\n", 
+                           method->name, func_name);
+                    
+                    method = method->next;
+                }
+            }
+            continue;
+        }
+        
+        // Not an import or struct, put token back for function parser
         lexer_unget_token(lexer, tok);
         
         FunctionDeclaration* func = parse_function_declaration(lexer);

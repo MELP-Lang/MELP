@@ -9,6 +9,7 @@
 #include "../variable/variable.h"  // ✅ VariableDeclaration type
 #include "../control_flow/control_flow.h"  // ✅ IfStatement, WhileStatement, ForStatement
 #include "../for_loop/for_loop.h"  // YZ_28: ForLoop type
+#include "../struct/struct.h"      // YZ_84: Struct definitions
 
 // Now we can use real expression codegen AND statement codegen!
 // arithmetic_parse_expression() and arithmetic_generate_code()
@@ -29,6 +30,12 @@ static void expression_generate_code(FILE* output, void* expr, void* context) {
 
 // Generate function prologue
 void function_generate_prologue(FILE* output, FunctionDeclaration* func) {
+    // YZ_82: Reset struct instance tracking for new function
+    statement_reset_stack_offset();
+    
+    // YZ_85: Set initial offset to account for already-allocated local vars
+    statement_set_initial_stack_offset(func->local_var_count * 8);
+    
     fprintf(output, "\n# Function: %s\n", func->name);
     fprintf(output, ".global %s\n", func->name);
     fprintf(output, "%s:\n", func->name);
@@ -37,26 +44,83 @@ void function_generate_prologue(FILE* output, FunctionDeclaration* func) {
     fprintf(output, "    pushq %%rbp\n");
     fprintf(output, "    movq %%rsp, %%rbp\n");
     
+    // YZ_85: STO-based struct return handling
+    int has_struct_return = (func->return_type == FUNC_RETURN_STRUCT);
+    StructReturnMethod return_method = STRUCT_RETURN_HIDDEN_PTR;  // Default
+    int needs_hidden_ptr = 0;
+    
+    if (has_struct_return) {
+        StructDef* return_struct = struct_lookup_definition(func->return_struct_type);
+        if (return_struct) {
+            return_method = struct_get_return_method(return_struct);
+            needs_hidden_ptr = (return_method != STRUCT_RETURN_REGISTER);
+        } else {
+            needs_hidden_ptr = 1;  // Fallback to hidden pointer
+        }
+    }
+    
+    // Calculate stack space (hidden pointer handled by local_var_count)
+    int stack_space = func->local_var_count * 8;
+    
     // Allocate space for local variables (if any)
-    if (func->local_var_count > 0) {
-        int stack_space = func->local_var_count * 8;  // 8 bytes per variable
+    if (stack_space > 0) {
         fprintf(output, "    subq $%d, %%rsp\n", stack_space);
     }
     
-    // Parameters are passed via registers (x86-64 calling convention):
-    // rdi, rsi, rdx, rcx, r8, r9 for first 6 parameters
-    // Additional parameters on stack
+    // YZ_85: Save hidden pointer if needed
+    int hidden_ptr_offset = 0;
+    if (needs_hidden_ptr) {
+        hidden_ptr_offset = -8;
+        fprintf(output, "    # Hidden return pointer at %d(%%rbp)\n", hidden_ptr_offset);
+        fprintf(output, "    movq %%rdi, %d(%%rbp)  # Save hidden return pointer\n", hidden_ptr_offset);
+    }
     
-    // Save register parameters to their stack locations
-    int param_index = 0;
+    // YZ_84/YZ_85: Register struct parameters AFTER reset
+    int param_index = needs_hidden_ptr ? 1 : 0;  // Start from 1 if hidden pointer used
     FunctionParam* param = func->params;
     const char* param_regs[] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
+    
+    while (param) {
+        if (param->name) {
+            // Register struct parameters as instance pointers
+            if (param->type == FUNC_PARAM_STRUCT && param->struct_type_name) {
+                StructDef* struct_def = struct_lookup_definition(param->struct_type_name);
+                if (struct_def) {
+                    int offset = function_get_var_offset(func, param->name);
+                    // Struct parameter is passed as pointer, register as pointer
+                    struct_register_instance_pointer(param->name, struct_def, offset);
+                }
+            }
+        }
+        param = param->next;
+        param_index++;
+    }
+    
+    // Save register parameters to their stack locations
+    param_index = needs_hidden_ptr ? 1 : 0;  // Start from 1 if hidden pointer
+    param = func->params;  // Reset param pointer
     
     while (param && param_index < 6) {
         if (param->name) {
             int offset = function_get_var_offset(func, param->name);
-            fprintf(output, "    # Parameter: %s at %d(%%rbp)\n", param->name, offset);
-            fprintf(output, "    movq %s, %d(%%rbp)\n", param_regs[param_index], offset);
+            fprintf(output, "    # Parameter: %s", param->name);
+            
+            // YZ_84: Handle struct parameters (passed as pointers)
+            if (param->type == FUNC_PARAM_STRUCT && param->struct_type_name) {
+                StructDef* struct_def = struct_lookup_definition(param->struct_type_name);
+                if (struct_def) {
+                    fprintf(output, " (struct %s*) at %d(%%rbp)\n", param->struct_type_name, offset);
+                    // Store the pointer to the struct
+                    fprintf(output, "    movq %s, %d(%%rbp)  # Store struct pointer\n", 
+                            param_regs[param_index], offset);
+                } else {
+                    fprintf(output, " at %d(%%rbp)\n", offset);
+                    fprintf(output, "    movq %s, %d(%%rbp)\n", param_regs[param_index], offset);
+                }
+            } else {
+                fprintf(output, " at %d(%%rbp)\n", offset);
+                fprintf(output, "    movq %s, %d(%%rbp)\n", param_regs[param_index], offset);
+            }
         }
         param = param->next;
         param_index++;
@@ -87,6 +151,15 @@ static void scan_statement_for_variables(FunctionDeclaration* func, Statement* s
             // STO: Register with type flag (1=numeric, 0=string)
             int is_numeric = (decl->type != VAR_STRING) ? 1 : 0;
             function_register_local_var_with_type(func, decl->name, is_numeric);
+        }
+    }
+    
+    // YZ_85: Register struct instances as local variables
+    if (stmt->type == STMT_STRUCT_INSTANCE) {
+        StructInstance* instance = (StructInstance*)stmt->data;
+        if (instance && instance->instance_name) {
+            // Register struct instance as a "variable" for scope checking
+            function_register_local_var_with_type(func, instance->instance_name, 1);
         }
     }
     
@@ -135,12 +208,47 @@ static void scan_statement_for_variables(FunctionDeclaration* func, Statement* s
 void function_generate_declaration(FILE* output, FunctionDeclaration* func) {
     if (!func) return;
     
+    // YZ_85: STO-based return method selection for struct returns
+    if (func->return_type == FUNC_RETURN_STRUCT) {
+        StructDef* return_struct = struct_lookup_definition(func->return_struct_type);
+        if (return_struct) {
+            StructReturnMethod method = struct_get_return_method(return_struct);
+            size_t struct_size = struct_get_size(return_struct);
+            
+            fprintf(output, "\n# STO Analysis: Struct '%s' (size=%zu bytes)\n", 
+                    func->return_struct_type, struct_size);
+            
+            switch (method) {
+                case STRUCT_RETURN_REGISTER:
+                    fprintf(output, "# STO Decision: REGISTER return (≤16 bytes, RAX+RDX)\n");
+                    func->local_var_count = 0;  // No hidden pointer needed
+                    break;
+                    
+                case STRUCT_RETURN_STACK_COPY:
+                    fprintf(output, "# STO Decision: STACK COPY return (17-64 bytes, memcpy)\n");
+                    func->local_var_count = 1;  // Reserve slot for hidden pointer
+                    break;
+                    
+                case STRUCT_RETURN_HIDDEN_PTR:
+                    fprintf(output, "# STO Decision: HIDDEN POINTER return (>64 bytes)\n");
+                    func->local_var_count = 1;  // Reserve slot for hidden pointer
+                    break;
+            }
+        } else {
+            // Fallback: hidden pointer
+            fprintf(output, "# STO Warning: Struct '%s' not found, using hidden pointer\n", 
+                    func->return_struct_type);
+            func->local_var_count = 1;
+        }
+    }
+    
     // ✅ FIRST: Register parameters as local variables
-    // Parameters occupy first N stack slots: -8, -16, -24...
+    // Parameters occupy stack slots after hidden pointer (if any)
     FunctionParam* param = func->params;
     while (param) {
         if (param->name) {
             function_register_local_var(func, param->name);
+            // YZ_84: Struct parameter registration moved to prologue
         }
         param = param->next;
     }
@@ -605,11 +713,26 @@ void function_generate_call(FILE* output, FunctionCall* call) {
     
     for (int i = 0; i < call->arg_count && i < 6; i++) {
         fprintf(output, "    # Argument %d\n", i);
-        // Evaluate argument expression and result will be in %rax
+        // Evaluate argument expression and result will be in %rax (or %r8)
         if (call->arguments && call->arguments[i]) {
-            expression_generate_code(output, call->arguments[i], NULL);  // Arguments don't have local context
-            // Move result from %rax to appropriate argument register
-            fprintf(output, "    movq %%rax, %s\n", arg_regs[i]);
+            ArithmeticExpr* arg_expr = (ArithmeticExpr*)call->arguments[i];
+            
+            // YZ_84: Check if argument is a struct instance (variable reference)
+            // If it's a variable (not literal) and it's a struct, pass its address
+            if (arg_expr && !arg_expr->is_literal && arg_expr->value) {
+                StructInstanceInfo* inst = struct_lookup_instance(arg_expr->value);
+                if (inst && !inst->is_pointer) {
+                    // Pass address of struct value
+                    // stack_offset is positive, we need -(offset) from rbp
+                    fprintf(output, "    leaq -%d(%%rbp), %s  # Pass struct address\n", 
+                            inst->stack_offset, arg_regs[i]);
+                    continue;
+                }
+            }
+            
+            // Regular argument: evaluate and move result
+            expression_generate_code(output, call->arguments[i], NULL);
+            fprintf(output, "    movq %%r8, %s  # Argument %d\n", arg_regs[i], i + 1);
         } else {
             fprintf(output, "    movq $0, %s  # Default: null argument\n", arg_regs[i]);
         }

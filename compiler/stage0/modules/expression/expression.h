@@ -14,7 +14,8 @@ typedef enum {
     EXPR_UNARY,
     EXPR_CALL,
     EXPR_ARRAY_ACCESS,
-    EXPR_STRUCT_ACCESS
+    EXPR_STRUCT_ACCESS,
+    EXPR_METHOD_CALL      // YZ_86: instance.method(args)
 } ExpressionType;
 
 // Expression structure (simplified)
@@ -39,6 +40,12 @@ typedef struct Expression {
             struct Expression** args;
             int arg_count;
         } call;
+        struct {
+            char* instance_name;      // YZ_86: instance calling the method
+            char* method_name;        // YZ_86: method name
+            struct Expression** args; // YZ_86: arguments (excluding self)
+            int arg_count;            // YZ_86: argument count
+        } method_call;
     } data;
     
     // ========== Phase 2: STO Integration ==========

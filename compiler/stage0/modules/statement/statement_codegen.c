@@ -1,6 +1,7 @@
 #include "statement_codegen.h"
 #include "../control_flow/control_flow_codegen.h"  // ✅ While/If codegen
 #include "../for_loop/for_loop_codegen.h"           // ✅ For loop codegen
+#include "../switch/switch_codegen.h"               // ✅ YZ_89: Switch codegen
 #include "../print/print_codegen.h"                 // ✅ Print codegen
 #include "../variable/variable_codegen.h"           // ✅ Variable codegen
 #include "../variable/variable.h"                   // ✅ VariableDeclaration, VariableAssignment
@@ -8,6 +9,7 @@
 #include "../arithmetic/arithmetic.h"               // ✅ ArithmeticExpr
 #include "../functions/functions.h"                 // ✅ ReturnStatement, FunctionDeclaration
 #include "../array/array.h"                         // ✅ YZ_15: IndexAccess, ArrayAssignment
+#include "../struct/struct_codegen.h"               // ✅ YZ_81: Struct codegen
 #include <stdio.h>
 #include <stdlib.h>   // YZ_21: For free()
 #include <string.h>
@@ -16,13 +18,18 @@
 static int string_literal_counter = 0;
 
 // YZ_28: Loop stack for exit support (VB.NET style)
+// YZ_90: Added continue support
 LoopContext loop_stack[MAX_LOOP_DEPTH];
 int loop_stack_top = -1;
 
-void loop_push(int exit_label) {
+// YZ_82: Current stack offset tracker (for struct instances)
+static int current_stack_offset = 0;
+
+void loop_push(int exit_label, int continue_label) {
     if (loop_stack_top < MAX_LOOP_DEPTH - 1) {
         loop_stack_top++;
         loop_stack[loop_stack_top].exit_label = exit_label;
+        loop_stack[loop_stack_top].continue_label = continue_label;
     }
 }
 
@@ -37,6 +44,24 @@ int get_break_label(void) {
         return loop_stack[loop_stack_top].exit_label;
     }
     return -1;  // No loop context
+}
+
+int get_continue_label(void) {
+    if (loop_stack_top >= 0) {
+        return loop_stack[loop_stack_top].continue_label;
+    }
+    return -1;  // No loop context
+}
+
+// YZ_82: Reset stack offset for new function
+void statement_reset_stack_offset(void) {
+    current_stack_offset = 0;
+    struct_clear_instances();  // Clear instance registry
+}
+
+// YZ_85: Set initial stack offset (for functions with hidden return pointer)
+void statement_set_initial_stack_offset(int offset) {
+    current_stack_offset = offset;
 }
 
 // Statement code generation with modular imports
@@ -67,6 +92,15 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
             ForLoop* for_loop = (ForLoop*)stmt->data;
             if (for_loop) {
                 for_loop_generate_code(output, for_loop, func);
+            }
+            break;
+        }
+        
+        case STMT_SWITCH: {
+            // ✅ YZ_89: Use switch module for codegen
+            SwitchStatement* switch_stmt = (SwitchStatement*)stmt->data;
+            if (switch_stmt) {
+                switch_codegen(output, switch_stmt, func);
             }
             break;
         }
@@ -232,8 +266,11 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
             // YZ_25: Check for implicit declaration or undefined variable
             VariableAssignment* assign = (VariableAssignment*)stmt->data;
             if (assign) {
-                // YZ_25: Check if variable exists
-                int var_exists = function_var_exists(func, assign->name);
+                // YZ_85: First check if this is a struct instance (already allocated)
+                StructInstanceInfo* target_inst = struct_lookup_instance(assign->name);
+                
+                // YZ_25: Check if variable exists (skip check for struct instances)
+                int var_exists = target_inst != NULL || function_var_exists(func, assign->name);
                 
                 if (!var_exists && assign->is_implicit_declaration) {
                     // YZ_25: Implicit declaration with ';' - register the variable
@@ -263,18 +300,71 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
                     return;  // Stop codegen for this statement
                 }
                 
-                int offset = function_get_var_offset(func, assign->name);
-                
                 fprintf(output, "    # Assignment: %s = ...\n", assign->name);
                 
                 // Evaluate expression
                 if (assign->value_expr) {
                     ArithmeticExpr* expr = (ArithmeticExpr*)assign->value_expr;
-                    arithmetic_generate_code(output, expr, func);
                     
-                    // Result is in r8, store to variable's stack location
-                    fprintf(output, "    movq %%r8, %d(%%rbp)  # Store to %s\n", 
-                            offset, assign->name);
+                    // YZ_85: Check if this is a struct assignment from function return
+                    // ONLY handle if target is a struct AND expression is a simple function call reference
+                    if (target_inst && expr->func_call && !expr->left && !expr->right) {
+                        // Struct assignment from function call: origin = create_point(25, 30)
+                        fprintf(output, "    # Struct assignment from function call\n");
+                        
+                        FunctionCallExpr* call = expr->func_call;
+                        
+                        // YZ_85: Check struct size to determine if hidden pointer is needed
+                        StructDef* return_struct = struct_lookup_definition(target_inst->definition->name);
+                        StructReturnMethod method = STRUCT_RETURN_HIDDEN_PTR;  // Default
+                        int needs_hidden_ptr = 1;
+                        
+                        if (return_struct) {
+                            method = struct_get_return_method(return_struct);
+                            needs_hidden_ptr = (method != STRUCT_RETURN_REGISTER);
+                        }
+                        
+                        const char* param_regs[] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
+                        int param_start = needs_hidden_ptr ? 1 : 0;
+                        
+                        // If hidden pointer needed, pass target struct address
+                        if (needs_hidden_ptr) {
+                            fprintf(output, "    leaq -%d(%%rbp), %%rdi  # Pass target struct address as hidden pointer\n",
+                                    target_inst->stack_offset);
+                        }
+                        
+                        // Arguments start at appropriate register
+                        for (int i = 0; i < call->arg_count && (i + param_start) < 6; i++) {
+                            ArithmeticExpr* arg_expr = call->arguments[i];
+                            arithmetic_generate_code(output, arg_expr, func);
+                            fprintf(output, "    movq %%r8, %s  # Argument %d\n", 
+                                    param_regs[i + param_start], i + 1);
+                        }
+                        
+                        // Call function
+                        fprintf(output, "    call %s\n", call->function_name);
+                        
+                        // If register return, copy from RAX+RDX to target
+                        if (method == STRUCT_RETURN_REGISTER) {
+                            fprintf(output, "    # Copy register return to %s\n", assign->name);
+                            fprintf(output, "    movq %%rax, -%d(%%rbp)  # First 8 bytes\n",
+                                    target_inst->stack_offset);
+                            if (struct_get_size(return_struct) > 8) {
+                                fprintf(output, "    movq %%rdx, -%d(%%rbp)  # Next 8 bytes\n",
+                                        target_inst->stack_offset - 8);
+                            }
+                        } else {
+                            fprintf(output, "    # Struct copied via hidden pointer to %s\n", assign->name);
+                        }
+                    } else {
+                        // Regular assignment
+                        int offset = function_get_var_offset(func, assign->name);
+                        arithmetic_generate_code(output, expr, func);
+                        
+                        // Result is in r8, store to variable's stack location
+                        fprintf(output, "    movq %%r8, %d(%%rbp)  # Store to %s\n", 
+                                offset, assign->name);
+                    }
                 }
             }
             break;
@@ -380,7 +470,92 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
         case STMT_RETURN: {
             // ✅ Return statement - evaluate expression and result in rax
             ReturnStatement* ret = (ReturnStatement*)stmt->data;
-            if (ret && ret->return_value) {
+            
+            // YZ_85: STO-based struct return handling
+            if (func->return_type == FUNC_RETURN_STRUCT && ret && ret->return_value) {
+                ArithmeticExpr* expr = (ArithmeticExpr*)ret->return_value;
+                
+                // Struct return: determine method based on STO analysis
+                if (!expr->left && !expr->right && expr->value && !expr->is_literal) {
+                    // It's a struct variable reference
+                    fprintf(output, "    # Return struct: %s\n", expr->value);
+                    
+                    // Look up struct instance and definition
+                    StructInstanceInfo* inst_info = struct_lookup_instance(expr->value);
+                    if (inst_info && func->return_struct_type) {
+                        StructDef* struct_def = struct_lookup_definition(func->return_struct_type);
+                        if (struct_def) {
+                            StructReturnMethod method = struct_get_return_method(struct_def);
+                            size_t struct_size = struct_get_size(struct_def);
+                            
+                            fprintf(output, "    # STO return method: ");
+                            
+                            switch (method) {
+                                case STRUCT_RETURN_REGISTER:
+                                    // ≤16 bytes: Return in RAX + RDX
+                                    fprintf(output, "REGISTER (size=%zu)\n", struct_size);
+                                    fprintf(output, "    # Load struct to registers (RAX + RDX)\n");
+                                    
+                                    if (inst_info->is_pointer) {
+                                        // Parameter (pointer) - load from pointer
+                                        fprintf(output, "    movq %d(%%rbp), %%rax  # Load struct pointer\n", 
+                                                inst_info->stack_offset);
+                                        fprintf(output, "    movq 0(%%rax), %%rax   # First 8 bytes\n");
+                                        if (struct_size > 8) {
+                                            fprintf(output, "    movq %d(%%rbp), %%rdx  # Load struct pointer again\n", 
+                                                    inst_info->stack_offset);
+                                            fprintf(output, "    movq 8(%%rdx), %%rdx   # Next 8 bytes\n");
+                                        }
+                                    } else {
+                                        // Local variable - load from stack
+                                        fprintf(output, "    movq -%d(%%rbp), %%rax  # First 8 bytes of %s\n",
+                                                inst_info->stack_offset, expr->value);
+                                        if (struct_size > 8) {
+                                            fprintf(output, "    movq -%d(%%rbp), %%rdx  # Next 8 bytes\n",
+                                                    inst_info->stack_offset - 8);
+                                        } else {
+                                            fprintf(output, "    xor %%rdx, %%rdx        # Clear RDX\n");
+                                        }
+                                    }
+                                    break;
+                                    
+                                case STRUCT_RETURN_STACK_COPY:
+                                case STRUCT_RETURN_HIDDEN_PTR:
+                                    // 17-64 bytes OR >64 bytes: Use hidden pointer + memcpy
+                                    if (method == STRUCT_RETURN_STACK_COPY) {
+                                        fprintf(output, "STACK_COPY (size=%zu)\n", struct_size);
+                                    } else {
+                                        fprintf(output, "HIDDEN_PTR (size=%zu)\n", struct_size);
+                                    }
+                                    
+                                    // Load hidden pointer (stored at -8(rbp))
+                                    fprintf(output, "    movq -8(%%rbp), %%rdi  # Load hidden return pointer\n");
+                                    
+                                    // Load source struct address
+                                    if (inst_info->is_pointer) {
+                                        // Parameter - load pointer
+                                        fprintf(output, "    movq %d(%%rbp), %%rsi  # Load struct pointer (param)\n",
+                                                inst_info->stack_offset);
+                                    } else {
+                                        // Local variable - calculate address
+                                        fprintf(output, "    leaq -%d(%%rbp), %%rsi  # Source struct %s\n",
+                                                inst_info->stack_offset, expr->value);
+                                    }
+                                    
+                                    // Copy size
+                                    fprintf(output, "    movq $%zu, %%rdx  # Struct size\n", struct_size);
+                                    
+                                    // Call memcpy
+                                    fprintf(output, "    call memcpy  # Copy struct to caller\n");
+                                    
+                                    // Return pointer in rax
+                                    fprintf(output, "    movq -8(%%rbp), %%rax  # Return struct pointer\n");
+                                    break;
+                            }
+                        }
+                    }
+                }
+            } else if (ret && ret->return_value) {
                 ArithmeticExpr* expr = (ArithmeticExpr*)ret->return_value;
                 
                 // Special case: simple variable reference
@@ -439,6 +614,141 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
             fprintf(output, "    movq %%rbp, %%rsp\n");
             fprintf(output, "    popq %%rbp\n");
             fprintf(output, "    ret\n");
+            break;
+        }
+        
+        // YZ_90: Continue statement - jump to loop increment (not start!)
+        case STMT_CONTINUE:
+        case STMT_CONTINUE_FOR: {
+            int continue_label = get_continue_label();
+            if (continue_label >= 0) {
+                fprintf(output, "    # Continue - jump to for loop increment\n");
+                fprintf(output, "    jmp .for_continue_%d\n", continue_label);
+            } else {
+                fprintf(output, "    # Error: continue outside loop\n");
+            }
+            break;
+        }
+        
+        case STMT_CONTINUE_WHILE: {
+            int continue_label = get_continue_label();
+            if (continue_label >= 0) {
+                fprintf(output, "    # Continue - jump to while loop start\n");
+                fprintf(output, "    jmp .while_start_%d\n", continue_label);
+            } else {
+                fprintf(output, "    # Error: continue outside loop\n");
+            }
+            break;
+        }
+        
+        // YZ_81: Struct definition - just emit documentation comment
+        case STMT_STRUCT: {
+            StructDef* struct_def = (StructDef*)stmt->data;
+            if (struct_def) {
+                codegen_struct_definition(output, struct_def);
+            }
+            break;
+        }
+        
+        // YZ_82: Struct instance declaration - allocate stack space
+        case STMT_STRUCT_INSTANCE: {
+            StructInstance* instance = (StructInstance*)stmt->data;
+            if (instance && instance->definition) {
+                fprintf(output, "    # Struct instance: %s %s (%zu bytes)\n", 
+                        instance->struct_name, instance->instance_name, 
+                        instance->definition->total_size);
+                
+                // Allocate stack space
+                size_t aligned_size = instance->definition->total_size;
+                if (aligned_size % 16 != 0) {
+                    aligned_size = ((aligned_size / 16) + 1) * 16;
+                }
+                
+                current_stack_offset += aligned_size;
+                
+                fprintf(output, "    subq $%zu, %%rsp  # Allocate %s\n", 
+                        aligned_size, instance->instance_name);
+                
+                // Register instance for member access
+                struct_register_instance(instance->instance_name, 
+                                        instance->definition, 
+                                        current_stack_offset);
+                
+                fprintf(output, "    # %s is at [rbp - %d] (REGISTERED)\n", 
+                        instance->instance_name, current_stack_offset);
+            }
+            break;
+        }
+        
+        // YZ_82/YZ_83: Member assignment - store value at struct offset (nested support)
+        case STMT_MEMBER_ASSIGNMENT: {
+            MemberAssignment* mem_assign = (MemberAssignment*)stmt->data;
+            if (mem_assign) {
+                fprintf(output, "    # Member assignment: %s", mem_assign->instance_name);
+                for (int i = 0; i < mem_assign->chain_length; i++) {
+                    fprintf(output, ".%s", mem_assign->member_chain[i]);
+                }
+                fprintf(output, " = ...\n");
+                
+                // Look up struct instance
+                StructInstanceInfo* inst_info = struct_lookup_instance(mem_assign->instance_name);
+                if (!inst_info) {
+                    fprintf(output, "    # ERROR: Instance '%s' not found\n", 
+                            mem_assign->instance_name);
+                    break;
+                }
+                
+                // YZ_83: Traverse member chain for nested assignment
+                StructDef* current_def = inst_info->definition;
+                int cumulative_offset = 0;
+                
+                for (int chain_idx = 0; chain_idx < mem_assign->chain_length; chain_idx++) {
+                    const char* member_name = mem_assign->member_chain[chain_idx];
+                    
+                    // Find member in current definition
+                    StructMember* member = current_def->members;
+                    while (member) {
+                        if (strcmp(member->name, member_name) == 0) {
+                            break;
+                        }
+                        member = member->next;
+                    }
+                    
+                    if (!member) {
+                        fprintf(output, "    # ERROR: Member '%s' not found in chain\n", member_name);
+                        goto end_member_assign;
+                    }
+                    
+                    // Add member's offset to cumulative offset
+                    cumulative_offset += member->offset;
+                    
+                    // If this is a nested struct and not the last in chain, continue
+                    if (chain_idx < mem_assign->chain_length - 1) {
+                        if (!member->nested_def) {
+                            fprintf(output, "    # ERROR: Member '%s' is not a struct\n", member_name);
+                            goto end_member_assign;
+                        }
+                        current_def = member->nested_def;  // Traverse into nested struct
+                    }
+                }
+                
+                // Evaluate expression
+                ArithmeticExpr* expr = (ArithmeticExpr*)mem_assign->value_expr;
+                arithmetic_generate_code(output, expr, func);  // YZ_85: Pass func context
+                
+                // Calculate final address: rbp - base_offset + cumulative offset
+                int final_offset = inst_info->stack_offset - cumulative_offset;
+                
+                fprintf(output, "    # Store to [rbp - %d + %d] = [rbp - %d]\n",
+                        inst_info->stack_offset, cumulative_offset, final_offset);
+                
+                // Store value (assuming numeric for now)
+                fprintf(output, "    movq %%r8, %d(%%rbp)  # Store nested member\n",
+                        -final_offset);
+                
+                end_member_assign:
+                ; // Empty statement for label
+            }
             break;
         }
         

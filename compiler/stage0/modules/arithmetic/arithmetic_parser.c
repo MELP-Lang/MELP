@@ -1,8 +1,10 @@
 #include "arithmetic_parser.h"
 #include "arithmetic_optimize.h"  // YZ_32: Constant folding
+#include "string_interpolation.h"  // YZ_90: String interpolation
 #include "../codegen_context/codegen_context.h"
 #include "../array/array_parser.h"  // YZ_14: For array index access
 #include "../functions/functions.h"  // YZ_36: For function_is_known()
+#include "../struct/struct.h"  // YZ_82: For member access
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -653,6 +655,8 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
     expr->array_access = NULL;
     expr->is_collection = 0;
     expr->collection = NULL;
+    expr->is_member_access = 0;  // YZ_82: Member access
+    expr->member_access = NULL;
     
     // Number literal
     if ((*current)->type == TOKEN_NUMBER) {
@@ -674,6 +678,18 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
     
     // YZ_10: String literal
     if ((*current)->type == TOKEN_STRING) {
+        // YZ_90: Check for string interpolation
+        if (string_has_interpolation((*current)->value)) {
+            // Parse interpolation: "Hello ${name}" -> "Hello " + name
+            char* str_value = strdup((*current)->value);
+            advance_stateless(lexer, current);
+            ArithmeticExpr* interp_expr = parse_string_interpolation(lexer, str_value);
+            free(str_value);
+            free(expr);  // Free the allocated expr since we're returning a different one
+            return interp_expr;
+        }
+        
+        // Regular string literal (no interpolation)
         expr->is_literal = 1;
         expr->value = strdup((*current)->value);
         expr->is_float = 0;
@@ -694,8 +710,8 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         return expr;
     }
     
-    // Variable or Function Call or Collection Access
-    if ((*current)->type == TOKEN_IDENTIFIER) {
+    // Variable or Function Call or Collection Access (YZ_86: or 'self')
+    if ((*current)->type == TOKEN_IDENTIFIER || (*current)->type == TOKEN_SELF) {
         char* identifier = strdup((*current)->value);
         advance_stateless(lexer, current);
         
@@ -749,6 +765,201 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
             advance_stateless(lexer, current);
             
             free(identifier);  // IndexAccess has its own copy
+            return expr;
+        }
+        
+        // YZ_82/YZ_83/YZ_86: Check for member access or method call (p.x or p.method())
+        if (*current && (*current)->type == TOKEN_DOT) {
+            advance_stateless(lexer, current);  // consume '.'
+            
+            if (!*current || (*current)->type != TOKEN_IDENTIFIER) {
+                fprintf(stderr, "Error: Expected member/method name after '.'\n");
+                free(identifier);
+                free(expr);
+                return NULL;
+            }
+            
+            char* member_or_method = strdup((*current)->value);
+            advance_stateless(lexer, current);  // consume member/method name
+            
+            // YZ_86: Check if this is a method call (followed by '(')
+            if (*current && (*current)->type == TOKEN_LPAREN) {
+                advance_stateless(lexer, current);  // consume '('
+                
+                // Parse method arguments
+                ArithmeticExpr** arguments = NULL;
+                int arg_count = 0;
+                int arg_capacity = 4;
+                
+                if ((*current)->type != TOKEN_RPAREN) {
+                    arguments = malloc(sizeof(ArithmeticExpr*) * arg_capacity);
+                    
+                    while (1) {
+                        ArithmeticExpr* arg = parse_bitwise_stateless(lexer, current);
+                        if (!arg) {
+                            for (int i = 0; i < arg_count; i++) {
+                                arithmetic_expr_free(arguments[i]);
+                            }
+                            free(arguments);
+                            free(member_or_method);
+                            free(identifier);
+                            free(expr);
+                            return NULL;
+                        }
+                        
+                        if (arg_count >= arg_capacity) {
+                            arg_capacity *= 2;
+                            arguments = realloc(arguments, sizeof(ArithmeticExpr*) * arg_capacity);
+                        }
+                        arguments[arg_count++] = arg;
+                        
+                        if (!*current) {
+                            fprintf(stderr, "Error: Unexpected EOF in method call\n");
+                            for (int i = 0; i < arg_count; i++) {
+                                arithmetic_expr_free(arguments[i]);
+                            }
+                            free(arguments);
+                            free(member_or_method);
+                            free(identifier);
+                            free(expr);
+                            return NULL;
+                        }
+                        
+                        if ((*current)->type == TOKEN_RPAREN) {
+                            break;
+                        } else if ((*current)->type == TOKEN_COMMA) {
+                            advance_stateless(lexer, current);  // consume ','
+                        } else {
+                            fprintf(stderr, "Error: Expected ',' or ')' in method call\n");
+                            for (int i = 0; i < arg_count; i++) {
+                                arithmetic_expr_free(arguments[i]);
+                            }
+                            free(arguments);
+                            free(member_or_method);
+                            free(identifier);
+                            free(expr);
+                            return NULL;
+                        }
+                    }
+                }
+                
+                advance_stateless(lexer, current);  // consume ')'
+                
+                // Create method call structure
+                MethodCall* method_call = method_call_create(identifier, member_or_method);
+                for (int i = 0; i < arg_count; i++) {
+                    // Note: This is a bit hacky - we're storing ArithmeticExpr* as Expression*
+                    // In a full implementation, we'd convert these properly
+                    method_call_add_arg(method_call, (Expression*)arguments[i]);
+                }
+                free(arguments);
+                free(member_or_method);
+                free(identifier);
+                
+                // Create method call expression
+                expr->is_literal = 0;
+                expr->value = NULL;
+                expr->is_float = 0;
+                expr->is_string = 0;
+                expr->is_boolean = 0;
+                expr->is_function_call = 0;
+                expr->func_call = NULL;
+                expr->is_array_access = 0;
+                expr->array_access = NULL;
+                expr->is_member_access = 0;
+                expr->member_access = NULL;
+                expr->is_method_call = 1;  // YZ_86: New flag
+                expr->method_call = (void*)method_call;
+                
+                // STO info: assume numeric return (INT64)
+                STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
+                sto_info->type = INTERNAL_TYPE_INT64;
+                sto_info->is_constant = false;
+                sto_info->needs_promotion = true;
+                sto_info->mem_location = MEM_STACK;
+                expr->sto_info = sto_info;
+                expr->sto_analyzed = true;
+                expr->needs_overflow_check = true;
+                
+                return expr;
+            }
+            
+            // Parse member chain if not a method call (p.x or p.addr.zip)
+            char** member_chain = NULL;
+            int chain_length = 0;
+            int chain_capacity = 4;
+            member_chain = malloc(sizeof(char*) * chain_capacity);
+            member_chain[chain_length++] = member_or_method;  // First member already parsed
+            
+            // Loop to collect remaining chained members
+            while (*current && (*current)->type == TOKEN_DOT) {
+                advance_stateless(lexer, current);  // consume '.'
+                
+                if (!*current || (*current)->type != TOKEN_IDENTIFIER) {
+                    fprintf(stderr, "Error: Expected member name after '.'\n");
+                    for (int i = 0; i < chain_length; i++) {
+                        free(member_chain[i]);
+                    }
+                    free(member_chain);
+                    free(identifier);
+                    free(expr);
+                    return NULL;
+                }
+                
+                // Expand array if needed
+                if (chain_length >= chain_capacity) {
+                    chain_capacity *= 2;
+                    member_chain = realloc(member_chain, sizeof(char*) * chain_capacity);
+                }
+                
+                member_chain[chain_length++] = strdup((*current)->value);
+                advance_stateless(lexer, current);  // consume member name
+            }
+            
+            // Create MemberAccess structure with first member
+            MemberAccess* access = struct_create_member_access(identifier, member_chain[0]);
+            free(identifier);
+            
+            if (!access) {
+                for (int i = 0; i < chain_length; i++) {
+                    free(member_chain[i]);
+                }
+                free(member_chain);
+                free(expr);
+                return NULL;
+            }
+            
+            // YZ_83: Replace member_chain with full chain
+            for (int i = 0; i < access->chain_length; i++) {
+                free(access->member_chain[i]);
+            }
+            free(access->member_chain);
+            access->member_chain = member_chain;
+            access->chain_length = chain_length;
+            
+            // Create member access expression
+            expr->is_literal = 0;
+            expr->value = NULL;
+            expr->is_float = 0;
+            expr->is_string = 0;
+            expr->is_boolean = 0;
+            expr->is_function_call = 0;
+            expr->func_call = NULL;
+            expr->is_array_access = 0;
+            expr->array_access = NULL;
+            expr->is_member_access = 1;
+            expr->member_access = (void*)access;
+            
+            // STO info: assume numeric member (INT64)
+            STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
+            sto_info->type = INTERNAL_TYPE_INT64;
+            sto_info->is_constant = false;
+            sto_info->needs_promotion = true;
+            sto_info->mem_location = MEM_STACK;
+            expr->sto_info = sto_info;
+            expr->sto_analyzed = true;
+            expr->needs_overflow_check = true;
+            
             return expr;
         }
         

@@ -1,0 +1,8 @@
+function main() returns numeric
+    numeric x = 42
+    string msg = "The answer is ${x}"
+    
+    println(msg)
+    
+    return 0
+end_function

@@ -1,0 +1,13 @@
+struct Point
+    numeric x
+    numeric y
+end_struct
+
+function main() returns numeric
+    Point p
+    p.x = 10
+    p.y = 20
+    numeric result
+    result = p.x + p.y
+    return result
+end_function

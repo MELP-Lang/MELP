@@ -1,0 +1,15 @@
+function main() returns numeric
+    numeric x = 1
+    numeric result = 0
+    
+    switch x
+        case 1:
+            result = 100
+        case 2:
+            result = 200
+        case 3:
+            result = 300
+    end_switch
+    
+    return result
+end_function

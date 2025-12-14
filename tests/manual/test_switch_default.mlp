@@ -1,0 +1,15 @@
+function main() returns numeric
+    numeric choice = 5
+    numeric result = 0
+    
+    switch choice
+        case 1:
+            result = 10
+        case 2:
+            result = 20
+        default:
+            result = 99
+    end_switch
+    
+    return result
+end_function

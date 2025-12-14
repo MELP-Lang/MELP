@@ -1,174 +1,236 @@
-# 📋 MELP Project TODO - Multi-Phase LLVM Backend Development
+# 📋 MELP Project TODO - Active Tasks
 
 **Created:** 13 Aralık 2025  
-**Current Status:** ✅ Phase 18 Array Core Complete! (YZ_79)  
+**Current Status:** ✅ Phase 19 Complete (YZ_88) - Method Body Parsing Done!  
 **Branch:** phase18-array-support_YZ_74  
-**Last Updated:** 14 Aralık 2025 (YZ_79)
+**Last Updated:** 15 Aralık 2025 (YZ_88)
 
 ---
 
-## 🎯 **ŞU AN: Phase 18 Finalize veya Git Commit**
+## ⚠️ ÖNEMLI KURAL: Test Dosyaları
 
-**YZ_79 Tamamlandı:**
-- ✅ Array literals (`numeric[] arr = [1, 2, 3]`)
-- ✅ Array indexing read/write (`arr[0]`, `arr[1] = 999`)
-- ✅ Array codegen (sto_array_alloc integration)
-- ✅ Tests passing (minimal, decl_only, with_var)
+**ZORUNLU:** Tüm test dosyaları (`*.mlp`, `*.s`, vb.) **SADECE** `tests/` dizini altında oluşturulmalıdır!
 
-**Seçenekler:**
-1. **Git Commit** - Array core'u kaydet ve phase'i kapat
-2. **Print expression fix** - `print(arr[0])` çalışsın (1 saat)
-3. **Runtime debug** - `return arr[1]` crash'i çöz (1-2 saat)
-4. **Sonraki phase'e geç** - Phase 19 (Struct support?)
+- ✅ Doğru: `tests/manual/test_for_loop.mlp`
+- ✅ Doğru: `tests/integration/test_method.mlp`
+- ❌ Yanlış: `/home/pardus/projeler/MLP/MLP/test_xyz.mlp` (ana dizin)
+- ❌ Yanlış: Ana dizine herhangi bir test dosyası
+
+**Sebep:** Ana dizin çok şişiyor, düzen bozuluyor.
 
 ---
 
-## ✅ **TAMAMLANDI: YZ_77 - PMPL Architecture Fully Restored**
+## ⚠️ ÖNEMLI KURAL: YZ Rapor Dosyaları
 
-**DURUM:** ✅ **TAMAMLANDI (YZ_77)**  
-**Tamamlanma Tarihi:** 13-14 Aralık 2025  
-**Git Commits:** 
-- 985b871 - "YZ_77: Complete RF_YZ_3 parser refactor"
-- 5155510 - "Add complete PMPL documentation"
+**ZORUNLU:** Her YZ oturumu sonunda `YZ/` dizinine detaylı rapor yazmalısınız!
 
-### ✅ Çözülen Sorunlar:
+- ✅ Doğru: `YZ/YZ_87.md` (oturum raporu)
+- ✅ Format: Tarih, değişiklikler, testler, sonuçlar
+- ✅ Örnekler için: `YZ/YZ_83.md`, `YZ/YZ_75.md`
 
-1. ✅ **Normalize Layer** - RF_YZ_1 (26/26 tests passing)
-2. ✅ **Lexer Refactor** - RF_YZ_2 (28/28 tests passing)
-   - TOKEN_END_IF, TOKEN_END_WHILE, TOKEN_ELSE_IF vs.
-3. ✅ **Parser Simplification** - RF_YZ_3 (6/6 tests passing)
-   - Pattern matching kaldırıldı
-   - Single token recognition
-4. ✅ **PMPL Documentation** - YZ_78 (3 files, ~1,700 lines)
-   - PMPL_SYNTAX.md
-   - docs/PMPL_REFERENCE.md
-   - docs_tr/PMPL_SOZDIZIMI.md
+**İçerik:**
+- Session bilgisi (YZ_XX, tarih, agent, branch)
+- Ne implement edildi (detaylı)
+- Değişen dosyalar listesi
+- Test sonuçları
+- Bilinen sınırlamalar
 
-**Total Tests:** 60/60 passing ✅  
-**PMPL Philosophy:** Fully implemented!
+**Sebep:** Proje tarihçesi ve dokümantasyon.
 
 ---
 
-## ✅ Phase 15: Standard Library Integration (COMPLETED - YZ_61)
+## 🎯 **ŞU AN: Phase 19 - Struct Methods (100% Infrastructure - YZ_88 Body Parsing!)**
 
-**DURUM: ✅ TAMAMLANDI**
+### ✅ YZ_88 Tamamlandı: Method Body Parsing
 
-**AMAÇ:** LLVM backend'inin `printf` bağımlılığını kaldırıp MELP stdlib'i kullanması.
+**Completed:**
+- ✅ Struct parser refactored to use Parser* context
+- ✅ Method body statements fully parsed
+- ✅ Self keyword works in expressions (self.x, self.y)
+- ✅ Method -> Function conversion working
+- ✅ Return statements in methods working
+- ✅ End-to-end test passing (exit 30)
 
-### Tamamlanan Görevler:
+**Syntax:**
+```pmpl
+struct Point
+    numeric x
+    numeric y
+    
+    method get_sum() returns numeric
+        return self.x + self.y  # Body fully parsed!
+    end_method
+end_struct
 
-- [x] Git branch oluşturuldu: `phase15-stdlib-integration_YZ_61`
-- [x] Print statement desteği eklendi (LLVM backend)
-- [x] `mlp_println_numeric` entegrasyonu yapıldı
-- [x] `statement_parser.c` güncellendi (`print <variable>` syntax)
-- [x] Makefile güncellendi (stdlib ve sto runtime linking)
-- [x] Test suite oluşturuldu (3/3 test başarılı)
-- [x] Tüm değişiklikler commit ve push edildi
+function main() returns numeric
+    Point p
+    p.x = 10
+    p.y = 20
+    return p.get_sum()  # Returns 30
+end_function
+```
 
-**Sonuç:** ✅ Başarıyla tamamlandı! Print statement çalışıyor.
+**Known Limitation:**
+- ⚠️ Method parameters with struct types need pointer passing fix
+- Current workaround: Use simple return expressions without local vars
+
+**Test Results:**
+- ✅ test_method_body.mlp → Exit 30 (10+20)
 
 ---
 
-## 🚀 Phase 16: Advanced LLVM Features
+### Previous: YZ_87 - For Loops
 
-**DURUM: 🔵 BAŞLAMADI**  
-**TAHMİNİ SÜRE:** 3-4 saat  
-**ÖNCELİK:** Orta
+**Completed:**
+- ✅ TOKEN_FROM keyword added to lexer
+- ✅ Parser updated for `for i from 1 to 10` syntax
+- ✅ Downto support: `for i from 10 downto 1`
+- ✅ Nested loops working perfectly
+- ✅ Assembly codegen verified (desugar to while pattern)
+- ✅ Tests: basic, downto, nested - all passing!
 
-**AMAÇ:** LLVM optimizasyonları, debug info ve gelişmiş özellikler.
+**Syntax:**
+```pmpl
+for i from 1 to 10
+    sum = sum + i
+end_for
 
-### Görevler:
+for i from 10 downto 1
+    result = result + i
+end_for
+```
 
-- [ ] Optimization flags (-O0, -O1, -O2, -O3)
-- [ ] LLVM IR metadata
-- [ ] Debug information generation (DWARF)
-- [ ] Source location tracking
-- [ ] Better error messages
-- [ ] Performance benchmarks
+**Test Results:**
+- ✅ test_for_loop_basic.mlp → Exit 15 (1+2+3+4+5)
+- ✅ test_for_downto.mlp → Exit 55 (10+9+...+1)
+- ✅ test_for_nested.mlp → Exit 6 (3x2 iterations)
 
 ---
 
-## 🔤 Phase 17: String Support in LLVM
+### Previous: YZ_86 - Struct Methods (Infrastructure) 
 
-**DURUM: ✅ TAMAMLANDI (100% - YZ_69)**  
-**TAHMİNİ SÜRE:** 5-6 saat (TAMAMLANDI)  
-**ÖNCELİK:** Tamamlandı
+**Completed:**
+- ✅ Lexer tokens (TOKEN_METHOD, TOKEN_END_METHOD, TOKEN_SELF)
+- ✅ Data structures (StructMethod, MethodParam, MethodCall)
+- ✅ Method definition parsing (signature + parameters)
+- ✅ Method → Function conversion (StructName_methodname)
+- ✅ Method call parsing (p.method(args))
+- ✅ Method call codegen (self parameter, call generation)
+- ✅ Self keyword handling in expressions
 
-**AMAÇ:** String literal ve operasyonları eklemek.
+**Remaining (for next YZ):**
+- [ ] Method body parsing (requires Parser context integration)
+- [ ] End-to-end method testing
 
-### Tamamlanan Görevler (YZ_61):
+**Workaround:** Manual functions work perfectly:
+```pmpl
+function Point_get_sum(Point self) returns numeric
+    return self.x + self.y
+end_function
+```
 
-- [x] Git branch oluşturuldu: `phase17-string-support_YZ_61`
-- [x] String literal support (global .rodata)
-  - [x] `llvm_emit_string_global()` implementasyonu
-  - [x] `StringGlobal` linked list yapısı
-  - [x] Deferred emission (fonksiyonlardan sonra)
-  - [x] UTF-8 karakter desteği
-- [x] `print("Hello World")` syntax
-  - [x] `print_parser` stateless pattern'e güncellendi
-  - [x] `mlp_println_string` entegrasyonu
-  - [x] Escape sequence handling (\n, \t, \\, ")
-- [x] İlk test suite (test_string_literal.mlp, test_multiline.mlp)
-- [x] Tüm değişiklikler commit ve push edildi
+### Previous Phase 19 Completions:
 
-### Tamamlanan Görevler (YZ_62):
+**YZ_85:** ✅ Struct Return Values (STO-Based)
+- STO 3-tier strategy (register/stack/hidden pointer)
 
-- [x] String variable declaration (`string x = "test"`)
-  - [x] LLVM IR: i8* alloca on stack
-  - [x] Store pointer to global string constant
-  - [x] Naming convention: %varname_ptr
-- [x] String variable printing (`print(x)`)
-  - [x] Type detection via function body scan
-  - [x] Load i8* and call mlp_println_string
-- [x] Comprehensive test suite
-  - [x] test_string_var.mlp - Single variable
-  - [x] test_string_var_multi.mlp - Multiple variables
-  - [x] test_string_full.mlp - Mix of literals + variables
-  - [x] YZ_61 regression tests passing
-- [x] UTF-8 variable support ("MELP Dünya" works)
-- [x] Tüm değişiklikler commit ve push edildi
+**YZ_84:** ✅ Struct Functions  
+- Struct as function parameter
 
-### Tamamlanan Görevler (YZ_63):
+**YZ_83:** ✅ Nested Structs
+- Nested field access (`john.addr.zip`)
 
-- [x] String function parameters (`function greet(string msg)`)
-  - [x] LLVM backend param_types array support
-  - [x] `llvm_emit_function_start()` signature updated
-  - [x] i8* parameters in LLVM IR
-  - [x] String params can be printed inside function
-- [x] Mixed type support verified (numeric + string + boolean)
-  - [x] test_mixed_types.mlp - All types coexist ✅
-- [x] Critical bug fixes:
-  - [x] Multi-function parsing (end function check removed)
-  - [x] Statement parser token ungetting fixed
-  - [x] TOKEN_STRING_TYPE vs TOKEN_STRING recognition
-- [x] Test suite expanded
-  - [x] test_string_param_literal.mlp (partial)
-  - [x] test_string_param_var.mlp
-  - [x] test_string_param_multiple.mlp
-  - [x] test_two_funcs.mlp (regression)
-- [x] Tüm değişiklikler commit ve push edildi
+**YZ_82:** ✅ Struct Instances
+- Instance declaration, field access/assignment
 
-### Tamamlanan Görevler (YZ_64):
+**YZ_81:** ✅ Struct Definitions
+- Basic struct syntax and parsing
 
-- [x] **Function calls with string LITERAL arguments** ✅
-  - [x] Extended LLVMValue with type field (LLVM_TYPE_I64, LLVM_TYPE_I8_PTR, LLVM_TYPE_I1)
-  - [x] Added `llvm_emit_string_ptr()` for getelementptr emission
-  - [x] Updated `llvm_emit_call()` to emit correct argument types
-  - [x] Modified `generate_expression_llvm()` to handle string literals
-  - [x] String literals → i8* pointers in function calls
-  - [x] `greet("Hello MELP")` now works! 🎉
-  - [x] Test: test_string_param_literal.mlp ✅ PASSING
-- [x] Tüm değişiklikler commit ve push edildi
+**Test Results:**
+- ✅ All struct tests passing
+- ✅ Method syntax compiles
+- ✅ Method calls generate correct code
 
-### Tamamlanan Görevler (YZ_65):
+---
 
-- [x] **Function calls with string VARIABLE arguments** ✅ ÇALIŞIYOR!
-  - [x] Statement parser'a function call desteği eklendi
-  - [x] TOKEN_LPAREN kontrolü ile function call detection
-  - [x] LLVM backend için LocalVariable registry population
-  - [x] scan_statement_for_variables() fonksiyonu eklendi
-  - [x] Variable type tracking (is_numeric flag) çalışıyor
-  - [x] String variables: i8* load doğru yapılıyor
+## 🚀 **NEXT: Phase 20 Options**
+
+### Option A: For Loops (Recommended)
+**Priority:** High  
+**Estimated:** 1.5-2 hours
+
+```pmpl
+for i from 1 to 10
+    print(i)
+end_for
+```
+
+**Tasks:**
+- [ ] `for` keyword and `from...to` syntax
+- [ ] Loop variable initialization
+- [ ] Increment/decrement logic
+- [ ] Range validation
+
+### Option B: Complete Method Body Parsing
+**Priority:** Medium  
+**Estimated:** 3-4 hours  
+
+**Tasks:**
+- [ ] Integrate Parser context into struct parser
+- [ ] Parse method body statements
+- [ ] Handle self scope in codegen
+- [ ] End-to-end tests
+
+### Option C: Switch/Case
+**Priority:** Medium  
+**Estimated:** 2-3 hours
+
+```pmpl
+switch choice
+    case 1:
+        print("One")
+    case 2:
+        print("Two")
+    default:
+        print("Other")
+end_switch
+```
+
+---
+
+## 📚 **Archived Phases** (See git history for details)
+
+- ✅ Phase 18: Array Support (100% - YZ_74-80)
+- ✅ Phase 17: String Support (100% - YZ_61-69)
+- ✅ Phase 16: LLVM Advanced Features
+- ✅ Phase 15: Standard Library Integration
+- ✅ PMPL Architecture (RF_YZ_1-3, YZ_77-78)
+
+For detailed history, see git commits or NEXT_AI_START_HERE.md
+
+---
+
+## 🔧 **Known Issues & Technical Debt**
+
+1. **Method Body Parsing**
+   - Status: Infrastructure ready, body parsing needs Parser integration
+   - Impact: Low (workaround available)
+   - Priority: Medium
+
+2. **For Loops Missing**
+   - Status: While loops work, for loops not implemented
+   - Impact: Medium
+   - Priority: High
+
+3. **No Switch/Case**
+   - Status: Not started
+   - Impact: Low
+   - Priority: Low
+
+---
+
+**For detailed session logs, see:** `/YZ/YZ_*.md`  
+**For architecture docs, see:** `ARCHITECTURE.md`, `MELP_REFERENCE.md`
   - [x] Test: test_string_param_var.mlp ✅ PASSING
   - [x] Test: test_string_param_multiple.mlp ✅ PASSING
   - [x] Mixed arguments: `greet("Hello", name)` ✅ PASSING
@@ -278,47 +340,225 @@
 **Next:** Phase 18 finalize VEYA Phase 19 (Struct support)
 ---
 
-## 📝 Phase 19: Documentation & Polish
+## 📦 Phase 19: Struct Support (Record Types)
+
+**DURUM: 🔄 %80 TAMAMLANDI (YZ_84)**  
+**TAHMİNİ SÜRE:** 8-10 saat  
+**ÖNCELİK:** Yüksek  
+**BAŞLANGIÇ:** 14 Aralık 2025 (YZ_81)
+
+**AMAÇ:** Struct (record) tiplerini eklemek - MELP'in type system'ini genişletmek.
+
+### Phase 19.1: Struct Definitions (YZ_81) ✅ TAMAMLANDI
+
+**SÜRE:** 1 saat  
+**DURUM:** ✅ COMPLETE
+
+- [x] **Lexer Support**
+  - [x] TOKEN_STRUCT keyword eklendi
+  - [x] TOKEN_END_STRUCT keyword eklendi
+  - [x] struct/end_struct recognition
+
+- [x] **Parser Implementation**
+  - [x] struct_parser.c modülü oluşturuldu
+  - [x] parse_struct_definition() fonksiyonu
+  - [x] Member field parsing
+  - [x] Type validation
+
+- [x] **Data Structures**
+  - [x] StructDef (struct definition)
+  - [x] StructMember (field definition)
+  - [x] Size ve alignment calculation
+
+- [x] **Basic Codegen**
+  - [x] Struct metadata generation
+  - [x] Type registry
+  - [x] Assembly comments
+
+**Test:** test_struct_simple.mlp ✅
+
+### Phase 19.2: Struct Instances (YZ_82) ✅ TAMAMLANDI
+
+**SÜRE:** 1.5 saat  
+**DURUM:** ✅ COMPLETE
+
+- [x] **Instance Declaration**
+  - [x] `Point p` syntax support
+  - [x] Stack allocation
+  - [x] Instance registry for codegen
+
+- [x] **Field Assignment**
+  - [x] `p.x = 10` syntax
+  - [x] Member offset calculation
+  - [x] Store operations
+
+- [x] **Field Access**
+  - [x] `return p.x` syntax
+  - [x] Load operations
+  - [x] Expression integration
+
+- [x] **Stack Management**
+  - [x] Struct size calculation
+  - [x] Stack frame allocation
+  - [x] Offset tracking
+
+**Tests:** 
+- test_struct_instance.mlp ✅
+- test_struct_access.mlp ✅
+
+### Phase 19.3: Nested Structs (YZ_83) ✅ TAMAMLANDI
+
+**SÜRE:** 1.5 saat  
+**DURUM:** ✅ COMPLETE
+
+- [x] **Nested Definitions**
+  - [x] Struct içinde struct field tanımlama
+  - [x] Type lookup ve validation
+  - [x] Recursive struct prevention
+
+- [x] **Nested Field Access**
+  - [x] `john.addr.zip` syntax
+  - [x] Member chain parsing
+  - [x] Cumulative offset calculation
+
+- [x] **Nested Assignment**
+  - [x] Multi-level assignment
+  - [x] Chain validation
+  - [x] Type checking
+
+- [x] **Bug Fixes**
+  - [x] Circular linked list bug fix
+  - [x] Instance registry cleanup
+  - [x] Memory management
+
+**Tests:**
+- test_nested_simple.mlp ✅
+- test_nested_struct.mlp ✅
+
+### Phase 19.4: Struct Functions (YZ_84) ✅ TAMAMLANDI
+
+**SÜRE:** 2 saat  
+**DURUM:** ✅ COMPLETE
+
+- [x] **Struct Parameters**
+  - [x] FUNC_PARAM_STRUCT enum value
+  - [x] struct_type_name field in FunctionParam
+  - [x] Parser struct type recognition
+  - [x] Pointer passing (x86-64 ABI)
+
+- [x] **Multiple Parameters**
+  - [x] `function sum_coords(Point p1, Point p2)`
+  - [x] Register allocation
+  - [x] Multiple struct handling
+
+- [x] **Instance Tracking**
+  - [x] is_pointer flag for parameters
+  - [x] struct_register_instance_pointer()
+  - [x] Pointer vs value differentiation
+
+- [x] **Member Access**
+  - [x] Pointer dereference in codegen
+  - [x] Offset calculation through pointer
+  - [x] Load operations
+
+- [x] **Argument Passing**
+  - [x] leaq for struct address
+  - [x] Struct detection in function calls
+  - [x] Register parameter setup
+
+- [x] **Struct Return Types (Parsed)**
+  - [x] FUNC_RETURN_STRUCT enum value
+  - [x] return_struct_type field
+  - [x] Parser support
+  - [x] 🟡 Full codegen pending (requires copying)
+
+**Tests:**
+- test_struct_function_param.mlp ✅ (exit 42)
+- test_struct_function_multi_param.mlp ✅ (exit 67)
+
+**Files Modified:** 6 modules
+- functions.h, functions.c (param types)
+- functions_parser.c (struct parsing)
+- functions_codegen.c (instance registration)
+- arithmetic_codegen.c (struct address passing)
+- struct.h, struct.c (pointer tracking)
+### Phase 19.5: Struct Return Values (STO-Based) (YZ_85) ✅ TAMAMLANDI
+
+**SÜRE:** 2.5 saat  
+**DURUM:** ✅ COMPLETE
+
+- [x] **STO Size Analysis**
+  - [x] `struct_get_size()` calculation
+  - [x] Threshold decision (16/64 byte boundaries)
+  - [x] 3-tier strategy implementation
+
+- [x] **Register Return (≤16 byte)**
+  - [x] RAX + RDX register usage
+  - [x] Fastest path (no memcpy)
+  - [x] Direct register-to-stack transfer
+  - [x] Test: Point (16 bytes = 2 × numeric) → exit 55 ✅
+
+- [x] **Stack Copy (16-64 byte)**
+  - [x] memcpy for medium structs
+  - [x] Balance speed vs memory
+  - [x] Caller stack allocation
+  - [x] Implementation ready
+
+- [x] **Hidden Pointer (>64 byte)**
+  - [x] Caller allocation
+  - [x] Callee population via memcpy
+  - [x] Memory efficiency for large structs
+  - [x] Implementation ready
+
+- [x] **User Transparency**
+  - [x] Same `returns StructName` syntax for all sizes
+  - [x] STO automatic decision (no flags/hints)
+  - [x] No user configuration needed
+  - [x] Assembly shows STO analysis comments
+  - [ ] Performance metrics logging (optional)
+
+**Hedef:** `function createPoint(numeric x, numeric y) returns Point`
+
+### Phase 19.6: Struct Methods (YZ_86) 📋 PLANLANDI
+
+**TAHMİNİ SÜRE:** 1.5-2 saat  
+**DURUM:** 📋 PLANNED
+
+- [ ] **Method Syntax**
+  - [ ] `p.distance(p2)` syntax design
+  - [ ] Self parameter handling
+  - [ ] Method resolution
+
+- [ ] **Method Definition**
+  - [ ] In-struct method definitions
+  - [ ] Associated functions
+  - [ ] Name scoping
+
+**Hedef:** OOP-style method calls
+
+---
+**Phase 19 İlerleme:**
+- ✅ YZ_81: Struct Definitions (100%)
+- ✅ YZ_82: Struct Instances (100%)
+- ✅ YZ_83: Nested Structs (100%)
+- ✅ YZ_84: Struct Functions (100%)
+- ✅ YZ_85: Struct Return Values - STO (100%)
+- 📋 YZ_86: Struct Methods (0% - planned)
+
+**TOPLAM:** 5/6 completed = ~83% ✅
+**TOPLAM:** 4/6 completed = ~80% ✅
+
+---
+
+## 📝 Phase 20: Documentation & Polish
 
 **DURUM: 🔄 KISMİ TAMAMLANDI**  
 **TAHMİNİ SÜRE:** 8-10 saat (küçük YZ oturumlarına bölünmüş)  
-**ÖNCELİK:** Yüksek (Stage 0 finalize için gerekli)
+**ÖNCELİK:** Orta
 
-**AMAÇ:** Proje dokümantasyonunu tamamlamak, README'yi güncellemek, mimari dokümantasyon eklemek.
+**AMAÇ:** Proje dokümantasyonunu tamamlamak, README'yi güncellemek.
 
-### Phase 19.1: README.md Güncelleme (YZ_70)
-
-**TAHMİNİ SÜRE:** 1.5-2 saat  
-**ÖNCELİK:** Çok Yüksek
-
-- [ ] **Project Overview Section**
-  - [ ] MELP nedir açıklaması (Türkçe + English)
-  - [ ] Temel özellikler listesi
-  - [ ] Neden MELP? (motivasyon)
-  - [ ] Hedef kitle tanımı
-  
-- [ ] **Features Section**
-  - [ ] ✅ Tamamlanan özellikler (Phase 1-17)
-  - [ ] Variables (Int, String, Boolean)
-  - [ ] Functions (parameters, return values)
-  - [ ] Control flow (if/else, while, for)
-  - [ ] String operations (concat, comparison)
-  - [ ] LLVM backend
-  - [ ] x86-64 native backend
-  
-- [ ] **Quick Start Guide**
-  - [ ] Installation talimatları
-  - [ ] İlk program yazma (Hello World)
-  - [ ] Compile ve run örnekleri
-  - [ ] Her iki backend için örnekler (LLVM vs x86-64)
-  
-- [ ] **Build Instructions**
-  - [ ] Dependencies (LLVM 19, GCC, Make)
-  - [ ] Build komutu (`make all`)
-  - [ ] Test komutu (`make test`)
-  - [ ] Clean komutu (`make clean`)
-
-### Phase 19.2: ARCHITECTURE.md Detaylandırma (YZ_71)
+### Phase 20.1: ARCHITECTURE.md (YZ_71) ✅ TAMAMLANDI
 
 **TAHMİNİ SÜRE:** 2-2.5 saat  
 **ÖNCELİK:** Yüksek  

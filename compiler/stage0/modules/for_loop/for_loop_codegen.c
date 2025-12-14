@@ -17,8 +17,8 @@ static void for_each_generate_code(FILE* output, ForLoop* loop, void* context) {
     fprintf(output, "\n    # For-each loop: for each %s in %s\n", 
             loop->var_name, loop->collection_name);
     
-    // YZ_28: Push loop context for exit for
-    loop_push(loop_id);
+    // YZ_28/YZ_90: Push loop context for exit/continue for
+    loop_push(loop_id, loop_id);  // Same ID for start/end labels
     
     // Register loop variable and internal index
     function_register_local_var(func, loop->var_name);
@@ -129,8 +129,8 @@ void for_loop_generate_code(FILE* output, ForLoop* loop, void* context) {
     
     fprintf(output, "\n    # For loop (desugared to while)\n");
     
-    // YZ_28: Push loop context for exit for
-    loop_push(loop_id);
+    // YZ_28/YZ_90: Push loop context for exit/continue for
+    loop_push(loop_id, loop_id);  // Same ID for start/end labels
     
     // 0. Auto-register loop variable if not already registered
     function_register_local_var(func, loop->var_name);
@@ -168,7 +168,8 @@ void for_loop_generate_code(FILE* output, ForLoop* loop, void* context) {
         stmt = stmt->next;
     }
     
-    // 5. Increment/Decrement
+    // 5. Increment/Decrement (continue jumps here!)
+    fprintf(output, ".for_continue_%d:\n", loop_id);  // YZ_90: Continue target
     fprintf(output, "    movq %d(%%rbp), %%r8  # Load %s\n", var_offset, loop->var_name);
     if (loop->direction == FOR_TO) {
         fprintf(output, "    addq $1, %%r8  # i++\n");

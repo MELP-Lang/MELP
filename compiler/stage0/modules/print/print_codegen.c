@@ -11,6 +11,53 @@ static int string_counter = 0;
 static int is_first_call = 1;
 static bool sto_declarations_emitted = false;
 
+// YZ_91: Helper to check if a variable is a string type
+static int is_variable_string(const char* var_name, FunctionDeclaration* func) {
+    if (!func || !var_name) return 0;
+    
+    // Check local variables
+    LocalVariable* var = func->local_vars;
+    while (var) {
+        if (strcmp(var->name, var_name) == 0) {
+            return !var->is_numeric;  // is_numeric=0 means string
+        }
+        var = var->next;
+    }
+    
+    // Check parameters
+    FunctionParam* param = func->params;
+    while (param) {
+        if (strcmp(param->name, var_name) == 0) {
+            return (param->type == FUNC_PARAM_TEXT);
+        }
+        param = param->next;
+    }
+    
+    return 0;  // Default to numeric
+}
+
+// YZ_91: Check if expression is string type (recursively)
+static int is_expression_string(ArithmeticExpr* expr, FunctionDeclaration* func) {
+    if (!expr) return 0;
+    
+    // Direct string flag
+    if (expr->is_string) return 1;
+    
+    // String literal
+    if (expr->is_literal && expr->is_string) return 1;
+    
+    // Variable - check type from symbol table
+    if (!expr->is_literal && expr->value && !expr->left && !expr->right) {
+        return is_variable_string(expr->value, func);
+    }
+    
+    // Binary operation - if either operand is string (for concatenation)
+    if (expr->left && is_expression_string(expr->left, func)) return 1;
+    if (expr->right && is_expression_string(expr->right, func)) return 1;
+    
+    return 0;
+}
+
 // Emit STO runtime function declarations (only once)
 static void emit_sto_declarations(FILE* f) {
     if (sto_declarations_emitted) return;
@@ -49,8 +96,18 @@ void codegen_print_statement(FILE* f, PrintStatement* stmt, FunctionDeclaration*
         // Generate expression code (result will be in r8 or xmm0)
         arithmetic_generate_code(f, expr, func);
         
-        fprintf(f, "    mov %%r8, %%rdi  # Move result to first argument (AT&T syntax)\n");
-        fprintf(f, "    call sto_print_int64\n");
+        // YZ_91: Check if expression is a string (using symbol table for variables)
+        int is_string_expr = is_expression_string(expr, func);
+        
+        if (is_string_expr) {
+            // String: use puts (prints string + newline)
+            fprintf(f, "    movq %%r8, %%rdi  # String pointer as argument\n");
+            fprintf(f, "    call puts\n");
+        } else {
+            // Numeric: use sto_print_int64
+            fprintf(f, "    mov %%r8, %%rdi  # Move result to first argument (AT&T syntax)\n");
+            fprintf(f, "    call sto_print_int64\n");
+        }
         
         string_counter++;
         return;

@@ -1,0 +1,21 @@
+-- YZ_84: Test struct return from function
+-- Expected output: exit code 55
+
+struct Point
+    numeric x
+    numeric y
+end_struct
+
+function create_point(numeric a, numeric b) returns Point
+    Point p
+    p.x = a
+    p.y = b
+    return p
+end_function
+
+function main() returns numeric
+    Point origin
+    origin = create_point(25, 30)
+    
+    return origin.x + origin.y
+end_function

@@ -1,0 +1,18 @@
+-- Test: Struct Instance Declaration and Assignment (Phase 19.1)
+-- YZ_82: Struct instances with field assignment
+
+struct Point
+    numeric x
+    numeric y
+end_struct
+
+function main() returns numeric
+    -- Create instance
+    Point p
+    
+    -- Assign fields
+    p.x = 10
+    p.y = 20
+    
+    return 42
+end_function

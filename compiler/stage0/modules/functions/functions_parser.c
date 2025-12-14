@@ -8,6 +8,7 @@
 #include "../statement/statement_optimize.h" // ✅ YZ_32: Dead code elimination
 #include "../parser_core/parser_core.h"      // ✅ Parser structure (temp wrapper)
 #include "../error/error.h"                  // ✅ Error handling system
+#include "../struct/struct.h"                // YZ_84: Struct definitions for type lookup
 
 // Helper: Convert type keyword to FunctionParamType
 static FunctionParamType token_to_param_type(TokenType type) {
@@ -89,12 +90,29 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
     if (tok->type != TOKEN_RPAREN) {
         // First parameter: type name
         // MLP format: function name(numeric x, string y)
+        // YZ_84: Also supports: function name(Point p1, Address addr)
         
         // Read type first
         FunctionParamType param_type = token_to_param_type(tok->type);
-        // YZ_63: Check if we consumed a type token
+        char* struct_type_name = NULL;
+        
+        // YZ_84: Check if it's a struct type (IDENTIFIER that matches a struct definition)
+        if (tok->type == TOKEN_IDENTIFIER) {
+            // Could be a struct type name
+            StructDef* struct_def = struct_lookup_definition(tok->value);
+            if (struct_def) {
+                // It's a struct type!
+                param_type = FUNC_PARAM_STRUCT;
+                struct_type_name = strdup(tok->value);
+                token_free(tok);
+                tok = lexer_next_token(lexer);  // Get parameter name
+            } else {
+                // Not a struct type, treat as parameter name with default numeric type
+                param_type = FUNC_PARAM_NUMERIC;
+            }
+        } 
         // Type tokens: TOKEN_NUMERIC, TOKEN_STRING_TYPE, TOKEN_BOOLEAN
-        if (tok->type == TOKEN_NUMERIC || tok->type == TOKEN_STRING_TYPE || tok->type == TOKEN_BOOLEAN) {
+        else if (tok->type == TOKEN_NUMERIC || tok->type == TOKEN_STRING_TYPE || tok->type == TOKEN_BOOLEAN) {
             // Valid type found, consume it and read parameter name
             token_free(tok);
             tok = lexer_next_token(lexer);
@@ -129,10 +147,18 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
             }
         }
         
-        function_add_param(func, param_name, param_type);
+        // YZ_84: Add parameter (struct or regular)
+        if (param_type == FUNC_PARAM_STRUCT && struct_type_name) {
+            function_add_struct_param(func, param_name, struct_type_name);
+            free(struct_type_name);
+        } else {
+            function_add_param(func, param_name, param_type);
+        }
         // Set default value flag on last added parameter
         if (has_default && func->param_count > 0) {
-            func->params[func->param_count - 1].has_default = 1;
+            FunctionParam* last_param = func->params;
+            while (last_param->next) last_param = last_param->next;
+            last_param->has_default = 1;
         }
         free(param_name);
         
@@ -144,8 +170,22 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
             
             // Read type
             param_type = token_to_param_type(tok->type);
+            struct_type_name = NULL;
+            
+            // YZ_84: Check if it's a struct type
+            if (tok->type == TOKEN_IDENTIFIER) {
+                StructDef* struct_def = struct_lookup_definition(tok->value);
+                if (struct_def) {
+                    param_type = FUNC_PARAM_STRUCT;
+                    struct_type_name = strdup(tok->value);
+                    token_free(tok);
+                    tok = lexer_next_token(lexer);
+                } else {
+                    param_type = FUNC_PARAM_NUMERIC;
+                }
+            }
             // YZ_63: Check if we consumed a type token
-            if (tok->type == TOKEN_NUMERIC || tok->type == TOKEN_STRING_TYPE || tok->type == TOKEN_BOOLEAN) {
+            else if (tok->type == TOKEN_NUMERIC || tok->type == TOKEN_STRING_TYPE || tok->type == TOKEN_BOOLEAN) {
                 // Valid type found, consume it and read parameter name
                 token_free(tok);
                 tok = lexer_next_token(lexer);
@@ -180,9 +220,17 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
                 }
             }
             
-            function_add_param(func, param_name, param_type);
+            // YZ_84: Add parameter (struct or regular)
+            if (param_type == FUNC_PARAM_STRUCT && struct_type_name) {
+                function_add_struct_param(func, param_name, struct_type_name);
+                free(struct_type_name);
+            } else {
+                function_add_param(func, param_name, param_type);
+            }
             if (has_default && func->param_count > 0) {
-                func->params[func->param_count - 1].has_default = 1;
+                FunctionParam* last_param = func->params;
+                while (last_param->next) last_param = last_param->next;
+                last_param->has_default = 1;
             }
             free(param_name);
         }
@@ -203,7 +251,22 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
     if (tok && tok->type == TOKEN_RETURNS) {
         token_free(tok);
         tok = lexer_next_token(lexer);
-        func->return_type = token_to_return_type(tok->type);
+        
+        // YZ_84: Check if return type is a struct
+        if (tok->type == TOKEN_IDENTIFIER) {
+            StructDef* struct_def = struct_lookup_definition(tok->value);
+            if (struct_def) {
+                // Returning a struct
+                func->return_type = FUNC_RETURN_STRUCT;
+                func->return_struct_type = strdup(tok->value);
+            } else {
+                // Unknown type, default to void
+                func->return_type = FUNC_RETURN_VOID;
+            }
+        } else {
+            // Regular return type
+            func->return_type = token_to_return_type(tok->type);
+        }
         token_free(tok);
         tok = NULL;  // YZ_74: Mark as consumed
     } else {

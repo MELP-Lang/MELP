@@ -1,0 +1,13 @@
+function main() returns numeric
+    numeric i = 0
+    
+    while i < 10 do
+        i = i + 1
+        
+        if i > 5 then
+            exit
+        end_if
+    end_while
+    
+    return i
+end_function

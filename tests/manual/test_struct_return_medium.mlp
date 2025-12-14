@@ -1,0 +1,25 @@
+// YZ_85: Test medium struct return (17-64 bytes) - STO: STACK_COPY
+// Rectangle struct is 32 bytes (4 × numeric = 4 × 8 bytes)
+// Expected: Hidden pointer + memcpy
+
+struct Rectangle
+    numeric x
+    numeric y
+    numeric width
+    numeric height
+end_struct
+
+function create_rect(numeric a, numeric b, numeric w, numeric h) returns Rectangle
+    Rectangle r
+    r.x = a
+    r.y = b
+    r.width = w
+    r.height = h
+    return r
+end_function
+
+function main() returns numeric
+    Rectangle box
+    box = create_rect(10, 20, 30, 40)
+    return box.x + box.y + box.width + box.height  // Should return 100
+end_function

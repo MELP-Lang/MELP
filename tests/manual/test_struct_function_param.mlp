@@ -1,0 +1,22 @@
+-- YZ_84: Test struct as function parameter
+-- Expected output: exit code 42
+
+struct Point
+    numeric x
+    numeric y
+end_struct
+
+function get_x(Point p) returns numeric
+    return p.x
+end_function
+
+function main() returns numeric
+    Point origin
+    origin.x = 42
+    origin.y = 0
+    
+    numeric result
+    result = get_x(origin)
+    
+    return result
+end_function

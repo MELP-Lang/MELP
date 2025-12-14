@@ -7,6 +7,7 @@ FunctionDeclaration* function_create(const char* name, FunctionReturnType return
     func->name = strdup(name);
     func->params = NULL;
     func->return_type = return_type;
+    func->return_struct_type = NULL;  // YZ_84: Initialize struct return type
     func->body = NULL;
     func->param_count = 0;
     func->local_var_count = 0;
@@ -19,6 +20,27 @@ void function_add_param(FunctionDeclaration* func, const char* name, FunctionPar
     FunctionParam* param = malloc(sizeof(FunctionParam));
     param->name = strdup(name);
     param->type = type;
+    param->struct_type_name = NULL;  // YZ_84: Initialize struct type
+    param->next = NULL;
+    
+    if (func->params == NULL) {
+        func->params = param;
+    } else {
+        FunctionParam* curr = func->params;
+        while (curr->next != NULL) {
+            curr = curr->next;
+        }
+        curr->next = param;
+    }
+    func->param_count++;
+}
+
+// YZ_84: Add struct parameter
+void function_add_struct_param(FunctionDeclaration* func, const char* name, const char* struct_type) {
+    FunctionParam* param = malloc(sizeof(FunctionParam));
+    param->name = strdup(name);
+    param->type = FUNC_PARAM_STRUCT;
+    param->struct_type_name = strdup(struct_type);
     param->next = NULL;
     
     if (func->params == NULL) {
@@ -41,11 +63,13 @@ void function_free(FunctionDeclaration* func) {
     if (!func) return;
     
     free(func->name);
+    free(func->return_struct_type);  // YZ_84: Free struct return type
     
     FunctionParam* param = func->params;
     while (param) {
         FunctionParam* next = param->next;
         free(param->name);
+        free(param->struct_type_name);  // YZ_84: Free struct type name
         free(param);
         param = next;
     }

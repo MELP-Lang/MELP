@@ -1,0 +1,14 @@
+function main() returns numeric
+    numeric i = 0
+    numeric sum = 0
+    
+    while i < 100 do
+        sum = sum + i
+        i = i + 1
+        if i >= 5 then
+            exit_while
+        end_if
+    end_while
+    
+    return sum
+end_function

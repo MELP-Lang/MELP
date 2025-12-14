@@ -1,0 +1,26 @@
+-- YZ_90: Test nested loop with break and continue
+function main() returns numeric
+    numeric sum = 0
+    numeric i = 0
+    
+    while i < 5 do
+        i = i + 1
+        numeric j = 0
+        
+        for j from 1 to 5
+            -- Skip if j is even
+            if j mod 2 == 0 then
+                continue
+            end_if
+            
+            sum = sum + j
+            
+            -- Break inner loop if j > 3
+            if j > 3 then
+                exit
+            end_if
+        end_for
+    end_for
+    
+    return sum  -- 5 iterations × (1+3) = 5 × 4 = 20
+end_function

@@ -174,8 +174,12 @@ static Token* read_identifier(Lexer* lexer) {
     else if (strcmp(value, "while") == 0) type = TOKEN_WHILE;
     else if (strcmp(value, "do") == 0) type = TOKEN_DO;
     else if (strcmp(value, "for") == 0) type = TOKEN_FOR;
+    else if (strcmp(value, "from") == 0) type = TOKEN_FROM;       // YZ_87: for from..to
     else if (strcmp(value, "to") == 0) type = TOKEN_TO;
     else if (strcmp(value, "downto") == 0) type = TOKEN_DOWNTO;
+    else if (strcmp(value, "switch") == 0) type = TOKEN_SWITCH;   // YZ_89: switch/case
+    else if (strcmp(value, "case") == 0) type = TOKEN_CASE;       // YZ_89: switch/case
+    else if (strcmp(value, "default") == 0) type = TOKEN_DEFAULT; // YZ_89: switch/case
     else if (strcmp(value, "each") == 0) type = TOKEN_EACH;       // YZ_28: for each
     else if (strcmp(value, "in") == 0) type = TOKEN_IN;           // YZ_28: for each item in
     else if (strcmp(value, "exit") == 0) type = TOKEN_EXIT;       // YZ_28: exit, exit for, exit while, exit if
@@ -188,7 +192,9 @@ static Token* read_identifier(Lexer* lexer) {
     // Struct keywords
     else if (strcmp(value, "struct") == 0) type = TOKEN_STRUCT;
     else if (strcmp(value, "enum") == 0) type = TOKEN_ENUM;
-    else if (strcmp(value, "struct") == 0) type = TOKEN_STRUCT;
+    else if (strcmp(value, "method") == 0) type = TOKEN_METHOD;
+    else if (strcmp(value, "end_method") == 0) type = TOKEN_END_METHOD;
+    else if (strcmp(value, "self") == 0) type = TOKEN_SELF;
     // Logical keywords (also bitwise for integers - VB.NET style)
     else if (strcasecmp(value, "and") == 0) type = TOKEN_AND;
     else if (strcasecmp(value, "or") == 0) type = TOKEN_OR;

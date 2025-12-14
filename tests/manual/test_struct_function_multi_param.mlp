@@ -1,0 +1,26 @@
+-- YZ_84: Test struct as function parameter (advanced)
+-- Expected output: exit code 67 (55 + 12)
+
+struct Point
+    numeric x
+    numeric y
+end_struct
+
+function sum_coords(Point p1, Point p2) returns numeric
+    return p1.x + p1.y + p2.x + p2.y
+end_function
+
+function main() returns numeric
+    Point a
+    a.x = 10
+    a.y = 20
+    
+    Point b
+    b.x = 25
+    b.y = 12
+    
+    numeric result
+    result = sum_coords(a, b)
+    
+    return result
+end_function

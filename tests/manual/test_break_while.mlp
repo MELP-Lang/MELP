@@ -1,0 +1,17 @@
+-- YZ_90: Test break in while loop
+function main() returns numeric
+    numeric sum = 0
+    numeric i = 0
+    
+    while i < 100 do
+        i = i + 1
+        sum = sum + i
+        
+        -- Break when sum exceeds 50
+        if sum > 50 then
+            exit
+        end_if
+    end_while
+    
+    return sum  -- Should be 55 (1+2+3+...+10 = 55)
+end_function

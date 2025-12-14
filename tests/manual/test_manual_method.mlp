@@ -1,0 +1,17 @@
+struct Point
+    numeric x
+    numeric y
+end_struct
+
+function Point_get_sum(Point self) returns numeric
+    return self.x + self.y
+end_function
+
+function main() returns numeric
+    Point p
+    p.x = 15
+    p.y = 27
+    numeric result
+    result = Point_get_sum(p)
+    return result
+end_function

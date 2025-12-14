@@ -63,8 +63,8 @@ void control_flow_generate_while(FILE* output, WhileStatement* stmt, void* conte
     
     int loop_id = label_counter++;
     
-    // YZ_28: Push loop context for exit while
-    loop_push(loop_id);
+    // YZ_28/YZ_90: Push loop context for exit/continue while
+    loop_push(loop_id, loop_id);  // Same ID for start/end labels
     
     fprintf(output, "\n    # While loop\n");
     fprintf(output, ".while_start_%d:\n", loop_id);

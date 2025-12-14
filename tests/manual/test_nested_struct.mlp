@@ -1,0 +1,27 @@
+-- Test: Nested Structs (Phase 19.2)
+-- YZ_83: Struct within struct with nested field access
+
+struct Address
+    numeric zip
+    numeric street_num
+end_struct
+
+struct Person
+    numeric age
+    Address addr
+end_struct
+
+function main() returns numeric
+    -- Create Person instance (includes nested Address)
+    Person john
+    
+    -- Assign simple field
+    john.age = 30
+    
+    -- Assign nested fields
+    john.addr.zip = 12345
+    john.addr.street_num = 100
+    
+    -- Return nested field value
+    return john.addr.zip
+end_function

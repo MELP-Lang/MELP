@@ -1,0 +1,9 @@
+function main() returns numeric
+    numeric i = 0
+    
+    while i < 10 do
+        i = i + 1
+    end_while
+    
+    return i
+end_function

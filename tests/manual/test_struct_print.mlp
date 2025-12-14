@@ -1,0 +1,18 @@
+-- Test: Struct Field Access with Print (Phase 19.1)
+-- YZ_82: Print struct field values
+
+struct Point
+    numeric x
+    numeric y
+end_struct
+
+function main() returns numeric
+    Point p
+    p.x = 10
+    p.y = 20
+    
+    print(p.x)  -- Should print 10
+    print(p.y)  -- Should print 20
+    
+    return 0
+end_function

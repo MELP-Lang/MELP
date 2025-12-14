@@ -1,0 +1,8 @@
+function main() returns numeric
+    numeric result = 0
+    for i from 10 downto 1
+        result = result + i
+    end_for
+    
+    return result
+end_function

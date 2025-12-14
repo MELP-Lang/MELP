@@ -256,6 +256,70 @@ void mlp_string_free(char* str) {
 }
 
 // ============================================================================
+// YZ_90: Number to String Conversion (for string interpolation)
+// ============================================================================
+
+/**
+ * Convert integer to string
+ * 
+ * @param num Integer number
+ * @return New heap-allocated string (caller must free)
+ * 
+ * Example:
+ *   numeric age = 25
+ *   string msg = "Age: ${age}"  // Uses mlp_number_to_string internally
+ */
+char* mlp_number_to_string(long long num) {
+    // Allocate buffer (max 64-bit int = 20 digits + sign + null)
+    char* buffer = malloc(22);
+    if (!buffer) {
+        fprintf(stderr, "Error: mlp_number_to_string - malloc failed\n");
+        exit(1);
+    }
+    
+    snprintf(buffer, 22, "%lld", num);
+    return buffer;
+}
+
+/**
+ * Convert double to string
+ * 
+ * @param num Floating point number
+ * @return New heap-allocated string (caller must free)
+ * 
+ * Example:
+ *   numeric pi = 3.14159
+ *   string msg = "Pi: ${pi}"  // Uses mlp_double_to_string internally
+ */
+char* mlp_double_to_string(double num) {
+    // Allocate buffer (enough for most double representations)
+    char* buffer = malloc(32);
+    if (!buffer) {
+        fprintf(stderr, "Error: mlp_double_to_string - malloc failed\n");
+        exit(1);
+    }
+    
+    // Use %.6f format (6 decimal places, remove trailing zeros)
+    snprintf(buffer, 32, "%.6f", num);
+    
+    // Remove trailing zeros after decimal point
+    char* dot = strchr(buffer, '.');
+    if (dot) {
+        char* end = buffer + strlen(buffer) - 1;
+        while (end > dot && *end == '0') {
+            *end = '\0';
+            end--;
+        }
+        // Remove trailing dot if no decimals left
+        if (end == dot) {
+            *end = '\0';
+        }
+    }
+    
+    return buffer;
+}
+
+// ============================================================================
 // Phase 5: String Case Conversion & Trimming (YZ_29)
 // ============================================================================
 

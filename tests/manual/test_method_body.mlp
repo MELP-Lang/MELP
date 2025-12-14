@@ -1,0 +1,16 @@
+struct Point
+    numeric x
+    numeric y
+    
+    method get_sum() returns numeric
+        return self.x + self.y
+    end_method
+end_struct
+
+function main() returns numeric
+    Point p
+    p.x = 10
+    p.y = 20
+    numeric result = p.get_sum()
+    return result
+end_function

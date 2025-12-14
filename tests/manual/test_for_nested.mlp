@@ -1,0 +1,10 @@
+function main() returns numeric
+    numeric total = 0
+    for i from 1 to 3
+        for j from 1 to 2
+            total = total + 1
+        end_for
+    end_for
+    
+    return total
+end_function

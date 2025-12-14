@@ -1,0 +1,17 @@
+function main() returns numeric
+    numeric i = 0
+    numeric sum = 0
+    
+    while i < 10 do
+        i = i + 1
+        if i == 3 then
+            continue_while
+        end_if
+        if i == 7 then
+            continue_while
+        end_if
+        sum = sum + i
+    end_while
+    
+    return sum
+end_function

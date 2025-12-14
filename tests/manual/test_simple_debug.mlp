@@ -1,0 +1,13 @@
+-- Test: Simple struct to verify basics still work
+-- YZ_83: Debugging
+
+struct Point
+    numeric x
+    numeric y
+end_struct
+
+function main() returns numeric
+    Point p
+    p.x = 42
+    return p.x
+end_function

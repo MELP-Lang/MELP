@@ -1,6 +1,7 @@
 #include "statement_parser.h"
 #include "../control_flow/control_flow_parser.h"  // ✅ While/If parsing
 #include "../for_loop/for_loop_parser.h"           // ✅ For loop parsing
+#include "../switch/switch_parser.h"               // ✅ YZ_89: Switch parsing
 #include "../print/print_parser.h"                 // ✅ Print parsing
 #include "../print/print.h"                        // ✅ YZ_61: PrintStatement struct
 #include "../variable/variable_parser.h"           // ✅ Variable declarations
@@ -12,6 +13,8 @@
 #include "../array/array.h"                        // ✅ YZ_15: IndexAccess, ArrayAssignment
 #include "../array/array_parser.h"                 // ✅ YZ_15: array_parse_index_access
 #include "../import/import_parser.h"               // ✅ YZ_35: Import statement parsing
+#include "../struct/struct.h"                      // ✅ YZ_81: Struct definitions
+#include "../struct/struct_parser.h"               // ✅ YZ_81: Struct parsing
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -62,6 +65,57 @@ Statement* statement_parse(Parser* parser) {
         case TOKEN_END_TRY:
             token_free(tok);
             return NULL;  // End of block
+        
+        // ✅ YZ_90: Explicit exit tokens (PMPL underscore style)
+        case TOKEN_EXIT_FOR:
+            token_free(tok);
+            stmt = statement_create(STMT_EXIT_FOR);
+            stmt->data = NULL;
+            stmt->next = NULL;
+            return stmt;
+        
+        case TOKEN_EXIT_WHILE:
+            token_free(tok);
+            stmt = statement_create(STMT_EXIT_WHILE);
+            stmt->data = NULL;
+            stmt->next = NULL;
+            return stmt;
+        
+        case TOKEN_EXIT_IF:
+            token_free(tok);
+            stmt = statement_create(STMT_EXIT_IF);
+            stmt->data = NULL;
+            stmt->next = NULL;
+            return stmt;
+        
+        case TOKEN_EXIT_FUNCTION:
+            token_free(tok);
+            stmt = statement_create(STMT_EXIT_FUNCTION);
+            stmt->data = NULL;
+            stmt->next = NULL;
+            return stmt;
+        
+        case TOKEN_EXIT_SWITCH:
+            token_free(tok);
+            stmt = statement_create(STMT_EXIT_SWITCH);
+            stmt->data = NULL;
+            stmt->next = NULL;
+            return stmt;
+        
+        // ✅ YZ_90: Explicit continue tokens (PMPL underscore style)
+        case TOKEN_CONTINUE_FOR:
+            token_free(tok);
+            stmt = statement_create(STMT_CONTINUE_FOR);
+            stmt->data = NULL;
+            stmt->next = NULL;
+            return stmt;
+        
+        case TOKEN_CONTINUE_WHILE:
+            token_free(tok);
+            stmt = statement_create(STMT_CONTINUE_WHILE);
+            stmt->data = NULL;
+            stmt->next = NULL;
+            return stmt;
         
         default:
             // Not a block terminator, continue parsing
@@ -172,6 +226,23 @@ Statement* statement_parse(Parser* parser) {
             // Note: Import statements are typically at top of file
             // Module loading will be handled by compiler/linker
             // For now, we just parse and store the import
+        }
+        
+        return stmt;
+    }
+    
+    // ✅ YZ_81: STRUCT definition - use struct module
+    if (tok->type == TOKEN_STRUCT) {
+        StructDef* struct_data = parse_struct_definition(parser);  // YZ_88: Pass full parser
+        
+        // We own tok - free it!
+        token_free(tok);
+        tok = NULL;
+        
+        if (struct_data) {
+            stmt = statement_create(STMT_STRUCT);
+            stmt->data = struct_data;
+            stmt->next = NULL;
         }
         
         return stmt;
@@ -292,6 +363,23 @@ Statement* statement_parse(Parser* parser) {
         return stmt;  // ✅ No more control_flow_parser_free!
     }
     
+    // ✅ YZ_89: SWITCH statement
+    if (tok->type == TOKEN_SWITCH) {
+        SwitchStatement* switch_data = switch_parse(parser, tok);
+        
+        // We own tok - free it!
+        token_free(tok);
+        tok = NULL;
+        
+        if (switch_data) {
+            stmt = statement_create(STMT_SWITCH);
+            stmt->data = switch_data;
+            stmt->next = NULL;
+        }
+        
+        return stmt;
+    }
+    
     // ✅ FOR statement - use for_loop module
     if (tok->type == TOKEN_FOR) {
         
@@ -333,39 +421,19 @@ Statement* statement_parse(Parser* parser) {
         return stmt;
     }
     
-    // ✅ YZ_28: EXIT statement - exit from block (VB.NET style)
-    // Syntax: exit, exit for, exit while, exit if, exit function
+    // ✅ YZ_90: Standalone EXIT - generic loop exit (PMPL spec allows this)
     if (tok->type == TOKEN_EXIT) {
         token_free(tok);
-        
-        // Peek next token to see if it's "for", "while", "if", "function"
-        Token* next = lexer_next_token(parser->lexer);
-        
-        if (next && next->type == TOKEN_FOR) {
-            // exit for
-            token_free(next);
-            stmt = statement_create(STMT_EXIT_FOR);
-        } else if (next && next->type == TOKEN_WHILE) {
-            // exit while
-            token_free(next);
-            stmt = statement_create(STMT_EXIT_WHILE);
-        } else if (next && next->type == TOKEN_IF) {
-            // exit if
-            token_free(next);
-            stmt = statement_create(STMT_EXIT_IF);
-        } else if (next && next->type == TOKEN_FUNCTION) {
-            // exit function
-            token_free(next);
-            stmt = statement_create(STMT_EXIT_FUNCTION);
-        } else {
-            // Just "exit" - exit from nearest block
-            if (next) {
-                // Put token back for next parse
-                parser->current_token = next;
-            }
-            stmt = statement_create(STMT_EXIT);
-        }
-        
+        stmt = statement_create(STMT_EXIT);
+        stmt->data = NULL;
+        stmt->next = NULL;
+        return stmt;
+    }
+    
+    // ✅ YZ_90: Standalone CONTINUE - generic loop continue (PMPL spec allows this)
+    if (tok->type == TOKEN_CONTINUE) {
+        token_free(tok);
+        stmt = statement_create(STMT_CONTINUE);
         stmt->data = NULL;
         stmt->next = NULL;
         return stmt;
@@ -496,8 +564,140 @@ Statement* statement_parse(Parser* parser) {
     
     // ✅ Variable assignment or function call - check if identifier followed by '=', '[', or '('
     if (tok->type == TOKEN_IDENTIFIER) {
-        // Need to look ahead for '=', '[', or '('
+        // YZ_82: Check if this is a struct instance declaration (Point p)
+        StructDef* struct_def = struct_try_parse_instance_decl(parser->lexer, tok);
+        if (struct_def) {
+            // This is a struct type! Next token should be instance variable name
+            Token* inst_name_tok = lexer_next_token(parser->lexer);
+            
+            if (!inst_name_tok || inst_name_tok->type != TOKEN_IDENTIFIER) {
+                token_free(tok);
+                if (inst_name_tok) token_free(inst_name_tok);
+                error_parser(0, "Expected variable name after struct type '%s'", tok->value);
+                return NULL;
+            }
+            
+            // Create struct instance
+            StructInstance* instance = struct_create_instance(struct_def, inst_name_tok->value);
+            
+            token_free(tok);
+            token_free(inst_name_tok);
+            
+            stmt = statement_create(STMT_STRUCT_INSTANCE);
+            stmt->data = instance;
+            stmt->next = NULL;
+            return stmt;
+        }
+        
+        // Need to look ahead for '=', '[', '(', or '.'
         Token* next_tok = lexer_next_token(parser->lexer);
+        
+        // YZ_82/YZ_83: Check for member assignment: p.x = value or p.addr.zip = value
+        if (next_tok && next_tok->type == TOKEN_DOT) {
+            // Struct member assignment (possibly nested)
+            char* inst_name = strdup(tok->value);
+            token_free(tok);
+            token_free(next_tok);
+            
+            // YZ_83: Parse member chain (could be multiple levels)
+            char** member_chain = NULL;
+            int chain_length = 0;
+            int chain_capacity = 4;
+            member_chain = malloc(sizeof(char*) * chain_capacity);
+            
+            // Loop to collect all chained members until '='
+            while (1) {
+                // Expect member name
+                Token* member_tok = lexer_next_token(parser->lexer);
+                if (!member_tok || member_tok->type != TOKEN_IDENTIFIER) {
+                    free(inst_name);
+                    for (int i = 0; i < chain_length; i++) {
+                        free(member_chain[i]);
+                    }
+                    free(member_chain);
+                    if (member_tok) token_free(member_tok);
+                    error_parser(0, "Expected member name after '.'");
+                    return NULL;
+                }
+                
+                // Expand array if needed
+                if (chain_length >= chain_capacity) {
+                    chain_capacity *= 2;
+                    member_chain = realloc(member_chain, sizeof(char*) * chain_capacity);
+                }
+                
+                member_chain[chain_length++] = strdup(member_tok->value);
+                token_free(member_tok);
+                
+                // Check what comes next: '.' or '='
+                Token* next = lexer_next_token(parser->lexer);
+                if (!next) {
+                    free(inst_name);
+                    for (int i = 0; i < chain_length; i++) {
+                        free(member_chain[i]);
+                    }
+                    free(member_chain);
+                    error_parser(0, "Unexpected end after member");
+                    return NULL;
+                }
+                
+                if (next->type == TOKEN_ASSIGN) {
+                    // Done with chain, move to value expression
+                    token_free(next);
+                    break;
+                } else if (next->type == TOKEN_DOT) {
+                    // Continue chain
+                    token_free(next);
+                    continue;
+                } else {
+                    free(inst_name);
+                    for (int i = 0; i < chain_length; i++) {
+                        free(member_chain[i]);
+                    }
+                    free(member_chain);
+                    token_free(next);
+                    error_parser(0, "Expected '=' or '.' after member name");
+                    return NULL;
+                }
+            }
+            
+            // Parse value expression
+            Token* expr_tok = lexer_next_token(parser->lexer);
+            if (!expr_tok) {
+                free(inst_name);
+                for (int i = 0; i < chain_length; i++) {
+                    free(member_chain[i]);
+                }
+                free(member_chain);
+                error_parser(0, "Expected expression after '='");
+                return NULL;
+            }
+            
+            ArithmeticExpr* expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok);
+            token_free(expr_tok);
+            
+            if (!expr) {
+                free(inst_name);
+                for (int i = 0; i < chain_length; i++) {
+                    free(member_chain[i]);
+                }
+                free(member_chain);
+                return NULL;
+            }
+            
+            // Create member assignment structure
+            MemberAssignment* mem_assign = malloc(sizeof(MemberAssignment));
+            mem_assign->instance_name = inst_name;
+            mem_assign->member_name = (chain_length > 0) ? strdup(member_chain[0]) : NULL;  // Keep for compat
+            mem_assign->value_expr = expr;
+            mem_assign->member_chain = member_chain;
+            mem_assign->chain_length = chain_length;
+            
+            stmt = statement_create(STMT_MEMBER_ASSIGNMENT);
+            stmt->data = mem_assign;
+            stmt->next = NULL;
+            return stmt;
+        }
         
         // YZ_65: Check for function call: func(args)
         if (next_tok && next_tok->type == TOKEN_LPAREN) {

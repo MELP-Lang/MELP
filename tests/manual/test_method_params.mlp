@@ -1,0 +1,21 @@
+struct Point
+    numeric x
+    numeric y
+    
+    method add_point(Point other) returns numeric
+        return self.x + other.x + self.y + other.y
+    end_method
+end_struct
+
+function main() returns numeric
+    Point p1
+    p1.x = 10
+    p1.y = 20
+    
+    Point p2
+    p2.x = 5
+    p2.y = 15
+    
+    numeric result = p1.add_point(p2)
+    return result
+end_function

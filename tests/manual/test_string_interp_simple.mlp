@@ -1,0 +1,8 @@
+function main() returns numeric
+    text name = "Dunya"
+    text greeting = "Hello ${name}!"
+    
+    println(greeting)
+    
+    return 0
+end_function

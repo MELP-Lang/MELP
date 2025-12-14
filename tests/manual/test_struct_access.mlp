@@ -1,0 +1,20 @@
+-- Test: Struct Field Access (Phase 19.1)
+-- YZ_82: Read struct field values
+
+struct Point
+    numeric x
+    numeric y
+end_struct
+
+function main() returns numeric
+    Point p
+    p.x = 10
+    p.y = 20
+    
+    -- Access fields (will be implemented)
+    -- print(p.x)  -- Should print 10
+    -- print(p.y)  -- Should print 20
+    
+    -- For now, return p.x
+    return p.x
+end_function

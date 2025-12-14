@@ -2,6 +2,7 @@
 #include "../../../../runtime/sto/runtime_sto.h"
 #include "../functions/functions.h"  // For FunctionDeclaration type
 #include "../array/array_codegen.h"  // YZ_14: For array access codegen
+#include "../struct/struct.h"  // YZ_82: For member access
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,6 +10,31 @@
 // Register counter for temporary values
 static int reg_counter = 0;
 static int overflow_label_counter = 0;
+
+// YZ_91: Helper to check if a variable is a string type
+static int is_var_string_type(const char* var_name, FunctionDeclaration* func) {
+    if (!func || !var_name) return 0;
+    
+    // Check local variables
+    LocalVariable* var = func->local_vars;
+    while (var) {
+        if (strcmp(var->name, var_name) == 0) {
+            return !var->is_numeric;  // is_numeric=0 means string
+        }
+        var = var->next;
+    }
+    
+    // Check parameters
+    FunctionParam* param = func->params;
+    while (param) {
+        if (strcmp(param->name, var_name) == 0) {
+            return (param->type == FUNC_PARAM_TEXT);
+        }
+        param = param->next;
+    }
+    
+    return 0;  // Default to numeric
+}
 
 // Generate assembly for loading a value into register
 static void generate_load(FILE* output, const char* value, int reg_num, int is_float, FunctionDeclaration* func) {
@@ -52,17 +78,43 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
     
     // YZ_48: Simple println() codegen for for-loop support
     // (YZ_47: TOKEN_PRINTLN parser, YZ_48: codegen)
+    // YZ_91: Added string type support
     if (expr->is_function_call && expr->func_call && 
         strcmp(expr->func_call->function_name, "println") == 0 && 
         expr->func_call->arg_count == 1) {
         fprintf(output, "    # println() call\n");
+        
+        ArithmeticExpr* arg = expr->func_call->arguments[0];
+        
         // Evaluate argument expression → r8
-        generate_expr_code(output, expr->func_call->arguments[0], 0, func);
-        // Call STO print function + manual newline
+        generate_expr_code(output, arg, 0, func);
+        
+        // YZ_91: Determine if argument is string type
+        int is_string_arg = arg->is_string;
+        
+        // Check variable type from symbol table if it's a variable
+        if (!is_string_arg && !arg->is_literal && arg->value && !arg->left && !arg->right) {
+            is_string_arg = is_var_string_type(arg->value, func);
+        }
+        
+        // Check if binary operation with string operand
+        if (!is_string_arg && (arg->left || arg->right)) {
+            if ((arg->left && arg->left->is_string) || (arg->right && arg->right->is_string)) {
+                is_string_arg = 1;
+            }
+        }
+        
         fprintf(output, "    movq %%r8, %%rdi\n");
-        fprintf(output, "    call sto_print_int64\n");
-        fprintf(output, "    movq $10, %%rdi  # newline char\n");
-        fprintf(output, "    call putchar\n");
+        
+        if (is_string_arg) {
+            // String: use puts (prints string + newline)
+            fprintf(output, "    call puts  # Print string + newline\n");
+        } else {
+            // Numeric: use sto_print_int64 + manual newline
+            fprintf(output, "    call sto_print_int64\n");
+            fprintf(output, "    movq $10, %%rdi  # newline char\n");
+            fprintf(output, "    call putchar\n");
+        }
         return;
     }
     
@@ -78,7 +130,19 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
         
         // Evaluate and move arguments to appropriate registers
         for (int i = 0; i < call->arg_count && i < max_reg_params; i++) {
-            // Evaluate argument expression to r10 (temporary)
+            // YZ_84: Check if argument is a struct instance (pass by pointer)
+            ArithmeticExpr* arg_expr = call->arguments[i];
+            if (arg_expr && !arg_expr->is_literal && arg_expr->value) {
+                StructInstanceInfo* inst = struct_lookup_instance(arg_expr->value);
+                if (inst && !inst->is_pointer) {
+                    // Pass address of struct value
+                    fprintf(output, "    leaq -%d(%%rbp), %s  # Pass struct %s address\n", 
+                            inst->stack_offset, param_regs[i], arg_expr->value);
+                    continue;
+                }
+            }
+            
+            // Regular argument: evaluate expression to r10 (temporary)
             generate_expr_code(output, call->arguments[i], 2, func);  // Use r10 (reg 2)
             
             // Move result from r10 to parameter register
@@ -217,6 +281,176 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
         
         // Return value is in rax, move to target register
         fprintf(output, "    movq %%rax, %%r%d  # Function return value\n", target_reg + 8);
+        
+        return;
+    }
+    
+    // YZ_82/YZ_83: Struct member access (p.x or p.addr.zip)
+    if (expr->is_member_access && expr->member_access) {
+        MemberAccess* access = (MemberAccess*)expr->member_access;
+        
+        fprintf(output, "    # Member access: %s", access->struct_instance);
+        for (int i = 0; i < access->chain_length; i++) {
+            fprintf(output, ".%s", access->member_chain[i]);
+        }
+        fprintf(output, "\n");
+        
+        // Look up struct instance
+        StructInstanceInfo* inst_info = struct_lookup_instance(access->struct_instance);
+        if (!inst_info) {
+            fprintf(output, "    # ERROR: Instance '%s' not found\n", 
+                    access->struct_instance);
+            fprintf(output, "    xor %%r%d, %%r%d  # Error fallback\n", 
+                    target_reg + 8, target_reg + 8);
+            return;
+        }
+        
+        // YZ_84: Handle struct pointers (function parameters)
+        int is_pointer = inst_info->is_pointer;
+        
+        // YZ_83: Traverse member chain for nested access
+        StructDef* current_def = inst_info->definition;
+        int cumulative_offset = 0;
+        
+        for (int chain_idx = 0; chain_idx < access->chain_length; chain_idx++) {
+            const char* member_name = access->member_chain[chain_idx];
+            
+            // Find member in current definition
+            StructMember* member = current_def->members;
+            while (member) {
+                if (strcmp(member->name, member_name) == 0) {
+                    break;
+                }
+                member = member->next;
+            }
+            
+            if (!member) {
+                fprintf(output, "    # ERROR: Member '%s' not found in chain\n", member_name);
+                fprintf(output, "    xor %%r%d, %%r%d  # Error fallback\n", 
+                        target_reg + 8, target_reg + 8);
+                return;
+            }
+            
+            // Add member's offset to cumulative offset
+            cumulative_offset += member->offset;
+            
+            // If this is a nested struct and not the last in chain, continue
+            if (chain_idx < access->chain_length - 1) {
+                if (!member->nested_def) {
+                    fprintf(output, "    # ERROR: Member '%s' is not a struct\n", member_name);
+                    fprintf(output, "    xor %%r%d, %%r%d  # Error fallback\n", 
+                            target_reg + 8, target_reg + 8);
+                    return;
+                }
+                current_def = member->nested_def;  // Traverse into nested struct
+            }
+        }
+        
+        // YZ_84: Calculate address based on pointer or value type
+        if (is_pointer) {
+            // Pointer: load pointer first, then access member
+            fprintf(output, "    # Load pointer at %d(%%rbp)\n", inst_info->stack_offset);
+            fprintf(output, "    movq %d(%%rbp), %%r10  # Load struct pointer\n", 
+                    inst_info->stack_offset);
+            fprintf(output, "    # Access member at offset %d from pointer\n", cumulative_offset);
+            fprintf(output, "    movq %d(%%r10), %%r%d  # Load member value\n",
+                    cumulative_offset, target_reg + 8);
+        } else {
+            // Value: direct offset from rbp
+            int final_offset = inst_info->stack_offset - cumulative_offset;
+            
+            fprintf(output, "    # Load from [rbp - %d + %d] = [rbp - %d]\n",
+                    inst_info->stack_offset, cumulative_offset, final_offset);
+            
+            // Load value (assuming numeric for now)
+            fprintf(output, "    movq %d(%%rbp), %%r%d  # Load nested member value\n",
+                    -final_offset, target_reg + 8);
+        }
+        
+        return;
+    }
+    
+    // YZ_86: Method call (p.method(args))
+    if (expr->is_method_call && expr->method_call) {
+        MethodCall* call = (MethodCall*)expr->method_call;
+        
+        fprintf(output, "    # Method call: %s.%s()\n", 
+                call->instance_name, call->method_name);
+        
+        // Look up struct instance to get its type
+        StructInstanceInfo* inst_info = struct_lookup_instance(call->instance_name);
+        if (!inst_info) {
+            fprintf(output, "    # ERROR: Instance '%s' not found\n", 
+                    call->instance_name);
+            fprintf(output, "    xorq %%r%d, %%r%d  # Error fallback\n", 
+                    target_reg + 8, target_reg + 8);
+            return;
+        }
+        
+        // Find method in struct definition
+        StructMethod* method = struct_find_method(inst_info->definition, call->method_name);
+        if (!method) {
+            fprintf(output, "    # ERROR: Method '%s' not found in struct '%s'\n",
+                    call->method_name, inst_info->definition->name);
+            fprintf(output, "    xorq %%r%d, %%r%d  # Error fallback\n",
+                    target_reg + 8, target_reg + 8);
+            return;
+        }
+        
+        // Generate function name: StructName_methodname
+        char func_name[256];
+        snprintf(func_name, sizeof(func_name), "%s_%s",
+                 inst_info->definition->name, call->method_name);
+        
+        fprintf(output, "    # Calling %s(self, ...)\n", func_name);
+        
+        // Save caller-saved registers if needed
+        if (target_reg > 0) {
+            fprintf(output, "    pushq %%r8\n");
+            fprintf(output, "    pushq %%r9\n");
+        }
+        
+        // Load 'self' pointer as first argument (in %rdi)
+        if (inst_info->is_pointer) {
+            // Instance is already a pointer (function parameter)
+            fprintf(output, "    movq -%d(%%rbp), %%rdi  # Load self pointer\n",
+                    inst_info->stack_offset);
+        } else {
+            // Instance is a value, take its address
+            fprintf(output, "    leaq -%d(%%rbp), %%rdi  # Load self address\n",
+                    inst_info->stack_offset);
+        }
+        
+        // Load remaining arguments into %rsi, %rdx, %rcx, %r8, %r9
+        // YZ_86: For now, we support simple numeric arguments only
+        const char* arg_regs[] = {"%rsi", "%rdx", "%rcx", "%r8", "%r9"};
+        int max_args = 5;  // After self, we have 5 more registers
+        
+        for (int i = 0; i < call->arg_count && i < max_args; i++) {
+            // Arguments are stored as ArithmeticExpr* (cast from Expression*)
+            ArithmeticExpr* arg = (ArithmeticExpr*)call->arguments[i];
+            
+            // Evaluate argument into a temporary register
+            int temp_reg = 0;  // Use r8 as temp
+            generate_expr_code(output, arg, temp_reg, func);
+            
+            // Move result to appropriate argument register
+            fprintf(output, "    movq %%r%d, %s  # arg%d\n",
+                    temp_reg + 8, arg_regs[i], i + 1);
+        }
+        
+        // Call the method function
+        fprintf(output, "    call %s\n", func_name);
+        
+        // Result is in %rax, move to target register
+        fprintf(output, "    movq %%rax, %%r%d  # Method return value\n",
+                target_reg + 8);
+        
+        // Restore caller-saved registers
+        if (target_reg > 0) {
+            fprintf(output, "    popq %%r9\n");
+            fprintf(output, "    popq %%r8\n");
+        }
         
         return;
     }
@@ -440,13 +674,64 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
     int is_string = (expr->left && expr->left->is_string) || 
                     (expr->right && expr->right->is_string);
     
-    // Handle string concatenation (YZ_07)
+    // Handle string concatenation (YZ_07, YZ_91: with numeric conversion)
     if (is_string && expr->op == ARITH_ADD) {
         fprintf(output, "    # String concatenation (text + text)\n");
-        fprintf(output, "    movq %%r%d, %%rdi  # arg1: first string pointer\n", left_reg + 8);
-        fprintf(output, "    movq %%r%d, %%rsi  # arg2: second string pointer\n", right_reg + 8);
-        fprintf(output, "    call mlp_string_concat  # Returns new string in %%rax\n");
-        fprintf(output, "    movq %%rax, %%r%d  # Store result string pointer\n", target_reg + 8);
+        
+        // YZ_91: Check if right operand is numeric (needs conversion)
+        int right_is_numeric = 0;
+        if (expr->right && !expr->right->is_string && !expr->right->is_literal && expr->right->value) {
+            // It's a variable - check type from symbol table
+            right_is_numeric = !is_var_string_type(expr->right->value, func);
+        } else if (expr->right && expr->right->is_literal && !expr->right->is_string) {
+            // Numeric literal
+            right_is_numeric = 1;
+        }
+        
+        // YZ_91: Check if left operand is numeric (needs conversion)
+        int left_is_numeric = 0;
+        if (expr->left && !expr->left->is_string && !expr->left->is_literal && expr->left->value) {
+            left_is_numeric = !is_var_string_type(expr->left->value, func);
+        } else if (expr->left && expr->left->is_literal && !expr->left->is_string) {
+            left_is_numeric = 1;
+        }
+        
+        // YZ_91: Convert numeric operands to string
+        // Use callee-saved registers (r12, r13) to preserve values across function calls
+        // x86-64 ABI: r8-r11 are caller-saved (clobbered by function calls)
+        //             r12-r15 are callee-saved (preserved across function calls)
+        
+        // Save callee-saved registers we'll use
+        fprintf(output, "    pushq %%r12  # Save callee-saved register\n");
+        fprintf(output, "    pushq %%r13  # Save callee-saved register\n");
+        
+        // Move operands to callee-saved registers
+        fprintf(output, "    movq %%r%d, %%r12  # Left operand to callee-saved\n", left_reg + 8);
+        fprintf(output, "    movq %%r%d, %%r13  # Right operand to callee-saved\n", right_reg + 8);
+        
+        // Convert left if numeric
+        if (left_is_numeric) {
+            fprintf(output, "    movq %%r12, %%rdi  # Numeric to convert\n");
+            fprintf(output, "    call mlp_number_to_string\n");
+            fprintf(output, "    movq %%rax, %%r12  # String pointer\n");
+        }
+        
+        // Convert right if numeric
+        if (right_is_numeric) {
+            fprintf(output, "    movq %%r13, %%rdi  # Numeric to convert\n");
+            fprintf(output, "    call mlp_number_to_string\n");
+            fprintf(output, "    movq %%rax, %%r13  # String pointer\n");
+        }
+        
+        // Now concatenate (r12 and r13 are preserved)
+        fprintf(output, "    movq %%r12, %%rdi  # arg1: first string\n");
+        fprintf(output, "    movq %%r13, %%rsi  # arg2: second string\n");
+        fprintf(output, "    call mlp_string_concat\n");
+        fprintf(output, "    movq %%rax, %%r%d  # Result string pointer\n", target_reg + 8);
+        
+        // Restore callee-saved registers
+        fprintf(output, "    popq %%r13  # Restore callee-saved\n");
+        fprintf(output, "    popq %%r12  # Restore callee-saved\n");
         return;
     }
     

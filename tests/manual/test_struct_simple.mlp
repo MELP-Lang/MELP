@@ -1,0 +1,11 @@
+-- Test: Simple Struct Definition (Phase 19)
+-- YZ_81: Basic struct support
+
+struct Point
+    numeric x
+    numeric y
+end_struct
+
+function main() returns numeric
+    return 42
+end_function

@@ -1,0 +1,12 @@
+struct Point
+    numeric x
+    numeric y
+    
+    method get_x() returns numeric
+        return self.x
+    end_method
+end_struct
+
+function main() returns numeric
+    return 0
+end_function

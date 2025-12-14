@@ -48,7 +48,8 @@ ARITHMETIC_SOURCES = \
 	$(ARITHMETIC_DIR)/arithmetic.c \
 	$(ARITHMETIC_DIR)/arithmetic_parser.c \
 	$(ARITHMETIC_DIR)/arithmetic_codegen.c \
-	$(ARITHMETIC_DIR)/arithmetic_optimize.c
+	$(ARITHMETIC_DIR)/arithmetic_optimize.c \
+	$(ARITHMETIC_DIR)/string_interpolation.c
 
 # Comparison modülü (Modül #4)
 COMPARISON_DIR = ../comparison
@@ -78,6 +79,13 @@ FOR_LOOP_SOURCES = \
 	$(FOR_LOOP_DIR)/for_loop_parser.c \
 	$(FOR_LOOP_DIR)/for_loop_codegen.c
 
+# Switch modülü (YZ_89 - Phase 21)
+SWITCH_DIR = ../switch
+SWITCH_SOURCES = \
+	$(SWITCH_DIR)/switch.c \
+	$(SWITCH_DIR)/switch_parser.c \
+	$(SWITCH_DIR)/switch_codegen.c
+
 # Print modülü (YZ_61 - Phase 15)
 PRINT_DIR = ../print
 PRINT_SOURCES = \
@@ -106,6 +114,13 @@ IMPORT_SOURCES = \
 	$(IMPORT_DIR)/import_parser.c \
 	$(IMPORT_DIR)/import_cache.c \
 	$(IMPORT_DIR)/import_cache_persist.c
+
+# Struct modülü (YZ_81 - Struct definitions)
+STRUCT_DIR = ../struct
+STRUCT_SOURCES = \
+	$(STRUCT_DIR)/struct.c \
+	$(STRUCT_DIR)/struct_parser.c \
+	$(STRUCT_DIR)/struct_codegen.c
 
 # Parser Core modülü (Parser structure)
 PARSER_CORE_DIR = ../parser_core
@@ -143,10 +158,12 @@ SOURCES = \
 	$(LOGICAL_SOURCES) \
 	$(CONTROL_FLOW_SOURCES) \
 	$(FOR_LOOP_SOURCES) \
+	$(SWITCH_SOURCES) \
 	$(PRINT_SOURCES) \
 	$(ARRAY_SOURCES) \
 	$(STATEMENT_SOURCES) \
 	$(IMPORT_SOURCES) \
+	$(STRUCT_SOURCES) \
 	$(PARSER_CORE_SOURCES) \
 	$(CODEGEN_CONTEXT_SOURCES) \
 	$(ERROR_SOURCES) \

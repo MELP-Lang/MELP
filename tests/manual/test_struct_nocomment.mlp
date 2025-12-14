@@ -1,0 +1,17 @@
+struct Point
+    numeric x
+    numeric y
+end_struct
+
+function create_point(numeric a, numeric b) returns Point
+    Point p
+    p.x = a
+    p.y = b
+    return p
+end_function
+
+function main() returns numeric
+    Point result
+    result = create_point(25, 30)
+    return result.x + result.y
+end_function

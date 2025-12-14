@@ -1,0 +1,12 @@
+function main() returns numeric
+    string name = "Ahmet"
+    numeric x = 10
+    numeric y = 20
+    numeric sum = x + y
+    
+    string result = "Merhaba ${name}! x=${x}, y=${y}, toplam=${sum}"
+    
+    println(result)
+    
+    return 0
+end_function

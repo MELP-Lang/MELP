@@ -1,0 +1,9 @@
+function main() returns numeric
+    string name = "Ali"
+    numeric age = 25
+    string msg = "Merhaba ${name}, yaşınız ${age}"
+    
+    println(msg)
+    
+    return 0
+end_function

@@ -1,0 +1,22 @@
+-- Test: Nested Structs with smaller values
+-- YZ_83: Return value that fits in exit code
+
+struct Address
+    numeric zip
+    numeric street_num
+end_struct
+
+struct Person
+    numeric age
+    Address addr
+end_struct
+
+function main() returns numeric
+    Person john
+    john.age = 30
+    john.addr.zip = 42
+    john.addr.street_num = 100
+    
+    -- Return nested field (42)
+    return john.addr.zip
+end_function

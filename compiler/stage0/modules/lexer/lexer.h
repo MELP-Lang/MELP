@@ -41,8 +41,12 @@ typedef enum {
     TOKEN_WHILE,
     TOKEN_DO,
     TOKEN_FOR,
+    TOKEN_FROM,            // from (for loop range start)
     TOKEN_TO,
     TOKEN_DOWNTO,
+    TOKEN_SWITCH,          // switch
+    TOKEN_CASE,            // case
+    TOKEN_DEFAULT,         // default
     TOKEN_EACH,            // for each item in collection
     TOKEN_IN,              // for each item in collection
     TOKEN_EXIT,            // exit, exit for, exit while, exit if, exit function
@@ -87,6 +91,9 @@ typedef enum {
     // Struct keywords
     TOKEN_STRUCT,
     TOKEN_ENUM,
+    TOKEN_METHOD,          // method (struct method)
+    TOKEN_END_METHOD,      // end_method
+    TOKEN_SELF,            // self (method receiver)
     // Module keywords
     TOKEN_IMPORT,          // import module_name
     TOKEN_MODULE,          // module keyword

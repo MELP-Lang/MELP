@@ -29,6 +29,10 @@ char* mlp_string_duplicate(const char* str);
 char* mlp_string_substring(const char* str, size_t start, size_t length);  // YZ_22
 int mlp_string_indexOf(const char* str, const char* substr);  // YZ_22
 
+// YZ_90: Number to string conversion (for string interpolation)
+char* mlp_number_to_string(long long num);
+char* mlp_double_to_string(double num);
+
 // Phase 5: Case Conversion & Trimming (YZ_29)
 char* mlp_string_toUpperCase(const char* str);
 char* mlp_string_toLowerCase(const char* str);
