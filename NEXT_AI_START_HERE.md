@@ -1,53 +1,67 @@
-# YZ_94 Completed: Phase 22.3 - Nested Function Calls ✅
+# YZ_96 Completed: Enum Types + Switch/Case ✅
 
-**Session:** YZ_94  
+**Session:** YZ_96  
 **Date:** 15 Aralık 2025  
 **Agent:** GitHub Copilot (Claude Opus 4.5)  
 **Branch:** `phase18-array-support_YZ_74`
 
-## 🎉 YZ_94 COMPLETED: Nested Function Calls in Interpolation!
+## 🎉 YZ_96 COMPLETED: Enum Types + Switch/Case!
 
-**Achievement:** Nested function calls like `${abs(min(x, y))}` now work!
+### What YZ_96 Implemented
 
-### What YZ_94 Implemented
+**1. Switch/Case (Verified Existing)** ✅
+Switch was already implemented - just needed verification.
 
-1. **Min/Max Builtin Functions** ✅
-   - Added `min(a, b)` and `max(a, b)` to builtin list
-   - Implemented in `runtime/stdlib/mlp_math.c`
-
-2. **Nested Call Register Fix** ✅
-   - Two-phase argument evaluation to prevent register clobbering
-   - Phase 1: Evaluate all args and push to stack
-   - Phase 2: Pop args into parameter registers (reverse order)
-
-**Syntax Working:**
 ```pmpl
-numeric x = -10
-numeric y = 5
-string msg = "Result: ${abs(min(x, y))}"  -- → "Result: 5" ✅
+switch value
+    case 1:
+        result = 10
+    case 2:
+        result = 20
+    default:
+        result = 99
+end_switch
 ```
 
-**Files Created:** 4
-- runtime/stdlib/mlp_math.c (min/max implementation)
-- runtime/stdlib/mlp_math.h
-- tests/manual/test_nested_calls_deep.mlp
-- tests/manual/test_nested_calls_multi.mlp
+**2. Enum Types (NEW!)** ✅
+
+Full enum support with:
+- Enum definition with explicit or auto-increment values
+- Qualified value access: `Status.ACTIVE`
+- Compile-time resolution to numeric literals
+
+```pmpl
+enum Status
+    PENDING = 0
+    ACTIVE = 1
+    DONE = 2
+end_enum
+
+enum Priority
+    LOW       -- 0 (auto)
+    MEDIUM    -- 1 (auto)
+    HIGH      -- 2 (auto)
+end_enum
+
+-- Usage
+numeric s = Status.ACTIVE    -- s = 1
+switch s
+    case Status.PENDING:
+        println("Waiting...")
+    case Status.ACTIVE:
+        println("In progress!")
+end_switch
+```
+
+**Files Created:** 10
+- compiler/stage0/modules/enum/ (full module)
+- tests/manual/test_enum_*.mlp (3 tests)
+
+**Tests:** ✅ All 6 tests passing (3 switch + 3 enum)
 
 ---
 
-## ❌ YZ_95 İPTAL: Float-to-String (BigDecimal = Stage 1)
-
-**Reason:** MELP'te IEEE 754 YOK! Tüm numeric → BigDecimal.
-BigDecimal = büyük iş (GMP/MPFR), Stage 1'e ertelendi.
-
-**kurallar_kitabı.md güncellendi:**
-- MELP'te sadece 2 tip: `string` ve `numeric`
-- numeric = BigDecimal (arbitrary precision)
-- int64/double/IEEE 754 YOKTUR!
-
----
-
-## 🚀 Next Steps for YZ_96
+## 🚀 Next Steps for YZ_97
 
 ### Option A: Struct Method Improvements (2-3 hours) ⭐
 **Goal:** Method body'de local variable desteği
@@ -61,31 +75,24 @@ struct Point
 end_struct
 ```
 
-### Option B: Switch/Case (2-3 hours)
-**Goal:** Switch statement desteği
+### Option B: Pattern Matching (3-4 hours)
+**Goal:** Pattern matching desteği
 ```pmpl
-switch value
-    case 1
-        println("One")
-    case 2
-        println("Two")
-    default
-        println("Other")
-end_switch
+match value
+    is 1 then println("One")
+    is 2 then println("Two")
+    else println("Other")
+end_match
 ```
 
-### Option C: Enum Types (2-3 hours)
-**Goal:** Enumerated types
+### Option C: Lambda/Anonymous Functions (3-4 hours)
+**Goal:** Lambda expressions
 ```pmpl
-enum Status
-    PENDING = 0
-    ACTIVE = 1
-    DONE = 2
-end_enum
+numeric result = apply(10, lambda(x) x * 2 end_lambda)
 ```
 
 ### Option D: Documentation & Code Cleanup
-**Goal:** Phase 19-23 dokümantasyonu
+**Goal:** Phase 19-23 dokümantasyonu, kod temizliği
 
 ---
 
