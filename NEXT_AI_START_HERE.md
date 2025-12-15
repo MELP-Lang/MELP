@@ -1,100 +1,99 @@
-# YZ_95 Completed: Phase 22.4 - Float-to-String Interpolation ✅
+# YZ_94 Completed: Phase 22.3 - Nested Function Calls ✅
 
-**Session:** YZ_95  
+**Session:** YZ_94  
 **Date:** 15 Aralık 2025  
 **Agent:** GitHub Copilot (Claude Opus 4.5)  
 **Branch:** `phase18-array-support_YZ_74`
 
-## 🎉 YZ_95 COMPLETED: Float Variables in String Interpolation!
+## 🎉 YZ_94 COMPLETED: Nested Function Calls in Interpolation!
 
-**Achievement:** Float variables can now be displayed in string interpolation!
+**Achievement:** Nested function calls like `${abs(min(x, y))}` now work!
 
-### What YZ_95 Implemented
+### What YZ_94 Implemented
 
-**Phase 22.4 - Float-to-String Interpolation (Basic)** ✅
+1. **Min/Max Builtin Functions** ✅
+   - Added `min(a, b)` and `max(a, b)` to builtin list
+   - Implemented in `runtime/stdlib/mlp_math.c`
 
-1. **Float Literal Codegen Fix** ✅
-   - `numeric pi = 3.14159` now compiles correctly
-   - Float literals stored in `.rodata` section
-   - Loaded with `movsd` instruction
+2. **Nested Call Register Fix** ✅
+   - Two-phase argument evaluation to prevent register clobbering
+   - Phase 1: Evaluate all args and push to stack
+   - Phase 2: Pop args into parameter registers (reverse order)
 
-2. **Float Type Tracking** ✅
-   - `LocalVariable` now has `is_float` field
-   - `function_register_local_var_with_float()` - Register with float flag
-   - `function_get_var_is_float()` - Query float status
-
-3. **Float-to-String Conversion** ✅
-   - Float variables use `mlp_double_to_string()`
-   - Integer variables use `mlp_number_to_string()`
-   - Automatic detection based on variable type
-
-**Syntax Now Working:**
+**Syntax Working:**
 ```pmpl
-numeric pi = 3.14159
-numeric int_val = 42
-
-string float_msg = "Pi: ${pi}"      -- → "Pi: 3.14159" ✅
-string int_msg = "Int: ${int_val}"  -- → "Int: 42" ✅
+numeric x = -10
+numeric y = 5
+string msg = "Result: ${abs(min(x, y))}"  -- → "Result: 5" ✅
 ```
 
-**Files Modified:** 5
-- compiler/stage0/modules/functions/functions.h (is_float field)
-- compiler/stage0/modules/functions/functions.c (float tracking functions)
-- compiler/stage0/modules/functions/functions_codegen.c (float detection)
-- compiler/stage0/modules/arithmetic/arithmetic_codegen.c (float-to-string)
-- compiler/stage0/modules/statement/statement_codegen.c (float literal fix)
+**Files Created:** 4
+- runtime/stdlib/mlp_math.c (min/max implementation)
+- runtime/stdlib/mlp_math.h
+- tests/manual/test_nested_calls_deep.mlp
+- tests/manual/test_nested_calls_multi.mlp
 
-**Files Created:** 2
-- tests/manual/test_float_interp.mlp
-- tests/manual/test_float_arith_interp.mlp
+---
 
-**Tests:** ✅ All Passing
-- test_float_interp.mlp → `Pi: 3.14159`, `Int: 42` ✅
-- All previous interpolation tests → ✅ (no regression)
+## ❌ YZ_95 İPTAL: Float-to-String (BigDecimal = Stage 1)
 
-**Known Limitation:** Float arithmetic expressions like `${pi + e}` don't work yet (requires separate float codegen implementation).
+**Reason:** MELP'te IEEE 754 YOK! Tüm numeric → BigDecimal.
+BigDecimal = büyük iş (GMP/MPFR), Stage 1'e ertelendi.
+
+**kurallar_kitabı.md güncellendi:**
+- MELP'te sadece 2 tip: `string` ve `numeric`
+- numeric = BigDecimal (arbitrary precision)
+- int64/double/IEEE 754 YOKTUR!
 
 ---
 
 ## 🚀 Next Steps for YZ_96
 
-### Option A: Float Arithmetic in Interpolation (2-3 hours)
-**Goal:** Support float expressions in interpolation
+### Option A: Struct Method Improvements (2-3 hours) ⭐
+**Goal:** Method body'de local variable desteği
 ```pmpl
-numeric pi = 3.14159
-numeric e = 2.71828
-string msg = "Sum: ${pi + e}"  -- Currently doesn't work
+struct Point
+    numeric x, y
+    method distance() returns numeric
+        numeric dx = self.x  -- Local var in method
+        return dx * dx
+    end_method
+end_struct
 ```
 
-### Option B: Enum Types (2-3 hours) ⭐ Recommended  
-**Goal:** Enumerated types for cleaner code
+### Option B: Switch/Case (2-3 hours)
+**Goal:** Switch statement desteği
+```pmpl
+switch value
+    case 1
+        println("One")
+    case 2
+        println("Two")
+    default
+        println("Other")
+end_switch
+```
+
+### Option C: Enum Types (2-3 hours)
+**Goal:** Enumerated types
 ```pmpl
 enum Status
     PENDING = 0
     ACTIVE = 1
     DONE = 2
 end_enum
-
-Status s = Status.ACTIVE
 ```
 
-### Option C: String Methods in Interpolation (2 hours)
-**Goal:** Call methods on strings
-```pmpl
-string name = "melp"
-string msg = "Upper: ${name.upper()}"  -- → "Upper: MELP"
-```
-
-### Option D: Documentation & Cleanup
-**Goal:** Code quality and documentation
+### Option D: Documentation & Code Cleanup
+**Goal:** Phase 19-23 dokümantasyonu
 
 ---
 
-**User Decision Needed:** Which feature next?
+**User Decision Needed:** Which feature next? (A/B/C/D)
 
 ---
 
-# Previous: YZ_94 Completed: Phase 22.3 - Nested Function Calls ✅
+# Previous: YZ_93 Completed: Parenthesized Expressions ✅
 
 **Session:** YZ_92  
 **Date:** 15 Aralık 2025  
