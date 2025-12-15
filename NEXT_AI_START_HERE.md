@@ -1,91 +1,104 @@
-# YZ_92 Completed: Phase 22.1 - Expression Interpolation ✅
+# YZ_93 Completed: Phase 22.2 - Advanced Expression Interpolation ✅
 
-**Session:** YZ_92  
+**Session:** YZ_93  
 **Date:** 15 Aralık 2025  
 **Agent:** GitHub Copilot (Claude Opus 4.5)  
 **Branch:** `phase18-array-support_YZ_74`
 
-## 🎉 YZ_92 COMPLETED: Expression Interpolation Fully Working!
+## 🎉 YZ_93 COMPLETED: Parenthesized Expressions & Function Calls!
 
-**Achievement:** Full arithmetic expressions inside string interpolation `${expr}`!
+**Achievement:** Full support for parentheses and function calls in string interpolation!
 
-### What YZ_92 Implemented
+### What YZ_93 Implemented
 
-**Phase 22.1 - Expression Interpolation (Complete)** ✅
+**Phase 22.2 - Advanced Expression Interpolation (Complete)** ✅
 
-1. **Expression Parser in Interpolation** ✅
-   - `is_simple_identifier()` - Detect simple vs complex expressions
-   - `parse_interpolation_expression()` - Full expression parser using mini-lexer
-   - Creates proper ArithmeticExpr tree from `${...}` content
+1. **Parenthesized Expressions** ✅
+   - `${(x + y) * 2}` → "60"
+   - Complex precedence handled correctly
+   - Nested parentheses supported
 
-2. **Critical Codegen Bug Fix** ✅
-   - Fixed register clobbering during nested function calls
-   - Save operands to callee-saved (r12/r13) BEFORE evaluating sub-expressions
-   - Proper x86-64 ABI compliance
+2. **Function Calls in Interpolation** ✅
+   - `${abs(x)}` → absolute value
+   - `${length(str)}` → string length
+   - `${max(a, b)}` → maximum value
+   - Function + arithmetic: `${abs(x) + 5}`
 
-3. **Type Detection for Expressions** ✅
-   - Binary expressions with operators → numeric (needs conversion)
-   - Variables → symbol table lookup
-   - Literals → type check
+3. **Function Return Type Detection** ✅
+   - Numeric functions → convert with `mlp_number_to_string`
+   - String functions → direct concat
+   - Proper handling prevents segfaults
 
 **Syntax Now Working:**
 ```pmpl
 numeric x = 10
 numeric y = 20
+numeric z = -10
+string mytext = "Hello"
 
--- Simple expressions
-string sum = "Sum: ${x + y}"           -- → "Sum: 30"
-string prod = "Product: ${x * y}"      -- → "Product: 200"
-string diff = "Diff: ${x - y}"         -- → "Diff: -10"
+-- Parenthesized expressions
+string result = "Answer: ${(x + y) * 2}"        -- → "Answer: 60"
 
--- Complex expressions
-string complex = "All: ${x + y + 5}"   -- → "All: 35"
+-- Function calls
+string abs_val = "Absolute: ${abs(z)}"          -- → "Absolute: 10"
+string len = "Length: ${length(mytext)}"        -- → "Length: 5"
 
--- Multiple expressions in one string
-string all = "Sum: ${x + y}, Prod: ${x * y}, Diff: ${x - y}"
+-- Function + arithmetic
+string combo = "Result: ${abs(z) + 5}"          -- → "Result: 15"
+
+-- Multiple mixed interpolations
+string all = "Sum: ${x + y}, Product: ${x * y}, Abs: ${abs(z)}"
+-- → "Sum: 30, Product: 200, Abs: 10"
 ```
 
-**Files Modified:** 2
-- compiler/stage0/modules/arithmetic/string_interpolation.c (expression parser)
-- compiler/stage0/modules/arithmetic/arithmetic_codegen.c (register fix)
+**Files Modified:** 1
+- compiler/stage0/modules/arithmetic/arithmetic_codegen.c (function call type detection)
 
 **Tests:** ✅ All Passing
-- test_expr_interp_basic.mlp → `Sum: 30` ✅
-- test_expr_interp_complex.mlp → `Result: 35` ✅
-- test_expr_interp_mul.mlp → `Product: 200` ✅
-- test_expr_interp_multi.mlp → `Sum: 30, Product: 200, Diff: -10` ✅
-- Regression tests all passing ✅
+- test_expr_interp_paren.mlp → `Result: 60` ✅
+- test_expr_interp_func.mlp → `Absolute: 10` ✅
+- test_expr_interp_length.mlp → `Length: 5` ✅
+- test_expr_interp_func_arith.mlp → `Result: 15` ✅
+- test_expr_interp_multi.mlp → `Sum: 30, Product: 200, Abs: 10` ✅
 
-**Technical Fix - Register Clobbering:**
-```asm
-# Problem: r8 clobbered by mlp_number_to_string call
-# Solution: Save to r12/r13 BEFORE any function calls
-pushq %r12
-pushq %r13
-# Evaluate left operand
-movq %r8, %r12  # SAVE immediately
-# Evaluate right operand (may call functions)
-movq %r9, %r13  # SAVE immediately
-# Now safe to concat
-call mlp_string_concat
-popq %r13
-popq %r12
+**Technical Fix - Function Call Type Detection:**
+```c
+// YZ_93: Check if right is a function call returning numeric
+if (expr->right && expr->right->is_function_call && expr->right->func_call) {
+    const char* fn = expr->right->func_call->function_name;
+    // String-returning functions (no conversion needed)
+    if (strcmp(fn, "mlp_number_to_string") == 0 ||
+        strcmp(fn, "mlp_string_concat") == 0) {
+        right_is_numeric = 0;
+    } else {
+        // Most functions return numeric
+        right_is_numeric = 1;
+    }
+}
+```
+
+**Known Limitation:** Nested function calls not yet supported
+```pmpl
+-- This does NOT work yet:
+string s = "${abs(min(x, y))}"  -- nested calls
 ```
 
 ---
 
-## 🚀 Next Steps for YZ_93
+## 🚀 Next Steps for YZ_94
 
-### Option A: Parenthesized Expressions (1 hour)
-**Goal:** Support parentheses in interpolation
+### Option A: Nested Function Calls (2-3 hours)
+**Goal:** Support nested function calls in interpolation
 ```pmpl
-string msg = "Result: ${(x + y) * 2}"
+string msg = "Result: ${abs(min(x, y))}"
 ```
 
-### Option B: Function Calls in Interpolation (1-2 hours)
-**Goal:** Allow function calls inside `${}`
+### Option B: Float-to-String (1 hour)
+**Goal:** Support float in interpolation with precision
 ```pmpl
-string msg = "Abs: ${abs(x - y)}"
+numeric pi = 3.14159
+string msg = "Pi: ${pi}"      -- Currently only integers
+string fmt = "Pi: ${pi:2}"    -- 2 decimal places
 ```
 
 ### Option C: Enum Types (2-3 hours) ⭐ Recommended  
@@ -107,12 +120,38 @@ numeric pi = 3.14159
 string msg = "Pi: ${pi}"  # Currently only integers
 ```
 
-### Option D: Documentation & Cleanup
+### Option D: String Methods in Interpolation (2 hours)
+**Goal:** Call methods on strings
+```pmpl
+string name = "melp"
+string msg = "Upper: ${name.upper()}"  -- → "Upper: MELP"
+```
+
+### Option E: Documentation & Cleanup
 **Goal:** Code quality and documentation
 
 ---
 
 **User Decision Needed:** Which feature next?
+
+---
+
+# Previous: YZ_92 Completed: Phase 22.1 - Expression Interpolation ✅
+
+**Session:** YZ_92  
+**Date:** 15 Aralık 2025  
+**Agent:** GitHub Copilot (Claude Opus 4.5)  
+**Branch:** `phase18-array-support_YZ_74`
+
+## 🎉 YZ_92 COMPLETED: Expression Interpolation Fully Working!
+
+**Achievement:** Full arithmetic expressions inside string interpolation `${expr}`!
+
+### What YZ_92 Implemented
+
+1. **Expression Parser in Interpolation** ✅
+2. **Critical Codegen Bug Fix** ✅ (register clobbering)
+3. **Type Detection for Expressions** ✅
 
 ---
 
