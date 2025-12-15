@@ -222,7 +222,7 @@ $(TARGET): $(OBJECTS) ../../../../runtime/sto/libsto_runtime.a ../../../../runti
 # Standalone executable (simplified build)
 functions_standalone: functions_standalone.o $(filter-out functions_standalone.o,$(OBJECTS))
 	@echo "🔗 Linking: functions_standalone"
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ -lm
 
 # C dosyalarını derle
 %.o: %.c
