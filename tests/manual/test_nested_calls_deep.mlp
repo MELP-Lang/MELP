@@ -1,0 +1,18 @@
+-- YZ_94: Test deeply nested function calls
+-- Test triple nesting: abs(min(max(a, b), c))
+
+function main() returns numeric
+    numeric a = -20
+    numeric b = 10
+    numeric c = -5
+    
+    -- Triple nested: abs(min(max(-20, 10), -5)) = abs(min(10, -5)) = abs(-5) = 5
+    string test1 = "Triple: ${abs(min(max(a, b), c))}"
+    println(test1)
+    
+    -- Nested with arithmetic: abs(min(a + b, c)) = abs(min(-10, -5)) = abs(-10) = 10
+    string test2 = "With arith: ${abs(min(a + b, c))}"
+    println(test2)
+    
+    return 0
+end_function

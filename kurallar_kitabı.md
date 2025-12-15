@@ -395,13 +395,23 @@ x86-64 Binary                     Kullanıcı Çalıştırır
 
 ### 📋 Dahili Tip Dönüşüm Tablosu
 
-#### Numeric İçin:
+**🎯 MELP'te SADECE 2 TİP VAR:**
 
-| Kullanıcı Yazar | Değer Aralığı | Dahili Temsil | Nerede? | Performans |
-|-----------------|---------------|---------------|---------|------------|
-| `numeric x = 42` | -2^63 to 2^63-1 | int64 | register/stack | ⚡ En hızlı |
-| `numeric y = 3.14` | ~15 digit hassasiyet | double | xmm register | ⚡ Hızlı |
-| `numeric z = 10^100` | Sınırsız | BigDecimal | heap | 🐢 Yavaş ama güvenli |
+| Kullanıcı Tipi | Dahili Temsil | Açıklama |
+|---------------|---------------|----------|
+| **string** | String (SSO/heap) | Tüm metinler |
+| **numeric** | BigDecimal | TÜM sayılar (int yazılsa bile!) |
+
+**⚠️ MELP'te int64/double/BigInt YOKTUR!**
+**Tüm sayılar BigDecimal (arbitrary precision decimal) olarak saklanır.**
+
+```mlp
+numeric x = 42      // Dahilde: BigDecimal("42")
+numeric y = 3.14    // Dahilde: BigDecimal("3.14")  
+numeric z = 10^100  // Dahilde: BigDecimal("10000...0000")
+```
+
+**NOT:** String-tabanlı BigDecimal implementation kullanılır (GMP/MPFR opsiyonel).
 
 #### String İçin:
 
@@ -417,12 +427,7 @@ x86-64 Binary                     Kullanıcı Çalıştırır
 
 ```
 function analyze_numeric(value):
-    if value tam_sayı AND -2^63 ≤ value ≤ 2^63-1:
-        return INT64          -- Register'da tutulacak
-    else if value ondalık AND digits ≤ 15:
-        return DOUBLE         -- XMM register'da tutulacak
-    else:
-        return BIGDECIMAL     -- Heap'te tutulacak
+    return BIGDECIMAL     -- TÜM sayılar BigDecimal (int yazılsa bile)
 
 function analyze_string(value):
     if is_constant(value):
@@ -433,28 +438,31 @@ function analyze_string(value):
         return HEAP_STRING    -- Heap'te, pointer stack'te
 ```
 
-### ⚠️ Runtime Overflow Handling
+### ⚠️ Overflow Handling
+
+**MELP'te overflow YOKTUR!**
+
+Tüm sayılar BigDecimal (arbitrary precision) olduğu için:
+- Overflow yok
+- Hassasiyet kaybı yok
+- Sınırsız büyüklük
 
 ```
-int64 x = 9223372036854775807  -- Max int64
-x = x + 1                       -- OVERFLOW!
+numeric x = 9999999999999999999999999999999999999999
+x = x + 1  -- Sorunsuz çalışır, overflow yok!
 
--- Otomatik promote:
--- 1. Overflow detect edilir
--- 2. x BigDecimal'e dönüştürülür  
--- 3. İşlem BigDecimal ile devam eder
--- 4. Kullanıcı hiçbir şey farketmez
+numeric pi = 3.141592653589793238462643383279502884197
+-- Tüm hassasiyet korunur, kayıp yok!
 ```
 
 ### 🚀 Implementasyon Planı
 
 #### Faz 1: Temel STO (Self-hosting ÖNCESİ, 2-3 gün)
 
-**Numeric:**
-- [ ] int64 desteği (küçük tam sayılar)
-- [ ] double desteği (ondalık sayılar)
-- [ ] BigDecimal fallback (büyük/hassas sayılar)
-- [ ] Overflow detection ve auto-promote
+**Numeric (BigDecimal):**
+- [ ] BigDecimal desteği (TÜM sayılar için)
+- [ ] String-tabanlı implementation
+- [ ] GMP/MPFR opsiyonel optimizasyon
 
 **String:**
 - [ ] SSO implementasyonu (≤23 byte inline)
@@ -469,8 +477,8 @@ x = x + 1                       -- OVERFLOW!
 
 - [ ] Copy-on-write strings
 - [ ] String interning (aynı stringleri paylaş)
-- [ ] int32 kullanımı (değer aralığı izleme)
-- [ ] SIMD optimizasyonları
+- [ ] BigDecimal cache (sık kullanılan değerler: 0, 1, 10, vs.)
+- [ ] SIMD optimizasyonları (string işlemleri için)
 
 ### 💾 Bellek Yönetimi Stratejisi
 
@@ -478,8 +486,6 @@ x = x + 1                       -- OVERFLOW!
 ┌─────────────────────────────────────────────────────────────┐
 │                         STACK                                │
 ├─────────────────────────────────────────────────────────────┤
-│  int64 değerler (8 byte)                                    │
-│  double değerler (8 byte, aligned)                          │
 │  SSO strings (≤24 byte, inline)                             │
 │  Heap pointers (8 byte, heap verisine işaret eder)          │
 └─────────────────────────────────────────────────────────────┘
@@ -488,7 +494,7 @@ x = x + 1                       -- OVERFLOW!
 ┌─────────────────────────────────────────────────────────────┐
 │                          HEAP                                │
 ├─────────────────────────────────────────────────────────────┤
-│  BigDecimal yapıları                                        │
+│  BigDecimal yapıları (TÜM numeric değerler)                 │
 │  Uzun string verileri (>23 byte)                            │
 │  Dinamik array'ler                                          │
 │  Struct instance'ları                                       │
@@ -517,16 +523,18 @@ string uzun = read_file("kitap.txt")
 
 **Compiler arka planda:**
 ```asm
-; küçük = 42 → int64, register'da
-mov rax, 42
-mov [rbp-8], rax
+; küçük = 42 → BigDecimal, heap'te
+lea rdi, [.LC_42]      ; "42" string literal
+call bigdecimal_from_string
+mov [rbp-8], rax       ; heap pointer
 
-; ondalık = 3.14159 → double, xmm register'da  
-movsd xmm0, [.LC0]
-movsd [rbp-16], xmm0
+; ondalık = 3.14159 → BigDecimal, heap'te  
+lea rdi, [.LC_PI]      ; "3.14159" string literal
+call bigdecimal_from_string
+mov [rbp-16], rax      ; heap pointer
 
 ; devasa = 10^1000 → BigDecimal, heap'te
-call bigdec_pow
+call bigdecimal_pow
 mov [rbp-24], rax      ; heap pointer
 
 ; kısa = "Ali" → SSO, stack'te inline
@@ -547,10 +555,10 @@ mov [rbp-56], rax      ; heap pointer
 
 ### ⚠️ Dikkat Edilecekler
 
-1. **Aritmetik işlemlerde tip uyumu:** int64 + double = double
-2. **Overflow handling:** int64 taşarsa BigDecimal'e promote et
+1. **Tek numeric tipi:** Tüm sayılar BigDecimal
+2. **Hassasiyet:** Tüm işlemler arbitrary precision ile yapılır
 3. **String concat:** SSO + SSO = heap olabilir (uzunluk kontrolü)
-4. **Comparison:** Farklı dahili tipler karşılaştırılabilmeli
+4. **Numeric ↔ String:** Kolay dönüşüm (BigDecimal zaten string-tabanlı)
 
 ### 📝 AI Agent İçin Notlar
 
@@ -826,10 +834,21 @@ print(sum)
 
 ## 5. Veri Tipleri
 
-### BigDecimal-Based Type System
-- **numeric:** Tüm sayılar (int/float ayrımı YOK), BigDecimal tabanlı
-- **string:** UTF-8 string (text keyword yerine string kullanılır)
-- **boolean:** true/false
+### MELP Tip Sistemi (Sadece 2 Tip!)
+
+**🎯 MELP'te SADECE 2 TİP VAR:**
+
+| Tip | Açıklama |
+|-----|----------|
+| **string** | Tüm metinler (UTF-8) |
+| **numeric** | TÜM sayılar - BigDecimal olarak saklanır |
+
+**⚠️ int/float/double/int64 YOKTUR!**
+- `numeric x = 42` → BigDecimal("42")
+- `numeric y = 3.14` → BigDecimal("3.14")
+- Overflow YOK, hassasiyet kaybı YOK
+
+- **boolean:** true/false (dahilde 0/1 numeric)
 
 ### Koleksiyon Tipleri (Array, List, Tuple)
 
@@ -1309,7 +1328,8 @@ void gc_collect();
 
 // simple_runtime.c
 void mlp_print(const char* str);
-void mlp_print_num(double num);
+void mlp_print_num(const char* bigdec_str);   // BigDecimal string representation
+void mlp_print_decimal(const char* bigdec_str); // Alias
 void mlp_print_bool(int val);
 
 // List operations

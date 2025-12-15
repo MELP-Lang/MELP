@@ -128,25 +128,38 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
         const char* param_regs[] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
         const int max_reg_params = 6;
         
-        // Evaluate and move arguments to appropriate registers
-        for (int i = 0; i < call->arg_count && i < max_reg_params; i++) {
+        // YZ_94: For nested function calls, we need to evaluate all arguments first
+        // and store them on the stack to prevent register clobbering
+        // Then pop them into parameter registers in reverse order
+        
+        int actual_arg_count = (call->arg_count < max_reg_params) ? call->arg_count : max_reg_params;
+        
+        // Phase 1: Evaluate all arguments and push to stack (in order)
+        for (int i = 0; i < actual_arg_count; i++) {
             // YZ_84: Check if argument is a struct instance (pass by pointer)
             ArithmeticExpr* arg_expr = call->arguments[i];
-            if (arg_expr && !arg_expr->is_literal && arg_expr->value) {
+            if (arg_expr && !arg_expr->is_literal && arg_expr->value && 
+                !arg_expr->left && !arg_expr->right && !arg_expr->is_function_call) {
                 StructInstanceInfo* inst = struct_lookup_instance(arg_expr->value);
                 if (inst && !inst->is_pointer) {
-                    // Pass address of struct value
-                    fprintf(output, "    leaq -%d(%%rbp), %s  # Pass struct %s address\n", 
-                            inst->stack_offset, param_regs[i], arg_expr->value);
+                    // Pass address of struct value - push to stack
+                    fprintf(output, "    leaq -%d(%%rbp), %%r10  # Struct %s address\n", 
+                            inst->stack_offset, arg_expr->value);
+                    fprintf(output, "    pushq %%r10  # Save arg %d (struct ptr)\n", i + 1);
                     continue;
                 }
             }
             
             // Regular argument: evaluate expression to r10 (temporary)
-            generate_expr_code(output, call->arguments[i], 2, func);  // Use r10 (reg 2)
+            generate_expr_code(output, arg_expr, 2, func);  // Use r10 (reg 2)
             
-            // Move result from r10 to parameter register
-            fprintf(output, "    movq %%r10, %s  # Argument %d\n", param_regs[i], i + 1);
+            // Push result to stack for later
+            fprintf(output, "    pushq %%r10  # Save arg %d\n", i + 1);
+        }
+        
+        // Phase 2: Pop arguments into parameter registers (reverse order)
+        for (int i = actual_arg_count - 1; i >= 0; i--) {
+            fprintf(output, "    popq %s  # Restore arg %d\n", param_regs[i], i + 1);
         }
         
         // TODO: Stack arguments for more than 6 parameters

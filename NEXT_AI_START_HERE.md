@@ -1,107 +1,72 @@
-# YZ_93 Completed: Phase 22.2 - Advanced Expression Interpolation ✅
+# YZ_95 Completed: Phase 22.4 - Float-to-String Interpolation ✅
 
-**Session:** YZ_93  
+**Session:** YZ_95  
 **Date:** 15 Aralık 2025  
 **Agent:** GitHub Copilot (Claude Opus 4.5)  
 **Branch:** `phase18-array-support_YZ_74`
 
-## 🎉 YZ_93 COMPLETED: Parenthesized Expressions & Function Calls!
+## 🎉 YZ_95 COMPLETED: Float Variables in String Interpolation!
 
-**Achievement:** Full support for parentheses and function calls in string interpolation!
+**Achievement:** Float variables can now be displayed in string interpolation!
 
-### What YZ_93 Implemented
+### What YZ_95 Implemented
 
-**Phase 22.2 - Advanced Expression Interpolation (Complete)** ✅
+**Phase 22.4 - Float-to-String Interpolation (Basic)** ✅
 
-1. **Parenthesized Expressions** ✅
-   - `${(x + y) * 2}` → "60"
-   - Complex precedence handled correctly
-   - Nested parentheses supported
+1. **Float Literal Codegen Fix** ✅
+   - `numeric pi = 3.14159` now compiles correctly
+   - Float literals stored in `.rodata` section
+   - Loaded with `movsd` instruction
 
-2. **Function Calls in Interpolation** ✅
-   - `${abs(x)}` → absolute value
-   - `${length(str)}` → string length
-   - `${max(a, b)}` → maximum value
-   - Function + arithmetic: `${abs(x) + 5}`
+2. **Float Type Tracking** ✅
+   - `LocalVariable` now has `is_float` field
+   - `function_register_local_var_with_float()` - Register with float flag
+   - `function_get_var_is_float()` - Query float status
 
-3. **Function Return Type Detection** ✅
-   - Numeric functions → convert with `mlp_number_to_string`
-   - String functions → direct concat
-   - Proper handling prevents segfaults
+3. **Float-to-String Conversion** ✅
+   - Float variables use `mlp_double_to_string()`
+   - Integer variables use `mlp_number_to_string()`
+   - Automatic detection based on variable type
 
 **Syntax Now Working:**
 ```pmpl
-numeric x = 10
-numeric y = 20
-numeric z = -10
-string mytext = "Hello"
+numeric pi = 3.14159
+numeric int_val = 42
 
--- Parenthesized expressions
-string result = "Answer: ${(x + y) * 2}"        -- → "Answer: 60"
-
--- Function calls
-string abs_val = "Absolute: ${abs(z)}"          -- → "Absolute: 10"
-string len = "Length: ${length(mytext)}"        -- → "Length: 5"
-
--- Function + arithmetic
-string combo = "Result: ${abs(z) + 5}"          -- → "Result: 15"
-
--- Multiple mixed interpolations
-string all = "Sum: ${x + y}, Product: ${x * y}, Abs: ${abs(z)}"
--- → "Sum: 30, Product: 200, Abs: 10"
+string float_msg = "Pi: ${pi}"      -- → "Pi: 3.14159" ✅
+string int_msg = "Int: ${int_val}"  -- → "Int: 42" ✅
 ```
 
-**Files Modified:** 1
-- compiler/stage0/modules/arithmetic/arithmetic_codegen.c (function call type detection)
+**Files Modified:** 5
+- compiler/stage0/modules/functions/functions.h (is_float field)
+- compiler/stage0/modules/functions/functions.c (float tracking functions)
+- compiler/stage0/modules/functions/functions_codegen.c (float detection)
+- compiler/stage0/modules/arithmetic/arithmetic_codegen.c (float-to-string)
+- compiler/stage0/modules/statement/statement_codegen.c (float literal fix)
+
+**Files Created:** 2
+- tests/manual/test_float_interp.mlp
+- tests/manual/test_float_arith_interp.mlp
 
 **Tests:** ✅ All Passing
-- test_expr_interp_paren.mlp → `Result: 60` ✅
-- test_expr_interp_func.mlp → `Absolute: 10` ✅
-- test_expr_interp_length.mlp → `Length: 5` ✅
-- test_expr_interp_func_arith.mlp → `Result: 15` ✅
-- test_expr_interp_multi.mlp → `Sum: 30, Product: 200, Abs: 10` ✅
+- test_float_interp.mlp → `Pi: 3.14159`, `Int: 42` ✅
+- All previous interpolation tests → ✅ (no regression)
 
-**Technical Fix - Function Call Type Detection:**
-```c
-// YZ_93: Check if right is a function call returning numeric
-if (expr->right && expr->right->is_function_call && expr->right->func_call) {
-    const char* fn = expr->right->func_call->function_name;
-    // String-returning functions (no conversion needed)
-    if (strcmp(fn, "mlp_number_to_string") == 0 ||
-        strcmp(fn, "mlp_string_concat") == 0) {
-        right_is_numeric = 0;
-    } else {
-        // Most functions return numeric
-        right_is_numeric = 1;
-    }
-}
-```
-
-**Known Limitation:** Nested function calls not yet supported
-```pmpl
--- This does NOT work yet:
-string s = "${abs(min(x, y))}"  -- nested calls
-```
+**Known Limitation:** Float arithmetic expressions like `${pi + e}` don't work yet (requires separate float codegen implementation).
 
 ---
 
-## 🚀 Next Steps for YZ_94
+## 🚀 Next Steps for YZ_96
 
-### Option A: Nested Function Calls (2-3 hours)
-**Goal:** Support nested function calls in interpolation
-```pmpl
-string msg = "Result: ${abs(min(x, y))}"
-```
-
-### Option B: Float-to-String (1 hour)
-**Goal:** Support float in interpolation with precision
+### Option A: Float Arithmetic in Interpolation (2-3 hours)
+**Goal:** Support float expressions in interpolation
 ```pmpl
 numeric pi = 3.14159
-string msg = "Pi: ${pi}"      -- Currently only integers
-string fmt = "Pi: ${pi:2}"    -- 2 decimal places
+numeric e = 2.71828
+string msg = "Sum: ${pi + e}"  -- Currently doesn't work
 ```
 
-### Option C: Enum Types (2-3 hours) ⭐ Recommended  
+### Option B: Enum Types (2-3 hours) ⭐ Recommended  
 **Goal:** Enumerated types for cleaner code
 ```pmpl
 enum Status
@@ -113,21 +78,14 @@ end_enum
 Status s = Status.ACTIVE
 ```
 
-### Option C: Float-to-String (1 hour)
-**Goal:** Support float in interpolation
-```pmpl
-numeric pi = 3.14159
-string msg = "Pi: ${pi}"  # Currently only integers
-```
-
-### Option D: String Methods in Interpolation (2 hours)
+### Option C: String Methods in Interpolation (2 hours)
 **Goal:** Call methods on strings
 ```pmpl
 string name = "melp"
 string msg = "Upper: ${name.upper()}"  -- → "Upper: MELP"
 ```
 
-### Option E: Documentation & Cleanup
+### Option D: Documentation & Cleanup
 **Goal:** Code quality and documentation
 
 ---
@@ -136,7 +94,7 @@ string msg = "Upper: ${name.upper()}"  -- → "Upper: MELP"
 
 ---
 
-# Previous: YZ_92 Completed: Phase 22.1 - Expression Interpolation ✅
+# Previous: YZ_94 Completed: Phase 22.3 - Nested Function Calls ✅
 
 **Session:** YZ_92  
 **Date:** 15 Aralık 2025  

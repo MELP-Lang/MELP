@@ -3,7 +3,19 @@
 **Created:** 13 Aralık 2025  
 **Current Status:** ✅ Phase 19 Complete (YZ_88) - Method Body Parsing Done!  
 **Branch:** phase18-array-support_YZ_74  
-**Last Updated:** 15 Aralık 2025 (YZ_88)
+**Last Updated:** 15 Aralık 2025 (YZ_94)
+
+---
+
+## 🔮 Stage 1 TODO (Self-Hosting Sonrası)
+
+**BigDecimal Support:**
+- [ ] GMP/MPFR kütüphane entegrasyonu
+- [ ] `numeric` tipi için arbitrary precision (IEEE 754 YOK!)
+- [ ] Tüm sayılar BigDecimal olarak saklanacak
+- [ ] `mlp_number_to_string()` → `bigdecimal_to_string()` dönüşümü
+
+**Not:** Stage 0'da `long long` (int64) kullanılıyor, Stage 1'de MELP ile BigDecimal implement edilecek.
 
 ---
 

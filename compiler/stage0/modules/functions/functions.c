@@ -480,6 +480,10 @@ int function_is_builtin(const char* name) {
     if (strcmp(name, "ceil") == 0) return 1;
     if (strcmp(name, "round") == 0) return 1;
     
+    // YZ_94: Min/Max functions for nested call support
+    if (strcmp(name, "min") == 0) return 1;
+    if (strcmp(name, "max") == 0) return 1;
+    
     return 0;
 }
 

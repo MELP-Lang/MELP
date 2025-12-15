@@ -1,0 +1,26 @@
+-- YZ_94: Test nested function calls - multiple cases
+-- Expected output: Multiple lines testing nested calls
+
+function main() returns numeric
+    numeric a = -15
+    numeric b = 25
+    numeric c = -5
+    
+    -- Test 1: abs(min(a, b)) = abs(-15) = 15
+    string test1 = "Test1: ${abs(min(a, b))}"
+    println(test1)
+    
+    -- Test 2: abs(max(a, c)) = abs(-5) = 5
+    string test2 = "Test2: ${abs(max(a, c))}"
+    println(test2)
+    
+    -- Test 3: max(abs(a), abs(c)) = max(15, 5) = 15
+    string test3 = "Test3: ${max(abs(a), abs(c))}"
+    println(test3)
+    
+    -- Test 4: min(abs(a), abs(b)) = min(15, 25) = 15
+    string test4 = "Test4: ${min(abs(a), abs(b))}"
+    println(test4)
+    
+    return 0
+end_function
