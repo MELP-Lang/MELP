@@ -698,13 +698,25 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
         if (expr->right && expr->right->left && expr->right->right && !expr->right->is_string) {
             right_is_numeric = 1;
         }
-        // YZ_92: Check if right is a function call returning numeric
-        if (expr->right && expr->right->is_function_call && 
-            expr->right->func_call && 
-            strcmp(expr->right->func_call->function_name, "mlp_number_to_string") != 0) {
-            // If it's already mlp_number_to_string, result is string
-            // Otherwise, assume numeric function result
-            // (This is a simplification - proper type inference would be better)
+        // YZ_93: Check if right is a function call returning numeric
+        if (expr->right && expr->right->is_function_call && expr->right->func_call) {
+            const char* fn = expr->right->func_call->function_name;
+            // String-returning functions
+            if (strcmp(fn, "mlp_number_to_string") == 0 ||
+                strcmp(fn, "mlp_string_concat") == 0 ||
+                strcmp(fn, "toString") == 0 ||
+                strcmp(fn, "substring") == 0 ||
+                strcmp(fn, "toUpperCase") == 0 ||
+                strcmp(fn, "toLowerCase") == 0 ||
+                strcmp(fn, "trim") == 0 ||
+                strcmp(fn, "replace") == 0 ||
+                strcmp(fn, "input") == 0) {
+                // These return strings, no conversion needed
+                right_is_numeric = 0;
+            } else {
+                // Most other functions (abs, sqrt, pow, length, etc.) return numeric
+                right_is_numeric = 1;
+            }
         }
         
         int left_is_numeric = 0;
@@ -716,6 +728,23 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
         // YZ_92: Check if left is a binary expression (likely arithmetic)
         if (expr->left && expr->left->left && expr->left->right && !expr->left->is_string) {
             left_is_numeric = 1;
+        }
+        // YZ_93: Check if left is a function call returning numeric
+        if (expr->left && expr->left->is_function_call && expr->left->func_call) {
+            const char* fn = expr->left->func_call->function_name;
+            if (strcmp(fn, "mlp_number_to_string") == 0 ||
+                strcmp(fn, "mlp_string_concat") == 0 ||
+                strcmp(fn, "toString") == 0 ||
+                strcmp(fn, "substring") == 0 ||
+                strcmp(fn, "toUpperCase") == 0 ||
+                strcmp(fn, "toLowerCase") == 0 ||
+                strcmp(fn, "trim") == 0 ||
+                strcmp(fn, "replace") == 0 ||
+                strcmp(fn, "input") == 0) {
+                left_is_numeric = 0;
+            } else {
+                left_is_numeric = 1;
+            }
         }
         
         // Convert left if numeric

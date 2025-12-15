@@ -1,0 +1,9 @@
+-- YZ_93: Test length function in interpolation
+-- Expected output: "Length: 5" (length of "Hello")
+
+function main() returns numeric
+    string mytext = "Hello"
+    string result = "Length: ${length(mytext)}"
+    println(result)
+    return 0
+end_function

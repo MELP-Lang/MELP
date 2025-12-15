@@ -1,0 +1,13 @@
+-- YZ_93: Test function call combined with arithmetic
+-- Expected output: "Result: 15" (abs(-10) + 5 = 15)
+
+function main() returns numeric
+    numeric x = -10
+    
+    -- Function call + arithmetic
+    string result = "Result: ${abs(x) + 5}"
+    
+    println(result)
+    
+    return 0
+end_function

@@ -1,0 +1,14 @@
+-- YZ_93: Test parenthesized expressions in interpolation
+-- Expected output: "Result: 60" ((10 + 20) * 2 = 60)
+
+function main() returns numeric
+    numeric x = 10
+    numeric y = 20
+    
+    -- Parenthesized expression
+    string result = "Result: ${(x + y) * 2}"
+    
+    println(result)
+    
+    return 0
+end_function

@@ -1,12 +1,13 @@
--- YZ_92: Test multiple expression interpolations
--- Expected output: "Sum: 30, Product: 200, Diff: -10"
+-- YZ_93: Test multiple interpolations with mixed expressions
+-- Expected output: "Sum: 30, Product: 200, Abs: 10"
 
 function main() returns numeric
-    numeric a = 10
-    numeric b = 20
+    numeric x = 10
+    numeric y = 20
+    numeric z = -10
     
-    -- Multiple expressions in one string
-    string result = "Sum: ${a + b}, Product: ${a * b}, Diff: ${a - b}"
+    -- Multiple interpolations
+    string result = "Sum: ${x + y}, Product: ${x * y}, Abs: ${abs(z)}"
     
     println(result)
     

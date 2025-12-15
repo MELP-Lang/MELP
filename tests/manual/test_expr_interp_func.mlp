@@ -1,0 +1,13 @@
+-- YZ_93: Test function calls in interpolation
+-- Expected output: "Absolute: 10" (abs(-10) = 10)
+
+function main() returns numeric
+    numeric x = -10
+    
+    -- Function call in interpolation
+    string result = "Absolute: ${abs(x)}"
+    
+    println(result)
+    
+    return 0
+end_function

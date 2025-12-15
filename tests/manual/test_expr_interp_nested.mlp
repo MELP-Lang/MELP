@@ -1,0 +1,14 @@
+-- YZ_93: Test nested function calls in interpolation
+-- Expected output: "Result: 10" (abs(min(-10, 20)) = 10)
+
+function main() returns numeric
+    numeric x = -10
+    numeric y = 20
+    
+    -- Nested function calls
+    string result = "Result: ${abs(min(x, y))}"
+    
+    println(result)
+    
+    return 0
+end_function
