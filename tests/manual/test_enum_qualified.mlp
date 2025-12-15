@@ -1,0 +1,26 @@
+-- YZ_96: Test enum qualified value access
+-- Expected: Exit code 20 (Status.ACTIVE = 1, so result = 20)
+
+enum Status
+    PENDING = 0
+    ACTIVE = 1
+    DONE = 2
+end_enum
+
+function main() returns numeric
+    numeric s = Status.ACTIVE
+    numeric result = 0
+    
+    switch s
+        case Status.PENDING:
+            result = 10
+        case Status.ACTIVE:
+            result = 20
+        case Status.DONE:
+            result = 30
+        default:
+            result = 99
+    end_switch
+    
+    return result
+end_function

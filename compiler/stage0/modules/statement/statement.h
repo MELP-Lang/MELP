@@ -20,6 +20,7 @@ typedef enum {
     STMT_STRUCT,            // YZ_81: struct definition
     STMT_STRUCT_INSTANCE,   // YZ_82: Point p (struct instance declaration)
     STMT_MEMBER_ASSIGNMENT, // YZ_82: p.x = 10 (struct member assignment)
+    STMT_ENUM,              // YZ_96: enum definition
     STMT_BLOCK,
     STMT_EXIT,              // YZ_28: exit, exit for, exit while, exit if, exit function
     STMT_EXIT_FOR,          // YZ_28: exit for

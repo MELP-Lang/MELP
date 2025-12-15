@@ -1,0 +1,14 @@
+-- YZ_96: Test enum auto-increment values
+-- Expected: Exit code 6 (0+1+2+3 = 6)
+
+enum Priority
+    LOW
+    MEDIUM
+    HIGH
+    CRITICAL
+end_enum
+
+function main() returns numeric
+    numeric sum = Priority.LOW + Priority.MEDIUM + Priority.HIGH + Priority.CRITICAL
+    return sum
+end_function

@@ -15,6 +15,8 @@
 #include "../import/import_parser.h"               // ✅ YZ_35: Import statement parsing
 #include "../struct/struct.h"                      // ✅ YZ_81: Struct definitions
 #include "../struct/struct_parser.h"               // ✅ YZ_81: Struct parsing
+#include "../enum/enum.h"                          // ✅ YZ_96: Enum definitions
+#include "../enum/enum_parser.h"                   // ✅ YZ_96: Enum parsing
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -242,6 +244,23 @@ Statement* statement_parse(Parser* parser) {
         if (struct_data) {
             stmt = statement_create(STMT_STRUCT);
             stmt->data = struct_data;
+            stmt->next = NULL;
+        }
+        
+        return stmt;
+    }
+    
+    // ✅ YZ_96: ENUM definition - use enum module
+    if (tok->type == TOKEN_ENUM) {
+        EnumDefinition* enum_data = enum_parse(parser->lexer, tok);
+        
+        // We own tok - free it!
+        token_free(tok);
+        tok = NULL;
+        
+        if (enum_data) {
+            stmt = statement_create(STMT_ENUM);
+            stmt->data = enum_data;
             stmt->next = NULL;
         }
         

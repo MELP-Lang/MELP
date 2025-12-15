@@ -17,6 +17,8 @@
 #include "../import/import_cache_persist.h"  // YZ_43: Persistent cache
 #include "../struct/struct.h"          // YZ_81: Struct definitions
 #include "../struct/struct_parser.h"   // YZ_81: Struct parser
+#include "../enum/enum.h"              // YZ_96: Enum definitions
+#include "../enum/enum_parser.h"       // YZ_96: Enum parser
 #include "../../normalize/normalize.h"  // ⭐ RF_YZ_1: Normalize layer
 #include "functions.h"
 #include "functions_parser.h"
@@ -255,6 +257,22 @@ int main(int argc, char** argv) {
             continue;
         }
         
+        // YZ_96: Skip enum definitions in first pass (will parse in second pass)
+        if (tok->type == TOKEN_ENUM) {
+            // Skip entire enum block
+            int depth = 1;
+            token_free(tok);
+            Token* enum_tok;
+            while (depth > 0 && (enum_tok = lexer_next_token(lexer)) != NULL) {
+                if (enum_tok->type == TOKEN_ENUM) depth++;
+                else if (enum_tok->type == TOKEN_END_ENUM) depth--;
+                token_free(enum_tok);
+            }
+            if (prev_tok) token_free(prev_tok);
+            prev_tok = NULL;
+            continue;
+        }
+        
         // Look for 'function' keyword
         if (tok->type == TOKEN_FUNCTION) {
             // This is a real function declaration (not part of "end function")
@@ -481,7 +499,27 @@ int main(int argc, char** argv) {
             continue;
         }
         
-        // Not an import or struct, put token back for function parser
+        // YZ_96: Handle enum definition
+        if (tok->type == TOKEN_ENUM) {
+            EnumDefinition* enum_def = enum_parse(lexer, tok);
+            token_free(tok);
+            
+            if (enum_def) {
+                // Count values
+                int value_count = 0;
+                EnumValue* v = enum_def->values;
+                while (v) {
+                    value_count++;
+                    v = v->next;
+                }
+                
+                printf("🔢 Enum: %s (%d value%s)\n", 
+                       enum_def->name, value_count, value_count == 1 ? "" : "s");
+            }
+            continue;
+        }
+        
+        // Not an import, struct, or enum - put token back for function parser
         lexer_unget_token(lexer, tok);
         
         FunctionDeclaration* func = parse_function_declaration(lexer);

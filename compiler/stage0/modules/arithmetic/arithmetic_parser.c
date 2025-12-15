@@ -5,6 +5,7 @@
 #include "../array/array_parser.h"  // YZ_14: For array index access
 #include "../functions/functions.h"  // YZ_36: For function_is_known()
 #include "../struct/struct.h"  // YZ_82: For member access
+#include "../enum/enum.h"  // YZ_96: For enum value access
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -769,6 +770,7 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         }
         
         // YZ_82/YZ_83/YZ_86: Check for member access or method call (p.x or p.method())
+        // YZ_96: Also check for enum value access (Status.ACTIVE)
         if (*current && (*current)->type == TOKEN_DOT) {
             advance_stateless(lexer, current);  // consume '.'
             
@@ -781,6 +783,25 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
             
             char* member_or_method = strdup((*current)->value);
             advance_stateless(lexer, current);  // consume member/method name
+            
+            // YZ_96: Check if this is an enum value access (EnumName.VALUE)
+            if (enum_is_type(identifier)) {
+                int64_t enum_value = enum_lookup_value(identifier, member_or_method);
+                if (enum_value >= 0) {
+                    // Create literal expression for enum value
+                    char value_str[32];
+                    snprintf(value_str, sizeof(value_str), "%ld", enum_value);
+                    
+                    free(expr->value);
+                    expr->value = strdup(value_str);
+                    expr->is_literal = 1;
+                    expr->is_member_access = 0;
+                    
+                    free(member_or_method);
+                    free(identifier);
+                    return expr;
+                }
+            }
             
             // YZ_86: Check if this is a method call (followed by '(')
             if (*current && (*current)->type == TOKEN_LPAREN) {

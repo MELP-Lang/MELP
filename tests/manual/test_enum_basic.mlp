@@ -1,16 +1,22 @@
--- YZ_96: Test switch/case statement
+-- YZ_96: Test enum definition and switch
 -- Expected: Exit code 20
 
+enum Status
+    PENDING = 0
+    ACTIVE = 1
+    DONE = 2
+end_enum
+
 function main() returns numeric
-    numeric value = 2
+    numeric s = 1
     numeric result = 0
     
-    switch value
-        case 1:
+    switch s
+        case 0:
             result = 10
-        case 2:
+        case 1:
             result = 20
-        case 3:
+        case 2:
             result = 30
         default:
             result = 99

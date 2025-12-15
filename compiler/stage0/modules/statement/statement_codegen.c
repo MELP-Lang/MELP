@@ -10,6 +10,8 @@
 #include "../functions/functions.h"                 // ✅ ReturnStatement, FunctionDeclaration
 #include "../array/array.h"                         // ✅ YZ_15: IndexAccess, ArrayAssignment
 #include "../struct/struct_codegen.h"               // ✅ YZ_81: Struct codegen
+#include "../enum/enum.h"                           // ✅ YZ_96: Enum definitions
+#include "../enum/enum_codegen.h"                   // ✅ YZ_96: Enum codegen
 #include <stdio.h>
 #include <stdlib.h>   // YZ_21: For free()
 #include <string.h>
@@ -646,6 +648,15 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
             StructDef* struct_def = (StructDef*)stmt->data;
             if (struct_def) {
                 codegen_struct_definition(output, struct_def);
+            }
+            break;
+        }
+        
+        // YZ_96: Enum definition - compile-time only, emit comment
+        case STMT_ENUM: {
+            EnumDefinition* enum_def = (EnumDefinition*)stmt->data;
+            if (enum_def) {
+                enum_codegen_comment(output, enum_def);
             }
             break;
         }

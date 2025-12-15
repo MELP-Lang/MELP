@@ -122,6 +122,13 @@ STRUCT_SOURCES = \
 	$(STRUCT_DIR)/struct_parser.c \
 	$(STRUCT_DIR)/struct_codegen.c
 
+# Enum modülü (YZ_96 - Enum types)
+ENUM_DIR = ../enum
+ENUM_SOURCES = \
+	$(ENUM_DIR)/enum.c \
+	$(ENUM_DIR)/enum_parser.c \
+	$(ENUM_DIR)/enum_codegen.c
+
 # Parser Core modülü (Parser structure)
 PARSER_CORE_DIR = ../parser_core
 PARSER_CORE_SOURCES = \
@@ -164,6 +171,7 @@ SOURCES = \
 	$(STATEMENT_SOURCES) \
 	$(IMPORT_SOURCES) \
 	$(STRUCT_SOURCES) \
+	$(ENUM_SOURCES) \
 	$(PARSER_CORE_SOURCES) \
 	$(CODEGEN_CONTEXT_SOURCES) \
 	$(ERROR_SOURCES) \
