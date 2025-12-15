@@ -1,6 +1,7 @@
 #include "string_interpolation.h"
 #include "arithmetic.h"
 #include "arithmetic_parser.h"
+#include "../lexer/lexer.h"
 #include "../error/error.h"
 #include <stdlib.h>
 #include <string.h>
@@ -11,6 +12,57 @@
 int string_has_interpolation(const char* str) {
     if (!str) return 0;
     return strstr(str, "${") != NULL;
+}
+
+// YZ_92: Helper to check if expression contains operators or function calls
+static int is_simple_identifier(const char* expr_str) {
+    if (!expr_str) return 0;
+    
+    // Skip whitespace
+    while (*expr_str && isspace(*expr_str)) expr_str++;
+    
+    // Check if starts with letter or underscore (valid identifier start)
+    if (!(*expr_str == '_' || isalpha(*expr_str))) return 0;
+    
+    // Check rest: only alphanumeric and underscore = simple identifier
+    while (*expr_str) {
+        if (isalnum(*expr_str) || *expr_str == '_') {
+            expr_str++;
+        } else if (isspace(*expr_str)) {
+            // Skip trailing whitespace
+            while (*expr_str && isspace(*expr_str)) expr_str++;
+            return *expr_str == '\0';  // Valid if nothing after whitespace
+        } else {
+            // Found operator or other character - not simple
+            return 0;
+        }
+    }
+    return 1;
+}
+
+// YZ_92: Parse expression string using full expression parser
+static ArithmeticExpr* parse_interpolation_expression(const char* expr_str) {
+    if (!expr_str || !*expr_str) return NULL;
+    
+    // Create mini-lexer for the expression
+    Lexer* mini_lexer = lexer_create(expr_str);
+    if (!mini_lexer) return NULL;
+    
+    // Get first token
+    Token* first_token = lexer_next_token(mini_lexer);
+    if (!first_token || first_token->type == TOKEN_EOF || first_token->type == TOKEN_ERROR) {
+        if (first_token) token_free(first_token);
+        lexer_free(mini_lexer);
+        return NULL;
+    }
+    
+    // Parse expression using stateless API
+    ArithmeticExpr* expr = arithmetic_parse_expression_stateless(mini_lexer, first_token);
+    
+    // First token is consumed by parser, don't free it
+    lexer_free(mini_lexer);
+    
+    return expr;
 }
 
 // Helper: Create string literal expression
@@ -59,8 +111,9 @@ static ArithmeticExpr* create_concat(ArithmeticExpr* left, ArithmeticExpr* right
 }
 
 // Parse string interpolation
-// Example: "Hello ${name}, age ${age}" 
-// -> "Hello " + name + ", age " + mlp_number_to_string(age)
+// YZ_92: Now supports full expressions: "Sum: ${x + y}"
+// Example: "Hello ${name}, sum is ${a + b}" 
+// -> "Hello " + name + ", sum is " + mlp_number_to_string(a + b)
 ArithmeticExpr* parse_string_interpolation(Lexer* lexer, const char* str_with_interp) {
     if (!str_with_interp || !string_has_interpolation(str_with_interp)) {
         // No interpolation, return as-is
@@ -103,8 +156,23 @@ ArithmeticExpr* parse_string_interpolation(Lexer* lexer, const char* str_with_in
             }
         }
         
-        // Find closing }
-        const char* interp_end = strchr(interp_start + 2, '}');
+        // YZ_92: Handle nested braces - find matching closing }
+        const char* interp_end = NULL;
+        int brace_depth = 1;
+        const char* scan = interp_start + 2;  // Start after ${
+        
+        while (*scan && brace_depth > 0) {
+            if (*scan == '{') {
+                brace_depth++;
+            } else if (*scan == '}') {
+                brace_depth--;
+                if (brace_depth == 0) {
+                    interp_end = scan;
+                }
+            }
+            scan++;
+        }
+        
         if (!interp_end) {
             error_fatal("String interpolation: missing closing } after ${");
             return result;
@@ -120,52 +188,67 @@ ArithmeticExpr* parse_string_interpolation(Lexer* lexer, const char* str_with_in
         strncpy(buffer, interp_start + 2, expr_len);
         buffer[expr_len] = '\0';
         
-        // Parse the expression
-        // For now, we'll handle simple cases: variables and numbers
-        // Full expression parsing would require creating a mini lexer
+        // YZ_92: Use full expression parser for complex expressions
+        ArithmeticExpr* interp_expr = NULL;
         
-        // Simple approach: check if it's a number literal or variable
-        // If it looks like a number, wrap in to_string
-        // Otherwise, treat as string variable
-        
-        int is_numeric = 1;
-        const char* p = buffer;
-        
-        // Skip whitespace
-        while (*p && isspace(*p)) p++;
-        
-        // Check if it starts with digit or minus (numeric literal)
-        if (*p == '-' || (*p >= '0' && *p <= '9')) {
-            // Looks like a number
-            is_numeric = 1;
-        } else {
-            // Assume it's a variable - we can't know the type without context
-            // For now, we'll NOT wrap in to_string - let codegen handle it
-            // This means: string variables work as-is, numeric variables need explicit conversion
-            // Better solution: check variable type from symbol table
-            is_numeric = 0;  // Assume string variable for now
-        }
-        
-        ArithmeticExpr* var_expr = malloc(sizeof(ArithmeticExpr));
-        memset(var_expr, 0, sizeof(ArithmeticExpr));
-        
-        if (is_numeric && (*buffer >= '0' && *buffer <= '9')) {
-            // It's a numeric literal
-            var_expr->is_literal = 1;
-            var_expr->value = strdup(buffer);
-            var_expr->is_float = (strchr(buffer, '.') != NULL);
-        } else {
-            // It's a variable
+        if (is_simple_identifier(buffer)) {
+            // Simple variable: create basic expression
+            ArithmeticExpr* var_expr = malloc(sizeof(ArithmeticExpr));
+            memset(var_expr, 0, sizeof(ArithmeticExpr));
             var_expr->is_literal = 0;
             var_expr->value = strdup(buffer);
+            // Skip whitespace for the value
+            char* trimmed = var_expr->value;
+            while (*trimmed && isspace(*trimmed)) trimmed++;
+            if (trimmed != var_expr->value) {
+                char* new_val = strdup(trimmed);
+                free(var_expr->value);
+                var_expr->value = new_val;
+            }
+            // Trim trailing whitespace
+            size_t len = strlen(var_expr->value);
+            while (len > 0 && isspace(var_expr->value[len-1])) {
+                var_expr->value[--len] = '\0';
+            }
+            interp_expr = var_expr;
+        } else {
+            // Complex expression: use full parser
+            interp_expr = parse_interpolation_expression(buffer);
+            
+            if (!interp_expr) {
+                // Fallback: treat as simple variable
+                fprintf(stderr, "Warning: Could not parse interpolation expression: %s\n", buffer);
+                ArithmeticExpr* var_expr = malloc(sizeof(ArithmeticExpr));
+                memset(var_expr, 0, sizeof(ArithmeticExpr));
+                var_expr->is_literal = 0;
+                var_expr->value = strdup(buffer);
+                interp_expr = var_expr;
+            }
         }
         
-        // TODO YZ_90: Proper type inference from symbol table
-        // For now: Always wrap in to_string (it should handle both strings and numbers)
-        // But we need a smarter to_string that checks type at runtime or compile-time
+        // YZ_92: Check if expression is likely numeric (needs to_string conversion)
+        // An expression with operators is numeric unless it's string concatenation
+        int needs_conversion = 0;
+        if (interp_expr) {
+            // If it has operators (left/right), it's likely numeric arithmetic
+            if (interp_expr->left && interp_expr->right) {
+                // Has binary operation - check if it's not string concat
+                // String concat would have is_string=1 on operands
+                if (!interp_expr->is_string) {
+                    needs_conversion = 1;
+                }
+            }
+            // Numeric literals need conversion
+            else if (interp_expr->is_literal && !interp_expr->is_string) {
+                needs_conversion = 1;
+            }
+        }
         
-        // Temporarily: Just use the expression as-is (assume correct type)
-        ArithmeticExpr* str_expr = var_expr;
+        // Wrap in to_string if numeric expression
+        ArithmeticExpr* str_expr = interp_expr;
+        if (needs_conversion && interp_expr) {
+            str_expr = create_to_string_call(interp_expr);
+        }
         
         if (result) {
             result = create_concat(result, str_expr);

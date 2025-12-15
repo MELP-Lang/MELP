@@ -1,83 +1,94 @@
-# YZ_91 Completed: Phase 22 - String Interpolation ✅
+# YZ_92 Completed: Phase 22.1 - Expression Interpolation ✅
 
-**Session:** YZ_91  
+**Session:** YZ_92  
 **Date:** 15 Aralık 2025  
 **Agent:** GitHub Copilot (Claude Opus 4.5)  
 **Branch:** `phase18-array-support_YZ_74`
 
-## 🎉 YZ_91 COMPLETED: String Interpolation Fully Working!
+## 🎉 YZ_92 COMPLETED: Expression Interpolation Fully Working!
 
-**Achievement:** Complete string interpolation with automatic numeric-to-string conversion!
+**Achievement:** Full arithmetic expressions inside string interpolation `${expr}`!
 
-### What YZ_91 Implemented
+### What YZ_92 Implemented
 
-**Phase 22 - String Interpolation (Complete)** ✅
+**Phase 22.1 - Expression Interpolation (Complete)** ✅
 
-1. **String Type Detection** ✅
-   - `is_var_string_type()` - Check variable type from symbol table
-   - LocalVariable `is_numeric` flag used for type detection
-   - FunctionParam type check for parameters
+1. **Expression Parser in Interpolation** ✅
+   - `is_simple_identifier()` - Detect simple vs complex expressions
+   - `parse_interpolation_expression()` - Full expression parser using mini-lexer
+   - Creates proper ArithmeticExpr tree from `${...}` content
 
-2. **println String Support** ✅
-   - Detect if expression is string type
-   - Use `puts` for strings (prints + newline)
-   - Use `sto_print_int64` for numerics
+2. **Critical Codegen Bug Fix** ✅
+   - Fixed register clobbering during nested function calls
+   - Save operands to callee-saved (r12/r13) BEFORE evaluating sub-expressions
+   - Proper x86-64 ABI compliance
 
-3. **Numeric-to-String Conversion** ✅
-   - Auto-convert numeric variables in string interpolation
-   - Call `mlp_number_to_string()` for conversion
-   - Proper integration with `mlp_string_concat()`
+3. **Type Detection for Expressions** ✅
+   - Binary expressions with operators → numeric (needs conversion)
+   - Variables → symbol table lookup
+   - Literals → type check
 
-4. **STO-Compliant Register Usage** ✅
-   - Use callee-saved registers (`r12`, `r13`) for string concat
-   - x86-64 ABI compliance: caller-saved (`r8-r11`) get clobbered
-   - Preserve operands across function calls
-
-**Syntax Working:**
+**Syntax Now Working:**
 ```pmpl
-string name = "Ali"
-numeric age = 25
 numeric x = 10
 numeric y = 20
 
-# String variable interpolation
-string greeting = "Hello ${name}!"
+-- Simple expressions
+string sum = "Sum: ${x + y}"           -- → "Sum: 30"
+string prod = "Product: ${x * y}"      -- → "Product: 200"
+string diff = "Diff: ${x - y}"         -- → "Diff: -10"
 
-# Numeric variable interpolation (auto-converted)  
-string info = "Yaşınız: ${age}"
+-- Complex expressions
+string complex = "All: ${x + y + 5}"   -- → "All: 35"
 
-# Multiple interpolations
-string result = "x=${x}, y=${y}, toplam=${sum}"
-
-println(greeting)  # Uses puts for string output
-println(age)       # Uses sto_print_int64 for numeric
+-- Multiple expressions in one string
+string all = "Sum: ${x + y}, Prod: ${x * y}, Diff: ${x - y}"
 ```
 
 **Files Modified:** 2
-- compiler/stage0/modules/arithmetic/arithmetic_codegen.c (type detection, conversion)
-- compiler/stage0/modules/print/print_codegen.c (string println support)
+- compiler/stage0/modules/arithmetic/string_interpolation.c (expression parser)
+- compiler/stage0/modules/arithmetic/arithmetic_codegen.c (register fix)
 
 **Tests:** ✅ All Passing
-- test_string_interp_simple.mlp → `Hello Dunya!` ✅
-- test_string_interp_basic.mlp → `Merhaba Ali, yaşınız 25` ✅
-- test_string_interp_multi.mlp → `Merhaba Ahmet! x=10, y=20, toplam=30` ✅
+- test_expr_interp_basic.mlp → `Sum: 30` ✅
+- test_expr_interp_complex.mlp → `Result: 35` ✅
+- test_expr_interp_mul.mlp → `Product: 200` ✅
+- test_expr_interp_multi.mlp → `Sum: 30, Product: 200, Diff: -10` ✅
+- Regression tests all passing ✅
 
-**Technical Detail - x86-64 ABI:**
-- Caller-saved: `rax, rcx, rdx, rsi, rdi, r8-r11` (clobbered by calls)
-- Callee-saved: `rbx, rbp, r12-r15` (preserved across calls)
-- Solution: Use `r12/r13` for operands during string concat
+**Technical Fix - Register Clobbering:**
+```asm
+# Problem: r8 clobbered by mlp_number_to_string call
+# Solution: Save to r12/r13 BEFORE any function calls
+pushq %r12
+pushq %r13
+# Evaluate left operand
+movq %r8, %r12  # SAVE immediately
+# Evaluate right operand (may call functions)
+movq %r9, %r13  # SAVE immediately
+# Now safe to concat
+call mlp_string_concat
+popq %r13
+popq %r12
+```
 
 ---
 
-## 🚀 Next Steps for YZ_92
+## 🚀 Next Steps for YZ_93
 
-### Option A: Expression Interpolation (2-3 hours)
-**Goal:** Allow expressions inside `${}`
+### Option A: Parenthesized Expressions (1 hour)
+**Goal:** Support parentheses in interpolation
 ```pmpl
-string msg = "Sum: ${x + y}"  # Currently only variables work
+string msg = "Result: ${(x + y) * 2}"
 ```
 
-### Option B: Enum Types (2-3 hours) ⭐ Recommended  
+### Option B: Function Calls in Interpolation (1-2 hours)
+**Goal:** Allow function calls inside `${}`
+```pmpl
+string msg = "Abs: ${abs(x - y)}"
+```
+
+### Option C: Enum Types (2-3 hours) ⭐ Recommended  
 **Goal:** Enumerated types for cleaner code
 ```pmpl
 enum Status

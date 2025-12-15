@@ -1,0 +1,14 @@
+-- YZ_92: Test expression interpolation
+-- Expected output: "Sum: 30"
+
+function main() returns numeric
+    numeric x = 10
+    numeric y = 20
+    
+    -- Expression interpolation: ${x + y} instead of pre-calculated sum
+    string result = "Sum: ${x + y}"
+    
+    println(result)
+    
+    return 30
+end_function

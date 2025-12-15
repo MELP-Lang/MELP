@@ -1,0 +1,14 @@
+-- YZ_92: Test multiplication expression interpolation
+-- Expected output: "Product: 200" (10 * 20 = 200)
+
+function main() returns numeric
+    numeric x = 10
+    numeric y = 20
+    
+    -- Multiplication expression
+    string result = "Product: ${x * y}"
+    
+    println(result)
+    
+    return 0
+end_function

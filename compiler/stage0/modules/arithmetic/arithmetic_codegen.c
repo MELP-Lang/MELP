@@ -662,52 +662,61 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
     int left_reg = target_reg;
     int right_reg = target_reg + 1;
     
-    // Generate code for left subtree
-    generate_expr_code(output, expr->left, left_reg, func);
-    
-    // Generate code for right subtree
-    generate_expr_code(output, expr->right, right_reg, func);
-    
-    // Determine if we're dealing with floats or strings
+    // Determine if we're dealing with floats or strings (before eval)
     int is_float = (expr->left && expr->left->is_float) || 
                    (expr->right && expr->right->is_float);
     int is_string = (expr->left && expr->left->is_string) || 
-                    (expr->right && expr->right->is_string);
+                    (expr->right && expr->right->is_string) ||
+                    (expr->op == ARITH_ADD && expr->is_string);  // YZ_92: Check parent's is_string flag
     
-    // Handle string concatenation (YZ_07, YZ_91: with numeric conversion)
+    // YZ_92: Handle string concatenation with special register management
+    // String concat needs special handling because sub-expressions (like mlp_number_to_string)
+    // can clobber caller-saved registers (%r8-%r11) before the concat happens
     if (is_string && expr->op == ARITH_ADD) {
         fprintf(output, "    # String concatenation (text + text)\n");
         
-        // YZ_91: Check if right operand is numeric (needs conversion)
+        // YZ_92: Save callee-saved registers BEFORE evaluating sub-expressions
+        fprintf(output, "    pushq %%r12  # Save callee-saved register\n");
+        fprintf(output, "    pushq %%r13  # Save callee-saved register\n");
+        
+        // Evaluate left operand and immediately save to r12
+        generate_expr_code(output, expr->left, left_reg, func);
+        fprintf(output, "    movq %%r%d, %%r12  # Left operand to callee-saved\n", left_reg + 8);
+        
+        // Evaluate right operand and immediately save to r13
+        generate_expr_code(output, expr->right, right_reg, func);
+        fprintf(output, "    movq %%r%d, %%r13  # Right operand to callee-saved\n", right_reg + 8);
+        
+        // YZ_91: Check if operands need numeric-to-string conversion
         int right_is_numeric = 0;
         if (expr->right && !expr->right->is_string && !expr->right->is_literal && expr->right->value) {
-            // It's a variable - check type from symbol table
             right_is_numeric = !is_var_string_type(expr->right->value, func);
         } else if (expr->right && expr->right->is_literal && !expr->right->is_string) {
-            // Numeric literal
             right_is_numeric = 1;
         }
+        // YZ_92: Check if right is a binary expression (likely arithmetic)
+        if (expr->right && expr->right->left && expr->right->right && !expr->right->is_string) {
+            right_is_numeric = 1;
+        }
+        // YZ_92: Check if right is a function call returning numeric
+        if (expr->right && expr->right->is_function_call && 
+            expr->right->func_call && 
+            strcmp(expr->right->func_call->function_name, "mlp_number_to_string") != 0) {
+            // If it's already mlp_number_to_string, result is string
+            // Otherwise, assume numeric function result
+            // (This is a simplification - proper type inference would be better)
+        }
         
-        // YZ_91: Check if left operand is numeric (needs conversion)
         int left_is_numeric = 0;
         if (expr->left && !expr->left->is_string && !expr->left->is_literal && expr->left->value) {
             left_is_numeric = !is_var_string_type(expr->left->value, func);
         } else if (expr->left && expr->left->is_literal && !expr->left->is_string) {
             left_is_numeric = 1;
         }
-        
-        // YZ_91: Convert numeric operands to string
-        // Use callee-saved registers (r12, r13) to preserve values across function calls
-        // x86-64 ABI: r8-r11 are caller-saved (clobbered by function calls)
-        //             r12-r15 are callee-saved (preserved across function calls)
-        
-        // Save callee-saved registers we'll use
-        fprintf(output, "    pushq %%r12  # Save callee-saved register\n");
-        fprintf(output, "    pushq %%r13  # Save callee-saved register\n");
-        
-        // Move operands to callee-saved registers
-        fprintf(output, "    movq %%r%d, %%r12  # Left operand to callee-saved\n", left_reg + 8);
-        fprintf(output, "    movq %%r%d, %%r13  # Right operand to callee-saved\n", right_reg + 8);
+        // YZ_92: Check if left is a binary expression (likely arithmetic)
+        if (expr->left && expr->left->left && expr->left->right && !expr->left->is_string) {
+            left_is_numeric = 1;
+        }
         
         // Convert left if numeric
         if (left_is_numeric) {
@@ -734,6 +743,12 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
         fprintf(output, "    popq %%r12  # Restore callee-saved\n");
         return;
     }
+    
+    // Generate code for left subtree (non-string case)
+    generate_expr_code(output, expr->left, left_reg, func);
+    
+    // Generate code for right subtree
+    generate_expr_code(output, expr->right, right_reg, func);
     
     // Generate operation
     if (is_float) {

@@ -1,0 +1,15 @@
+-- YZ_92: Test complex expression interpolation
+-- Expected output: "Result: 35" (10 + 20 + 5 = 35)
+
+function main() returns numeric
+    numeric a = 10
+    numeric b = 20
+    numeric c = 5
+    
+    -- Complex expression: multiple additions
+    string result = "Result: ${a + b + c}"
+    
+    println(result)
+    
+    return 35
+end_function
