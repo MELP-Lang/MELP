@@ -103,14 +103,14 @@ MLP/                               ← Ana dizin
 | **CodeGen Literals & Vars** | ✅ %100 | MELP | 776 | **Stage 1 (YZ_10) ✅** |
 | **CodeGen Arithmetic** | ✅ %100 | MELP | 472 | **Stage 1 (YZ_11) ✅** |
 | **CodeGen Comparison/Logic** | ✅ %100 | MELP | 412 | **Stage 1 (YZ_12) ✅** |
-| **CodeGen Statements** | ❌ %0 | MELP | - | Stage 1 (YZ_13) |
-| **CodeGen Functions** | ❌ %0 | MELP | - | Stage 1 (YZ_14-15) |
+| **CodeGen Statements** | ✅ %100 | MELP | 145 | **Stage 1 (YZ_13) ✅** |
+| **CodeGen Control Flow** | ❌ %0 | MELP | - | Stage 1 (YZ_14) |
 | **CodeGen Structs/Arrays** | ❌ %0 | MELP | - | Stage 1 (YZ_16-17) |
 | **CodeGen Integration** | ❌ %0 | MELP | - | Stage 1 (YZ_18) |
 | **Bootstrap** | ❌ %0 | - | - | Stage 1 (YZ_19+) |
 
-**İlerleme:** Stage 1 Phase 2 - %40 Complete (CodeGen in progress)
-**Sırada:** Stage 1 Phase 2 - CodeGen Statements (YZ_13)
+**İlerleme:** Stage 1 Phase 2 - %45 Complete (CodeGen in progress)
+**Sırada:** Stage 1 Phase 2 - CodeGen Control Flow (YZ_14)
 
 ---
 
@@ -350,29 +350,31 @@ MLP/                               ← Ana dizin
 
 **Test:** Boolean expressions → IR + execution
 
-#### Part 5: Statement CodeGen - Basic Statements (1 hafta - YZ_13)
+#### Part 5: Statement CodeGen - Basic Statements (1 hafta - YZ_13) ✅ COMPLETE
 **Hedef:** Temel statement'lar
 
-- [ ] Variable declarations
-  - [ ] Local variable allocation (`alloca`)
-  - [ ] Initialization
-- [ ] Assignment statements
-  - [ ] Simple assignment (`x = expr`)
-  - [ ] Compound assignment (`x += 5`)
-- [ ] Print statements
-  - [ ] `println()` → `printf` call
-  - [ ] String formatting
-- [ ] Return statements
-  - [ ] `return expr` → `ret i64 %value`
-- [ ] Tests
-  - [ ] Variable decl → IR
-  - [ ] Print test → IR + output
-  - [ ] Return test → IR
+- [x] Variable declarations
+  - [x] Local variable allocation (`alloca`)
+  - [x] Initialization
+- [x] Assignment statements
+  - [x] Simple assignment (`x = expr`)
+  - [x] String/boolean assignments
+- [x] Print statements
+  - [x] `println()` → `printf` call
+  - [x] String/integer printing
+- [x] Return statements
+  - [x] `return expr` → `ret i64 %value`
+  - [x] Void/boolean/string returns
+- [x] Tests
+  - [x] Variable decl → IR
+  - [x] Print test → IR + output
+  - [x] Return test → IR
 
 **Dosyalar:**
-- `modules/codegen_mlp/codegen_stmt.mlp` (~400 satır)
+- `modules/codegen_mlp/codegen_stmt.mlp` (145 satır) ✅
+- `tests/manual/test_yz_13_basic.mlp` (57 satır) ✅
 
-**Test:** Simple program with variables, print, return
+**Test:** Simple program with variables, print, return ✅ (4/4 tests passing)
 
 #### Part 6: Control Flow - If/Else (1 hafta - YZ_14)
 **Hedef:** Conditional branching

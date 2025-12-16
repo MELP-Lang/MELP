@@ -1,10 +1,10 @@
 # 🚀 STAGE 1 SELF-HOSTING - START HERE!
 
-**Last Session:** Stage 1 YZ_12  
+**Last Session:** Stage 1 YZ_13  
 **Date:** 16 December 2025  
 **Agent:** GitHub Copilot (Claude Sonnet 4.5)  
-**Branch:** codegen-comparison-logic_YZ_12  
-**Status:** ✅ **YZ_12 Complete - Comparison & Logical Operators CodeGen Ready! Ask user for next task**
+**Branch:** codegen-statements_YZ_13  
+**Status:** ✅ **YZ_13 Complete - Statement CodeGen Ready! Ask user for next task**
 
 **⚠️ YZ Directory Structure:**
 - `stage_0_YZ/` - Stage 0 sessions (YZ_01 - YZ_97, 80 sessions) ✅ ARCHIVED
@@ -186,12 +186,39 @@ MLP/
 | CodeGen Literals & Vars | ✅ 100% | MELP | 776 | **Stage 1 (YZ_10) ✅** |
 | CodeGen Arithmetic | ✅ 100% | MELP | 472 | **Stage 1 (YZ_11) ✅** |
 | CodeGen Comparison/Logic | ✅ 100% | MELP | 412 | **Stage 1 (YZ_12) ✅** |
-| CodeGen Statements | ❌ 0% | MELP | - | Stage 1 (YZ_13 - Next) |
+| CodeGen Statements | ✅ 100% | MELP | 145 | **Stage 1 (YZ_13) ✅** |
+| CodeGen Control Flow | ❌ 0% | MELP | - | Stage 1 (YZ_14 - Next) |
 | Bootstrap | ❌ 0% | - | - | Stage 1 (Final) |
 
-**TOPLAM:** %40 Complete (Parser + CodeGen Expressions)
+**TOPLAM:** %45 Complete (Parser + CodeGen Statements)
 
-**✅ YZ_12 COMPLETE - Comparison & Logical Operators CodeGen Ready!**
+**✅ YZ_13 COMPLETE - Statement CodeGen Ready!**
+
+**YZ_13 UPDATE (16 December 2025):**
+
+**Completed (Statement CodeGen - YZ_13):**
+- ✅ Variable Declarations (4 types) - numeric, string, boolean, with/without init
+- ✅ Assignment Statements (3 types) - numeric, string, boolean
+- ✅ Return Statements (4 types) - value, void, boolean, string
+- ✅ Print Statements (2 types + decl) - println_int, println_str, printf_decl
+- ✅ 145 lines total, 13 functions, 4/4 tests passing
+
+**Test Results:**
+```bash
+./compiler/stage0/modules/functions/functions_standalone \
+  tests/manual/test_yz_13_basic.mlp temp/test_yz_13.s
+→ 4/4 PASSED ✅
+```
+
+**Files Created:**
+- `modules/codegen_mlp/codegen_stmt.mlp` (145 lines)
+- `tests/manual/test_yz_13_basic.mlp` (57 lines)
+
+**Status:** ✅ YZ_13 COMPLETE - Ready for YZ_14 (Control Flow CodeGen)!
+
+---
+
+**✅ YZ_12 COMPLETE - Comparison & Logical Operators CodeGen**
 
 **YZ_12 UPDATE (16 December 2025):**
 
@@ -299,31 +326,33 @@ MLP/
 
 ## 🎯 KULLANICIYA SORU: Ne yapmalıyım?
 
-**Önceki görev (YZ_12):** CodeGen Comparison & Logical Operators ✅ Tamamlandı (412 satır, 18 fonksiyon)
+**Önceki görev (YZ_13):** CodeGen Statement Implementation ✅ Tamamlandı (145 satır, 13 fonksiyon)
 
-**CodeGen Phase (Phase 2):** Part 4/10 ✅ Complete!
+**CodeGen Phase (Phase 2):** Part 5/10 ✅ Complete!
 
 **İlerleme:**
 - ✅ YZ_09: Infrastructure (IR Builder, Type Mapper, Symbol Table) - DONE
 - ✅ YZ_10: Literals & Variables - DONE
 - ✅ YZ_11: Arithmetic operators - DONE
 - ✅ YZ_12: Comparison & Logic - DONE
-- ⏳ YZ_13: Statements (var decl, assign, return) - NEXT
-- ⏸️ YZ_14-18: Control Flow, Functions, Arrays...
+- ✅ YZ_13: Statements (var decl, assign, return, print) - DONE
+- ⏳ YZ_14: Control Flow - If/Else - NEXT
+- ⏸️ YZ_15-19: Loops, Functions, Arrays...
 
-**Sıradaki görev: YZ_13 - Statement CodeGen**
-- Variable declarations
-- Assignment statements  
-- Return statements
-- Print statements
-- Simple tests
+**Sıradaki görev: YZ_14 - Control Flow CodeGen (If/Else)**
+- If statement code generation
+- Else/Else-if clauses
+- Branch instructions (br)
+- Basic block management
+- Label generation
+- Phi nodes (if needed)
 
 **Tahmini:** 1-2 hafta, ~300-400 satır
 
 **Soru:** 
-- YZ_13'e başlamak ister misin?
+- YZ_14'e başlamak ister misin?
 - Başka bir şey mi yapalım?
-- Önce YZ_12'yi commit edip push edelim mi?
+- Önce YZ_13'ü commit edip push edelim mi?
 
 ## 📚 Eski Referans (Arşiv)
 
