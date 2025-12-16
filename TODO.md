@@ -105,13 +105,15 @@ MLP/                               ← Ana dizin
 | **CodeGen Comparison/Logic** | ✅ %100 | MELP | 412 | **Stage 1 (YZ_12) ✅** |
 | **CodeGen Statements** | ✅ %100 | MELP | 145 | **Stage 1 (YZ_13) ✅** |
 | **CodeGen Control Flow** | ✅ %100 | MELP | 220 | **Stage 1 (YZ_14) ✅** |
-| **CodeGen While Loops** | ❌ %0 | MELP | - | Stage 1 (YZ_15 - Next) |
-| **CodeGen Structs/Arrays** | ❌ %0 | MELP | - | Stage 1 (YZ_16-17) |
-| **CodeGen Integration** | ❌ %0 | MELP | - | Stage 1 (YZ_18) |
-| **Bootstrap** | ❌ %0 | - | - | Stage 1 (YZ_19+) |
+| **CodeGen While Loops** | ✅ %100 | MELP | 333 | **Stage 1 (YZ_15) ✅** |
+| **CodeGen For Loops** | ❌ %0 | MELP | - | Stage 1 (YZ_16 - Next) |
+| **CodeGen Functions** | ❌ %0 | MELP | - | Stage 1 (YZ_17) |
+| **CodeGen Arrays** | ❌ %0 | MELP | - | Stage 1 (YZ_18) |
+| **CodeGen Integration** | ❌ %0 | MELP | - | Stage 1 (YZ_19) |
+| **Bootstrap** | ❌ %0 | - | - | Stage 1 (YZ_20+) |
 
-**İlerleme:** Stage 1 Phase 2 - %48 Complete (CodeGen in progress)
-**Sırada:** Stage 1 Phase 2 - CodeGen While Loops (YZ_15)
+**İlerleme:** Stage 1 Phase 2 - %52 Complete (CodeGen in progress)
+**Sırada:** Stage 1 Phase 2 - CodeGen For Loops (YZ_16)
 
 ---
 
@@ -377,51 +379,73 @@ MLP/                               ← Ana dizin
 
 **Test:** Simple program with variables, print, return ✅ (4/4 tests passing)
 
-#### Part 6: Control Flow - If/Else (1 hafta - YZ_14)
+#### Part 6: Control Flow - If/Else (1 hafta - YZ_14) ✅ COMPLETE
 **Hedef:** Conditional branching
 
-- [ ] If statement
-  - [ ] Condition evaluation
-  - [ ] Branch creation (`br i1 %cond, label %then, label %else`)
-  - [ ] Basic block management
-- [ ] Else/Else-if
-  - [ ] Multiple branches
-  - [ ] Phi nodes (if needed)
-- [ ] Tests
-  - [ ] `if x > 0 then ... end if` → IR
-  - [ ] `if-else` → IR + execution
-  - [ ] Nested if test
+- [x] If statement
+  - [x] Condition evaluation
+  - [x] Branch creation (`br i1 %cond, label %then, label %else`)
+  - [x] Basic block management
+- [x] Else/Else-if
+  - [x] Multiple branches
+  - [x] Phi nodes (if needed)
+- [x] Tests
+  - [x] `if x > 0 then ... end if` → IR
+  - [x] `if-else` → IR + execution
+  - [x] Nested if test
 
 **Dosyalar:**
-- `modules/codegen_mlp/codegen_if.mlp` (~350 satır)
+- `modules/codegen_mlp/codegen_control.mlp` (220 satır) ✅
 
-**Test:** If/else program → IR + correct branch execution
+**Test:** If/else program → IR + correct branch execution ✅ (4/4 tests passing)
 
-#### Part 7: Control Flow - Loops (1 hafta - YZ_15)
-**Hedef:** Loop structures
+#### Part 7: Control Flow - While Loops (1 hafta - YZ_15) ✅ COMPLETE
+**Hedef:** While loop structures
 
-- [ ] While loop
-  - [ ] Loop condition block
-  - [ ] Loop body block
-  - [ ] Back edge (`br label %loop_cond`)
-  - [ ] Exit block
-- [ ] For loop
+- [x] While loop
+  - [x] Loop header block (condition evaluation)
+  - [x] Loop body block
+  - [x] Back edge (`br label %loop_header`)
+  - [x] Exit block
+- [x] Advanced patterns
+  - [x] Counter-based loops
+  - [x] Nested loops
+  - [x] Complex conditions
+  - [x] Early exit patterns
+- [x] Tests
+  - [x] Simple while loop → IR
+  - [x] Counter loop → IR
+  - [x] Nested loop test
+  - [x] Complex condition test
+  - [x] Early exit test
+
+**Dosyalar:**
+- `modules/codegen_mlp/codegen_while.mlp` (333 satır) ✅
+
+**Test:** While loop programs → IR + correct structure ✅ (5/5 tests passing)
+
+#### Part 8: Control Flow - For Loops (1 hafta - YZ_16)
+**Hedef:** For loop structures
+
+- [ ] For loop (from/to)
   - [ ] Loop counter initialization
   - [ ] Condition check
-  - [ ] Increment/decrement
-  - [ ] from/to/downto variants
+  - [ ] Increment
+  - [ ] from/to variant
+- [ ] For loop (downto)
+  - [ ] Decrement
+  - [ ] downto variant
 - [ ] Tests
-  - [ ] While loop → IR
-  - [ ] For loop → IR
-  - [ ] Nested loop test
+  - [ ] For-to loop → IR
+  - [ ] For-downto loop → IR
+  - [ ] Nested for loop test
 
 **Dosyalar:**
-- `modules/codegen_mlp/codegen_while.mlp` (~300 satır)
 - `modules/codegen_mlp/codegen_for.mlp` (~350 satır)
 
-**Test:** Loop programs → IR + correct iteration count
+**Test:** For loop programs → IR + correct iteration count
 
-#### Part 8: Functions (1 hafta - YZ_16)
+#### Part 9: Functions (1 hafta - YZ_17)
 **Hedef:** Function definitions & calls
 
 - [ ] Function definition
@@ -442,7 +466,7 @@ MLP/                               ← Ana dizin
 
 **Test:** Function definition + call → IR + execution
 
-#### Part 9: Structs & Arrays (1-2 hafta - YZ_17/18)
+#### Part 10: Structs & Arrays (1-2 hafta - YZ_18/19)
 **Hedef:** Composite types
 
 - [ ] Struct handling

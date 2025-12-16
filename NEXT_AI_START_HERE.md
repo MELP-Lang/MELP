@@ -1,10 +1,10 @@
 # 🚀 STAGE 1 SELF-HOSTING - START HERE!
 
-**Last Session:** Stage 1 YZ_14  
-**Date:** 16 December 2025  
+**Last Session:** Stage 1 YZ_15  
+**Date:** 17 December 2025  
 **Agent:** GitHub Copilot (Claude Sonnet 4.5)  
-**Branch:** codegen-control_YZ_14  
-**Status:** ✅ **YZ_14 Complete - Control Flow CodeGen Ready! Ask user for next task**
+**Branch:** codegen-while_YZ_15  
+**Status:** ✅ **YZ_15 Complete - While Loop CodeGen Ready! Ask user for next task**
 
 **⚠️ YZ Directory Structure:**
 - `stage_0_YZ/` - Stage 0 sessions (YZ_01 - YZ_97, 80 sessions) ✅ ARCHIVED
@@ -188,14 +188,43 @@ MLP/
 | CodeGen Comparison/Logic | ✅ 100% | MELP | 412 | **Stage 1 (YZ_12) ✅** |
 | CodeGen Statements | ✅ 100% | MELP | 145 | **Stage 1 (YZ_13) ✅** |
 | CodeGen Control Flow | ✅ 100% | MELP | 220 | **Stage 1 (YZ_14) ✅** |
-| CodeGen While Loops | ❌ 0% | MELP | - | Stage 1 (YZ_15 - Next) |
+| CodeGen While Loops | ✅ 100% | MELP | 333 | **Stage 1 (YZ_15) ✅** |
+| CodeGen For Loops | ❌ 0% | MELP | - | Stage 1 (YZ_16 - Next) |
+| CodeGen Functions | ❌ 0% | MELP | - | Stage 1 (YZ_17) |
+| CodeGen Arrays | ❌ 0% | MELP | - | Stage 1 (YZ_18) |
 | Bootstrap | ❌ 0% | - | - | Stage 1 (Final) |
 
-**TOPLAM:** %48 Complete (Parser + CodeGen Control Flow)
+**TOPLAM:** %52 Complete (Parser + CodeGen While Loops)
 
-**✅ YZ_14 COMPLETE - Control Flow CodeGen Ready!**!**
+**✅ YZ_15 COMPLETE - While Loop CodeGen Ready!**
 
-**YZ_14 UPDATE (16 December 2025):**
+**YZ_15 UPDATE (17 December 2025):**
+
+**Completed (While Loop CodeGen - YZ_15):**
+- ✅ While loop code generation (while condition do body end_while)
+- ✅ Loop header, body, and exit labels
+- ✅ Back-edge branch (jump to header)
+- ✅ Counter-based loops with increment
+- ✅ Nested while loops support
+- ✅ Complex conditions (integration with logical ops)
+- ✅ Early exit patterns
+- ✅ 333 lines total, 5 functions, 5/5 tests passing
+
+**Test Results:**
+```bash
+./compiler/stage0/modules/functions/functions_standalone \
+  modules/codegen_mlp/codegen_while.mlp temp/codegen_while.s
+→ 5/5 PASSED ✅
+```
+
+**Files Created:**
+- `modules/codegen_mlp/codegen_while.mlp` (333 lines)
+
+**Status:** ✅ YZ_15 COMPLETE - Ready for YZ_16 (For Loop CodeGen)!
+
+---
+
+**✅ YZ_14 COMPLETE - Control Flow CodeGen**
 
 **Completed (Control Flow CodeGen - YZ_14):**
 - ✅ If statement code generation (if-then-end_if)
@@ -327,9 +356,9 @@ MLP/
 
 ## 🎯 KULLANICIYA SORU: Ne yapmalıyım?
 
-**Önceki görev (YZ_14):** CodeGen Control Flow Implementation ✅ Tamamlandı (220 satır, 4 fonksiyon)
+**Önceki görev (YZ_15):** CodeGen While Loops ✅ Tamamlandı (333 satır, 5 fonksiyon, 5/5 test geçti)
 
-**CodeGen Phase (Phase 2):** Part 6/10 ✅ Complete!
+**CodeGen Phase (Phase 2):** Part 7/10 ✅ Complete!
 
 **İlerleme:**
 - ✅ YZ_09: Infrastructure (IR Builder, Type Mapper, Symbol Table) - DONE
@@ -338,23 +367,23 @@ MLP/
 - ✅ YZ_12: Comparison & Logic - DONE
 - ✅ YZ_13: Statements (var decl, assign, return, print) - DONE
 - ✅ YZ_14: Control Flow - If/Else - DONE
-- ⏳ YZ_15: While Loops - NEXT
-- ⏸️ YZ_16-19: For Loops, Functions, Arrays...
+- ✅ YZ_15: While Loops - DONE
+- ⏳ YZ_16: For Loops (from/to/downto) - NEXT
+- ⏸️ YZ_17-19: Functions, Arrays, Integration...
 
-**Sıradaki görev: YZ_15 - While Loop CodeGen**
-- While loop code generation
-- Loop header label
-- Loop condition evaluation
-- Loop body execution
-- Back-edge branch
-- Loop exit label
+**Sıradaki görev: YZ_16 - For Loop CodeGen**
+- For-to loop code generation (for i from 1 to 10)
+- For-downto loop code generation (for i from 10 downto 1)
+- Loop counter initialization
+- Increment/decrement operations
+- Loop exit conditions
 
-**Tahmini:** 2-3 saat, ~200-250 satır
+**Tahmini:** 2-3 saat, ~300-350 satır
 
 **Soru:** 
-- YZ_15'e başlamak ister misin?
+- YZ_16'ya başlamak ister misin?
 - Başka bir şey mi yapalım?
-- Önce YZ_14'ü commit edip push edelim mi?
+- Önce YZ_15'i commit edip push edelim mi?
 
 ## 📚 Eski Referans (Arşiv)
 
