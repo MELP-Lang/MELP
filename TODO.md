@@ -328,7 +328,7 @@ ls -t stage_1_YZ/YZ_*.md | head -1 | xargs cat | head -30
 - temp/çıktı.md'ye notlar al
 - Test dosyalarını tests/manual/ veya temp/'e koy
 
-### 3️⃣ Session Bitişi (Son 10 dakika) - ÇOK ÖNEMLİ!
+### 3️⃣ Session Bitişi (Son 15 dakika) - ÇOK ÖNEMLİ!
 
 **Görev tamamlandıysa:**
 
@@ -351,10 +351,36 @@ ls -t stage_1_YZ/YZ_*.md | head -1 | xargs cat | head -30
 
 # Adım 4: Ana dizini temizle
 rm -f test_*.mlp *.s *.o a.out
+rm -f temp/*.s*
 mv temp/*.s temp/archive/ 2>/dev/null || true
 
-# Adım 5: KULLANICIYA SOR
-# "Görev YZ_XX tamamlandı! Sırada ne yapmak istersin?"
+# Adım 5: Git commit & push
+# Yeni dal oluştur
+git checkout -b yz-XX-task-description
+
+# Değişiklikleri ekle
+git add modules/parser_mlp/*.mlp stage_1_YZ/YZ_*.md TODO.md NEXT_AI_START_HERE.md
+
+# Commit et (detaylı mesajla)
+git commit -m "YZ_XX: Task Description
+
+✅ Completed Tasks:
+- Task 1 description
+- Task 2 description
+
+📊 Metrics:
+- Files created: X
+- Lines added: Y  
+- Tests: Z/Z passing
+
+Status: Complete/Ready for review"
+
+# Push et
+git push -u origin yz-XX-task-description
+
+# Adım 6: KULLANICIYA SOR
+# "Görev YZ_XX tamamlandı ve commit edildi! Sırada ne yapmak istersin?"
+# "Pull request oluşturalım mı?"
 # TODO.md'deki seçenekleri sun
 ```
 

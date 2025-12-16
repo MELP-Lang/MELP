@@ -23,15 +23,44 @@
 3. **Son YZ raporunu oku** → stage_1_YZ/YZ_XX.md (en son tamamlanan)
 4. **KULLANICIYA SOR** → "Ne yapmamı istersin?" (TODO'dan seç veya yeni görev)
 
-**Session bittiğinde yapılacaklar (10 dakika):**
+**Session bittiğinde yapılacaklar (15 dakika):**
 
 1. **YZ raporu yaz** → `stage_1_YZ/YZ_XX.md` (görev, değişiklikler, testler, sonuçlar)
 2. **TODO.md güncelle** → Tamamlananı [x] işaretle, ilerleme %'sini güncelle
 3. **Bu dosyayı güncelle** → Status, tablo ("Last Session" olarak)
-4. **Ana dizini temizle** → `rm -f test_*.mlp *.s *.o`
-5. **KULLANICIYA SOR** → "Görev tamamlandı. Sırada ne yapmak istersin?"
+4. **Ana dizini temizle** → `rm -f test_*.mlp *.s *.o temp/*.s*`
+5. **Git commit & push** → Değişiklikleri kendi dalına commit et ve push et
+6. **KULLANICIYA SOR** → "Görev tamamlandı. Sırada ne yapmak istersin?"
 
-**⚠️ ÖNEMLİ:** Session bittiğinde mutlaka TODO.md + NEXT_AI_START_HERE.md + YZ raporu üçlüsünü güncelle, sonra KULLANICIYA SOR ne yapacağını!
+**🔧 Git Workflow:**
+```bash
+# 1. Yeni dal oluştur (session numarasıyla)
+git checkout -b yz-XX-task-description
+
+# 2. Değişiklikleri ekle
+git add modules/parser_mlp/*.mlp stage_1_YZ/YZ_*.md TODO.md NEXT_AI_START_HERE.md
+
+# 3. Commit et (detaylı mesajla)
+git commit -m "YZ_XX: Task Description
+
+✅ Completed Tasks:
+- Task 1
+- Task 2
+
+📊 Metrics:
+- Files created: X
+- Lines added: Y
+- Tests: Z/Z passing
+
+Status: Complete/Ready for review"
+
+# 4. Push et
+git push -u origin yz-XX-task-description
+
+# 5. KULLANICIYA SOR: Pull request oluşturalım mı?
+```
+
+**⚠️ ÖNEMLİ:** Session bittiğinde mutlaka TODO.md + NEXT_AI_START_HERE.md + YZ raporu + GIT COMMIT yapılmalı!
 
 ---
 
