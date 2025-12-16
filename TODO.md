@@ -106,14 +106,14 @@ MLP/                               ← Ana dizin
 | **CodeGen Statements** | ✅ %100 | MELP | 145 | **Stage 1 (YZ_13) ✅** |
 | **CodeGen Control Flow** | ✅ %100 | MELP | 220 | **Stage 1 (YZ_14) ✅** |
 | **CodeGen While Loops** | ✅ %100 | MELP | 333 | **Stage 1 (YZ_15) ✅** |
-| **CodeGen For Loops** | ❌ %0 | MELP | - | Stage 1 (YZ_16 - Next) |
-| **CodeGen Functions** | ❌ %0 | MELP | - | Stage 1 (YZ_17) |
+| **CodeGen For Loops** | ✅ %100 | MELP | 473 | **Stage 1 (YZ_16) ✅** |
+| **CodeGen Functions** | ❌ %0 | MELP | - | Stage 1 (YZ_17 - Next) |
 | **CodeGen Arrays** | ❌ %0 | MELP | - | Stage 1 (YZ_18) |
 | **CodeGen Integration** | ❌ %0 | MELP | - | Stage 1 (YZ_19) |
 | **Bootstrap** | ❌ %0 | - | - | Stage 1 (YZ_20+) |
 
-**İlerleme:** Stage 1 Phase 2 - %52 Complete (CodeGen in progress)
-**Sırada:** Stage 1 Phase 2 - CodeGen For Loops (YZ_16)
+**İlerleme:** Stage 1 Phase 2 - %56 Complete (CodeGen in progress)
+**Sırada:** Stage 1 Phase 2 - CodeGen Functions (YZ_17)
 
 ---
 
@@ -424,26 +424,32 @@ MLP/                               ← Ana dizin
 
 **Test:** While loop programs → IR + correct structure ✅ (5/5 tests passing)
 
-#### Part 8: Control Flow - For Loops (1 hafta - YZ_16)
+#### Part 8: Control Flow - For Loops (1 hafta - YZ_16) ✅ COMPLETE
 **Hedef:** For loop structures
 
-- [ ] For loop (from/to)
-  - [ ] Loop counter initialization
-  - [ ] Condition check
-  - [ ] Increment
-  - [ ] from/to variant
-- [ ] For loop (downto)
-  - [ ] Decrement
-  - [ ] downto variant
-- [ ] Tests
-  - [ ] For-to loop → IR
-  - [ ] For-downto loop → IR
-  - [ ] Nested for loop test
+- [x] For loop (from/to)
+  - [x] Loop counter initialization
+  - [x] Condition check (icmp sle)
+  - [x] Increment (add i64)
+  - [x] from/to variant
+- [x] For loop (downto)
+  - [x] Decrement (sub i64)
+  - [x] downto variant (icmp sge)
+- [x] Nested loops
+  - [x] Nested for-to loops
+  - [x] Mixed nested (to + downto)
+- [x] Tests
+  - [x] For-to loop → IR
+  - [x] For-downto loop → IR
+  - [x] Nested for loop test
+  - [x] Mixed nested test
+  - [x] For with body statements
+  - [x] Variable bounds test
 
 **Dosyalar:**
-- `modules/codegen_mlp/codegen_for.mlp` (~350 satır)
+- `modules/codegen_mlp/codegen_for.mlp` (473 satır) ✅
 
-**Test:** For loop programs → IR + correct iteration count
+**Test:** For loop programs → IR + correct structure ✅ (6/6 tests passing)
 
 #### Part 9: Functions (1 hafta - YZ_17)
 **Hedef:** Function definitions & calls
