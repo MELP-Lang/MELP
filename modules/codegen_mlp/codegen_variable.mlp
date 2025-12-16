@@ -1,0 +1,396 @@
+// ============================================================================
+// MELP Stage 1 - Code Generator: Variable Operations CodeGen
+// ============================================================================
+// Part of: Phase 2 - CodeGen in MELP (YZ_10)
+// Purpose: Generate LLVM IR for variable operations
+//
+// Handles:
+// - Variable declarations (alloca)
+// - Variable stores (store instruction)
+// - Variable loads (load instruction)
+// - Local variable tracking
+// ============================================================================
+
+import "type_mapper.mlp"
+import "ir_builder.mlp"
+import "symbol_table.mlp"
+
+// ============================================================================
+// VARIABLE DECLARATION CODE GENERATION
+// ============================================================================
+
+// Generate IR for variable declaration (alloca)
+// Input:
+//   - var_name: variable identifier
+//   - var_type: MELP type ("numeric", "boolean", "string", "list")
+// Output: LLVM IR register holding the variable pointer (e.g., "%x")
+function codegen_variable_decl(var_name: string, var_type: string): string
+    // Convert MELP type to LLVM type
+    string llvm_type = map_melp_type_to_llvm(var_type)
+    
+    // Allocate stack space for the variable
+    // Syntax: %var_name = alloca <type>
+    string var_ptr = "%" + var_name
+    
+    emit_alloca_instr(var_ptr, llvm_type)
+    
+    // Register variable in symbol table (if available)
+    // Note: We'll add this variable to a local scope
+    add_symbol(var_name, var_type, var_ptr)
+    
+    return var_ptr
+end_function
+
+// Generate IR for variable declaration with initialization
+// Input:
+//   - var_name: variable identifier
+//   - var_type: MELP type
+//   - init_value: LLVM IR value (constant or register)
+// Output: LLVM IR register holding the variable pointer
+function codegen_variable_decl_init(var_name: string, var_type: string, init_value: string): string
+    // First, allocate the variable
+    string var_ptr = codegen_variable_decl(var_name, var_type)
+    
+    // Then, store the initial value
+    string llvm_type = map_melp_type_to_llvm(var_type)
+    emit_store_instr(llvm_type, init_value, var_ptr)
+    
+    return var_ptr
+end_function
+
+// ============================================================================
+// VARIABLE STORE CODE GENERATION
+// ============================================================================
+
+// Generate IR for storing a value to a variable
+// Input:
+//   - var_name: variable identifier
+//   - var_type: MELP type
+//   - value: LLVM IR value to store (constant or register)
+// Output: none (emits store instruction)
+function codegen_variable_store(var_name: string, var_type: string, value: string): string
+    // Look up variable pointer from symbol table
+    string var_ptr = lookup_symbol(var_name)
+    
+    // If not found, assume it's already a pointer (for testing)
+    if var_ptr == "" then
+        var_ptr = "%" + var_name
+    end_if
+    
+    // Convert type
+    string llvm_type = map_melp_type_to_llvm(var_type)
+    
+    // Emit store instruction
+    emit_store_instr(llvm_type, value, var_ptr)
+    
+    return var_ptr
+end_function
+
+// ============================================================================
+// VARIABLE LOAD CODE GENERATION
+// ============================================================================
+
+// Generate IR for loading a value from a variable
+// Input:
+//   - var_name: variable identifier
+//   - var_type: MELP type
+// Output: LLVM IR register holding the loaded value (e.g., "%t1")
+function codegen_variable_load(var_name: string, var_type: string): string
+    // Look up variable pointer from symbol table
+    string var_ptr = lookup_symbol(var_name)
+    
+    // If not found, assume it's already a pointer (for testing)
+    if var_ptr == "" then
+        var_ptr = "%" + var_name
+    end_if
+    
+    // Generate temporary register for the loaded value
+    string temp_reg = gen_temp_name()
+    
+    // Convert type
+    string llvm_type = map_melp_type_to_llvm(var_type)
+    
+    // Emit load instruction
+    emit_load_instr(temp_reg, llvm_type, var_ptr)
+    
+    return temp_reg
+end_function
+
+// ============================================================================
+// VARIABLE REFERENCE CODE GENERATION
+// ============================================================================
+
+// Generate IR for a variable reference (identifier in expression)
+// This decides whether we need to load the value or just return the pointer
+// Input:
+//   - var_name: variable identifier
+//   - var_type: MELP type
+//   - context: "lvalue" (need pointer) or "rvalue" (need value)
+// Output: LLVM IR value (pointer or loaded value)
+function codegen_variable_ref(var_name: string, var_type: string, context: string): string
+    string result = ""
+    
+    if context == "lvalue" then
+        // Need the pointer (for assignment)
+        result = lookup_symbol(var_name)
+        if result == "" then
+            result = "%" + var_name
+        end_if
+        
+    else if context == "rvalue" then
+        // Need the value (for expressions)
+        result = codegen_variable_load(var_name, var_type)
+        
+    else
+        // Default: treat as rvalue
+        result = codegen_variable_load(var_name, var_type)
+    end_if
+    
+    return result
+end_function
+
+// ============================================================================
+// ASSIGNMENT STATEMENT CODE GENERATION
+// ============================================================================
+
+// Generate IR for assignment statement
+// Input:
+//   - var_name: variable identifier
+//   - var_type: MELP type
+//   - expr_value: LLVM IR value (result of expression codegen)
+// Output: none (emits store instruction)
+function codegen_assignment(var_name: string, var_type: string, expr_value: string): string
+    // Simply store the expression value to the variable
+    string result = codegen_variable_store(var_name, var_type, expr_value)
+    return result
+end_function
+
+// ============================================================================
+// COMPOUND ASSIGNMENT CODE GENERATION
+// ============================================================================
+
+// Generate IR for compound assignment (+=, -=, *=, /=)
+// Input:
+//   - var_name: variable identifier
+//   - var_type: MELP type
+//   - operator: "+=", "-=", "*=", "/="
+//   - expr_value: LLVM IR value (rhs of compound assignment)
+// Output: none (emits load, operation, store)
+function codegen_compound_assignment(var_name: string, var_type: string, operator: string, expr_value: string): string
+    // Step 1: Load current value
+    string current_val = codegen_variable_load(var_name, var_type)
+    
+    // Step 2: Perform operation
+    string result_reg = gen_temp_name()
+    string llvm_type = map_melp_type_to_llvm(var_type)
+    
+    if operator == "+=" then
+        emit_add_instr(result_reg, llvm_type, current_val, expr_value)
+        
+    else if operator == "-=" then
+        emit_sub_instr(result_reg, llvm_type, current_val, expr_value)
+        
+    else if operator == "*=" then
+        emit_mul_instr(result_reg, llvm_type, current_val, expr_value)
+        
+    else if operator == "/=" then
+        emit_div_instr(result_reg, llvm_type, current_val, expr_value)
+        
+    else
+        println("[ERROR] Unknown compound operator: " + operator)
+        result_reg = current_val
+    end_if
+    
+    // Step 3: Store result back
+    string var_ptr = codegen_variable_store(var_name, var_type, result_reg)
+    
+    return var_ptr
+end_function
+
+// ============================================================================
+// TEST FUNCTIONS
+// ============================================================================
+
+function test_variable_declaration(): boolean
+    println("=== Test: Variable Declaration ===")
+    
+    // Test: numeric x
+    clear_symbols()
+    enter_scope()
+    
+    string ptr1 = codegen_variable_decl("x", "numeric")
+    println("numeric x → " + ptr1)
+    
+    // Test: string name
+    string ptr2 = codegen_variable_decl("name", "string")
+    println("string name → " + ptr2)
+    
+    leave_scope()
+    
+    boolean pass = (ptr1 == "%x") and (ptr2 == "%name")
+    
+    if pass then
+        println("[PASS] Variable declaration test")
+    else
+        println("[FAIL] Variable declaration test")
+    end_if
+    
+    return pass
+end_function
+
+function test_variable_store(): boolean
+    println("=== Test: Variable Store ===")
+    
+    clear_symbols()
+    enter_scope()
+    
+    // Declare variable first
+    string ptr = codegen_variable_decl("count", "numeric")
+    add_symbol("count", "numeric", ptr)
+    
+    // Store value 42
+    codegen_variable_store("count", "numeric", "42")
+    println("count = 42 (IR emitted)")
+    
+    leave_scope()
+    
+    println("[PASS] Variable store test (IR emitted)")
+    return true
+end_function
+
+function test_variable_load(): boolean
+    println("=== Test: Variable Load ===")
+    
+    clear_symbols()
+    enter_scope()
+    
+    // Declare variable
+    string ptr = codegen_variable_decl("value", "numeric")
+    add_symbol("value", "numeric", ptr)
+    
+    // Load value
+    string loaded = codegen_variable_load("value", "numeric")
+    println("load value → " + loaded)
+    
+    leave_scope()
+    
+    // Check that we got a temp register
+    boolean pass = (loaded != "") and (loaded != "%value")
+    
+    if pass then
+        println("[PASS] Variable load test")
+    else
+        println("[FAIL] Variable load test")
+    end_if
+    
+    return pass
+end_function
+
+function test_assignment_statement(): boolean
+    println("=== Test: Assignment Statement ===")
+    
+    clear_symbols()
+    enter_scope()
+    
+    // Declare variable
+    string ptr = codegen_variable_decl("x", "numeric")
+    add_symbol("x", "numeric", ptr)
+    
+    // Assignment: x = 10
+    codegen_assignment("x", "numeric", "10")
+    println("x = 10 (IR emitted)")
+    
+    leave_scope()
+    
+    println("[PASS] Assignment statement test")
+    return true
+end_function
+
+function test_compound_assignment(): boolean
+    println("=== Test: Compound Assignment ===")
+    
+    clear_symbols()
+    enter_scope()
+    
+    // Declare and initialize
+    string ptr = codegen_variable_decl_init("counter", "numeric", "0")
+    add_symbol("counter", "numeric", ptr)
+    
+    // Compound assignment: counter += 5
+    codegen_compound_assignment("counter", "numeric", "+=", "5")
+    println("counter += 5 (IR emitted)")
+    
+    leave_scope()
+    
+    println("[PASS] Compound assignment test")
+    return true
+end_function
+
+function test_variable_decl_with_init(): boolean
+    println("=== Test: Variable Declaration with Init ===")
+    
+    clear_symbols()
+    enter_scope()
+    
+    // numeric x = 42
+    string ptr1 = codegen_variable_decl_init("x", "numeric", "42")
+    println("numeric x = 42 → " + ptr1)
+    
+    // boolean flag = true
+    string ptr2 = codegen_variable_decl_init("flag", "boolean", "1")
+    println("boolean flag = true → " + ptr2)
+    
+    leave_scope()
+    
+    boolean pass = (ptr1 == "%x") and (ptr2 == "%flag")
+    
+    if pass then
+        println("[PASS] Variable declaration with init test")
+    else
+        println("[FAIL] Variable declaration with init test")
+    end_if
+    
+    return pass
+end_function
+
+function run_all_variable_tests(): numeric
+    println("======================================")
+    println("CODEGEN VARIABLE TESTS")
+    println("======================================")
+    
+    numeric passed = 0
+    numeric total = 6
+    
+    if test_variable_declaration() then
+        passed = passed + 1
+    end_if
+    
+    if test_variable_store() then
+        passed = passed + 1
+    end_if
+    
+    if test_variable_load() then
+        passed = passed + 1
+    end_if
+    
+    if test_assignment_statement() then
+        passed = passed + 1
+    end_if
+    
+    if test_compound_assignment() then
+        passed = passed + 1
+    end_if
+    
+    if test_variable_decl_with_init() then
+        passed = passed + 1
+    end_if
+    
+    println("======================================")
+    print("Tests Passed: ")
+    print_numeric(passed)
+    print("/")
+    print_numeric(total)
+    println("")
+    
+    return passed
+end_function

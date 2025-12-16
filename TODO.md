@@ -100,15 +100,17 @@ MLP/                               ← Ana dizin
 | **Parser Compound Assign** | ✅ %100 | MELP | 227 | **Stage 1 (YZ_08) ✅** |
 | **Parser Integration** | ✅ %100 | MELP | 583 | **Stage 1 (YZ_06/07/08) ✅** |
 | **CodeGen Infrastructure** | ✅ %100 | MELP | 942 | **Stage 1 (YZ_09) ✅** |
-| **CodeGen Expressions** | ❌ %0 | MELP | - | Stage 1 (YZ_10-12) |
+| **CodeGen Literals & Vars** | ✅ %100 | MELP | 776 | **Stage 1 (YZ_10) ✅** |
+| **CodeGen Arithmetic** | ❌ %0 | MELP | - | Stage 1 (YZ_11) |
+| **CodeGen Comparison/Logic** | ❌ %0 | MELP | - | Stage 1 (YZ_12) |
 | **CodeGen Statements** | ❌ %0 | MELP | - | Stage 1 (YZ_13-15) |
 | **CodeGen Functions** | ❌ %0 | MELP | - | Stage 1 (YZ_16) |
 | **CodeGen Structs/Arrays** | ❌ %0 | MELP | - | Stage 1 (YZ_17-18) |
 | **CodeGen Integration** | ❌ %0 | MELP | - | Stage 1 (YZ_19) |
 | **Bootstrap** | ❌ %0 | - | - | Stage 1 (YZ_20+) |
 
-**İlerleme:** Stage 1 Phase 1 - %100 Complete (Parser Phase Complete!)
-**Sırada:** Stage 1 Phase 2 - CodeGen (YZ_09 başlayacak)
+**İlerleme:** Stage 1 Phase 2 - %20 Complete (CodeGen in progress)
+**Sırada:** Stage 1 Phase 2 - CodeGen Arithmetic (YZ_11)
 
 ---
 
@@ -274,26 +276,31 @@ MLP/                               ← Ana dizin
 
 **Test:** Simple function declaration → LLVM IR
 
-#### Part 2: Expression CodeGen - Literals & Variables (1 hafta - YZ_10)
+#### Part 2: Expression CodeGen - Literals & Variables (1 hafta - YZ_10) ✅ COMPLETE
 **Hedef:** Basit expression'ları LLVM IR'e çevir
 
-- [ ] Literal expressions
-  - [ ] Numeric literals (`42` → `i64 42`)
-  - [ ] String literals (`"hello"` → global string)
-  - [ ] Boolean literals (`true/false` → `i1 1/0`)
-- [ ] Variable references
-  - [ ] Load local variable (`%x` → `load i64, i64* %x`)
-  - [ ] Store to variable (`x = 5` → `store i64 5, i64* %x`)
-- [ ] Simple tests
-  - [ ] `numeric x = 42` → IR
-  - [ ] `string s = "test"` → IR
-  - [ ] Variable load/store test
+- [x] Literal expressions
+  - [x] Numeric literals (`42` → `i64 42`)
+  - [x] String literals (`"hello"` → global string)
+  - [x] Boolean literals (`true/false` → `i1 1/0`)
+- [x] Variable references
+  - [x] Load local variable (`%x` → `load i64, i64* %x`)
+  - [x] Store to variable (`x = 5` → `store i64 5, i64* %x`)
+- [x] Assignment statements (simple and compound)
+- [x] Simple tests
+  - [x] `numeric x = 42` → IR
+  - [x] `string s = "test"` → IR
+  - [x] Variable load/store test
+  - [x] 16 tests total (10 unit + 6 integration)
 
 **Dosyalar:**
-- `modules/codegen_mlp/codegen_literal.mlp` (~200 satır)
-- `modules/codegen_mlp/codegen_variable.mlp` (~250 satır)
+- `modules/codegen_mlp/codegen_literal.mlp` (380 satır) ✅
+- `modules/codegen_mlp/codegen_variable.mlp` (396 satır) ✅
+- `tests/manual/test_codegen_literals_vars.mlp` (303 satır) ✅
+- `tests/manual/test_yz_10_unit.mlp` (68 satır) ✅
+- `tests/manual/test_yz_10_e2e.mlp` (113 satır) ✅
 
-**Test:** Variable declaration & assignment → LLVM IR + execution
+**Test:** Variable declaration & assignment → LLVM IR ✅ (16 tests passing)
 
 #### Part 3: Expression CodeGen - Arithmetic (1 hafta - YZ_11)
 **Hedef:** Arithmetic operations

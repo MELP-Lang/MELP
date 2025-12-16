@@ -1,0 +1,68 @@
+// ============================================================================
+// MELP Stage 1 - YZ_10 Unit Test Runner
+// ============================================================================
+// Tests all literal and variable codegen functionality
+// ============================================================================
+
+import "ir_builder.mlp"
+import "type_mapper.mlp"
+import "symbol_table.mlp"
+import "codegen_literal.mlp"
+import "codegen_variable.mlp"
+
+// Main test runner
+function main(): numeric
+    println("╔════════════════════════════════════════════╗")
+    println("║   MELP YZ_10: Literals & Variables CodeGen ║")
+    println("║   Unit Test Suite                          ║")
+    println("╚════════════════════════════════════════════╝")
+    println("")
+    
+    numeric total_passed = 0
+    numeric total_tests = 0
+    
+    // Test 1: Literals
+    println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    println("  PART 1: LITERAL CODE GENERATION")
+    println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    numeric literal_passed = run_all_literal_tests()
+    total_passed = total_passed + literal_passed
+    total_tests = total_tests + 4
+    println("")
+    
+    // Test 2: Variables
+    println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    println("  PART 2: VARIABLE CODE GENERATION")
+    println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    numeric variable_passed = run_all_variable_tests()
+    total_passed = total_passed + variable_passed
+    total_tests = total_tests + 6
+    println("")
+    
+    // Summary
+    println("╔════════════════════════════════════════════╗")
+    println("║   FINAL TEST SUMMARY                       ║")
+    println("╚════════════════════════════════════════════╝")
+    print("Total Tests Passed: ")
+    print_numeric(total_passed)
+    print("/")
+    print_numeric(total_tests)
+    println("")
+    
+    numeric success_rate = (total_passed * 100) / total_tests
+    print("Success Rate: ")
+    print_numeric(success_rate)
+    println("%")
+    println("")
+    
+    if total_passed == total_tests then
+        println("✅ ALL TESTS PASSED! YZ_10 READY!")
+        return 0
+    else
+        numeric failed = total_tests - total_passed
+        print("⚠️  ")
+        print_numeric(failed)
+        println(" TESTS FAILED")
+        return 1
+    end_if
+end_function
