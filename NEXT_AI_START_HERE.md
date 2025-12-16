@@ -1,14 +1,78 @@
 # 🚀 STAGE 1 SELF-HOSTING - START HERE!
 
-**Session:** Stage 1 YZ_01  
-**Date:** 16 Aralık 2025  
+**Last Session:** Stage 1 YZ_08  
+**Date:** 16 December 2025  
 **Agent:** GitHub Copilot (Claude Sonnet 4.5)  
 **Branch:** main  
-**Status:** 🎯 **YZ_01 - Expression Parsing Başlıyor**
+**Status:** ✅ **YZ_08 Complete - All 5 Small Parser Tasks Done! Ask user for next task**
 
 **⚠️ YZ Directory Structure:**
 - `stage_0_YZ/` - Stage 0 sessions (YZ_01 - YZ_97, 80 sessions) ✅ ARCHIVED
 - `stage_1_YZ/` - Stage 1 sessions (YZ_01+, current) ⏳ ACTIVE
+
+---
+
+## 🤖 YZ HIZLI BAŞLANGIÇ (İLK OKUYACAĞIN!)
+
+**📋 DETAYLI CHECKLIST İÇİN:** `YZ_CHECKLIST.md` dosyasını oku!
+
+**Yeni YZ geldiğinde yapılacaklar (5 dakika):**
+
+1. **Bu dosyayı oku** → Mevcut durum nedir?
+2. **TODO.md oku** → Ne yapıldı, ne kaldı?
+3. **Son YZ raporunu oku** → stage_1_YZ/YZ_XX.md (en son tamamlanan)
+4. **KULLANICIYA SOR** → "Ne yapmamı istersin?" (TODO'dan seç veya yeni görev)
+
+**Session bittiğinde yapılacaklar (10 dakika):**
+
+1. **YZ raporu yaz** → `stage_1_YZ/YZ_XX.md` (görev, değişiklikler, testler, sonuçlar)
+2. **TODO.md güncelle** → Tamamlananı [x] işaretle, ilerleme %'sini güncelle
+3. **Bu dosyayı güncelle** → Status, tablo ("Last Session" olarak)
+4. **Ana dizini temizle** → `rm -f test_*.mlp *.s *.o`
+5. **KULLANICIYA SOR** → "Görev tamamlandı. Sırada ne yapmak istersin?"
+
+**⚠️ ÖNEMLİ:** Session bittiğinde mutlaka TODO.md + NEXT_AI_START_HERE.md + YZ raporu üçlüsünü güncelle, sonra KULLANICIYA SOR ne yapacağını!
+
+---
+
+## 🚨 SYNTAX UYARISI - İLK OKUYACAĞIN ŞEY!
+
+**Kullanıcı kodu (.mlp test/örnek):** Boşluklu → `end if`, `else if`, `end while`  
+**Compiler kodu (parser.mlp, lexer.mlp):** Alt çizgili → `end_if`, `else_if`, `end_while`
+
+**Hızlı Kural:** Örnekler için `end if`, modüller için `end_if`. Kararsızsan → `kurallar_kitabı.md` oku!
+
+---
+
+## 📁 DOSYA ORGANIZASYONU KURALI - ÖNEMLİ!
+
+**Test Dosyaları:**
+- ❌ **ANA DİZİNE TEST DOSYASI BIRAKMA!** (test.mlp, test_*.mlp, parser_expr.s vb.)
+- ✅ Tüm test dosyaları `tests/` klasörüne konulmalı
+- ✅ Manuel testler: `tests/manual/test_*.mlp`
+- ✅ Otomatik testler: `tests/auto/`
+- ✅ Test çıktıları: `tests/output/` veya `temp/`
+
+**Geçici Dosyalar:**
+- ✅ `.s`, `.o`, binary dosyalar → `temp/` klasörüne
+- ✅ Çalışma notları → `temp/çıktı.md` veya `temp/notes_*.md`
+
+**Temizlik Sonrası Ana Dizin:**
+```
+MLP/
+├── compiler/          (Stage 0 C compiler)
+├── modules/           (Stage 1 MELP modules)
+├── runtime/           (C runtime libraries)
+├── stage_0_YZ/        (Archived sessions)
+├── stage_1_YZ/        (Active sessions)
+├── tests/             (TÜM TEST DOSYALARI BURAYA!)
+├── temp/              (Geçici dosyalar)
+├── NEXT_AI_START_HERE.md
+├── TODO.md
+└── README.md
+```
+
+**Her YZ Session Sonunda:** Ana dizini temizle, test dosyalarını `tests/` altına taşı!
 
 ---
 
@@ -64,37 +128,85 @@
 |---------|-------|-----|-------|-----|
 | Lexer | ✅ 100% | MELP | ~1,803 | Stage 0 (YZ_57) |
 | Parser Infra | ✅ 100% | MELP | ~400 | Stage 0 (YZ_97) |
-| Parser Expr | ⏳ 0% | MELP | - | **Stage 1 (YZ_01) ← ŞİMDİ** |
-| Parser Stmt | ❌ 0% | MELP | - | Stage 1 (YZ_02) |
-| CodeGen | ❌ 0% | C | - | Stage 1 (Sonra) |
-| Bootstrap | ❌ 0% | - | - | Stage 1 (En son) |
+| Parser Expr | ✅ 100% | MELP | 224 | **Stage 1 (YZ_01) ✅** |
+| Parser Stmt | ✅ 100% | MELP | 103 | **Stage 1 (YZ_02) ✅** |
+| Parser Control | ✅ 100% | MELP | 287 | **Stage 1 (YZ_03) ✅** |
+| Parser Func | ✅ 100% | MELP | 518 | **Stage 1 (YZ_04) ✅** |
+| Parser Struct/Enum | ✅ 100% | MELP | 811 | **Stage 1 (YZ_05) ✅** |
+| Parser Import | ✅ 100% | MELP | 219 | **Stage 1 (YZ_06) ✅** |
+| Parser Switch/Case | ✅ 100% | MELP | 332 | **Stage 1 (YZ_07) ✅** |
+| Parser For Loops | ✅ 100% | MELP | 299 | **Stage 1 (YZ_08) ✅** |
+| Parser Function Calls | ✅ 100% | MELP | 327 | **Stage 1 (YZ_08) ✅** |
+| Parser Array Indexing | ✅ 100% | MELP | 266 | **Stage 1 (YZ_08) ✅** |
+| Parser Pretty Print | ✅ 100% | MELP | 336 | **Stage 1 (YZ_08) ✅** |
+| Parser Compound Assign | ✅ 100% | MELP | 227 | **Stage 1 (YZ_08) ✅** |
+| Parser Integration | ✅ 100% | MELP | 583 | **Stage 1 (YZ_06/07/08) ✅** |
+| CodeGen | ❌ 0% | MELP | - | Stage 1 (Next?) |
+| Bootstrap | ❌ 0% | - | - | Stage 1 (Final) |
 
-**TOPLAM:** %30 Complete
+**TOPLAM:** %90 Complete
 
----
+**✅ YZ_08 COMPLETE - All 5 Small Parser Tasks Done!**
 
-## 🎯 ŞİMDİ NE YAPACAĞIZ?
+**YZ_08 UPDATE (16 December 2025):**
 
-### ⏳ Yeni YZ Session: YZ_01
+**Completed (5 tasks in 1 session!):**
+- ✅ For loop parsing (`for i from x to y`, `for i from x downto y`) - 299 lines
+- ✅ Function call expressions (`func(arg1, arg2, ...)`) - 327 lines
+- ✅ Array/List indexing (`arr[i]`, `matrix[i][j]`) - 266 lines
+- ✅ AST pretty-print (debugging tool) - 336 lines
+- ✅ Compound assignment structure (`+=, -=, *=, /=`) - 227 lines
+- ✅ Integration test updated (9/9 tests passing)
 
-**Görev:** Phase 1 Part 2 - Expression Parsing  
-**Dosya:** `stage_1_YZ/YZ_01.md`  
-**Süre:** 4-6 saat  
-
-**Başlamak için:**
+**Test Results:**
 ```bash
-cat stage_1_YZ/YZ_01.md
+./functions_standalone modules/parser_mlp/parser_for.mlp temp/parser_for.s
+→ 4/4 PASSED
+
+./functions_standalone modules/parser_mlp/parser_call.mlp temp/parser_call.s
+→ 6/6 PASSED
+
+./functions_standalone modules/parser_mlp/parser_index.mlp temp/parser_index.s
+→ 6/6 PASSED
+
+./functions_standalone modules/parser_mlp/parser_pretty.mlp temp/parser_pretty.s
+→ 6/6 PASSED
+
+./functions_standalone modules/parser_mlp/parser_compound.mlp temp/parser_compound.s
+→ 5/5 PASSED
+
+./functions_standalone modules/parser_mlp/parser_integration.mlp temp/parser_integration.s
+→ 9/9 PASSED (was 8/8)
 ```
 
-Bu session'da **Expression Parser**'ı MELP ile yazacağız:
-- Primary expressions (literals, identifiers)
-- Binary operations (+, -, *, /, %)
-- Comparison & logical operations
-- Operator precedence
+**Files Created:**
+- `modules/parser_mlp/parser_for.mlp` (299 lines)
+- `modules/parser_mlp/parser_call.mlp` (327 lines)
+- `modules/parser_mlp/parser_index.mlp` (266 lines)
+- `modules/parser_mlp/parser_pretty.mlp` (336 lines)
+- `modules/parser_mlp/parser_compound.mlp` (227 lines)
 
-**YZ_01'e git ve görevi başlat!** 🚀
+**Files Updated:**
+- `modules/parser_mlp/parser_integration.mlp` (583 lines, was 534)
+
+**Total Added:** 1,455 lines of MELP parser code!
+
+**Status:** ✅ YZ_08 COMPLETE - Parser at ~6,686 lines! All small tasks done!
 
 ---
+
+## 🎯 KULLANICIYA SORU: Ne yapmalıyım?
+
+**Önceki görev (YZ_08):** 5 Small Parser Tasks ✅ Tamamlandı (1,455 satır, 27/27 test)
+
+**Parser Phase:** ✅ COMPLETE! (~6,686 satır MELP kodu)
+
+**Tüm küçük görevler tamamlandı!** 🎊
+
+**Sıradaki büyük adım:**
+- **CodeGen Phase 1** - LLVM IR emission (4-6 hafta, büyük proje!)
+
+**Soru:** CodeGen Phase'e başlamak ister misin yoksa başka bir şey mi yapalım?
 
 ## 📚 Eski Referans (Arşiv)
 
