@@ -1,0 +1,139 @@
+// ============================================================================
+// MELP Stage 1 - YZ_11 End-to-End Demo: Arithmetic Expression Evaluation
+// ============================================================================
+// Demonstrates full arithmetic codegen pipeline:
+//   Complex MELP Expression → LLVM IR → Executable
+//
+// Demo Program:
+//   numeric a = 10
+//   numeric b = 5
+//   numeric c = 2
+//   numeric result = (a + b) * c - (a / b)
+//   return result
+//
+// Expected: (10 + 5) * 2 - (10 / 5) = 15 * 2 - 2 = 30 - 2 = 28
+// ============================================================================
+
+import "ir_builder.mlp"
+import "type_mapper.mlp"
+import "symbol_table.mlp"
+import "codegen_literal.mlp"
+import "codegen_variable.mlp"
+import "codegen_arithmetic.mlp"
+
+// Generate complete LLVM IR for arithmetic expression demo
+function generate_arithmetic_demo(): boolean
+    println("; ============================================")
+    println("; MELP Generated LLVM IR - YZ_11 Demo")
+    println("; Program: (a + b) * c - (a / b)")
+    println("; Where a=10, b=5, c=2")
+    println("; Expected result: 28")
+    println("; ============================================")
+    println("")
+    
+    // Module header
+    emit_module_header()
+    println("")
+    
+    // Function declaration
+    emit_function_start("main", "i64")
+    emit_label("entry")
+    
+    // Initialize symbol table
+    clear_symbols()
+    enter_scope()
+    
+    // ========================================
+    // Variable declarations
+    // ========================================
+    
+    // numeric a = 10
+    string ptr_a = codegen_variable_decl_init("a", "numeric", "10")
+    add_symbol("a", "numeric", ptr_a)
+    
+    // numeric b = 5
+    string ptr_b = codegen_variable_decl_init("b", "numeric", "5")
+    add_symbol("b", "numeric", ptr_b)
+    
+    // numeric c = 2
+    string ptr_c = codegen_variable_decl_init("c", "numeric", "2")
+    add_symbol("c", "numeric", ptr_c)
+    
+    // ========================================
+    // Expression: (a + b) * c - (a / b)
+    // ========================================
+    
+    // Load variables
+    string val_a = codegen_variable_load("a", "numeric")
+    string val_b = codegen_variable_load("b", "numeric")
+    string val_c = codegen_variable_load("c", "numeric")
+    
+    // temp1 = a + b (15)
+    string temp1 = codegen_add(val_a, val_b)
+    
+    // temp2 = temp1 * c (30)
+    string temp2 = codegen_mul(temp1, val_c)
+    
+    // Load a and b again for division
+    string val_a2 = codegen_variable_load("a", "numeric")
+    string val_b2 = codegen_variable_load("b", "numeric")
+    
+    // temp3 = a / b (2)
+    string temp3 = codegen_div(val_a2, val_b2)
+    
+    // result = temp2 - temp3 (28)
+    string result_val = codegen_sub(temp2, temp3)
+    
+    // Store result
+    string ptr_result = codegen_variable_decl_init("result", "numeric", result_val)
+    
+    // Return result
+    string ret_val = codegen_variable_load("result", "numeric")
+    emit_ret_instr("i64", ret_val)
+    
+    leave_scope()
+    emit_function_end()
+    
+    println("")
+    println("; ============================================")
+    println("; End of LLVM IR")
+    println("; ============================================")
+    
+    return true
+end_function
+
+// Main entry point
+function main(): numeric
+    println("╔════════════════════════════════════════════╗")
+    println("║   MELP YZ_11: End-to-End Demo              ║")
+    println("║   Arithmetic Expressions → LLVM IR         ║")
+    println("╚════════════════════════════════════════════╝")
+    println("")
+    
+    boolean success = generate_arithmetic_demo()
+    
+    println("")
+    println("╔════════════════════════════════════════════╗")
+    println("║   DEMO COMPLETE                            ║")
+    println("╚════════════════════════════════════════════╝")
+    println("")
+    println("Next steps:")
+    println("1. Copy the IR above to a .ll file")
+    println("2. Compile: clang -o program program.ll")
+    println("3. Run: ./program && echo $?")
+    println("4. Expected output: 28")
+    println("")
+    println("Expression breakdown:")
+    println("  (a + b) * c - (a / b)")
+    println("  (10 + 5) * 2 - (10 / 5)")
+    println("  15 * 2 - 2")
+    println("  30 - 2")
+    println("  = 28")
+    println("")
+    
+    if success then
+        return 0
+    else
+        return 1
+    end_if
+end_function

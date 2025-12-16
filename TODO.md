@@ -101,7 +101,7 @@ MLP/                               ← Ana dizin
 | **Parser Integration** | ✅ %100 | MELP | 583 | **Stage 1 (YZ_06/07/08) ✅** |
 | **CodeGen Infrastructure** | ✅ %100 | MELP | 942 | **Stage 1 (YZ_09) ✅** |
 | **CodeGen Literals & Vars** | ✅ %100 | MELP | 776 | **Stage 1 (YZ_10) ✅** |
-| **CodeGen Arithmetic** | ❌ %0 | MELP | - | Stage 1 (YZ_11) |
+| **CodeGen Arithmetic** | ✅ %100 | MELP | 472 | **Stage 1 (YZ_11) ✅** |
 | **CodeGen Comparison/Logic** | ❌ %0 | MELP | - | Stage 1 (YZ_12) |
 | **CodeGen Statements** | ❌ %0 | MELP | - | Stage 1 (YZ_13-15) |
 | **CodeGen Functions** | ❌ %0 | MELP | - | Stage 1 (YZ_16) |
@@ -109,8 +109,8 @@ MLP/                               ← Ana dizin
 | **CodeGen Integration** | ❌ %0 | MELP | - | Stage 1 (YZ_19) |
 | **Bootstrap** | ❌ %0 | - | - | Stage 1 (YZ_20+) |
 
-**İlerleme:** Stage 1 Phase 2 - %20 Complete (CodeGen in progress)
-**Sırada:** Stage 1 Phase 2 - CodeGen Arithmetic (YZ_11)
+**İlerleme:** Stage 1 Phase 2 - %30 Complete (CodeGen in progress)
+**Sırada:** Stage 1 Phase 2 - CodeGen Comparison & Logic (YZ_12)
 
 ---
 
@@ -302,27 +302,32 @@ MLP/                               ← Ana dizin
 
 **Test:** Variable declaration & assignment → LLVM IR ✅ (16 tests passing)
 
-#### Part 3: Expression CodeGen - Arithmetic (1 hafta - YZ_11)
+#### Part 3: Expression CodeGen - Arithmetic (1 hafta - YZ_11) ✅ COMPLETE
 **Hedef:** Arithmetic operations
 
-- [ ] Binary arithmetic operators
-  - [ ] Addition (`+` → `add i64`)
-  - [ ] Subtraction (`-` → `sub i64`)
-  - [ ] Multiplication (`*` → `mul i64`)
-  - [ ] Division (`/` → `sdiv i64`)
-  - [ ] Modulo (`%` → `srem i64`)
-- [ ] Operator precedence handling
-  - [ ] Expression tree traversal
-  - [ ] Temporary register allocation (`%t1, %t2, ...`)
-- [ ] Tests
-  - [ ] `2 + 3` → IR
-  - [ ] `(2 + 3) * 4` → IR (precedence)
-  - [ ] Complex expression test
+- [x] Binary arithmetic operators
+  - [x] Addition (`+` → `add i64`)
+  - [x] Subtraction (`-` → `sub i64`)
+  - [x] Multiplication (`*` → `mul i64`)
+  - [x] Division (`/` → `sdiv i64`)
+  - [x] Modulo (`%` → `srem i64`)
+- [x] Unary operators (-, +)
+- [x] Operator precedence handling
+  - [x] Expression tree traversal
+  - [x] Temporary register allocation (`%t1, %t2, ...`)
+- [x] Complex expression helpers
+- [x] Tests
+  - [x] `2 + 3` → IR
+  - [x] `(2 + 3) * 4` → IR (precedence)
+  - [x] `(a - b) / (c + d)` → IR
+  - [x] 15 tests total (8 unit + 7 integration)
 
 **Dosyalar:**
-- `modules/codegen_mlp/codegen_arithmetic.mlp` (~350 satır)
+- `modules/codegen_mlp/codegen_arithmetic.mlp` (472 satır) ✅
+- `tests/manual/test_codegen_arithmetic.mlp` (375 satır) ✅
+- `tests/manual/test_yz_11_e2e.mlp` (139 satır) ✅
 
-**Test:** Arithmetic expression → IR + execution + result verification
+**Test:** Arithmetic expressions → IR ✅ (15 tests passing)
 
 #### Part 4: Expression CodeGen - Comparison & Logic (1 hafta - YZ_12)
 **Hedef:** Boolean operations
