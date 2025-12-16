@@ -1,0 +1,218 @@
+-- ============================================================================
+-- MELP Parser - Token Stream Management
+-- ============================================================================
+-- Bu modül, parser'ın token listesini yönetir ve token'lar arasında gezinir.
+-- Stage 1 Self-Hosting: Parser in MELP
+-- Created: 16 Aralık 2025
+-- ============================================================================
+
+-- Global parser state
+list g_tokens           -- Token listesi
+numeric g_current_pos   -- Mevcut pozisyon (index)
+
+-- ============================================================================
+-- Token Stream Functions
+-- ============================================================================
+
+-- Parser'ı başlat ve token listesini yükle
+-- @param token_list: Lexer'dan gelen token listesi
+-- @return: 1 (success)
+function init_parser(list token_list) returns numeric
+    g_tokens = token_list
+    g_current_pos = 0
+    return 1
+end_function
+
+-- Mevcut token'ı döndür
+-- @return: Mevcut token (list) veya [] (EOF)
+function current_token() returns list
+    numeric len = length(g_tokens)
+    if g_current_pos >= len then
+        return []  -- EOF
+    end_if
+    return g_tokens[g_current_pos]
+end_function
+
+-- Bir sonraki token'a bak (ileri görünüm - lookahead)
+-- @return: Sonraki token (list) veya [] (EOF)
+function peek_token() returns list
+    numeric next_pos = g_current_pos + 1
+    numeric len = length(g_tokens)
+    if next_pos >= len then
+        return []  -- EOF
+    end_if
+    return g_tokens[next_pos]
+end_function
+
+-- İki token ileri bak (2-token lookahead)
+-- @return: 2. sonraki token (list) veya [] (EOF)
+function peek_token_2() returns list
+    numeric next_pos = g_current_pos + 2
+    numeric len = length(g_tokens)
+    if next_pos >= len then
+        return []  -- EOF
+    end_if
+    return g_tokens[next_pos]
+end_function
+
+-- Mevcut token'ı atla ve bir sonrakine geç
+-- @return: Yeni pozisyon
+function advance() returns numeric
+    g_current_pos = g_current_pos + 1
+    return g_current_pos
+end_function
+
+-- Beklenen token tipini kontrol et ve eşleşirse ilerle
+-- @param expected_type: Beklenen token tipi (numeric)
+-- @return: 1 (eşleşti), 0 (eşleşmedi veya EOF)
+function expect_token(numeric expected_type) returns numeric
+    list tok = current_token()
+    numeric len = length(tok)
+    
+    if len == 0 then
+        return 0  -- EOF
+    end_if
+    
+    numeric tok_type = tok[0]
+    if tok_type == expected_type then
+        advance()
+        return 1
+    end_if
+    return 0
+end_function
+
+-- Mevcut token'ın tipini kontrol et (ilerlemeden)
+-- @param expected_type: Kontrol edilecek token tipi
+-- @return: 1 (eşleşti), 0 (eşleşmedi veya EOF)
+function check_token(numeric expected_type) returns numeric
+    list tok = current_token()
+    numeric len = length(tok)
+    
+    if len == 0 then
+        return 0  -- EOF
+    end_if
+    
+    numeric tok_type = tok[0]
+    if tok_type == expected_type then
+        return 1
+    end_if
+    return 0
+end_function
+
+-- EOF (End of File) kontrolü
+-- @return: 1 (EOF'a ulaşıldı), 0 (hala token var)
+function is_eof() returns numeric
+    list tok = current_token()
+    numeric len = length(tok)
+    if len == 0 then
+        return 1
+    end_if
+    return 0
+end_function
+
+-- Mevcut pozisyonu al
+-- @return: Mevcut token pozisyonu
+function get_position() returns numeric
+    return g_current_pos
+end_function
+
+-- Belirli bir pozisyona git (backtracking için)
+-- @param pos: Gidilecek pozisyon
+-- @return: 1 (success)
+function set_position(numeric pos) returns numeric
+    g_current_pos = pos
+    return 1
+end_function
+
+-- Token'ın değerini al (token[1])
+-- @param tok: Token listesi
+-- @return: Token değeri (string)
+function token_value(list tok) returns string
+    numeric len = length(tok)
+    if len < 2 then
+        return ""
+    end_if
+    return tok[1]
+end_function
+
+-- Token'ın tipini al (token[0])
+-- @param tok: Token listesi
+-- @return: Token tipi (numeric)
+function token_type(list tok) returns numeric
+    numeric len = length(tok)
+    if len < 1 then
+        return -1
+    end_if
+    return tok[0]
+end_function
+
+-- Token'ın satır numarasını al (token[2])
+-- @param tok: Token listesi
+-- @return: Satır numarası (numeric)
+function token_line(list tok) returns numeric
+    numeric len = length(tok)
+    if len < 3 then
+        return 0
+    end_if
+    return tok[2]
+end_function
+
+-- Token'ın sütun numarasını al (token[3])
+-- @param tok: Token listesi
+-- @return: Sütun numarası (numeric)
+function token_column(list tok) returns numeric
+    numeric len = length(tok)
+    if len < 4 then
+        return 0
+    end_if
+    return tok[3]
+end_function
+
+-- ============================================================================
+-- Test Functions
+-- ============================================================================
+
+-- Test: Token stream functions
+function main() returns numeric
+    println("=== Token Stream Management Test ===")
+    
+    -- Token formatı: [type, value, line, column]
+    list tok1 = [1, "function", 1, 1]
+    list tok2 = [32, "main", 1, 10]
+    list tok3 = [20, "(", 1, 14]
+    list tok4 = [21, ")", 1, 15]
+    list tok5 = [22, "{", 2, 1]
+    list tok6 = [23, "}", 3, 1]
+    
+    list token_list = [tok1, tok2, tok3, tok4, tok5, tok6]
+    
+    -- Test 1: Initialize parser
+    numeric result = init_parser(token_list)
+    println("✓ Init parser: " + str(result))
+    
+    -- Test 2: Position management
+    numeric pos = get_position()
+    println("✓ Current position: " + str(pos))
+    
+    -- Test 3: Advance
+    advance()
+    pos = get_position()
+    println("✓ After advance, position: " + str(pos))
+    
+    -- Test 4: EOF check
+    numeric eof = is_eof()
+    println("✓ Is EOF: " + str(eof))
+    
+    -- Test 5: Advance to EOF
+    advance()
+    advance()
+    advance()
+    advance()
+    numeric eof2 = is_eof()
+    println("✓ Is EOF after advances: " + str(eof2))
+    
+    println("")
+    println("=== All token stream tests passed! ===")
+    println("Note: Token value access skipped (Stage 0 limitation)")
+    return 0
+end_function

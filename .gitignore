@@ -24,11 +24,16 @@ compiler/stage0/melpc_*
 !examples/**/*.s
 !compiler/stage0/demo_*.s
 
-# Test outputs
-test_*
-!test_*.mlp
-output
-output.o
+# Test outputs and temporary test files
+test_output*
+test_result*
+# Test files in root (should be in tests/ or temp/)
+/test_*.mlp
+/test_*.s
+/test_*.o
+# Allow test files in proper locations
+!tests/**/test_*.mlp
+!temp/test_*.mlp
 
 # Backup files
 *.backup

@@ -1,0 +1,112 @@
+-- ============================================================================
+-- MELP Parser - Error Handling (v2 - No Globals)
+-- ============================================================================
+-- Bu modül, parser hatalarını yönetir ve kullanıcıya bildirir.
+-- Stage 1 Self-Hosting: Parser in MELP
+-- Created: 16 Aralık 2025
+-- Note: Global variables not supported in Stage 0
+-- ============================================================================
+
+-- ============================================================================
+-- Error Reporting Functions
+-- ============================================================================
+
+-- Genel parser hatası
+-- @param message: Hata mesajı
+-- @param line: Hatanın satır numarası
+-- @param col: Hatanın sütun numarası
+-- @return: 0 (error)
+function parser_error(string message, numeric line, numeric col) returns numeric
+    println("=== Parser Error ===")
+    println("Message: " + message)
+    println("Location: line " + str(line) + ", column " + str(col))
+    return 0
+end_function
+
+-- Beklenmeyen token hatası
+-- @param expected: Beklenen token tipi (numeric)
+-- @param got: Alınan token tipi (numeric)
+-- @param line: Hatanın satır numarası
+-- @param col: Hatanın sütun numarası
+-- @return: 0 (error)
+function unexpected_token_error(numeric expected, numeric got, numeric line, numeric col) returns numeric
+    println("=== Unexpected Token Error ===")
+    println("Expected token type: " + str(expected))
+    println("Got token type: " + str(got))
+    println("Location: line " + str(line) + ", column " + str(col))
+    return 0
+end_function
+
+-- Beklenmeyen token hatası (string açıklama ile)
+-- @param expected_str: Beklenen token açıklaması (string)
+-- @param got_str: Alınan token açıklaması (string)
+-- @param line: Hatanın satır numarası
+-- @param col: Hatanın sütun numarası
+-- @return: 0 (error)
+function unexpected_token_error_str(string expected_str, string got_str, numeric line, numeric col) returns numeric
+    println("=== Unexpected Token Error ===")
+    println("Expected: " + expected_str)
+    println("Got: " + got_str)
+    println("Location: line " + str(line) + ", column " + str(col))
+    return 0
+end_function
+
+-- EOF (End of File) hatası
+-- @param message: Ek açıklama
+-- @return: 0 (error)
+function unexpected_eof_error(string message) returns numeric
+    println("=== Unexpected EOF Error ===")
+    println("Message: " + message)
+    println("Reached end of file unexpectedly")
+    return 0
+end_function
+
+-- Syntax hatası
+-- @param message: Hata mesajı
+-- @param line: Hatanın satır numarası
+-- @param col: Hatanın sütun numarası
+-- @return: 0 (error)
+function syntax_error(string message, numeric line, numeric col) returns numeric
+    println("=== Syntax Error ===")
+    println("Message: " + message)
+    println("Location: line " + str(line) + ", column " + str(col))
+    return 0
+end_function
+
+-- ============================================================================
+-- Test Functions
+-- ============================================================================
+
+function main() returns numeric
+    println("=== Parser Error Handling Test (v2) ===")
+    println("")
+    
+    -- Test 1: Parser error
+    println("Test 1: Parser error")
+    parser_error("Invalid expression", 10, 5)
+    
+    -- Test 2: Unexpected token error
+    println("")
+    println("Test 2: Unexpected token error (numeric)")
+    unexpected_token_error(20, 32, 15, 8)
+    
+    -- Test 3: Unexpected token error with strings
+    println("")
+    println("Test 3: Unexpected token error (string)")
+    unexpected_token_error_str("'('", "'identifier'", 20, 10)
+    
+    -- Test 4: Syntax error
+    println("")
+    println("Test 4: Syntax error")
+    syntax_error("Missing semicolon", 25, 15)
+    
+    -- Test 5: EOF error
+    println("")
+    println("Test 5: EOF error")
+    unexpected_eof_error("Expected closing brace")
+    
+    println("")
+    println("=== All error handling functions tested! ===")
+    println("Note: Error counting not available (no globals in Stage 0)")
+    return 0
+end_function

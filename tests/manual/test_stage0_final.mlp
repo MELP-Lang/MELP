@@ -1,0 +1,4 @@
+function main() returns numeric
+    println("Stage 0 Complete!")
+    return 0
+end_function

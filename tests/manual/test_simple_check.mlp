@@ -1,0 +1,5 @@
+-- Simple test
+function main() returns numeric
+    numeric x = 5
+    return x
+end_function
