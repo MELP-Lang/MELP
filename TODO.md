@@ -355,8 +355,9 @@ rm -f temp/*.s*
 mv temp/*.s temp/archive/ 2>/dev/null || true
 
 # Adım 5: Git commit & push
-# Yeni dal oluştur
-git checkout -b yz-XX-task-description
+# Yeni dal oluştur (Format: task-description_YZ_XX)
+# Örnek: parser-enhancements_YZ_08, codegen-phase1_YZ_09
+git checkout -b task-description_YZ_XX
 
 # Değişiklikleri ekle
 git add modules/parser_mlp/*.mlp stage_1_YZ/YZ_*.md TODO.md NEXT_AI_START_HERE.md
@@ -376,7 +377,10 @@ git commit -m "YZ_XX: Task Description
 Status: Complete/Ready for review"
 
 # Push et
-git push -u origin yz-XX-task-description
+git push -u origin task-description_YZ_XX
+
+# ⚠️ ÖNEMLI: Dal adı formatı: task-description_YZ_XX
+# Görev adı + YZ numarası (örn: parser-for-loops_YZ_08)
 
 # Adım 6: KULLANICIYA SOR
 # "Görev YZ_XX tamamlandı ve commit edildi! Sırada ne yapmak istersin?"

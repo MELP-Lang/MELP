@@ -34,8 +34,10 @@
 
 **🔧 Git Workflow:**
 ```bash
-# 1. Yeni dal oluştur (session numarasıyla)
-git checkout -b yz-XX-task-description
+# 1. Yeni dal oluştur (görev adı + YZ numarası)
+# Format: task-description_YZ_XX
+# Örnek: parser-enhancements_YZ_08, codegen-phase1_YZ_09
+git checkout -b task-description_YZ_XX
 
 # 2. Değişiklikleri ekle
 git add modules/parser_mlp/*.mlp stage_1_YZ/YZ_*.md TODO.md NEXT_AI_START_HERE.md
@@ -55,10 +57,20 @@ git commit -m "YZ_XX: Task Description
 Status: Complete/Ready for review"
 
 # 4. Push et
-git push -u origin yz-XX-task-description
+git push -u origin task-description_YZ_XX
 
 # 5. KULLANICIYA SOR: Pull request oluşturalım mı?
 ```
+
+**📌 Dal İsimlendirme Kuralı:**
+- Format: `task-description_YZ_XX`
+- Görev adı kısa ve açıklayıcı (kebab-case)
+- Sonunda mutlaka `_YZ_XX` eki (XX = session numarası)
+- Örnekler:
+  - `parser-enhancements_YZ_08`
+  - `codegen-llvm_YZ_09`
+  - `array-indexing_YZ_10`
+  - `ast-optimization_YZ_11`
 
 **⚠️ ÖNEMLİ:** Session bittiğinde mutlaka TODO.md + NEXT_AI_START_HERE.md + YZ raporu + GIT COMMIT yapılmalı!
 
