@@ -97,13 +97,18 @@ MLP/                               ← Ana dizin
 | **Parser For Loops** | ✅ %100 | MELP | 299 | **Stage 1 (YZ_08) ✅** |
 | **Parser Function Calls** | ✅ %100 | MELP | 327 | **Stage 1 (YZ_08) ✅** |
 | **Parser Array Indexing** | ✅ %100 | MELP | 266 | **Stage 1 (YZ_08) ✅** |
-| **Parser Pretty Print** | ✅ %100 | MELP | 336 | **Stage 1 (YZ_08) ✅** |
 | **Parser Compound Assign** | ✅ %100 | MELP | 227 | **Stage 1 (YZ_08) ✅** |
 | **Parser Integration** | ✅ %100 | MELP | 583 | **Stage 1 (YZ_06/07/08) ✅** |
-| **CodeGen** | ❌ %0 | MELP | - | Stage 1 (Future) |
-| **Bootstrap** | ❌ %0 | - | - | Stage 1 (Future) |
+| **CodeGen Infrastructure** | ✅ %100 | MELP | 942 | **Stage 1 (YZ_09) ✅** |
+| **CodeGen Expressions** | ❌ %0 | MELP | - | Stage 1 (YZ_10-12) |
+| **CodeGen Statements** | ❌ %0 | MELP | - | Stage 1 (YZ_13-15) |
+| **CodeGen Functions** | ❌ %0 | MELP | - | Stage 1 (YZ_16) |
+| **CodeGen Structs/Arrays** | ❌ %0 | MELP | - | Stage 1 (YZ_17-18) |
+| **CodeGen Integration** | ❌ %0 | MELP | - | Stage 1 (YZ_19) |
+| **Bootstrap** | ❌ %0 | - | - | Stage 1 (YZ_20+) |
 
-**İlerleme:** Stage 1 Phase 1 - %90 Complete (Parser Phase Complete!)
+**İlerleme:** Stage 1 Phase 1 - %100 Complete (Parser Phase Complete!)
+**Sırada:** Stage 1 Phase 2 - CodeGen (YZ_09 başlayacak)
 
 ---
 
@@ -235,49 +240,369 @@ MLP/                               ← Ana dizin
 
 ## 🔮 Stage 1 Sonraki Faz'lar
 
-### Phase 2: CodeGen in MELP (4-6 hafta)
+### Phase 2: CodeGen in MELP (8-10 hafta, 8-10 YZ sessions)
 **Hedef:** LLVM IR code generator'ı MELP'te yaz
 
-- [ ] Part 1: LLVM IR Emission (1 hafta)
-- [ ] Part 2: Expression CodeGen (1-2 hafta)
-- [ ] Part 3: Statement CodeGen (1-2 hafta)
-- [ ] Part 4: Optimization & Integration (1 hafta)
+**Strateji:** Küçük, test edilebilir adımlarla ilerle. Her Part bir YZ session.
 
-### Phase 3: Bootstrap Complete (2 hafta)
-**Hedef:** MELP compiler'ı MELP ile derle!
+#### Part 1: CodeGen Infrastructure (1 hafta - YZ_09) ✅ COMPLETE
+**Hedef:** LLVM IR emission altyapısı kur
 
-```bash
-# Step 1: Stage 0 (C) ile Stage 1 (MELP) derle
-stage0/melpc stage1/*.mlp -o melp_stage1
+- [x] IR Builder temel fonksiyonlar
+  - [x] `emit_header()` - LLVM module başlığı
+  - [x] `emit_function_decl()` - Function declaration
+  - [x] `emit_basic_block()` - Basic block creation
+  - [x] `emit_instruction()` - Generic instruction emission
+- [x] Type mapping (MELP → LLVM types)
+  - [x] `numeric` → `i64`
+  - [x] `string` → `i8*`
+  - [x] `boolean` → `i1`
+  - [x] `list` → `i8*` (pointer)
+- [x] Symbol table management
+  - [x] Local variables tracking
+  - [x] Function signatures
+  - [x] Scope management
+- [x] Basic validation & testing
+  - [x] Test IR header emission
+  - [x] Test type mapping
+  - [x] Test symbol table operations
 
-# Step 2: Stage 1 kendini derle!
-melp_stage1 stage1/*.mlp -o melp_stage1_v2
+**Dosyalar:**
+- `modules/codegen_mlp/ir_builder.mlp` (~300 satır)
+- `modules/codegen_mlp/type_mapper.mlp` (~200 satır)
+- `modules/codegen_mlp/symbol_table.mlp` (~250 satır)
 
-# Step 3: Verification
-diff melp_stage1 melp_stage1_v2  # Aynı mı?
-```
+**Test:** Simple function declaration → LLVM IR
 
-- [ ] Compile Stage 1 with Stage 0
-- [ ] Self-compilation test
-- [ ] Binary verification
-- [ ] Performance benchmarking
-- [ ] 🎉 SELF-HOSTING ACHIEVED!
+#### Part 2: Expression CodeGen - Literals & Variables (1 hafta - YZ_10)
+**Hedef:** Basit expression'ları LLVM IR'e çevir
+
+- [ ] Literal expressions
+  - [ ] Numeric literals (`42` → `i64 42`)
+  - [ ] String literals (`"hello"` → global string)
+  - [ ] Boolean literals (`true/false` → `i1 1/0`)
+- [ ] Variable references
+  - [ ] Load local variable (`%x` → `load i64, i64* %x`)
+  - [ ] Store to variable (`x = 5` → `store i64 5, i64* %x`)
+- [ ] Simple tests
+  - [ ] `numeric x = 42` → IR
+  - [ ] `string s = "test"` → IR
+  - [ ] Variable load/store test
+
+**Dosyalar:**
+- `modules/codegen_mlp/codegen_literal.mlp` (~200 satır)
+- `modules/codegen_mlp/codegen_variable.mlp` (~250 satır)
+
+**Test:** Variable declaration & assignment → LLVM IR + execution
+
+#### Part 3: Expression CodeGen - Arithmetic (1 hafta - YZ_11)
+**Hedef:** Arithmetic operations
+
+- [ ] Binary arithmetic operators
+  - [ ] Addition (`+` → `add i64`)
+  - [ ] Subtraction (`-` → `sub i64`)
+  - [ ] Multiplication (`*` → `mul i64`)
+  - [ ] Division (`/` → `sdiv i64`)
+  - [ ] Modulo (`%` → `srem i64`)
+- [ ] Operator precedence handling
+  - [ ] Expression tree traversal
+  - [ ] Temporary register allocation (`%t1, %t2, ...`)
+- [ ] Tests
+  - [ ] `2 + 3` → IR
+  - [ ] `(2 + 3) * 4` → IR (precedence)
+  - [ ] Complex expression test
+
+**Dosyalar:**
+- `modules/codegen_mlp/codegen_arithmetic.mlp` (~350 satır)
+
+**Test:** Arithmetic expression → IR + execution + result verification
+
+#### Part 4: Expression CodeGen - Comparison & Logic (1 hafta - YZ_12)
+**Hedef:** Boolean operations
+
+- [ ] Comparison operators
+  - [ ] `==, !=` → `icmp eq/ne`
+  - [ ] `<, >, <=, >=` → `icmp slt/sgt/sle/sge`
+- [ ] Logical operators
+  - [ ] `and` → `and i1`
+  - [ ] `or` → `or i1`
+  - [ ] `not` → `xor i1 %x, 1`
+- [ ] Tests
+  - [ ] `x == 5` → IR
+  - [ ] `x > 0 and y < 10` → IR
+  - [ ] Boolean expression test
+
+**Dosyalar:**
+- `modules/codegen_mlp/codegen_comparison.mlp` (~300 satır)
+- `modules/codegen_mlp/codegen_logical.mlp` (~250 satır)
+
+**Test:** Boolean expressions → IR + execution
+
+#### Part 5: Statement CodeGen - Basic Statements (1 hafta - YZ_13)
+**Hedef:** Temel statement'lar
+
+- [ ] Variable declarations
+  - [ ] Local variable allocation (`alloca`)
+  - [ ] Initialization
+- [ ] Assignment statements
+  - [ ] Simple assignment (`x = expr`)
+  - [ ] Compound assignment (`x += 5`)
+- [ ] Print statements
+  - [ ] `println()` → `printf` call
+  - [ ] String formatting
+- [ ] Return statements
+  - [ ] `return expr` → `ret i64 %value`
+- [ ] Tests
+  - [ ] Variable decl → IR
+  - [ ] Print test → IR + output
+  - [ ] Return test → IR
+
+**Dosyalar:**
+- `modules/codegen_mlp/codegen_stmt.mlp` (~400 satır)
+
+**Test:** Simple program with variables, print, return
+
+#### Part 6: Control Flow - If/Else (1 hafta - YZ_14)
+**Hedef:** Conditional branching
+
+- [ ] If statement
+  - [ ] Condition evaluation
+  - [ ] Branch creation (`br i1 %cond, label %then, label %else`)
+  - [ ] Basic block management
+- [ ] Else/Else-if
+  - [ ] Multiple branches
+  - [ ] Phi nodes (if needed)
+- [ ] Tests
+  - [ ] `if x > 0 then ... end if` → IR
+  - [ ] `if-else` → IR + execution
+  - [ ] Nested if test
+
+**Dosyalar:**
+- `modules/codegen_mlp/codegen_if.mlp` (~350 satır)
+
+**Test:** If/else program → IR + correct branch execution
+
+#### Part 7: Control Flow - Loops (1 hafta - YZ_15)
+**Hedef:** Loop structures
+
+- [ ] While loop
+  - [ ] Loop condition block
+  - [ ] Loop body block
+  - [ ] Back edge (`br label %loop_cond`)
+  - [ ] Exit block
+- [ ] For loop
+  - [ ] Loop counter initialization
+  - [ ] Condition check
+  - [ ] Increment/decrement
+  - [ ] from/to/downto variants
+- [ ] Tests
+  - [ ] While loop → IR
+  - [ ] For loop → IR
+  - [ ] Nested loop test
+
+**Dosyalar:**
+- `modules/codegen_mlp/codegen_while.mlp` (~300 satır)
+- `modules/codegen_mlp/codegen_for.mlp` (~350 satır)
+
+**Test:** Loop programs → IR + correct iteration count
+
+#### Part 8: Functions (1 hafta - YZ_16)
+**Hedef:** Function definitions & calls
+
+- [ ] Function definition
+  - [ ] Parameter handling
+  - [ ] Function prologue/epilogue
+  - [ ] Return value
+- [ ] Function calls
+  - [ ] Argument passing
+  - [ ] Call instruction (`call i64 @func(i64 %arg)`)
+  - [ ] Return value capture
+- [ ] Tests
+  - [ ] Simple function → IR
+  - [ ] Function with params → IR
+  - [ ] Recursive function test
+
+**Dosyalar:**
+- `modules/codegen_mlp/codegen_function.mlp` (~450 satır)
+
+**Test:** Function definition + call → IR + execution
+
+#### Part 9: Structs & Arrays (1-2 hafta - YZ_17/18)
+**Hedef:** Composite types
+
+- [ ] Struct handling
+  - [ ] Struct type definition (`%struct_t = type { i64, i8* }`)
+  - [ ] Field access (`getelementptr`)
+  - [ ] Struct allocation & initialization
+- [ ] Array/List handling
+  - [ ] Array allocation
+  - [ ] Element access (indexing)
+  - [ ] Bounds checking (optional)
+- [ ] Tests
+  - [ ] Struct definition + access → IR
+  - [ ] Array indexing → IR
+  - [ ] Complex data structure test
+
+**Dosyalar:**
+- `modules/codegen_mlp/codegen_struct.mlp` (~400 satır)
+- `modules/codegen_mlp/codegen_array.mlp` (~350 satır)
+
+**Test:** Struct & array programs → IR + execution
+
+#### Part 10: Integration & Optimization (1 hafta - YZ_19)
+**Hedef:** Tüm parçaları birleştir
+
+- [ ] Full pipeline
+  - [ ] Lexer → Parser → CodeGen
+  - [ ] End-to-end compilation
+- [ ] Basic optimizations
+  - [ ] Dead code elimination
+  - [ ] Constant folding
+  - [ ] Register allocation hints
+- [ ] Comprehensive testing
+  - [ ] Full program suite
+  - [ ] Performance benchmarks
+  - [ ] Edge cases
+- [ ] Documentation
+  - [ ] CodeGen architecture doc
+  - [ ] API reference
+  - [ ] Examples
+
+**Dosyalar:**
+- `modules/codegen_mlp/codegen_main.mlp` (~500 satır)
+- `modules/codegen_mlp/optimizer.mlp` (~300 satır)
+
+**Test:** Complex programs → IR → executable → correct output
+
+**TOPLAM CodeGen Satır Tahmini:** ~4,500-5,000 satır MELP kodu
+**TOPLAM YZ Session:** 10-11 sessions (YZ_09 - YZ_19)
+**TOPLAM Süre:** 8-10 hafta
 
 ---
 
-## 📅 Timeline
+### Phase 3: Bootstrap Complete (2-3 hafta, 2-3 YZ sessions)
+**Hedef:** MELP compiler'ı MELP ile derle!
 
-**Stage 1 Tahmini:**
-- Parser in MELP: 4-6 hafta (~30-40 saat)
-- CodeGen in MELP: 4-6 hafta (~30-40 saat)
-- Bootstrap & Testing: 2 hafta (~15-20 saat)
-- **TOPLAM: 10-14 hafta (~75-100 saat)**
+#### Part 1: Self-Compilation Setup (1 hafta - YZ_20)
+**Hedef:** Stage 1 compiler'ı Stage 0 ile derle
+
+- [ ] Full compiler integration
+  - [ ] Lexer + Parser + CodeGen pipeline
+  - [ ] Module linking
+  - [ ] Runtime library integration
+- [ ] Build system
+  - [ ] Compilation scripts
+  - [ ] Dependency management
+  - [ ] Output validation
+- [ ] Test
+  - [ ] Compile Stage 1 with Stage 0
+  - [ ] Test executable
+  - [ ] Benchmark performance
+
+**Komut:**
+```bash
+# Stage 0 (C) ile Stage 1 (MELP) derle
+stage0/melpc stage1/*.mlp -o melp_stage1
+
+# Test: Simple program compile
+./melp_stage1 examples/hello.mlp -o hello
+./hello  # "Hello World" çıktısı
+```
+
+**Dosyalar:**
+- `modules/compiler_main.mlp` (~400 satır)
+- `scripts/build_stage1.sh` (build script)
+
+**Tahmini:** 1 hafta, ~400 satır
+
+#### Part 2: Self-Hosting Verification (1 hafta - YZ_21)
+**Hedef:** Stage 1 kendini derlesin!
+
+- [ ] Self-compilation test
+  - [ ] melp_stage1 compile melp_stage1 source
+  - [ ] Output: melp_stage1_v2
+- [ ] Binary verification
+  - [ ] Compare melp_stage1 vs melp_stage1_v2
+  - [ ] Functionality tests
+  - [ ] Edge case testing
+- [ ] Bootstrap loop
+  - [ ] v2 compile v3, v3 compile v4, ...
+  - [ ] Convergence check (v2 == v3 == v4)
+
+**Komut:**
+```bash
+# Step 1: Stage 0 → Stage 1
+stage0/melpc stage1/*.mlp -o melp_v1
+
+# Step 2: Stage 1 → Stage 1 (self-compile!)
+./melp_v1 stage1/*.mlp -o melp_v2
+
+# Step 3: Verify
+diff melp_v1 melp_v2  # Ideally identical or functionally equivalent
+
+# Step 4: Bootstrap loop
+./melp_v2 stage1/*.mlp -o melp_v3
+diff melp_v2 melp_v3  # Should be identical!
+```
+
+**Success Criteria:**
+- ✅ melp_v2 can compile itself
+- ✅ melp_v2 == melp_v3 (convergence)
+- ✅ All tests pass with melp_v2
+- ✅ Performance acceptable
+
+**Tahmini:** 1 hafta
+
+#### Part 3: Performance & Cleanup (1 hafta - YZ_22)
+**Hedef:** Optimize & finalize
+
+- [ ] Performance benchmarks
+  - [ ] Compilation speed tests
+  - [ ] Memory usage profiling
+  - [ ] Compare vs Stage 0
+- [ ] Optimization pass
+  - [ ] Bottleneck identification
+  - [ ] Critical path optimization
+  - [ ] Memory optimization
+- [ ] Documentation
+  - [ ] Self-hosting guide
+  - [ ] Architecture documentation
+  - [ ] Migration guide (Stage 0 → Stage 1)
+- [ ] Cleanup
+  - [ ] Remove debug code
+  - [ ] Code review
+  - [ ] Final testing
+
+**Deliverables:**
+- 📊 Performance report
+- 📚 Complete documentation
+- ✅ 95%+ test coverage
+- 🎉 **SELF-HOSTING ACHIEVED!**
+
+**Tahmini:** 1 hafta
+
+**TOPLAM Bootstrap:** 2-3 hafta, 3 YZ sessions (YZ_20-22)
+
+---
+
+## 📅 Güncellenmiş Timeline
+
+**Stage 1 Toplam Tahmini:**
+
+| Phase | YZ Sessions | Süre | Satır |
+|-------|-------------|------|-------|
+| Parser (Phase 1) | YZ_01 - YZ_08 | ✅ 4 hafta | ~6,686 |
+| CodeGen (Phase 2) | YZ_09 - YZ_19 | ⏳ 8-10 hafta | ~4,500-5,000 |
+| Bootstrap (Phase 3) | YZ_20 - YZ_22 | ⏳ 2-3 hafta | ~1,000 |
+| **TOPLAM** | **22 sessions** | **14-17 hafta** | **~12,000 satır** |
 
 **Hedef Tarihler:**
-- 31 Aralık 2025: Parser Part 1-2 complete
-- 31 Ocak 2026: Parser complete
-- 28 Şubat 2026: CodeGen complete
-- 31 Mart 2026: Bootstrap complete - SELF-HOSTING! 🚀
+- ✅ 16 Aralık 2025: Parser complete (YZ_08)
+- 🎯 15 Şubat 2026: CodeGen complete (YZ_19)
+- 🎯 8 Mart 2026: Bootstrap complete (YZ_22)
+- 🎉 **15 Mart 2026: SELF-HOSTING ACHIEVED!**
+
+**Haftalık İlerleme Hedefi:** 1 YZ session/hafta (ortalama)
 
 ---
 
