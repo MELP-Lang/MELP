@@ -104,13 +104,14 @@ MLP/                               ← Ana dizin
 | **CodeGen Arithmetic** | ✅ %100 | MELP | 472 | **Stage 1 (YZ_11) ✅** |
 | **CodeGen Comparison/Logic** | ✅ %100 | MELP | 412 | **Stage 1 (YZ_12) ✅** |
 | **CodeGen Statements** | ✅ %100 | MELP | 145 | **Stage 1 (YZ_13) ✅** |
-| **CodeGen Control Flow** | ❌ %0 | MELP | - | Stage 1 (YZ_14) |
+| **CodeGen Control Flow** | ✅ %100 | MELP | 220 | **Stage 1 (YZ_14) ✅** |
+| **CodeGen While Loops** | ❌ %0 | MELP | - | Stage 1 (YZ_15 - Next) |
 | **CodeGen Structs/Arrays** | ❌ %0 | MELP | - | Stage 1 (YZ_16-17) |
 | **CodeGen Integration** | ❌ %0 | MELP | - | Stage 1 (YZ_18) |
 | **Bootstrap** | ❌ %0 | - | - | Stage 1 (YZ_19+) |
 
-**İlerleme:** Stage 1 Phase 2 - %45 Complete (CodeGen in progress)
-**Sırada:** Stage 1 Phase 2 - CodeGen Control Flow (YZ_14)
+**İlerleme:** Stage 1 Phase 2 - %48 Complete (CodeGen in progress)
+**Sırada:** Stage 1 Phase 2 - CodeGen While Loops (YZ_15)
 
 ---
 

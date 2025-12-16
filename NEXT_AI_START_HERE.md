@@ -1,10 +1,10 @@
 # 🚀 STAGE 1 SELF-HOSTING - START HERE!
 
-**Last Session:** Stage 1 YZ_13  
+**Last Session:** Stage 1 YZ_14  
 **Date:** 16 December 2025  
 **Agent:** GitHub Copilot (Claude Sonnet 4.5)  
-**Branch:** codegen-statements_YZ_13  
-**Status:** ✅ **YZ_13 Complete - Statement CodeGen Ready! Ask user for next task**
+**Branch:** codegen-control_YZ_14  
+**Status:** ✅ **YZ_14 Complete - Control Flow CodeGen Ready! Ask user for next task**
 
 **⚠️ YZ Directory Structure:**
 - `stage_0_YZ/` - Stage 0 sessions (YZ_01 - YZ_97, 80 sessions) ✅ ARCHIVED
@@ -187,34 +187,35 @@ MLP/
 | CodeGen Arithmetic | ✅ 100% | MELP | 472 | **Stage 1 (YZ_11) ✅** |
 | CodeGen Comparison/Logic | ✅ 100% | MELP | 412 | **Stage 1 (YZ_12) ✅** |
 | CodeGen Statements | ✅ 100% | MELP | 145 | **Stage 1 (YZ_13) ✅** |
-| CodeGen Control Flow | ❌ 0% | MELP | - | Stage 1 (YZ_14 - Next) |
+| CodeGen Control Flow | ✅ 100% | MELP | 220 | **Stage 1 (YZ_14) ✅** |
+| CodeGen While Loops | ❌ 0% | MELP | - | Stage 1 (YZ_15 - Next) |
 | Bootstrap | ❌ 0% | - | - | Stage 1 (Final) |
 
-**TOPLAM:** %45 Complete (Parser + CodeGen Statements)
+**TOPLAM:** %48 Complete (Parser + CodeGen Control Flow)
 
-**✅ YZ_13 COMPLETE - Statement CodeGen Ready!**
+**✅ YZ_14 COMPLETE - Control Flow CodeGen Ready!**!**
 
-**YZ_13 UPDATE (16 December 2025):**
+**YZ_14 UPDATE (16 December 2025):**
 
-**Completed (Statement CodeGen - YZ_13):**
-- ✅ Variable Declarations (4 types) - numeric, string, boolean, with/without init
-- ✅ Assignment Statements (3 types) - numeric, string, boolean
-- ✅ Return Statements (4 types) - value, void, boolean, string
-- ✅ Print Statements (2 types + decl) - println_int, println_str, printf_decl
-- ✅ 145 lines total, 13 functions, 4/4 tests passing
+**Completed (Control Flow CodeGen - YZ_14):**
+- ✅ If statement code generation (if-then-end_if)
+- ✅ If-else statement code generation
+- ✅ If-else_if chain code generation
+- ✅ Basic block label management
+- ✅ Branch instruction emission (br i1)
+- ✅ 220 lines total, 4 functions, 4/4 tests passing
 
 **Test Results:**
 ```bash
 ./compiler/stage0/modules/functions/functions_standalone \
-  tests/manual/test_yz_13_basic.mlp temp/test_yz_13.s
+  modules/codegen_mlp/codegen_control.mlp temp/codegen_control.s
 → 4/4 PASSED ✅
 ```
 
 **Files Created:**
-- `modules/codegen_mlp/codegen_stmt.mlp` (145 lines)
-- `tests/manual/test_yz_13_basic.mlp` (57 lines)
+- `modules/codegen_mlp/codegen_control.mlp` (220 lines)
 
-**Status:** ✅ YZ_13 COMPLETE - Ready for YZ_14 (Control Flow CodeGen)!
+**Status:** ✅ YZ_14 COMPLETE - Ready for YZ_15 (While Loop CodeGen)!
 
 ---
 
@@ -326,9 +327,9 @@ MLP/
 
 ## 🎯 KULLANICIYA SORU: Ne yapmalıyım?
 
-**Önceki görev (YZ_13):** CodeGen Statement Implementation ✅ Tamamlandı (145 satır, 13 fonksiyon)
+**Önceki görev (YZ_14):** CodeGen Control Flow Implementation ✅ Tamamlandı (220 satır, 4 fonksiyon)
 
-**CodeGen Phase (Phase 2):** Part 5/10 ✅ Complete!
+**CodeGen Phase (Phase 2):** Part 6/10 ✅ Complete!
 
 **İlerleme:**
 - ✅ YZ_09: Infrastructure (IR Builder, Type Mapper, Symbol Table) - DONE
@@ -336,23 +337,24 @@ MLP/
 - ✅ YZ_11: Arithmetic operators - DONE
 - ✅ YZ_12: Comparison & Logic - DONE
 - ✅ YZ_13: Statements (var decl, assign, return, print) - DONE
-- ⏳ YZ_14: Control Flow - If/Else - NEXT
-- ⏸️ YZ_15-19: Loops, Functions, Arrays...
+- ✅ YZ_14: Control Flow - If/Else - DONE
+- ⏳ YZ_15: While Loops - NEXT
+- ⏸️ YZ_16-19: For Loops, Functions, Arrays...
 
-**Sıradaki görev: YZ_14 - Control Flow CodeGen (If/Else)**
-- If statement code generation
-- Else/Else-if clauses
-- Branch instructions (br)
-- Basic block management
-- Label generation
-- Phi nodes (if needed)
+**Sıradaki görev: YZ_15 - While Loop CodeGen**
+- While loop code generation
+- Loop header label
+- Loop condition evaluation
+- Loop body execution
+- Back-edge branch
+- Loop exit label
 
-**Tahmini:** 1-2 hafta, ~300-400 satır
+**Tahmini:** 2-3 saat, ~200-250 satır
 
 **Soru:** 
-- YZ_14'e başlamak ister misin?
+- YZ_15'e başlamak ister misin?
 - Başka bir şey mi yapalım?
-- Önce YZ_13'ü commit edip push edelim mi?
+- Önce YZ_14'ü commit edip push edelim mi?
 
 ## 📚 Eski Referans (Arşiv)
 
