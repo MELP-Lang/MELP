@@ -1,10 +1,10 @@
 # 🚀 STAGE 1 SELF-HOSTING - START HERE!
 
-**Session:** Stage 1 YZ_01+  
+**Session:** Stage 1 YZ_01  
 **Date:** 16 Aralık 2025  
 **Agent:** GitHub Copilot (Claude Sonnet 4.5)  
 **Branch:** main  
-**Status:** 🎯 **STAGE 1 BAŞLIYOR - PARSER IN MELP**
+**Status:** 🎯 **YZ_01 - Expression Parsing Başlıyor**
 
 **⚠️ YZ Directory Structure:**
 - `stage_0_YZ/` - Stage 0 sessions (YZ_01 - YZ_97, 80 sessions) ✅ ARCHIVED
@@ -63,17 +63,42 @@
 | Bileşen | Durum | Dil | Satır | YZ |
 |---------|-------|-----|-------|-----|
 | Lexer | ✅ 100% | MELP | ~1,803 | Stage 0 (YZ_57) |
-| Parser | ❌ 0% | C | - | **Stage 1 (ŞİMDİ!)** |
+| Parser Infra | ✅ 100% | MELP | ~400 | Stage 0 (YZ_97) |
+| Parser Expr | ⏳ 0% | MELP | - | **Stage 1 (YZ_01) ← ŞİMDİ** |
+| Parser Stmt | ❌ 0% | MELP | - | Stage 1 (YZ_02) |
 | CodeGen | ❌ 0% | C | - | Stage 1 (Sonra) |
 | Bootstrap | ❌ 0% | - | - | Stage 1 (En son) |
 
-**TOPLAM:** %25 Complete
+**TOPLAM:** %30 Complete
 
 ---
 
 ## 🎯 ŞİMDİ NE YAPACAĞIZ?
 
-### Phase 1 Part 1: Parser Infrastructure (1 hafta, ~8-10 saat)
+### ⏳ Yeni YZ Session: YZ_01
+
+**Görev:** Phase 1 Part 2 - Expression Parsing  
+**Dosya:** `stage_1_YZ/YZ_01.md`  
+**Süre:** 4-6 saat  
+
+**Başlamak için:**
+```bash
+cat stage_1_YZ/YZ_01.md
+```
+
+Bu session'da **Expression Parser**'ı MELP ile yazacağız:
+- Primary expressions (literals, identifiers)
+- Binary operations (+, -, *, /, %)
+- Comparison & logical operations
+- Operator precedence
+
+**YZ_01'e git ve görevi başlat!** 🚀
+
+---
+
+## 📚 Eski Referans (Arşiv)
+
+### Phase 1 Part 1: Parser Infrastructure (✅ TAMAMLANDI - YZ_97)
 
 **Görev:** Parser'ın temellerini MELP ile kur
 
