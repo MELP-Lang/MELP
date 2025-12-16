@@ -2,8 +2,8 @@
 
 **Created:** 15 Aralık 2025  
 **Current Status:** 🚀 Stage 0 Complete - Starting Stage 1 Self-Hosting!  
-**Branch:** main  
-**Last Updated:** 16 Aralık 2025  
+**Branch:** codegen-functions_YZ_17  
+**Last Updated:** 17 Aralık 2025  
 **YZ Sessions:** Stage 1 YZ_01+ (Stage 0 = 80 sessions archived in `stage_0_YZ/`)
 
 ---
@@ -107,13 +107,13 @@ MLP/                               ← Ana dizin
 | **CodeGen Control Flow** | ✅ %100 | MELP | 220 | **Stage 1 (YZ_14) ✅** |
 | **CodeGen While Loops** | ✅ %100 | MELP | 333 | **Stage 1 (YZ_15) ✅** |
 | **CodeGen For Loops** | ✅ %100 | MELP | 473 | **Stage 1 (YZ_16) ✅** |
-| **CodeGen Functions** | ❌ %0 | MELP | - | Stage 1 (YZ_17 - Next) |
-| **CodeGen Arrays** | ❌ %0 | MELP | - | Stage 1 (YZ_18) |
+| **CodeGen Functions** | ✅ %100 | MELP | 518 | **Stage 1 (YZ_17) ✅** |
+| **CodeGen Arrays** | ❌ %0 | MELP | - | Stage 1 (YZ_18 - Next) |
 | **CodeGen Integration** | ❌ %0 | MELP | - | Stage 1 (YZ_19) |
 | **Bootstrap** | ❌ %0 | - | - | Stage 1 (YZ_20+) |
 
-**İlerleme:** Stage 1 Phase 2 - %56 Complete (CodeGen in progress)
-**Sırada:** Stage 1 Phase 2 - CodeGen Functions (YZ_17)
+**İlerleme:** Stage 1 Phase 2 - %62 Complete (CodeGen in progress)
+**Sırada:** Stage 1 Phase 2 - CodeGen Arrays (YZ_18)
 
 ---
 

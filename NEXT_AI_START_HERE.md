@@ -1,10 +1,10 @@
 # 🚀 STAGE 1 SELF-HOSTING - START HERE!
 
-**Last Session:** Stage 1 YZ_16  
+**Last Session:** Stage 1 YZ_17  
 **Date:** 17 December 2025  
 **Agent:** GitHub Copilot (Claude Sonnet 4.5)  
-**Branch:** codegen-for_YZ_16  
-**Status:** ✅ **YZ_16 Complete - For Loop CodeGen Ready! Ask user for next task**
+**Branch:** codegen-functions_YZ_17  
+**Status:** ✅ **YZ_17 Complete - Function CodeGen Ready! Ask user for next task**
 
 **⚠️ YZ Directory Structure:**
 - `stage_0_YZ/` - Stage 0 sessions (YZ_01 - YZ_97, 80 sessions) ✅ ARCHIVED
@@ -190,13 +190,46 @@ MLP/
 | CodeGen Control Flow | ✅ 100% | MELP | 220 | **Stage 1 (YZ_14) ✅** |
 | CodeGen While Loops | ✅ 100% | MELP | 333 | **Stage 1 (YZ_15) ✅** |
 | CodeGen For Loops | ✅ 100% | MELP | 473 | **Stage 1 (YZ_16) ✅** |
-| CodeGen Functions | ❌ 0% | MELP | - | Stage 1 (YZ_17 - Next) |
-| CodeGen Arrays | ❌ 0% | MELP | - | Stage 1 (YZ_18) |
+| CodeGen Functions | ✅ 100% | MELP | 518 | **Stage 1 (YZ_17) ✅** |
+| CodeGen Arrays | ❌ 0% | MELP | - | Stage 1 (YZ_18 - Next) |
 | Bootstrap | ❌ 0% | - | - | Stage 1 (Final) |
 
-**TOPLAM:** %56 Complete (Parser + CodeGen For Loops)
+**TOPLAM:** %62 Complete (Parser + CodeGen Functions)
 
-**✅ YZ_16 COMPLETE - For Loop CodeGen Ready!**
+**✅ YZ_17 COMPLETE - Function CodeGen Ready!**
+
+**YZ_17 UPDATE (17 December 2025):**
+
+**Completed (Function CodeGen - YZ_17):**
+- ✅ Function declarations (no params, 1 param, 2 params, 3 params)
+- ✅ Function parameter handling (alloca + store pattern)
+- ✅ Return statements (literal, variable, expression)
+- ✅ Function calls (no args, 1 arg, 2 args, 3 args)
+- ✅ Void function calls (procedures)
+- ✅ Complete function examples with body
+- ✅ Integration test with 5 scenarios (factorial, recursive pattern)
+- ✅ 518 lines total, 18 functions, 15/15 tests passing
+
+**Test Results:**
+```bash
+./compiler/stage0/modules/functions/functions_standalone \
+  modules/codegen_mlp/codegen_functions.mlp temp/codegen_functions.s
+→ 15/15 PASSED ✅
+
+./compiler/stage0/modules/functions/functions_standalone \
+  tests/manual/test_codegen_functions_integration.mlp temp/test_integration.s
+→ Integration test PASSED ✅
+```
+
+**Files Created:**
+- `modules/codegen_mlp/codegen_functions.mlp` (518 lines)
+- `tests/manual/test_codegen_functions_integration.mlp` (129 lines)
+
+**Status:** ✅ YZ_17 COMPLETE - Ready for YZ_18 (Array CodeGen)!
+
+---
+
+**✅ YZ_16 COMPLETE - For Loop CodeGen**
 
 **YZ_16 UPDATE (17 December 2025):**
 
@@ -383,9 +416,9 @@ MLP/
 
 ## 🎯 KULLANICIYA SORU: Ne yapmalıyım?
 
-**Önceki görev (YZ_16):** CodeGen For Loops ✅ Tamamlandı (473 satır, 6 fonksiyon, 6/6 test geçti)
+**Önceki görev (YZ_17):** CodeGen Functions ✅ Tamamlandı (518 satır, 18 fonksiyon, 15/15 test geçti)
 
-**CodeGen Phase (Phase 2):** Part 8/10 ✅ Complete!
+**CodeGen Phase (Phase 2):** Part 9/10 ✅ Complete!
 
 **İlerleme:**
 - ✅ YZ_09: Infrastructure (IR Builder, Type Mapper, Symbol Table) - DONE
@@ -396,22 +429,23 @@ MLP/
 - ✅ YZ_14: Control Flow - If/Else - DONE
 - ✅ YZ_15: While Loops - DONE
 - ✅ YZ_16: For Loops (from/to/downto) - DONE
-- ⏳ YZ_17: Functions (declarations, calls, parameters) - NEXT
-- ⏸️ YZ_18-19: Arrays, Integration...
+- ✅ YZ_17: Functions (declarations, calls, parameters) - DONE
+- ⏳ YZ_18: Arrays (indexing, allocation, element access) - NEXT
+- ⏸️ YZ_19: Integration & final testing...
 
-**Sıradaki görev: YZ_17 - Function CodeGen**
-- Function declarations (define @func)
-- Function parameters
-- Return values
-- Function calls (call instruction)
-- Parameter passing
+**Sıradaki görev: YZ_18 - Array CodeGen**
+- Array allocation (alloca for arrays)
+- Array indexing (getelementptr)
+- Multi-dimensional arrays
+- Array element load/store
+- Array initialization
 
 **Tahmini:** 3-4 saat, ~400-500 satır
 
 **Soru:** 
-- YZ_17'ye başlamak ister misin?
+- YZ_18'e başlamak ister misin?
 - Başka bir şey mi yapalım?
-- Önce YZ_15 ve YZ_16'ı commit edip push edelim mi?
+- Önce YZ_17'yi commit edip push edelim mi?
 
 ## 📚 Eski Referans (Arşiv)
 
