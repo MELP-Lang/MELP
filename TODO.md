@@ -102,15 +102,15 @@ MLP/                               ← Ana dizin
 | **CodeGen Infrastructure** | ✅ %100 | MELP | 942 | **Stage 1 (YZ_09) ✅** |
 | **CodeGen Literals & Vars** | ✅ %100 | MELP | 776 | **Stage 1 (YZ_10) ✅** |
 | **CodeGen Arithmetic** | ✅ %100 | MELP | 472 | **Stage 1 (YZ_11) ✅** |
-| **CodeGen Comparison/Logic** | ❌ %0 | MELP | - | Stage 1 (YZ_12) |
-| **CodeGen Statements** | ❌ %0 | MELP | - | Stage 1 (YZ_13-15) |
-| **CodeGen Functions** | ❌ %0 | MELP | - | Stage 1 (YZ_16) |
-| **CodeGen Structs/Arrays** | ❌ %0 | MELP | - | Stage 1 (YZ_17-18) |
-| **CodeGen Integration** | ❌ %0 | MELP | - | Stage 1 (YZ_19) |
-| **Bootstrap** | ❌ %0 | - | - | Stage 1 (YZ_20+) |
+| **CodeGen Comparison/Logic** | ✅ %100 | MELP | 412 | **Stage 1 (YZ_12) ✅** |
+| **CodeGen Statements** | ❌ %0 | MELP | - | Stage 1 (YZ_13) |
+| **CodeGen Functions** | ❌ %0 | MELP | - | Stage 1 (YZ_14-15) |
+| **CodeGen Structs/Arrays** | ❌ %0 | MELP | - | Stage 1 (YZ_16-17) |
+| **CodeGen Integration** | ❌ %0 | MELP | - | Stage 1 (YZ_18) |
+| **Bootstrap** | ❌ %0 | - | - | Stage 1 (YZ_19+) |
 
-**İlerleme:** Stage 1 Phase 2 - %30 Complete (CodeGen in progress)
-**Sırada:** Stage 1 Phase 2 - CodeGen Comparison & Logic (YZ_12)
+**İlerleme:** Stage 1 Phase 2 - %40 Complete (CodeGen in progress)
+**Sırada:** Stage 1 Phase 2 - CodeGen Statements (YZ_13)
 
 ---
 

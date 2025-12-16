@@ -1,10 +1,10 @@
 # 🚀 STAGE 1 SELF-HOSTING - START HERE!
 
-**Last Session:** Stage 1 YZ_11  
+**Last Session:** Stage 1 YZ_12  
 **Date:** 16 December 2025  
 **Agent:** GitHub Copilot (Claude Sonnet 4.5)  
-**Branch:** codegen-arithmetic_YZ_11  
-**Status:** ✅ **YZ_11 Complete - Arithmetic Operations CodeGen Ready! Ask user for next task**
+**Branch:** codegen-comparison-logic_YZ_12  
+**Status:** ✅ **YZ_12 Complete - Comparison & Logical Operators CodeGen Ready! Ask user for next task**
 
 **⚠️ YZ Directory Structure:**
 - `stage_0_YZ/` - Stage 0 sessions (YZ_01 - YZ_97, 80 sessions) ✅ ARCHIVED
@@ -183,16 +183,46 @@ MLP/
 | Parser Compound Assign | ✅ 100% | MELP | 227 | **Stage 1 (YZ_08) ✅** |
 | Parser Integration | ✅ 100% | MELP | 583 | **Stage 1 (YZ_06/07/08) ✅** |
 | CodeGen Infrastructure | ✅ 100% | MELP | 942 | **Stage 1 (YZ_09) ✅** |
-| CodeGen Expressions | ❌ 0% | MELP | - | Stage 1 (YZ_10 - Next) |
+| CodeGen Literals & Vars | ✅ 100% | MELP | 776 | **Stage 1 (YZ_10) ✅** |
+| CodeGen Arithmetic | ✅ 100% | MELP | 472 | **Stage 1 (YZ_11) ✅** |
+| CodeGen Comparison/Logic | ✅ 100% | MELP | 412 | **Stage 1 (YZ_12) ✅** |
+| CodeGen Statements | ❌ 0% | MELP | - | Stage 1 (YZ_13 - Next) |
 | Bootstrap | ❌ 0% | - | - | Stage 1 (Final) |
 
-**TOPLAM:** %92 Complete (Parser + CodeGen Infrastructure)
+**TOPLAM:** %40 Complete (Parser + CodeGen Expressions)
 
-**✅ YZ_09 COMPLETE - CodeGen Infrastructure Ready!**
+**✅ YZ_12 COMPLETE - Comparison & Logical Operators CodeGen Ready!**
 
-**YZ_09 UPDATE (16 December 2025):**
+**YZ_12 UPDATE (16 December 2025):**
 
-**Completed (CodeGen Infrastructure - YZ_09):**
+**Completed (Comparison & Logical Operators - YZ_12):**
+- ✅ Comparison Operators (194 lines) - ==, !=, <, >, <=, >=
+- ✅ Logical Operators (218 lines) - and, or, not
+- ✅ Boolean Operations - i1 ↔ i64 conversions
+- ✅ 412 lines total, 18 functions, 13 tests
+
+**Test Results:**
+```bash
+./functions_standalone modules/codegen_mlp/codegen_comparison.mlp temp/codegen_comparison.s
+→ 12/12 PASSED ✅
+
+./functions_standalone modules/codegen_mlp/codegen_logical.mlp temp/codegen_logical.s
+→ 10/10 PASSED ✅
+```
+
+**Files Created:**
+- `modules/codegen_mlp/codegen_comparison.mlp` (194 lines)
+- `modules/codegen_mlp/codegen_logical.mlp` (218 lines)
+
+**Status:** ✅ YZ_12 COMPLETE - Ready for YZ_13 (Statement CodeGen)!
+
+---
+
+**✅ YZ_11 COMPLETE - Arithmetic Operations CodeGen**
+
+**YZ_11 UPDATE (16 December 2025):**
+
+**Completed (Arithmetic Operations - YZ_11):**
 - ✅ IR Builder (299 lines) - LLVM IR emission functions
 - ✅ Type Mapper (265 lines) - MELP → LLVM type mapping
 - ✅ Symbol Table (277 lines) - Variable tracking structure
@@ -269,30 +299,31 @@ MLP/
 
 ## 🎯 KULLANICIYA SORU: Ne yapmalıyım?
 
-**Önceki görev (YZ_09):** CodeGen Infrastructure ✅ Tamamlandı (942 satır, 28 fonksiyon)
+**Önceki görev (YZ_12):** CodeGen Comparison & Logical Operators ✅ Tamamlandı (412 satır, 18 fonksiyon)
 
-**CodeGen Phase (Phase 2):** Part 1/10 ✅ Complete!
+**CodeGen Phase (Phase 2):** Part 4/10 ✅ Complete!
 
 **İlerleme:**
 - ✅ YZ_09: Infrastructure (IR Builder, Type Mapper, Symbol Table) - DONE
-- ⏳ YZ_10: Literals & Variables - NEXT
-- ⏸️ YZ_11: Arithmetic operators
-- ⏸️ YZ_12: Comparison & Logic
-- ⏸️ YZ_13-19: Statements, Control Flow, Functions...
+- ✅ YZ_10: Literals & Variables - DONE
+- ✅ YZ_11: Arithmetic operators - DONE
+- ✅ YZ_12: Comparison & Logic - DONE
+- ⏳ YZ_13: Statements (var decl, assign, return) - NEXT
+- ⏸️ YZ_14-18: Control Flow, Functions, Arrays...
 
-**Sıradaki görev: YZ_10 - Expression CodeGen (Literals & Variables)**
-- Numeric literals (`42` → `i64 42`)
-- String literals (`"hello"` → global string)
-- Boolean literals (`true/false` → `i1 1/0`)
-- Variable load/store operations
+**Sıradaki görev: YZ_13 - Statement CodeGen**
+- Variable declarations
+- Assignment statements  
+- Return statements
+- Print statements
 - Simple tests
 
-**Tahmini:** 1 hafta, ~400-500 satır
+**Tahmini:** 1-2 hafta, ~300-400 satır
 
 **Soru:** 
-- YZ_10'a başlamak ister misin?
+- YZ_13'e başlamak ister misin?
 - Başka bir şey mi yapalım?
-- Önce YZ_09'u commit edip push edelim mi?
+- Önce YZ_12'yi commit edip push edelim mi?
 
 ## 📚 Eski Referans (Arşiv)
 
