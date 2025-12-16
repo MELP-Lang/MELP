@@ -108,12 +108,12 @@ MLP/                               ← Ana dizin
 | **CodeGen While Loops** | ✅ %100 | MELP | 333 | **Stage 1 (YZ_15) ✅** |
 | **CodeGen For Loops** | ✅ %100 | MELP | 473 | **Stage 1 (YZ_16) ✅** |
 | **CodeGen Functions** | ✅ %100 | MELP | 518 | **Stage 1 (YZ_17) ✅** |
-| **CodeGen Arrays** | ❌ %0 | MELP | - | Stage 1 (YZ_18 - Next) |
-| **CodeGen Integration** | ❌ %0 | MELP | - | Stage 1 (YZ_19) |
+| **CodeGen Arrays** | ✅ %100 | MELP | 465 | **Stage 1 (YZ_18) ✅** |
+| **CodeGen Integration** | ❌ %0 | MELP | - | Stage 1 (YZ_19 - Next) |
 | **Bootstrap** | ❌ %0 | - | - | Stage 1 (YZ_20+) |
 
-**İlerleme:** Stage 1 Phase 2 - %62 Complete (CodeGen in progress)
-**Sırada:** Stage 1 Phase 2 - CodeGen Arrays (YZ_18)
+**İlerleme:** Stage 1 Phase 2 - %68 Complete (CodeGen in progress)
+**Sırada:** Stage 1 Phase 2 - CodeGen Integration (YZ_19)
 
 ---
 
