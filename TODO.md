@@ -87,6 +87,49 @@ compiler/stage0/modules/     compiler/stage1/modules/
 - ❌ **Modül dışı kod yazma!**
   - Tüm yeni kod `compiler/stage1/modules/*/` altında olmalı
 
+---
+
+## ⚠️ ÖNEMLİ: TEST STRATEJİSİ
+
+### 🎯 Her Modül İçin Test Adımları
+
+**STANDART PATTERN (Her YZ için ZORUNLU):**
+
+1. **Implement** - Kod yaz (parser + codegen)
+2. **Test Yaz** - Test dosyası oluştur (`test_*.mlp`)
+3. **Test ÇALIŞTIR** ⭐ **YENİ!**
+   - Stage 0 ile compile et: `./stage0_compiler test_module.mlp`
+   - Her test case çalıştır
+   - Çıktıları doğrula
+   - LLVM IR kontrol et
+4. **Doğrula** - Testler geçmezse README YAZMA!
+5. **README** - Dokümantasyon
+
+**⚠️ ŞU ANDA DURUM:**
+- Stage 1 compiler henüz hazır değil
+- Test dosyaları yazılıyor ✅
+- Testler ÇALIŞTIRILAMIYOR ❌
+- **Çözüm:** Stage 1 compiler tamamlanınca tüm testler çalıştırılacak
+
+**📌 GELECEK PLAN:**
+- Her modül test dosyası hazır
+- Stage 1 compiler tamamlanınca:
+  - Tüm testler sırayla çalıştırılacak
+  - Sonuçlar doğrulanacak
+  - Hata varsa düzeltilecek
+
+### 🔧 Test Çalıştırma Komutları (Stage 1 hazır olunca)
+
+```bash
+# Modül testi çalıştır
+cd compiler/stage1/modules/operators/
+../../../../stage0_compiler test_operators.mlp -o test_operators.ll
+lli test_operators.ll
+
+# Tüm testleri çalıştır
+./scripts/run_all_stage1_tests.sh
+```
+
 **Sonraki YZ başlangıçta:**
 1. 📖 `NEXT_AI_START_HERE.md` oku
 2. 📖 `MELP_Mimarisi.md` oku ve ONAYLA
@@ -261,7 +304,11 @@ compiler/stage0/modules/     compiler/stage1/modules/
   - [x] Test: CodeGen function prologue
   - [x] Test: CodeGen function call
   - [x] 520 satır test suite
-- [x] **4.5** README
+- [ ] **4.5** ⚠️ TEST ÇALIŞTIR (YAPILMADI - Stage 1 compiler henüz yok)
+  - [ ] Stage 0 ile compile ve çalıştır
+  - [ ] Sonuçları doğrula
+  - [ ] **NOT:** Stage 1 compiler hazır olunca yapılacak
+- [x] **4.6** README
   - [x] Module documentation (400 satır)
   - [x] Usage examples
   - [x] API reference
@@ -312,7 +359,11 @@ compiler/stage0/modules/     compiler/stage1/modules/
   - [x] Test: Parse variable assignment
   - [x] Test: CodeGen declaration, assignment, load
   - [x] 480 satır test suite
-- [x] **5.5** README
+- [ ] **5.5** ⚠️ TEST ÇALIŞTIR (YAPILMADI - Stage 1 compiler henüz yok)
+  - [ ] Stage 0 ile compile ve çalıştır
+  - [ ] Sonuçları doğrula
+  - [ ] **NOT:** Stage 1 compiler hazır olunca yapılacak
+- [x] **5.6** README
   - [x] Module documentation (650 satır)
   - [x] Usage examples
   - [x] LLVM IR examples
@@ -376,7 +427,13 @@ compiler/stage0/modules/     compiler/stage1/modules/
   - [x] Test: Complex expression
   - [x] Test: Operator helper functions
   - [x] 620 satır test suite
-- [x] **6.5** README
+- [ ] **6.5** ⚠️ TEST ÇALIŞTIR (YAPILMADI - Stage 1 compiler henüz yok)
+  - [ ] Stage 0 ile compile: `./stage0_compiler test_operators.mlp`
+  - [ ] Her test case çalıştır
+  - [ ] Çıktıları doğrula
+  - [ ] LLVM IR output kontrol et
+  - [ ] **NOT:** Stage 1 compiler hazır olunca yapılacak
+- [x] **6.6** README
   - [x] Module documentation (750 satır)
   - [x] Usage examples
   - [x] LLVM IR examples
@@ -421,11 +478,21 @@ compiler/stage0/modules/     compiler/stage1/modules/
     - `codegen_while.mlp`
     - `codegen_for.mlp`
   - [ ] LLVM branch, label generation
-- [ ] **7.4** Test
-  - [ ] If/else nesting
-  - [ ] While loops
-  - [ ] For loops
-- [ ] **7.5** README
+- [ ] **7.4** Test suite
+  - [ ] `test_control_flow.mlp` oluştur
+  - [ ] Test: If statement
+  - [ ] Test: If/else statement
+  - [ ] Test: Nested if/else
+  - [ ] Test: While loop
+  - [ ] Test: For loop (optional)
+  - [ ] Test: Break/continue (optional)
+- [ ] **7.5** TEST ÇALIŞTIR ⭐
+  - [ ] Stage 0 ile compile: `./stage0_compiler test_control_flow.mlp`
+  - [ ] Her test case çalıştır ve doğrula
+  - [ ] Branch instructions LLVM IR kontrol
+  - [ ] Label generation doğru mu kontrol
+  - [ ] **ZORUNLU:** Testler geçmeden README yazma!
+- [ ] **7.6** README
 
 #### Başarı Kriterleri:
 - ✅ Control flow yapıları çalışıyor

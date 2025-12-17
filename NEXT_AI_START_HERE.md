@@ -156,6 +156,28 @@ Başlamamı ister misiniz?
 - ✅ Stage 1 dördüncü modül tamamlandı (4/34)
 - ⚠️ Control flow conditions'lar operators modülünü kullanacak
 
+**4. ⚠️ ÖNEMLİ: Test Stratejisi!**
+- ⚠️ Test dosyası YAZ ama ÇALIŞTIRAMAZSIN (Stage 1 compiler henüz yok)
+- ✅ Her modül için `test_*.mlp` oluştur
+- ❌ Stage 0 ile compile edemezsin (Stage 1 kodu MELP dilinde)
+- 📌 **Çözüm:** Test dosyaları şimdilik "specification" olarak kalacak
+- 🎯 **Gelecek:** Stage 1 compiler tamamlanınca tüm testler çalıştırılacak
+
+**5. Standart Test Pattern (Her Modül İçin):**
+```
+- [ ] **X.4** Test suite YAZ
+  - [ ] test_module.mlp oluştur
+  - [ ] Test cases yaz
+  
+- [ ] **X.5** TEST ÇALIŞTIR ⭐
+  - [ ] Stage 0 ile compile et (Stage 1 hazır olunca)
+  - [ ] Testleri çalıştır
+  - [ ] Sonuçları doğrula
+  - [ ] ⚠️ ŞU ANDA YAPILMIYOR (compiler yok)
+  
+- [ ] **X.6** README
+```
+
 ---
 
 ## 📋 YZ_01 CHECKLİST
