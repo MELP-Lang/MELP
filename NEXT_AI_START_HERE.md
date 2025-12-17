@@ -40,12 +40,14 @@ Başlamamı ister misiniz?
 - ✅ 3 test başarılı
 - ✅ Import sistemi TAMAMEN HAZIR!
 
-**YZ_03 - Core Utilities Modülü (✅ Tamamlandı - ??? saat)**
-- ✅ modules/core/ dizini oluşturuldu
-- ✅ Paylaşılan utilities hazırlandı
-- ✅ Token definitions
-- ✅ Type mapper
-- ✅ Test suite
+**YZ_03 - Core Utilities Modülü (✅ Tamamlandı - 2.5 saat)**
+- ✅ compiler/stage1/modules/core/ dizini oluşturuldu
+- ✅ token_types.mlp - 93 token constants (Stage 0 C → MELP)
+- ✅ char_utils.mlp - 12 character functions (Stage 0 C → MELP)
+- ✅ type_mapper.mlp - 14 type kinds + 7 functions (Stage 0 C → MELP)
+- ✅ test_core.mlp - Comprehensive test suite
+- ✅ README.md - Full documentation
+- ✅ Stage 1 ilk modülü tamamlandı! (1/34)
 
 **🎊 SÜPER HABER:** Stage 0 import sistemi hazır, Stage 1 modüler yapı başladı!
 
@@ -58,44 +60,62 @@ Başlamamı ister misiniz?
 **Durum:** ⏸️ BEKLİYOR
 
 #### Yapılacaklar:
-- [ ] **3.1** File resolution kontrol et (muhtemelen hazır)
-- [ ] **3.2** Symbol export/import kontrol et (muhtemelen hazır)
-- [ ] **3.3** Circular dependency kontrol et (muhtemelen hazır)
-- [ ] **3.4** Test suite yaz ve doğrula
+- [ ] **4.1** `compiler/stage1/modules/functions/` dizini oluştur
+- [ ] **4.2** Parser
+  - [ ] `functions_parser.mlp` - Stage 0'dan MELP'e çevir
+  - [ ] Import core utilities
+  - [ ] Function parsing fonksiyonlarını al
+- [ ] **4.3** CodeGen
+  - [ ] `functions_codegen.mlp` - Stage 0'dan MELP'e çevir
+  - [ ] Import type_mapper
+  - [ ] Function declaration, call, return
+- [ ] **4.4** Test
+  - [ ] `test_functions.mlp` - Test suite
+  - [ ] Function declaration test
+  - [ ] Function call test
+  - [ ] Return value test
+- [ ] **4.5** README ve rapor
+  - [ ] `README.md` - Dokümantasyon
+  - [ ] `YZ_Stage_1/YZ_04_RAPOR.md`
 
-**NOT:** YZ_02'de görüldü ki sistem neredeyse tamamen hazır.  
-Sadece doğrulama ve test gerekebilir!
+**Kaynak:**
+- `compiler/stage0/modules/functions/` - C implementation
+- Mevcut `parser_mlp/parser_func.mlp` - Yeniden yapılandırılacak
+- Mevcut `codegen_mlp/codegen_functions.mlp` - Yeniden yapılandırılacak
 
 ---
 
-## 🎯 YZ_03 İÇİN SONRAKİ ADIMLAR
+## 🎯 YZ_04 İÇİN SONRAKİ ADIMLAR
 
 **1. İlk Mesajın (Kullanıcıya):**
 ```
-Merhaba! Ben YZ_03'üm.
+Merhaba! Ben YZ_04'üm.
 
 TODO.md'deki görevlerimi gördüm:
-- File resolution sistemi kontrolü
-- Symbol export/import kontrolü  
-- Circular dependency testi
-- Test suite yazımı
+- compiler/stage1/modules/functions/ oluştur
+- functions_parser.mlp (Stage 0 → MELP)
+- functions_codegen.mlp (Stage 0 → MELP)
+- Test suite
 
-YZ_02'nin notlarını okudum - import sistemi neredeyse tamamen hazır! 🎉
+YZ_03'ün core utilities modülünü kullanacağım! 🎉
 
 Başlamamı ister misiniz?
 ```
 
 **2. Yapman Gerekenler:**
 1. ✅ `MELP_Mimarisi.md` oku ve ONAYLA
-2. ✅ `TODO.md` oku (YZ_03 bölümü)
-3. ✅ `YZ_Stage_1/YZ_02_RAPOR.md` oku
-4. ✅ Git dalı oluştur: `git checkout -b import_resolution_YZ_03`
+2. ✅ `TODO.md` oku (YZ_04 bölümü)
+3. ✅ `YZ_Stage_1/YZ_03_RAPOR.md` oku
+4. ✅ Git dalı oluştur: `git checkout -b functions_module_YZ_04`
 5. ▶️ İşe başla!
 
-**3. YZ_02'den Önemli Notlar:**
-- ✅ Lexer tamam (`TOKEN_IMPORT` var)
-- ✅ Parser tamam (string literal desteği eklendi)
-- ✅ Import cache çalışıyor
+**3. YZ_03'ten Önemli Notlar:**
+- ✅ Core utilities hazır (`compiler/stage1/modules/core/`)
+- ✅ `token_types.mlp` - 93 token constants
+- ✅ `char_utils.mlp` - 12 character functions
+- ✅ `type_mapper.mlp` - Type system utilities
+- ✅ Import sistemi çalışıyor
+- ✅ Stage 1 ilk modül tamamlandı (1/34)
 - ✅ Multiple imports çalışıyor
 - ⚠️ YZ_03: Resolution ve Symbol Table kontrolü gerekli
 
@@ -139,18 +159,20 @@ ONAYLA - YZ_01:
 - [ ] Stage 0 modifikasyon planı
 
 ### Tamamlama
-- [ ] Döküman hazır
-- [ ] Git commit: `git commit -m "YZ_01: Import system design"`
-- [ ] Git push: `git push origin import_design_YZ_01`
-- [ ] **TODO.md güncelle:** YZ_01'i tamamlandı işaretle
-- [ ] **NEXT_AI_START_HERE.md güncelle:** YZ_02 için hazırla
-  - [ ] Başlık değiştir: `# NEXT AI START HERE - YZ_02` → `YZ_03`
-  - [ ] YZ_02 completion notları ekle
-  - [ ] YZ_03 görevini öne çıkar
-  - [ ] Kritik bilgileri aktar
-- [ ] Rapor yaz: `YZ_Stage_1/YZ_01_RAPOR.md`
-- [ ] Bu dosyayı güncelle (NEXT_AI_START_HERE.md)
-- [ ] TODO.md'de işaretle: YZ_01 ✅
+- [x] Döküman hazır
+- [x] Git commit: `git commit -m "YZ_03: Core Utilities Module"`
+- [x] Git push: `git push origin core_utils_YZ_03`
+- [x] **TODO.md güncelle:** YZ_03'ü tamamlandı işaretle [x] ✅
+- [x] **NEXT_AI_START_HERE.md güncelle:** YZ_04 için hazırla
+  - [x] Başlık değiştir: `# NEXT AI START HERE - YZ_03` → `YZ_04`
+  - [x] YZ_03 completion notları ekle
+  - [x] YZ_04 görevini öne çıkar
+  - [x] Kritik bilgileri aktar
+- [x] Rapor yaz: `YZ_Stage_1/YZ_03_RAPOR.md`
+- [x] Bu dosyayı güncelle (NEXT_AI_START_HERE.md)
+- [x] TODO.md'de işaretle: YZ_03 ✅
+
+**⚠️ ZORUNLU KURAL:** Her YZ görev bitiminde TODO.md'deki tüm alt görevlerini [x] olarak işaretle!
 
 ---
 
@@ -164,15 +186,22 @@ modules/
 └── codegen_mlp/      ← (katmanlı yapı)
 ```
 
-### Hedef (Modüler):
+### Hedef (Modüler - Stage 1):
 ```
-modules/
-├── core/             ← Shared utilities (YZ_05)
-├── functions/        ← Function feature (YZ_06)
-├── variables/        ← Variable feature (YZ_07)
-├── operators/        ← Operators (YZ_08)
-└── ...               ← 10 modül daha
+compiler/stage1/modules/
+├── core/             ← Shared utilities (YZ_03) ✅ TAMAMLANDI
+├── functions/        ← Function feature (YZ_04) ⏸️ ← ŞİMDİ BURASI
+├── variables/        ← Variable feature (YZ_05)
+├── operators/        ← Operators (YZ_06)
+├── control_flow/     ← Control flow (YZ_07)
+├── literals/         ← Literals (YZ_08)
+├── arrays/           ← Arrays (YZ_09)
+├── structs/          ← Structs (YZ_10)
+├── enums/            ← Enums (YZ_11)
+└── ...               ← 25+ modül daha (Stage 0 parity)
 ```
+
+**İlerleme:** 1/34 modül ✅
 
 ---
 

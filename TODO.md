@@ -74,8 +74,9 @@ compiler/stage0/modules/     compiler/stage1/modules/
 1. ✅ İşini tamamla
 2. ✅ Git commit yap
 3. ✅ `NEXT_AI_START_HERE.md` güncelle
-4. ✅ Bu TODO.md'de ilerlemesini işaretle
-5. ✅ Rapor yaz: `YZ_Stage_1/YZ_XX_RAPOR.md`
+4. ✅ **Bu TODO.md'de görevlerini [x] olarak işaretle (ZORUNLU!)**
+5. ✅ Bu TODO.md'de ilerlemesini işaretle
+6. ✅ Rapor yaz: `YZ_Stage_1/YZ_XX_RAPOR.md`
 
 **Sonraki YZ başlangıçta:**
 1. 📖 `NEXT_AI_START_HERE.md` oku
@@ -187,26 +188,27 @@ compiler/stage0/modules/     compiler/stage1/modules/
 
 **Ön Koşul:** ✅ Import sistemi çalışıyor (YZ_01-02 tamamlandı)
 
-### ⏳ YZ_03 - Core Utilities Modülü
+### ✅ YZ_03 - Core Utilities Modülü
 **Dal:** `core_utils_YZ_03`  
 **Tahmini:** 3 saat  
-**Durum:** ⏸️ BEKLİYOR
+**Gerçek:** 2.5 saat  
+**Durum:** ✅ TAMAMLANDI (17 Aralık 2025)
 
 #### Yapılacaklar:
-- [ ] **3.1** `modules/core/` dizini oluştur
-- [ ] **3.2** Paylaşılan utilities
-  - [ ] `char_utils.mlp` ← mevcut `lexer_mlp/char_utils.mlp` (taşı)
-  - [ ] `string_utils.mlp` - String operations
-  - [ ] `list_utils.mlp` - List operations (ihtiyaç varsa)
-- [ ] **3.3** Token type definitions
-  - [ ] `token_types.mlp` - Tüm token sabitleri (enum)
-  - [ ] Mevcut koddan çıkar, merkezi hale getir
-- [ ] **3.4** Type mapping
-  - [ ] `type_mapper.mlp` ← mevcut `codegen_mlp/type_mapper.mlp`
-  - [ ] MELP type → LLVM type
-- [ ] **3.5** Test
-  - [ ] `modules/core/test_core_utils.mlp`
-  - [ ] Import ve kullan
+- [x] **3.1** `compiler/stage1/modules/core/` dizini oluştur
+- [x] **3.2** Paylaşılan utilities
+  - [x] `char_utils.mlp` - Character classification (Stage 0 C'den MELP'e)
+  - [x] `token_types.mlp` - 93 token type constants
+  - [x] `type_mapper.mlp` - Type system constants and mapping
+- [x] **3.3** Token type definitions
+  - [x] `token_types.mlp` - Tüm token sabitleri (const numeric)
+  - [x] Stage 0 lexer.h enum'ından MELP'e çevrildi
+- [x] **3.4** Type mapping
+  - [x] `type_mapper.mlp` - Stage 0 type_system.h'dan MELP'e
+  - [x] Type kind constants + mapping functions
+- [x] **3.5** Test
+  - [x] `test_core.mlp` - Kapsamlı test suite
+  - [x] Import sistemi kullanılarak test edildi
 
 #### Başarı Kriterleri:
 - ✅ Core utilities Stage 0 ile derleniyor
@@ -214,11 +216,12 @@ compiler/stage0/modules/     compiler/stage1/modules/
 - ✅ Testler geçiyor
 
 #### Çıktılar:
-- `modules/core/char_utils.mlp`
-- `modules/core/token_types.mlp`
-- `modules/core/type_mapper.mlp`
-- `modules/core/README.md`
-- `YZ_Stage_1/YZ_03_RAPOR.md`
+- ✅ `compiler/stage1/modules/core/char_utils.mlp` (98 satır, 12 fonksiyon)
+- ✅ `compiler/stage1/modules/core/token_types.mlp` (127 satır, 93 const)
+- ✅ `compiler/stage1/modules/core/type_mapper.mlp` (168 satır, 14 const + 7 fonksiyon)
+- ✅ `compiler/stage1/modules/core/test_core.mlp` (155 satır)
+- ✅ `compiler/stage1/modules/core/README.md` (200+ satır)
+- ✅ `YZ_Stage_1/YZ_03_RAPOR.md` (445 satır)
 
 ---
 
@@ -857,8 +860,8 @@ parser_temp.mlp             (ana dizinde!)
 - [x] YZ_02 - Lexer + Parser (1h) ✅
 
 ### Faz 2: Modüler Stage 1 (26 saat)
-- [ ] YZ_03 - Core Utilities (3h) ⏸️ ← ŞİMDİ BURASI!
-- [ ] YZ_04 - Functions (3h)
+- [x] YZ_03 - Core Utilities (2.5h) ✅ TAMAMLANDI
+- [ ] YZ_04 - Functions (3h) ⏸️ ← ŞİMDİ BURASI!
 - [ ] YZ_05 - Variables (2.5h)
 - [ ] YZ_06 - Operators (3h)
 - [ ] YZ_07 - Control Flow (3.5h)
