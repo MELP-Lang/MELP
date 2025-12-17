@@ -1,36 +1,36 @@
-# 🚀 NEXT AI START HERE - SEN YZ_05'SİN!
+# 🚀 NEXT AI START HERE - SEN YZ_06'SIN!
 
-**👤 SENİN ROLÜN:** YZ_05 - Variables Modülü  
+**👤 SENİN ROLÜN:** YZ_06 - Operators Modülü  
 **📅 Tarih:** 18 Aralık 2025  
-**🌿 Dal:** `variables_module_YZ_05` (oluşturulacak)  
-**📊 Durum:** ⏸️ YZ_05 BEKLİYOR - YZ_04 TAMAMLANDI!
+**🌿 Dal:** `operators_module_YZ_06` (oluşturulacak)  
+**📊 Durum:** ⏸️ YZ_06 BEKLİYOR - YZ_05 TAMAMLANDI!
 
 ---
 
-## 👋 MERHABA YZ_05!
+## 👋 MERHABA YZ_06!
 
 **Kullanıcıya ilk mesajın şöyle olmalı:**
 
 ```
-Merhaba! Ben YZ_05'im.
+Merhaba! Ben YZ_06'yım.
 
 NEXT_AI_START_HERE.md ve TODO.md'yi okudum.
-Görevim: Variables Modülü (Stage 1 Modüler Yapı)
+Görevim: Operators Modülü (Stage 1 Modüler Yapı)
 
 TODO.md'deki görevlerimi görüyorum:
-- modules/variables/ dizini oluştur
-- variables_parser.mlp (Stage 0'dan)
-- variables_codegen.mlp (Stage 0'dan)
+- modules/operators/ dizini oluştur
+- operators_parser.mlp (Arithmetic, Comparison, Logical)
+- operators_codegen.mlp (Stage 0'dan)
 - Test suite
 
-YZ_03'ün core utilities ve YZ_04'ün functions modülünü kullanacağım! 🎉
+YZ_03'ün core utilities, YZ_04'ün functions ve YZ_05'in variables modüllerini kullanacağım! 🎉
 
 Başlamamı ister misiniz?
 ```
 
 ---
 
-## 🎉 YZ_01, YZ_02, YZ_03 & YZ_04 TAMAMLANDI!
+## 🎉 YZ_01, YZ_02, YZ_03, YZ_04 & YZ_05 TAMAMLANDI!
 
 **YZ_01 - Import Tasarımı (✅ Tamamlandı - 2.5 saat)**
 - ✅ Import sistem tasarımı
@@ -61,30 +61,46 @@ Başlamamı ister misiniz?
 - ✅ Core utilities entegrasyonu
 - ✅ Stage 1 ikinci modülü tamamlandı! (2/34)
 
-**🎊 SÜPER HABER:** Stage 0 import sistemi hazır, Stage 1 modüler yapı hızla ilerliyor!
+**YZ_05 - Variables Modülü (✅ Tamamlandı - 2 saat!)**
+- ✅ compiler/stage1/modules/variables/ dizini oluşturuldu
+- ✅ variables_parser.mlp - Variable declaration, assignment parsing (450 satır)
+- ✅ variables_codegen.mlp - LLVM IR generation (alloca, store, load) (400 satır)
+## 📍 YZ_06'NIN GÖREVİ
 
----
-
-## 📍 YZ_05'İN GÖREVİ
-
-### Görev: Variables Modülü (Stage 1)
-**Tahmini:** 2.5 saat  
+### Görev: Operators Modülü (Stage 1)
+**Tahmini:** 3 saat  
 **Durum:** ⏸️ BEKLİYOR
 
 #### Yapılacaklar:
-- [ ] **5.1** `compiler/stage1/modules/variables/` dizini oluştur
-- [ ] **5.2** Parser
-  - [ ] `variables_parser.mlp` - Stage 0'dan MELP'e çevir
+- [ ] **6.1** `compiler/stage1/modules/operators/` dizini oluştur
+- [ ] **6.2** Parser
+  - [ ] `operators_parser.mlp` - Stage 0'dan MELP'e çevir
   - [ ] Import core utilities
-  - [ ] Variable declaration parsing
-  - [ ] Variable assignment parsing
-- [ ] **5.3** CodeGen
-  - [ ] `variables_codegen.mlp` - Stage 0'dan MELP'e çevir
-  - [ ] Import type_mapper
-  - [ ] Variable declaration (alloca)
-  - [ ] Variable assignment (store)
-  - [ ] Variable access (load)
-- [ ] **5.4** Test
+  - [ ] Arithmetic operators (+, -, *, /, %, **)
+  - [ ] Comparison operators (==, !=, <, >, <=, >=)
+  - [ ] Logical operators (and, or, not)
+  - [ ] Operator precedence
+- [ ] **6.3** CodeGen
+  - [ ] `operators_codegen.mlp` - Stage 0'dan MELP'e çevir
+  - [ ] Arithmetic: add, sub, mul, sdiv, srem
+  - [ ] Comparison: icmp eq, ne, slt, sgt, sle, sge
+  - [ ] Logical: and, or, xor
+  - [ ] Type conversions
+- [ ] **6.4** Test
+  - [ ] `test_operators.mlp` - Test suite
+  - [ ] Arithmetic operations test
+  - [ ] Comparison operations test
+  - [ ] Logical operations test
+  - [ ] Precedence test
+- [ ] **6.5** README ve rapor
+  - [ ] `README.md` - Dokümantasyon
+  - [ ] `YZ_Stage_1/YZ_06_RAPOR.md`
+
+**Kaynak:**
+- `compiler/stage0/modules/arithmetic/` - Arithmetic operations
+- `compiler/stage0/modules/comparison/` - Comparison operations
+- `compiler/stage0/modules/logical/` - Logical operations
+- Mevcut `parser_mlp/parser_expr.mlp` - Expression parsing referansı
   - [ ] `test_variables.mlp` - Test suite
   - [ ] Variable declaration test
   - [ ] Assignment test
@@ -100,38 +116,40 @@ Başlamamı ister misiniz?
 
 ---
 
-## 🎯 YZ_05 İÇİN SONRAKİ ADIMLAR
+## 🎯 YZ_06 İÇİN SONRAKİ ADIMLAR
 
 **1. İlk Mesajın (Kullanıcıya):**
 ```
-Merhaba! Ben YZ_05'im.
+Merhaba! Ben YZ_06'yım.
 
 TODO.md'deki görevlerimi gördüm:
-- compiler/stage1/modules/variables/ oluştur
-- variables_parser.mlp (Stage 0 → MELP)
-- variables_codegen.mlp (Stage 0 → MELP)
+- compiler/stage1/modules/operators/ oluştur
+- operators_parser.mlp (Arithmetic, Comparison, Logical)
+- operators_codegen.mlp (Stage 0 → MELP)
 - Test suite
 
-YZ_03'ün core utilities ve YZ_04'ün functions modülünü kullanacağım! 🎉
+YZ_03'ün core utilities, YZ_04'ün functions ve YZ_05'in variables modüllerini kullanacağım! 🎉
 
 Başlamamı ister misiniz?
 ```
 
 **2. Yapman Gerekenler:**
 1. ✅ `MELP_Mimarisi.md` oku ve ONAYLA
-2. ✅ `TODO.md` oku (YZ_05 bölümü)
-3. ✅ `YZ_Stage_1/YZ_04_RAPOR.md` oku
-4. ✅ Git dalı oluştur: `git checkout -b variables_module_YZ_05`
+2. ✅ `TODO.md` oku (YZ_06 bölümü)
+3. ✅ `YZ_Stage_1/YZ_05_RAPOR.md` oku
+4. ✅ Git dalı oluştur: `git checkout -b operators_module_YZ_06`
 5. ▶️ İşe başla!
 
-**3. YZ_04'ten Önemli Notlar:**
-- ✅ Functions modülü hazır (`compiler/stage1/modules/functions/`)
-- ✅ Stateless pattern örneği (functions_parser.mlp)
-- ✅ CodeGen pattern örneği (functions_codegen.mlp)
-- ✅ Test pattern örneği (test_functions.mlp)
+**3. YZ_05'ten Önemli Notlar:**
+- ✅ Variables modülü hazır (`compiler/stage1/modules/variables/`)
+- ✅ 7 variable type support (numeric, string, boolean, pointer, array, list, tuple)
+- ✅ LLVM IR generation (alloca, store, load)
+- ✅ Stateless pattern örneği (variables_parser.mlp)
+- ✅ CodeGen pattern örneği (variables_codegen.mlp)
+- ✅ Test pattern örneği (test_variables.mlp)
 - ✅ Import sistemi çalışıyor
-- ✅ Stage 1 ikinci modül tamamlandı (2/34)
-- ⚠️ Variables modülü functions'a benzer pattern kullanacak
+- ✅ Stage 1 üçüncü modül tamamlandı (3/34)
+- ⚠️ Operators modülü variables ile birlikte çalışacak (expressions)
 
 ---
 
@@ -205,8 +223,8 @@ modules/
 compiler/stage1/modules/
 ├── core/             ← Shared utilities (YZ_03) ✅ TAMAMLANDI
 ├── functions/        ← Function feature (YZ_04) ✅ TAMAMLANDI
-├── variables/        ← Variable feature (YZ_05) ⏸️ ← ŞİMDİ BURASI
-├── operators/        ← Operators (YZ_06)
+├── variables/        ← Variable feature (YZ_05) ✅ TAMAMLANDI
+├── operators/        ← Operators (YZ_06) ⏸️ ← ŞİMDİ BURASI
 ├── control_flow/     ← Control flow (YZ_07)
 ├── literals/         ← Literals (YZ_08)
 ├── arrays/           ← Arrays (YZ_09)
@@ -215,7 +233,7 @@ compiler/stage1/modules/
 └── ...               ← 25+ modül daha (Stage 0 parity)
 ```
 
-**İlerleme:** 2/34 modül ✅
+**İlerleme:** 3/34 modül ✅
 
 ---
 
@@ -441,45 +459,57 @@ mkdir -p YZ_Stage_1
 
 **Sonraki YZ'ye mesajım:**
 
-Merhaba YZ_05! 👋
+Merhaba YZ_06! 👋
 
-Ben YZ_04, functions modülünü tamamladım.
+Ben YZ_05, variables modülünü tamamladım.
 
 **Sana bıraktıklarım:**
-- ✅ Functions modülü: `compiler/stage1/modules/functions/`
-- ✅ Parser + CodeGen complete (830 satır)
-- ✅ Test suite (6 tests, 520 satır)
+- ✅ Variables modülü: `compiler/stage1/modules/variables/`
+- ✅ Parser + CodeGen complete (850 satır)
+- ✅ Test suite (8 tests, 480 satır)
+- ✅ 7 variable types (numeric, string, boolean, pointer, array, list, tuple)
+- ✅ LLVM IR generation (alloca, store, load)
 - ✅ Stateless pattern örneği
 - ✅ Import kullanımı örneği
 - ✅ README dokümantasyonu
 
-**Senin görevin (YZ_05):**
-1. YZ_04 raporumu oku (`YZ_Stage_1/YZ_04_RAPOR.md`)
-2. Variables modülü oluştur
-3. Variable declaration, assignment, access
+**Senin görevin (YZ_06):**
+1. YZ_05 raporumu oku (`YZ_Stage_1/YZ_05_RAPOR.md`)
+2. Operators modülü oluştur
+3. Arithmetic, Comparison, Logical operators
 4. Test suite yaz
 
 **Kritik notlar:**
-- Functions modülünü pattern olarak kullan
-- Stateless architecture (parametre geçişi)
-- Core utilities import et
-- Test dosyalarını modül içinde tut
+- Variables modülünü pattern olarak kullan
+- Operatörler variables ile birlikte çalışacak (expressions)
+- Expression parsing önemli (operator precedence)
+- Stage 0'da 3 ayrı modül var:
+  - `compiler/stage0/modules/arithmetic/`
+  - `compiler/stage0/modules/comparison/`
+  - `compiler/stage0/modules/logical/`
 
 **Pattern Örneği:**
 ```melp
--- functions_parser.mlp'den örnek
-function parse_function_declaration(tokens: list, pos: numeric) returns list
+-- variables_parser.mlp'den örnek
+function parse_variable_declaration(tokens: list, pos: numeric) returns list
     -- Takes: tokens + position
     -- Returns: [result, new_position]
-    return [func_decl, current_pos]
+    return [decl_info, current_pos]
 end_function
+```
+
+**Operators Integration:**
+```melp
+-- Variables + operators birlikte:
+numeric result = (x + y) * 2
+boolean flag = (count > 10) and (count < 100)
 ```
 
 Başarılar! 🚀
 
 ---
 
-**SON GÜNCELLEME:** YZ_04 - Functions modülü tamamlandı (18 Aralık 2025)  
-**SONRAKİ:** YZ_05 - Variables modülü
+**SON GÜNCELLEME:** YZ_05 - Variables modülü tamamlandı (18 Aralık 2025, 14:00)  
+**SONRAKİ:** YZ_06 - Operators modülü
 
 **MELP kusursuz mimariye kavuşuyor!** 🎯
