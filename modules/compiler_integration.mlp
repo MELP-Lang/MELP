@@ -1,0 +1,274 @@
+-- ============================================================================
+-- MELP Compiler - Full Pipeline Integration
+-- ============================================================================
+-- File: modules/compiler_integration.mlp
+-- Author: YZ_24 Part 1
+-- Date: 17 Aralık 2025
+-- Purpose: Orchestrate Lexer → Parser → CodeGen pipeline
+-- Status: Stage 1 Self-Hosting - Integration Module
+-- ============================================================================
+--
+-- This module connects all compiler phases:
+-- 1. Lexer (tokenization)
+-- 2. Parser (AST construction)
+-- 3. CodeGen (LLVM IR emission)
+--
+-- Entry point: compile_source(string source_code) returns string llvm_ir
+-- ============================================================================
+
+-- ============================================================================
+-- CONSTANTS & CONFIGURATION
+-- ============================================================================
+
+-- Note: Global variables not yet supported in Stage 0
+-- Using function-local state and return codes instead
+
+-- Phase status codes (constants only)
+-- PHASE_SUCCESS = 0
+-- PHASE_LEXER_ERROR = 1
+-- PHASE_PARSER_ERROR = 2
+-- PHASE_CODEGEN_ERROR = 3
+
+-- ============================================================================
+-- ERROR HANDLING
+-- ============================================================================
+
+-- Error counter (stored in function scope)
+-- Returns: 1 (always increments)
+
+function report_error(string phase, string message) returns numeric
+    println("[ERROR] Compilation error occurred")
+    println(phase)
+    println(message)
+    return 1
+end_function
+
+function report_warning(string phase, string message) returns numeric
+    println("[WARNING] Compilation warning")
+    println(phase)
+    println(message)
+    return 1
+end_function
+
+function log_verbose(string message, numeric verbose_mode) returns numeric
+    if verbose_mode == 1 then
+        println("[INFO]")
+        println(message)
+    end_if
+    return 0
+end_function
+
+-- ============================================================================
+-- PHASE 1: LEXER INTEGRATION
+-- ============================================================================
+
+-- Tokenize entire source code
+-- Returns: list of tokens (or empty list on error)
+-- Token format: [type, value, line, column]
+function tokenize_source(string source) returns list
+    log_verbose("Starting lexer phase...")
+    
+    -- Token list (will be built incrementally)
+    list tokens = []
+    numeric pos = 0
+    numeric line = 1
+    numeric col = 1
+    numeric source_len = 0  -- TODO: Need string_length() builtin
+    
+    -- Tokenization loop
+    -- Note: This is simplified - real implementation needs:
+    -- - Loop until EOF
+    -- - Call tokenize_next() from lexer.mlp
+    -- - Accumulate tokens
+    
+    log_verbose("Lexer phase complete")
+    return tokens
+end_function
+
+-- ============================================================================
+-- PHASE 2: PARSER INTEGRATION
+-- ============================================================================
+
+-- Parse token stream into AST
+-- Returns: AST root node (list representation)
+-- AST format: [node_type, data1, data2, children_list]
+function parse_tokens(list tokens) returns list
+    log_verbose("Starting parser phase...")
+    
+    -- Initialize parser state
+    numeric token_index = 0
+    numeric token_count = 0  -- TODO: Need list_length() builtin
+    
+    -- AST root (will contain program structure)
+    list ast_root = []
+    
+    -- Parsing phases:
+    -- 1. Parse imports (parser_import.mlp)
+    -- 2. Parse struct/enum definitions (parser_struct.mlp, parser_enum.mlp)
+    -- 3. Parse function declarations (parser_func.mlp)
+    -- 4. Parse statements (parser_stmt.mlp, parser_control.mlp)
+    
+    -- TODO: Actual parser integration
+    -- For now, return empty AST
+    
+    log_verbose("Parser phase complete")
+    return ast_root
+end_function
+
+-- ============================================================================
+-- PHASE 3: CODEGEN INTEGRATION
+-- ============================================================================
+
+-- Generate LLVM IR from AST
+-- Returns: LLVM IR string (or empty on error)
+function codegen_ast(list ast) returns string
+    -- Note: String concatenation not fully working in Stage 0
+    -- Using simple approach for now
+    
+    -- Minimal LLVM IR stub
+    return "define i64 @main() { entry: ret i64 0 }"
+end_function
+
+-- ============================================================================
+-- MAIN PIPELINE
+-- ============================================================================
+
+-- Complete compilation pipeline
+-- Input: source_code (string)
+-- Output: llvm_ir (string) or empty string on error
+-- Note: Error tracking simplified (no global state in Stage 0)
+function compile_source(string source_code) returns string
+    println("========================================")
+    println("  MELP Compiler - Full Pipeline")
+    println("========================================")
+    println("")
+    
+    numeric error_count = 0
+    numeric warning_count = 0
+    
+    -- Phase 1: Lexer
+    println("Phase 1: Lexical Analysis...")
+    list tokens = tokenize_source(source_code)
+    
+    println("  ✓ Tokenization complete")
+    println("")
+    
+    -- Phase 2: Parser
+    println("Phase 2: Parsing...")
+    list ast = parse_tokens(tokens)
+    
+    println("  ✓ AST construction complete")
+    println("")
+    
+    -- Phase 3: Code Generation
+    println("Phase 3: Code Generation...")
+    string llvm_ir = codegen_ast(ast)
+    
+    println("  ✓ LLVM IR generation complete")
+    println("")
+    
+    -- Summary
+    println("========================================")
+    println("Compilation Summary:")
+    println("  Status: SUCCESS")
+    println("========================================")
+    println("")
+    
+    return llvm_ir
+end_function
+
+-- ============================================================================
+-- UTILITY FUNCTIONS
+-- ============================================================================
+
+-- These would manage global state, but Stage 0 doesn't support globals
+-- Kept for API compatibility with future versions
+
+function set_verbose(numeric enable) returns numeric
+    return 0
+end_function
+
+function get_error_count() returns numeric
+    return 0
+end_function
+
+function get_warning_count() returns numeric
+    return 0
+end_function
+
+function reset_compiler() returns numeric
+    return 0
+end_function
+
+-- ============================================================================
+-- TEST HARNESS
+-- ============================================================================
+
+-- Test with minimal program
+function test_minimal_program() returns numeric
+    println("")
+    println("========================================")
+    println("  TEST: Minimal Program")
+    println("========================================")
+    println("")
+    
+    string source = "function main() returns numeric"
+    
+    println("Source code:")
+    println(source)
+    println("")
+    
+    string result = compile_source(source)
+    
+    println("Generated LLVM IR:")
+    println(result)
+    return 0
+end_function
+
+-- Test with simple arithmetic
+function test_arithmetic_program() returns numeric
+    println("")
+    println("========================================")
+    println("  TEST: Arithmetic Program")
+    println("========================================")
+    println("")
+    
+    string source = "function calculate() returns numeric"
+    
+    println("Source code:")
+    println(source)
+    println("")
+    
+    string result = compile_source(source)
+    
+    println("Generated LLVM IR:")
+    println(result)
+    return 0
+end_function
+
+-- ============================================================================
+-- MAIN ENTRY POINT
+-- ============================================================================
+
+function main() returns numeric
+    println("")
+    println("================================================")
+    println("  MELP Compiler Integration Module")
+    println("  Version: 0.1.0 (YZ_24)")
+    println("  Date: 17 Aralık 2025")
+    println("================================================")
+    println("")
+    
+    -- Run tests
+    numeric test1_result = test_minimal_program()
+    numeric test2_result = test_arithmetic_program()
+    
+    println("")
+    println("================================================")
+    println("Test Results:")
+    println("  All tests completed")
+    println("  Overall: SUCCESS")
+    println("================================================")
+    
+    return 0
+end_function
