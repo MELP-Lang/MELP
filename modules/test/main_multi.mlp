@@ -1,0 +1,28 @@
+-- Module: main_multi.mlp
+-- Test multiple module linking
+
+-- Forward declarations (stubs) - actual implementations in math_utils.mlp
+function square(numeric x) returns numeric
+    return 0  -- stub
+end_function
+
+function sum_of_squares(numeric a, numeric b) returns numeric
+    return 0  -- stub
+end_function
+
+function test_calculation() returns numeric
+    numeric a = 3
+    numeric b = 4
+    numeric result = 0
+    
+    -- Should calculate 3^2 + 4^2 = 9 + 16 = 25
+    result = sum_of_squares(a, b)
+    
+    return result
+end_function
+
+function melp_main() returns numeric
+    numeric final_result = 0
+    final_result = test_calculation()
+    return final_result
+end_function

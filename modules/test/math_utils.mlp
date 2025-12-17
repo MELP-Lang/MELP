@@ -1,0 +1,18 @@
+-- Module: math_utils.mlp
+-- Simple math utilities
+
+function square(numeric x) returns numeric
+    return x * x
+end_function
+
+function cube(numeric x) returns numeric
+    return x * x * x
+end_function
+
+function sum_of_squares(numeric a, numeric b) returns numeric
+    numeric sq_a = 0
+    numeric sq_b = 0
+    sq_a = square(a)
+    sq_b = square(b)
+    return sq_a + sq_b
+end_function

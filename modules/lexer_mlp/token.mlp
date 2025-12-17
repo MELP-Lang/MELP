@@ -10,8 +10,8 @@ function get_token_type(list token) returns numeric
     return 0
 end_function
 
-function get_token_value(list token) returns string
-    return ""
+function get_token_value(list token) returns numeric
+    return 0
 end_function
 
 function get_token_line(list token) returns numeric
@@ -22,12 +22,12 @@ function get_token_column(list token) returns numeric
     return 0
 end_function
 
-function token_type_to_string(numeric token_type) returns string
-    return ""
+function token_type_to_string(numeric token_type) returns numeric
+    return 0
 end_function
 
-function token_to_string(list token) returns string
-    return ""
+function token_to_string(list token) returns numeric
+    return 0
 end_function
 
 function main() returns numeric

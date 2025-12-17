@@ -45,7 +45,7 @@ LEXER_MODULES=(
 
 for module in "${LEXER_MODULES[@]}"; do
     echo "  Compiling lexer/$module.mlp → .ll"
-    $STAGE0_COMPILER \
+    $STAGE0_COMPILER --compile-only --backend=llvm \
         "$MODULES_DIR/lexer_mlp/$module.mlp" \
         "$OUTPUT_DIR/lexer/$module.ll" 2>&1 | grep -v "^$" || true
 done
@@ -80,7 +80,7 @@ PARSER_MODULES=(
 
 for module in "${PARSER_MODULES[@]}"; do
     echo "  Compiling parser/$module.mlp → .ll"
-    $STAGE0_COMPILER \
+    $STAGE0_COMPILER --compile-only --backend=llvm \
         "$MODULES_DIR/parser_mlp/$module.mlp" \
         "$OUTPUT_DIR/parser/$module.ll" 2>&1 | grep -v "^$" || true
 done
@@ -114,7 +114,7 @@ CODEGEN_MODULES=(
 
 for module in "${CODEGEN_MODULES[@]}"; do
     echo "  Compiling codegen/$module.mlp → .ll"
-    $STAGE0_COMPILER \
+    $STAGE0_COMPILER --compile-only --backend=llvm \
         "$MODULES_DIR/codegen_mlp/$module.mlp" \
         "$OUTPUT_DIR/codegen/$module.ll" 2>&1 | grep -v "^$" || true
 done
@@ -132,7 +132,7 @@ echo "----------------------------------------------"
 for module in "${LEXER_MODULES[@]}"; do
     if [ -f "$OUTPUT_DIR/lexer/$module.ll" ]; then
         echo "  $module.ll → $module.o"
-        llc -filetype=obj "$OUTPUT_DIR/lexer/$module.ll" -o "$OUTPUT_DIR/lexer/$module.o"
+        llc-14 -filetype=obj "$OUTPUT_DIR/lexer/$module.ll" -o "$OUTPUT_DIR/lexer/$module.o"
     fi
 done
 
@@ -140,7 +140,7 @@ done
 for module in "${PARSER_MODULES[@]}"; do
     if [ -f "$OUTPUT_DIR/parser/$module.ll" ]; then
         echo "  $module.ll → $module.o"
-        llc -filetype=obj "$OUTPUT_DIR/parser/$module.ll" -o "$OUTPUT_DIR/parser/$module.o"
+        llc-14 -filetype=obj "$OUTPUT_DIR/parser/$module.ll" -o "$OUTPUT_DIR/parser/$module.o"
     fi
 done
 
@@ -148,7 +148,7 @@ done
 for module in "${CODEGEN_MODULES[@]}"; do
     if [ -f "$OUTPUT_DIR/codegen/$module.ll" ]; then
         echo "  $module.ll → $module.o"
-        llc -filetype=obj "$OUTPUT_DIR/codegen/$module.ll" -o "$OUTPUT_DIR/codegen/$module.o"
+        llc-14 -filetype=obj "$OUTPUT_DIR/codegen/$module.ll" -o "$OUTPUT_DIR/codegen/$module.o"
     fi
 done
 
