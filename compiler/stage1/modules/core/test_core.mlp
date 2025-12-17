@@ -1,0 +1,155 @@
+-- ============================================================================
+-- test_core.mlp - Test Suite for Core Utilities Module
+-- ============================================================================
+-- Tests for: token_types.mlp, char_utils.mlp, type_mapper.mlp
+-- ============================================================================
+
+import "core/token_types"
+import "core/char_utils"
+import "core/type_mapper"
+
+-- Test token type constants
+function test_token_types() returns numeric
+    print "Testing token type constants..."
+    
+    -- Basic types
+    if TOKEN_NUMERIC != 0 then return 1 end_if
+    if TOKEN_STRING_TYPE != 1 then return 1 end_if
+    if TOKEN_IDENTIFIER != 6 then return 1 end_if
+    
+    -- Operators
+    if TOKEN_PLUS != 12 then return 1 end_if
+    if TOKEN_EQUAL != 19 then return 1 end_if
+    if TOKEN_AND != 25 then return 1 end_if
+    
+    -- Keywords
+    if TOKEN_IF != 28 then return 1 end_if
+    if TOKEN_FUNCTION != 68 then return 1 end_if
+    if TOKEN_IMPORT != 76 then return 1 end_if
+    
+    -- Delimiters
+    if TOKEN_LPAREN != 80 then return 1 end_if
+    if TOKEN_EOF != 91 then return 1 end_if
+    
+    print "✅ Token types: PASS"
+    return 0
+end_function
+
+-- Test character utilities
+function test_char_utils() returns numeric
+    print "Testing character utilities..."
+    
+    -- Test is_digit
+    if is_digit(48) != 1 then return 1 end_if  -- '0'
+    if is_digit(57) != 1 then return 1 end_if  -- '9'
+    if is_digit(65) != 0 then return 1 end_if  -- 'A'
+    
+    -- Test is_alpha
+    if is_alpha(65) != 1 then return 1 end_if  -- 'A'
+    if is_alpha(90) != 1 then return 1 end_if  -- 'Z'
+    if is_alpha(97) != 1 then return 1 end_if  -- 'a'
+    if is_alpha(122) != 1 then return 1 end_if -- 'z'
+    if is_alpha(48) != 0 then return 1 end_if  -- '0'
+    
+    -- Test is_alnum
+    if is_alnum(65) != 1 then return 1 end_if  -- 'A'
+    if is_alnum(48) != 1 then return 1 end_if  -- '0'
+    if is_alnum(32) != 0 then return 1 end_if  -- ' '
+    
+    -- Test is_space
+    if is_space(32) != 1 then return 1 end_if  -- space
+    if is_space(9) != 1 then return 1 end_if   -- tab
+    if is_space(10) != 1 then return 1 end_if  -- newline
+    if is_space(65) != 0 then return 1 end_if  -- 'A'
+    
+    -- Test to_upper
+    if to_upper(97) != 65 then return 1 end_if  -- 'a' -> 'A'
+    if to_upper(65) != 65 then return 1 end_if  -- 'A' -> 'A'
+    
+    -- Test to_lower
+    if to_lower(65) != 97 then return 1 end_if  -- 'A' -> 'a'
+    if to_lower(97) != 97 then return 1 end_if  -- 'a' -> 'a'
+    
+    -- Test identifier functions
+    if is_identifier_start(65) != 1 then return 1 end_if   -- 'A'
+    if is_identifier_start(95) != 1 then return 1 end_if   -- '_'
+    if is_identifier_start(48) != 0 then return 1 end_if   -- '0'
+    if is_identifier_char(65) != 1 then return 1 end_if    -- 'A'
+    if is_identifier_char(48) != 1 then return 1 end_if    -- '0'
+    if is_identifier_char(95) != 1 then return 1 end_if    -- '_'
+    
+    print "✅ Character utils: PASS"
+    return 0
+end_function
+
+-- Test type mapper
+function test_type_mapper() returns numeric
+    print "Testing type mapper..."
+    
+    -- Test type kind constants
+    if TYPE_INT != 0 then return 1 end_if
+    if TYPE_FLOAT != 1 then return 1 end_if
+    if TYPE_STRING != 2 then return 1 end_if
+    if TYPE_BOOL != 3 then return 1 end_if
+    
+    -- Test type_name_to_kind
+    if type_name_to_kind("numeric") != TYPE_INT then return 1 end_if
+    if type_name_to_kind("float") != TYPE_FLOAT then return 1 end_if
+    if type_name_to_kind("string") != TYPE_STRING then return 1 end_if
+    if type_name_to_kind("boolean") != TYPE_BOOL then return 1 end_if
+    
+    -- Test type_kind_to_name
+    if type_kind_to_name(TYPE_INT) != "numeric" then return 1 end_if
+    if type_kind_to_name(TYPE_FLOAT) != "float" then return 1 end_if
+    if type_kind_to_name(TYPE_STRING) != "string" then return 1 end_if
+    if type_kind_to_name(TYPE_BOOL) != "boolean" then return 1 end_if
+    
+    -- Test types_compatible
+    if types_compatible(TYPE_INT, TYPE_INT) != 1 then return 1 end_if
+    if types_compatible(TYPE_INT, TYPE_FLOAT) != 1 then return 1 end_if
+    if types_compatible(TYPE_INT, TYPE_STRING) != 0 then return 1 end_if
+    
+    -- Test type classification
+    if is_primitive_type(TYPE_INT) != 1 then return 1 end_if
+    if is_primitive_type(TYPE_ARRAY) != 0 then return 1 end_if
+    if is_composite_type(TYPE_ARRAY) != 1 then return 1 end_if
+    if is_composite_type(TYPE_INT) != 0 then return 1 end_if
+    if is_callable_type(TYPE_FUNCTION) != 1 then return 1 end_if
+    if is_callable_type(TYPE_INT) != 0 then return 1 end_if
+    
+    print "✅ Type mapper: PASS"
+    return 0
+end_function
+
+-- Main test runner
+function main() returns numeric
+    print "=========================================="
+    print "Core Utilities Module Test Suite"
+    print "=========================================="
+    
+    numeric exit_code = 0
+    
+    exit_code = test_token_types()
+    if exit_code != 0 then
+        print "❌ Token types test FAILED"
+        return exit_code
+    end_if
+    
+    exit_code = test_char_utils()
+    if exit_code != 0 then
+        print "❌ Character utils test FAILED"
+        return exit_code
+    end_if
+    
+    exit_code = test_type_mapper()
+    if exit_code != 0 then
+        print "❌ Type mapper test FAILED"
+        return exit_code
+    end_if
+    
+    print "=========================================="
+    print "✅ ALL TESTS PASSED"
+    print "=========================================="
+    
+    return 0
+end_function

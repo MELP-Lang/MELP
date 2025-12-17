@@ -1,0 +1,132 @@
+-- ============================================================================
+-- token_types.mlp - Token Type Constants for MELP Lexer
+-- ============================================================================
+-- Converted from Stage 0: compiler/stage0/modules/lexer/lexer.h
+-- Part of: Stage 1 Core Utilities Module
+-- Purpose: Define all token type constants used by the lexer
+-- ============================================================================
+
+-- Basic types
+const numeric TOKEN_NUMERIC = 0
+const numeric TOKEN_STRING_TYPE = 1      -- string keyword (type declaration)
+const numeric TOKEN_BOOLEAN = 2
+const numeric TOKEN_ARRAY = 3            -- Array keyword (type declaration)
+const numeric TOKEN_LIST = 4             -- list keyword (type declaration)
+const numeric TOKEN_TUPLE = 5            -- tuple keyword (type declaration)
+const numeric TOKEN_IDENTIFIER = 6
+const numeric TOKEN_ASSIGN = 7
+const numeric TOKEN_NUMBER = 8
+const numeric TOKEN_STRING = 9           -- "string literal"
+const numeric TOKEN_TRUE = 10
+const numeric TOKEN_FALSE = 11
+
+-- Arithmetic operators
+const numeric TOKEN_PLUS = 12
+const numeric TOKEN_MINUS = 13
+const numeric TOKEN_MULTIPLY = 14
+const numeric TOKEN_DIVIDE = 15
+const numeric TOKEN_MOD = 16             -- %
+const numeric TOKEN_POWER = 17           -- **
+const numeric TOKEN_XOR = 18             -- xor (also ^) - bitwise XOR
+
+-- Comparison operators
+const numeric TOKEN_EQUAL = 19           -- ==
+const numeric TOKEN_NOT_EQUAL = 20       -- !=
+const numeric TOKEN_LESS = 21            -- <
+const numeric TOKEN_GREATER = 22         -- >
+const numeric TOKEN_LESS_EQUAL = 23      -- <=
+const numeric TOKEN_GREATER_EQUAL = 24   -- >=
+
+-- Logical operators
+const numeric TOKEN_AND = 25             -- &&
+const numeric TOKEN_OR = 26              -- ||
+const numeric TOKEN_NOT = 27             -- !
+
+-- Control flow keywords
+const numeric TOKEN_IF = 28
+const numeric TOKEN_THEN = 29
+const numeric TOKEN_ELSE = 30
+const numeric TOKEN_END = 31
+const numeric TOKEN_WHILE = 32
+const numeric TOKEN_DO = 33
+const numeric TOKEN_FOR = 34
+const numeric TOKEN_FROM = 35            -- from (for loop range start)
+const numeric TOKEN_TO = 36
+const numeric TOKEN_DOWNTO = 37
+const numeric TOKEN_SWITCH = 38          -- switch
+const numeric TOKEN_CASE = 39            -- case
+const numeric TOKEN_DEFAULT = 40         -- default
+const numeric TOKEN_EACH = 41            -- for each item in collection
+const numeric TOKEN_IN = 42              -- for each item in collection
+const numeric TOKEN_EXIT = 43            -- exit, exit for, exit while, exit if, exit function
+
+-- PMPL Block Terminators (underscore keywords)
+const numeric TOKEN_END_IF = 44          -- end_if
+const numeric TOKEN_END_WHILE = 45       -- end_while
+const numeric TOKEN_END_FOR = 46         -- end_for
+const numeric TOKEN_END_FUNCTION = 47    -- end_function
+const numeric TOKEN_END_STRUCT = 48      -- end_struct
+const numeric TOKEN_END_ENUM = 49        -- end_enum
+const numeric TOKEN_END_SWITCH = 50      -- end_switch
+const numeric TOKEN_END_MATCH = 51       -- end_match
+const numeric TOKEN_END_OPERATOR = 52    -- end_operator
+const numeric TOKEN_END_TRY = 53         -- end_try
+
+-- PMPL Control Flow
+const numeric TOKEN_ELSE_IF = 54         -- else_if
+
+-- PMPL Loop Control
+const numeric TOKEN_CONTINUE = 55        -- continue (standalone - current loop)
+const numeric TOKEN_EXIT_IF = 56         -- exit_if
+const numeric TOKEN_EXIT_FOR = 57        -- exit_for
+const numeric TOKEN_EXIT_WHILE = 58      -- exit_while
+const numeric TOKEN_EXIT_FUNCTION = 59   -- exit_function
+const numeric TOKEN_EXIT_SWITCH = 60     -- exit_switch
+const numeric TOKEN_CONTINUE_FOR = 61    -- continue_for
+const numeric TOKEN_CONTINUE_WHILE = 62  -- continue_while
+
+-- PMPL Debug Block
+const numeric TOKEN_DEBUG = 63           -- debug (block start or single-line prefix)
+const numeric TOKEN_END_DEBUG = 64       -- end_debug (block end)
+const numeric TOKEN_GOTO = 65            -- goto (debug-only)
+const numeric TOKEN_PAUSE = 66           -- pause (debug-only)
+
+-- PMPL State Keywords
+const numeric TOKEN_SHARED_STATE = 67    -- shared_state
+
+-- Function keywords
+const numeric TOKEN_FUNCTION = 68
+const numeric TOKEN_RETURN = 69
+const numeric TOKEN_RETURNS = 70         -- returns (for return type declaration)
+
+-- Struct keywords
+const numeric TOKEN_STRUCT = 71
+const numeric TOKEN_ENUM = 72
+const numeric TOKEN_METHOD = 73          -- method (struct method)
+const numeric TOKEN_END_METHOD = 74      -- end_method
+const numeric TOKEN_SELF = 75            -- self (method receiver)
+
+-- Module keywords
+const numeric TOKEN_IMPORT = 76          -- import module_name
+const numeric TOKEN_MODULE = 77          -- module keyword
+
+-- I/O keywords
+const numeric TOKEN_PRINT = 78
+const numeric TOKEN_PRINTLN = 79         -- println builtin
+
+-- Delimiters
+const numeric TOKEN_LPAREN = 80          -- (
+const numeric TOKEN_RPAREN = 81          -- )
+const numeric TOKEN_LBRACKET = 82        -- [
+const numeric TOKEN_RBRACKET = 83        -- ]
+const numeric TOKEN_LANGLE = 84          -- < (tuple literal, not comparison)
+const numeric TOKEN_RANGLE = 85          -- > (tuple literal, not comparison)
+const numeric TOKEN_COMMA = 86           -- ,
+const numeric TOKEN_COLON = 87           -- :
+const numeric TOKEN_SEMICOLON = 88       -- ;
+const numeric TOKEN_DOT = 89             -- .
+const numeric TOKEN_CONTINUATION = 90    -- _ or \ (line continuation)
+
+-- Special tokens
+const numeric TOKEN_EOF = 91
+const numeric TOKEN_ERROR = 92

@@ -1,0 +1,159 @@
+-- ============================================================================
+-- type_mapper.mlp - Type System Constants and Utilities
+-- ============================================================================
+-- Converted from Stage 0: compiler/stage0/modules/type_system/type_system.h
+-- Part of: Stage 1 Core Utilities Module
+-- Purpose: Define type kind constants and type mapping utilities
+-- ============================================================================
+
+-- Base type kinds (TypeKind enum from C)
+const numeric TYPE_INT = 0           -- int
+const numeric TYPE_FLOAT = 1         -- float
+const numeric TYPE_STRING = 2        -- string
+const numeric TYPE_BOOL = 3          -- bool
+const numeric TYPE_VOID = 4          -- void
+const numeric TYPE_CHAR = 5          -- char
+const numeric TYPE_ARRAY = 6         -- array[T]
+const numeric TYPE_POINTER = 7       -- *T
+const numeric TYPE_FUNCTION = 8      -- func(T1, T2) -> T3
+const numeric TYPE_STRUCT = 9        -- struct {...}
+const numeric TYPE_ENUM = 10         -- enum {...}
+const numeric TYPE_GENERIC = 11      -- T (generic type parameter)
+const numeric TYPE_UNKNOWN = 12      -- Not yet inferred
+const numeric TYPE_ERROR = 13        -- Type error
+
+-- Type name to kind mapping
+function type_name_to_kind(type_name: string) returns numeric
+    if type_name == "int" or type_name == "numeric" then
+        return TYPE_INT
+    end_if
+    
+    if type_name == "float" then
+        return TYPE_FLOAT
+    end_if
+    
+    if type_name == "string" or type_name == "text" then
+        return TYPE_STRING
+    end_if
+    
+    if type_name == "bool" or type_name == "boolean" then
+        return TYPE_BOOL
+    end_if
+    
+    if type_name == "void" then
+        return TYPE_VOID
+    end_if
+    
+    if type_name == "char" then
+        return TYPE_CHAR
+    end_if
+    
+    return TYPE_UNKNOWN
+end_function
+
+-- Type kind to name mapping
+function type_kind_to_name(kind: numeric) returns string
+    if kind == TYPE_INT then
+        return "numeric"
+    end_if
+    
+    if kind == TYPE_FLOAT then
+        return "float"
+    end_if
+    
+    if kind == TYPE_STRING then
+        return "string"
+    end_if
+    
+    if kind == TYPE_BOOL then
+        return "boolean"
+    end_if
+    
+    if kind == TYPE_VOID then
+        return "void"
+    end_if
+    
+    if kind == TYPE_CHAR then
+        return "char"
+    end_if
+    
+    if kind == TYPE_ARRAY then
+        return "array"
+    end_if
+    
+    if kind == TYPE_POINTER then
+        return "pointer"
+    end_if
+    
+    if kind == TYPE_FUNCTION then
+        return "function"
+    end_if
+    
+    if kind == TYPE_STRUCT then
+        return "struct"
+    end_if
+    
+    if kind == TYPE_ENUM then
+        return "enum"
+    end_if
+    
+    if kind == TYPE_GENERIC then
+        return "generic"
+    end_if
+    
+    if kind == TYPE_UNKNOWN then
+        return "unknown"
+    end_if
+    
+    if kind == TYPE_ERROR then
+        return "error"
+    end_if
+    
+    return "unknown"
+end_function
+
+-- Check if two type kinds are compatible for assignment
+function types_compatible(lhs_kind: numeric, rhs_kind: numeric) returns numeric
+    -- Exact match
+    if lhs_kind == rhs_kind then
+        return 1
+    end_if
+    
+    -- Numeric compatibility (int can be assigned float, vice versa)
+    if (lhs_kind == TYPE_INT or lhs_kind == TYPE_FLOAT) and
+       (rhs_kind == TYPE_INT or rhs_kind == TYPE_FLOAT) then
+        return 1
+    end_if
+    
+    -- Unknown type can be inferred
+    if lhs_kind == TYPE_UNKNOWN or rhs_kind == TYPE_UNKNOWN then
+        return 1
+    end_if
+    
+    return 0
+end_function
+
+-- Check if type is a primitive (int, float, bool, char, string)
+function is_primitive_type(kind: numeric) returns numeric
+    if kind == TYPE_INT or kind == TYPE_FLOAT or kind == TYPE_BOOL or 
+       kind == TYPE_CHAR or kind == TYPE_STRING then
+        return 1
+    end_if
+    return 0
+end_function
+
+-- Check if type is a composite type (array, struct, enum)
+function is_composite_type(kind: numeric) returns numeric
+    if kind == TYPE_ARRAY or kind == TYPE_STRUCT or kind == TYPE_ENUM then
+        return 1
+    end_if
+    return 0
+end_function
+
+-- Check if type is a callable (function)
+function is_callable_type(kind: numeric) returns numeric
+    if kind == TYPE_FUNCTION then
+        return 1
+    end_if
+    return 0
+end_function
