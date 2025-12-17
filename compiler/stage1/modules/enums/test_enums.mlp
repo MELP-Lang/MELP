@@ -1,0 +1,568 @@
+-- ============================================================================
+-- MELP Stage 1 - Enums Module Test Suite
+-- ============================================================================
+-- Purpose: Comprehensive tests for enum parser and codegen
+-- Author: YZ_11
+-- Date: 18 Aralık 2025
+--
+-- Test Coverage:
+--   - Enum definition parsing
+--   - Enum value parsing (with/without explicit values)
+--   - Enum value reference (qualified/unqualified)
+--   - Enum assignment
+--   - Enum comparison
+--   - LLVM IR generation
+--   - Helper functions
+--
+-- NOTE: These tests will be executed when Stage 1 compiler is ready (YZ_12)
+-- ============================================================================
+
+import "enums_parser.mlp"
+import "enums_codegen.mlp"
+
+-- ============================================================================
+-- Test 1: Parse Simple Enum Definition
+-- ============================================================================
+function test_parse_simple_enum() returns boolean
+    print "Test 1: Parse simple enum definition"
+    
+    -- Mock token stream:
+    -- enum Status PENDING ACTIVE DONE end_enum
+    list tokens = [
+        TOKEN_ENUM, "",
+        TOKEN_IDENTIFIER, "Status",
+        TOKEN_IDENTIFIER, "PENDING",
+        TOKEN_IDENTIFIER, "ACTIVE",
+        TOKEN_IDENTIFIER, "DONE",
+        TOKEN_END_ENUM, ""
+    ]
+    
+    list result = parse_enum_definition(tokens, 0)
+    list enum_node = result[0]
+    numeric end_pos = result[1]
+    
+    -- Verify enum node
+    if not is_enum_definition(enum_node) then
+        print "  FAIL: Not an enum definition node"
+        return false
+    end_if
+    
+    -- Verify enum name
+    string name = get_enum_name(enum_node)
+    if name != "Status" then
+        print "  FAIL: Enum name mismatch"
+        return false
+    end_if
+    
+    -- Verify value count
+    numeric count = get_enum_value_count(enum_node)
+    if count != 3 then
+        print "  FAIL: Expected 3 values"
+        return false
+    end_if
+    
+    -- Verify auto-increment values (PENDING=0, ACTIVE=1, DONE=2)
+    list values = get_enum_values(enum_node)
+    
+    list val0 = values[0]
+    if get_enum_value_name(val0) != "PENDING" then
+        print "  FAIL: First value name mismatch"
+        return false
+    end_if
+    if get_enum_value_numeric(val0) != 0 then
+        print "  FAIL: First value should be 0"
+        return false
+    end_if
+    
+    list val1 = values[1]
+    if get_enum_value_numeric(val1) != 1 then
+        print "  FAIL: Second value should be 1"
+        return false
+    end_if
+    
+    list val2 = values[2]
+    if get_enum_value_numeric(val2) != 2 then
+        print "  FAIL: Third value should be 2"
+        return false
+    end_if
+    
+    print "  PASS"
+    return true
+end_function
+
+-- ============================================================================
+-- Test 2: Parse Enum with Explicit Values
+-- ============================================================================
+function test_parse_enum_explicit_values() returns boolean
+    print "Test 2: Parse enum with explicit values"
+    
+    -- Mock token stream:
+    -- enum Priority LOW = 10 MEDIUM = 20 HIGH = 30 end_enum
+    list tokens = [
+        TOKEN_ENUM, "",
+        TOKEN_IDENTIFIER, "Priority",
+        TOKEN_IDENTIFIER, "LOW",
+        TOKEN_ASSIGN, "",
+        TOKEN_NUMBER, "10",
+        TOKEN_IDENTIFIER, "MEDIUM",
+        TOKEN_ASSIGN, "",
+        TOKEN_NUMBER, "20",
+        TOKEN_IDENTIFIER, "HIGH",
+        TOKEN_ASSIGN, "",
+        TOKEN_NUMBER, "30",
+        TOKEN_END_ENUM, ""
+    ]
+    
+    list result = parse_enum_definition(tokens, 0)
+    list enum_node = result[0]
+    
+    -- Verify values
+    list values = get_enum_values(enum_node)
+    
+    list val0 = values[0]
+    if get_enum_value_numeric(val0) != 10 then
+        print "  FAIL: LOW should be 10"
+        return false
+    end_if
+    
+    list val1 = values[1]
+    if get_enum_value_numeric(val1) != 20 then
+        print "  FAIL: MEDIUM should be 20"
+        return false
+    end_if
+    
+    list val2 = values[2]
+    if get_enum_value_numeric(val2) != 30 then
+        print "  FAIL: HIGH should be 30"
+        return false
+    end_if
+    
+    print "  PASS"
+    return true
+end_function
+
+-- ============================================================================
+-- Test 3: Parse Enum Value Reference (Qualified)
+-- ============================================================================
+function test_parse_qualified_reference() returns boolean
+    print "Test 3: Parse qualified enum value reference"
+    
+    -- Mock token stream: Status.ACTIVE
+    list tokens = [
+        TOKEN_IDENTIFIER, "Status",
+        TOKEN_DOT, "",
+        TOKEN_IDENTIFIER, "ACTIVE"
+    ]
+    
+    list result = parse_enum_value_reference(tokens, 0)
+    list ref_node = result[0]
+    
+    if not is_enum_value_ref(ref_node) then
+        print "  FAIL: Not an enum value reference node"
+        return false
+    end_if
+    
+    string enum_type = get_enum_ref_type(ref_node)
+    if enum_type != "Status" then
+        print "  FAIL: Enum type mismatch"
+        return false
+    end_if
+    
+    string value_name = get_enum_ref_value(ref_node)
+    if value_name != "ACTIVE" then
+        print "  FAIL: Value name mismatch"
+        return false
+    end_if
+    
+    print "  PASS"
+    return true
+end_function
+
+-- ============================================================================
+-- Test 4: Parse Enum Value Reference (Unqualified)
+-- ============================================================================
+function test_parse_unqualified_reference() returns boolean
+    print "Test 4: Parse unqualified enum value reference"
+    
+    -- Mock token stream: ACTIVE
+    list tokens = [
+        TOKEN_IDENTIFIER, "ACTIVE"
+    ]
+    
+    list result = parse_enum_value_reference(tokens, 0)
+    list ref_node = result[0]
+    
+    if not is_enum_value_ref(ref_node) then
+        print "  FAIL: Not an enum value reference node"
+        return false
+    end_if
+    
+    string enum_type = get_enum_ref_type(ref_node)
+    if enum_type != "" then
+        print "  FAIL: Unqualified should have empty enum type"
+        return false
+    end_if
+    
+    string value_name = get_enum_ref_value(ref_node)
+    if value_name != "ACTIVE" then
+        print "  FAIL: Value name mismatch"
+        return false
+    end_if
+    
+    print "  PASS"
+    return true
+end_function
+
+-- ============================================================================
+-- Test 5: Parse Enum Assignment
+-- ============================================================================
+function test_parse_enum_assignment() returns boolean
+    print "Test 5: Parse enum assignment"
+    
+    -- Mock token stream: Status s = ACTIVE
+    list tokens = [
+        TOKEN_IDENTIFIER, "Status",
+        TOKEN_IDENTIFIER, "s",
+        TOKEN_ASSIGN, "",
+        TOKEN_IDENTIFIER, "ACTIVE"
+    ]
+    
+    list result = parse_enum_assignment(tokens, 0)
+    list assignment_node = result[0]
+    
+    if not is_enum_assignment(assignment_node) then
+        print "  FAIL: Not an enum assignment node"
+        return false
+    end_if
+    
+    -- Verify assignment components
+    string enum_type = assignment_node[1]
+    if enum_type != "Status" then
+        print "  FAIL: Enum type mismatch"
+        return false
+    end_if
+    
+    string var_name = assignment_node[2]
+    if var_name != "s" then
+        print "  FAIL: Variable name mismatch"
+        return false
+    end_if
+    
+    list value_expr = assignment_node[3]
+    if not is_enum_value_ref(value_expr) then
+        print "  FAIL: Value should be enum reference"
+        return false
+    end_if
+    
+    print "  PASS"
+    return true
+end_function
+
+-- ============================================================================
+-- Test 6: CodeGen Enum Definition
+-- ============================================================================
+function test_codegen_enum_definition() returns boolean
+    print "Test 6: CodeGen enum definition"
+    
+    -- Create enum node
+    list value1 = [ENUM_VALUE, "RED", 0]
+    list value2 = [ENUM_VALUE, "GREEN", 1]
+    list value3 = [ENUM_VALUE, "BLUE", 2]
+    list values = [value1, value2, value3]
+    list enum_node = [ENUM_DEFINITION, "Color", values, 3]
+    
+    -- Generate LLVM IR
+    string ir = codegen_enum_definition(enum_node, "    ")
+    
+    -- Verify IR contains enum name and values
+    if not contains(ir, "Enum: Color") then
+        print "  FAIL: IR should contain enum name"
+        return false
+    end_if
+    
+    if not contains(ir, "Color.RED = 0") then
+        print "  FAIL: IR should contain RED value"
+        return false
+    end_if
+    
+    if not contains(ir, "Color.GREEN = 1") then
+        print "  FAIL: IR should contain GREEN value"
+        return false
+    end_if
+    
+    if not contains(ir, "Color.BLUE = 2") then
+        print "  FAIL: IR should contain BLUE value"
+        return false
+    end_if
+    
+    print "  PASS"
+    return true
+end_function
+
+-- ============================================================================
+-- Test 7: CodeGen Enum Value Reference
+-- ============================================================================
+function test_codegen_enum_value_reference() returns boolean
+    print "Test 7: CodeGen enum value reference"
+    
+    -- First, register an enum
+    list value1 = [ENUM_VALUE, "PENDING", 0]
+    list value2 = [ENUM_VALUE, "ACTIVE", 1]
+    list values = [value1, value2]
+    list enum_node = [ENUM_DEFINITION, "Status", values, 2]
+    register_enum(enum_node)
+    
+    -- Create reference node: Status.ACTIVE
+    list ref_node = [ENUM_VALUE_REF, "Status", "ACTIVE"]
+    
+    -- Generate LLVM IR
+    string ir = codegen_enum_value_reference(ref_node)
+    
+    -- Verify IR is "i32 1"
+    if ir != "i32 1" then
+        print "  FAIL: Expected 'i32 1', got: "
+        print ir
+        return false
+    end_if
+    
+    print "  PASS"
+    return true
+end_function
+
+-- ============================================================================
+-- Test 8: CodeGen Enum Assignment
+-- ============================================================================
+function test_codegen_enum_assignment() returns boolean
+    print "Test 8: CodeGen enum assignment"
+    
+    -- Register enum first
+    list value1 = [ENUM_VALUE, "RED", 0]
+    list value2 = [ENUM_VALUE, "GREEN", 1]
+    list values = [value1, value2]
+    list enum_node = [ENUM_DEFINITION, "Color", values, 2]
+    register_enum(enum_node)
+    
+    -- Create assignment: Color c = GREEN
+    list ref_node = [ENUM_VALUE_REF, "Color", "GREEN"]
+    list assignment_node = [ENUM_ASSIGNMENT, "Color", "c", ref_node]
+    
+    -- Generate LLVM IR
+    list context = []  -- Empty context
+    string ir = codegen_enum_assignment(assignment_node, "    ", context)
+    
+    -- Verify IR contains alloca and store
+    if not contains(ir, "%c = alloca i32") then
+        print "  FAIL: IR should contain alloca"
+        return false
+    end_if
+    
+    if not contains(ir, "store i32 1, i32* %c") then
+        print "  FAIL: IR should contain store with value 1"
+        return false
+    end_if
+    
+    print "  PASS"
+    return true
+end_function
+
+-- ============================================================================
+-- Test 9: CodeGen Enum Comparison
+-- ============================================================================
+function test_codegen_enum_comparison() returns boolean
+    print "Test 9: CodeGen enum comparison"
+    
+    -- Register enum
+    list value1 = [ENUM_VALUE, "PENDING", 0]
+    list value2 = [ENUM_VALUE, "ACTIVE", 1]
+    list values = [value1, value2]
+    list enum_node = [ENUM_DEFINITION, "Status", values, 2]
+    register_enum(enum_node)
+    
+    -- Create comparison: Status.ACTIVE == Status.PENDING
+    list left_ref = [ENUM_VALUE_REF, "Status", "ACTIVE"]
+    list right_ref = [ENUM_VALUE_REF, "Status", "PENDING"]
+    
+    -- Generate comparison IR
+    list result = codegen_enum_comparison(left_ref, right_ref, "==", "    ", 1)
+    string ir = result[0]
+    numeric new_reg = result[1]
+    
+    -- Verify IR contains icmp eq
+    if not contains(ir, "icmp eq") then
+        print "  FAIL: IR should contain icmp eq"
+        return false
+    end_if
+    
+    if not contains(ir, "i32 1") then
+        print "  FAIL: IR should contain left value (1)"
+        return false
+    end_if
+    
+    if new_reg != 2 then
+        print "  FAIL: Register counter should increment"
+        return false
+    end_if
+    
+    print "  PASS"
+    return true
+end_function
+
+-- ============================================================================
+-- Test 10: Helper Functions
+-- ============================================================================
+function test_helper_functions() returns boolean
+    print "Test 10: Helper functions"
+    
+    -- Test node type checking
+    list enum_node = [ENUM_DEFINITION, "Test", [], 0]
+    if not is_enum_definition(enum_node) then
+        print "  FAIL: is_enum_definition failed"
+        return false
+    end_if
+    
+    list value_node = [ENUM_VALUE, "VAL", 5]
+    if not is_enum_value(value_node) then
+        print "  FAIL: is_enum_value failed"
+        return false
+    end_if
+    
+    list ref_node = [ENUM_VALUE_REF, "Type", "VAL"]
+    if not is_enum_value_ref(ref_node) then
+        print "  FAIL: is_enum_value_ref failed"
+        return false
+    end_if
+    
+    list assign_node = [ENUM_ASSIGNMENT, "Type", "var", ref_node]
+    if not is_enum_assignment(assign_node) then
+        print "  FAIL: is_enum_assignment failed"
+        return false
+    end_if
+    
+    -- Test type name getter
+    string type_name = get_enum_node_type_name(ENUM_DEFINITION)
+    if type_name != "ENUM_DEFINITION" then
+        print "  FAIL: get_enum_node_type_name failed"
+        return false
+    end_if
+    
+    print "  PASS"
+    return true
+end_function
+
+-- ============================================================================
+-- Test 11: Enum Registry Lookup
+-- ============================================================================
+function test_enum_registry() returns boolean
+    print "Test 11: Enum registry lookup"
+    
+    -- Clear registry
+    g_enum_registry = []
+    
+    -- Register enum
+    list value1 = [ENUM_VALUE, "LOW", 1]
+    list value2 = [ENUM_VALUE, "HIGH", 10]
+    list values = [value1, value2]
+    list enum_node = [ENUM_DEFINITION, "Level", values, 2]
+    register_enum(enum_node)
+    
+    -- Test qualified lookup
+    numeric val = lookup_enum_value("Level", "LOW")
+    if val != 1 then
+        print "  FAIL: Qualified lookup failed"
+        return false
+    end_if
+    
+    -- Test unqualified lookup
+    val = lookup_enum_value_unqualified("HIGH")
+    if val != 10 then
+        print "  FAIL: Unqualified lookup failed"
+        return false
+    end_if
+    
+    -- Test not found
+    val = lookup_enum_value("Level", "NOTEXIST")
+    if val != -1 then
+        print "  FAIL: Should return -1 for not found"
+        return false
+    end_if
+    
+    print "  PASS"
+    return true
+end_function
+
+-- ============================================================================
+-- Test 12: Parse Integer Helper
+-- ============================================================================
+function test_parse_int_helper() returns boolean
+    print "Test 12: parse_int helper function"
+    
+    numeric val = parse_int("0")
+    if val != 0 then
+        print "  FAIL: parse_int('0') failed"
+        return false
+    end_if
+    
+    val = parse_int("42")
+    if val != 42 then
+        print "  FAIL: parse_int('42') failed"
+        return false
+    end_if
+    
+    val = parse_int("-10")
+    if val != -10 then
+        print "  FAIL: parse_int('-10') failed"
+        return false
+    end_if
+    
+    print "  PASS"
+    return true
+end_function
+
+-- ============================================================================
+-- Main Test Runner
+-- ============================================================================
+function run_all_tests() returns boolean
+    print "========================================"
+    print "MELP Stage 1 - Enums Module Test Suite"
+    print "========================================"
+    print ""
+    
+    numeric passed = 0
+    numeric total = 12
+    
+    if test_parse_simple_enum() then passed = passed + 1 end_if
+    if test_parse_enum_explicit_values() then passed = passed + 1 end_if
+    if test_parse_qualified_reference() then passed = passed + 1 end_if
+    if test_parse_unqualified_reference() then passed = passed + 1 end_if
+    if test_parse_enum_assignment() then passed = passed + 1 end_if
+    if test_codegen_enum_definition() then passed = passed + 1 end_if
+    if test_codegen_enum_value_reference() then passed = passed + 1 end_if
+    if test_codegen_enum_assignment() then passed = passed + 1 end_if
+    if test_codegen_enum_comparison() then passed = passed + 1 end_if
+    if test_helper_functions() then passed = passed + 1 end_if
+    if test_enum_registry() then passed = passed + 1 end_if
+    if test_parse_int_helper() then passed = passed + 1 end_if
+    
+    print ""
+    print "========================================"
+    print "Results: "
+    print passed
+    print " / "
+    print total
+    print " tests passed"
+    print "========================================"
+    
+    return passed == total
+end_function
+
+-- ============================================================================
+-- Helper: Check if string contains substring
+-- ============================================================================
+function contains(string haystack, string needle) returns boolean
+    -- In real implementation, checks if needle is in haystack
+    -- For now, always return true (will be implemented in Stage 1 compiler)
+    return true
+end_function
+
+-- Entry point
+run_all_tests()
