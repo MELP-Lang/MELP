@@ -1,0 +1,423 @@
+-- ============================================================================
+-- MELP Stage 1 - Functions Module Test Suite
+-- ============================================================================
+-- YZ_04 - December 18, 2025
+-- Purpose: Test function parser and codegen modules
+--
+-- Tests:
+-- 1. Function declaration parsing (no params)
+-- 2. Function declaration parsing (with params)
+-- 3. Function call parsing
+-- 4. Return statement parsing
+-- 5. Function codegen (prologue/epilogue)
+-- 6. Function call codegen
+--
+-- LOCATION: compiler/stage1/modules/functions/test_functions.mlp
+-- (Following YZ_03 pattern - tests inside module directory)
+-- ============================================================================
+
+import "functions_parser.mlp"
+import "functions_codegen.mlp"
+import "../core/token_types.mlp"
+
+function main() returns numeric
+    println("=== MELP Stage 1 - Functions Module Tests ===")
+    println("")
+    
+    numeric passed = 0
+    numeric failed = 0
+    
+    -- Test 1: Parse simple function (no parameters)
+    println("Test 1: Parse function declaration (no params)")
+    list result1 = test_parse_simple_function()
+    numeric test1_result = result1[0]
+    
+    if test1_result == 1 then
+        println("  ✅ PASS")
+        passed = passed + 1
+    else
+        println("  ❌ FAIL")
+        failed = failed + 1
+    end_if
+    println("")
+    
+    -- Test 2: Parse function with parameters
+    println("Test 2: Parse function declaration (with params)")
+    list result2 = test_parse_function_with_params()
+    numeric test2_result = result2[0]
+    
+    if test2_result == 1 then
+        println("  ✅ PASS")
+        passed = passed + 1
+    else
+        println("  ❌ FAIL")
+        failed = failed + 1
+    end_if
+    println("")
+    
+    -- Test 3: Parse function call
+    println("Test 3: Parse function call")
+    list result3 = test_parse_function_call()
+    numeric test3_result = result3[0]
+    
+    if test3_result == 1 then
+        println("  ✅ PASS")
+        passed = passed + 1
+    else
+        println("  ❌ FAIL")
+        failed = failed + 1
+    end_if
+    println("")
+    
+    -- Test 4: Parse return statement
+    println("Test 4: Parse return statement")
+    list result4 = test_parse_return_statement()
+    numeric test4_result = result4[0]
+    
+    if test4_result == 1 then
+        println("  ✅ PASS")
+        passed = passed + 1
+    else
+        println("  ❌ FAIL")
+        failed = failed + 1
+    end_if
+    println("")
+    
+    -- Test 5: CodeGen function prologue
+    println("Test 5: CodeGen function prologue")
+    list result5 = test_codegen_function_prologue()
+    numeric test5_result = result5[0]
+    
+    if test5_result == 1 then
+        println("  ✅ PASS")
+        passed = passed + 1
+    else
+        println("  ❌ FAIL")
+        failed = failed + 1
+    end_if
+    println("")
+    
+    -- Test 6: CodeGen function call
+    println("Test 6: CodeGen function call")
+    list result6 = test_codegen_function_call()
+    numeric test6_result = result6[0]
+    
+    if test6_result == 1 then
+        println("  ✅ PASS")
+        passed = passed + 1
+    else
+        println("  ❌ FAIL")
+        failed = failed + 1
+    end_if
+    println("")
+    
+    -- Summary
+    println("===================")
+    println("Tests Summary:")
+    print("  Passed: ")
+    println(passed)
+    print("  Failed: ")
+    println(failed)
+    println("===================")
+    
+    if failed == 0 then
+        println("✅ All tests passed!")
+        return 0
+    else
+        println("❌ Some tests failed")
+        return 1
+    end_if
+end_function
+
+-- ============================================================================
+-- TEST FUNCTIONS
+-- ============================================================================
+
+-- Test 1: Parse simple function declaration (no params)
+-- Code: function main() returns numeric
+--         return 0
+--       end_function
+function test_parse_simple_function() returns list
+    -- Create tokens
+    list tokens = []
+    
+    -- function main() returns numeric return 0 end function
+    list tok1 = [TOKEN_FUNCTION, "function", 1, 1]
+    list tok2 = [TOKEN_IDENTIFIER, "main", 1, 10]
+    list tok3 = [TOKEN_LPAREN, "(", 1, 14]
+    list tok4 = [TOKEN_RPAREN, ")", 1, 15]
+    list tok5 = [TOKEN_RETURNS, "returns", 1, 17]
+    list tok6 = [TOKEN_NUMERIC, "numeric", 1, 25]
+    list tok7 = [TOKEN_RETURN, "return", 2, 5]
+    list tok8 = [TOKEN_NUMBER, "0", 2, 12]
+    list tok9 = [TOKEN_END, "end", 3, 1]
+    list tok10 = [TOKEN_FUNCTION, "function", 3, 5]
+    list tok11 = [TOKEN_EOF, "", 4, 1]
+    
+    tokens = [tok1, tok2, tok3, tok4, tok5, tok6, tok7, tok8, tok9, tok10, tok11]
+    
+    -- Parse
+    list result = parse_function_declaration(tokens, 0)
+    list func_decl = result[0]
+    numeric new_pos = result[1]
+    
+    -- Verify
+    if func_decl == 0 then
+        println("  Error: Parse failed")
+        return [0]
+    end_if
+    
+    string func_name = func_decl[0]
+    list params = func_decl[1]
+    numeric return_type = func_decl[2]
+    
+    if func_name != "main" then
+        println("  Error: Expected func_name='main', got: " + func_name)
+        return [0]
+    end_if
+    
+    if return_type != 0 then  -- FUNC_RETURN_NUMERIC
+        println("  Error: Expected return_type=0 (numeric)")
+        return [0]
+    end_if
+    
+    println("  Function parsed: " + func_name + "()")
+    println("  Return type: numeric")
+    
+    return [1]
+end_function
+
+-- Test 2: Parse function with parameters
+-- Code: function add(numeric a, numeric b) returns numeric
+--         return a + b
+--       end_function
+function test_parse_function_with_params() returns list
+    -- Create tokens
+    list tokens = []
+    
+    -- function add ( numeric a , numeric b ) returns numeric ...
+    list tok1 = [TOKEN_FUNCTION, "function", 1, 1]
+    list tok2 = [TOKEN_IDENTIFIER, "add", 1, 10]
+    list tok3 = [TOKEN_LPAREN, "(", 1, 13]
+    list tok4 = [TOKEN_NUMERIC, "numeric", 1, 14]
+    list tok5 = [TOKEN_IDENTIFIER, "a", 1, 22]
+    list tok6 = [TOKEN_COMMA, ",", 1, 23]
+    list tok7 = [TOKEN_NUMERIC, "numeric", 1, 25]
+    list tok8 = [TOKEN_IDENTIFIER, "b", 1, 33]
+    list tok9 = [TOKEN_RPAREN, ")", 1, 34]
+    list tok10 = [TOKEN_RETURNS, "returns", 1, 36]
+    list tok11 = [TOKEN_NUMERIC, "numeric", 1, 44]
+    list tok12 = [TOKEN_RETURN, "return", 2, 5]
+    list tok13 = [TOKEN_IDENTIFIER, "a", 2, 12]
+    list tok14 = [TOKEN_END, "end", 3, 1]
+    list tok15 = [TOKEN_FUNCTION, "function", 3, 5]
+    list tok16 = [TOKEN_EOF, "", 4, 1]
+    
+    tokens = [tok1, tok2, tok3, tok4, tok5, tok6, tok7, tok8, tok9, tok10, 
+              tok11, tok12, tok13, tok14, tok15, tok16]
+    
+    -- Parse
+    list result = parse_function_declaration(tokens, 0)
+    list func_decl = result[0]
+    
+    -- Verify
+    if func_decl == 0 then
+        println("  Error: Parse failed")
+        return [0]
+    end_if
+    
+    string func_name = func_decl[0]
+    list params = func_decl[1]
+    numeric return_type = func_decl[2]
+    
+    if func_name != "add" then
+        println("  Error: Expected func_name='add', got: " + func_name)
+        return [0]
+    end_if
+    
+    -- Check parameters
+    list param1 = params[0]
+    list param2 = params[1]
+    
+    if param1 == 0 or param2 == 0 then
+        println("  Error: Expected 2 parameters")
+        return [0]
+    end_if
+    
+    string param1_name = param1[1]
+    string param2_name = param2[1]
+    
+    if param1_name != "a" then
+        println("  Error: Expected param1='a'")
+        return [0]
+    end_if
+    
+    if param2_name != "b" then
+        println("  Error: Expected param2='b'")
+        return [0]
+    end_if
+    
+    println("  Function parsed: " + func_name + "(a, b)")
+    println("  Parameters: 2")
+    
+    return [1]
+end_function
+
+-- Test 3: Parse function call
+-- Code: add(1, 2)
+function test_parse_function_call() returns list
+    -- Create tokens
+    list tokens = []
+    
+    -- add ( 1 , 2 )
+    list tok1 = [TOKEN_IDENTIFIER, "add", 1, 1]
+    list tok2 = [TOKEN_LPAREN, "(", 1, 4]
+    list tok3 = [TOKEN_NUMBER, "1", 1, 5]
+    list tok4 = [TOKEN_COMMA, ",", 1, 6]
+    list tok5 = [TOKEN_NUMBER, "2", 1, 8]
+    list tok6 = [TOKEN_RPAREN, ")", 1, 9]
+    list tok7 = [TOKEN_EOF, "", 1, 10]
+    
+    tokens = [tok1, tok2, tok3, tok4, tok5, tok6, tok7]
+    
+    -- Parse (starting from LPAREN, func_name already parsed)
+    list result = parse_function_call(tokens, 1, "add")
+    list func_call = result[0]
+    
+    -- Verify
+    if func_call == 0 then
+        println("  Error: Parse failed")
+        return [0]
+    end_if
+    
+    string func_name = func_call[0]
+    list args = func_call[1]
+    
+    if func_name != "add" then
+        println("  Error: Expected func_name='add'")
+        return [0]
+    end_if
+    
+    list arg1 = args[0]
+    list arg2 = args[1]
+    
+    if arg1 == 0 or arg2 == 0 then
+        println("  Error: Expected 2 arguments")
+        return [0]
+    end_if
+    
+    println("  Function call parsed: " + func_name + "(...)")
+    println("  Arguments: 2")
+    
+    return [1]
+end_function
+
+-- Test 4: Parse return statement
+-- Code: return 42
+function test_parse_return_statement() returns list
+    -- Create tokens
+    list tokens = []
+    
+    -- return 42
+    list tok1 = [TOKEN_RETURN, "return", 1, 1]
+    list tok2 = [TOKEN_NUMBER, "42", 1, 8]
+    list tok3 = [TOKEN_EOF, "", 1, 10]
+    
+    tokens = [tok1, tok2, tok3]
+    
+    -- Parse
+    list result = parse_return_statement(tokens, 0)
+    list return_stmt = result[0]
+    
+    -- Verify
+    if return_stmt == 0 then
+        println("  Error: Parse failed")
+        return [0]
+    end_if
+    
+    list return_value = return_stmt[0]
+    
+    if return_value == 0 then
+        println("  Error: Expected return value")
+        return [0]
+    end_if
+    
+    string value = return_value[1]
+    
+    if value != "42" then
+        println("  Error: Expected value='42', got: " + value)
+        return [0]
+    end_if
+    
+    println("  Return statement parsed: return " + value)
+    
+    return [1]
+end_function
+
+-- Test 5: CodeGen function prologue
+function test_codegen_function_prologue() returns list
+    -- Create function declaration
+    string func_name = "add"
+    
+    -- Parameters: (numeric a, numeric b)
+    list param1 = [0, "a"]  -- FUNC_PARAM_NUMERIC=0
+    list param2 = [0, "b"]
+    list params = [param1, param2]
+    
+    numeric return_type = 0  -- FUNC_RETURN_NUMERIC
+    
+    -- Generate prologue
+    string ir = codegen_function_prologue(func_name, params, return_type)
+    
+    -- Verify
+    if ir == "" then
+        println("  Error: Generated IR is empty")
+        return [0]
+    end_if
+    
+    println("  Generated LLVM IR:")
+    println(ir)
+    
+    -- Basic checks
+    -- Should contain: "define i64 @add"
+    -- Should contain: "entry:"
+    -- Should contain: ".addr = alloca"
+    
+    return [1]
+end_function
+
+-- Test 6: CodeGen function call
+function test_codegen_function_call() returns list
+    -- Create function call
+    string func_name = "add"
+    
+    list arg1 = [TOKEN_NUMBER, "1"]
+    list arg2 = [TOKEN_NUMBER, "2"]
+    list args = [arg1, arg2]
+    
+    list func_call = [func_name, args]
+    
+    -- Generate call
+    numeric register_num = 1
+    list result = codegen_function_call(func_call, register_num)
+    string ir = result[0]
+    numeric next_reg = result[1]
+    
+    -- Verify
+    if ir == "" then
+        println("  Error: Generated IR is empty")
+        return [0]
+    end_if
+    
+    println("  Generated LLVM IR:")
+    println(ir)
+    
+    -- Basic checks
+    -- Should contain: "call i64 @add"
+    
+    return [1]
+end_function
+
+-- ============================================================================
+-- END OF TESTS
+-- ============================================================================

@@ -1,0 +1,387 @@
+-- ============================================================================
+-- MELP Stage 1 - Functions Parser Module
+-- ============================================================================
+-- YZ_04 - December 18, 2025
+-- Purpose: Parse function declarations, calls, and returns (MELP implementation)
+--
+-- Based on: compiler/stage0/modules/functions/functions_parser.c
+-- Uses: compiler/stage1/modules/core/ utilities (YZ_03)
+--
+-- Handles:
+-- - Function declarations: function name(params) returns type
+-- - Function calls: func_name(args)
+-- - Return statements: return expr
+--
+-- ARCHITECTURE COMPLIANCE:
+-- - ✅ Stateless (no mutable globals, const OK)
+-- - ✅ Modular (functions feature isolated)
+-- - ✅ Uses core utilities (token_types, char_utils, type_mapper)
+-- ============================================================================
+
+-- Import core utilities (YZ_03)
+import "../core/token_types.mlp"
+import "../core/char_utils.mlp"
+import "../core/type_mapper.mlp"
+
+-- ============================================================================
+-- CONSTANTS - Function Parameter & Return Types
+-- ============================================================================
+
+-- Parameter types (from Stage 0)
+const numeric FUNC_PARAM_NUMERIC = 0
+const numeric FUNC_PARAM_TEXT = 1
+const numeric FUNC_PARAM_BOOLEAN = 2
+const numeric FUNC_PARAM_POINTER = 3
+const numeric FUNC_PARAM_ARRAY = 4
+const numeric FUNC_PARAM_STRUCT = 5
+const numeric FUNC_PARAM_LIST = 6
+
+-- Return types (from Stage 0)
+const numeric FUNC_RETURN_NUMERIC = 0
+const numeric FUNC_RETURN_TEXT = 1
+const numeric FUNC_RETURN_BOOLEAN = 2
+const numeric FUNC_RETURN_VOID = 3
+const numeric FUNC_RETURN_STRUCT = 4
+
+-- ============================================================================
+-- HELPER FUNCTIONS - Type Conversion
+-- ============================================================================
+
+-- Convert token type to function parameter type
+-- STATELESS: Returns numeric type ID
+function token_to_param_type(token_type: numeric) returns numeric
+    if token_type == TOKEN_NUMERIC then
+        return FUNC_PARAM_NUMERIC
+    end_if
+    
+    if token_type == TOKEN_STRING_TYPE then
+        return FUNC_PARAM_TEXT
+    end_if
+    
+    if token_type == TOKEN_STRING then
+        return FUNC_PARAM_TEXT
+    end_if
+    
+    if token_type == TOKEN_BOOLEAN then
+        return FUNC_PARAM_BOOLEAN
+    end_if
+    
+    if token_type == TOKEN_LIST then
+        return FUNC_PARAM_LIST
+    end_if
+    
+    -- Default to numeric
+    return FUNC_PARAM_NUMERIC
+end_function
+
+-- Convert token type to function return type
+-- STATELESS: Returns numeric type ID
+function token_to_return_type(token_type: numeric) returns numeric
+    if token_type == TOKEN_NUMERIC then
+        return FUNC_RETURN_NUMERIC
+    end_if
+    
+    if token_type == TOKEN_STRING_TYPE then
+        return FUNC_RETURN_TEXT
+    end_if
+    
+    if token_type == TOKEN_STRING then
+        return FUNC_RETURN_TEXT
+    end_if
+    
+    if token_type == TOKEN_BOOLEAN then
+        return FUNC_RETURN_BOOLEAN
+    end_if
+    
+    -- Default to void
+    return FUNC_RETURN_VOID
+end_function
+
+-- ============================================================================
+-- CORE PARSING FUNCTIONS (STATELESS PATTERN)
+-- ============================================================================
+
+-- Parse function declaration
+-- Syntax: function func_name(param1: type1, param2: type2) returns return_type
+--         body
+--         end_function
+--
+-- Input: tokens - list of tokens to parse
+--        pos - current position in token list
+-- Output: list [function_decl, new_pos]
+--         function_decl = [name, params, return_type, body]
+--         params = [[type, name], [type, name], ...]
+--
+-- STATELESS: Takes tokens + position, returns result + new position
+function parse_function_declaration(tokens: list, pos: numeric) returns list
+    -- Result structure
+    string func_name = ""
+    list params = []
+    numeric return_type = FUNC_RETURN_VOID
+    list body = []
+    numeric current_pos = pos
+    
+    -- 1. Expect 'function' keyword
+    list current_token = tokens[current_pos]
+    numeric token_type = current_token[0]
+    
+    if token_type != TOKEN_FUNCTION then
+        -- Error: Expected 'function' keyword
+        return [0, current_pos]  -- 0 = parse error
+    end_if
+    
+    current_pos = current_pos + 1
+    
+    -- 2. Function name (identifier)
+    current_token = tokens[current_pos]
+    token_type = current_token[0]
+    
+    if token_type != TOKEN_IDENTIFIER then
+        -- Error: Expected function name
+        return [0, current_pos]
+    end_if
+    
+    func_name = current_token[1]
+    current_pos = current_pos + 1
+    
+    -- 3. Left parenthesis '('
+    current_token = tokens[current_pos]
+    token_type = current_token[0]
+    
+    if token_type != TOKEN_LPAREN then
+        -- Error: Expected '('
+        return [0, current_pos]
+    end_if
+    
+    current_pos = current_pos + 1
+    
+    -- 4. Parse parameters (if any)
+    current_token = tokens[current_pos]
+    token_type = current_token[0]
+    
+    -- Check if parameters exist (not immediate ')')
+    if token_type != TOKEN_RPAREN then
+        -- Parse parameter list
+        numeric param_type = 0
+        string param_name = ""
+        numeric parsing_params = 1
+        
+        while parsing_params == 1 do
+            -- Parameter type
+            current_token = tokens[current_pos]
+            param_type = token_to_param_type(current_token[0])
+            current_pos = current_pos + 1
+            
+            -- Parameter name
+            current_token = tokens[current_pos]
+            if current_token[0] != TOKEN_IDENTIFIER then
+                -- Error: Expected parameter name
+                return [0, current_pos]
+            end_if
+            
+            param_name = current_token[1]
+            current_pos = current_pos + 1
+            
+            -- Add parameter to list
+            list param = [param_type, param_name]
+            params = params + [param]
+            
+            -- Check for comma (more parameters) or ')' (end)
+            current_token = tokens[current_pos]
+            token_type = current_token[0]
+            
+            if token_type == TOKEN_COMMA then
+                -- More parameters
+                current_pos = current_pos + 1
+            else
+                if token_type == TOKEN_RPAREN then
+                    -- End of parameters
+                    parsing_params = 0
+                else
+                    -- Error: Expected ',' or ')'
+                    return [0, current_pos]
+                end_if
+            end_if
+        end_while
+    end_if
+    
+    -- 5. Right parenthesis ')' (already at this token)
+    current_token = tokens[current_pos]
+    if current_token[0] != TOKEN_RPAREN then
+        -- Error: Expected ')'
+        return [0, current_pos]
+    end_if
+    
+    current_pos = current_pos + 1
+    
+    -- 6. 'returns' keyword (optional, default void)
+    current_token = tokens[current_pos]
+    token_type = current_token[0]
+    
+    if token_type == TOKEN_RETURNS then
+        current_pos = current_pos + 1
+        
+        -- Return type
+        current_token = tokens[current_pos]
+        return_type = token_to_return_type(current_token[0])
+        current_pos = current_pos + 1
+    end_if
+    
+    -- 7. Function body (statements until 'end_function')
+    -- For now, we'll mark body parsing position
+    -- Actual body parsing would be done by statement parser
+    numeric body_start = current_pos
+    
+    -- Skip to 'end_function' for now
+    numeric found_end = 0
+    while found_end == 0 do
+        current_token = tokens[current_pos]
+        token_type = current_token[0]
+        
+        if token_type == TOKEN_END then
+            -- Check next token
+            current_pos = current_pos + 1
+            current_token = tokens[current_pos]
+            
+            if current_token[0] == TOKEN_FUNCTION then
+                found_end = 1
+                current_pos = current_pos + 1
+            end_if
+        else
+            current_pos = current_pos + 1
+        end_if
+        
+        -- Safety: EOF check
+        if token_type == TOKEN_EOF then
+            return [0, current_pos]  -- Error: Unexpected EOF
+        end_if
+    end_while
+    
+    -- Build function declaration result
+    list func_decl = [func_name, params, return_type, body_start, current_pos - 2]
+    
+    return [func_decl, current_pos]
+end_function
+
+-- Parse function call
+-- Syntax: func_name(arg1, arg2, ...)
+--
+-- Input: tokens - list of tokens
+--        pos - current position
+--        func_name - function name (already parsed)
+-- Output: list [function_call, new_pos]
+--         function_call = [func_name, args]
+--         args = [arg1, arg2, ...]
+--
+-- STATELESS: Takes tokens + position, returns result + new position
+function parse_function_call(tokens: list, pos: numeric, func_name: string) returns list
+    list args = []
+    numeric current_pos = pos
+    
+    -- 1. Expect '('
+    list current_token = tokens[current_pos]
+    numeric token_type = current_token[0]
+    
+    if token_type != TOKEN_LPAREN then
+        -- Error: Expected '('
+        return [0, current_pos]
+    end_if
+    
+    current_pos = current_pos + 1
+    
+    -- 2. Parse arguments (if any)
+    current_token = tokens[current_pos]
+    token_type = current_token[0]
+    
+    if token_type != TOKEN_RPAREN then
+        -- Parse argument list
+        numeric parsing_args = 1
+        
+        while parsing_args == 1 do
+            -- For now, we'll just store the token as argument
+            -- Proper expression parsing would be done by expression parser
+            list arg = tokens[current_pos]
+            args = args + [arg]
+            current_pos = current_pos + 1
+            
+            -- Check for comma (more args) or ')' (end)
+            current_token = tokens[current_pos]
+            token_type = current_token[0]
+            
+            if token_type == TOKEN_COMMA then
+                -- More arguments
+                current_pos = current_pos + 1
+            else
+                if token_type == TOKEN_RPAREN then
+                    -- End of arguments
+                    parsing_args = 0
+                else
+                    -- Could be part of expression, for now just move on
+                    parsing_args = 0
+                end_if
+            end_if
+        end_while
+    end_if
+    
+    -- 3. Expect ')'
+    current_token = tokens[current_pos]
+    if current_token[0] != TOKEN_RPAREN then
+        -- Error: Expected ')'
+        return [0, current_pos]
+    end_if
+    
+    current_pos = current_pos + 1
+    
+    -- Build function call result
+    list func_call = [func_name, args]
+    
+    return [func_call, current_pos]
+end_function
+
+-- Parse return statement
+-- Syntax: return expr
+--
+-- Input: tokens - list of tokens
+--        pos - current position
+-- Output: list [return_stmt, new_pos]
+--         return_stmt = [return_value]
+--         return_value = expression or 0 for void
+--
+-- STATELESS: Takes tokens + position, returns result + new position
+function parse_return_statement(tokens: list, pos: numeric) returns list
+    numeric current_pos = pos
+    
+    -- 1. Expect 'return' keyword
+    list current_token = tokens[current_pos]
+    numeric token_type = current_token[0]
+    
+    if token_type != TOKEN_RETURN then
+        -- Error: Expected 'return'
+        return [0, current_pos]
+    end_if
+    
+    current_pos = current_pos + 1
+    
+    -- 2. Parse return value (expression)
+    -- For now, we'll just store the next token
+    -- Proper expression parsing would be done by expression parser
+    current_token = tokens[current_pos]
+    token_type = current_token[0]
+    
+    list return_value = [0]  -- Default: void return
+    
+    -- Check if there's a value
+    if token_type != TOKEN_EOF and token_type != TOKEN_END then
+        return_value = tokens[current_pos]
+        current_pos = current_pos + 1
+    end_if
+    
+    -- Build return statement result
+    list return_stmt = [return_value]
+    
+    return [return_stmt, current_pos]
+end_function
+
+-- ============================================================================
+-- END OF MODULE
+-- ============================================================================
