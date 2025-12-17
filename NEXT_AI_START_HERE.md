@@ -1,109 +1,100 @@
-# 🚀 NEXT AI START HERE - YZ_01
+# 🚀 NEXT AI START HERE - SEN YZ_03'SÜN!
 
-**Son Güncelleme:** 17 Aralık 2025  
-**Güncelleyen:** YZ_01 (İlk AI - Modüler yeniden yapılandırma)  
-**Dal:** `import_design_YZ_01` (oluşturulacak)  
-**Durum:** ⏳ DEVAM EDİYOR
-
----
-
-## ⚠️ ÖNEMLİ: STAGE 1 RESET!
-
-**Önceki YZ'ler Stage 1'i tamamladı ama...**
-- ❌ Monolitik yapı kullanılmış (MELP_Mimarisi.md'ye aykırı)
-- ❌ Import sistemi yok (modüler yapı imkansız)
-- ✅ 12,371 satır kod var (YENİDEN KULLANILACAK!)
-
-**Yeni Strateji:**
-1. Stage 0'a import sistemi ekle
-2. Mevcut kodu modüler yapıya dönüştür
-3. Kusursuz mimari elde et
-
-**Detaylar:** `TODO.md` dosyasına bak
+**👤 SENİN ROLÜN:** YZ_03 - Stage 0 Import Resolution & Symbol Table  
+**📅 Tarih:** 17 Aralık 2025  
+**🌿 Dal:** `import_resolution_YZ_03` (oluşturulacak)  
+**📊 Durum:** ⏸️ YZ_03 BEKLİYOR - SENİN İÇİN HAZIR!
 
 ---
 
-# 🚀 NEXT AI START HERE - YZ_02
+## 👋 MERHABA YZ_03!
 
-**Son Güncelleme:** 17 Aralık 2025, 22:30  
-**Güncelleyen:** YZ_01 (Import tasarımı tamamlandı ✅)  
-**Dal:** `import_lexer_parser_YZ_02` (oluşturulacak)  
-**Durum:** ⏸️ YZ_02'YE HAZ
+**Kullanıcıya ilk mesajın şöyle olmalı:**
 
-IR
+```
+Merhaba! Ben YZ_03'üm. 
+
+NEXT_AI_START_HERE.md ve TODO.md'yi okudum.
+Görevim: Stage 0 Import Resolution & Symbol Table
+
+TODO.md'deki görevlerimi görüyorum:
+- File resolution sistemi
+- Symbol export/import
+- Circular dependency detection
+- Test suite
+
+Başlamamı ister misiniz?
+```
 
 ---
 
-## 🎉 YZ_01 TAMAMLANDI!
+## 🎉 YZ_01 & YZ_02 TAMAMLANDI!
 
-**Harika Haber:** Stage 0'da import sistemi zaten var!
-
-YZ_01 tarafından tamamlandı:
+**YZ_01 - Import Tasarımı (✅ Tamamlandı)**
 - ✅ Import sistem tasarımı (`docs/IMPORT_SYSTEM_DESIGN.md`)
 - ✅ Stage 0 analizi (import modülü mevcut)
 - ✅ Kural güçlendirme (TODO, NEXT_AI, PROTOKOL)
 - ✅ Proje temizliği (89 dosya düzenlendi)
 
+**YZ_02 - Lexer + Parser (✅ Tamamlandı - 1 saat!)**
+- ✅ `TOKEN_IMPORT` zaten vardı
+- ✅ Parser string literal desteği eklendi
+- ✅ 3 test yazıldı ve BAŞARILI
+- ✅ Multiple imports çalışıyor
+- ✅ Import cache çalışıyor
+
+**🎊 SÜPER HABER:** Stage 0 import sistemi neredeyse TAMAMEN HAZIR!  
+YZ_02'de sadece 1 satır kod değişikliği gerekti!
+
 ---
 
-## 📍 MEVCUT DURUM
+## 📍 YZ_03'ÜN GÖREVİ
 
-### Görev: YZ_02 - Stage 0 Import: Lexer + Parser
-**Tahmini:** 4 saat  
+### Görev: Stage 0 Import Resolution & Symbol Table
+**Tahmini:** 5 saat (ama muhtemelen daha az, sistem hazır!)  
 **Durum:** ⏸️ BEKLİYOR
 
-#### Tamamlanması Gerekenler:
-- [ ] **2.1** YZ_01 raporunu oku (`YZ_Stage_1/YZ_01_RAPOR.md`)
-- [ ] **2.2** Stage 0 Lexer'a import token ekle
-  - [ ] `TOKEN_IMPORT` tanımla
-  - [ ] `import` keyword'ünü tanı
-- [ ] **2.3** Stage 0 Parser'a import parsing ekle
-  - [ ] Import statement parsing (zaten var, aktive et)
-  - [ ] Test: `import "test"` parse olmalı
-- [ ] **2.4** Test yaz
-  - [ ] `tests/stage_1_tests/test_import_syntax.mlp`
-  - [ ] Basit import parse testi
+#### Yapılacaklar:
+- [ ] **3.1** File resolution kontrol et (muhtemelen hazır)
+- [ ] **3.2** Symbol export/import kontrol et (muhtemelen hazır)
+- [ ] **3.3** Circular dependency kontrol et (muhtemelen hazır)
+- [ ] **3.4** Test suite yaz ve doğrula
 
-#### 🎯 KRİTİK KEŞİF (YZ_01):
-**Stage 0'da import sistemi ZATEN MEVCUT!** 🎉
-
-📂 **Var Olan Dosyalar:**
-```
-compiler/stage0/modules/import/
-├── import.h/c              # Ana import API
-├── import_parser.h/c       # Import ifadeleri parser'ı  
-├── import_cache.h/c        # Modül cache sistemi
-├── import_resolver.h/c     # Dosya çözümleyici
-└── import_types.h          # Tip tanımları
-```
-
-**Ne Anlama Geliyor:**
-- ❌ Sıfırdan yazma (önceki YZ'ler bilmiyordu!)
-- ✅ Sadece **aktifleştir** (TOKEN ekle, test et)
-- ✅ Module resolution çalışıyor
-- ✅ Import cache çalışıyor
-- ⏱️ YZ_02-04 süresi **yarı yarıya azaldı**
-
-**YZ_02 Görevin:**
-1. `compiler/stage0/lexer/lexer.c` → `TOKEN_IMPORT` ekle
-2. `compiler/stage0/parser/parser.c` → import_parser'ı çağır
-3. Test: `import "test"` parse etmeli
-4. **O KADAR!** Geri kalan zaten var.
+**NOT:** YZ_02'de görüldü ki sistem neredeyse tamamen hazır.  
+Sadece doğrulama ve test gerekebilir!
 
 ---
 
-## 🎯 SONRAKİ GÖREV: YZ_02
+## 🎯 YZ_03 İÇİN SONRAKİ ADIMLAR
 
-**Görev:** Stage 0 Import - Lexer + Parser  
-**Tahmini:** 4 saat
+**1. İlk Mesajın (Kullanıcıya):**
+```
+Merhaba! Ben YZ_03'üm.
 
-### Yapacakları:
-1. YZ_01 raporunu oku
-2. Stage 0 Lexer'a `TOKEN_IMPORT` ekle
-3. Import parsing (AST node)
-4. Test yaz
+TODO.md'deki görevlerimi gördüm:
+- File resolution sistemi kontrolü
+- Symbol export/import kontrolü  
+- Circular dependency testi
+- Test suite yazımı
 
-**Detaylar:** `TODO.md` > YZ_02
+YZ_02'nin notlarını okudum - import sistemi neredeyse tamamen hazır! 🎉
+
+Başlamamı ister misiniz?
+```
+
+**2. Yapman Gerekenler:**
+1. ✅ `MELP_Mimarisi.md` oku ve ONAYLA
+2. ✅ `TODO.md` oku (YZ_03 bölümü)
+3. ✅ `YZ_Stage_1/YZ_02_RAPOR.md` oku
+4. ✅ Git dalı oluştur: `git checkout -b import_resolution_YZ_03`
+5. ▶️ İşe başla!
+
+**3. YZ_02'den Önemli Notlar:**
+- ✅ Lexer tamam (`TOKEN_IMPORT` var)
+- ✅ Parser tamam (string literal desteği eklendi)
+- ✅ Import cache çalışıyor
+- ✅ Multiple imports çalışıyor
+- ⚠️ YZ_03: Resolution ve Symbol Table kontrolü gerekli
 
 ---
 

@@ -1,0 +1,11 @@
+-- ============================================================================
+-- Test Module 2 - Math utilities
+-- ============================================================================
+
+function add(numeric a, numeric b) returns numeric
+    return a + b
+end_function
+
+function multiply(numeric a, numeric b) returns numeric
+    return a * b
+end_function

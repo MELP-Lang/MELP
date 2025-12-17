@@ -4,19 +4,20 @@
 #include <stdio.h>
 
 // Parse import statement
-// Syntax: import module_name
+// Syntax: import "module_name"  (YZ_02: Updated to accept string literal)
 ImportStatement* import_parse(Lexer* lexer, Token* import_token) {
     // import_token is already consumed (TOKEN_IMPORT)
     
-    // Expect identifier (module name)
+    // Expect string literal or identifier (module name)
     Token* name_token = lexer_next_token(lexer);
     if (!name_token) {
         error_parser(import_token->line, "Expected module name after 'import'");
         return NULL;
     }
     
-    if (name_token->type != TOKEN_IDENTIFIER) {
-        error_parser(name_token->line, "Expected module name (identifier), got '%s'", 
+    // Accept both string literal and identifier for compatibility
+    if (name_token->type != TOKEN_STRING && name_token->type != TOKEN_IDENTIFIER) {
+        error_parser(name_token->line, "Expected module name (string or identifier), got '%s'", 
                      name_token->value ? name_token->value : "unknown");
         token_free(name_token);
         return NULL;

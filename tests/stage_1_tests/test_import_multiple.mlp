@@ -1,0 +1,18 @@
+-- ============================================================================
+-- Test: Multiple Imports
+-- ============================================================================
+-- Purpose: Test multiple import statements in one file
+-- Expected: Should be able to use functions from both modules
+-- ============================================================================
+
+import "test_module"
+import "math_utils"
+
+function main() returns numeric
+    numeric x = test_helper()    -- Returns 42
+    numeric y = add(10, 20)      -- Returns 30
+    numeric z = multiply(2, 5)   -- Returns 10
+    
+    -- Return sum: 42 + 30 + 10 = 82
+    return x + y + z
+end_function

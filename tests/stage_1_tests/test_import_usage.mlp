@@ -1,0 +1,13 @@
+-- ============================================================================
+-- Test: Import and Use Function
+-- ============================================================================
+-- Purpose: Test that imported functions can actually be called
+-- Expected: Should return 42 from imported function
+-- ============================================================================
+
+import "test_module"
+
+function main() returns numeric
+    numeric result = test_helper()
+    return result
+end_function

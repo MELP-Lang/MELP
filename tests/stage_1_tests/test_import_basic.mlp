@@ -1,0 +1,12 @@
+-- ============================================================================
+-- Test: Basic Import Statement
+-- ============================================================================
+-- Purpose: Test that import syntax is recognized by lexer and parser
+-- Expected: Should parse without errors
+-- ============================================================================
+
+import "test_module"
+
+function main() returns numeric
+    return 0
+end_function
