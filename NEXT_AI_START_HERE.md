@@ -148,6 +148,12 @@ ONAYLA - YZ_01:
 - [ ] Döküman hazır
 - [ ] Git commit: `git commit -m "YZ_01: Import system design"`
 - [ ] Git push: `git push origin import_design_YZ_01`
+- [ ] **TODO.md güncelle:** YZ_01'i tamamlandı işaretle
+- [ ] **NEXT_AI_START_HERE.md güncelle:** YZ_02 için hazırla
+  - [ ] Başlık değiştir: `# NEXT AI START HERE - YZ_02` → `YZ_03`
+  - [ ] YZ_02 completion notları ekle
+  - [ ] YZ_03 görevini öne çıkar
+  - [ ] Kritik bilgileri aktar
 - [ ] Rapor yaz: `YZ_Stage_1/YZ_01_RAPOR.md`
 - [ ] Bu dosyayı güncelle (NEXT_AI_START_HERE.md)
 - [ ] TODO.md'de işaretle: YZ_01 ✅
@@ -263,12 +269,34 @@ modules/
    - Test başarısız → DURDUR, kullanıcıya sor
    - Otomatik düzeltme yapma → Kullanıcı onayı al
 
-5. **Her YZ Sonunda**
-   - Rapor yaz: `YZ_Stage_1/YZ_XX_RAPOR.md`
-   - Bu dosyayı güncelle (NEXT_AI_START_HERE.md)
-   - TODO.md'de işaretle
-   - Git commit + push
-   - **Test dosyalarını temizle:** Ana dizinde test dosyası bırakma!
+5. **Her YZ Sonunda** ⚠️ **ZORUNLU ADIMLAR!**
+   
+   **Tamamlama Protokolü:**
+   ```bash
+   # 1. TODO.md'yi güncelle
+   - Kendi görevini ✅ işaretle
+   - Tamamlanma zamanı ve notları ekle
+   
+   # 2. NEXT_AI_START_HERE.md'yi güncelle
+   - Başlık değiştir: YZ_02 → YZ_03
+   - "YZ_02 TAMAMLANDI ✅" bölümü ekle
+   - YZ_03 görevini öne çıkar
+   - Kritik keşifleri/notları sonraki YZ'ye aktar
+   
+   # 3. Rapor yaz (opsiyonel ama tavsiye)
+   - YZ_Stage_1/YZ_XX_RAPOR.md
+   
+   # 4. Git commit + push
+   git add -A
+   git commit -m "YZ_XX: [Görev özeti] - Complete"
+   git push origin [dal_adi]
+   
+   # 5. Test dosyalarını temizle
+   - Ana dizinde test dosyası bırakma!
+   - tests/stage_1_tests/ kullan
+   ```
+   
+   **NEXT_AI güncellemezsen → Sonraki YZ kaybolur!**
 
 ### 📁 DİZİN KURALLARI (ÇOK ÖNEMLİ!)
 
