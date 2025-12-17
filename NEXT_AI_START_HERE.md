@@ -168,12 +168,15 @@ ONAYLA - YZ_01:
 [x] 5 Temel Prensibi anladım:
     [x] %100 Modüler (her feature = ayrı modül)
     [x] LLVM Backend (değişmez)
-    [x] Stateless (global state YASAK, const OK)
+    [x] Stateless:
+        [x] Mutable global state YASAK
+        [x] Const (compile-time, immutable) OK - Rust modeli
+        [x] Parametre geçişi kullan
     [x] STO (runtime optimization)
     [x] Struct + Functions (OOP yok)
 [x] Yasakları anladım:
     [x] Monolitik dosya YASAK
-    [x] Mutable global YASAK (const immutable OK)
+    [x] Mutable global YASAK (const immutable OK - Rust modeli)
     [x] Önceki kuralları ezme YASAK
     [x] Import olmadan modül YASAK (FAZ 2+)
     [x] Stage 0'ı bozma YASAK

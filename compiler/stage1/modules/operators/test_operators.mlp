@@ -1,0 +1,515 @@
+-- ============================================================================
+-- MELP Stage 1 - Operators Module Test Suite
+-- ============================================================================
+-- Purpose: Comprehensive tests for operators parser and codegen
+-- Author: YZ_06
+-- Date: 18 Aralık 2025
+-- Dependencies: operators_parser.mlp, operators_codegen.mlp
+-- ============================================================================
+
+import "operators_parser.mlp"
+import "operators_codegen.mlp"
+import "../core/token_types.mlp"
+
+-- ============================================================================
+-- TEST UTILITIES
+-- ============================================================================
+
+-- Print test header
+function print_test_header(string test_name)
+    println("")
+    println("==============================================")
+    println("TEST: " + test_name)
+    println("==============================================")
+end_function
+
+-- Print test result
+function print_test_result(boolean passed, string message)
+    if passed
+        println("[✓] PASS: " + message)
+    end_if
+    if not passed
+        println("[✗] FAIL: " + message)
+    end_if
+end_function
+
+-- Create token helper
+function make_token(numeric token_type, string value) returns list
+    return [token_type, value]
+end_function
+
+-- ============================================================================
+-- TEST 1: Parse Arithmetic Expression (Addition)
+-- ============================================================================
+
+function test_arithmetic_addition()
+    print_test_header("Arithmetic Addition: 5 + 3")
+    
+    -- Create tokens: 5 + 3
+    list tokens = [
+        make_token(T_NUMBER, "5"),
+        make_token(T_PLUS, "+"),
+        make_token(T_NUMBER, "3")
+    ]
+    
+    -- Parse expression
+    list result = parse_operator_expression(tokens, 0)
+    list expr = result[0]
+    numeric new_pos = result[1]
+    
+    -- Verify parse result
+    boolean parse_ok = expr != 0
+    print_test_result(parse_ok, "Expression parsed successfully")
+    
+    if parse_ok
+        numeric expr_type = get_expr_type(expr)
+        boolean is_binary = expr_type == EXPR_BINARY
+        print_test_result(is_binary, "Expression type is BINARY")
+        
+        numeric op = get_expr_operator(expr)
+        boolean is_add = op == OP_ADD
+        print_test_result(is_add, "Operator is ADD (+)")
+        
+        list left = get_expr_left(expr)
+        string left_val = get_expr_value(left)
+        boolean left_ok = left_val == "5"
+        print_test_result(left_ok, "Left operand is 5")
+        
+        list right = get_expr_right(expr)
+        string right_val = get_expr_value(right)
+        boolean right_ok = right_val == "3"
+        print_test_result(right_ok, "Right operand is 3")
+        
+        boolean pos_ok = new_pos == 3
+        print_test_result(pos_ok, "Final position correct (3)")
+        
+        -- Generate LLVM IR
+        string ir = codegen_operator_expression(expr, "")
+        boolean codegen_ok = ir != ""
+        print_test_result(codegen_ok, "LLVM IR generated")
+        
+        if codegen_ok
+            println("")
+            println("Generated LLVM IR:")
+            println(ir)
+        end_if
+    end_if
+end_function
+
+-- ============================================================================
+-- TEST 2: Parse Arithmetic Expression (Multiplication and Addition)
+-- ============================================================================
+
+function test_arithmetic_precedence()
+    print_test_header("Arithmetic Precedence: 2 + 3 * 4")
+    
+    -- Create tokens: 2 + 3 * 4
+    -- Expected: 2 + (3 * 4) due to precedence
+    list tokens = [
+        make_token(T_NUMBER, "2"),
+        make_token(T_PLUS, "+"),
+        make_token(T_NUMBER, "3"),
+        make_token(T_STAR, "*"),
+        make_token(T_NUMBER, "4")
+    ]
+    
+    -- Parse expression
+    list result = parse_operator_expression(tokens, 0)
+    list expr = result[0]
+    numeric new_pos = result[1]
+    
+    boolean parse_ok = expr != 0
+    print_test_result(parse_ok, "Expression parsed successfully")
+    
+    if parse_ok
+        -- Root should be ADD
+        numeric root_op = get_expr_operator(expr)
+        boolean root_is_add = root_op == OP_ADD
+        print_test_result(root_is_add, "Root operator is ADD (+)")
+        
+        -- Left child should be literal "2"
+        list left = get_expr_left(expr)
+        string left_val = get_expr_value(left)
+        boolean left_ok = left_val == "2"
+        print_test_result(left_ok, "Left operand is 2")
+        
+        -- Right child should be MUL (3 * 4)
+        list right = get_expr_right(expr)
+        numeric right_op = get_expr_operator(right)
+        boolean right_is_mul = right_op == OP_MUL
+        print_test_result(right_is_mul, "Right child is MUL (*)")
+        
+        if right_is_mul
+            list mul_left = get_expr_left(right)
+            string mul_left_val = get_expr_value(mul_left)
+            boolean mul_left_ok = mul_left_val == "3"
+            print_test_result(mul_left_ok, "MUL left operand is 3")
+            
+            list mul_right = get_expr_right(right)
+            string mul_right_val = get_expr_value(mul_right)
+            boolean mul_right_ok = mul_right_val == "4"
+            print_test_result(mul_right_ok, "MUL right operand is 4")
+        end_if
+        
+        -- Generate LLVM IR
+        string ir = codegen_operator_expression(expr, "")
+        boolean codegen_ok = ir != ""
+        print_test_result(codegen_ok, "LLVM IR generated")
+        
+        if codegen_ok
+            println("")
+            println("Generated LLVM IR:")
+            println(ir)
+        end_if
+    end_if
+end_function
+
+-- ============================================================================
+-- TEST 3: Parse Comparison Expression
+-- ============================================================================
+
+function test_comparison_expression()
+    print_test_header("Comparison: x < 10")
+    
+    -- Create tokens: x < 10
+    list tokens = [
+        make_token(T_IDENTIFIER, "x"),
+        make_token(T_LT, "<"),
+        make_token(T_NUMBER, "10")
+    ]
+    
+    -- Parse expression
+    list result = parse_operator_expression(tokens, 0)
+    list expr = result[0]
+    numeric new_pos = result[1]
+    
+    boolean parse_ok = expr != 0
+    print_test_result(parse_ok, "Expression parsed successfully")
+    
+    if parse_ok
+        numeric expr_type = get_expr_type(expr)
+        boolean is_binary = expr_type == EXPR_BINARY
+        print_test_result(is_binary, "Expression type is BINARY")
+        
+        numeric op = get_expr_operator(expr)
+        boolean is_lt = op == OP_LT
+        print_test_result(is_lt, "Operator is LT (<)")
+        
+        list left = get_expr_left(expr)
+        numeric left_type = get_expr_type(left)
+        boolean left_is_var = left_type == EXPR_VARIABLE
+        print_test_result(left_is_var, "Left operand is VARIABLE")
+        
+        string left_val = get_expr_value(left)
+        boolean left_name_ok = left_val == "x"
+        print_test_result(left_name_ok, "Variable name is x")
+        
+        list right = get_expr_right(expr)
+        string right_val = get_expr_value(right)
+        boolean right_ok = right_val == "10"
+        print_test_result(right_ok, "Right operand is 10")
+        
+        -- Generate LLVM IR
+        string ir = codegen_operator_expression(expr, "")
+        boolean codegen_ok = ir != ""
+        print_test_result(codegen_ok, "LLVM IR generated")
+        
+        if codegen_ok
+            println("")
+            println("Generated LLVM IR:")
+            println(ir)
+        end_if
+    end_if
+end_function
+
+-- ============================================================================
+-- TEST 4: Parse Logical Expression (AND)
+-- ============================================================================
+
+function test_logical_and()
+    print_test_header("Logical AND: true and false")
+    
+    -- Create tokens: true and false
+    list tokens = [
+        make_token(T_TRUE, "true"),
+        make_token(T_AND, "and"),
+        make_token(T_FALSE, "false")
+    ]
+    
+    -- Parse expression
+    list result = parse_operator_expression(tokens, 0)
+    list expr = result[0]
+    numeric new_pos = result[1]
+    
+    boolean parse_ok = expr != 0
+    print_test_result(parse_ok, "Expression parsed successfully")
+    
+    if parse_ok
+        numeric op = get_expr_operator(expr)
+        boolean is_and = op == OP_AND
+        print_test_result(is_and, "Operator is AND")
+        
+        list left = get_expr_left(expr)
+        string left_val = get_expr_value(left)
+        boolean left_ok = left_val == "true"
+        print_test_result(left_ok, "Left operand is true")
+        
+        list right = get_expr_right(expr)
+        string right_val = get_expr_value(right)
+        boolean right_ok = right_val == "false"
+        print_test_result(right_ok, "Right operand is false")
+        
+        -- Generate LLVM IR
+        string ir = codegen_operator_expression(expr, "")
+        boolean codegen_ok = ir != ""
+        print_test_result(codegen_ok, "LLVM IR generated")
+        
+        if codegen_ok
+            println("")
+            println("Generated LLVM IR:")
+            println(ir)
+        end_if
+    end_if
+end_function
+
+-- ============================================================================
+-- TEST 5: Parse Unary Expression (NOT)
+-- ============================================================================
+
+function test_unary_not()
+    print_test_header("Unary NOT: not true")
+    
+    -- Create tokens: not true
+    list tokens = [
+        make_token(T_NOT, "not"),
+        make_token(T_TRUE, "true")
+    ]
+    
+    -- Parse expression
+    list result = parse_operator_expression(tokens, 0)
+    list expr = result[0]
+    numeric new_pos = result[1]
+    
+    boolean parse_ok = expr != 0
+    print_test_result(parse_ok, "Expression parsed successfully")
+    
+    if parse_ok
+        numeric expr_type = get_expr_type(expr)
+        boolean is_unary = expr_type == EXPR_UNARY
+        print_test_result(is_unary, "Expression type is UNARY")
+        
+        numeric op = get_expr_operator(expr)
+        boolean is_not = op == OP_NOT
+        print_test_result(is_not, "Operator is NOT")
+        
+        list operand = get_expr_left(expr)
+        string operand_val = get_expr_value(operand)
+        boolean operand_ok = operand_val == "true"
+        print_test_result(operand_ok, "Operand is true")
+        
+        -- Generate LLVM IR
+        string ir = codegen_operator_expression(expr, "")
+        boolean codegen_ok = ir != ""
+        print_test_result(codegen_ok, "LLVM IR generated")
+        
+        if codegen_ok
+            println("")
+            println("Generated LLVM IR:")
+            println(ir)
+        end_if
+    end_if
+end_function
+
+-- ============================================================================
+-- TEST 6: Parse Parenthesized Expression
+-- ============================================================================
+
+function test_parenthesized_expression()
+    print_test_header("Parenthesized: (5 + 3) * 2")
+    
+    -- Create tokens: ( 5 + 3 ) * 2
+    -- Expected: (5 + 3) * 2
+    list tokens = [
+        make_token(T_LPAREN, "("),
+        make_token(T_NUMBER, "5"),
+        make_token(T_PLUS, "+"),
+        make_token(T_NUMBER, "3"),
+        make_token(T_RPAREN, ")"),
+        make_token(T_STAR, "*"),
+        make_token(T_NUMBER, "2")
+    ]
+    
+    -- Parse expression
+    list result = parse_operator_expression(tokens, 0)
+    list expr = result[0]
+    numeric new_pos = result[1]
+    
+    boolean parse_ok = expr != 0
+    print_test_result(parse_ok, "Expression parsed successfully")
+    
+    if parse_ok
+        -- Root should be MUL
+        numeric root_op = get_expr_operator(expr)
+        boolean root_is_mul = root_op == OP_MUL
+        print_test_result(root_is_mul, "Root operator is MUL (*)")
+        
+        -- Left child should be ADD (5 + 3)
+        list left = get_expr_left(expr)
+        numeric left_op = get_expr_operator(left)
+        boolean left_is_add = left_op == OP_ADD
+        print_test_result(left_is_add, "Left child is ADD (+)")
+        
+        -- Right child should be literal "2"
+        list right = get_expr_right(expr)
+        string right_val = get_expr_value(right)
+        boolean right_ok = right_val == "2"
+        print_test_result(right_ok, "Right operand is 2")
+        
+        -- Generate LLVM IR
+        string ir = codegen_operator_expression(expr, "")
+        boolean codegen_ok = ir != ""
+        print_test_result(codegen_ok, "LLVM IR generated")
+        
+        if codegen_ok
+            println("")
+            println("Generated LLVM IR:")
+            println(ir)
+        end_if
+    end_if
+end_function
+
+-- ============================================================================
+-- TEST 7: Complex Expression (Mixed Operators)
+-- ============================================================================
+
+function test_complex_expression()
+    print_test_header("Complex: x + 5 > 10 and y < 20")
+    
+    -- Create tokens: x + 5 > 10 and y < 20
+    list tokens = [
+        make_token(T_IDENTIFIER, "x"),
+        make_token(T_PLUS, "+"),
+        make_token(T_NUMBER, "5"),
+        make_token(T_GT, ">"),
+        make_token(T_NUMBER, "10"),
+        make_token(T_AND, "and"),
+        make_token(T_IDENTIFIER, "y"),
+        make_token(T_LT, "<"),
+        make_token(T_NUMBER, "20")
+    ]
+    
+    -- Parse expression
+    list result = parse_operator_expression(tokens, 0)
+    list expr = result[0]
+    numeric new_pos = result[1]
+    
+    boolean parse_ok = expr != 0
+    print_test_result(parse_ok, "Expression parsed successfully")
+    
+    if parse_ok
+        -- Root should be AND
+        numeric root_op = get_expr_operator(expr)
+        boolean root_is_and = root_op == OP_AND
+        print_test_result(root_is_and, "Root operator is AND")
+        
+        -- Left child should be comparison (x + 5 > 10)
+        list left = get_expr_left(expr)
+        numeric left_op = get_expr_operator(left)
+        boolean left_is_gt = left_op == OP_GT
+        print_test_result(left_is_gt, "Left child is GT (>)")
+        
+        -- Right child should be comparison (y < 20)
+        list right = get_expr_right(expr)
+        numeric right_op = get_expr_operator(right)
+        boolean right_is_lt = right_op == OP_LT
+        print_test_result(right_is_lt, "Right child is LT (<)")
+        
+        -- Generate LLVM IR
+        string ir = codegen_operator_expression(expr, "")
+        boolean codegen_ok = ir != ""
+        print_test_result(codegen_ok, "LLVM IR generated")
+        
+        if codegen_ok
+            println("")
+            println("Generated LLVM IR:")
+            println(ir)
+        end_if
+    end_if
+end_function
+
+-- ============================================================================
+-- TEST 8: Operator Helper Functions
+-- ============================================================================
+
+function test_operator_helpers()
+    print_test_header("Operator Helper Functions")
+    
+    -- Test token_to_operator
+    numeric op_add = token_to_operator(T_PLUS)
+    boolean add_ok = op_add == OP_ADD
+    print_test_result(add_ok, "token_to_operator(T_PLUS) = OP_ADD")
+    
+    numeric op_mul = token_to_operator(T_STAR)
+    boolean mul_ok = op_mul == OP_MUL
+    print_test_result(mul_ok, "token_to_operator(T_STAR) = OP_MUL")
+    
+    numeric op_eq = token_to_operator(T_EQ)
+    boolean eq_ok = op_eq == OP_EQ
+    print_test_result(eq_ok, "token_to_operator(T_EQ) = OP_EQ")
+    
+    -- Test get_precedence
+    numeric prec_add = get_precedence(OP_ADD)
+    numeric prec_mul = get_precedence(OP_MUL)
+    boolean prec_ok = prec_mul > prec_add
+    print_test_result(prec_ok, "Precedence: MUL > ADD")
+    
+    -- Test get_operator_name
+    string name_add = get_operator_name(OP_ADD)
+    boolean name_add_ok = name_add == "+"
+    print_test_result(name_add_ok, "get_operator_name(OP_ADD) = '+'")
+    
+    string name_and = get_operator_name(OP_AND)
+    boolean name_and_ok = name_and == "and"
+    print_test_result(name_and_ok, "get_operator_name(OP_AND) = 'and'")
+    
+    -- Test is_operator
+    boolean is_op_plus = is_operator(T_PLUS)
+    print_test_result(is_op_plus, "is_operator(T_PLUS) = true")
+    
+    boolean is_op_id = is_operator(T_IDENTIFIER)
+    boolean not_op = not is_op_id
+    print_test_result(not_op, "is_operator(T_IDENTIFIER) = false")
+end_function
+
+-- ============================================================================
+-- MAIN TEST RUNNER
+-- ============================================================================
+
+function run_all_tests()
+    println("============================================================================")
+    println("MELP Stage 1 - Operators Module Test Suite")
+    println("Author: YZ_06")
+    println("Date: 18 Aralık 2025")
+    println("============================================================================")
+    
+    test_arithmetic_addition()
+    test_arithmetic_precedence()
+    test_comparison_expression()
+    test_logical_and()
+    test_unary_not()
+    test_parenthesized_expression()
+    test_complex_expression()
+    test_operator_helpers()
+    
+    println("")
+    println("============================================================================")
+    println("All tests completed!")
+    println("============================================================================")
+end_function
+
+-- Run tests
+run_all_tests()
+
+-- ============================================================================
+-- END OF TEST SUITE
+-- ============================================================================
