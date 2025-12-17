@@ -337,40 +337,71 @@ compiler/stage0/modules/     compiler/stage1/modules/
 
 ---
 
-### ⏳ YZ_06 - Operators Modülü
+### ✅ YZ_06 - Operators Modülü
 **Dal:** `operators_module_YZ_06`  
 **Tahmini:** 3 saat  
-**Durum:** ⏸️ BEKLİYOR
+**Gerçek:** 2.5 saat  
+**Durum:** ✅ TAMAMLANDI (18 Aralık 2025)
 
-#### Yapılacaklar:
-- [ ] **6.1** `modules/operators/` dizini oluştur
-- [ ] **6.2** Parser
-  - [ ] `operators_parser.mlp` ← `parser_mlp/parser_expr.mlp`'den extract
-  - [ ] Arithmetic: +, -, *, /, %
-  - [ ] Comparison: ==, !=, <, >, <=, >=
-  - [ ] Logical: and, or, not
-- [ ] **6.3** CodeGen
-  - [ ] `operators_codegen.mlp` ← Mevcut codegen dosyalarından merge:
-    - `codegen_arithmetic.mlp`
-    - `codegen_comparison.mlp`
-    - `codegen_logical.mlp`
-- [ ] **6.4** Test suite
-  - [ ] Arithmetic operations
-  - [ ] Comparison operations
-  - [ ] Logical operations
-  - [ ] Operator precedence
-- [ ] **6.5** README
+#### Tamamlananlar:
+- [x] **6.1** `compiler/stage1/modules/operators/` dizini oluşturuldu
+- [x] **6.2** Parser
+  - [x] `operators_parser.mlp` - Pratt parser (precedence climbing)
+  - [x] Import core utilities (token_types)
+  - [x] Arithmetic: +, -, *, /, %, **
+  - [x] Comparison: ==, !=, <, >, <=, >=
+  - [x] Logical: and, or, not
+  - [x] Bitwise: &, |, ^
+  - [x] Operator precedence (11 levels)
+  - [x] Parenthesized expressions
+  - [x] Unary operators (not, -)
+  - [x] Stateless pattern uygulandı
+  - [x] 11 parser fonksiyonu + helpers (520 satır)
+- [x] **6.3** CodeGen
+  - [x] `operators_codegen.mlp` - LLVM IR generation
+  - [x] Import operators_parser (constants)
+  - [x] Arithmetic: add, sub, mul, sdiv, srem
+  - [x] Comparison: icmp eq, ne, slt, sgt, sle, sge
+  - [x] Logical: and, or, xor
+  - [x] Type conversions (i1 ↔ i64)
+  - [x] 9 codegen fonksiyonu (380 satır)
+- [x] **6.4** Test suite
+  - [x] `test_operators.mlp` - 8 comprehensive tests
+  - [x] Test: Arithmetic addition
+  - [x] Test: Arithmetic precedence
+  - [x] Test: Comparison expression
+  - [x] Test: Logical AND
+  - [x] Test: Unary NOT
+  - [x] Test: Parenthesized expression
+  - [x] Test: Complex expression
+  - [x] Test: Operator helper functions
+  - [x] 620 satır test suite
+- [x] **6.5** README
+  - [x] Module documentation (750 satır)
+  - [x] Usage examples
+  - [x] LLVM IR examples
+  - [x] Precedence table
+  - [x] API reference
 
 #### Başarı Kriterleri:
-- ✅ Tüm operatörler çalışıyor
+- ✅ Operators modülü bağımsız çalışıyor
+- ✅ Stateless architecture (no mutable globals)
+- ✅ Import sistemi kullanılıyor
+- ✅ Pratt parser implemented
+- ✅ All operator types working
 - ✅ Precedence doğru
+- ✅ Parser + CodeGen complete
+- ✅ Test suite complete (8 tests)
+- ✅ LLVM IR doğru generate ediliyor
 
 #### Çıktılar:
-- `modules/operators/operators_parser.mlp`
-- `modules/operators/operators_codegen.mlp`
-- `modules/operators/operators_test.mlp`
-- `modules/operators/README.md`
-- `YZ_Stage_1/YZ_06_RAPOR.md`
+- ✅ `compiler/stage1/modules/operators/operators_parser.mlp` (520 satır)
+- ✅ `compiler/stage1/modules/operators/operators_codegen.mlp` (380 satır)
+- ✅ `compiler/stage1/modules/operators/test_operators.mlp` (620 satır)
+- ✅ `compiler/stage1/modules/operators/README.md` (750 satır)
+- ✅ `YZ_Stage_1/YZ_06_RAPOR.md` (620 satır)
+
+**İlerleme:** 4/34 modül tamamlandı ✅ (core, functions, variables, operators)
 
 ---
 

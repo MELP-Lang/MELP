@@ -1,36 +1,37 @@
-# 🚀 NEXT AI START HERE - SEN YZ_06'SIN!
+# 🚀 NEXT AI START HERE - SEN YZ_07'SİN!
 
-**👤 SENİN ROLÜN:** YZ_06 - Operators Modülü  
+**👤 SENİN ROLÜN:** YZ_07 - Control Flow Modülü  
 **📅 Tarih:** 18 Aralık 2025  
-**🌿 Dal:** `operators_module_YZ_06` (oluşturulacak)  
-**📊 Durum:** ⏸️ YZ_06 BEKLİYOR - YZ_05 TAMAMLANDI!
+**🌿 Dal:** `control_flow_module_YZ_07` (oluşturulacak)  
+**📊 Durum:** ⏸️ YZ_07 BEKLİYOR - YZ_06 TAMAMLANDI!
 
 ---
 
-## 👋 MERHABA YZ_06!
+## 👋 MERHABA YZ_07!
 
 **Kullanıcıya ilk mesajın şöyle olmalı:**
 
 ```
-Merhaba! Ben YZ_06'yım.
+Merhaba! Ben YZ_07'yim.
 
 NEXT_AI_START_HERE.md ve TODO.md'yi okudum.
-Görevim: Operators Modülü (Stage 1 Modüler Yapı)
+Görevim: Control Flow Modülü (Stage 1 Modüler Yapı)
 
 TODO.md'deki görevlerimi görüyorum:
-- modules/operators/ dizini oluştur
-- operators_parser.mlp (Arithmetic, Comparison, Logical)
-- operators_codegen.mlp (Stage 0'dan)
+- modules/control_flow/ dizini oluştur
+- if/else statements parser + codegen
+- while loops parser + codegen
+- LLVM branch, label generation
 - Test suite
 
-YZ_03'ün core utilities, YZ_04'ün functions ve YZ_05'in variables modüllerini kullanacağım! 🎉
+YZ_03'ün core utilities, YZ_04'ün functions, YZ_05'in variables ve YZ_06'nın operators modüllerini kullanacağım! 🎉
 
 Başlamamı ister misiniz?
 ```
 
 ---
 
-## 🎉 YZ_01, YZ_02, YZ_03, YZ_04 & YZ_05 TAMAMLANDI!
+## 🎉 YZ_01 - YZ_06 TAMAMLANDI!
 
 **YZ_01 - Import Tasarımı (✅ Tamamlandı - 2.5 saat)**
 - ✅ Import sistem tasarımı
@@ -65,91 +66,95 @@ Başlamamı ister misiniz?
 - ✅ compiler/stage1/modules/variables/ dizini oluşturuldu
 - ✅ variables_parser.mlp - Variable declaration, assignment parsing (450 satır)
 - ✅ variables_codegen.mlp - LLVM IR generation (alloca, store, load) (400 satır)
-## 📍 YZ_06'NIN GÖREVİ
+- ✅ test_variables.mlp - 8 comprehensive tests (480 satır)
+- ✅ README.md - Full documentation (650 satır)
+- ✅ Stateless architecture uygulandı
+- ✅ 7 variable types support
+- ✅ Stage 1 üçüncü modülü tamamlandı! (3/34)
 
-### Görev: Operators Modülü (Stage 1)
-**Tahmini:** 3 saat  
-**Durum:** ⏸️ BEKLİYOR
-
-#### Yapılacaklar:
-- [ ] **6.1** `compiler/stage1/modules/operators/` dizini oluştur
-- [ ] **6.2** Parser
-  - [ ] `operators_parser.mlp` - Stage 0'dan MELP'e çevir
-  - [ ] Import core utilities
-  - [ ] Arithmetic operators (+, -, *, /, %, **)
-  - [ ] Comparison operators (==, !=, <, >, <=, >=)
-  - [ ] Logical operators (and, or, not)
-  - [ ] Operator precedence
-- [ ] **6.3** CodeGen
-  - [ ] `operators_codegen.mlp` - Stage 0'dan MELP'e çevir
-  - [ ] Arithmetic: add, sub, mul, sdiv, srem
-  - [ ] Comparison: icmp eq, ne, slt, sgt, sle, sge
-  - [ ] Logical: and, or, xor
-  - [ ] Type conversions
-- [ ] **6.4** Test
-  - [ ] `test_operators.mlp` - Test suite
-  - [ ] Arithmetic operations test
-  - [ ] Comparison operations test
-  - [ ] Logical operations test
-  - [ ] Precedence test
-- [ ] **6.5** README ve rapor
-  - [ ] `README.md` - Dokümantasyon
-  - [ ] `YZ_Stage_1/YZ_06_RAPOR.md`
-
-**Kaynak:**
-- `compiler/stage0/modules/arithmetic/` - Arithmetic operations
-- `compiler/stage0/modules/comparison/` - Comparison operations
-- `compiler/stage0/modules/logical/` - Logical operations
-- Mevcut `parser_mlp/parser_expr.mlp` - Expression parsing referansı
-  - [ ] `test_variables.mlp` - Test suite
-  - [ ] Variable declaration test
-  - [ ] Assignment test
-  - [ ] Access test
-- [ ] **5.5** README ve rapor
-  - [ ] `README.md` - Dokümantasyon
-  - [ ] `YZ_Stage_1/YZ_05_RAPOR.md`
-
-**Kaynak:**
-- `compiler/stage0/modules/variable/` - C implementation
-- Mevcut `parser_mlp/` kodları - Referans için
-- Mevcut `codegen_mlp/` kodları - Referans için
+**YZ_06 - Operators Modülü (✅ Tamamlandı - 2.5 saat!)**
+- ✅ compiler/stage1/modules/operators/ dizini oluşturuldu
+- ✅ operators_parser.mlp - Pratt parser, all operators (520 satır)
+- ✅ operators_codegen.mlp - LLVM IR generation (380 satır)
+- ✅ test_operators.mlp - 8 comprehensive tests (620 satır)
+- ✅ README.md - Full documentation (750 satır)
+- ✅ Stateless architecture uygulandı
+- ✅ 18 operator types (arithmetic, comparison, logical, bitwise)
+- ✅ Operator precedence (11 levels)
+- ✅ Stage 1 dördüncü modülü tamamlandı! (4/34)
 
 ---
 
-## 🎯 YZ_06 İÇİN SONRAKİ ADIMLAR
+## 📍 YZ_07'NİN GÖREVİ
+
+### Görev: Control Flow Modülü (Stage 1)
+**Tahmini:** 3.5 saat  
+**Durum:** ⏸️ BEKLİYOR
+
+#### Yapılacaklar:
+- [ ] **7.1** `compiler/stage1/modules/control_flow/` dizini oluştur
+- [ ] **7.2** Parser
+  - [ ] `control_flow_parser.mlp` - if/else/while/for parsing
+  - [ ] Import core utilities + operators (for conditions)
+  - [ ] if/else statements
+  - [ ] while loops
+  - [ ] for loops (optional)
+  - [ ] break/continue
+- [ ] **7.3** CodeGen
+  - [ ] `control_flow_codegen.mlp` - LLVM IR generation
+  - [ ] Branch instructions (br, br i1)
+  - [ ] Label generation
+  - [ ] Phi nodes (if needed)
+- [ ] **7.4** Test
+  - [ ] `test_control_flow.mlp` - Test suite
+  - [ ] If statement test
+  - [ ] If/else test
+  - [ ] While loop test
+  - [ ] Nested control flow test
+- [ ] **7.5** README ve rapor
+  - [ ] `README.md` - Dokümantasyon
+  - [ ] `YZ_Stage_1/YZ_07_RAPOR.md`
+
+**Kaynak:**
+- `compiler/stage0/modules/control_flow/` - C implementation
+- `compiler/stage0/modules/for_loop/` - For loop impl
+- Operators modülü (YZ_06) - Condition expressions
+---
+
+## 🎯 YZ_07 İÇİN SONRAKİ ADIMLAR
 
 **1. İlk Mesajın (Kullanıcıya):**
 ```
-Merhaba! Ben YZ_06'yım.
+Merhaba! Ben YZ_07'yim.
 
 TODO.md'deki görevlerimi gördüm:
-- compiler/stage1/modules/operators/ oluştur
-- operators_parser.mlp (Arithmetic, Comparison, Logical)
-- operators_codegen.mlp (Stage 0 → MELP)
+- compiler/stage1/modules/control_flow/ oluştur
+- control_flow_parser.mlp (if/else, while, for)
+- control_flow_codegen.mlp (LLVM branches, labels)
 - Test suite
 
-YZ_03'ün core utilities, YZ_04'ün functions ve YZ_05'in variables modüllerini kullanacağım! 🎉
+YZ_06'nın operators modülünü condition expressions için kullanacağım! 🎉
 
 Başlamamı ister misiniz?
 ```
 
 **2. Yapman Gerekenler:**
 1. ✅ `MELP_Mimarisi.md` oku ve ONAYLA
-2. ✅ `TODO.md` oku (YZ_06 bölümü)
-3. ✅ `YZ_Stage_1/YZ_05_RAPOR.md` oku
-4. ✅ Git dalı oluştur: `git checkout -b operators_module_YZ_06`
+2. ✅ `TODO.md` oku (YZ_07 bölümü)
+3. ✅ `YZ_Stage_1/YZ_06_RAPOR.md` oku
+4. ✅ Git dalı oluştur: `git checkout -b control_flow_module_YZ_07`
 5. ▶️ İşe başla!
 
-**3. YZ_05'ten Önemli Notlar:**
-- ✅ Variables modülü hazır (`compiler/stage1/modules/variables/`)
-- ✅ 7 variable type support (numeric, string, boolean, pointer, array, list, tuple)
-- ✅ LLVM IR generation (alloca, store, load)
-- ✅ Stateless pattern örneği (variables_parser.mlp)
-- ✅ CodeGen pattern örneği (variables_codegen.mlp)
-- ✅ Test pattern örneği (test_variables.mlp)
+**3. YZ_06'dan Önemli Notlar:**
+- ✅ Operators modülü hazır (`compiler/stage1/modules/operators/`)
+- ✅ 18 operator types (arithmetic, comparison, logical, bitwise)
+- ✅ Pratt parser (precedence climbing)
+- ✅ LLVM IR generation working
+- ✅ Stateless pattern örneği
+- ✅ Test pattern örneği
 - ✅ Import sistemi çalışıyor
-- ✅ Stage 1 üçüncü modül tamamlandı (3/34)
-- ⚠️ Operators modülü variables ile birlikte çalışacak (expressions)
+- ✅ Stage 1 dördüncü modül tamamlandı (4/34)
+- ⚠️ Control flow conditions'lar operators modülünü kullanacak
 
 ---
 
