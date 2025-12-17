@@ -18,6 +18,53 @@
 
 ---
 
+## 📐 HEDEF MİMARİ - STAGE 0 → STAGE 1 PARİTE
+
+**Süreç sonunda elde edilecek yapı:**
+
+```
+compiler/stage0/modules/     compiler/stage1/modules/
+├── arithmetic/          →   ├── arithmetic/
+├── array/               →   ├── array/
+├── async/               →   ├── async/
+├── bitwise_operations/  →   ├── bitwise_operations/
+├── codegen_context/     →   ├── codegen_context/
+├── comments/            →   ├── comments/
+├── comparison/          →   ├── comparison/
+├── control_flow/        →   ├── control_flow/
+├── debug/               →   ├── debug/
+├── enum/                →   ├── enum/
+├── error/               →   ├── error/
+├── expression/          →   ├── expression/
+├── file_io/             →   ├── file_io/
+├── for_loop/            →   ├── for_loop/
+├── functions/           →   ├── functions/
+├── import/              →   ├── import/
+├── lambda/              →   ├── lambda/
+├── lexer/               →   ├── lexer/
+├── llvm_backend/        →   ├── llvm_backend/
+├── logical/             →   ├── logical/
+├── memory/              →   ├── memory/
+├── null_safety/         →   ├── null_safety/
+├── optimization_pass/   →   ├── optimization_pass/
+├── parser_core/         →   ├── parser_core/
+├── print/               →   ├── print/
+├── runtime_sto/         →   ├── runtime_sto/
+├── statement/           →   ├── statement/
+├── string_operations/   →   ├── string_operations/
+├── struct/              →   ├── struct/
+├── switch/              →   ├── switch/
+├── type_system/         →   ├── type_system/
+└── variable/            →   └── variable/
+
+     (C kodu)                   (MELP kodu)
+```
+
+**İlerleme:** 1/34 modül tamamlandı ✅ (core/)  
+**Kalan:** 33 modül
+
+---
+
 ## 📋 YZ ZİNCİRİ - GÖREV AKTARIMI
 
 ### **Mevcut YZ:** YZ_01 (İlk AI)
