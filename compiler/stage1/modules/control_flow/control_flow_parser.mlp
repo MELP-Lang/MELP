@@ -1,0 +1,447 @@
+-- ============================================================================
+-- MELP Stage 1 - Control Flow Parser Module
+-- ============================================================================
+-- Purpose: Parse control flow statements (if/else, while, for)
+-- Author: YZ_07
+-- Date: 18 Aralık 2025
+-- Source: Stage 0 control_flow/ module
+-- Dependencies: core/token_types.mlp, operators/operators_parser.mlp
+-- ============================================================================
+
+import "../core/token_types.mlp"
+import "../operators/operators_parser.mlp"
+
+-- ============================================================================
+-- CONTROL FLOW TYPE CONSTANTS
+-- ============================================================================
+
+const numeric CTRL_IF = 1
+const numeric CTRL_IF_ELSE = 2
+const numeric CTRL_WHILE = 3
+const numeric CTRL_FOR = 4
+const numeric CTRL_IF_EXPR = 5       -- TIER 1: let x = if cond then a else b
+const numeric CTRL_LOOP_LABELED = 6  -- TIER 1: 'outer: for ... break 'outer
+
+-- ============================================================================
+-- STATEMENT TYPE CONSTANTS
+-- ============================================================================
+
+const numeric STMT_IF = 1
+const numeric STMT_WHILE = 2
+const numeric STMT_FOR = 3
+const numeric STMT_RETURN = 4
+const numeric STMT_BREAK = 5
+const numeric STMT_CONTINUE = 6
+const numeric STMT_EXPRESSION = 7
+const numeric STMT_VARIABLE_DECL = 8
+
+-- ============================================================================
+-- IF STATEMENT STRUCTURE
+-- ============================================================================
+-- IfStatement structure fields (stored as list):
+-- [0] = type (CTRL_IF or CTRL_IF_ELSE or CTRL_IF_EXPR)
+-- [1] = condition (expression)
+-- [2] = has_else (boolean: 0 or 1)
+-- [3] = then_body (list of statements)
+-- [4] = else_body (list of statements or empty list)
+
+-- ============================================================================
+-- WHILE STATEMENT STRUCTURE
+-- ============================================================================
+-- WhileStatement structure fields (stored as list):
+-- [0] = condition (expression)
+-- [1] = body (list of statements)
+
+-- ============================================================================
+-- FOR STATEMENT STRUCTURE
+-- ============================================================================
+-- ForStatement structure fields (stored as list):
+-- [0] = iterator (variable name - string)
+-- [1] = start (expression)
+-- [2] = end (expression)
+-- [3] = label (string or empty - TIER 1)
+-- [4] = body (list of statements)
+
+-- ============================================================================
+-- PARSER FUNCTIONS (STATELESS!)
+-- ============================================================================
+
+-- Parse if statement
+-- Input: tokens (list), pos (numeric) - current position at 'if' token
+-- Returns: [if_statement, new_position] or [empty_list, pos] on error
+-- Note: Stateless - no global state, all state passed as parameters
+function parse_if_statement(list tokens, numeric pos) returns list
+    -- Check if current token is 'if'
+    list current_token = tokens[pos]
+    numeric token_type = current_token[0]
+    
+    if token_type != T_IF
+        return [[], pos]  -- Not an if statement
+    end_if
+    
+    -- Move past 'if' keyword
+    numeric current_pos = pos + 1
+    
+    -- Parse condition (using operators module for expression parsing)
+    list condition_result = parse_operator_expression(tokens, current_pos)
+    list condition = condition_result[0]
+    current_pos = condition_result[1]
+    
+    if condition == []
+        print "Error: Expected condition after 'if'"
+        return [[], pos]
+    end_if
+    
+    -- Expect 'then' keyword
+    current_token = tokens[current_pos]
+    token_type = current_token[0]
+    
+    if token_type != T_THEN
+        print "Error: Expected 'then' after if condition"
+        return [[], pos]
+    end_if
+    
+    current_pos = current_pos + 1  -- Move past 'then'
+    
+    -- Parse then body (statements until 'else' or 'end_if')
+    list then_body = []
+    numeric parsing_then = 1
+    
+    while parsing_then == 1
+        current_token = tokens[current_pos]
+        token_type = current_token[0]
+        
+        -- Check for end_if or else
+        if token_type == T_END_IF
+            parsing_then = 0
+        end_if
+        
+        if token_type == T_ELSE
+            parsing_then = 0
+        end_if
+        
+        if parsing_then == 1
+            -- Parse statement (simplified - would call statement parser)
+            -- For now, just skip token
+            current_pos = current_pos + 1
+        end_if
+    end_while
+    
+    -- Check for else clause
+    numeric has_else = 0
+    list else_body = []
+    
+    current_token = tokens[current_pos]
+    token_type = current_token[0]
+    
+    if token_type == T_ELSE
+        has_else = 1
+        current_pos = current_pos + 1  -- Move past 'else'
+        
+        -- Parse else body (statements until 'end_if')
+        numeric parsing_else = 1
+        
+        while parsing_else == 1
+            current_token = tokens[current_pos]
+            token_type = current_token[0]
+            
+            if token_type == T_END_IF
+                parsing_else = 0
+            end_if
+            
+            if parsing_else == 1
+                -- Parse statement (simplified)
+                current_pos = current_pos + 1
+            end_if
+        end_while
+    end_if
+    
+    -- Expect 'end_if' keyword
+    current_token = tokens[current_pos]
+    token_type = current_token[0]
+    
+    if token_type != T_END_IF
+        print "Error: Expected 'end_if' to close if statement"
+        return [[], pos]
+    end_if
+    
+    current_pos = current_pos + 1  -- Move past 'end_if'
+    
+    -- Build if statement structure
+    numeric ctrl_type = CTRL_IF
+    if has_else == 1
+        ctrl_type = CTRL_IF_ELSE
+    end_if
+    
+    list if_stmt = [ctrl_type, condition, has_else, then_body, else_body]
+    
+    return [if_stmt, current_pos]
+end_function
+
+-- Parse while statement
+-- Input: tokens (list), pos (numeric) - current position at 'while' token
+-- Returns: [while_statement, new_position] or [empty_list, pos] on error
+function parse_while_statement(list tokens, numeric pos) returns list
+    -- Check if current token is 'while'
+    list current_token = tokens[pos]
+    numeric token_type = current_token[0]
+    
+    if token_type != T_WHILE
+        return [[], pos]  -- Not a while statement
+    end_if
+    
+    -- Move past 'while' keyword
+    numeric current_pos = pos + 1
+    
+    -- Parse condition (using operators module)
+    list condition_result = parse_operator_expression(tokens, current_pos)
+    list condition = condition_result[0]
+    current_pos = condition_result[1]
+    
+    if condition == []
+        print "Error: Expected condition after 'while'"
+        return [[], pos]
+    end_if
+    
+    -- Check for optional 'do' keyword
+    current_token = tokens[current_pos]
+    token_type = current_token[0]
+    
+    if token_type == T_DO
+        current_pos = current_pos + 1  -- Move past 'do'
+    end_if
+    
+    -- Parse loop body (statements until 'end_while')
+    list body = []
+    numeric parsing_body = 1
+    
+    while parsing_body == 1
+        current_token = tokens[current_pos]
+        token_type = current_token[0]
+        
+        if token_type == T_END_WHILE
+            parsing_body = 0
+        end_if
+        
+        if parsing_body == 1
+            -- Parse statement (simplified)
+            current_pos = current_pos + 1
+        end_if
+    end_while
+    
+    -- Expect 'end_while' keyword
+    current_token = tokens[current_pos]
+    token_type = current_token[0]
+    
+    if token_type != T_END_WHILE
+        print "Error: Expected 'end_while' to close while statement"
+        return [[], pos]
+    end_if
+    
+    current_pos = current_pos + 1  -- Move past 'end_while'
+    
+    -- Build while statement structure
+    list while_stmt = [condition, body]
+    
+    return [while_stmt, current_pos]
+end_function
+
+-- Parse for statement (future implementation)
+-- Input: tokens (list), pos (numeric) - current position at 'for' token
+-- Returns: [for_statement, new_position] or [empty_list, pos] on error
+function parse_for_statement(list tokens, numeric pos) returns list
+    -- Check if current token is 'for'
+    list current_token = tokens[pos]
+    numeric token_type = current_token[0]
+    
+    if token_type != T_FOR
+        return [[], pos]  -- Not a for statement
+    end_if
+    
+    -- Move past 'for' keyword
+    numeric current_pos = pos + 1
+    
+    -- Parse iterator variable
+    current_token = tokens[current_pos]
+    token_type = current_token[0]
+    
+    if token_type != T_IDENTIFIER
+        print "Error: Expected iterator variable after 'for'"
+        return [[], pos]
+    end_if
+    
+    string iterator = current_token[1]  -- Variable name
+    current_pos = current_pos + 1
+    
+    -- Expect 'in' keyword
+    current_token = tokens[current_pos]
+    token_type = current_token[0]
+    
+    if token_type != T_IN
+        print "Error: Expected 'in' after iterator variable"
+        return [[], pos]
+    end_if
+    
+    current_pos = current_pos + 1
+    
+    -- Parse start expression
+    list start_result = parse_operator_expression(tokens, current_pos)
+    list start_expr = start_result[0]
+    current_pos = start_result[1]
+    
+    if start_expr == []
+        print "Error: Expected start expression in for loop"
+        return [[], pos]
+    end_if
+    
+    -- Expect '..' (range operator)
+    current_token = tokens[current_pos]
+    token_type = current_token[0]
+    
+    if token_type != T_RANGE
+        print "Error: Expected '..' for range in for loop"
+        return [[], pos]
+    end_if
+    
+    current_pos = current_pos + 1
+    
+    -- Parse end expression
+    list end_result = parse_operator_expression(tokens, current_pos)
+    list end_expr = end_result[0]
+    current_pos = end_result[1]
+    
+    if end_expr == []
+        print "Error: Expected end expression in for loop"
+        return [[], pos]
+    end_if
+    
+    -- Check for optional 'do' keyword
+    current_token = tokens[current_pos]
+    token_type = current_token[0]
+    
+    if token_type == T_DO
+        current_pos = current_pos + 1  -- Move past 'do'
+    end_if
+    
+    -- Parse loop body (statements until 'end_for')
+    list body = []
+    numeric parsing_body = 1
+    
+    while parsing_body == 1
+        current_token = tokens[current_pos]
+        token_type = current_token[0]
+        
+        if token_type == T_END_FOR
+            parsing_body = 0
+        end_if
+        
+        if parsing_body == 1
+            -- Parse statement (simplified)
+            current_pos = current_pos + 1
+        end_if
+    end_while
+    
+    -- Expect 'end_for' keyword
+    current_token = tokens[current_pos]
+    token_type = current_token[0]
+    
+    if token_type != T_END_FOR
+        print "Error: Expected 'end_for' to close for statement"
+        return [[], pos]
+    end_if
+    
+    current_pos = current_pos + 1  -- Move past 'end_for'
+    
+    -- Build for statement structure (no label for now)
+    string label = ""
+    list for_stmt = [iterator, start_expr, end_expr, label, body]
+    
+    return [for_stmt, current_pos]
+end_function
+
+-- Parse control flow statement (dispatcher)
+-- Input: tokens (list), pos (numeric)
+-- Returns: [statement, new_position] or [empty_list, pos] on error
+function parse_control_flow_statement(list tokens, numeric pos) returns list
+    list current_token = tokens[pos]
+    numeric token_type = current_token[0]
+    
+    -- Dispatch to appropriate parser
+    if token_type == T_IF
+        return parse_if_statement(tokens, pos)
+    end_if
+    
+    if token_type == T_WHILE
+        return parse_while_statement(tokens, pos)
+    end_if
+    
+    if token_type == T_FOR
+        return parse_for_statement(tokens, pos)
+    end_if
+    
+    -- Not a control flow statement
+    return [[], pos]
+end_function
+
+-- ============================================================================
+-- HELPER FUNCTIONS
+-- ============================================================================
+
+-- Get control flow type name (for debugging/error messages)
+function get_control_flow_type_name(numeric ctrl_type) returns string
+    if ctrl_type == CTRL_IF
+        return "if"
+    end_if
+    if ctrl_type == CTRL_IF_ELSE
+        return "if-else"
+    end_if
+    if ctrl_type == CTRL_WHILE
+        return "while"
+    end_if
+    if ctrl_type == CTRL_FOR
+        return "for"
+    end_if
+    if ctrl_type == CTRL_IF_EXPR
+        return "if-expression"
+    end_if
+    if ctrl_type == CTRL_LOOP_LABELED
+        return "labeled-loop"
+    end_if
+    
+    return "unknown"
+end_function
+
+-- Check if token is a control flow keyword
+function is_control_flow_keyword(numeric token_type) returns numeric
+    if token_type == T_IF
+        return 1
+    end_if
+    if token_type == T_WHILE
+        return 1
+    end_if
+    if token_type == T_FOR
+        return 1
+    end_if
+    
+    return 0
+end_function
+
+-- Check if statement is a control flow statement
+function is_control_flow_statement(list stmt) returns numeric
+    if stmt == []
+        return 0
+    end_if
+    
+    -- If statement: [ctrl_type, ...]
+    if stmt[0] == CTRL_IF
+        return 1
+    end_if
+    if stmt[0] == CTRL_IF_ELSE
+        return 1
+    end_if
+    
+    -- While/For would have different structure, 
+    -- but we can detect by checking list length/structure
+    
+    return 0
+end_function

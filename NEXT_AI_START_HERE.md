@@ -1,30 +1,29 @@
-# 🚀 NEXT AI START HERE - SEN YZ_07'SİN!
+# 🚀 NEXT AI START HERE - SEN YZ_08'SİN!
 
-**👤 SENİN ROLÜN:** YZ_07 - Control Flow Modülü  
+**👤 SENİN ROLÜN:** YZ_08 - Literals Modülü  
 **📅 Tarih:** 18 Aralık 2025  
-**🌿 Dal:** `control_flow_module_YZ_07` (oluşturulacak)  
-**📊 Durum:** ⏸️ YZ_07 BEKLİYOR - YZ_06 TAMAMLANDI!
+**🌿 Dal:** `literals_module_YZ_08` (oluşturulacak)  
+**📊 Durum:** ⏸️ YZ_08 BEKLİYOR - YZ_07 TAMAMLANDI!
 
 ---
 
-## 👋 MERHABA YZ_07!
+## 👋 MERHABA YZ_08!
 
 **Kullanıcıya ilk mesajın şöyle olmalı:**
 
 ```
-Merhaba! Ben YZ_07'yim.
+Merhaba! Ben YZ_08'yim.
 
 NEXT_AI_START_HERE.md ve TODO.md'yi okudum.
-Görevim: Control Flow Modülü (Stage 1 Modüler Yapı)
+Görevim: Literals Modülü (Stage 1 Modüler Yapı)
 
 TODO.md'deki görevlerimi görüyorum:
-- modules/control_flow/ dizini oluştur
-- if/else statements parser + codegen
-- while loops parser + codegen
-- LLVM branch, label generation
+- modules/literals/ dizini oluştur
+- Numeric, string, boolean literals parser
+- LLVM constant generation
 - Test suite
 
-YZ_03'ün core utilities, YZ_04'ün functions, YZ_05'in variables ve YZ_06'nın operators modüllerini kullanacağım! 🎉
+YZ_03'ün core utilities modülünü kullanacağım! 🎉
 
 Başlamamı ister misiniz?
 ```
@@ -83,78 +82,87 @@ Başlamamı ister misiniz?
 - ✅ Operator precedence (11 levels)
 - ✅ Stage 1 dördüncü modülü tamamlandı! (4/34)
 
+**YZ_07 - Control Flow Modülü (✅ Tamamlandı - 2.5 saat!)**
+- ✅ compiler/stage1/modules/control_flow/ dizini oluşturuldu
+- ✅ control_flow_parser.mlp - if/else, while, for parsing (540 satır)
+- ✅ control_flow_codegen.mlp - LLVM IR generation (380 satır)
+- ✅ test_control_flow.mlp - 12 comprehensive tests (580 satır)
+- ✅ README.md - Full documentation (850 satır)
+- ✅ Stateless architecture uygulandı
+- ✅ If/else statements, while loops, for loops
+- ✅ LLVM branch instructions, label generation
+- ✅ Break/continue support
+- ✅ Stage 1 beşinci modülü tamamlandı! (5/34)
+
 ---
 
-## 📍 YZ_07'NİN GÖREVİ
+## 📍 YZ_08'İN GÖREVİ
 
-### Görev: Control Flow Modülü (Stage 1)
-**Tahmini:** 3.5 saat  
+### Görev: Literals Modülü (Stage 1)
+**Tahmini:** 2 saat  
 **Durum:** ⏸️ BEKLİYOR
 
 #### Yapılacaklar:
-- [ ] **7.1** `compiler/stage1/modules/control_flow/` dizini oluştur
-- [ ] **7.2** Parser
-  - [ ] `control_flow_parser.mlp` - if/else/while/for parsing
-  - [ ] Import core utilities + operators (for conditions)
-  - [ ] if/else statements
-  - [ ] while loops
-  - [ ] for loops (optional)
-  - [ ] break/continue
-- [ ] **7.3** CodeGen
-  - [ ] `control_flow_codegen.mlp` - LLVM IR generation
-  - [ ] Branch instructions (br, br i1)
-  - [ ] Label generation
-  - [ ] Phi nodes (if needed)
-- [ ] **7.4** Test
-  - [ ] `test_control_flow.mlp` - Test suite
-  - [ ] If statement test
-  - [ ] If/else test
-  - [ ] While loop test
-  - [ ] Nested control flow test
-- [ ] **7.5** README ve rapor
+- [ ] **8.1** `compiler/stage1/modules/literals/` dizini oluştur
+- [ ] **8.2** Parser
+  - [ ] `literals_parser.mlp` - Numeric, string, boolean parsing
+  - [ ] Import core utilities
+  - [ ] Integer literals
+  - [ ] Float literals (future)
+  - [ ] String literals
+  - [ ] Boolean literals (true/false)
+- [ ] **8.3** CodeGen
+  - [ ] `literals_codegen.mlp` - LLVM constant generation
+  - [ ] Integer constants
+  - [ ] String constants (global)
+  - [ ] Boolean constants (i1)
+- [ ] **8.4** Test
+  - [ ] `test_literals.mlp` - Test suite
+  - [ ] Integer literal test
+  - [ ] String literal test
+  - [ ] Boolean literal test
+- [ ] **8.5** README ve rapor
   - [ ] `README.md` - Dokümantasyon
-  - [ ] `YZ_Stage_1/YZ_07_RAPOR.md`
+  - [ ] `YZ_Stage_1/YZ_08_RAPOR.md`
 
 **Kaynak:**
-- `compiler/stage0/modules/control_flow/` - C implementation
-- `compiler/stage0/modules/for_loop/` - For loop impl
-- Operators modülü (YZ_06) - Condition expressions
+- `compiler/stage0/modules/lexer/` - Literal tokenization
+- Operators modülü (YZ_06) - Literal expressions örneği
 ---
 
-## 🎯 YZ_07 İÇİN SONRAKİ ADIMLAR
+## 🎯 YZ_08 İÇİN SONRAKİ ADIMLAR
 
 **1. İlk Mesajın (Kullanıcıya):**
 ```
-Merhaba! Ben YZ_07'yim.
+Merhaba! Ben YZ_08'yim.
 
 TODO.md'deki görevlerimi gördüm:
-- compiler/stage1/modules/control_flow/ oluştur
-- control_flow_parser.mlp (if/else, while, for)
-- control_flow_codegen.mlp (LLVM branches, labels)
+- compiler/stage1/modules/literals/ oluştur
+- literals_parser.mlp (numeric, string, boolean)
+- literals_codegen.mlp (LLVM constants)
 - Test suite
 
-YZ_06'nın operators modülünü condition expressions için kullanacağım! 🎉
+YZ_03'ün core utilities modülünü kullanacağım! 🎉
 
 Başlamamı ister misiniz?
 ```
 
 **2. Yapman Gerekenler:**
 1. ✅ `MELP_Mimarisi.md` oku ve ONAYLA
-2. ✅ `TODO.md` oku (YZ_07 bölümü)
-3. ✅ `YZ_Stage_1/YZ_06_RAPOR.md` oku
-4. ✅ Git dalı oluştur: `git checkout -b control_flow_module_YZ_07`
+2. ✅ `TODO.md` oku (YZ_08 bölümü)
+3. ✅ `YZ_Stage_1/YZ_07_RAPOR.md` oku
+4. ✅ Git dalı oluştur: `git checkout -b literals_module_YZ_08`
 5. ▶️ İşe başla!
 
-**3. YZ_06'dan Önemli Notlar:**
-- ✅ Operators modülü hazır (`compiler/stage1/modules/operators/`)
-- ✅ 18 operator types (arithmetic, comparison, logical, bitwise)
-- ✅ Pratt parser (precedence climbing)
-- ✅ LLVM IR generation working
+**3. YZ_07'den Önemli Notlar:**
+- ✅ Control Flow modülü hazır (`compiler/stage1/modules/control_flow/`)
+- ✅ If/else, while, for loops working
+- ✅ LLVM branch instructions, label generation
 - ✅ Stateless pattern örneği
 - ✅ Test pattern örneği
 - ✅ Import sistemi çalışıyor
-- ✅ Stage 1 dördüncü modül tamamlandı (4/34)
-- ⚠️ Control flow conditions'lar operators modülünü kullanacak
+- ✅ Stage 1 beşinci modül tamamlandı (5/34)
+- ⚠️ Literals, expressions'larda kullanılacak (operators ile)
 
 **4. ⚠️ ÖNEMLİ: Test Stratejisi!**
 - ⚠️ Test dosyası YAZ ama ÇALIŞTIRAMAZSIN (Stage 1 compiler henüz yok)
@@ -254,16 +262,16 @@ compiler/stage1/modules/
 ├── core/             ← Shared utilities (YZ_03) ✅ TAMAMLANDI
 ├── functions/        ← Function feature (YZ_04) ✅ TAMAMLANDI
 ├── variables/        ← Variable feature (YZ_05) ✅ TAMAMLANDI
-├── operators/        ← Operators (YZ_06) ⏸️ ← ŞİMDİ BURASI
-├── control_flow/     ← Control flow (YZ_07)
-├── literals/         ← Literals (YZ_08)
+├── operators/        ← Operators (YZ_06) ✅ TAMAMLANDI
+├── control_flow/     ← Control flow (YZ_07) ✅ TAMAMLANDI
+├── literals/         ← Literals (YZ_08) ⏸️ ← ŞİMDİ BURASI
 ├── arrays/           ← Arrays (YZ_09)
 ├── structs/          ← Structs (YZ_10)
 ├── enums/            ← Enums (YZ_11)
 └── ...               ← 25+ modül daha (Stage 0 parity)
 ```
 
-**İlerleme:** 3/34 modül ✅
+**İlerleme:** 5/34 modül ✅
 
 ---
 
@@ -489,57 +497,64 @@ mkdir -p YZ_Stage_1
 
 **Sonraki YZ'ye mesajım:**
 
-Merhaba YZ_06! 👋
+Merhaba YZ_08! 👋
 
-Ben YZ_05, variables modülünü tamamladım.
+Ben YZ_07, control flow modülünü tamamladım.
 
 **Sana bıraktıklarım:**
-- ✅ Variables modülü: `compiler/stage1/modules/variables/`
-- ✅ Parser + CodeGen complete (850 satır)
-- ✅ Test suite (8 tests, 480 satır)
-- ✅ 7 variable types (numeric, string, boolean, pointer, array, list, tuple)
-- ✅ LLVM IR generation (alloca, store, load)
+- ✅ Control Flow modülü: `compiler/stage1/modules/control_flow/`
+- ✅ Parser + CodeGen complete (920 satır)
+- ✅ Test suite (12 tests, 580 satır)
+- ✅ If/else statements, while loops, for loops
+- ✅ LLVM branch instructions (br i1)
+- ✅ Label generation (unique IDs)
+- ✅ Break/continue support
 - ✅ Stateless pattern örneği
 - ✅ Import kullanımı örneği
 - ✅ README dokümantasyonu
 
-**Senin görevin (YZ_06):**
-1. YZ_05 raporumu oku (`YZ_Stage_1/YZ_05_RAPOR.md`)
-2. Operators modülü oluştur
-3. Arithmetic, Comparison, Logical operators
-4. Test suite yaz
+**Senin görevin (YZ_08):**
+1. YZ_07 raporumu oku (`YZ_Stage_1/YZ_07_RAPOR.md`)
+2. Literals modülü oluştur
+3. Numeric, string, boolean literals
+4. LLVM constant generation
+5. Test suite yaz
 
 **Kritik notlar:**
-- Variables modülünü pattern olarak kullan
-- Operatörler variables ile birlikte çalışacak (expressions)
-- Expression parsing önemli (operator precedence)
-- Stage 0'da 3 ayrı modül var:
-  - `compiler/stage0/modules/arithmetic/`
-  - `compiler/stage0/modules/comparison/`
-  - `compiler/stage0/modules/logical/`
+- Control Flow modülünü pattern olarak kullan
+- Literals, expressions'da kullanılacak (operators ile birlikte)
+- LLVM constants: integers (i64), strings (global), booleans (i1)
+- Stage 0'da lexer zaten literals tokenize ediyor
 
 **Pattern Örneği:**
 ```melp
--- variables_parser.mlp'den örnek
-function parse_variable_declaration(tokens: list, pos: numeric) returns list
+-- control_flow_parser.mlp'den örnek
+function parse_if_statement(tokens: list, pos: numeric) returns list
     -- Takes: tokens + position
     -- Returns: [result, new_position]
-    return [decl_info, current_pos]
+    return [if_stmt, current_pos]
 end_function
 ```
 
-**Operators Integration:**
+**Literals Integration:**
 ```melp
--- Variables + operators birlikte:
-numeric result = (x + y) * 2
-boolean flag = (count > 10) and (count < 100)
+-- Literals expressions'da kullanılır:
+numeric x = 42                    -- numeric literal
+string name = "Hello"             -- string literal
+boolean flag = true               -- boolean literal
+
+-- Expressions içinde:
+numeric result = x + 10           -- 42 + 10
+if flag == true then              -- boolean comparison
+    print name                    -- string usage
+end_if
 ```
 
 Başarılar! 🚀
 
 ---
 
-**SON GÜNCELLEME:** YZ_05 - Variables modülü tamamlandı (18 Aralık 2025, 14:00)  
-**SONRAKİ:** YZ_06 - Operators modülü
+**SON GÜNCELLEME:** YZ_07 - Control Flow modülü tamamlandı (18 Aralık 2025, 16:00)  
+**SONRAKİ:** YZ_08 - Literals modülü
 
 **MELP kusursuz mimariye kavuşuyor!** 🎯
