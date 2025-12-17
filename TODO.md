@@ -78,6 +78,15 @@ compiler/stage0/modules/     compiler/stage1/modules/
 5. ✅ Bu TODO.md'de ilerlemesini işaretle
 6. ✅ Rapor yaz: `YZ_Stage_1/YZ_XX_RAPOR.md`
 
+**🚫 YAPILMAYACAKLAR (ZORUNLU KURALLAR):**
+- ❌ **ANA DİZİNE (root) ASLA test dosyası oluşturma!**
+  - Test dosyaları sadece `tests/` veya `modules/*/` altına
+  - `test_*.mlp`, `test_*.s`, `test_*.o` → ANA DİZİNE DEĞİL!
+- ❌ **ANA DİZİNE geçici dosya bırakma!**
+  - `.o`, `.s`, `.ll` dosyaları → `temp/` veya modül dizinine
+- ❌ **Modül dışı kod yazma!**
+  - Tüm yeni kod `compiler/stage1/modules/*/` altında olmalı
+
 **Sonraki YZ başlangıçta:**
 1. 📖 `NEXT_AI_START_HERE.md` oku
 2. 📖 `MELP_Mimarisi.md` oku ve ONAYLA

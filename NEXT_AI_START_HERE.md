@@ -145,7 +145,7 @@ ONAYLA - YZ_01:
     [x] Önceki kuralları ezme YASAK
     [x] Import olmadan modül YASAK (FAZ 2+)
     [x] Stage 0'ı bozma YASAK
-    [x] Ana dizine test dosyası YASAK
+    [x] **ANA DİZİNE TEST DOSYASI YASAK** (test_*.mlp/s/o → tests/ veya modules/*/)
 [x] Git status kontrol ettim ✅
 [x] Git dalı oluşturdum: import_design_YZ_01 ✅
 
