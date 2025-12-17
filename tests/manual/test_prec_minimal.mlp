@@ -1,0 +1,20 @@
+-- Minimal test - no Turkish comments
+-- Test operator precedence
+
+function get_prec(numeric t) returns numeric
+    if t == 18 then return 6 end_if
+    if t == 16 then return 5 end_if
+    return 0
+end_function
+
+function main() returns numeric
+    numeric p1 = get_prec(16)
+    numeric p2 = get_prec(18)
+    
+    print("Plus: ")
+    println(str(p1))
+    print("Mult: ")
+    println(str(p2))
+    
+    return 0
+end_function

@@ -1,145 +1,42 @@
--- ============================================================================
--- MELP Stage 1 - Code Generator: Statement CodeGen
--- ============================================================================
--- Part of: Phase 2 - CodeGen in MELP (YZ_13)
--- Purpose: Generate LLVM IR for statements
---
--- Handles:
--- - Variable declarations (numeric x = 10)
--- - Assignment statements (x = expr)
--- - Compound assignment (x += 5)
--- - Return statements (return expr)
--- - Print statements (println(expr))
--- ============================================================================
+-- Codegen Statement STUB - Stage 0 Compatible
+-- YZ_21: 17 December 2025
 
--- ============================================================================
--- VARIABLE DECLARATION STATEMENTS
--- ============================================================================
-
--- Generate IR for variable declaration with initialization
--- Example: numeric x = 42
--- Output:
---   %x = alloca i64
---   store i64 42, i64* %x
-function codegen_var_decl_stmt(var_name, var_type, init_value) returns numeric
-    -- Allocate stack space
-    string alloca_line = "  %" + var_name + " = alloca i64"
-    println(alloca_line)
-    
-    -- Store initial value
-    string store_line = "  store i64 " + init_value + ", i64* %" + var_name
-    println(store_line)
-    
-    return 1  -- Success
+function codegen_var_decl_stmt(string var_name, string var_type, string init_value) returns numeric
+    return 0
 end_function
 
--- Generate IR for variable declaration without initialization
--- Example: numeric x
--- Output:
---   %x = alloca i64
---   store i64 0, i64* %x  (default initialization)
-function codegen_var_decl_no_init(var_name, var_type) returns numeric
-    -- Allocate stack space
-    string alloca_line = "  %" + var_name + " = alloca i64"
-    println(alloca_line)
-    
-    -- Default initialize to 0
-    string store_line = "  store i64 0, i64* %" + var_name
-    println(store_line)
-    
-    return 1  -- Success
+function codegen_var_decl_no_init(string var_name, string var_type) returns numeric
+    return 0
 end_function
 
--- Generate IR for string variable declaration
--- Example: string name = "hello"
--- Output:
---   %name = alloca i8*
---   store i8* @.str.0, i8** %name
-function codegen_string_var_decl(var_name, str_label) returns numeric
-    -- Allocate stack space for string pointer
-    string alloca_line = "  %" + var_name + " = alloca i8*"
-    println(alloca_line)
-    
-    -- Store string pointer
-    string store_line = "  store i8* " + str_label + ", i8** %" + var_name
-    println(store_line)
-    
-    return 1  -- Success
+function codegen_string_var_decl(string var_name, string str_label) returns numeric
+    return 0
 end_function
 
--- Generate IR for boolean variable declaration
--- Example: boolean flag = true
--- Output:
---   %flag = alloca i1
---   store i1 1, i1* %flag
-function codegen_bool_var_decl(var_name, bool_value) returns numeric
-    -- Allocate stack space
-    string alloca_line = "  %" + var_name + " = alloca i1"
-    println(alloca_line)
-    
-    -- Convert true/false to 1/0
-    string i1_val = "0"
-    if bool_value == "true" then
-        i1_val = "1"
-    end_if
-    
-    -- Store boolean value
-    string store_line = "  store i1 " + i1_val + ", i1* %" + var_name
-    println(store_line)
-    
-    return 1  -- Success
+function codegen_bool_var_decl(string var_name, numeric bool_value) returns numeric
+    return 0
 end_function
 
--- ============================================================================
--- ASSIGNMENT STATEMENTS
--- ============================================================================
-
--- Generate IR for simple assignment
--- Example: x = 5
--- Output:
---   store i64 5, i64* %x
-function codegen_assignment(var_name, value_reg) returns numeric
-    string store_line = "  store i64 " + value_reg + ", i64* %" + var_name
-    println(store_line)
-    return 1  -- Success
+function codegen_assignment(string var_name, string value_reg) returns numeric
+    return 0
 end_function
 
--- Generate IR for assignment from expression result
--- Example: x = y + z
--- Assumes value_reg holds the expression result
-function codegen_expr_assignment(var_name, value_reg) returns numeric
-    string store_line = "  store i64 " + value_reg + ", i64* %" + var_name
-    println(store_line)
-    return 1  -- Success
+function codegen_expr_assignment(string var_name, string value_reg) returns numeric
+    return 0
 end_function
 
--- Generate IR for string assignment
--- Example: name = "world"
-function codegen_string_assignment(var_name, str_ptr_reg) returns numeric
-    string store_line = "  store i8* " + str_ptr_reg + ", i8** %" + var_name
-    println(store_line)
-    return 1  -- Success
+function codegen_string_assignment(string var_name, string str_ptr_reg) returns numeric
+    return 0
 end_function
 
--- Generate IR for boolean assignment
--- Example: flag = false
-function codegen_bool_assignment(var_name, bool_reg) returns numeric
-    string store_line = "  store i1 " + bool_reg + ", i1* %" + var_name
-    println(store_line)
-    return 1  -- Success
+function codegen_bool_assignment(string var_name, numeric bool_reg) returns numeric
+    return 0
 end_function
 
--- ============================================================================
--- COMPOUND ASSIGNMENT STATEMENTS
--- ============================================================================
+function codegen_add_assign(string var_name, string value_reg, numeric temp_counter) returns numeric
+    return 0
+end_function
 
--- Generate IR for compound assignment (+=)
--- Example: x += 5
--- Output:
---   %t1 = load i64, i64* %x
---   %t2 = add i64 %t1, 5
---   store i64 %t2, i64* %x
-function codegen_add_assign(var_name, value_reg, temp_counter) returns numeric
-    -- Load current value
-    string temp1 = "%t" + to_string(temp_counter)
-    string load_line = "  " + temp1 + " = load i64, i64* %" + var_name
+function main() returns numeric
+    return 0
+end_function

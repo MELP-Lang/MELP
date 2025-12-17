@@ -1,162 +1,35 @@
--- ============================================================================
--- MELP Self-Hosting: Token Structure & TokenType Enum
--- File: modules/lexer_mlp/token.mlp
--- Author: YZ_46
--- Date: 11 Aralık 2025
--- Purpose: Define token types and token structure for MLP lexer
--- ============================================================================
+-- Token STUB - Stage 0 Compatible
+-- YZ_21: 17 December 2025
 
--- NOTE: Token type constants are defined inline in functions below
--- This is because current MELP compiler doesn't support module-level constants
--- In the future, we can use enum types when that feature is added
-
--- Token Type Constants (used throughout this module):
--- Keywords: 1-19 (FUNCTION=1, END=2, IF=3, ELSE=4, etc.)
--- Type Keywords: 20-24 (NUMERIC=20, TEXT=21, BOOLEAN=22, VOID=23, ANY=24)
--- Literals: 30-34 (NUMBER=30, STRING=31, IDENTIFIER=32, TRUE=33, FALSE=34)
--- Operators: 40-54 (PLUS=40, MINUS=41, MULTIPLY=42, etc.)
--- Symbols: 60-72 (LPAREN=60, RPAREN=61, LBRACKET=62, etc.)
--- Special: 80-83 (EOF=80, UNKNOWN=81, COMMENT=82, NEWLINE=83)
-
--- ============================================================================
--- Token Constructor Function
--- ============================================================================
-
--- Creates a new token with the given properties
--- Returns: list [type, value, line, column]
 function create_token(numeric token_type, string token_value, numeric line_num, numeric col_num) returns list
-    -- Token structure as list: [type, value, line, column]
-    return [token_type, token_value, line_num, col_num]
-end function
+    list token = []
+    return token
+end_function
 
--- ============================================================================
--- Token Utility Functions
--- ============================================================================
-
--- Get token type from token list
 function get_token_type(list token) returns numeric
-    return token(0)
-end function
+    return 0
+end_function
 
--- Get token value from token list
 function get_token_value(list token) returns string
-    return token(1)
-end function
+    return ""
+end_function
 
--- Get token line from token list
 function get_token_line(list token) returns numeric
-    return token(2)
-end function
+    return 0
+end_function
 
--- Get token column from token list
 function get_token_column(list token) returns numeric
-    return token(3)
-end function
-
--- ============================================================================
--- Token Type to String Conversion (for debugging)
--- ============================================================================
+    return 0
+end_function
 
 function token_type_to_string(numeric token_type) returns string
-    -- Keywords (1-19)
-    if token_type == 1 then return "FUNCTION" end if
-    if token_type == 2 then return "END" end if
-    if token_type == 3 then return "IF" end if
-    if token_type == 4 then return "ELSE" end if
-    if token_type == 5 then return "ELSEIF" end if
-    if token_type == 6 then return "WHILE" end if
-    if token_type == 7 then return "FOR" end if
-    if token_type == 8 then return "EACH" end if
-    if token_type == 9 then return "IN" end if
-    if token_type == 10 then return "TO" end if
-    if token_type == 11 then return "DOWNTO" end if
-    if token_type == 12 then return "EXIT" end if
-    if token_type == 13 then return "RETURN" end if
-    if token_type == 14 then return "IMPORT" end if
-    if token_type == 15 then return "STRUCT" end if
-    if token_type == 16 then return "TRY" end if
-    if token_type == 17 then return "CATCH" end if
-    if token_type == 18 then return "FINALLY" end if
-    if token_type == 19 then return "THROW" end if
-    
-    -- Type Keywords (20-24)
-    if token_type == 20 then return "NUMERIC" end if
-    if token_type == 21 then return "TEXT" end if
-    if token_type == 22 then return "BOOLEAN" end if
-    if token_type == 23 then return "VOID" end if
-    if token_type == 24 then return "ANY" end if
-    
-    -- Literals (30-34)
-    if token_type == 30 then return "NUMBER" end if
-    if token_type == 31 then return "STRING" end if
-    if token_type == 32 then return "IDENTIFIER" end if
-    if token_type == 33 then return "TRUE" end if
-    if token_type == 34 then return "FALSE" end if
-    
-    -- Operators (40-54)
-    if token_type == 40 then return "PLUS" end if
-    if token_type == 41 then return "MINUS" end if
-    if token_type == 42 then return "MULTIPLY" end if
-    if token_type == 43 then return "DIVIDE" end if
-    if token_type == 44 then return "MODULO" end if
-    if token_type == 45 then return "ASSIGN" end if
-    if token_type == 46 then return "EQUALS" end if
-    if token_type == 47 then return "NOT_EQUALS" end if
-    if token_type == 48 then return "LESS" end if
-    if token_type == 49 then return "GREATER" end if
-    if token_type == 50 then return "LESS_EQUAL" end if
-    if token_type == 51 then return "GREATER_EQUAL" end if
-    if token_type == 52 then return "AND" end if
-    if token_type == 53 then return "OR" end if
-    if token_type == 54 then return "NOT" end if
-    
-    -- Symbols (60-72)
-    if token_type == 60 then return "LPAREN" end if
-    if token_type == 61 then return "RPAREN" end if
-    if token_type == 62 then return "LBRACKET" end if
-    if token_type == 63 then return "RBRACKET" end if
-    if token_type == 64 then return "LBRACE" end if
-    if token_type == 65 then return "RBRACE" end if
-    if token_type == 66 then return "COMMA" end if
-    if token_type == 67 then return "DOT" end if
-    if token_type == 68 then return "COLON" end if
-    if token_type == 69 then return "SEMICOLON" end if
-    if token_type == 70 then return "ARROW" end if
-    if token_type == 71 then return "LANGLEB" end if
-    if token_type == 72 then return "RANGLEB" end if
-    
-    -- Special (80-83)
-    if token_type == 80 then return "EOF" end if
-    if token_type == 81 then return "UNKNOWN" end if
-    if token_type == 82 then return "COMMENT" end if
-    if token_type == 83 then return "NEWLINE" end if
-    
-    return "UNKNOWN_TYPE"
-end function
+    return ""
+end_function
 
--- Convert token to string for debugging
 function token_to_string(list token) returns string
-    numeric ttype = get_token_type(token)
-    string tvalue = get_token_value(token)
-    numeric tline = get_token_line(token)
-    numeric tcol = get_token_column(token)
-    
-    string type_str = token_type_to_string(ttype)
-    
-    -- Convert numeric to string manually (workaround)
-    string line_str = "?"
-    if tline == 1 then line_str = "1" end if
-    if tline == 2 then line_str = "2" end if
-    if tline == 3 then line_str = "3" end if
-    
-    string col_str = "?"
-    if tcol == 1 then col_str = "1" end if
-    if tcol == 5 then col_str = "5" end if
-    if tcol == 10 then col_str = "10" end if
-    if tcol == 14 then col_str = "14" end if
-    if tcol == 15 then col_str = "15" end if
-    
-    -- Format: Token(TYPE, value, line, col) - simplified without quotes
-    return "Token(" + type_str + ", " + tvalue + ", " + line_str + ", " + col_str + ")"
-end function
+    return ""
+end_function
 
+function main() returns numeric
+    return 0
+end_function

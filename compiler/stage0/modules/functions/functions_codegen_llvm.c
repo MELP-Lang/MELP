@@ -157,7 +157,8 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
             // Parameter - already a value, just return register reference
             LLVMValue* val = llvm_reg(arith->value);
             // YZ_64: Set type based on parameter type
-            val->type = (param_type == FUNC_PARAM_TEXT) ? LLVM_TYPE_I8_PTR : LLVM_TYPE_I64;
+            // YZ_21: List parameters are pointers (i8*)
+            val->type = (param_type == FUNC_PARAM_TEXT || param_type == FUNC_PARAM_LIST) ? LLVM_TYPE_I8_PTR : LLVM_TYPE_I64;
             return val;
         } else {
             // YZ_65: Local variable - check if string or numeric
@@ -791,7 +792,8 @@ void function_generate_declaration_llvm(FunctionLLVMContext* ctx, FunctionDeclar
         while (param) {
             param_names[i] = param->name;
             // YZ_63: FUNC_PARAM_TEXT (1) -> string type (i8*)
-            param_types[i] = (param->type == FUNC_PARAM_TEXT) ? 1 : 0;
+            // YZ_21: FUNC_PARAM_LIST -> also i8* (pointer)
+            param_types[i] = (param->type == FUNC_PARAM_TEXT || param->type == FUNC_PARAM_LIST) ? 1 : 0;
             i++;
             param = param->next;
         }
