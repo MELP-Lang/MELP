@@ -1,0 +1,568 @@
+-- ============================================================================
+-- MELP Stage 1 - Structs Parser Module
+-- ============================================================================
+-- Author: YZ_10
+-- Date: 18 Aralık 2025
+-- Module: compiler/stage1/modules/structs/structs_parser.mlp
+-- 
+-- Description:
+--   Stateless struct parsing for Stage 1 compiler (MELP).
+--   Parses struct definitions, member access, and struct instantiation.
+--
+-- Features:
+--   - Struct definition: struct Person { name: string, age: numeric }
+--   - Member access: person.name
+--   - Struct instantiation: Person john = { name = "John", age = 30 }
+--   - Nested member access (TIER 1): person.address.city
+--
+-- Architecture:
+--   - STATELESS: All state passed as parameters
+--   - Returns: [result, new_position] pattern
+--   - No mutable globals (const OK - Rust model)
+--
+-- Dependencies:
+--   - compiler/stage1/modules/core/token_types.mlp
+--
+-- ============================================================================
+
+import "compiler/stage1/modules/core/token_types.mlp"
+
+-- ============================================================================
+-- STRUCT NODE TYPE CONSTANTS
+-- ============================================================================
+
+const numeric STRUCT_DEFINITION = 1      -- Struct definition (struct Person { ... })
+const numeric STRUCT_MEMBER = 2          -- Struct member (name: string)
+const numeric STRUCT_INSTANTIATION = 3   -- Struct instance creation
+const numeric STRUCT_MEMBER_ACCESS = 4   -- Member access (person.name)
+const numeric STRUCT_MEMBER_ASSIGN = 5   -- Member assignment (person.name = "John")
+
+-- ============================================================================
+-- STRUCT NODE STRUCTURES
+-- ============================================================================
+
+-- Struct Definition Node:
+-- [STRUCT_DEFINITION, struct_name, member_list, member_count]
+--
+-- Struct Member Node:
+-- [STRUCT_MEMBER, member_name, member_type]
+--
+-- Struct Instantiation Node:
+-- [STRUCT_INSTANTIATION, struct_type, instance_name, initializer_list]
+--
+-- Struct Member Access Node:
+-- [STRUCT_MEMBER_ACCESS, instance_name, member_name]
+--
+-- Struct Member Assignment Node:
+-- [STRUCT_MEMBER_ASSIGN, instance_name, member_name, value_expr]
+
+-- ============================================================================
+-- PARSER FUNCTIONS (STATELESS)
+-- ============================================================================
+
+-- ----------------------------------------------------------------------------
+-- parse_struct_definition
+-- ----------------------------------------------------------------------------
+-- Description:
+--   Parses a struct definition statement.
+--
+-- Syntax:
+--   struct Person
+--       string name
+--       numeric age
+--   end_struct
+--
+-- Parameters:
+--   tokens (list): Token list
+--   pos (numeric): Current position in token list
+--
+-- Returns:
+--   list: [struct_node, new_position]
+--   - struct_node: [STRUCT_DEFINITION, struct_name, member_list, member_count]
+--   - new_position: Position after parsing
+--
+-- Example:
+--   result = parse_struct_definition(tokens, 0)
+--   struct_node = result[0]
+--   next_pos = result[1]
+-- ----------------------------------------------------------------------------
+function parse_struct_definition(list tokens, numeric pos) returns list
+    -- Expect: struct
+    token = tokens[pos]
+    if token[0] != TOKEN_STRUCT then
+        return [0, pos]  -- Not a struct definition
+    end_if
+    pos = pos + 1
+    
+    -- Expect: struct name (identifier)
+    token = tokens[pos]
+    if token[0] != TOKEN_IDENTIFIER then
+        return [0, pos]  -- Error: expected struct name
+    end_if
+    struct_name = token[1]
+    pos = pos + 1
+    
+    -- Parse members
+    list member_list = []
+    numeric member_count = 0
+    
+    -- Loop until end_struct
+    while pos < len(tokens)
+        token = tokens[pos]
+        
+        -- Check for end_struct
+        if token[0] == TOKEN_END_STRUCT then
+            pos = pos + 1
+            break
+        end_if
+        
+        -- Parse member: type name
+        result = parse_struct_member(tokens, pos)
+        member_node = result[0]
+        pos = result[1]
+        
+        if member_node == 0 then
+            return [0, pos]  -- Error parsing member
+        end_if
+        
+        member_list[member_count] = member_node
+        member_count = member_count + 1
+    end_while
+    
+    -- Create struct definition node
+    list struct_node = [STRUCT_DEFINITION, struct_name, member_list, member_count]
+    
+    return [struct_node, pos]
+end_function
+
+-- ----------------------------------------------------------------------------
+-- parse_struct_member
+-- ----------------------------------------------------------------------------
+-- Description:
+--   Parses a single struct member declaration.
+--
+-- Syntax:
+--   string name
+--   numeric age
+--   list hobbies
+--
+-- Parameters:
+--   tokens (list): Token list
+--   pos (numeric): Current position in token list
+--
+-- Returns:
+--   list: [member_node, new_position]
+--   - member_node: [STRUCT_MEMBER, member_name, member_type]
+--   - new_position: Position after parsing
+-- ----------------------------------------------------------------------------
+function parse_struct_member(list tokens, numeric pos) returns list
+    -- Expect: type (numeric, string, boolean, list, or struct type)
+    token = tokens[pos]
+    
+    member_type = ""
+    
+    -- Check for primitive types
+    if token[0] == TOKEN_NUMERIC then
+        member_type = "numeric"
+        pos = pos + 1
+    else if token[0] == TOKEN_STRING then
+        member_type = "string"
+        pos = pos + 1
+    else if token[0] == TOKEN_BOOLEAN then
+        member_type = "boolean"
+        pos = pos + 1
+    else if token[0] == TOKEN_LIST then
+        member_type = "list"
+        pos = pos + 1
+    else if token[0] == TOKEN_IDENTIFIER then
+        -- Custom struct type
+        member_type = token[1]
+        pos = pos + 1
+    else
+        return [0, pos]  -- Error: invalid type
+    end_if
+    
+    -- Expect: member name (identifier)
+    token = tokens[pos]
+    if token[0] != TOKEN_IDENTIFIER then
+        return [0, pos]  -- Error: expected member name
+    end_if
+    member_name = token[1]
+    pos = pos + 1
+    
+    -- Create member node
+    list member_node = [STRUCT_MEMBER, member_name, member_type]
+    
+    return [member_node, pos]
+end_function
+
+-- ----------------------------------------------------------------------------
+-- parse_struct_instantiation
+-- ----------------------------------------------------------------------------
+-- Description:
+--   Parses a struct instantiation with initializer.
+--
+-- Syntax:
+--   Person john = { name = "John", age = 30 }
+--
+-- Parameters:
+--   tokens (list): Token list
+--   pos (numeric): Current position in token list
+--
+-- Returns:
+--   list: [instance_node, new_position]
+--   - instance_node: [STRUCT_INSTANTIATION, struct_type, instance_name, initializer_list]
+--   - new_position: Position after parsing
+--
+-- Note: This is called when we detect "StructType identifier =" pattern
+-- ----------------------------------------------------------------------------
+function parse_struct_instantiation(list tokens, numeric pos) returns list
+    -- Expect: struct type (identifier)
+    token = tokens[pos]
+    if token[0] != TOKEN_IDENTIFIER then
+        return [0, pos]  -- Not a struct instantiation
+    end_if
+    struct_type = token[1]
+    pos = pos + 1
+    
+    -- Expect: instance name (identifier)
+    token = tokens[pos]
+    if token[0] != TOKEN_IDENTIFIER then
+        return [0, pos]  -- Error: expected instance name
+    end_if
+    instance_name = token[1]
+    pos = pos + 1
+    
+    -- Expect: = (assignment)
+    token = tokens[pos]
+    if token[0] != TOKEN_ASSIGN then
+        return [0, pos]  -- Error: expected =
+    end_if
+    pos = pos + 1
+    
+    -- Expect: { (left brace)
+    token = tokens[pos]
+    if token[0] != TOKEN_LBRACE then
+        return [0, pos]  -- Error: expected {
+    end_if
+    pos = pos + 1
+    
+    -- Parse initializer list
+    list initializer_list = []
+    numeric init_count = 0
+    
+    -- Loop until }
+    while pos < len(tokens)
+        token = tokens[pos]
+        
+        -- Check for }
+        if token[0] == TOKEN_RBRACE then
+            pos = pos + 1
+            break
+        end_if
+        
+        -- Parse: member_name = value
+        -- Expect: identifier
+        if token[0] != TOKEN_IDENTIFIER then
+            return [0, pos]  -- Error: expected member name
+        end_if
+        member_name = token[1]
+        pos = pos + 1
+        
+        -- Expect: =
+        token = tokens[pos]
+        if token[0] != TOKEN_ASSIGN then
+            return [0, pos]  -- Error: expected =
+        end_if
+        pos = pos + 1
+        
+        -- Parse value (for now, simple literal)
+        -- TODO: Call expression parser for complex values
+        token = tokens[pos]
+        value = token[1]  -- Simplified: just get token value
+        pos = pos + 1
+        
+        -- Store initializer: [member_name, value]
+        initializer_list[init_count] = [member_name, value]
+        init_count = init_count + 1
+        
+        -- Check for comma (optional)
+        token = tokens[pos]
+        if token[0] == TOKEN_COMMA then
+            pos = pos + 1
+        end_if
+    end_while
+    
+    -- Create instantiation node
+    list instance_node = [STRUCT_INSTANTIATION, struct_type, instance_name, initializer_list]
+    
+    return [instance_node, pos]
+end_function
+
+-- ----------------------------------------------------------------------------
+-- parse_member_access
+-- ----------------------------------------------------------------------------
+-- Description:
+--   Parses a struct member access expression.
+--
+-- Syntax:
+--   person.name
+--   person.address.city  (nested, TIER 1)
+--
+-- Parameters:
+--   tokens (list): Token list
+--   pos (numeric): Current position in token list
+--
+-- Returns:
+--   list: [access_node, new_position]
+--   - access_node: [STRUCT_MEMBER_ACCESS, instance_name, member_name]
+--   - new_position: Position after parsing
+--
+-- Note: For now, single-level access. Nested access in TIER 1.
+-- ----------------------------------------------------------------------------
+function parse_member_access(list tokens, numeric pos) returns list
+    -- Expect: instance name (identifier)
+    token = tokens[pos]
+    if token[0] != TOKEN_IDENTIFIER then
+        return [0, pos]  -- Not a member access
+    end_if
+    instance_name = token[1]
+    pos = pos + 1
+    
+    -- Expect: . (dot)
+    token = tokens[pos]
+    if token[0] != TOKEN_DOT then
+        return [0, pos]  -- Not a member access
+    end_if
+    pos = pos + 1
+    
+    -- Expect: member name (identifier)
+    token = tokens[pos]
+    if token[0] != TOKEN_IDENTIFIER then
+        return [0, pos]  -- Error: expected member name
+    end_if
+    member_name = token[1]
+    pos = pos + 1
+    
+    -- Create member access node
+    list access_node = [STRUCT_MEMBER_ACCESS, instance_name, member_name]
+    
+    return [access_node, pos]
+end_function
+
+-- ----------------------------------------------------------------------------
+-- parse_member_assignment
+-- ----------------------------------------------------------------------------
+-- Description:
+--   Parses a struct member assignment statement.
+--
+-- Syntax:
+--   person.name = "Alice"
+--   person.age = 25
+--
+-- Parameters:
+--   tokens (list): Token list
+--   pos (numeric): Current position in token list
+--
+-- Returns:
+--   list: [assign_node, new_position]
+--   - assign_node: [STRUCT_MEMBER_ASSIGN, instance_name, member_name, value_expr]
+--   - new_position: Position after parsing
+-- ----------------------------------------------------------------------------
+function parse_member_assignment(list tokens, numeric pos) returns list
+    -- Parse member access first
+    result = parse_member_access(tokens, pos)
+    access_node = result[0]
+    pos = result[1]
+    
+    if access_node == 0 then
+        return [0, pos]  -- Not a member assignment
+    end_if
+    
+    instance_name = access_node[1]
+    member_name = access_node[2]
+    
+    -- Expect: = (assignment)
+    token = tokens[pos]
+    if token[0] != TOKEN_ASSIGN then
+        return [0, pos]  -- Not an assignment
+    end_if
+    pos = pos + 1
+    
+    -- Parse value expression (simplified: just get token)
+    -- TODO: Call expression parser for complex values
+    token = tokens[pos]
+    value_expr = token[1]
+    pos = pos + 1
+    
+    -- Create assignment node
+    list assign_node = [STRUCT_MEMBER_ASSIGN, instance_name, member_name, value_expr]
+    
+    return [assign_node, pos]
+end_function
+
+-- ============================================================================
+-- HELPER FUNCTIONS
+-- ============================================================================
+
+-- ----------------------------------------------------------------------------
+-- get_struct_name
+-- ----------------------------------------------------------------------------
+-- Description:
+--   Extracts the struct name from a struct definition node.
+--
+-- Parameters:
+--   struct_node (list): Struct definition node
+--
+-- Returns:
+--   string: Struct name
+-- ----------------------------------------------------------------------------
+function get_struct_name(list struct_node) returns string
+    return struct_node[1]
+end_function
+
+-- ----------------------------------------------------------------------------
+-- get_struct_members
+-- ----------------------------------------------------------------------------
+-- Description:
+--   Extracts the member list from a struct definition node.
+--
+-- Parameters:
+--   struct_node (list): Struct definition node
+--
+-- Returns:
+--   list: Member list
+-- ----------------------------------------------------------------------------
+function get_struct_members(list struct_node) returns list
+    return struct_node[2]
+end_function
+
+-- ----------------------------------------------------------------------------
+-- get_struct_member_count
+-- ----------------------------------------------------------------------------
+-- Description:
+--   Gets the number of members in a struct definition.
+--
+-- Parameters:
+--   struct_node (list): Struct definition node
+--
+-- Returns:
+--   numeric: Member count
+-- ----------------------------------------------------------------------------
+function get_struct_member_count(list struct_node) returns numeric
+    return struct_node[3]
+end_function
+
+-- ----------------------------------------------------------------------------
+-- get_member_name
+-- ----------------------------------------------------------------------------
+-- Description:
+--   Extracts the member name from a struct member node.
+--
+-- Parameters:
+--   member_node (list): Struct member node
+--
+-- Returns:
+--   string: Member name
+-- ----------------------------------------------------------------------------
+function get_member_name(list member_node) returns string
+    return member_node[1]
+end_function
+
+-- ----------------------------------------------------------------------------
+-- get_member_type
+-- ----------------------------------------------------------------------------
+-- Description:
+--   Extracts the member type from a struct member node.
+--
+-- Parameters:
+--   member_node (list): Struct member node
+--
+-- Returns:
+--   string: Member type
+-- ----------------------------------------------------------------------------
+function get_member_type(list member_node) returns string
+    return member_node[2]
+end_function
+
+-- ----------------------------------------------------------------------------
+-- is_struct_node
+-- ----------------------------------------------------------------------------
+-- Description:
+--   Checks if a node is a struct-related node.
+--
+-- Parameters:
+--   node (list): AST node
+--
+-- Returns:
+--   boolean: true if struct node, false otherwise
+-- ----------------------------------------------------------------------------
+function is_struct_node(list node) returns boolean
+    if len(node) == 0 then
+        return false
+    end_if
+    
+    node_type = node[0]
+    
+    if node_type == STRUCT_DEFINITION then
+        return true
+    end_if
+    
+    if node_type == STRUCT_MEMBER then
+        return true
+    end_if
+    
+    if node_type == STRUCT_INSTANTIATION then
+        return true
+    end_if
+    
+    if node_type == STRUCT_MEMBER_ACCESS then
+        return true
+    end_if
+    
+    if node_type == STRUCT_MEMBER_ASSIGN then
+        return true
+    end_if
+    
+    return false
+end_function
+
+-- ----------------------------------------------------------------------------
+-- get_struct_node_type_name
+-- ----------------------------------------------------------------------------
+-- Description:
+--   Converts struct node type constant to readable string.
+--
+-- Parameters:
+--   node_type (numeric): Struct node type constant
+--
+-- Returns:
+--   string: Node type name
+-- ----------------------------------------------------------------------------
+function get_struct_node_type_name(numeric node_type) returns string
+    if node_type == STRUCT_DEFINITION then
+        return "STRUCT_DEFINITION"
+    end_if
+    
+    if node_type == STRUCT_MEMBER then
+        return "STRUCT_MEMBER"
+    end_if
+    
+    if node_type == STRUCT_INSTANTIATION then
+        return "STRUCT_INSTANTIATION"
+    end_if
+    
+    if node_type == STRUCT_MEMBER_ACCESS then
+        return "STRUCT_MEMBER_ACCESS"
+    end_if
+    
+    if node_type == STRUCT_MEMBER_ASSIGN then
+        return "STRUCT_MEMBER_ASSIGN"
+    end_if
+    
+    return "UNKNOWN"
+end_function
+
+-- ============================================================================
+-- END OF MODULE
+-- ============================================================================

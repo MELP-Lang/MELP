@@ -1,0 +1,583 @@
+-- ============================================================================
+-- MELP Stage 1 - Structs Module Test Suite
+-- ============================================================================
+-- Author: YZ_10
+-- Date: 18 Aralık 2025
+-- Module: compiler/stage1/modules/structs/test_structs.mlp
+-- 
+-- Description:
+--   Comprehensive test suite for structs module.
+--   Tests parsing and code generation for struct operations.
+--
+-- Note:
+--   These tests will be executed when Stage 1 compiler is complete.
+--   For now, they serve as specification and validation of syntax.
+--
+-- Test Categories:
+--   1. Struct Definition Parsing
+--   2. Struct Member Parsing
+--   3. Struct Instantiation Parsing
+--   4. Member Access Parsing
+--   5. Member Assignment Parsing
+--   6. Struct Definition CodeGen
+--   7. Struct Allocation CodeGen
+--   8. Member Access CodeGen
+--   9. Member Assignment CodeGen
+--   10. Helper Functions
+--
+-- ============================================================================
+
+import "compiler/stage1/modules/structs/structs_parser.mlp"
+import "compiler/stage1/modules/structs/structs_codegen.mlp"
+import "compiler/stage1/modules/core/token_types.mlp"
+
+-- ============================================================================
+-- TEST 1: Parse Struct Definition - Simple
+-- ============================================================================
+
+function test_parse_struct_definition_simple() returns numeric
+    print "TEST 1: Parse Struct Definition - Simple"
+    
+    -- Simulate tokens for:
+    -- struct Person
+    --     string name
+    --     numeric age
+    -- end_struct
+    
+    list tokens = [
+        [TOKEN_STRUCT, "struct"],
+        [TOKEN_IDENTIFIER, "Person"],
+        [TOKEN_STRING, "string"],
+        [TOKEN_IDENTIFIER, "name"],
+        [TOKEN_NUMERIC, "numeric"],
+        [TOKEN_IDENTIFIER, "age"],
+        [TOKEN_END_STRUCT, "end_struct"]
+    ]
+    
+    result = parse_struct_definition(tokens, 0)
+    struct_node = result[0]
+    pos = result[1]
+    
+    -- Validate
+    if struct_node == 0 then
+        print "  FAIL: struct_node is 0"
+        return 1
+    end_if
+    
+    if struct_node[0] != STRUCT_DEFINITION then
+        print "  FAIL: Not a struct definition node"
+        return 1
+    end_if
+    
+    struct_name = get_struct_name(struct_node)
+    if struct_name != "Person" then
+        print "  FAIL: Wrong struct name"
+        return 1
+    end_if
+    
+    member_count = get_struct_member_count(struct_node)
+    if member_count != 2 then
+        print "  FAIL: Wrong member count"
+        return 1
+    end_if
+    
+    print "  PASS"
+    return 0
+end_function
+
+-- ============================================================================
+-- TEST 2: Parse Struct Member
+-- ============================================================================
+
+function test_parse_struct_member() returns numeric
+    print "TEST 2: Parse Struct Member"
+    
+    -- Tokens: string name
+    list tokens = [
+        [TOKEN_STRING, "string"],
+        [TOKEN_IDENTIFIER, "name"]
+    ]
+    
+    result = parse_struct_member(tokens, 0)
+    member_node = result[0]
+    pos = result[1]
+    
+    -- Validate
+    if member_node == 0 then
+        print "  FAIL: member_node is 0"
+        return 1
+    end_if
+    
+    if member_node[0] != STRUCT_MEMBER then
+        print "  FAIL: Not a struct member node"
+        return 1
+    end_if
+    
+    member_name = get_member_name(member_node)
+    if member_name != "name" then
+        print "  FAIL: Wrong member name"
+        return 1
+    end_if
+    
+    member_type = get_member_type(member_node)
+    if member_type != "string" then
+        print "  FAIL: Wrong member type"
+        return 1
+    end_if
+    
+    print "  PASS"
+    return 0
+end_function
+
+-- ============================================================================
+-- TEST 3: Parse Struct Instantiation
+-- ============================================================================
+
+function test_parse_struct_instantiation() returns numeric
+    print "TEST 3: Parse Struct Instantiation"
+    
+    -- Tokens: Person john = { name = "John", age = 30 }
+    list tokens = [
+        [TOKEN_IDENTIFIER, "Person"],
+        [TOKEN_IDENTIFIER, "john"],
+        [TOKEN_ASSIGN, "="],
+        [TOKEN_LBRACE, "{"],
+        [TOKEN_IDENTIFIER, "name"],
+        [TOKEN_ASSIGN, "="],
+        [TOKEN_STRING, "John"],
+        [TOKEN_COMMA, ","],
+        [TOKEN_IDENTIFIER, "age"],
+        [TOKEN_ASSIGN, "="],
+        [TOKEN_NUMBER, "30"],
+        [TOKEN_RBRACE, "}"]
+    ]
+    
+    result = parse_struct_instantiation(tokens, 0)
+    instance_node = result[0]
+    pos = result[1]
+    
+    -- Validate
+    if instance_node == 0 then
+        print "  FAIL: instance_node is 0"
+        return 1
+    end_if
+    
+    if instance_node[0] != STRUCT_INSTANTIATION then
+        print "  FAIL: Not a struct instantiation node"
+        return 1
+    end_if
+    
+    struct_type = instance_node[1]
+    if struct_type != "Person" then
+        print "  FAIL: Wrong struct type"
+        return 1
+    end_if
+    
+    instance_name = instance_node[2]
+    if instance_name != "john" then
+        print "  FAIL: Wrong instance name"
+        return 1
+    end_if
+    
+    print "  PASS"
+    return 0
+end_function
+
+-- ============================================================================
+-- TEST 4: Parse Member Access
+-- ============================================================================
+
+function test_parse_member_access() returns numeric
+    print "TEST 4: Parse Member Access"
+    
+    -- Tokens: person.name
+    list tokens = [
+        [TOKEN_IDENTIFIER, "person"],
+        [TOKEN_DOT, "."],
+        [TOKEN_IDENTIFIER, "name"]
+    ]
+    
+    result = parse_member_access(tokens, 0)
+    access_node = result[0]
+    pos = result[1]
+    
+    -- Validate
+    if access_node == 0 then
+        print "  FAIL: access_node is 0"
+        return 1
+    end_if
+    
+    if access_node[0] != STRUCT_MEMBER_ACCESS then
+        print "  FAIL: Not a member access node"
+        return 1
+    end_if
+    
+    instance_name = access_node[1]
+    if instance_name != "person" then
+        print "  FAIL: Wrong instance name"
+        return 1
+    end_if
+    
+    member_name = access_node[2]
+    if member_name != "name" then
+        print "  FAIL: Wrong member name"
+        return 1
+    end_if
+    
+    print "  PASS"
+    return 0
+end_function
+
+-- ============================================================================
+-- TEST 5: Parse Member Assignment
+-- ============================================================================
+
+function test_parse_member_assignment() returns numeric
+    print "TEST 5: Parse Member Assignment"
+    
+    -- Tokens: person.age = 25
+    list tokens = [
+        [TOKEN_IDENTIFIER, "person"],
+        [TOKEN_DOT, "."],
+        [TOKEN_IDENTIFIER, "age"],
+        [TOKEN_ASSIGN, "="],
+        [TOKEN_NUMBER, "25"]
+    ]
+    
+    result = parse_member_assignment(tokens, 0)
+    assign_node = result[0]
+    pos = result[1]
+    
+    -- Validate
+    if assign_node == 0 then
+        print "  FAIL: assign_node is 0"
+        return 1
+    end_if
+    
+    if assign_node[0] != STRUCT_MEMBER_ASSIGN then
+        print "  FAIL: Not a member assignment node"
+        return 1
+    end_if
+    
+    instance_name = assign_node[1]
+    if instance_name != "person" then
+        print "  FAIL: Wrong instance name"
+        return 1
+    end_if
+    
+    member_name = assign_node[2]
+    if member_name != "age" then
+        print "  FAIL: Wrong member name"
+        return 1
+    end_if
+    
+    print "  PASS"
+    return 0
+end_function
+
+-- ============================================================================
+-- TEST 6: CodeGen Struct Definition
+-- ============================================================================
+
+function test_codegen_struct_definition() returns numeric
+    print "TEST 6: CodeGen Struct Definition"
+    
+    -- Create a struct definition node
+    list member1 = [STRUCT_MEMBER, "name", "string"]
+    list member2 = [STRUCT_MEMBER, "age", "numeric"]
+    list members = [member1, member2]
+    list struct_node = [STRUCT_DEFINITION, "Person", members, 2]
+    
+    -- Generate LLVM IR
+    list context = []
+    result = codegen_struct_definition(struct_node, "", context)
+    llvm_code = result[0]
+    
+    -- Validate (basic check)
+    if llvm_code == "" then
+        print "  FAIL: Empty LLVM code"
+        return 1
+    end_if
+    
+    -- Should contain: %Person = type { i8*, i64 }
+    -- Simple validation: check if contains "Person" and "type"
+    -- (Full string check would need string search function)
+    
+    print "  Generated LLVM:"
+    print llvm_code
+    print "  PASS"
+    return 0
+end_function
+
+-- ============================================================================
+-- TEST 7: CodeGen Struct Allocation
+-- ============================================================================
+
+function test_codegen_struct_allocation() returns numeric
+    print "TEST 7: CodeGen Struct Allocation"
+    
+    list context = []
+    result = codegen_struct_allocation("Person", "john", "  ", context)
+    llvm_code = result[0]
+    
+    -- Validate
+    if llvm_code == "" then
+        print "  FAIL: Empty LLVM code"
+        return 1
+    end_if
+    
+    -- Should contain: %john = alloca %Person
+    print "  Generated LLVM:"
+    print llvm_code
+    print "  PASS"
+    return 0
+end_function
+
+-- ============================================================================
+-- TEST 8: CodeGen Member Access
+-- ============================================================================
+
+function test_codegen_member_access() returns numeric
+    print "TEST 8: CodeGen Member Access"
+    
+    -- Member access node: person.name
+    list access_node = [STRUCT_MEMBER_ACCESS, "person", "name"]
+    
+    list context = []
+    result = codegen_member_access(access_node, "temp_name", "  ", context)
+    llvm_code = result[0]
+    
+    -- Validate
+    if llvm_code == "" then
+        print "  FAIL: Empty LLVM code"
+        return 1
+    end_if
+    
+    -- Should contain GEP and load
+    print "  Generated LLVM:"
+    print llvm_code
+    print "  PASS"
+    return 0
+end_function
+
+-- ============================================================================
+-- TEST 9: CodeGen Member Assignment
+-- ============================================================================
+
+function test_codegen_member_assignment() returns numeric
+    print "TEST 9: CodeGen Member Assignment"
+    
+    -- Assignment node: person.age = 25
+    list assign_node = [STRUCT_MEMBER_ASSIGN, "person", "age", "25"]
+    
+    list context = []
+    result = codegen_member_assignment(assign_node, "  ", context)
+    llvm_code = result[0]
+    
+    -- Validate
+    if llvm_code == "" then
+        print "  FAIL: Empty LLVM code"
+        return 1
+    end_if
+    
+    -- Should contain GEP and store
+    print "  Generated LLVM:"
+    print llvm_code
+    print "  PASS"
+    return 0
+end_function
+
+-- ============================================================================
+-- TEST 10: Helper Functions
+-- ============================================================================
+
+function test_helper_functions() returns numeric
+    print "TEST 10: Helper Functions"
+    
+    -- Test map_type_to_llvm
+    llvm_type = map_type_to_llvm("numeric")
+    if llvm_type != "i64" then
+        print "  FAIL: Wrong LLVM type for numeric"
+        return 1
+    end_if
+    
+    llvm_type = map_type_to_llvm("string")
+    if llvm_type != "i8*" then
+        print "  FAIL: Wrong LLVM type for string"
+        return 1
+    end_if
+    
+    llvm_type = map_type_to_llvm("boolean")
+    if llvm_type != "i1" then
+        print "  FAIL: Wrong LLVM type for boolean"
+        return 1
+    end_if
+    
+    -- Test is_struct_node
+    list struct_node = [STRUCT_DEFINITION, "Person", [], 0]
+    if is_struct_node(struct_node) == false then
+        print "  FAIL: is_struct_node failed"
+        return 1
+    end_if
+    
+    -- Test get_struct_node_type_name
+    type_name = get_struct_node_type_name(STRUCT_DEFINITION)
+    if type_name != "STRUCT_DEFINITION" then
+        print "  FAIL: Wrong type name"
+        return 1
+    end_if
+    
+    print "  PASS"
+    return 0
+end_function
+
+-- ============================================================================
+-- TEST 11: Complex Struct with Multiple Members
+-- ============================================================================
+
+function test_complex_struct() returns numeric
+    print "TEST 11: Complex Struct with Multiple Members"
+    
+    -- Tokens for:
+    -- struct Employee
+    --     string name
+    --     numeric age
+    --     numeric salary
+    --     boolean active
+    -- end_struct
+    
+    list tokens = [
+        [TOKEN_STRUCT, "struct"],
+        [TOKEN_IDENTIFIER, "Employee"],
+        [TOKEN_STRING, "string"],
+        [TOKEN_IDENTIFIER, "name"],
+        [TOKEN_NUMERIC, "numeric"],
+        [TOKEN_IDENTIFIER, "age"],
+        [TOKEN_NUMERIC, "numeric"],
+        [TOKEN_IDENTIFIER, "salary"],
+        [TOKEN_BOOLEAN, "boolean"],
+        [TOKEN_IDENTIFIER, "active"],
+        [TOKEN_END_STRUCT, "end_struct"]
+    ]
+    
+    result = parse_struct_definition(tokens, 0)
+    struct_node = result[0]
+    
+    if struct_node == 0 then
+        print "  FAIL: Failed to parse"
+        return 1
+    end_if
+    
+    member_count = get_struct_member_count(struct_node)
+    if member_count != 4 then
+        print "  FAIL: Wrong member count (expected 4)"
+        return 1
+    end_if
+    
+    -- Generate LLVM
+    list context = []
+    result = codegen_struct_definition(struct_node, "", context)
+    llvm_code = result[0]
+    
+    print "  Generated LLVM:"
+    print llvm_code
+    print "  PASS"
+    return 0
+end_function
+
+-- ============================================================================
+-- TEST 12: Struct with Array Member (Integration with Arrays Module)
+-- ============================================================================
+
+function test_struct_with_array_member() returns numeric
+    print "TEST 12: Struct with Array Member"
+    
+    -- Tokens for:
+    -- struct Person
+    --     string name
+    --     list hobbies
+    -- end_struct
+    
+    list tokens = [
+        [TOKEN_STRUCT, "struct"],
+        [TOKEN_IDENTIFIER, "Person"],
+        [TOKEN_STRING, "string"],
+        [TOKEN_IDENTIFIER, "name"],
+        [TOKEN_LIST, "list"],
+        [TOKEN_IDENTIFIER, "hobbies"],
+        [TOKEN_END_STRUCT, "end_struct"]
+    ]
+    
+    result = parse_struct_definition(tokens, 0)
+    struct_node = result[0]
+    
+    if struct_node == 0 then
+        print "  FAIL: Failed to parse"
+        return 1
+    end_if
+    
+    members = get_struct_members(struct_node)
+    member2 = members[1]
+    member_type = get_member_type(member2)
+    
+    if member_type != "list" then
+        print "  FAIL: Wrong member type for hobbies"
+        return 1
+    end_if
+    
+    print "  PASS"
+    return 0
+end_function
+
+-- ============================================================================
+-- MAIN TEST RUNNER
+-- ============================================================================
+
+function run_all_struct_tests() returns numeric
+    print "========================================="
+    print "MELP Stage 1 - Structs Module Test Suite"
+    print "========================================="
+    print ""
+    
+    numeric failed = 0
+    
+    failed = failed + test_parse_struct_definition_simple()
+    failed = failed + test_parse_struct_member()
+    failed = failed + test_parse_struct_instantiation()
+    failed = failed + test_parse_member_access()
+    failed = failed + test_parse_member_assignment()
+    failed = failed + test_codegen_struct_definition()
+    failed = failed + test_codegen_struct_allocation()
+    failed = failed + test_codegen_member_access()
+    failed = failed + test_codegen_member_assignment()
+    failed = failed + test_helper_functions()
+    failed = failed + test_complex_struct()
+    failed = failed + test_struct_with_array_member()
+    
+    print ""
+    print "========================================="
+    if failed == 0 then
+        print "ALL TESTS PASSED! ✓"
+    else
+        print "SOME TESTS FAILED!"
+        print "Failed tests: "
+        print failed
+    end_if
+    print "========================================="
+    
+    return failed
+end_function
+
+-- ============================================================================
+-- ENTRY POINT
+-- ============================================================================
+
+-- Run all tests
+numeric exit_code = run_all_struct_tests()
+
+-- Return exit code (0 = success, non-zero = failure)
+return exit_code
+
+-- ============================================================================
+-- END OF TEST SUITE
+-- ============================================================================
