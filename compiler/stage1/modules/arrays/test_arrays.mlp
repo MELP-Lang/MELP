@@ -1,0 +1,513 @@
+-- ============================================================================
+-- test_arrays.mlp - Test Suite for Arrays Module
+-- ============================================================================
+-- Part of: Stage 1 Arrays Module
+-- Purpose: Test array parsing and code generation
+-- Status: SPECIFICATION ONLY - Cannot run until Stage 1 compiler is complete
+-- ============================================================================
+
+-- Import arrays module
+-- import "compiler/stage1/modules/arrays/arrays_parser.mlp"
+-- import "compiler/stage1/modules/arrays/arrays_codegen.mlp"
+-- import "compiler/stage1/modules/core/token_types.mlp"
+
+-- ============================================================================
+-- TEST 1: Empty Array Literal
+-- ============================================================================
+-- Test: Parse and generate code for empty array []
+-- Expected: Valid array node with 0 elements
+-- ============================================================================
+function test_empty_array() returns numeric
+    -- Input tokens: [LBRACKET, RBRACKET]
+    list tokens = [
+        [TOKEN_LBRACKET, "["],
+        [TOKEN_RBRACKET, "]"]
+    ]
+    
+    -- Parse array literal
+    list result = parse_array_literal(tokens, 0)
+    list array_node = result[0]
+    numeric new_pos = result[1]
+    
+    -- Verify parsing
+    if array_node == [] then
+        return 0  -- FAIL: Failed to parse empty array
+    end_if
+    
+    numeric node_type = array_node[0]
+    if node_type != ARRAY_LITERAL then
+        return 0  -- FAIL: Wrong node type
+    end_if
+    
+    numeric element_count = array_node[2]
+    if element_count != 0 then
+        return 0  -- FAIL: Empty array should have 0 elements
+    end_if
+    
+    if new_pos != 2 then
+        return 0  -- FAIL: Should consume 2 tokens
+    end_if
+    
+    -- Generate LLVM IR
+    list context = []
+    list codegen_result = codegen_array_literal(array_node, "%empty_arr", "  ", context)
+    string llvm_code = codegen_result[0]
+    
+    -- Verify code generation (basic check)
+    if llvm_code == "" then
+        return 0  -- FAIL: No code generated
+    end_if
+    
+    return 1  -- PASS
+end_function
+
+-- ============================================================================
+-- TEST 2: Integer Array Literal
+-- ============================================================================
+-- Test: Parse and generate code for [1, 2, 3]
+-- Expected: Array node with 3 integer elements
+-- ============================================================================
+function test_integer_array() returns numeric
+    -- Input tokens: [LBRACKET, NUMBER "1", COMMA, NUMBER "2", COMMA, NUMBER "3", RBRACKET]
+    list tokens = [
+        [TOKEN_LBRACKET, "["],
+        [TOKEN_NUMBER, "1"],
+        [TOKEN_COMMA, ","],
+        [TOKEN_NUMBER, "2"],
+        [TOKEN_COMMA, ","],
+        [TOKEN_NUMBER, "3"],
+        [TOKEN_RBRACKET, "]"]
+    ]
+    
+    -- Parse array literal
+    list result = parse_array_literal(tokens, 0)
+    list array_node = result[0]
+    numeric new_pos = result[1]
+    
+    -- Verify parsing
+    if array_node == [] then
+        return 0  -- FAIL: Failed to parse array
+    end_if
+    
+    numeric element_count = get_array_element_count(array_node)
+    if element_count != 3 then
+        return 0  -- FAIL: Should have 3 elements
+    end_if
+    
+    list elements = get_array_elements(array_node)
+    
+    -- Verify first element
+    list elem1 = elements[0]
+    if elem1[0] != LIT_INTEGER then
+        return 0  -- FAIL: First element should be integer
+    end_if
+    if elem1[1] != "1" then
+        return 0  -- FAIL: Wrong value
+    end_if
+    
+    -- Generate LLVM IR
+    list context = []
+    list codegen_result = codegen_array_literal(array_node, "%int_arr", "  ", context)
+    string llvm_code = codegen_result[0]
+    
+    if llvm_code == "" then
+        return 0  -- FAIL: No code generated
+    end_if
+    
+    return 1  -- PASS
+end_function
+
+-- ============================================================================
+-- TEST 3: String Array Literal
+-- ============================================================================
+-- Test: Parse ["hello", "world"]
+-- Expected: Array node with 2 string elements
+-- ============================================================================
+function test_string_array() returns numeric
+    -- Input tokens
+    list tokens = [
+        [TOKEN_LBRACKET, "["],
+        [TOKEN_STRING, "hello"],
+        [TOKEN_COMMA, ","],
+        [TOKEN_STRING, "world"],
+        [TOKEN_RBRACKET, "]"]
+    ]
+    
+    -- Parse array literal
+    list result = parse_array_literal(tokens, 0)
+    list array_node = result[0]
+    
+    if array_node == [] then
+        return 0  -- FAIL
+    end_if
+    
+    numeric element_count = get_array_element_count(array_node)
+    if element_count != 2 then
+        return 0  -- FAIL: Should have 2 elements
+    end_if
+    
+    list elements = get_array_elements(array_node)
+    list elem1 = elements[0]
+    
+    if elem1[0] != LIT_STRING then
+        return 0  -- FAIL: Should be string literal
+    end_if
+    
+    return 1  -- PASS
+end_function
+
+-- ============================================================================
+-- TEST 4: Boolean Array Literal
+-- ============================================================================
+-- Test: Parse [true, false, true]
+-- Expected: Array node with 3 boolean elements
+-- ============================================================================
+function test_boolean_array() returns numeric
+    list tokens = [
+        [TOKEN_LBRACKET, "["],
+        [TOKEN_TRUE, "true"],
+        [TOKEN_COMMA, ","],
+        [TOKEN_FALSE, "false"],
+        [TOKEN_COMMA, ","],
+        [TOKEN_TRUE, "true"],
+        [TOKEN_RBRACKET, "]"]
+    ]
+    
+    list result = parse_array_literal(tokens, 0)
+    list array_node = result[0]
+    
+    if array_node == [] then
+        return 0  -- FAIL
+    end_if
+    
+    numeric count = get_array_element_count(array_node)
+    if count != 3 then
+        return 0  -- FAIL
+    end_if
+    
+    -- Verify elements are booleans
+    list elements = get_array_elements(array_node)
+    list elem1 = elements[0]
+    if elem1[0] != LIT_BOOLEAN then
+        return 0  -- FAIL
+    end_if
+    
+    return 1  -- PASS
+end_function
+
+-- ============================================================================
+-- TEST 5: Array Indexing
+-- ============================================================================
+-- Test: Parse arr[0]
+-- Expected: ARRAY_INDEX node with array name and index
+-- ============================================================================
+function test_array_indexing() returns numeric
+    -- Input tokens: [IDENTIFIER "arr", LBRACKET, NUMBER "0", RBRACKET]
+    list tokens = [
+        [TOKEN_IDENTIFIER, "arr"],
+        [TOKEN_LBRACKET, "["],
+        [TOKEN_NUMBER, "0"],
+        [TOKEN_RBRACKET, "]"]
+    ]
+    
+    -- Parse array indexing
+    list result = parse_array_index(tokens, 0)
+    list index_node = result[0]
+    numeric new_pos = result[1]
+    
+    if index_node == [] then
+        return 0  -- FAIL: Failed to parse
+    end_if
+    
+    numeric node_type = index_node[0]
+    if node_type != ARRAY_INDEX then
+        return 0  -- FAIL: Wrong node type
+    end_if
+    
+    string array_name = get_array_name(index_node)
+    if array_name != "arr" then
+        return 0  -- FAIL: Wrong array name
+    end_if
+    
+    list index_expr = index_node[2]
+    if index_expr[0] != LIT_INTEGER then
+        return 0  -- FAIL: Index should be integer literal
+    end_if
+    
+    if new_pos != 4 then
+        return 0  -- FAIL: Should consume 4 tokens
+    end_if
+    
+    -- Generate LLVM IR
+    list context = []
+    list codegen_result = codegen_array_index(index_node, "%result", "  ", context)
+    string llvm_code = codegen_result[0]
+    
+    if llvm_code == "" then
+        return 0  -- FAIL: No code generated
+    end_if
+    
+    return 1  -- PASS
+end_function
+
+-- ============================================================================
+-- TEST 6: Array Length
+-- ============================================================================
+-- Test: Parse len(arr)
+-- Expected: ARRAY_LENGTH node with array name
+-- ============================================================================
+function test_array_length() returns numeric
+    -- Input tokens: [IDENTIFIER "len", LPAREN, IDENTIFIER "arr", RPAREN]
+    list tokens = [
+        [TOKEN_IDENTIFIER, "len"],
+        [TOKEN_LPAREN, "("],
+        [TOKEN_IDENTIFIER, "arr"],
+        [TOKEN_RPAREN, ")"]
+    ]
+    
+    -- Parse array length
+    list result = parse_array_length(tokens, 0)
+    list length_node = result[0]
+    numeric new_pos = result[1]
+    
+    if length_node == [] then
+        return 0  -- FAIL: Failed to parse
+    end_if
+    
+    numeric node_type = length_node[0]
+    if node_type != ARRAY_LENGTH then
+        return 0  -- FAIL: Wrong node type
+    end_if
+    
+    string array_name = get_array_name(length_node)
+    if array_name != "arr" then
+        return 0  -- FAIL: Wrong array name
+    end_if
+    
+    if new_pos != 4 then
+        return 0  -- FAIL: Should consume 4 tokens
+    end_if
+    
+    -- Generate LLVM IR
+    list context = []
+    list codegen_result = codegen_array_length(length_node, "%len_result", "  ", context)
+    string llvm_code = codegen_result[0]
+    
+    if llvm_code == "" then
+        return 0  -- FAIL: No code generated
+    end_if
+    
+    return 1  -- PASS
+end_function
+
+-- ============================================================================
+-- TEST 7: Array Declaration
+-- ============================================================================
+-- Test: Parse list numbers = [1, 2, 3]
+-- Expected: ARRAY_DECLARATION node
+-- ============================================================================
+function test_array_declaration() returns numeric
+    -- Input tokens: [LIST, IDENTIFIER "numbers", ASSIGN, LBRACKET, ...]
+    list tokens = [
+        [TOKEN_LIST, "list"],
+        [TOKEN_IDENTIFIER, "numbers"],
+        [TOKEN_ASSIGN, "="],
+        [TOKEN_LBRACKET, "["],
+        [TOKEN_NUMBER, "1"],
+        [TOKEN_COMMA, ","],
+        [TOKEN_NUMBER, "2"],
+        [TOKEN_COMMA, ","],
+        [TOKEN_NUMBER, "3"],
+        [TOKEN_RBRACKET, "]"]
+    ]
+    
+    -- Parse array declaration
+    list result = parse_array_declaration(tokens, 0)
+    list decl_node = result[0]
+    numeric new_pos = result[1]
+    
+    if decl_node == [] then
+        return 0  -- FAIL: Failed to parse
+    end_if
+    
+    numeric node_type = decl_node[0]
+    if node_type != ARRAY_DECLARATION then
+        return 0  -- FAIL: Wrong node type
+    end_if
+    
+    string var_name = get_array_name(decl_node)
+    if var_name != "numbers" then
+        return 0  -- FAIL: Wrong variable name
+    end_if
+    
+    list array_literal = decl_node[2]
+    if array_literal[0] != ARRAY_LITERAL then
+        return 0  -- FAIL: Should contain array literal
+    end_if
+    
+    -- Generate LLVM IR
+    list context = []
+    list codegen_result = codegen_array_declaration(decl_node, "  ", context)
+    string llvm_code = codegen_result[0]
+    
+    if llvm_code == "" then
+        return 0  -- FAIL: No code generated
+    end_if
+    
+    return 1  -- PASS
+end_function
+
+-- ============================================================================
+-- TEST 8: Single Element Array
+-- ============================================================================
+-- Test: Parse [42]
+-- Expected: Array with 1 element
+-- ============================================================================
+function test_single_element_array() returns numeric
+    list tokens = [
+        [TOKEN_LBRACKET, "["],
+        [TOKEN_NUMBER, "42"],
+        [TOKEN_RBRACKET, "]"]
+    ]
+    
+    list result = parse_array_literal(tokens, 0)
+    list array_node = result[0]
+    
+    if array_node == [] then
+        return 0  -- FAIL
+    end_if
+    
+    numeric count = get_array_element_count(array_node)
+    if count != 1 then
+        return 0  -- FAIL: Should have 1 element
+    end_if
+    
+    return 1  -- PASS
+end_function
+
+-- ============================================================================
+-- TEST 9: Array Type Inference
+-- ============================================================================
+-- Test: Verify homogeneous array type checking
+-- Expected: Correctly identify array element types
+-- ============================================================================
+function test_array_type_inference() returns numeric
+    -- Create integer array
+    list int_elements = [
+        [LIT_INTEGER, "1", "1"],
+        [LIT_INTEGER, "2", "2"],
+        [LIT_INTEGER, "3", "3"]
+    ]
+    
+    numeric is_homogeneous = is_homogeneous_array(int_elements, 3)
+    if is_homogeneous != 1 then
+        return 0  -- FAIL: Should be homogeneous
+    end_if
+    
+    -- Get element type
+    list first_elem = int_elements[0]
+    string elem_type = infer_element_llvm_type(first_elem)
+    if elem_type != "i64" then
+        return 0  -- FAIL: Should be i64
+    end_if
+    
+    return 1  -- PASS
+end_function
+
+-- ============================================================================
+-- TEST 10: Helper Functions
+-- ============================================================================
+-- Test: Verify helper functions work correctly
+-- ============================================================================
+function test_helper_functions() returns numeric
+    -- Test get_array_node_type_name
+    string type_name = get_array_node_type_name(ARRAY_LITERAL)
+    if type_name != "ARRAY_LITERAL" then
+        return 0  -- FAIL
+    end_if
+    
+    type_name = get_array_node_type_name(ARRAY_INDEX)
+    if type_name != "ARRAY_INDEX" then
+        return 0  -- FAIL
+    end_if
+    
+    type_name = get_array_node_type_name(ARRAY_LENGTH)
+    if type_name != "ARRAY_LENGTH" then
+        return 0  -- FAIL
+    end_if
+    
+    -- Test is_array_node
+    list test_node = [ARRAY_LITERAL, [], 0]
+    numeric is_array = is_array_node(test_node)
+    if is_array != 1 then
+        return 0  -- FAIL
+    end_if
+    
+    list not_array = []
+    is_array = is_array_node(not_array)
+    if is_array != 0 then
+        return 0  -- FAIL
+    end_if
+    
+    return 1  -- PASS
+end_function
+
+-- ============================================================================
+-- TEST RUNNER
+-- ============================================================================
+function run_all_array_tests() returns numeric
+    numeric total_tests = 10
+    numeric passed = 0
+    
+    -- Run tests
+    if test_empty_array() == 1 then
+        passed = passed + 1
+    end_if
+    
+    if test_integer_array() == 1 then
+        passed = passed + 1
+    end_if
+    
+    if test_string_array() == 1 then
+        passed = passed + 1
+    end_if
+    
+    if test_boolean_array() == 1 then
+        passed = passed + 1
+    end_if
+    
+    if test_array_indexing() == 1 then
+        passed = passed + 1
+    end_if
+    
+    if test_array_length() == 1 then
+        passed = passed + 1
+    end_if
+    
+    if test_array_declaration() == 1 then
+        passed = passed + 1
+    end_if
+    
+    if test_single_element_array() == 1 then
+        passed = passed + 1
+    end_if
+    
+    if test_array_type_inference() == 1 then
+        passed = passed + 1
+    end_if
+    
+    if test_helper_functions() == 1 then
+        passed = passed + 1
+    end_if
+    
+    -- Return pass rate (1 = all passed)
+    if passed == total_tests then
+        return 1
+    else
+        return 0
+    end_if
+end_function
+
+-- ============================================================================
+-- END OF test_arrays.mlp
+-- ============================================================================

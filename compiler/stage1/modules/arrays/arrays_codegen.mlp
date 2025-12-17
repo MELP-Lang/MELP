@@ -1,0 +1,413 @@
+-- ============================================================================
+-- arrays_codegen.mlp - Array CodeGen for MELP Stage 1
+-- ============================================================================
+-- Part of: Stage 1 Arrays Module
+-- Purpose: Generate LLVM IR for array operations
+-- Architecture: Stateless, parameterized design
+-- ============================================================================
+
+-- Import dependencies
+-- import "compiler/stage1/modules/core/token_types.mlp"
+-- import "compiler/stage1/modules/core/type_mapper.mlp"
+-- import "compiler/stage1/modules/arrays/arrays_parser.mlp"
+-- import "compiler/stage1/modules/literals/literals_codegen.mlp"
+
+-- ============================================================================
+-- LLVM TYPE CONSTANTS
+-- ============================================================================
+
+const string LLVM_I64 = "i64"           -- Integer type
+const string LLVM_I8_PTR = "i8*"        -- String pointer type
+const string LLVM_I1 = "i1"             -- Boolean type
+
+-- ============================================================================
+-- CODE GENERATION FUNCTIONS
+-- ============================================================================
+
+-- ----------------------------------------------------------------------------
+-- codegen_array_literal - Generate LLVM IR for array literal [1, 2, 3]
+-- ----------------------------------------------------------------------------
+-- Input:
+--   array_node: array literal node [ARRAY_LITERAL, elements, count]
+--   result_var: variable name to store result
+--   indent: indentation string
+--   context: code generation context (for string IDs, etc.)
+-- Output:
+--   list [llvm_code, global_declarations, new_context]
+--
+-- Strategy:
+--   1. Allocate array on stack using alloca
+--   2. Store each element using getelementptr + store
+--   3. Return pointer to array
+--
+-- LLVM IR Pattern:
+--   %arr = alloca [N x i64]                    ; Allocate array
+--   %elem0_ptr = getelementptr [N x i64], [N x i64]* %arr, i32 0, i32 0
+--   store i64 1, i64* %elem0_ptr               ; Store first element
+--   %elem1_ptr = getelementptr [N x i64], [N x i64]* %arr, i32 0, i32 1
+--   store i64 2, i64* %elem1_ptr               ; Store second element
+--   ...
+-- ----------------------------------------------------------------------------
+function codegen_array_literal(list array_node, string result_var, string indent, list context) returns list
+    -- Extract array information
+    list elements = array_node[1]
+    numeric element_count = array_node[2]
+    
+    -- Initialize output
+    string llvm_code = ""
+    string global_decls = ""
+    list new_context = context
+    
+    -- Handle empty array
+    if element_count == 0 then
+        -- Empty array - allocate but don't initialize
+        llvm_code = indent
+        llvm_code = llvm_code + result_var
+        llvm_code = llvm_code + " = alloca [0 x i64]  ; empty array\n"
+        return [llvm_code, global_decls, new_context]
+    end_if
+    
+    -- Determine element type (assume homogeneous - first element's type)
+    list first_element = elements[0]
+    string element_type = infer_element_llvm_type(first_element)
+    
+    -- Generate array type: [N x element_type]
+    string array_type = "["
+    -- TIER 1: Proper numeric to string conversion
+    array_type = array_type + "COUNT"  -- Placeholder
+    array_type = array_type + " x "
+    array_type = array_type + element_type
+    array_type = array_type + "]"
+    
+    -- Allocate array
+    llvm_code = indent
+    llvm_code = llvm_code + result_var
+    llvm_code = llvm_code + " = alloca "
+    llvm_code = llvm_code + array_type
+    llvm_code = llvm_code + "  ; array literal\n"
+    
+    -- Store each element
+    numeric i = 0
+    while i < element_count do
+        list element = elements[i]
+        
+        -- Generate code to evaluate element
+        string elem_var = "%array_elem_"
+        -- TIER 1: elem_var = elem_var + i
+        elem_var = elem_var + "N"
+        
+        list elem_result = codegen_array_element(element, elem_var, indent, new_context)
+        string elem_code = elem_result[0]
+        string elem_globals = elem_result[1]
+        new_context = elem_result[2]
+        
+        llvm_code = llvm_code + elem_code
+        global_decls = global_decls + elem_globals
+        
+        -- Get pointer to array element using getelementptr
+        string ptr_var = "%array_ptr_"
+        -- TIER 1: ptr_var = ptr_var + i
+        ptr_var = ptr_var + "N"
+        
+        llvm_code = llvm_code + indent
+        llvm_code = llvm_code + ptr_var
+        llvm_code = llvm_code + " = getelementptr "
+        llvm_code = llvm_code + array_type
+        llvm_code = llvm_code + ", "
+        llvm_code = llvm_code + array_type
+        llvm_code = llvm_code + "* "
+        llvm_code = llvm_code + result_var
+        llvm_code = llvm_code + ", i32 0, i32 "
+        -- TIER 1: llvm_code = llvm_code + i
+        llvm_code = llvm_code + "INDEX\n"
+        
+        -- Store element value
+        llvm_code = llvm_code + indent
+        llvm_code = llvm_code + "store "
+        llvm_code = llvm_code + element_type
+        llvm_code = llvm_code + " "
+        llvm_code = llvm_code + elem_var
+        llvm_code = llvm_code + ", "
+        llvm_code = llvm_code + element_type
+        llvm_code = llvm_code + "* "
+        llvm_code = llvm_code + ptr_var
+        llvm_code = llvm_code + "\n"
+        
+        i = i + 1
+    end_while
+    
+    return [llvm_code, global_decls, new_context]
+end_function
+
+-- ----------------------------------------------------------------------------
+-- codegen_array_element - Generate code for single array element
+-- ----------------------------------------------------------------------------
+-- Input:
+--   element: element node (literal, variable, or expression)
+--   result_var: variable to store result
+--   indent: indentation string
+--   context: code generation context
+-- Output:
+--   [element_code, global_decls, new_context]
+-- ----------------------------------------------------------------------------
+function codegen_array_element(list element, string result_var, string indent, list context) returns list
+    -- Check element type
+    numeric elem_type = element[0]
+    
+    -- Check if it's a literal
+    if elem_type == LIT_INTEGER then
+        -- Integer literal
+        string value = element[1]
+        string code = indent
+        code = code + result_var
+        code = code + " = add i64 0, "
+        code = code + value
+        code = code + "  ; integer literal\n"
+        return [code, "", context]
+    else_if elem_type == LIT_STRING then
+        -- String literal - use literals_codegen
+        list str_result = codegen_string_literal(element, result_var, indent, context)
+        return str_result
+    else_if elem_type == LIT_BOOLEAN then
+        -- Boolean literal
+        numeric bool_val = element[1]
+        string code = indent
+        code = code + result_var
+        code = code + " = add i1 0, "
+        if bool_val == 1 then
+            code = code + "1"
+        else
+            code = code + "0"
+        end_if
+        code = code + "  ; boolean literal\n"
+        return [code, "", context]
+    else
+        -- TIER 1: Handle expressions, variables, nested arrays
+        return ["  ; TODO: element codegen\n", "", context]
+    end_if
+end_function
+
+-- ----------------------------------------------------------------------------
+-- codegen_array_index - Generate LLVM IR for array indexing: arr[i]
+-- ----------------------------------------------------------------------------
+-- Input:
+--   index_node: [ARRAY_INDEX, array_name, index_expr]
+--   result_var: variable to store result
+--   indent: indentation string
+--   context: code generation context
+-- Output:
+--   [llvm_code, global_decls, new_context]
+--
+-- LLVM IR Pattern:
+--   %index = <evaluate index_expr>             ; Get index value
+--   %ptr = getelementptr [N x i64], [N x i64]* %arr, i32 0, i64 %index
+--   %result = load i64, i64* %ptr              ; Load element
+-- ----------------------------------------------------------------------------
+function codegen_array_index(list index_node, string result_var, string indent, list context) returns list
+    string array_name = index_node[1]
+    list index_expr = index_node[2]
+    
+    string llvm_code = ""
+    string global_decls = ""
+    list new_context = context
+    
+    -- Generate code to evaluate index expression
+    string index_var = "%array_index_temp"
+    list index_result = codegen_array_element(index_expr, index_var, indent, new_context)
+    string index_code = index_result[0]
+    string index_globals = index_result[1]
+    new_context = index_result[2]
+    
+    llvm_code = llvm_code + index_code
+    global_decls = global_decls + index_globals
+    
+    -- Get pointer to element using getelementptr
+    string ptr_var = "%array_elem_ptr"
+    
+    -- TIER 1: Get array type from context/symbol table
+    string array_type = "[10 x i64]"  -- Placeholder
+    string elem_type = "i64"          -- Placeholder
+    
+    llvm_code = llvm_code + indent
+    llvm_code = llvm_code + ptr_var
+    llvm_code = llvm_code + " = getelementptr "
+    llvm_code = llvm_code + array_type
+    llvm_code = llvm_code + ", "
+    llvm_code = llvm_code + array_type
+    llvm_code = llvm_code + "* %"
+    llvm_code = llvm_code + array_name
+    llvm_code = llvm_code + ", i32 0, i64 "
+    llvm_code = llvm_code + index_var
+    llvm_code = llvm_code + "  ; array indexing\n"
+    
+    -- Load element value
+    llvm_code = llvm_code + indent
+    llvm_code = llvm_code + result_var
+    llvm_code = llvm_code + " = load "
+    llvm_code = llvm_code + elem_type
+    llvm_code = llvm_code + ", "
+    llvm_code = llvm_code + elem_type
+    llvm_code = llvm_code + "* "
+    llvm_code = llvm_code + ptr_var
+    llvm_code = llvm_code + "\n"
+    
+    return [llvm_code, global_decls, new_context]
+end_function
+
+-- ----------------------------------------------------------------------------
+-- codegen_array_length - Generate LLVM IR for array length: len(arr)
+-- ----------------------------------------------------------------------------
+-- Input:
+--   length_node: [ARRAY_LENGTH, array_name]
+--   result_var: variable to store result
+--   indent: indentation string
+--   context: code generation context
+-- Output:
+--   [llvm_code, global_decls, new_context]
+--
+-- Strategy:
+--   Array length is compile-time constant (for fixed-size arrays)
+--   For dynamic arrays, TIER 1: implement runtime length tracking
+--
+-- LLVM IR:
+--   %length = add i64 0, <array_length>
+-- ----------------------------------------------------------------------------
+function codegen_array_length(list length_node, string result_var, string indent, list context) returns list
+    string array_name = length_node[1]
+    
+    -- TIER 1: Get array length from context/symbol table
+    numeric array_length = 10  -- Placeholder
+    
+    string llvm_code = indent
+    llvm_code = llvm_code + result_var
+    llvm_code = llvm_code + " = add i64 0, "
+    -- TIER 1: Convert array_length to string
+    llvm_code = llvm_code + "LENGTH"
+    llvm_code = llvm_code + "  ; array length\n"
+    
+    return [llvm_code, "", context]
+end_function
+
+-- ----------------------------------------------------------------------------
+-- codegen_array_declaration - Generate LLVM IR for array declaration
+-- ----------------------------------------------------------------------------
+-- Input:
+--   decl_node: [ARRAY_DECLARATION, var_name, array_literal]
+--   indent: indentation string
+--   context: code generation context
+-- Output:
+--   [llvm_code, global_decls, new_context]
+--
+-- Example:
+--   list arr = [1, 2, 3]
+--
+-- LLVM IR:
+--   %arr = alloca [3 x i64]
+--   <initialization code for elements>
+-- ----------------------------------------------------------------------------
+function codegen_array_declaration(list decl_node, string indent, list context) returns list
+    string var_name = decl_node[1]
+    list array_literal = decl_node[2]
+    
+    -- Generate code for array literal
+    string result_var = "%"
+    result_var = result_var + var_name
+    
+    list literal_result = codegen_array_literal(array_literal, result_var, indent, context)
+    
+    return literal_result
+end_function
+
+-- ============================================================================
+-- HELPER FUNCTIONS
+-- ============================================================================
+
+-- ----------------------------------------------------------------------------
+-- infer_element_llvm_type - Infer LLVM type from element node
+-- ----------------------------------------------------------------------------
+function infer_element_llvm_type(list element) returns string
+    numeric elem_type = element[0]
+    
+    if elem_type == LIT_INTEGER then
+        return "i64"
+    else_if elem_type == LIT_STRING then
+        return "i8*"
+    else_if elem_type == LIT_BOOLEAN then
+        return "i1"
+    else
+        return "i64"  -- Default
+    end_if
+end_function
+
+-- ----------------------------------------------------------------------------
+-- get_array_llvm_type - Get LLVM array type string
+-- ----------------------------------------------------------------------------
+function get_array_llvm_type(numeric count, string element_type) returns string
+    string array_type = "["
+    -- TIER 1: Convert count to string
+    array_type = array_type + "N"
+    array_type = array_type + " x "
+    array_type = array_type + element_type
+    array_type = array_type + "]"
+    return array_type
+end_function
+
+-- ----------------------------------------------------------------------------
+-- is_homogeneous_array - Check if all elements have same type
+-- ----------------------------------------------------------------------------
+function is_homogeneous_array(list elements, numeric count) returns numeric
+    if count == 0 then
+        return 1  -- Empty array is homogeneous
+    end_if
+    
+    if count == 1 then
+        return 1  -- Single element is homogeneous
+    end_if
+    
+    -- Get first element type
+    list first = elements[0]
+    string first_type = infer_element_llvm_type(first)
+    
+    -- Check remaining elements
+    numeric i = 1
+    while i < count do
+        list elem = elements[i]
+        string elem_type = infer_element_llvm_type(elem)
+        
+        if elem_type != first_type then
+            return 0  -- Not homogeneous
+        end_if
+        
+        i = i + 1
+    end_while
+    
+    return 1  -- All elements have same type
+end_function
+
+-- ============================================================================
+-- DISPATCHER FUNCTION
+-- ============================================================================
+
+-- ----------------------------------------------------------------------------
+-- codegen_array - Main dispatcher for array code generation
+-- ----------------------------------------------------------------------------
+function codegen_array(list array_node, string result_var, string indent, list context) returns list
+    numeric node_type = array_node[0]
+    
+    if node_type == ARRAY_LITERAL then
+        return codegen_array_literal(array_node, result_var, indent, context)
+    else_if node_type == ARRAY_INDEX then
+        return codegen_array_index(array_node, result_var, indent, context)
+    else_if node_type == ARRAY_LENGTH then
+        return codegen_array_length(array_node, result_var, indent, context)
+    else_if node_type == ARRAY_DECLARATION then
+        return codegen_array_declaration(array_node, indent, context)
+    else
+        -- Unknown array node type
+        return ["  ; ERROR: unknown array node type\n", "", context]
+    end_if
+end_function
+
+-- ============================================================================
+-- END OF arrays_codegen.mlp
+-- ============================================================================
