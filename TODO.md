@@ -91,43 +91,70 @@ compiler/stage0/modules/     compiler/stage1/modules/
 
 ## ⚠️ ÖNEMLİ: TEST STRATEJİSİ
 
-### 🎯 Her Modül İçin Test Adımları
+### 📋 Fazlar
+
+**FAZ 1 (YZ_03 - YZ_11): Modül Geliştirme**
+- ✅ Her YZ kendi modülünün test dosyasını YAZ
+- ✅ Test syntax'ını kontrol et (manuel)
+- ❌ Test ÇALIŞTIRMA (henüz Stage 1 compiler yok)
+- 📌 Test dosyaları "specification" olarak hazır olacak
+
+**FAZ 2 (YZ_12): Integration & Test Execution** ⭐
+- [ ] Ana Stage 1 compiler'ı oluştur (tüm modülleri birleştir)
+- [ ] Bootstrap: Stage 0 ile Stage 1'i compile et
+- [ ] **TÜM MODÜLLERİN TESTLERİNİ ÇALIŞTIR**
+- [ ] Her test sonucunu doğrula
+- [ ] Hataları düzelt
+- [ ] Production-ready Stage 1 compiler
+
+### 🎯 Her Modül İçin Test Adımları (YZ_03 - YZ_11)
 
 **STANDART PATTERN (Her YZ için ZORUNLU):**
 
 1. **Implement** - Kod yaz (parser + codegen)
-2. **Test Yaz** - Test dosyası oluştur (`test_*.mlp`)
-3. **Test ÇALIŞTIR** ⭐ **YENİ!**
-   - Stage 0 ile compile et: `./stage0_compiler test_module.mlp`
-   - Her test case çalıştır
-   - Çıktıları doğrula
-   - LLVM IR kontrol et
-4. **Doğrula** - Testler geçmezse README YAZMA!
-5. **README** - Dokümantasyon
+2. **Test Yaz** ⭐ - Test dosyası oluştur (`test_*.mlp`)
+   - Modül dizininde: `modules/my_module/test_my_module.mlp`
+   - Comprehensive test cases
+   - Ana dizine ASLA test dosyası oluşturma!
+3. **Syntax Kontrol** - Manuel kontrol (çalıştırma değil)
+4. **README** - Dokümantasyon
 
-**⚠️ ŞU ANDA DURUM:**
-- Stage 1 compiler henüz hazır değil
-- Test dosyaları yazılıyor ✅
-- Testler ÇALIŞTIRILAMIYOR ❌
-- **Çözüm:** Stage 1 compiler tamamlanınca tüm testler çalıştırılacak
+**⚠️ TEST ÇALIŞTIRMA → YZ_12'DE!**
 
-**📌 GELECEK PLAN:**
-- Her modül test dosyası hazır
-- Stage 1 compiler tamamlanınca:
-  - Tüm testler sırayla çalıştırılacak
-  - Sonuçlar doğrulanacak
-  - Hata varsa düzeltilecek
+### 🎯 YZ_12 İçin Test Adımları (Integration Sonrası)
 
-### 🔧 Test Çalıştırma Komutları (Stage 1 hazır olunca)
+**STANDART PATTERN (YZ_12'de yapılacak):**
+
+1. **Stage 1 Compiler Oluştur** - Tüm modülleri birleştir
+2. **Bootstrap** - Stage 0 ile Stage 1'i compile et
+3. **Test Çalıştır** - Her modülün testini sırayla çalıştır
+   ```bash
+   # Her modül için
+   cd compiler/stage1/modules/operators/
+   ../../../../stage1_compiler test_operators.mlp -o test.ll
+   lli test.ll
+   ```
+4. **Doğrula** - Sonuçları kontrol et
+5. **Düzelt** - Hata varsa modülleri düzelt
+
+### 🔧 Test Çalıştırma Komutları (YZ_12'de kullanılacak)
 
 ```bash
-# Modül testi çalıştır
-cd compiler/stage1/modules/operators/
-../../../../stage0_compiler test_operators.mlp -o test_operators.ll
-lli test_operators.ll
+# YZ_12'de kullanılacak komutlar:
 
-# Tüm testleri çalıştır
-./scripts/run_all_stage1_tests.sh
+# 1. Bootstrap Stage 1
+cd compiler/stage0
+make all
+./stage0_compiler ../stage1/main.mlp -o ../stage1/stage1_compiler
+
+# 2. Tüm testleri çalıştır
+cd ../stage1
+./run_all_tests.sh
+
+# 3. Modül bazında test
+cd modules/operators/
+../../stage1_compiler test_operators.mlp
+./test_operators
 ```
 
 **Sonraki YZ başlangıçta:**
@@ -628,35 +655,90 @@ lli test_operators.ll
 
 ---
 
-### ⏳ YZ_12 - Integration & Orchestration
+### ⏳ YZ_12 - Integration & Test Execution ⭐
 **Dal:** `integration_YZ_12`  
-**Tahmini:** 4 saat  
+**Tahmini:** 6 saat (4h integration + 2h testing)  
 **Durum:** ⏸️ BEKLİYOR
 
+**🎯 ÖNEMLİ:** YZ_12 sadece integration değil, aynı zamanda **TÜM MODÜLLERİN TESTLERİNİ ÇALIŞTIRMA** noktasıdır!
+
 #### Yapılacaklar:
-- [ ] **12.1** `modules/integration/` dizini oluştur
-- [ ] **12.2** Compiler orchestrator
-  - [ ] `stage1_compiler.mlp` - Ana compiler
-  - [ ] Tüm modülleri import et
-  - [ ] Pipeline: Lexer → Parser → CodeGen
-- [ ] **12.3** End-to-end test suite
-  - [ ] Multi-feature programs
-  - [ ] Complex scenarios
-- [ ] **12.4** Build script
-  - [ ] `scripts/build_stage1_modular.sh`
-  - [ ] Modüler yapıyı compile et
-- [ ] **12.5** README
+- [ ] **12.1** Ana Stage 1 Compiler Oluştur
+  - [ ] `compiler/stage1/main.mlp` - Ana compiler entry point
+  - [ ] Tüm modülleri import et (core, functions, variables, operators, etc.)
+  - [ ] Pipeline: Lexer → Parser → CodeGen → LLVM Backend
+  - [ ] Modüler yapıyı birleştir
+
+- [ ] **12.2** Bootstrap
+  - [ ] Stage 0 ile Stage 1'i compile et
+  - [ ] `./stage0_compiler stage1/main.mlp -o stage1_compiler`
+  - [ ] Stage 1 compiler binary'sini üret
+
+- [ ] **12.3** TÜM MODÜL TESTLERİNİ ÇALIŞTIR ⭐⭐⭐
+  - [ ] YZ_03 (core) testlerini çalıştır → `test_core.mlp`
+  - [ ] YZ_04 (functions) testlerini çalıştır → `test_functions.mlp`
+  - [ ] YZ_05 (variables) testlerini çalıştır → `test_variables.mlp`
+  - [ ] YZ_06 (operators) testlerini çalıştır → `test_operators.mlp`
+  - [ ] YZ_07 (control_flow) testlerini çalıştır → `test_control_flow.mlp`
+  - [ ] YZ_08 (literals) testlerini çalıştır → `test_literals.mlp`
+  - [ ] YZ_09 (arrays) testlerini çalıştır → `test_arrays.mlp`
+  - [ ] YZ_10 (structs) testlerini çalıştır → `test_structs.mlp`
+  - [ ] YZ_11 (enums) testlerini çalıştır → `test_enums.mlp`
+  - [ ] Her testin sonucunu doğrula
+  - [ ] Test raporu oluştur
+
+- [ ] **12.4** Test Sonuçları Doğrulama
+  - [ ] Başarısız testleri belirle
+  - [ ] Hataları analiz et
+  - [ ] Gerekiyorsa modülleri düzelt
+  - [ ] Tüm testler geçene kadar tekrarla
+
+- [ ] **12.5** Integration Test Suite
+  - [ ] Multi-feature programs (function + variables + operators)
+  - [ ] Complex scenarios (nested control flow, etc.)
+  - [ ] End-to-end testler
+
+- [ ] **12.6** Build Script
+  - [ ] `scripts/build_stage1.sh` - Stage 1 build script
+  - [ ] `scripts/run_all_tests.sh` - Tüm testleri çalıştır
+  - [ ] Test automation
+
+- [ ] **12.7** README ve Rapor
+  - [ ] Integration dokümantasyonu
+  - [ ] Test sonuçları raporu
+  - [ ] `YZ_Stage_1/YZ_12_RAPOR.md`
 
 #### Başarı Kriterleri:
-- ✅ Tüm modüller entegre
+- ✅ Tüm modüller entegre (YZ_03 - YZ_11)
 - ✅ Stage 1 compiler çalışıyor
-- ✅ End-to-end testler geçiyor
+- ✅ **TÜM MODÜL TESTLERİ GEÇİYOR** ⭐
+- ✅ Bootstrap başarılı
+- ✅ Integration testleri geçiyor
+- ✅ Hata raporu yok
 
 #### Çıktılar:
-- `modules/integration/stage1_compiler.mlp`
-- `scripts/build_stage1_modular.sh`
-- `tests/integration/test_*.mlp`
-- `YZ_Stage_1/YZ_12_RAPOR.md`
+- ✅ `compiler/stage1/main.mlp` - Ana compiler
+- ✅ `compiler/stage1/stage1_compiler` - Compiled binary
+- ✅ `scripts/build_stage1.sh` - Build script
+- ✅ `scripts/run_all_tests.sh` - Test runner
+- ✅ `YZ_Stage_1/YZ_12_TEST_REPORT.md` - Test sonuçları
+- ✅ `YZ_Stage_1/YZ_12_RAPOR.md` - Integration raporu
+
+**📊 Beklenen Test Sonucu:**
+```
+Module Tests:
+  ✅ core        - 15/15 passed
+  ✅ functions   - 6/6 passed
+  ✅ variables   - 8/8 passed
+  ✅ operators   - 8/8 passed
+  ✅ control_flow- 10/10 passed
+  ✅ literals    - 12/12 passed
+  ✅ arrays      - 15/15 passed
+  ✅ structs     - 10/10 passed
+  ✅ enums       - 8/8 passed
+  
+Total: 92/92 tests passed (100%)
+```
 
 ---
 
