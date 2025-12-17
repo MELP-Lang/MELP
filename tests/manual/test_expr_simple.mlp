@@ -1,0 +1,38 @@
+-- Simple expression parser test
+-- Stage 0 compatible
+
+function get_prec(numeric t) returns numeric
+    if t == 18 then return 6 end_if  -- *
+    if t == 16 then return 5 end_if  -- +
+    return 0
+end_function
+
+function main() returns numeric
+    -- Test precedence
+    numeric plus_prec = get_prec(16)
+    numeric mult_prec = get_prec(18)
+    
+    println("Precedence test:")
+    println("  + precedence: " + str(plus_prec))
+    println("  * precedence: " + str(mult_prec))
+    
+    if mult_prec > plus_prec then
+        println("✓ Multiplication has higher precedence")
+    end_if
+    
+    -- Test token parsing
+    list tok1 = [12, "42", 1, 1]
+    numeric ttype = tok1[0]
+    string tval = tok1[1]
+    
+    println("")
+    println("Token test:")
+    println("  Type: " + str(ttype))
+    println("  Value: " + tval)
+    
+    if ttype == 12 then
+        println("✓ Number token detected")
+    end_if
+    
+    return 0
+end_function

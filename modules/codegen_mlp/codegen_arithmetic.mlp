@@ -1,0 +1,42 @@
+-- Codegen Arithmetic STUB - Stage 0 Compatible
+-- YZ_21: 17 December 2025
+
+function codegen_add(string left_val, string right_val) returns string
+    return ""
+end_function
+
+function codegen_sub(string left_val, string right_val) returns string
+    return ""
+end_function
+
+function codegen_mul(string left_val, string right_val) returns string
+    return ""
+end_function
+
+function codegen_div(string left_val, string right_val) returns string
+    return ""
+end_function
+
+function codegen_mod(string left_val, string right_val) returns string
+    return ""
+end_function
+
+function codegen_negate(string operand) returns string
+    return ""
+end_function
+
+function codegen_unary_plus(string operand) returns string
+    return ""
+end_function
+
+function codegen_binary_op(string operator, string left_val, string right_val) returns string
+    return ""
+end_function
+
+function codegen_expression(string expr_str) returns string
+    return ""
+end_function
+
+function main() returns numeric
+    return 0
+end_function

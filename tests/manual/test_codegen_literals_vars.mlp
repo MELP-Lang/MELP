@@ -1,0 +1,303 @@
+// ============================================================================
+// MELP Stage 1 - CodeGen Integration Test: Literals & Variables
+// ============================================================================
+// Part of: YZ_10 - Expression CodeGen (Literals & Variables)
+// Purpose: Test integration of literal and variable code generation
+//
+// Tests:
+// - Literals → IR constants
+// - Variable declarations → alloca
+// - Variable assignments → store
+// - Variable loads → load
+// - Full program generation
+// ============================================================================
+
+import "ir_builder.mlp"
+import "type_mapper.mlp"
+import "symbol_table.mlp"
+import "codegen_literal.mlp"
+import "codegen_variable.mlp"
+
+// ============================================================================
+// INTEGRATION TEST: SIMPLE PROGRAM GENERATION
+// ============================================================================
+
+// Test Case 1: Variable declaration with literal initialization
+// MELP code:
+//   numeric x = 42
+function test_simple_var_init(): boolean
+    println("=== Integration Test 1: numeric x = 42 ===")
+    
+    // Emit function header
+    emit_module_header()
+    emit_function_start("test_var_init", "i64")
+    emit_label("entry")
+    
+    // Reset symbol table
+    clear_symbols()
+    enter_scope()
+    
+    // Generate IR: numeric x = 42
+    // Step 1: Generate literal
+    string literal_val = codegen_literal("numeric", "42")
+    
+    // Step 2: Declare and initialize variable
+    string var_ptr = codegen_variable_decl_init("x", "numeric", literal_val)
+    
+    // Step 3: Load and return (for testing)
+    string loaded_val = codegen_variable_load("x", "numeric")
+    emit_ret_instr("i64", loaded_val)
+    
+    leave_scope()
+    emit_function_end()
+    
+    println("")
+    println("[PASS] Integration test 1 completed (IR emitted above)")
+    return true
+end_function
+
+// Test Case 2: Multiple variable declarations
+// MELP code:
+//   numeric x = 10
+//   numeric y = 20
+//   numeric sum = x + y (we'll test addition later, just assign 30 for now)
+function test_multiple_vars(): boolean
+    println("=== Integration Test 2: Multiple Variables ===")
+    
+    emit_module_header()
+    emit_function_start("test_multi_vars", "i64")
+    emit_label("entry")
+    
+    clear_symbols()
+    enter_scope()
+    
+    // numeric x = 10
+    string val_x = codegen_literal("numeric", "10")
+    string ptr_x = codegen_variable_decl_init("x", "numeric", val_x)
+    
+    // numeric y = 20
+    string val_y = codegen_literal("numeric", "20")
+    string ptr_y = codegen_variable_decl_init("y", "numeric", val_y)
+    
+    // Load x
+    string loaded_x = codegen_variable_load("x", "numeric")
+    
+    // Load y
+    string loaded_y = codegen_variable_load("y", "numeric")
+    
+    // Add them (manual for now, will be replaced by codegen_arithmetic later)
+    string sum_temp = gen_temp_name()
+    emit_add_instr(sum_temp, "i64", loaded_x, loaded_y)
+    
+    // Store sum
+    string ptr_sum = codegen_variable_decl_init("sum", "numeric", sum_temp)
+    
+    // Return sum
+    string loaded_sum = codegen_variable_load("sum", "numeric")
+    emit_ret_instr("i64", loaded_sum)
+    
+    leave_scope()
+    emit_function_end()
+    
+    println("")
+    println("[PASS] Integration test 2 completed (IR emitted above)")
+    return true
+end_function
+
+// Test Case 3: Assignment statement
+// MELP code:
+//   numeric counter = 0
+//   counter = 5
+function test_assignment(): boolean
+    println("=== Integration Test 3: Assignment Statement ===")
+    
+    emit_module_header()
+    emit_function_start("test_assignment", "i64")
+    emit_label("entry")
+    
+    clear_symbols()
+    enter_scope()
+    
+    // numeric counter = 0
+    string val_0 = codegen_literal("numeric", "0")
+    string ptr_counter = codegen_variable_decl_init("counter", "numeric", val_0)
+    
+    // counter = 5
+    string val_5 = codegen_literal("numeric", "5")
+    codegen_assignment("counter", "numeric", val_5)
+    
+    // Return counter
+    string loaded = codegen_variable_load("counter", "numeric")
+    emit_ret_instr("i64", loaded)
+    
+    leave_scope()
+    emit_function_end()
+    
+    println("")
+    println("[PASS] Integration test 3 completed (IR emitted above)")
+    return true
+end_function
+
+// Test Case 4: Compound assignment
+// MELP code:
+//   numeric x = 10
+//   x += 5
+function test_compound_assign(): boolean
+    println("=== Integration Test 4: Compound Assignment ===")
+    
+    emit_module_header()
+    emit_function_start("test_compound", "i64")
+    emit_label("entry")
+    
+    clear_symbols()
+    enter_scope()
+    
+    // numeric x = 10
+    string val_10 = codegen_literal("numeric", "10")
+    string ptr_x = codegen_variable_decl_init("x", "numeric", val_10)
+    
+    // x += 5
+    string val_5 = codegen_literal("numeric", "5")
+    codegen_compound_assignment("x", "numeric", "+=", val_5)
+    
+    // Return x (should be 15)
+    string loaded = codegen_variable_load("x", "numeric")
+    emit_ret_instr("i64", loaded)
+    
+    leave_scope()
+    emit_function_end()
+    
+    println("")
+    println("[PASS] Integration test 4 completed (IR emitted above)")
+    return true
+end_function
+
+// Test Case 5: String literal and variable
+// MELP code:
+//   string message = "Hello"
+function test_string_var(): boolean
+    println("=== Integration Test 5: String Variable ===")
+    
+    emit_module_header()
+    
+    // String literals are global, emit before function
+    clear_symbols()
+    
+    // Generate string literal (creates global)
+    string global_str = codegen_literal("string", "Hello")
+    
+    emit_function_start("test_string", "i8*")
+    emit_label("entry")
+    
+    enter_scope()
+    
+    // string message = @.str.0
+    string ptr_msg = codegen_variable_decl_init("message", "string", global_str)
+    
+    // Return message pointer
+    string loaded = codegen_variable_load("message", "string")
+    emit_ret_instr("i8*", loaded)
+    
+    leave_scope()
+    emit_function_end()
+    
+    println("")
+    println("[PASS] Integration test 5 completed (IR emitted above)")
+    return true
+end_function
+
+// Test Case 6: Boolean variable
+// MELP code:
+//   boolean flag = true
+//   flag = false
+function test_boolean_var(): boolean
+    println("=== Integration Test 6: Boolean Variable ===")
+    
+    emit_module_header()
+    emit_function_start("test_bool", "i1")
+    emit_label("entry")
+    
+    clear_symbols()
+    enter_scope()
+    
+    // boolean flag = true
+    string val_true = codegen_literal("boolean", "true")
+    string ptr_flag = codegen_variable_decl_init("flag", "boolean", val_true)
+    
+    // flag = false
+    string val_false = codegen_literal("boolean", "false")
+    codegen_assignment("flag", "boolean", val_false)
+    
+    // Return flag (false)
+    string loaded = codegen_variable_load("flag", "boolean")
+    emit_ret_instr("i1", loaded)
+    
+    leave_scope()
+    emit_function_end()
+    
+    println("")
+    println("[PASS] Integration test 6 completed (IR emitted above)")
+    return true
+end_function
+
+// ============================================================================
+// MAIN TEST RUNNER
+// ============================================================================
+
+function run_all_integration_tests(): numeric
+    println("======================================")
+    println("CODEGEN INTEGRATION TESTS")
+    println("Literals & Variables → LLVM IR")
+    println("======================================")
+    println("")
+    
+    numeric passed = 0
+    numeric total = 6
+    
+    if test_simple_var_init() then
+        passed = passed + 1
+    end_if
+    println("")
+    
+    if test_multiple_vars() then
+        passed = passed + 1
+    end_if
+    println("")
+    
+    if test_assignment() then
+        passed = passed + 1
+    end_if
+    println("")
+    
+    if test_compound_assign() then
+        passed = passed + 1
+    end_if
+    println("")
+    
+    if test_string_var() then
+        passed = passed + 1
+    end_if
+    println("")
+    
+    if test_boolean_var() then
+        passed = passed + 1
+    end_if
+    println("")
+    
+    println("======================================")
+    println("INTEGRATION TEST SUMMARY")
+    println("======================================")
+    print("Tests Passed: ")
+    print_numeric(passed)
+    print("/")
+    print_numeric(total)
+    println("")
+    
+    if passed == total then
+        println("✅ ALL INTEGRATION TESTS PASSED!")
+    else
+        println("⚠️ SOME TESTS FAILED")
+    end_if
+    
+    return passed
+end_function

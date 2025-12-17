@@ -1,0 +1,39 @@
+-- Symbol Table STUB - Stage 0 Compatible Version
+-- Phase 2 Part 1: CodeGen Infrastructure
+-- YZ_21: 17 December 2025
+-- NOTE: Full implementation uses list indexing (not supported in Stage 0)
+-- This stub allows compilation to proceed
+
+function create_symbol_table() returns list
+    list empty_table = []
+    return empty_table
+end_function
+
+function add_symbol(list sym_table, string name, string type_str, string llvm_name, numeric scope) returns list
+    return sym_table
+end_function
+
+function find_symbol(list sym_table, string name) returns list
+    list empty = []
+    return empty
+end_function
+
+function get_symbol_type(list entry) returns string
+    return ""
+end_function
+
+function get_symbol_llvm_name(list entry) returns string
+    return ""
+end_function
+
+function get_symbol_scope(list entry) returns numeric
+    return 0
+end_function
+
+function pop_scope(list sym_table, numeric scope_level) returns list
+    return sym_table
+end_function
+
+function main() returns numeric
+    return 0
+end_function

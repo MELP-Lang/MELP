@@ -1,0 +1,299 @@
+-- IR Builder - Simple LLVM IR code generation
+-- Phase 2 Part 1: CodeGen Infrastructure  
+-- YZ_09: 16 December 2025
+-- Simplified version for Stage 0 compatibility
+
+-- Emit LLVM module header
+function emit_module_header() returns numeric
+    println("; ModuleID = 'melp_module'")
+    println("; Simple LLVM IR Header")
+    println("")
+    println("; External function declarations")
+    println("declare i32 @printf(i8*, ...)")
+    println("")
+    return 1
+end_function
+
+-- Emit function start
+function emit_function_start(string func_name, string return_type) returns numeric
+    string func_line = "define " + return_type + " @" + func_name + "() {"
+    println(func_line)
+    return 1
+end_function
+
+-- Emit function end
+function emit_function_end() returns numeric
+    println("}")
+    println("")
+    return 1
+end_function
+
+-- Emit basic block label
+function emit_label(string label_name) returns numeric
+    println(label_name + ":")
+    return 1
+end_function
+
+-- Emit instruction with indentation
+function emit_instr(string instruction) returns numeric
+    println("  " + instruction)
+    return 1
+end_function
+
+-- Emit alloca instruction
+function emit_alloca_instr(string var_name, string var_type) returns numeric
+    string instr = "%" + var_name + " = alloca " + var_type
+    emit_instr(instr)
+    return 1
+end_function
+
+-- Emit store instruction  
+function emit_store_instr(string value, string value_type, string ptr_name) returns numeric
+    string instr = "store " + value_type + " " + value + ", " + value_type + "* %" + ptr_name
+    emit_instr(instr)
+    return 1
+end_function
+
+-- Emit load instruction
+function emit_load_instr(string result, string var_type, string ptr_name) returns numeric
+    string instr = "%" + result + " = load " + var_type + ", " + var_type + "* %" + ptr_name
+    emit_instr(instr)
+    return 1
+end_function
+
+-- Emit add instruction
+function emit_add_instr(string result, string left, string right) returns numeric
+    string instr = "%" + result + " = add i64 " + left + ", " + right
+    emit_instr(instr)
+    return 1
+end_function
+
+-- Emit sub instruction
+function emit_sub_instr(string result, string left, string right) returns numeric
+    string instr = "%" + result + " = sub i64 " + left + ", " + right
+    emit_instr(instr)
+    return 1
+end_function
+
+-- Emit mul instruction
+function emit_mul_instr(string result, string left, string right) returns numeric
+    string instr = "%" + result + " = mul i64 " + left + ", " + right
+    emit_instr(instr)
+    return 1
+end_function
+
+-- Emit div instruction
+function emit_div_instr(string result, string left, string right) returns numeric
+    string instr = "%" + result + " = sdiv i64 " + left + ", " + right
+    emit_instr(instr)
+    return 1
+end_function
+
+-- Emit comparison instruction
+function emit_cmp_instr(string result, string condition, string left, string right) returns numeric
+    string instr = "%" + result + " = icmp " + condition + " i64 " + left + ", " + right
+    emit_instr(instr)
+    return 1
+end_function
+
+-- Emit return instruction
+function emit_ret_instr(string return_type, string value) returns numeric
+    string instr = "ret " + return_type + " " + value
+    emit_instr(instr)
+    return 1
+end_function
+
+-- Emit unconditional branch
+function emit_br_instr(string label) returns numeric
+    string instr = "br label %" + label
+    emit_instr(instr)
+    return 1
+end_function
+
+-- Emit conditional branch
+function emit_br_cond_instr(string condition, string true_label, string false_label) returns numeric
+    string instr = "br i1 %" + condition + ", label %" + true_label + ", label %" + false_label
+    emit_instr(instr)
+    return 1
+end_function
+
+-- Generate temporary name
+function gen_temp_name(numeric counter) returns string
+    return "t" + str(counter)
+end_function
+
+-- Generate label name
+function gen_label_name(string base, numeric counter) returns string
+    return base + str(counter)
+end_function
+
+-- Test 1: Module header
+function test_module_header() returns numeric
+    println("=== Test 1: Module Header ===")
+    emit_module_header()
+    println("✓ Module header test passed")
+    println("")
+    return 1
+end_function
+
+-- Test 2: Simple function
+function test_simple_function() returns numeric
+    println("=== Test 2: Simple Function ===")
+    emit_function_start("test", "i64")
+    emit_label("entry")
+    emit_ret_instr("i64", "42")
+    emit_function_end()
+    println("✓ Simple function test passed")
+    println("")
+    return 1
+end_function
+
+-- Test 3: Variable allocation
+function test_variable_alloc() returns numeric
+    println("=== Test 3: Variable Allocation ===")
+    emit_function_start("test_var", "i64")
+    emit_label("entry")
+    emit_alloca_instr("x", "i64")
+    emit_store_instr("10", "i64", "x")
+    emit_load_instr("t0", "i64", "x")
+    emit_ret_instr("i64", "%t0")
+    emit_function_end()
+    println("✓ Variable allocation test passed")
+    println("")
+    return 1
+end_function
+
+-- Test 4: Arithmetic operations
+function test_arithmetic() returns numeric
+    println("=== Test 4: Arithmetic Operations ===")
+    emit_function_start("test_math", "i64")
+    emit_label("entry")
+    
+    -- a = 5 + 3
+    emit_add_instr("t0", "5", "3")
+    
+    -- b = a * 2
+    emit_mul_instr("t1", "%t0", "2")
+    
+    -- c = b - 1
+    emit_sub_instr("t2", "%t1", "1")
+    
+    -- return c
+    emit_ret_instr("i64", "%t2")
+    emit_function_end()
+    println("✓ Arithmetic operations test passed")
+    println("")
+    return 1
+end_function
+
+-- Test 5: Comparison and branching
+function test_branching() returns numeric
+    println("=== Test 5: Comparison and Branching ===")
+    emit_function_start("test_if", "i64")
+    emit_label("entry")
+    
+    -- x > 5
+    emit_cmp_instr("t0", "sgt", "10", "5")
+    emit_br_cond_instr("t0", "then_block", "else_block")
+    
+    emit_label("then_block")
+    emit_ret_instr("i64", "1")
+    
+    emit_label("else_block")
+    emit_ret_instr("i64", "0")
+    
+    emit_function_end()
+    println("✓ Branching test passed")
+    println("")
+    return 1
+end_function
+
+-- Test 6: Complete program
+function test_complete_program() returns numeric
+    println("=== Test 6: Complete Program (x = 10; return x + 5) ===")
+    
+    emit_module_header()
+    emit_function_start("main", "i64")
+    emit_label("entry")
+    
+    -- Allocate x
+    emit_alloca_instr("x", "i64")
+    
+    -- x = 10
+    emit_store_instr("10", "i64", "x")
+    
+    -- Load x
+    emit_load_instr("t0", "i64", "x")
+    
+    -- result = x + 5
+    emit_add_instr("t1", "%t0", "5")
+    
+    -- return result
+    emit_ret_instr("i64", "%t1")
+    
+    emit_function_end()
+    
+    println("✓ Complete program test passed")
+    println("")
+    return 1
+end_function
+
+-- Test temp and label name generation
+function test_name_generation() returns numeric
+    println("=== Test 7: Name Generation ===")
+    
+    string t0 = gen_temp_name(0)
+    string t1 = gen_temp_name(1)
+    string t2 = gen_temp_name(2)
+    
+    println("Temp names: " + t0 + ", " + t1 + ", " + t2)
+    
+    if t0 == "t0" and t1 == "t1" and t2 == "t2" then
+        println("✓ Temp name generation correct")
+    else
+        println("✗ Temp name generation failed")
+        return 0
+    end_if
+    
+    string l0 = gen_label_name("loop_", 0)
+    string l1 = gen_label_name("loop_", 1)
+    
+    println("Label names: " + l0 + ", " + l1)
+    
+    if l0 == "loop_0" and l1 == "loop_1" then
+        println("✓ Label name generation correct")
+    else
+        println("✗ Label name generation failed")
+        return 0
+    end_if
+    
+    println("")
+    return 1
+end_function
+
+function main() returns numeric
+    println("╔══════════════════════════════════════════╗")
+    println("║   IR Builder Test Suite - YZ_09         ║")
+    println("╚══════════════════════════════════════════╝")
+    println("")
+    
+    numeric r1 = test_module_header()
+    numeric r2 = test_simple_function()
+    numeric r3 = test_variable_alloc()
+    numeric r4 = test_arithmetic()
+    numeric r5 = test_branching()
+    numeric r6 = test_complete_program()
+    numeric r7 = test_name_generation()
+    
+    if r1 == 1 and r2 == 1 and r3 == 1 and r4 == 1 and r5 == 1 and r6 == 1 and r7 == 1 then
+        println("╔══════════════════════════════════════════╗")
+        println("║  ✅ ALL TESTS PASSED (7/7)               ║")
+        println("╚══════════════════════════════════════════╝")
+        return 0
+    else
+        println("╔══════════════════════════════════════════╗")
+        println("║  ✗ SOME TESTS FAILED                    ║")
+        println("╚══════════════════════════════════════════╝")
+        return 1
+    end_if
+end_function

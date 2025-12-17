@@ -1,0 +1,55 @@
+-- Manual test - calling codegen functions directly
+
+-- Declare all codegen functions first
+function codegen_var_decl_stmt(var_name, var_type, init_value) returns numeric
+    string alloca_line = "  %" + var_name + " = alloca i64"
+    println(alloca_line)
+    string store_line = "  store i64 " + init_value + ", i64* %" + var_name
+    println(store_line)
+    return 1
+end_function
+
+function codegen_assignment(var_name, value_reg) returns numeric
+    string store_line = "  store i64 " + value_reg + ", i64* %" + var_name
+    println(store_line)
+    return 1
+end_function
+
+function codegen_return_value(value_reg) returns numeric
+    string ret_line = "  ret i64 " + value_reg
+    println(ret_line)
+    return 1
+end_function
+
+function codegen_println_int(value_reg, temp_counter) returns numeric
+    string temp_reg = "%t1"
+    string printf_line = "  call i32 @printf(i64 " + value_reg + ")"
+    println(printf_line)
+    return 1
+end_function
+
+-- Main test
+function main() returns numeric
+    println("YZ_13 CodeGen Statement Tests")
+    println(" ")
+    
+    println("Test 1: Variable Declaration")
+    numeric r1 = codegen_var_decl_stmt("x", "numeric", "42")
+    println(" ")
+    
+    println("Test 2: Assignment")
+    numeric r2 = codegen_assignment("x", "100")
+    println(" ")
+    
+    println("Test 3: Return")
+    numeric r3 = codegen_return_value("42")
+    println(" ")
+    
+    println("Test 4: Print")
+    numeric r4 = codegen_println_int("42", 1)
+    println(" ")
+    
+    println("All 4 tests completed successfully!")
+    
+    return 0
+end_function

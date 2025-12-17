@@ -1,0 +1,820 @@
+-- ============================================================================
+-- MELP Parser - Main Parser Integration
+-- ============================================================================
+-- Stage 1 Self-Hosting: Parser in MELP
+-- Created: December 16, 2025 (YZ_06)
+-- Purpose: Integrates all parser modules (expr, stmt, control, func, struct, enum)
+-- ============================================================================
+
+-- ============================================================================
+-- Token Type Constants (from lexer)
+-- ============================================================================
+
+-- Keywords
+numeric T_FUNCTION = 1
+numeric T_END = 2
+numeric T_IF = 3
+numeric T_THEN = 4
+numeric T_ELSE = 5
+numeric T_WHILE = 6
+numeric T_DO = 7
+numeric T_ASSIGN = 8
+numeric T_RETURNS = 9
+numeric T_NUMERIC = 10
+numeric T_STRING = 11
+numeric T_BOOLEAN = 12
+numeric T_LIST = 13
+numeric T_RETURN = 14
+numeric T_PRINT = 15
+numeric T_PRINTLN = 16
+numeric T_STRUCT = 20
+numeric T_ENUM = 21
+
+-- Operators
+numeric T_PLUS = 37
+numeric T_MINUS = 38
+numeric T_MULTIPLY = 39
+numeric T_DIVIDE = 40
+numeric T_MODULO = 41
+numeric T_EQ = 42
+numeric T_NE = 43
+numeric T_LT = 44
+numeric T_GT = 45
+numeric T_LE = 46
+numeric T_GE = 47
+numeric T_AND = 48
+numeric T_OR = 49
+numeric T_NOT = 31
+
+-- Delimiters
+numeric T_LPAREN = 50
+numeric T_RPAREN = 51
+numeric T_COMMA = 52
+numeric T_LBRACKET = 53
+numeric T_RBRACKET = 54
+
+-- Literals & Identifiers
+numeric T_ID = 32
+numeric T_NUMBER = 61
+numeric T_STR_LIT = 62
+
+-- EOF
+numeric T_EOF = 0
+
+-- ============================================================================
+-- Global Parser State
+-- ============================================================================
+
+list g_tokens           -- Token list from lexer
+numeric g_current_pos   -- Current position in token stream
+numeric g_error_count   -- Number of parse errors
+
+-- ============================================================================
+-- Token Stream Management
+-- ============================================================================
+
+function init_parser(list token_list) returns numeric
+    g_tokens = token_list
+    g_current_pos = 0
+    g_error_count = 0
+    return 1
+end_function
+
+function current_token() returns list
+    numeric len = length(g_tokens)
+    if g_current_pos >= len then
+        return []  -- EOF
+    end_if
+    return g_tokens[g_current_pos]
+end_function
+
+function peek_token() returns list
+    numeric next_pos = g_current_pos + 1
+    numeric len = length(g_tokens)
+    if next_pos >= len then
+        return []
+    end_if
+    return g_tokens[next_pos]
+end_function
+
+function advance() returns numeric
+    g_current_pos = g_current_pos + 1
+    return g_current_pos
+end_function
+
+function expect_token(numeric expected_type) returns numeric
+    list tok = current_token()
+    numeric len = length(tok)
+    
+    if len == 0 then
+        return 0  -- EOF
+    end_if
+    
+    numeric tok_type = tok[0]
+    if tok_type == expected_type then
+        advance()
+        return 1
+    end_if
+    return 0
+end_function
+
+function check_token(numeric expected_type) returns numeric
+    list tok = current_token()
+    numeric len = length(tok)
+    
+    if len == 0 then
+        return 0
+    end_if
+    
+    numeric tok_type = tok[0]
+    return tok_type == expected_type
+end_function
+
+-- ============================================================================
+-- Error Handling
+-- ============================================================================
+
+function parser_error(string message) returns numeric
+    println("Parse Error: " + message)
+    g_error_count = g_error_count + 1
+    return 0
+end_function
+
+function unexpected_token_error(numeric expected, numeric got) returns numeric
+    print("Unexpected token: expected type ")
+    print(str(expected))
+    print(", got ")
+    println(str(got))
+    g_error_count = g_error_count + 1
+    return 0
+end_function
+
+-- ============================================================================
+-- Expression Parsing (from parser_expr.mlp)
+-- ============================================================================
+
+function get_operator_precedence(numeric token_type) returns numeric
+    -- Multiplicative (highest)
+    if token_type == T_MULTIPLY then return 6 end_if
+    if token_type == T_DIVIDE then return 6 end_if
+    if token_type == T_MODULO then return 6 end_if
+    
+    -- Additive
+    if token_type == T_PLUS then return 5 end_if
+    if token_type == T_MINUS then return 5 end_if
+    
+    -- Comparison
+    if token_type == T_LT then return 4 end_if
+    if token_type == T_GT then return 4 end_if
+    if token_type == T_LE then return 4 end_if
+    if token_type == T_GE then return 4 end_if
+    
+    -- Equality
+    if token_type == T_EQ then return 3 end_if
+    if token_type == T_NE then return 3 end_if
+    
+    -- Logical
+    if token_type == T_AND then return 2 end_if
+    if token_type == T_OR then return 1 end_if
+    
+    return 0
+end_function
+
+function is_binary_op(numeric t) returns numeric
+    if t == T_PLUS then return 1 end_if
+    if t == T_MINUS then return 1 end_if
+    if t == T_MULTIPLY then return 1 end_if
+    if t == T_DIVIDE then return 1 end_if
+    if t == T_MODULO then return 1 end_if
+    if t == T_EQ then return 1 end_if
+    if t == T_NE then return 1 end_if
+    if t == T_LT then return 1 end_if
+    if t == T_GT then return 1 end_if
+    if t == T_LE then return 1 end_if
+    if t == T_GE then return 1 end_if
+    if t == T_AND then return 1 end_if
+    if t == T_OR then return 1 end_if
+    return 0
+end_function
+
+-- Parse primary expression (number, string, identifier, parenthesized)
+function parse_primary() returns string
+    list tok = current_token()
+    numeric len = length(tok)
+    
+    if len == 0 then
+        parser_error("Unexpected EOF in primary expression")
+        return "ERROR"
+    end_if
+    
+    numeric tok_type = tok[0]
+    string tok_val = tok[1]
+    
+    -- Number literal
+    if tok_type == T_NUMBER then
+        advance()
+        return tok_val
+    end_if
+    
+    -- String literal
+    if tok_type == T_STR_LIT then
+        advance()
+        return tok_val
+    end_if
+    
+    -- Identifier
+    if tok_type == T_ID then
+        advance()
+        return tok_val
+    end_if
+    
+    -- Parenthesized expression
+    if tok_type == T_LPAREN then
+        advance()
+        string expr = parse_expression()
+        expect_token(T_RPAREN)
+        return expr
+    end_if
+    
+    parser_error("Expected primary expression")
+    return "ERROR"
+end_function
+
+-- Parse expression with operator precedence
+function parse_expression() returns string
+    return parse_expression_prec(0)
+end_function
+
+function parse_expression_prec(numeric min_prec) returns string
+    string left = parse_primary()
+    
+    numeric continue = 1
+    while continue == 1 do
+        list tok = current_token()
+        numeric len = length(tok)
+        
+        if len == 0 then
+            continue = 0
+        else
+            numeric tok_type = tok[0]
+            
+            if is_binary_op(tok_type) == 0 then
+                continue = 0
+            else
+                numeric prec = get_operator_precedence(tok_type)
+                
+                if prec < min_prec then
+                    continue = 0
+                else
+                    string op = tok[1]
+                    advance()
+                    
+                    numeric next_prec = prec + 1
+                    string right = parse_expression_prec(next_prec)
+                    
+                    left = "(" + left + " " + op + " " + right + ")"
+                end_if
+            end_if
+        end_if
+    end_while
+    
+    return left
+end_function
+
+-- ============================================================================
+-- Statement Parsing (from parser_stmt.mlp & parser_control.mlp)
+-- ============================================================================
+
+-- Parse variable declaration: numeric x = 10
+function parse_var_decl() returns string
+    list type_tok = current_token()
+    string var_type = type_tok[1]
+    advance()
+    
+    list name_tok = current_token()
+    if length(name_tok) == 0 then
+        parser_error("Expected variable name")
+        return "ERROR"
+    end_if
+    
+    string var_name = name_tok[1]
+    advance()
+    
+    -- Check for assignment
+    string result = var_type + " " + var_name
+    
+    if check_token(T_ASSIGN) then
+        advance()
+        string expr = parse_expression()
+        result = result + " = " + expr
+    end_if
+    
+    return result
+end_function
+
+-- Parse assignment: x = 10
+function parse_assignment(string var_name) returns string
+    advance()  -- Skip =
+    string expr = parse_expression()
+    return var_name + " = " + expr
+end_function
+
+-- Parse return statement
+function parse_return() returns string
+    advance()  -- Skip 'return'
+    
+    list tok = current_token()
+    numeric len = length(tok)
+    
+    if len == 0 then
+        return "return"
+    end_if
+    
+    numeric tok_type = tok[0]
+    
+    -- Check if there's an expression to return
+    if tok_type == T_NUMBER or tok_type == T_STR_LIT or tok_type == T_ID then
+        string expr = parse_expression()
+        return "return " + expr
+    end_if
+    
+    return "return"
+end_function
+
+-- Parse print/println statement
+function parse_print(numeric is_println) returns string
+    advance()  -- Skip print/println
+    
+    expect_token(T_LPAREN)
+    string expr = parse_expression()
+    expect_token(T_RPAREN)
+    
+    if is_println == 1 then
+        return "println(" + expr + ")"
+    end_if
+    
+    return "print(" + expr + ")"
+end_function
+
+-- Parse if statement
+function parse_if_statement() returns string
+    advance()  -- Skip 'if'
+    
+    string condition = parse_expression()
+    
+    expect_token(T_THEN)
+    
+    string result = "if " + condition + " then\n"
+    
+    -- Parse then block
+    numeric continue = 1
+    while continue == 1 do
+        list tok = current_token()
+        numeric len = length(tok)
+        
+        if len == 0 then
+            continue = 0
+        else
+            numeric tok_type = tok[0]
+            
+            if tok_type == T_ELSE or tok_type == T_END then
+                continue = 0
+            else
+                string stmt = parse_statement()
+                result = result + "  " + stmt + "\n"
+            end_if
+        end_if
+    end_while
+    
+    -- Check for else
+    if check_token(T_ELSE) then
+        advance()
+        result = result + "else\n"
+        
+        continue = 1
+        while continue == 1 do
+            list tok = current_token()
+            numeric len = length(tok)
+            
+            if len == 0 then
+                continue = 0
+            else
+                numeric tok_type = tok[0]
+                
+                if tok_type == T_END then
+                    continue = 0
+                else
+                    string stmt = parse_statement()
+                    result = result + "  " + stmt + "\n"
+                end_if
+            end_if
+        end_while
+    end_if
+    
+    expect_token(T_END)
+    result = result + "end if"
+    
+    return result
+end_function
+
+-- Parse while loop
+function parse_while_loop() returns string
+    advance()  -- Skip 'while'
+    
+    string condition = parse_expression()
+    
+    expect_token(T_DO)
+    
+    string result = "while " + condition + " do\n"
+    
+    -- Parse loop body
+    numeric continue = 1
+    while continue == 1 do
+        list tok = current_token()
+        numeric len = length(tok)
+        
+        if len == 0 then
+            continue = 0
+        else
+            numeric tok_type = tok[0]
+            
+            if tok_type == T_END then
+                continue = 0
+            else
+                string stmt = parse_statement()
+                result = result + "  " + stmt + "\n"
+            end_if
+        end_if
+    end_while
+    
+    expect_token(T_END)
+    result = result + "end while"
+    
+    return result
+end_function
+
+-- Parse a single statement
+function parse_statement() returns string
+    list tok = current_token()
+    numeric len = length(tok)
+    
+    if len == 0 then
+        return ""
+    end_if
+    
+    numeric tok_type = tok[0]
+    
+    -- Variable declaration
+    if tok_type == T_NUMERIC or tok_type == T_STRING or tok_type == T_BOOLEAN or tok_type == T_LIST then
+        return parse_var_decl()
+    end_if
+    
+    -- Return statement
+    if tok_type == T_RETURN then
+        return parse_return()
+    end_if
+    
+    -- Print statement
+    if tok_type == T_PRINT then
+        return parse_print(0)
+    end_if
+    
+    if tok_type == T_PRINTLN then
+        return parse_print(1)
+    end_if
+    
+    -- Control flow
+    if tok_type == T_IF then
+        return parse_if_statement()
+    end_if
+    
+    if tok_type == T_WHILE then
+        return parse_while_loop()
+    end_if
+    
+    -- Assignment (identifier = expr)
+    if tok_type == T_ID then
+        string var_name = tok[1]
+        list next_tok = peek_token()
+        
+        if length(next_tok) > 0 then
+            numeric next_type = next_tok[0]
+            
+            if next_type == T_ASSIGN then
+                advance()  -- Skip identifier
+                return parse_assignment(var_name)
+            end_if
+        end_if
+        
+        -- Just an expression statement (e.g., function call)
+        return parse_expression()
+    end_if
+    
+    parser_error("Unknown statement type")
+    return "ERROR"
+end_function
+
+-- ============================================================================
+-- Function Parsing (from parser_func.mlp)
+-- ============================================================================
+
+function parse_function() returns string
+    advance()  -- Skip 'function'
+    
+    list name_tok = current_token()
+    if length(name_tok) == 0 then
+        parser_error("Expected function name")
+        return "ERROR"
+    end_if
+    
+    string func_name = name_tok[1]
+    advance()
+    
+    expect_token(T_LPAREN)
+    
+    -- Parse parameters
+    string params = ""
+    numeric param_count = 0
+    
+    numeric continue = 1
+    while continue == 1 do
+        list tok = current_token()
+        numeric len = length(tok)
+        
+        if len == 0 then
+            continue = 0
+        else
+            numeric tok_type = tok[0]
+            
+            if tok_type == T_RPAREN then
+                continue = 0
+            else
+                -- Parse parameter: type name
+                if tok_type == T_NUMERIC or tok_type == T_STRING or tok_type == T_BOOLEAN or tok_type == T_LIST then
+                    string param_type = tok[1]
+                    advance()
+                    
+                    list pname_tok = current_token()
+                    string param_name = pname_tok[1]
+                    advance()
+                    
+                    if param_count > 0 then
+                        params = params + ", "
+                    end_if
+                    
+                    params = params + param_type + " " + param_name
+                    param_count = param_count + 1
+                    
+                    -- Check for comma
+                    if check_token(T_COMMA) then
+                        advance()
+                    end_if
+                else
+                    continue = 0
+                end_if
+            end_if
+        end_if
+    end_while
+    
+    expect_token(T_RPAREN)
+    
+    -- Parse return type
+    string return_type = ""
+    if check_token(T_RETURNS) then
+        advance()
+        list ret_tok = current_token()
+        return_type = ret_tok[1]
+        advance()
+    end_if
+    
+    string result = "function " + func_name + "(" + params + ")"
+    if return_type != "" then
+        result = result + " returns " + return_type
+    end_if
+    result = result + "\n"
+    
+    -- Parse function body
+    continue = 1
+    while continue == 1 do
+        list tok = current_token()
+        numeric len = length(tok)
+        
+        if len == 0 then
+            continue = 0
+        else
+            numeric tok_type = tok[0]
+            
+            if tok_type == T_END then
+                continue = 0
+            else
+                string stmt = parse_statement()
+                result = result + "  " + stmt + "\n"
+            end_if
+        end_if
+    end_while
+    
+    expect_token(T_END)
+    result = result + "end function"
+    
+    return result
+end_function
+
+-- ============================================================================
+-- Struct/Enum Parsing (from parser_struct.mlp & parser_enum.mlp)
+-- ============================================================================
+
+function parse_struct() returns string
+    advance()  -- Skip 'struct'
+    
+    list name_tok = current_token()
+    if length(name_tok) == 0 then
+        parser_error("Expected struct name")
+        return "ERROR"
+    end_if
+    
+    string struct_name = name_tok[1]
+    advance()
+    
+    string result = "struct " + struct_name + "\n"
+    
+    -- Parse fields
+    numeric continue = 1
+    while continue == 1 do
+        list tok = current_token()
+        numeric len = length(tok)
+        
+        if len == 0 then
+            continue = 0
+        else
+            numeric tok_type = tok[0]
+            
+            if tok_type == T_END then
+                continue = 0
+            else
+                -- Parse field: type name
+                if tok_type == T_NUMERIC or tok_type == T_STRING or tok_type == T_BOOLEAN or tok_type == T_LIST then
+                    string field_type = tok[1]
+                    advance()
+                    
+                    list fname_tok = current_token()
+                    string field_name = fname_tok[1]
+                    advance()
+                    
+                    result = result + "  " + field_type + " " + field_name + "\n"
+                else
+                    continue = 0
+                end_if
+            end_if
+        end_if
+    end_while
+    
+    expect_token(T_END)
+    result = result + "end struct"
+    
+    return result
+end_function
+
+function parse_enum() returns string
+    advance()  -- Skip 'enum'
+    
+    list name_tok = current_token()
+    if length(name_tok) == 0 then
+        parser_error("Expected enum name")
+        return "ERROR"
+    end_if
+    
+    string enum_name = name_tok[1]
+    advance()
+    
+    string result = "enum " + enum_name + "\n"
+    
+    -- Parse enum values
+    numeric continue = 1
+    while continue == 1 do
+        list tok = current_token()
+        numeric len = length(tok)
+        
+        if len == 0 then
+            continue = 0
+        else
+            numeric tok_type = tok[0]
+            
+            if tok_type == T_END then
+                continue = 0
+            else
+                if tok_type == T_ID then
+                    string value_name = tok[1]
+                    advance()
+                    
+                    -- Expect = and number
+                    expect_token(T_ASSIGN)
+                    
+                    list num_tok = current_token()
+                    string value_num = num_tok[1]
+                    advance()
+                    
+                    result = result + "  " + value_name + " = " + value_num + "\n"
+                else
+                    continue = 0
+                end_if
+            end_if
+        end_if
+    end_while
+    
+    expect_token(T_END)
+    result = result + "end enum"
+    
+    return result
+end_function
+
+-- ============================================================================
+-- Top-Level Parsing
+-- ============================================================================
+
+function parse_program() returns string
+    string result = ""
+    
+    numeric continue = 1
+    while continue == 1 do
+        list tok = current_token()
+        numeric len = length(tok)
+        
+        if len == 0 then
+            continue = 0
+        else
+            numeric tok_type = tok[0]
+            
+            if tok_type == T_FUNCTION then
+                string func = parse_function()
+                result = result + func + "\n\n"
+            else if tok_type == T_STRUCT then
+                string struct_def = parse_struct()
+                result = result + struct_def + "\n\n"
+            else if tok_type == T_ENUM then
+                string enum_def = parse_enum()
+                result = result + enum_def + "\n\n"
+            else
+                -- Top-level statement (global var, etc.)
+                string stmt = parse_statement()
+                result = result + stmt + "\n"
+            end_if
+            end_if
+            end_if
+        end_if
+    end_while
+    
+    return result
+end_function
+
+-- ============================================================================
+-- Main Entry Point
+-- ============================================================================
+
+function main() returns numeric
+    println("=== MELP Parser Integration Test ===")
+    println("")
+    
+    -- Create test tokens for a simple program
+    -- Program: function add(numeric a, numeric b) returns numeric
+    --            return a + b
+    --          end function
+    
+    list tok1 = [T_FUNCTION, "function", 1, 1]
+    list tok2 = [T_ID, "add", 1, 10]
+    list tok3 = [T_LPAREN, "(", 1, 13]
+    list tok4 = [T_NUMERIC, "numeric", 1, 14]
+    list tok5 = [T_ID, "a", 1, 22]
+    list tok6 = [T_COMMA, ",", 1, 23]
+    list tok7 = [T_NUMERIC, "numeric", 1, 25]
+    list tok8 = [T_ID, "b", 1, 33]
+    list tok9 = [T_RPAREN, ")", 1, 34]
+    list tok10 = [T_RETURNS, "returns", 1, 36]
+    list tok11 = [T_NUMERIC, "numeric", 1, 44]
+    list tok12 = [T_RETURN, "return", 2, 5]
+    list tok13 = [T_ID, "a", 2, 12]
+    list tok14 = [T_PLUS, "+", 2, 14]
+    list tok15 = [T_ID, "b", 2, 16]
+    list tok16 = [T_END, "end", 3, 1]
+    
+    list tokens = [tok1, tok2, tok3, tok4, tok5, tok6, tok7, tok8, tok9, 
+                   tok10, tok11, tok12, tok13, tok14, tok15, tok16]
+    
+    init_parser(tokens)
+    
+    string parsed = parse_program()
+    
+    println("Parsed Program:")
+    println(parsed)
+    println("")
+    
+    print("Parse errors: ")
+    println(str(g_error_count))
+    
+    if g_error_count == 0 then
+        println("SUCCESS: Parser integration working!")
+        return 0
+    end_if
+    
+    println("FAILED: Parse errors encountered")
+    return 1
+end_function

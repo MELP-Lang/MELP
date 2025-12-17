@@ -17,6 +17,7 @@ static FunctionParamType token_to_param_type(TokenType type) {
         case TOKEN_STRING_TYPE: return FUNC_PARAM_TEXT;  // YZ_63: string type keyword
         case TOKEN_STRING: return FUNC_PARAM_TEXT;        // Legacy: string literal token
         case TOKEN_BOOLEAN: return FUNC_PARAM_BOOLEAN;
+        case TOKEN_LIST: return FUNC_PARAM_LIST;          // YZ_21: list type keyword
         default: return FUNC_PARAM_NUMERIC;
     }
 }
@@ -111,8 +112,9 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
                 param_type = FUNC_PARAM_NUMERIC;
             }
         } 
-        // Type tokens: TOKEN_NUMERIC, TOKEN_STRING_TYPE, TOKEN_BOOLEAN
-        else if (tok->type == TOKEN_NUMERIC || tok->type == TOKEN_STRING_TYPE || tok->type == TOKEN_BOOLEAN) {
+        // Type tokens: TOKEN_NUMERIC, TOKEN_STRING_TYPE, TOKEN_BOOLEAN, TOKEN_LIST
+        else if (tok->type == TOKEN_NUMERIC || tok->type == TOKEN_STRING_TYPE || 
+                 tok->type == TOKEN_BOOLEAN || tok->type == TOKEN_LIST) {
             // Valid type found, consume it and read parameter name
             token_free(tok);
             tok = lexer_next_token(lexer);
@@ -185,7 +187,8 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
                 }
             }
             // YZ_63: Check if we consumed a type token
-            else if (tok->type == TOKEN_NUMERIC || tok->type == TOKEN_STRING_TYPE || tok->type == TOKEN_BOOLEAN) {
+            else if (tok->type == TOKEN_NUMERIC || tok->type == TOKEN_STRING_TYPE || 
+                     tok->type == TOKEN_BOOLEAN || tok->type == TOKEN_LIST) {
                 // Valid type found, consume it and read parameter name
                 token_free(tok);
                 tok = lexer_next_token(lexer);

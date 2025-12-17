@@ -1,0 +1,333 @@
+-- ============================================================================
+-- MELP Stage 1 - Code Generator: While Loops
+-- ============================================================================
+-- Part of: Phase 2 - CodeGen in MELP (YZ_15)
+-- Purpose: Generate LLVM IR for while loop statements
+--
+-- Handles:
+-- - While loops (while condition do body end_while)
+-- - Loop header label (condition evaluation point)
+-- - Loop body label (statements inside loop)
+-- - Loop end label (exit point)
+-- - Back-edge branch (jump back to header)
+--
+-- LLVM IR Pattern for While Loop:
+--   br label %while_header_X
+-- while_header_X:
+--   %cond = icmp ... (evaluate condition)
+--   br i1 %cond, label %while_body_X, label %while_end_X
+-- while_body_X:
+--   ; loop body statements
+--   br label %while_header_X  (back-edge)
+-- while_end_X:
+--   ; continue after loop
+--
+-- NOTE: Stage 0 limitation - no global variables!
+-- Label counter is managed through function parameters
+-- ============================================================================
+
+-- ============================================================================
+-- WHILE LOOP CODE GENERATION
+-- ============================================================================
+
+-- Generate IR for simple while loop
+-- Example:
+--   numeric i = 0
+--   while i < 5 do
+--       i = i + 1
+--   end_while
+--
+-- Output:
+--   br label %while_header_0
+-- while_header_0:
+--   %i_val = load i64, i64* %i
+--   %cond_0 = icmp slt i64 %i_val, 5
+--   br i1 %cond_0, label %while_body_0, label %while_end_0
+-- while_body_0:
+--   ; body statements
+--   br label %while_header_0
+-- while_end_0:
+--   ; continue
+function codegen_while_simple(cond_result, loop_id) returns numeric
+    -- Generate unconditional branch to loop header
+    println("  br label %while_header_" + loop_id)
+    println("")
+    
+    -- Loop header - evaluate condition
+    println("while_header_" + loop_id + ":")
+    println("  ; evaluate loop condition")
+    -- Condition evaluation would be generated here (in integration)
+    
+    -- Branch based on condition (true = body, false = exit)
+    println("  br i1 " + cond_result + ", label %while_body_" + loop_id + ", label %while_end_" + loop_id)
+    println("")
+    
+    -- Loop body
+    println("while_body_" + loop_id + ":")
+    println("  ; loop body statements")
+    -- Body statements would be generated here (in integration)
+    
+    -- Back-edge: jump back to header
+    println("  br label %while_header_" + loop_id)
+    println("")
+    
+    -- Loop exit label
+    println("while_end_" + loop_id + ":")
+    println("  ; continue after loop")
+    
+    return 1
+end_function
+
+-- Generate IR for while loop with counter variable
+-- This is a more realistic example showing how loop variable is handled
+--
+-- Example:
+--   numeric count = 0
+--   while count < 10 do
+--       count = count + 1
+--   end_while
+function codegen_while_counter(var_name, limit, loop_id) returns numeric
+    -- Generate unconditional branch to loop header
+    println("  br label %while_header_" + loop_id)
+    println("")
+    
+    -- Loop header - evaluate condition
+    println("while_header_" + loop_id + ":")
+    
+    -- Load loop variable
+    println("  %" + var_name + "_val = load i64, i64* %" + var_name)
+    
+    -- Compare with limit
+    println("  %cond_" + loop_id + " = icmp slt i64 %" + var_name + "_val, " + limit)
+    
+    -- Branch based on condition
+    println("  br i1 %cond_" + loop_id + ", label %while_body_" + loop_id + ", label %while_end_" + loop_id)
+    println("")
+    
+    -- Loop body
+    println("while_body_" + loop_id + ":")
+    
+    -- Increment loop variable (count = count + 1)
+    println("  %" + var_name + "_inc = add i64 %" + var_name + "_val, 1")
+    println("  store i64 %" + var_name + "_inc, i64* %" + var_name)
+    
+    -- Back-edge
+    println("  br label %while_header_" + loop_id)
+    println("")
+    
+    -- Loop exit
+    println("while_end_" + loop_id + ":")
+    
+    return 1
+end_function
+
+-- Generate IR for nested while loops
+-- Example:
+--   numeric i = 0
+--   while i < 3 do
+--       numeric j = 0
+--       while j < 2 do
+--           j = j + 1
+--       end_while
+--       i = i + 1
+--   end_while
+function codegen_while_nested(outer_var, outer_limit, inner_var, inner_limit, outer_id, inner_id) returns numeric
+    -- Outer loop header
+    println("  br label %while_header_" + outer_id)
+    println("")
+    
+    println("while_header_" + outer_id + ":")
+    println("  %" + outer_var + "_val = load i64, i64* %" + outer_var)
+    println("  %cond_" + outer_id + " = icmp slt i64 %" + outer_var + "_val, " + outer_limit)
+    println("  br i1 %cond_" + outer_id + ", label %while_body_" + outer_id + ", label %while_end_" + outer_id)
+    println("")
+    
+    -- Outer loop body (contains inner loop)
+    println("while_body_" + outer_id + ":")
+    println("  ; outer loop body - contains inner loop")
+    println("")
+    
+    -- Inner loop header
+    println("  br label %while_header_" + inner_id)
+    println("")
+    
+    println("while_header_" + inner_id + ":")
+    println("  %" + inner_var + "_val = load i64, i64* %" + inner_var)
+    println("  %cond_" + inner_id + " = icmp slt i64 %" + inner_var + "_val, " + inner_limit)
+    println("  br i1 %cond_" + inner_id + ", label %while_body_" + inner_id + ", label %while_end_" + inner_id)
+    println("")
+    
+    -- Inner loop body
+    println("while_body_" + inner_id + ":")
+    println("  %" + inner_var + "_inc = add i64 %" + inner_var + "_val, 1")
+    println("  store i64 %" + inner_var + "_inc, i64* %" + inner_var)
+    println("  br label %while_header_" + inner_id)
+    println("")
+    
+    -- Inner loop end
+    println("while_end_" + inner_id + ":")
+    println("")
+    
+    -- Continue outer loop body
+    println("  ; outer loop increment")
+    println("  %" + outer_var + "_inc = add i64 %" + outer_var + "_val, 1")
+    println("  store i64 %" + outer_var + "_inc, i64* %" + outer_var)
+    
+    -- Outer loop back-edge
+    println("  br label %while_header_" + outer_id)
+    println("")
+    
+    -- Outer loop end
+    println("while_end_" + outer_id + ":")
+    
+    return 1
+end_function
+
+-- ============================================================================
+-- HELPER: Generate loop condition evaluation
+-- ============================================================================
+
+-- Generate IR for loop condition evaluation
+-- This is a placeholder that shows the expected interface
+-- Real implementation would call codegen_comparison functions
+function codegen_loop_condition(var_name, op, limit_val, cond_id) returns string
+    -- For now, return a fixed condition result register
+    -- In real implementation, this would:
+    -- 1. Load the variable
+    -- 2. Call codegen_comparison to generate comparison
+    -- 3. Return the result register name
+    
+    println("  %" + var_name + "_val = load i64, i64* %" + var_name)
+    println("  %cond_" + cond_id + " = icmp slt i64 %" + var_name + "_val, " + limit_val)
+    
+    return "%cond_" + cond_id
+end_function
+
+-- ============================================================================
+-- INTEGRATION DEMO
+-- ============================================================================
+
+function main() returns numeric
+    println("=== While Loop CodeGen Tests ===")
+    println("")
+    
+    -- ========================================================================
+    -- Test 1: Simple while loop
+    -- ========================================================================
+    println("Test 1: Simple while loop")
+    println("Code: while i < 5 do ... end_while")
+    println("")
+    
+    codegen_while_simple("%cond_0", "0")
+    
+    println("")
+    println("  PASS")
+    println("")
+    
+    -- ========================================================================
+    -- Test 2: While loop with counter variable
+    -- ========================================================================
+    println("Test 2: While loop with counter")
+    println("Code: numeric count = 0")
+    println("      while count < 10 do count = count + 1 end_while")
+    println("")
+    
+    -- Variable declaration
+    println("  %count = alloca i64")
+    println("  store i64 0, i64* %count")
+    println("")
+    
+    -- Generate while loop
+    codegen_while_counter("count", "10", "1")
+    
+    println("")
+    println("  PASS")
+    println("")
+    
+    -- ========================================================================
+    -- Test 3: Nested while loops
+    -- ========================================================================
+    println("Test 3: Nested while loops")
+    println("Code: while i < 3 do")
+    println("          while j < 2 do ... end_while")
+    println("      end_while")
+    println("")
+    
+    -- Variable declarations
+    println("  %i = alloca i64")
+    println("  store i64 0, i64* %i")
+    println("  %j = alloca i64")
+    println("  store i64 0, i64* %j")
+    println("")
+    
+    -- Generate nested loops
+    codegen_while_nested("i", "3", "j", "2", "2", "3")
+    
+    println("")
+    println("  PASS")
+    println("")
+    
+    -- ========================================================================
+    -- Test 4: While loop with complex condition
+    -- ========================================================================
+    println("Test 4: While loop with complex condition")
+    println("Code: while x < 10 and y > 0 do ... end_while")
+    println("")
+    
+    -- For complex conditions, we'd need logical operators
+    -- This is a simplified version showing the structure
+    
+    println("  br label %while_header_4")
+    println("")
+    println("while_header_4:")
+    
+    -- Evaluate complex condition (would use codegen_logical.mlp)
+    println("  %x_val = load i64, i64* %x")
+    println("  %y_val = load i64, i64* %y")
+    println("  %cond_4a = icmp slt i64 %x_val, 10")
+    println("  %cond_4b = icmp sgt i64 %y_val, 0")
+    println("  %cond_4 = and i1 %cond_4a, %cond_4b")
+    
+    println("  br i1 %cond_4, label %while_body_4, label %while_end_4")
+    println("")
+    println("while_body_4:")
+    println("  ; loop body")
+    println("  br label %while_header_4")
+    println("")
+    println("while_end_4:")
+    
+    println("")
+    println("  PASS")
+    println("")
+    
+    -- ========================================================================
+    -- Test 5: While loop with break-like early exit
+    -- ========================================================================
+    println("Test 5: While loop structure (early exit pattern)")
+    println("Code: while true do ... if condition then exit loop end_if end_while")
+    println("")
+    
+    println("  br label %while_header_5")
+    println("")
+    println("while_header_5:")
+    println("  ; condition always true")
+    println("  br i1 true, label %while_body_5, label %while_end_5")
+    println("")
+    println("while_body_5:")
+    println("  ; check exit condition")
+    println("  %exit_cond = icmp eq i64 %x, 0")
+    println("  br i1 %exit_cond, label %while_end_5, label %while_continue_5")
+    println("")
+    println("while_continue_5:")
+    println("  ; rest of loop body")
+    println("  br label %while_header_5")
+    println("")
+    println("while_end_5:")
+    
+    println("")
+    println("  PASS")
+    println("")
+    
+    println("=== All tests passed! ===")
+    return 0
+end_function

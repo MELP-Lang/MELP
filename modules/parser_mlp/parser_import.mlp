@@ -1,0 +1,218 @@
+-- ============================================================================
+-- MELP Parser - Module Import/Include Parsing
+-- ============================================================================
+-- Stage 1 Self-Hosting: Parser in MELP
+-- Created: December 16, 2025 (YZ_06)
+-- Purpose: Parse import/include statements
+-- ============================================================================
+
+function main() returns numeric
+    println("=== Module Import Parser Tests ===")
+    println("")
+    
+    -- Token constants
+    numeric T_IMPORT = 22
+    numeric T_INCLUDE = 23
+    numeric T_FROM = 24
+    numeric T_ID = 32
+    numeric T_STR_LIT = 62
+    numeric T_DOT = 55
+    numeric T_COMMA = 52
+    
+    -- Test 1: Simple import
+    println("Test 1: Simple import statement")
+    println("Code: import lexer")
+    println("")
+    
+    -- Tokens: import lexer
+    list tok1_1 = [22, "import", 1, 1]    -- T_IMPORT
+    list tok1_2 = [32, "lexer", 1, 8]     -- T_ID
+    
+    -- Parse: import keyword
+    list cur = tok1_1
+    numeric tok_type = cur[0]
+    
+    if tok_type == 22 then  -- T_IMPORT
+        print("  Parsed: import ")
+        
+        -- Parse: module name
+        cur = tok1_2
+        string module_name = cur[1]
+        println(module_name)
+        
+        println("  PASS")
+    end_if
+    
+    println("")
+    
+    -- Test 2: Import with path
+    println("Test 2: Import with path")
+    println("Code: import parser.expr")
+    println("")
+    
+    -- Tokens: import parser.expr
+    list tok2_1 = [22, "import", 1, 1]    -- T_IMPORT
+    list tok2_2 = [32, "parser", 1, 8]    -- T_ID
+    list tok2_3 = [55, ".", 1, 14]        -- T_DOT
+    list tok2_4 = [32, "expr", 1, 15]     -- T_ID
+    
+    list tokens2 = [tok2_1, tok2_2, tok2_3, tok2_4]
+    
+    -- Parse: import keyword
+    cur = tok2_1
+    tok_type = cur[0]
+    
+    if tok_type == 22 then  -- T_IMPORT
+        print("  Parsed: import ")
+        
+        -- Parse: first part of path
+        cur = tok2_2
+        string path1 = cur[1]
+        print(path1)
+        
+        -- Parse: dot
+        cur = tok2_3
+        numeric dot_type = cur[0]
+        
+        if dot_type == 55 then  -- T_DOT
+            print(".")
+            
+            -- Parse: second part of path
+            cur = tok2_4
+            string path2 = cur[1]
+            println(path2)
+        end_if
+        
+        println("  PASS")
+    end_if
+    
+    println("")
+    
+    -- Test 3: Include statement (for C-style includes)
+    println("Test 3: Include statement")
+    println("Code: include stdlib.mlp")
+    println("")
+    
+    -- Tokens: include "stdlib.mlp"
+    list tok3_1 = [23, "include", 1, 1]        -- T_INCLUDE
+    list tok3_2 = [62, "stdlib.mlp", 1, 9]     -- T_STR_LIT
+    
+    list tokens3 = [tok3_1, tok3_2]
+    
+    -- Parse: include keyword
+    cur = tok3_1
+    tok_type = cur[0]
+    
+    if tok_type == 23 then  -- T_INCLUDE
+        print("  Parsed: include ")
+        
+        -- Parse: file path
+        cur = tok3_2
+        string file_path = cur[1]
+        println(file_path)
+        
+        println("  PASS")
+    end_if
+    
+    println("")
+    
+    -- Test 4: From...import statement
+    println("Test 4: From...import statement")
+    println("Code: from parser import expr, stmt")
+    println("")
+    
+    -- Tokens: from parser import expr, stmt
+    list tok4_1 = [24, "from", 1, 1]      -- T_FROM
+    list tok4_2 = [32, "parser", 1, 6]    -- T_ID
+    list tok4_3 = [22, "import", 1, 13]   -- T_IMPORT
+    list tok4_4 = [32, "expr", 1, 20]     -- T_ID
+    list tok4_5 = [52, ",", 1, 24]        -- T_COMMA
+    list tok4_6 = [32, "stmt", 1, 26]     -- T_ID
+    
+    list tokens4 = [tok4_1, tok4_2, tok4_3, tok4_4, tok4_5, tok4_6]
+    
+    -- Parse: from keyword
+    cur = tok4_1
+    tok_type = cur[0]
+    
+    if tok_type == 24 then  -- T_FROM
+        print("  Parsed: from ")
+        
+        -- Parse: module name
+        cur = tok4_2
+        string from_module = cur[1]
+        print(from_module)
+        
+        -- Parse: import keyword
+        cur = tok4_3
+        numeric import_type = cur[0]
+        
+        if import_type == 22 then  -- T_IMPORT
+            print(" import ")
+            
+            -- Parse: first identifier
+            cur = tok4_4
+            string id1 = cur[1]
+            print(id1)
+            
+            -- Parse: comma
+            cur = tok4_5
+            numeric comma_type = cur[0]
+            
+            if comma_type == 52 then  -- T_COMMA
+                print(", ")
+                
+                -- Parse: second identifier
+                cur = tok4_6
+                string id2 = cur[1]
+                println(id2)
+            end_if
+        end_if
+        
+        println("  PASS")
+    end_if
+    
+    println("")
+    
+    -- Test 5: Multiple imports
+    println("Test 5: Multiple module imports")
+    println("Code: import lexer")
+    println("      import parser")
+    println("")
+    
+    list tok5_1 = [22, "import", 1, 1]
+    list tok5_2 = [32, "lexer", 1, 8]
+    list tok5_3 = [22, "import", 2, 1]
+    list tok5_4 = [32, "parser", 2, 8]
+    
+    println("  Parsed imports:")
+    
+    -- Parse first import
+    cur = tok5_1
+    tok_type = cur[0]
+    
+    if tok_type == 22 then  -- T_IMPORT
+        print("    import ")
+        cur = tok5_2
+        string mod1 = cur[1]
+        println(mod1)
+    end_if
+    
+    -- Parse second import
+    cur = tok5_3
+    tok_type = cur[0]
+    
+    if tok_type == 22 then  -- T_IMPORT
+        print("    import ")
+        cur = tok5_4
+        string mod2 = cur[1]
+        println(mod2)
+    end_if
+    
+    println("  Total imports: 2")
+    println("  PASS")
+    
+    println("")
+    println("SUCCESS: All 5 import parsing tests passed!")
+    return 0
+end_function

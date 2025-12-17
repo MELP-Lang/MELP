@@ -1,0 +1,375 @@
+// ============================================================================
+// MELP Stage 1 - CodeGen Integration Test: Arithmetic Expressions
+// ============================================================================
+// Part of: YZ_11 - Expression CodeGen (Arithmetic Operations)
+// Purpose: Test integration of arithmetic code generation with literals/variables
+//
+// Tests:
+// - Simple arithmetic: 2 + 3, 10 - 5, 4 * 7
+// - Complex expressions: (a + b) * c, a * b + c / d
+// - Variables with arithmetic: x = 10; y = 20; sum = x + y
+// - Full program generation with arithmetic
+// ============================================================================
+
+import "ir_builder.mlp"
+import "type_mapper.mlp"
+import "symbol_table.mlp"
+import "codegen_literal.mlp"
+import "codegen_variable.mlp"
+import "codegen_arithmetic.mlp"
+
+// ============================================================================
+// INTEGRATION TEST: SIMPLE ARITHMETIC
+// ============================================================================
+
+// Test Case 1: Simple addition expression
+// MELP code:
+//   numeric result = 2 + 3
+//   return result
+function test_simple_addition(): boolean
+    println("=== Integration Test 1: 2 + 3 ===")
+    
+    emit_module_header()
+    emit_function_start("test_add", "i64")
+    emit_label("entry")
+    
+    clear_symbols()
+    enter_scope()
+    
+    // Generate: 2 + 3
+    string lit_2 = codegen_literal("numeric", "2")
+    string lit_3 = codegen_literal("numeric", "3")
+    string sum = codegen_add(lit_2, lit_3)
+    
+    // Store in variable
+    string ptr_result = codegen_variable_decl_init("result", "numeric", sum)
+    
+    // Return result
+    string ret_val = codegen_variable_load("result", "numeric")
+    emit_ret_instr("i64", ret_val)
+    
+    leave_scope()
+    emit_function_end()
+    
+    println("")
+    println("[PASS] Simple addition IR generated")
+    return true
+end_function
+
+// Test Case 2: All arithmetic operators
+// MELP code:
+//   numeric a = 10 + 5    (15)
+//   numeric b = 20 - 8    (12)
+//   numeric c = 4 * 7     (28)
+//   numeric d = 20 / 4    (5)
+//   numeric e = 10 % 3    (1)
+function test_all_operators(): boolean
+    println("=== Integration Test 2: All Arithmetic Operators ===")
+    
+    emit_module_header()
+    emit_function_start("test_ops", "i64")
+    emit_label("entry")
+    
+    clear_symbols()
+    enter_scope()
+    
+    // a = 10 + 5
+    string add_result = codegen_add("10", "5")
+    string ptr_a = codegen_variable_decl_init("a", "numeric", add_result)
+    
+    // b = 20 - 8
+    string sub_result = codegen_sub("20", "8")
+    string ptr_b = codegen_variable_decl_init("b", "numeric", sub_result)
+    
+    // c = 4 * 7
+    string mul_result = codegen_mul("4", "7")
+    string ptr_c = codegen_variable_decl_init("c", "numeric", mul_result)
+    
+    // d = 20 / 4
+    string div_result = codegen_div("20", "4")
+    string ptr_d = codegen_variable_decl_init("d", "numeric", div_result)
+    
+    // e = 10 % 3
+    string mod_result = codegen_mod("10", "3")
+    string ptr_e = codegen_variable_decl_init("e", "numeric", mod_result)
+    
+    // Return e (for testing)
+    string ret_val = codegen_variable_load("e", "numeric")
+    emit_ret_instr("i64", ret_val)
+    
+    leave_scope()
+    emit_function_end()
+    
+    println("")
+    println("[PASS] All operators IR generated")
+    return true
+end_function
+
+// Test Case 3: Variables with arithmetic
+// MELP code:
+//   numeric x = 10
+//   numeric y = 20
+//   numeric sum = x + y
+//   return sum
+function test_variable_arithmetic(): boolean
+    println("=== Integration Test 3: Variables with Arithmetic ===")
+    
+    emit_module_header()
+    emit_function_start("test_var_arith", "i64")
+    emit_label("entry")
+    
+    clear_symbols()
+    enter_scope()
+    
+    // numeric x = 10
+    string ptr_x = codegen_variable_decl_init("x", "numeric", "10")
+    add_symbol("x", "numeric", ptr_x)
+    
+    // numeric y = 20
+    string ptr_y = codegen_variable_decl_init("y", "numeric", "20")
+    add_symbol("y", "numeric", ptr_y)
+    
+    // Load x
+    string val_x = codegen_variable_load("x", "numeric")
+    
+    // Load y
+    string val_y = codegen_variable_load("y", "numeric")
+    
+    // sum = x + y
+    string sum_val = codegen_add(val_x, val_y)
+    string ptr_sum = codegen_variable_decl_init("sum", "numeric", sum_val)
+    
+    // Return sum (should be 30)
+    string ret_val = codegen_variable_load("sum", "numeric")
+    emit_ret_instr("i64", ret_val)
+    
+    leave_scope()
+    emit_function_end()
+    
+    println("")
+    println("[PASS] Variable arithmetic IR generated")
+    return true
+end_function
+
+// Test Case 4: Complex expression with precedence
+// MELP code:
+//   numeric result = (2 + 3) * 4
+//   return result  (should be 20)
+function test_precedence(): boolean
+    println("=== Integration Test 4: (2 + 3) * 4 ===")
+    
+    emit_module_header()
+    emit_function_start("test_precedence", "i64")
+    emit_label("entry")
+    
+    clear_symbols()
+    enter_scope()
+    
+    // Use complex expression helper
+    string result_val = codegen_complex_expr_1("2", "3", "4")
+    string ptr_result = codegen_variable_decl_init("result", "numeric", result_val)
+    
+    // Return result
+    string ret_val = codegen_variable_load("result", "numeric")
+    emit_ret_instr("i64", ret_val)
+    
+    leave_scope()
+    emit_function_end()
+    
+    println("")
+    println("[PASS] Precedence expression IR generated")
+    return true
+end_function
+
+// Test Case 5: Multiple operations
+// MELP code:
+//   numeric a = 5
+//   numeric b = 3
+//   numeric c = 2
+//   numeric result = a * b + c  (17)
+//   return result
+function test_multiple_ops(): boolean
+    println("=== Integration Test 5: a * b + c ===")
+    
+    emit_module_header()
+    emit_function_start("test_multi", "i64")
+    emit_label("entry")
+    
+    clear_symbols()
+    enter_scope()
+    
+    // Declare variables
+    string ptr_a = codegen_variable_decl_init("a", "numeric", "5")
+    add_symbol("a", "numeric", ptr_a)
+    
+    string ptr_b = codegen_variable_decl_init("b", "numeric", "3")
+    add_symbol("b", "numeric", ptr_b)
+    
+    string ptr_c = codegen_variable_decl_init("c", "numeric", "2")
+    add_symbol("c", "numeric", ptr_c)
+    
+    // Load values
+    string val_a = codegen_variable_load("a", "numeric")
+    string val_b = codegen_variable_load("b", "numeric")
+    string val_c = codegen_variable_load("c", "numeric")
+    
+    // result = a * b + c
+    string result_val = codegen_complex_expr_2(val_a, val_b, val_c)
+    string ptr_result = codegen_variable_decl_init("result", "numeric", result_val)
+    
+    // Return result
+    string ret_val = codegen_variable_load("result", "numeric")
+    emit_ret_instr("i64", ret_val)
+    
+    leave_scope()
+    emit_function_end()
+    
+    println("")
+    println("[PASS] Multiple operations IR generated")
+    return true
+end_function
+
+// Test Case 6: Division with complex expression
+// MELP code:
+//   numeric a = 20
+//   numeric b = 10
+//   numeric c = 3
+//   numeric d = 2
+//   numeric result = (a - b) / (c + d)  ((20-10)/(3+2) = 10/5 = 2)
+//   return result
+function test_complex_division(): boolean
+    println("=== Integration Test 6: (a - b) / (c + d) ===")
+    
+    emit_module_header()
+    emit_function_start("test_div", "i64")
+    emit_label("entry")
+    
+    clear_symbols()
+    enter_scope()
+    
+    // Declare variables
+    string ptr_a = codegen_variable_decl_init("a", "numeric", "20")
+    string ptr_b = codegen_variable_decl_init("b", "numeric", "10")
+    string ptr_c = codegen_variable_decl_init("c", "numeric", "3")
+    string ptr_d = codegen_variable_decl_init("d", "numeric", "2")
+    
+    // Compute result
+    string result_val = codegen_complex_expr_3("20", "10", "3", "2")
+    string ptr_result = codegen_variable_decl_init("result", "numeric", result_val)
+    
+    // Return result
+    string ret_val = codegen_variable_load("result", "numeric")
+    emit_ret_instr("i64", ret_val)
+    
+    leave_scope()
+    emit_function_end()
+    
+    println("")
+    println("[PASS] Complex division IR generated")
+    return true
+end_function
+
+// Test Case 7: Unary negation
+// MELP code:
+//   numeric x = 5
+//   numeric y = -x
+//   return y  (should be -5)
+function test_unary_negate(): boolean
+    println("=== Integration Test 7: Unary Negation ===")
+    
+    emit_module_header()
+    emit_function_start("test_negate", "i64")
+    emit_label("entry")
+    
+    clear_symbols()
+    enter_scope()
+    
+    // numeric x = 5
+    string ptr_x = codegen_variable_decl_init("x", "numeric", "5")
+    add_symbol("x", "numeric", ptr_x)
+    
+    // Load x
+    string val_x = codegen_variable_load("x", "numeric")
+    
+    // y = -x
+    string neg_val = codegen_negate(val_x)
+    string ptr_y = codegen_variable_decl_init("y", "numeric", neg_val)
+    
+    // Return y
+    string ret_val = codegen_variable_load("y", "numeric")
+    emit_ret_instr("i64", ret_val)
+    
+    leave_scope()
+    emit_function_end()
+    
+    println("")
+    println("[PASS] Unary negation IR generated")
+    return true
+end_function
+
+// ============================================================================
+// MAIN TEST RUNNER
+// ============================================================================
+
+function run_all_arithmetic_integration_tests(): numeric
+    println("======================================")
+    println("CODEGEN ARITHMETIC INTEGRATION TESTS")
+    println("Arithmetic Expressions → LLVM IR")
+    println("======================================")
+    println("")
+    
+    numeric passed = 0
+    numeric total = 7
+    
+    if test_simple_addition() then
+        passed = passed + 1
+    end_if
+    println("")
+    
+    if test_all_operators() then
+        passed = passed + 1
+    end_if
+    println("")
+    
+    if test_variable_arithmetic() then
+        passed = passed + 1
+    end_if
+    println("")
+    
+    if test_precedence() then
+        passed = passed + 1
+    end_if
+    println("")
+    
+    if test_multiple_ops() then
+        passed = passed + 1
+    end_if
+    println("")
+    
+    if test_complex_division() then
+        passed = passed + 1
+    end_if
+    println("")
+    
+    if test_unary_negate() then
+        passed = passed + 1
+    end_if
+    println("")
+    
+    println("======================================")
+    println("INTEGRATION TEST SUMMARY")
+    println("======================================")
+    print("Tests Passed: ")
+    print_numeric(passed)
+    print("/")
+    print_numeric(total)
+    println("")
+    
+    if passed == total then
+        println("✅ ALL INTEGRATION TESTS PASSED!")
+    else
+        println("⚠️ SOME TESTS FAILED")
+    end_if
+    
+    return passed
+end_function

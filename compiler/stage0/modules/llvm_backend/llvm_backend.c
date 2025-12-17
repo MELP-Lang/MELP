@@ -73,9 +73,13 @@ void llvm_emit_module_footer(LLVMContext* ctx) {
 // ============================================================================
 
 void llvm_emit_function_start(LLVMContext* ctx, const char* name,
-                               const char** param_names, int* param_types, int param_count) {
+                               const char** param_names, int* param_types, int param_count,
+                               int return_type) {
     fprintf(ctx->output, "\n; Function: %s\n", name);
-    fprintf(ctx->output, "define i64 @%s(", name);
+    
+    // YZ_23: return_type == 1 means string (i8*), 0 means numeric (i64)
+    const char* ret_type_str = (return_type == 1) ? "i8*" : "i64";
+    fprintf(ctx->output, "define %s @%s(", ret_type_str, name);
     
     for (int i = 0; i < param_count; i++) {
         if (i > 0) fprintf(ctx->output, ", ");
@@ -98,11 +102,14 @@ void llvm_emit_function_end(LLVMContext* ctx) {
     fprintf(ctx->output, "}\n");
 }
 
-LLVMValue* llvm_emit_return(LLVMContext* ctx, LLVMValue* value) {
+LLVMValue* llvm_emit_return(LLVMContext* ctx, LLVMValue* value, int return_type) {
+    // YZ_23: return_type == 1 means string (i8*), 0 means numeric (i64)
+    const char* ret_type_str = (return_type == 1) ? "i8*" : "i64";
+    
     if (value->is_constant) {
-        fprintf(ctx->output, "    ret i64 %ld\n", value->const_value);
+        fprintf(ctx->output, "    ret %s %ld\n", ret_type_str, value->const_value);
     } else {
-        fprintf(ctx->output, "    ret i64 %s\n", value->name);
+        fprintf(ctx->output, "    ret %s %s\n", ret_type_str, value->name);
     }
     return value;
 }

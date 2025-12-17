@@ -7,7 +7,8 @@ typedef enum {
     FUNC_PARAM_BOOLEAN,
     FUNC_PARAM_POINTER,
     FUNC_PARAM_ARRAY,
-    FUNC_PARAM_STRUCT  // YZ_84: Struct type parameter
+    FUNC_PARAM_STRUCT,  // YZ_84: Struct type parameter
+    FUNC_PARAM_LIST     // YZ_21: List type parameter
 } FunctionParamType;
 
 typedef struct FunctionParam {

@@ -1,13 +1,13 @@
 -- ============================================================================
 -- MELP Parser - AST Node Structures
 -- ============================================================================
--- Bu modül, Abstract Syntax Tree (AST) düğümlerinin temel yapılarını tanımlar.
+-- This module defines the base structures for Abstract Syntax Tree (AST) nodes.
 -- Stage 1 Self-Hosting: Parser in MELP
--- Created: 16 Aralık 2025
+-- Created: December 16, 2025
 -- ============================================================================
 
 -- AST Node Types (Enum)
--- Her düğüm tipi için benzersiz bir sayısal değer
+-- Each node type has a unique numeric value
 enum ASTNodeType
     NODE_EXPRESSION = 1
     NODE_STATEMENT = 2
@@ -48,72 +48,72 @@ enum StmtType
 end_enum
 
 -- Base AST Node (Struct)
--- Tüm AST düğümlerinin temel yapısı
+-- Base structure for all AST nodes
 struct ASTNode
-    numeric node_type        -- ASTNodeType enum değeri
-    numeric line             -- Kaynak koddaki satır numarası
-    numeric column           -- Kaynak koddaki sütun numarası
+    numeric node_type        -- ASTNodeType enum value
+    numeric line             -- Source code line number
+    numeric column           -- Source code column number
 end_struct
 
 -- Expression Node
--- İfadeleri temsil eden düğüm yapısı
+-- Node structure representing expressions
 struct ExprNode
     numeric node_type        -- NODE_EXPRESSION
     numeric line
     numeric column
-    numeric expr_type        -- ExprType enum değeri
-    string value            -- Literal değerler için (sayı, string)
+    numeric expr_type        -- ExprType enum value
+    string value            -- For literal values (number, string)
 end_struct
 
 -- Binary Operation Node
--- İkili operatörleri temsil eden düğüm (a + b, a * b, etc.)
+-- Node representing binary operators (a + b, a * b, etc.)
 struct BinaryOpNode
     numeric node_type        -- NODE_BINARY_OP
     numeric line
     numeric column
     string operator          -- "+", "-", "*", "/", "==", etc.
-    -- Left ve right child nodes için genişletilebilir
+    -- Expandable for left and right child nodes
 end_struct
 
 -- Statement Node
--- İfadeleri (statements) temsil eden düğüm yapısı
+-- Node structure representing statements
 struct StmtNode
     numeric node_type        -- NODE_STATEMENT
     numeric line
     numeric column
-    numeric stmt_type        -- StmtType enum değeri
+    numeric stmt_type        -- StmtType enum value
 end_struct
 
 -- Function Node
--- Fonksiyon tanımlarını temsil eden düğüm yapısı
+-- Node structure representing function definitions
 struct FunctionNode
     numeric node_type        -- NODE_FUNCTION
     numeric line
     numeric column
-    string name              -- Fonksiyon adı
-    -- Parameters ve body için genişletilebilir
+    string name              -- Function name
+    -- Expandable for parameters and body
 end_struct
 
 -- ============================================================================
 -- Helper Functions
 -- ============================================================================
 
--- Yeni bir ASTNode oluştur
+-- Create a new ASTNode
 function create_ast_node(numeric ntype, numeric ln, numeric col) returns list
     return [ntype, ln, col]
 end_function
 
--- Yeni bir ExprNode oluştur
+-- Create a new ExprNode
 function create_expr_node(numeric etype, string val, numeric ln, numeric col) returns list
     return [1, ln, col, etype, val]  -- NODE_EXPRESSION = 1
 end_function
 
--- Yeni bir StmtNode oluştur
+-- Create a new StmtNode
 function create_stmt_node(numeric stype, numeric ln, numeric col) returns list
     return [2, ln, col, stype]  -- NODE_STATEMENT = 2
 end_function
 
--- AST node tipini string olarak döndür (debug için)
+-- Return AST node type as string (for debugging)
 function ast_node_type_to_string(numeric ntype) returns string
     if ntype == 1 then
         return "EXPRESSION"
@@ -139,7 +139,7 @@ function ast_node_type_to_string(numeric ntype) returns string
     return "UNKNOWN"
 end_function
 
--- Test: AST node oluşturma
+-- Test: AST node creation
 function main() returns numeric
     println("=== AST Node Structures Test ===")
     

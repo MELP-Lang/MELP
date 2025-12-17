@@ -1,0 +1,218 @@
+-- ============================================================================
+-- MELP Stage 1 - Code Generator: Logical Operations CodeGen
+-- ============================================================================
+-- Part of: Phase 2 - CodeGen in MELP (YZ_12)
+-- Purpose: Generate LLVM IR for logical expressions
+--
+-- Handles:
+-- - Logical AND (and)
+-- - Logical OR (or)
+-- - Logical NOT (not)
+-- - Short-circuit evaluation (basic blocks)
+-- - Boolean operations
+-- ============================================================================
+
+-- NOTE: This module generates LLVM IR instructions
+-- Temporary register names are generated inline for simplicity
+
+-- ============================================================================
+-- LOGICAL OPERATORS (Simple Boolean Arithmetic)
+-- ============================================================================
+
+-- Generate IR for logical AND (simple version without short-circuit)
+-- Input: left_val, right_val (i1 boolean values)
+-- Output: Result register (i1 boolean)
+function codegen_and_simple(left_val, right_val) returns string
+    string result_reg = "%and"
+    -- and i1 left_val, right_val
+    string instr = "  " + result_reg + " = and i1 " + left_val + ", " + right_val
+    println(instr)
+    return result_reg
+end_function
+
+-- Generate IR for logical OR (simple version without short-circuit)
+-- Input: left_val, right_val (i1 boolean values)
+-- Output: Result register (i1 boolean)
+function codegen_or_simple(left_val, right_val) returns string
+    string result_reg = "%or"
+    -- or i1 left_val, right_val
+    string instr = "  " + result_reg + " = or i1 " + left_val + ", " + right_val
+    println(instr)
+    return result_reg
+end_function
+
+-- Generate IR for logical NOT
+-- Input: operand (i1 boolean value)
+-- Output: Result register (i1 boolean)
+function codegen_not(operand) returns string
+    string result_reg = "%not"
+    -- xor i1 operand, true (NOT = XOR with 1)
+    string instr = "  " + result_reg + " = xor i1 " + operand + ", true"
+    println(instr)
+    return result_reg
+end_function
+
+-- ============================================================================
+-- LOGICAL OPERATORS WITH i64 (MELP Compatibility)
+-- ============================================================================
+
+-- Logical AND with i64 operands (MELP uses numeric for boolean)
+-- Input: left_val, right_val (i64 values, 0=false, non-zero=true)
+-- Output: Result register (i64, 0 or 1)
+function codegen_and_i64(left_val, right_val) returns string
+    -- Convert both to i1
+    string left_bool = "%left_bool"
+    string instr1 = "  " + left_bool + " = icmp ne i64 " + left_val + ", 0"
+    println(instr1)
+    
+    string right_bool = "%right_bool"
+    string instr2 = "  " + right_bool + " = icmp ne i64 " + right_val + ", 0"
+    println(instr2)
+    
+    -- AND the booleans
+    string result_bool = codegen_and_simple(left_bool, right_bool)
+    
+    -- Extend back to i64
+    string result_reg = "%and_result"
+    string instr3 = "  " + result_reg + " = zext i1 " + result_bool + " to i64"
+    println(instr3)
+    
+    return result_reg
+end_function
+
+-- Logical OR with i64 operands
+-- Input: left_val, right_val (i64 values, 0=false, non-zero=true)
+-- Output: Result register (i64, 0 or 1)
+function codegen_or_i64(left_val, right_val) returns string
+    -- Convert both to i1
+    string left_bool = "%left_bool"
+    string instr1 = "  " + left_bool + " = icmp ne i64 " + left_val + ", 0"
+    println(instr1)
+    
+    string right_bool = "%right_bool"
+    string instr2 = "  " + right_bool + " = icmp ne i64 " + right_val + ", 0"
+    println(instr2)
+    
+    -- OR the booleans
+    string result_bool = codegen_or_simple(left_bool, right_bool)
+    
+    -- Extend back to i64
+    string result_reg = "%or_result"
+    string instr3 = "  " + result_reg + " = zext i1 " + result_bool + " to i64"
+    println(instr3)
+    
+    return result_reg
+end_function
+
+-- Logical NOT with i64 operand
+-- Input: operand (i64 value, 0=false, non-zero=true)
+-- Output: Result register (i64, 0 or 1)
+function codegen_not_i64(operand) returns string
+    -- Convert to i1
+    string bool_val = "%bool_val"
+    string instr1 = "  " + bool_val + " = icmp ne i64 " + operand + ", 0"
+    println(instr1)
+    
+    -- NOT the boolean
+    string result_bool = codegen_not(bool_val)
+    
+    -- Extend back to i64
+    string result_reg = "%not_result"
+    string instr2 = "  " + result_reg + " = zext i1 " + result_bool + " to i64"
+    println(instr2)
+    
+    return result_reg
+end_function
+
+-- ============================================================================
+-- LOGICAL OPERATOR DISPATCHER
+-- ============================================================================
+
+-- Main dispatcher for logical operators
+-- Input:
+--   - operator: "and", "or", "not"
+--   - left_val: LLVM IR value (left operand, i64)
+--   - right_val: LLVM IR value (right operand, i64) - unused for NOT
+--   - use_i64: 1 = use i64 operations, 0 = use i1 operations
+-- Output: Result register
+function codegen_logical(operator, left_val, right_val, use_i64) returns string
+    string result = ""
+    
+    if use_i64 == 1 then
+        -- i64 operations (MELP style)
+        if operator == "and" then
+            result = codegen_and_i64(left_val, right_val)
+            return result
+        end_if
+        if operator == "or" then
+            result = codegen_or_i64(left_val, right_val)
+            return result
+        end_if
+        if operator == "not" then
+            result = codegen_not_i64(left_val)
+            return result
+        end_if
+        println("ERROR: Unknown logical operator")
+        return ""
+    else
+        -- i1 operations (pure boolean)
+        if operator == "and" then
+            result = codegen_and_simple(left_val, right_val)
+            return result
+        end_if
+        if operator == "or" then
+            result = codegen_or_simple(left_val, right_val)
+            return result
+        end_if
+        if operator == "not" then
+            result = codegen_not(left_val)
+            return result
+        end_if
+        println("ERROR: Unknown logical operator")
+        return ""
+    end_if
+end_function
+
+-- ============================================================================
+-- HELPER FUNCTIONS
+-- ============================================================================
+
+-- Check if operator is a logical operator
+function is_logical_op(operator) returns numeric
+    if operator == "and" then
+        return 1
+    end_if
+    if operator == "or" then
+        return 1
+    end_if
+    if operator == "not" then
+        return 1
+    end_if
+    return 0
+end_function
+
+-- ============================================================================
+-- TEST FUNCTION
+-- ============================================================================
+
+function test_codegen_logical() returns numeric
+    println("Testing Logical Operators")
+    
+    -- Test AND with i64
+    string and_op = "and"
+    string r1 = codegen_logical(and_op, "%x", "%y", 1)
+    println(r1)
+    
+    -- Test OR with i64
+    string or_op = "or"
+    string r2 = codegen_logical(or_op, "%a", "%b", 1)
+    println(r2)
+    
+    return 0
+end_function
+
+-- Main entry point
+function main() returns numeric
+    return test_codegen_logical()
+end_function
+

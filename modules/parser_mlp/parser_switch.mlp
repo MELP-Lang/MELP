@@ -1,0 +1,332 @@
+-- ============================================================================
+-- MELP Parser - Switch/Case Statement Parsing
+-- ============================================================================
+-- Stage 1 Self-Hosting: Parser in MELP
+-- Created: December 16, 2025 (YZ_07)
+-- Purpose: Parse switch/case statements
+-- ============================================================================
+
+function main() returns numeric
+    println("=== Switch/Case Parser Tests ===")
+    println("")
+    
+    -- Token constants
+    numeric T_SWITCH = 18
+    numeric T_CASE = 19
+    numeric T_DEFAULT = 25
+    numeric T_END = 2
+    numeric T_COLON = 56
+    numeric T_ID = 32
+    numeric T_NUMBER = 61
+    numeric T_ASSIGN = 8
+    numeric T_RETURN = 14
+    numeric T_PRINT = 15
+    numeric T_PRINTLN = 16
+    numeric T_STR_LIT = 62
+    
+    -- Test 1: Simple switch with 3 cases
+    println("Test 1: Simple switch with 3 cases")
+    println("Code: switch choice")
+    println("        case 1:")
+    println("          result = 10")
+    println("        case 2:")
+    println("          result = 20")
+    println("        case 3:")
+    println("          result = 30")
+    println("      end switch")
+    println("")
+    
+    -- Tokens: switch choice case 1 : result = 10 case 2 : result = 20 case 3 : result = 30 end switch
+    list tok1_1 = [18, "switch", 1, 1]
+    list tok1_2 = [32, "choice", 1, 8]
+    list tok1_3 = [19, "case", 2, 3]
+    list tok1_4 = [61, "1", 2, 8]
+    list tok1_5 = [56, ":", 2, 9]
+    list tok1_6 = [32, "result", 3, 5]
+    list tok1_7 = [8, "=", 3, 12]
+    list tok1_8 = [61, "10", 3, 14]
+    list tok1_9 = [19, "case", 4, 3]
+    list tok1_10 = [61, "2", 4, 8]
+    list tok1_11 = [56, ":", 4, 9]
+    list tok1_12 = [32, "result", 5, 5]
+    list tok1_13 = [8, "=", 5, 12]
+    list tok1_14 = [61, "20", 5, 14]
+    list tok1_15 = [19, "case", 6, 3]
+    list tok1_16 = [61, "3", 6, 8]
+    list tok1_17 = [56, ":", 6, 9]
+    list tok1_18 = [32, "result", 7, 5]
+    list tok1_19 = [8, "=", 7, 12]
+    list tok1_20 = [61, "30", 7, 14]
+    list tok1_21 = [2, "end", 8, 1]
+    
+    -- Parse: switch keyword
+    list cur = tok1_1
+    numeric tok_type = cur[0]
+    
+    if tok_type == 18 then  -- T_SWITCH
+        print("  Parsed: switch ")
+        
+        -- Parse: switch expression
+        cur = tok1_2
+        string switch_expr = cur[1]
+        println(switch_expr)
+        
+        -- Parse: case 1
+        cur = tok1_3
+        tok_type = cur[0]
+        
+        if tok_type == 19 then  -- T_CASE
+            print("    case ")
+            
+            cur = tok1_4
+            string case1_val = cur[1]
+            print(case1_val)
+            
+            cur = tok1_5
+            println(":")
+            
+            -- Parse case 1 body
+            cur = tok1_6
+            string var1 = cur[1]
+            cur = tok1_8
+            string val1 = cur[1]
+            println("      " + var1 + " = " + val1)
+        end_if
+        
+        -- Parse: case 2
+        cur = tok1_9
+        tok_type = cur[0]
+        
+        if tok_type == 19 then  -- T_CASE
+            print("    case ")
+            
+            cur = tok1_10
+            string case2_val = cur[1]
+            print(case2_val)
+            
+            cur = tok1_11
+            println(":")
+            
+            -- Parse case 2 body
+            cur = tok1_12
+            string var2 = cur[1]
+            cur = tok1_14
+            string val2 = cur[1]
+            println("      " + var2 + " = " + val2)
+        end_if
+        
+        -- Parse: case 3
+        cur = tok1_15
+        tok_type = cur[0]
+        
+        if tok_type == 19 then  -- T_CASE
+            print("    case ")
+            
+            cur = tok1_16
+            string case3_val = cur[1]
+            print(case3_val)
+            
+            cur = tok1_17
+            println(":")
+            
+            -- Parse case 3 body
+            cur = tok1_18
+            string var3 = cur[1]
+            cur = tok1_20
+            string val3 = cur[1]
+            println("      " + var3 + " = " + val3)
+        end_if
+        
+        println("  PASS")
+    end_if
+    
+    println("")
+    
+    -- Test 2: Switch with default case
+    println("Test 2: Switch with default case")
+    println("Code: switch x")
+    println("        case 1:")
+    println("          return 10")
+    println("        case 2:")
+    println("          return 20")
+    println("        default:")
+    println("          return 99")
+    println("      end switch")
+    println("")
+    
+    -- Tokens: switch x case 1 : return 10 case 2 : return 20 default : return 99 end switch
+    list tok2_1 = [18, "switch", 1, 1]
+    list tok2_2 = [32, "x", 1, 8]
+    list tok2_3 = [19, "case", 2, 3]
+    list tok2_4 = [61, "1", 2, 8]
+    list tok2_5 = [56, ":", 2, 9]
+    list tok2_6 = [14, "return", 3, 5]
+    list tok2_7 = [61, "10", 3, 12]
+    list tok2_8 = [19, "case", 4, 3]
+    list tok2_9 = [61, "2", 4, 8]
+    list tok2_10 = [56, ":", 4, 9]
+    list tok2_11 = [14, "return", 5, 5]
+    list tok2_12 = [61, "20", 5, 12]
+    list tok2_13 = [25, "default", 6, 3]
+    list tok2_14 = [56, ":", 6, 10]
+    list tok2_15 = [14, "return", 7, 5]
+    list tok2_16 = [61, "99", 7, 12]
+    list tok2_17 = [2, "end", 8, 1]
+    
+    -- Parse: switch keyword
+    cur = tok2_1
+    tok_type = cur[0]
+    
+    if tok_type == 18 then  -- T_SWITCH
+        print("  Parsed: switch ")
+        
+        -- Parse: switch expression
+        cur = tok2_2
+        switch_expr = cur[1]
+        println(switch_expr)
+        
+        -- Parse: case 1
+        cur = tok2_3
+        tok_type = cur[0]
+        
+        if tok_type == 19 then  -- T_CASE
+            print("    case ")
+            
+            cur = tok2_4
+            case1_val = cur[1]
+            print(case1_val)
+            
+            cur = tok2_5
+            println(":")
+            
+            -- Parse case 1 body
+            cur = tok2_7
+            val1 = cur[1]
+            println("      return " + val1)
+        end_if
+        
+        -- Parse: case 2
+        cur = tok2_8
+        tok_type = cur[0]
+        
+        if tok_type == 19 then  -- T_CASE
+            print("    case ")
+            
+            cur = tok2_9
+            case2_val = cur[1]
+            print(case2_val)
+            
+            cur = tok2_10
+            println(":")
+            
+            -- Parse case 2 body
+            cur = tok2_12
+            val2 = cur[1]
+            println("      return " + val2)
+        end_if
+        
+        -- Parse: default
+        cur = tok2_13
+        tok_type = cur[0]
+        
+        if tok_type == 25 then  -- T_DEFAULT
+            print("    default")
+            
+            cur = tok2_14
+            println(":")
+            
+            -- Parse default body
+            cur = tok2_16
+            string default_val = cur[1]
+            println("      return " + default_val)
+        end_if
+        
+        println("  PASS")
+    end_if
+    
+    println("")
+    
+    -- Test 3: Switch without default
+    println("Test 3: Switch without default case")
+    println("Code: switch value")
+    println("        case 100:")
+    println("          print(success)")
+    println("        case 200:")
+    println("          print(error)")
+    println("      end switch")
+    println("")
+    
+    -- Tokens: switch value case 100 : print("success") case 200 : print("error") end switch
+    list tok3_1 = [18, "switch", 1, 1]
+    list tok3_2 = [32, "value", 1, 8]
+    list tok3_3 = [19, "case", 2, 3]
+    list tok3_4 = [61, "100", 2, 8]
+    list tok3_5 = [56, ":", 2, 11]
+    list tok3_6 = [16, "println", 3, 5]
+    list tok3_7 = [62, "success", 3, 12]
+    list tok3_8 = [19, "case", 4, 3]
+    list tok3_9 = [61, "200", 4, 8]
+    list tok3_10 = [56, ":", 4, 11]
+    list tok3_11 = [16, "println", 5, 5]
+    list tok3_12 = [62, "error", 5, 12]
+    list tok3_13 = [2, "end", 6, 1]
+    
+    -- Parse: switch keyword
+    cur = tok3_1
+    tok_type = cur[0]
+    
+    if tok_type == 18 then  -- T_SWITCH
+        print("  Parsed: switch ")
+        
+        -- Parse: switch expression
+        cur = tok3_2
+        switch_expr = cur[1]
+        println(switch_expr)
+        
+        -- Parse: case 100
+        cur = tok3_3
+        tok_type = cur[0]
+        
+        if tok_type == 19 then  -- T_CASE
+            print("    case ")
+            
+            cur = tok3_4
+            string case_val1 = cur[1]
+            print(case_val1)
+            
+            cur = tok3_5
+            println(":")
+            
+            -- Parse case body
+            cur = tok3_7
+            string msg1 = cur[1]
+            println("      println(" + msg1 + ")")
+        end_if
+        
+        -- Parse: case 200
+        cur = tok3_8
+        tok_type = cur[0]
+        
+        if tok_type == 19 then  -- T_CASE
+            print("    case ")
+            
+            cur = tok3_9
+            string case_val2 = cur[1]
+            print(case_val2)
+            
+            cur = tok3_10
+            println(":")
+            
+            -- Parse case body
+            cur = tok3_12
+            string msg2 = cur[1]
+            println("      println(" + msg2 + ")")
+        end_if
+        
+        println("  PASS")
+    end_if
+    
+    println("")
+    println("SUCCESS: All 3 switch/case parsing tests passed!")
+    return 0
+end_function

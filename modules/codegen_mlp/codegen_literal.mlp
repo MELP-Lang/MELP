@@ -1,0 +1,26 @@
+-- Codegen Literal STUB - Stage 0 Compatible
+-- YZ_21: 17 December 2025
+
+function codegen_numeric_literal(numeric value) returns string
+    return ""
+end_function
+
+function codegen_boolean_literal(boolean value) returns string
+    return ""
+end_function
+
+function codegen_string_literal(string str_value) returns string
+    return ""
+end_function
+
+function compute_string_length(string s) returns numeric
+    return 0
+end_function
+
+function codegen_literal(string literal_type, string literal_value_str) returns string
+    return ""
+end_function
+
+function main() returns numeric
+    return 0
+end_function

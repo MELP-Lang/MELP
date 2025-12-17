@@ -1,0 +1,113 @@
+// ============================================================================
+// MELP Stage 1 - YZ_10 End-to-End Demo
+// ============================================================================
+// Demonstrates full literal & variable codegen pipeline:
+//   MELP Source → AST (simulated) → LLVM IR → Executable
+//
+// This demo manually constructs IR for a simple program:
+//
+//   numeric x = 42
+//   numeric y = 10
+//   numeric sum = x + y
+//   return sum
+//
+// Expected output: Executable that returns 52
+// ============================================================================
+
+import "ir_builder.mlp"
+import "type_mapper.mlp"
+import "symbol_table.mlp"
+import "codegen_literal.mlp"
+import "codegen_variable.mlp"
+
+// Generate complete LLVM IR for a simple program
+function generate_simple_program(): boolean
+    println("; ============================================")
+    println("; MELP Generated LLVM IR - YZ_10 Demo")
+    println("; Program: numeric x=42; y=10; sum=x+y; return sum")
+    println("; ============================================")
+    println("")
+    
+    // Module header
+    emit_module_header()
+    println("")
+    
+    // Function declaration
+    emit_function_start("main", "i64")
+    emit_label("entry")
+    
+    // Initialize symbol table
+    clear_symbols()
+    enter_scope()
+    
+    // ========================================
+    // Code generation
+    // ========================================
+    
+    // numeric x = 42
+    string lit_42 = codegen_literal("numeric", "42")
+    string ptr_x = codegen_variable_decl_init("x", "numeric", lit_42)
+    add_symbol("x", "numeric", ptr_x)
+    
+    // numeric y = 10
+    string lit_10 = codegen_literal("numeric", "10")
+    string ptr_y = codegen_variable_decl_init("y", "numeric", lit_10)
+    add_symbol("y", "numeric", ptr_y)
+    
+    // Load x
+    string val_x = codegen_variable_load("x", "numeric")
+    
+    // Load y
+    string val_y = codegen_variable_load("y", "numeric")
+    
+    // Add: sum_temp = x + y
+    string sum_temp = gen_temp_name()
+    emit_add_instr(sum_temp, "i64", val_x, val_y)
+    
+    // numeric sum = sum_temp
+    string ptr_sum = codegen_variable_decl_init("sum", "numeric", sum_temp)
+    add_symbol("sum", "numeric", ptr_sum)
+    
+    // Return sum
+    string ret_val = codegen_variable_load("sum", "numeric")
+    emit_ret_instr("i64", ret_val)
+    
+    leave_scope()
+    emit_function_end()
+    
+    println("")
+    println("; ============================================")
+    println("; End of LLVM IR")
+    println("; ============================================")
+    
+    return true
+end_function
+
+// Main entry point
+function main(): numeric
+    println("╔════════════════════════════════════════════╗")
+    println("║   MELP YZ_10: End-to-End Demo              ║")
+    println("║   Literals & Variables → LLVM IR           ║")
+    println("╚════════════════════════════════════════════╝")
+    println("")
+    
+    boolean success = generate_simple_program()
+    
+    println("")
+    println("╔════════════════════════════════════════════╗")
+    println("║   DEMO COMPLETE                            ║")
+    println("╚════════════════════════════════════════════╝")
+    println("")
+    println("Next steps:")
+    println("1. Copy the IR above to a .ll file")
+    println("2. Compile: clang -o program program.ll")
+    println("3. Run: ./program && echo $?")
+    println("4. Expected output: 52")
+    println("")
+    
+    if success then
+        return 0
+    else
+        return 1
+    end_if
+end_function

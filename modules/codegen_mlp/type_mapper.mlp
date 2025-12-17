@@ -1,0 +1,265 @@
+-- Type Mapper - MELP to LLVM Type Mapping
+-- Phase 2 Part 1: CodeGen Infrastructure
+-- YZ_09: 16 December 2025
+
+-- Map MELP type to LLVM type
+function map_type_to_llvm(string melp_type) returns string
+    if melp_type == "numeric" then
+        return "i64"
+    end_if
+    
+    if melp_type == "boolean" then
+        return "i1"
+    end_if
+    
+    if melp_type == "string" then
+        return "i8*"
+    end_if
+    
+    if melp_type == "list" then
+        return "i8*"
+    end_if
+    
+    -- Default to i64
+    return "i64"
+end_function
+
+-- Get size of MELP type in bytes
+function get_type_size(string melp_type) returns numeric
+    if melp_type == "numeric" then
+        return 8
+    end_if
+    
+    if melp_type == "boolean" then
+        return 1
+    end_if
+    
+    if melp_type == "string" then
+        return 8
+    end_if
+    
+    if melp_type == "list" then
+        return 8
+    end_if
+    
+    return 8
+end_function
+
+-- Check if type is pointer type
+function is_pointer_type(string melp_type) returns numeric
+    if melp_type == "string" then
+        return 1
+    end_if
+    
+    if melp_type == "list" then
+        return 1
+    end_if
+    
+    return 0
+end_function
+
+-- Get LLVM comparison operator for type
+function get_cmp_op(string melp_type, string op) returns string
+    -- For numeric types
+    if melp_type == "numeric" then
+        if op == "==" then
+            return "eq"
+        end_if
+        if op == "!=" then
+            return "ne"
+        end_if
+        if op == "<" then
+            return "slt"
+        end_if
+        if op == ">" then
+            return "sgt"
+        end_if
+        if op == "<=" then
+            return "sle"
+        end_if
+        if op == ">=" then
+            return "sge"
+        end_if
+    end_if
+    
+    -- For boolean types
+    if melp_type == "boolean" then
+        if op == "==" then
+            return "eq"
+        end_if
+        if op == "!=" then
+            return "ne"
+        end_if
+    end_if
+    
+    return "eq"
+end_function
+
+-- Tests
+function test_type_mapping() returns numeric
+    println("=== Test 1: Basic Type Mapping ===")
+    
+    string t1 = map_type_to_llvm("numeric")
+    string t2 = map_type_to_llvm("boolean")
+    string t3 = map_type_to_llvm("string")
+    string t4 = map_type_to_llvm("list")
+    
+    if t1 == "i64" then
+        println("✓ numeric -> i64")
+    else
+        println("✗ numeric mapping failed")
+        return 0
+    end_if
+    
+    if t2 == "i1" then
+        println("✓ boolean -> i1")
+    else
+        println("✗ boolean mapping failed")
+        return 0
+    end_if
+    
+    if t3 == "i8*" then
+        println("✓ string -> i8*")
+    else
+        println("✗ string mapping failed")
+        return 0
+    end_if
+    
+    if t4 == "i8*" then
+        println("✓ list -> i8*")
+    else
+        println("✗ list mapping failed")
+        return 0
+    end_if
+    
+    println("")
+    return 1
+end_function
+
+function test_type_sizes() returns numeric
+    println("=== Test 2: Type Sizes ===")
+    
+    numeric s1 = get_type_size("numeric")
+    numeric s2 = get_type_size("boolean")
+    numeric s3 = get_type_size("string")
+    
+    if s1 == 8 then
+        println("✓ numeric size = 8 bytes")
+    else
+        println("✗ numeric size wrong")
+        return 0
+    end_if
+    
+    if s2 == 1 then
+        println("✓ boolean size = 1 byte")
+    else
+        println("✗ boolean size wrong")
+        return 0
+    end_if
+    
+    if s3 == 8 then
+        println("✓ string size = 8 bytes (pointer)")
+    else
+        println("✗ string size wrong")
+        return 0
+    end_if
+    
+    println("")
+    return 1
+end_function
+
+function test_pointer_check() returns numeric
+    println("=== Test 3: Pointer Type Check ===")
+    
+    numeric p1 = is_pointer_type("numeric")
+    numeric p2 = is_pointer_type("string")
+    numeric p3 = is_pointer_type("list")
+    
+    if p1 == 0 then
+        println("✓ numeric is not pointer")
+    else
+        println("✗ numeric pointer check failed")
+        return 0
+    end_if
+    
+    if p2 == 1 then
+        println("✓ string is pointer")
+    else
+        println("✗ string pointer check failed")
+        return 0
+    end_if
+    
+    if p3 == 1 then
+        println("✓ list is pointer")
+    else
+        println("✗ list pointer check failed")
+        return 0
+    end_if
+    
+    println("")
+    return 1
+end_function
+
+function test_comparison_ops() returns numeric
+    println("=== Test 4: Comparison Operators ===")
+    
+    string c1 = get_cmp_op("numeric", "==")
+    string c2 = get_cmp_op("numeric", "<")
+    string c3 = get_cmp_op("numeric", ">")
+    string c4 = get_cmp_op("boolean", "==")
+    
+    if c1 == "eq" then
+        println("✓ numeric == -> eq")
+    else
+        println("✗ numeric == failed")
+        return 0
+    end_if
+    
+    if c2 == "slt" then
+        println("✓ numeric < -> slt")
+    else
+        println("✗ numeric < failed")
+        return 0
+    end_if
+    
+    if c3 == "sgt" then
+        println("✓ numeric > -> sgt")
+    else
+        println("✗ numeric > failed")
+        return 0
+    end_if
+    
+    if c4 == "eq" then
+        println("✓ boolean == -> eq")
+    else
+        println("✗ boolean == failed")
+        return 0
+    end_if
+    
+    println("")
+    return 1
+end_function
+
+function main() returns numeric
+    println("╔══════════════════════════════════════════╗")
+    println("║   Type Mapper Test Suite - YZ_09        ║")
+    println("╚══════════════════════════════════════════╝")
+    println("")
+    
+    numeric r1 = test_type_mapping()
+    numeric r2 = test_type_sizes()
+    numeric r3 = test_pointer_check()
+    numeric r4 = test_comparison_ops()
+    
+    if r1 == 1 and r2 == 1 and r3 == 1 and r4 == 1 then
+        println("╔══════════════════════════════════════════╗")
+        println("║  ✅ ALL TESTS PASSED (4/4)               ║")
+        println("╚══════════════════════════════════════════╝")
+        return 0
+    else
+        println("╔══════════════════════════════════════════╗")
+        println("║  ✗ SOME TESTS FAILED                    ║")
+        println("╚══════════════════════════════════════════╝")
+        return 1
+    end_if
+end_function

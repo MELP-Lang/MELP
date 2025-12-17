@@ -1,0 +1,20 @@
+-- ============================================================================
+-- Bootstrap Test - Simple Program
+-- ============================================================================
+-- Test the most basic compilation: variable + arithmetic + print
+-- This will be our first bootstrap test case
+-- ============================================================================
+
+function main() returns numeric
+    var x: i64
+    var y: i64
+    var result: i64
+    
+    x = 10
+    y = 32
+    result = x + y
+    
+    print_i64(result)
+    
+    return 0
+end function

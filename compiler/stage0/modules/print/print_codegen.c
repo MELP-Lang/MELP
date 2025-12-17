@@ -116,21 +116,22 @@ void codegen_print_statement(FILE* f, PrintStatement* stmt, FunctionDeclaration*
     // String literal printing
     const char* string_content = stmt->value;
     
-    // Generate unique label for this string
-    fprintf(f, "section .data\n");
-    fprintf(f, "    str_%d: db \"%s\", 10, 0  ; string with newline\n", string_counter, string_content);
-    fprintf(f, "    str_%d_len: equ $-str_%d-2  ; length without null terminator and newline\n\n", 
+    // Generate unique label for this string (GAS/AT&T syntax)
+    fprintf(f, "    .section .rodata\n");
+    fprintf(f, "str_%d:\n", string_counter);
+    fprintf(f, "    .asciz \"%s\\n\"  # string with newline\n", string_content);
+    fprintf(f, "    .set str_%d_len, . - str_%d - 2  # length without null and newline\n\n", 
             string_counter, string_counter);
     
-    fprintf(f, "section .text\n");
-    fprintf(f, "    ; Print: %s\n", string_content);
+    fprintf(f, "    .text\n");
+    fprintf(f, "    # Print: %s\n", string_content);
     
-    // sys_write(stdout=1, buffer=str_N, length=str_N_len+1)
-    fprintf(f, "    mov rax, 1              ; sys_write\n");
-    fprintf(f, "    mov rdi, 1              ; stdout\n");
-    fprintf(f, "    lea rsi, [rel str_%d]   ; string address\n", string_counter);
-    fprintf(f, "    mov rdx, str_%d_len     ; string length\n", string_counter);
-    fprintf(f, "    add rdx, 1              ; include newline\n");
+    // sys_write(stdout=1, buffer=str_N, length=str_N_len+1) - GAS syntax
+    fprintf(f, "    movq $1, %%rax              # sys_write\n");
+    fprintf(f, "    movq $1, %%rdi              # stdout\n");
+    fprintf(f, "    leaq str_%d(%%rip), %%rsi   # string address (RIP-relative)\n", string_counter);
+    fprintf(f, "    movq $str_%d_len, %%rdx     # string length\n", string_counter);
+    fprintf(f, "    addq $1, %%rdx              # include newline\n");
     fprintf(f, "    syscall\n\n");
     
     string_counter++;
