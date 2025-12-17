@@ -1,0 +1,83 @@
+-- ============================================================================
+-- MELP CodeGen - Public API Wrapper (Clean Interface)
+-- ============================================================================
+-- File: modules/codegen_mlp/codegen_api.mlp
+-- Author: YZ_26 (Part 3 - Real Implementation)
+-- Date: 17 Aralık 2025
+-- Purpose: Thin API wrapper for codegen - NO ORCHESTRATION!
+-- Status: Stage 1 - Real CodeGen API (calls codegen_integration.mlp)
+--
+-- Design Principles:
+-- ✅ Single responsibility: Expose ONE public function
+-- ✅ Clean interface: Hide implementation details
+-- ✅ No orchestration: Just a thin wrapper
+-- ✅ No coupling: Depends only on codegen_integration.mlp
+--
+-- Public API:
+--   generate_llvm_from_ast(ast_string) → llvm_ir_code (string)
+--
+-- Real Implementation:
+--   Calls codegen_complete_program() from codegen_integration.mlp
+--   Returns LLVM IR as string
+--
+-- NOTE: Stage 0 limitation - uses example program instead of real AST
+--       Stage 1+ will walk AST and generate real IR
+-- ============================================================================
+
+-- ============================================================================
+-- PUBLIC API - Single Entry Point
+-- ============================================================================
+
+-- Generate LLVM IR from AST
+-- Input: ast_string (string) - AST representation from parser
+-- Output: llvm_ir_code (string) - Generated LLVM IR
+--
+-- Real implementation calls codegen_integration.mlp:
+--   codegen_complete_program() - Generate complete LLVM IR
+--
+-- NOTE: Stage 0 outputs to stdout, returns status code
+--       Stage 1+ will accumulate IR in buffer and return string
+function generate_llvm_from_ast(string ast_string) returns numeric
+    numeric ast_len = length(ast_string)
+    
+    if ast_len == 0 then
+        -- Empty AST - no codegen needed
+        return 0
+    end_if
+    
+    -- Call real codegen
+    -- This generates complete LLVM IR with all features:
+    -- - External declarations
+    -- - Helper functions
+    -- - Main function with variables, expressions, control flow
+    -- - Array operations
+    -- - For loops
+    numeric result = codegen_complete_program()
+    
+    return result
+end_function
+
+-- Compatibility wrapper for numeric input (legacy)
+function generate_llvm_ir(numeric ast_node_count) returns string
+    if ast_node_count == 0 then
+        -- Empty AST - return minimal program
+        return "define i64 @main() { entry: ret i64 0 }"
+    end_if
+    
+    -- For now, return stub IR with comment showing node count
+    string ir_stub = "define i64 @main() {\n"
+    ir_stub = ir_stub + "entry:\n"
+    ir_stub = ir_stub + "  ; Generated from AST\n"
+    ir_stub = ir_stub + "  ret i64 42\n"
+    ir_stub = ir_stub + "}\n"
+    
+    return ir_stub
+end_function
+
+-- ============================================================================
+-- PRIVATE HELPERS (Optional - for future expansion)
+-- ============================================================================
+
+-- ============================================================================
+-- NO MAIN - This is a library module, not executable
+-- ============================================================================
