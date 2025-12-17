@@ -64,12 +64,31 @@ YZ_01 tarafından tamamlandı:
   - [ ] `tests/stage_1_tests/test_import_syntax.mlp`
   - [ ] Basit import parse testi
 
-#### Kritik Bilgi:
-🎉 **Import altyapısı Stage 0'da hazır!**
-- ✅ `compiler/stage0/modules/import/` (8 dosya)
+#### 🎯 KRİTİK KEŞİF (YZ_01):
+**Stage 0'da import sistemi ZATEN MEVCUT!** 🎉
+
+📂 **Var Olan Dosyalar:**
+```
+compiler/stage0/modules/import/
+├── import.h/c              # Ana import API
+├── import_parser.h/c       # Import ifadeleri parser'ı  
+├── import_cache.h/c        # Modül cache sistemi
+├── import_resolver.h/c     # Dosya çözümleyici
+└── import_types.h          # Tip tanımları
+```
+
+**Ne Anlama Geliyor:**
+- ❌ Sıfırdan yazma (önceki YZ'ler bilmiyordu!)
+- ✅ Sadece **aktifleştir** (TOKEN ekle, test et)
 - ✅ Module resolution çalışıyor
 - ✅ Import cache çalışıyor
-- ⏳ Sadece TOKEN_IMPORT ekle, aktive et
+- ⏱️ YZ_02-04 süresi **yarı yarıya azaldı**
+
+**YZ_02 Görevin:**
+1. `compiler/stage0/lexer/lexer.c` → `TOKEN_IMPORT` ekle
+2. `compiler/stage0/parser/parser.c` → import_parser'ı çağır
+3. Test: `import "test"` parse etmeli
+4. **O KADAR!** Geri kalan zaten var.
 
 ---
 
