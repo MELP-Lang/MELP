@@ -1,6 +1,6 @@
 # MELP MİMARİSİ - AI Asistan Kuralları
 
-**Son Güncelleme:** 17 Aralık 2025  
+**Son Güncelleme:** 18 Aralık 2025 (YZ_06: Test stratejisi eklendi)  
 **Amaç:** Her AI asistanı bu dosyayı okuyup onaylamalıdır
 
 ---
@@ -165,6 +165,12 @@ end_function
    - Asla `main`'e merge etme
    - Asla Pull Request açma
 
+7. **Ana Dizine Test Dosyası** ⭐ YENİ!
+   - Ana dizine (root) ASLA test dosyası oluşturma
+   - `test_*.mlp`, `test_*.s`, `test_*.o` → Ana dizine YASAK!
+   - Test dosyaları sadece `tests/` veya `modules/*/` içinde
+   - **Kural:** Her modül kendi testini kendi dizininde tutar
+
 ---
 
 ## ✅ YZ BAŞLANGIÇ CHECKLİST
@@ -184,8 +190,40 @@ Her session başında ONAYLAMAN gereken kurallar:
 [ ] Kendi dalımda çalışacağım: [görev]_YZ_[XX]
 [ ] Merge/PR yapmayacağım
 [ ] Session sonu NEXT_AI_START_HERE.md güncelleyeceğim
+[ ] ⭐ Ana dizine test dosyası YAZMAYACAĞIM (modules/*/ içinde)
 
 ONAYLIYORUM - YZ_[numaran]
+```
+
+---
+
+## 🧪 TEST STRATEJİSİ (YZ_06 Eklentisi)
+
+### Test Dosyası Konumu
+- ✅ `compiler/stage1/modules/operators/test_operators.mlp`
+- ✅ `compiler/stage1/modules/functions/test_functions.mlp`
+- ❌ `/test_operators.mlp` (Ana dizin - YASAK!)
+- ❌ `/compiler/test_operators.mlp` (Yanlış konum)
+
+### Test Çalıştırma
+**Mevcut Durum (Stage 1 geliştirme aşamasında):**
+1. Test dosyaları YAZILIYOR ✅
+2. Test dosyaları syntax olarak doğru ✅
+3. Testler ÇALIŞTIRILAMIYOR ❌ (Stage 1 compiler henüz yok)
+
+**Gelecek (Stage 1 tamamlanınca):**
+1. Test dosyası yaz
+2. Stage 0 ile Stage 1'i compile et (bootstrap)
+3. Stage 1 ile testleri çalıştır
+4. Sonuçları doğrula
+
+**Standart Test Pattern:**
+```
+modules/my_module/
+├── my_module_parser.mlp
+├── my_module_codegen.mlp
+├── test_my_module.mlp      ← Burası!
+└── README.md
 ```
 
 ---
