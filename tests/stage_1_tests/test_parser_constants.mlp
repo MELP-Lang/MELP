@@ -1,0 +1,44 @@
+-- YZ_29 Test: Parser token constants (real use case)
+enum TokenType
+    T_FUNCTION = 1
+    T_END = 2
+    T_IF = 3
+    T_THEN = 4
+    T_ELSE = 5
+end_enum
+
+function check_token(numeric tok_type) returns numeric
+    -- Unqualified usage (like parser.mlp)
+    if tok_type == T_FUNCTION then
+        println("Token: FUNCTION")
+        return 1
+    end_if
+    
+    if tok_type == T_IF then
+        println("Token: IF")
+        return 3
+    end_if
+    
+    if tok_type == T_ELSE then
+        println("Token: ELSE")
+        return 5
+    end_if
+    
+    println("Token: UNKNOWN")
+    return 0
+end_function
+
+function main() returns numeric
+    numeric result = 0
+    
+    result = check_token(T_FUNCTION)
+    result = result + check_token(T_IF)
+    result = result + check_token(T_ELSE)
+    result = result + check_token(999)
+    
+    -- Expected: 1 + 3 + 5 + 0 = 9
+    println("Total:")
+    print(result)
+    
+    return result
+end_function

@@ -128,6 +128,28 @@ int enum_is_type(const char* name) {
     return enum_lookup(name) != NULL ? 1 : 0;
 }
 
+// YZ_29: Lookup enum value without enum name (unqualified)
+// Searches all registered enums for a matching value name
+// Returns first match (like C enums - collision = first wins)
+int64_t enum_lookup_value_unqualified(const char* value_name) {
+    if (!value_name) return -1;
+    
+    // Search all registered enums
+    EnumDefinition* def = enum_registry;
+    while (def) {
+        EnumValue* val = def->values;
+        while (val) {
+            if (strcmp(val->name, value_name) == 0) {
+                return val->value;  // Found!
+            }
+            val = val->next;
+        }
+        def = def->next;
+    }
+    
+    return -1;  // Not found
+}
+
 void enum_registry_free(void) {
     EnumDefinition* def = enum_registry;
     while (def) {

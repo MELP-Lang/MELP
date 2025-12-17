@@ -1,0 +1,17 @@
+-- YZ_29 Test: Enum support verification
+enum TokenType
+    T_FUNCTION = 1
+    T_IF = 3
+    T_THEN = 4
+end_enum
+
+function main() returns numeric
+    numeric tok = T_FUNCTION
+    
+    if tok == T_FUNCTION then
+        println("Token is FUNCTION")
+        return 1
+    end_if
+    
+    return 0
+end_function

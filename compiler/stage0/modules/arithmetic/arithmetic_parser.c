@@ -716,6 +716,22 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         char* identifier = strdup((*current)->value);
         advance_stateless(lexer, current);
         
+        // YZ_29: Check for unqualified enum value FIRST (e.g., T_FUNCTION)
+        // This handles: numeric tok = T_FUNCTION
+        int64_t unqualified_enum = enum_lookup_value_unqualified(identifier);
+        if (unqualified_enum != -1) {
+            // Found enum value! Replace identifier with literal
+            char value_str[32];
+            snprintf(value_str, sizeof(value_str), "%ld", unqualified_enum);
+            
+            free(expr->value);
+            expr->value = strdup(value_str);
+            expr->is_literal = 1;
+            
+            free(identifier);
+            return expr;
+        }
+        
         // YZ_23: PRIORITY ORDER (most specific first):
         // 1. Collection access: arr[i], list(i), tuple<i>
         // 2. Function call: func(args...)

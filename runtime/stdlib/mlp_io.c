@@ -266,3 +266,20 @@ int64_t mlp_append_file(const char* filename, const char* content) {
     
     return (written == len) ? 1 : 0;
 }
+
+// ============================================================================
+// YZ_25: Wrapper aliases for LLVM backend compatibility
+// LLVM backend calls read_file/write_file (without mlp_ prefix)
+// ============================================================================
+
+char* read_file(const char* filename) {
+    return mlp_read_file(filename);
+}
+
+int64_t write_file(const char* filename, const char* content) {
+    return mlp_write_file(filename, content);
+}
+
+int64_t append_file(const char* filename, const char* content) {
+    return mlp_append_file(filename, content);
+}

@@ -9,117 +9,131 @@
 -- ============================================================================
 -- Token Type Constants (from lexer)
 -- ============================================================================
-
--- Keywords
-numeric T_FUNCTION = 1
-numeric T_END = 2
-numeric T_IF = 3
-numeric T_THEN = 4
-numeric T_ELSE = 5
-numeric T_WHILE = 6
-numeric T_DO = 7
-numeric T_ASSIGN = 8
-numeric T_RETURNS = 9
-numeric T_NUMERIC = 10
-numeric T_STRING = 11
-numeric T_BOOLEAN = 12
-numeric T_LIST = 13
-numeric T_RETURN = 14
-numeric T_PRINT = 15
-numeric T_PRINTLN = 16
-numeric T_STRUCT = 20
-numeric T_ENUM = 21
-
--- Operators
-numeric T_PLUS = 37
-numeric T_MINUS = 38
-numeric T_MULTIPLY = 39
-numeric T_DIVIDE = 40
-numeric T_MODULO = 41
-numeric T_EQ = 42
-numeric T_NE = 43
-numeric T_LT = 44
-numeric T_GT = 45
-numeric T_LE = 46
-numeric T_GE = 47
-numeric T_AND = 48
-numeric T_OR = 49
-numeric T_NOT = 31
-
--- Delimiters
-numeric T_LPAREN = 50
-numeric T_RPAREN = 51
-numeric T_COMMA = 52
-numeric T_LBRACKET = 53
-numeric T_RBRACKET = 54
-
--- Literals & Identifiers
-numeric T_ID = 32
-numeric T_NUMBER = 61
-numeric T_STR_LIT = 62
-
--- EOF
-numeric T_EOF = 0
-
--- ============================================================================
--- Global Parser State
+-- YZ_30: Migrated to enum block (Stage 0 compatible)
+-- Uses YZ_29 unqualified enum support
 -- ============================================================================
 
-list g_tokens           -- Token list from lexer
-numeric g_current_pos   -- Current position in token stream
-numeric g_error_count   -- Number of parse errors
+enum TokenType
+    -- Keywords
+    T_FUNCTION = 1
+    T_END = 2
+    T_IF = 3
+    T_THEN = 4
+    T_ELSE = 5
+    T_WHILE = 6
+    T_DO = 7
+    T_ASSIGN = 8
+    T_RETURNS = 9
+    T_NUMERIC = 10
+    T_STRING = 11
+    T_BOOLEAN = 12
+    T_LIST = 13
+    T_RETURN = 14
+    T_PRINT = 15
+    T_PRINTLN = 16
+    T_STRUCT = 20
+    T_ENUM = 21
+    
+    -- Operators
+    T_NOT = 31
+    T_PLUS = 37
+    T_MINUS = 38
+    T_MULTIPLY = 39
+    T_DIVIDE = 40
+    T_MODULO = 41
+    T_EQ = 42
+    T_NE = 43
+    T_LT = 44
+    T_GT = 45
+    T_LE = 46
+    T_GE = 47
+    T_AND = 48
+    T_OR = 49
+    
+    -- Delimiters
+    T_LPAREN = 50
+    T_RPAREN = 51
+    T_COMMA = 52
+    T_LBRACKET = 53
+    T_RBRACKET = 54
+    
+    -- Literals & Identifiers
+    T_ID = 32
+    T_NUMBER = 61
+    T_STR_LIT = 62
+    
+    -- EOF
+    T_EOF = 0
+end_enum
 
 -- ============================================================================
--- Token Stream Management
+-- Parser State Management (Stateless Architecture)
+-- ============================================================================
+-- YZ_28: Refactored to remove global state (Stage 0 compatibility)
+-- Parser state is passed as list: [tokens, position, error_count]
 -- ============================================================================
 
-function init_parser(list token_list) returns numeric
-    g_tokens = token_list
-    g_current_pos = 0
-    g_error_count = 0
-    return 1
+-- Create initial parser state
+-- Returns: [token_list, 0, 0]
+function create_parser_state(list token_list) returns list
+    list state = []
+    state = state + [token_list]  -- state[0] = tokens
+    state = state + [0]           -- state[1] = position
+    state = state + [0]           -- state[2] = error_count
+    return state
 end_function
 
-function current_token() returns list
-    numeric len = length(g_tokens)
-    if g_current_pos >= len then
+-- Get current token from state
+-- Input: parser_state
+-- Returns: token (list) or [] if EOF
+function state_current_token(list parser_state) returns list
+    list tokens = parser_state[0]
+    numeric pos = parser_state[1]
+    numeric len = length(tokens)
+    
+    if pos >= len then
         return []  -- EOF
     end_if
-    return g_tokens[g_current_pos]
+    return tokens[pos]
 end_function
 
-function peek_token() returns list
-    numeric next_pos = g_current_pos + 1
-    numeric len = length(g_tokens)
+-- Peek next token from state
+-- Input: parser_state
+-- Returns: next token or [] if EOF
+function state_peek_token(list parser_state) returns list
+    list tokens = parser_state[0]
+    numeric pos = parser_state[1]
+    numeric next_pos = pos + 1
+    numeric len = length(tokens)
+    
     if next_pos >= len then
         return []
     end_if
-    return g_tokens[next_pos]
+    return tokens[next_pos]
 end_function
 
-function advance() returns numeric
-    g_current_pos = g_current_pos + 1
-    return g_current_pos
-end_function
-
-function expect_token(numeric expected_type) returns numeric
-    list tok = current_token()
-    numeric len = length(tok)
+-- Advance position in state
+-- Input: parser_state
+-- Returns: new parser_state with incremented position
+function state_advance(list parser_state) returns list
+    list tokens = parser_state[0]
+    numeric pos = parser_state[1]
+    numeric err_count = parser_state[2]
     
-    if len == 0 then
-        return 0  -- EOF
-    end_if
+    numeric new_pos = pos + 1
     
-    numeric tok_type = tok[0]
-    if tok_type == expected_type then
-        advance()
-        return 1
-    end_if
-    return 0
+    list new_state = []
+    new_state = new_state + [tokens]
+    new_state = new_state + [new_pos]
+    new_state = new_state + [err_count]
+    return new_state
 end_function
 
-function check_token(numeric expected_type) returns numeric
-    list tok = current_token()
+-- Check if current token matches expected type
+-- Input: parser_state, expected_type
+-- Returns: 1 if match, 0 if not
+function state_check_token(list parser_state, numeric expected_type) returns numeric
+    list tok = state_current_token(parser_state)
     numeric len = length(tok)
     
     if len == 0 then
@@ -127,30 +141,85 @@ function check_token(numeric expected_type) returns numeric
     end_if
     
     numeric tok_type = tok[0]
-    return tok_type == expected_type
-end_function
-
--- ============================================================================
--- Error Handling
--- ============================================================================
-
-function parser_error(string message) returns numeric
-    println("Parse Error: " + message)
-    g_error_count = g_error_count + 1
+    if tok_type == expected_type then
+        return 1
+    end_if
     return 0
 end_function
 
-function unexpected_token_error(numeric expected, numeric got) returns numeric
+-- Expect token and advance if matched
+-- Input: parser_state, expected_type
+-- Returns: [success (1/0), new_parser_state]
+function state_expect_token(list parser_state, numeric expected_type) returns list
+    numeric match = state_check_token(parser_state, expected_type)
+    
+    if match == 1 then
+        list new_state = state_advance(parser_state)
+        list result = []
+        result = result + [1]
+        result = result + [new_state]
+        return result
+    end_if
+    
+    -- Return failure with unchanged state
+    list result = []
+    result = result + [0]
+    result = result + [parser_state]
+    return result
+end_function
+
+-- ============================================================================
+-- Error Handling (Stateless)
+-- ============================================================================
+
+-- Report parser error and increment error count in state
+-- Input: parser_state, error_message
+-- Returns: new parser_state with incremented error_count
+function state_parser_error(list parser_state, string message) returns list
+    println("Parse Error: " + message)
+    
+    list tokens = parser_state[0]
+    numeric pos = parser_state[1]
+    numeric err_count = parser_state[2]
+    
+    numeric new_err_count = err_count + 1
+    
+    list new_state = []
+    new_state = new_state + [tokens]
+    new_state = new_state + [pos]
+    new_state = new_state + [new_err_count]
+    return new_state
+end_function
+
+-- Report unexpected token error
+-- Input: parser_state, expected_type, got_type
+-- Returns: new parser_state with incremented error_count
+function state_unexpected_token_error(list parser_state, numeric expected, numeric got) returns list
     print("Unexpected token: expected type ")
     print(str(expected))
     print(", got ")
     println(str(got))
-    g_error_count = g_error_count + 1
-    return 0
+    
+    list tokens = parser_state[0]
+    numeric pos = parser_state[1]
+    numeric err_count = parser_state[2]
+    
+    numeric new_err_count = err_count + 1
+    
+    list new_state = []
+    new_state = new_state + [tokens]
+    new_state = new_state + [pos]
+    new_state = new_state + [new_err_count]
+    return new_state
+end_function
+
+-- Get error count from state
+function state_get_error_count(list parser_state) returns numeric
+    return parser_state[2]
 end_function
 
 -- ============================================================================
--- Expression Parsing (from parser_expr.mlp)
+-- Expression Parsing (Stateless)
 -- ============================================================================
 
 function get_operator_precedence(numeric token_type) returns numeric
@@ -198,13 +267,18 @@ function is_binary_op(numeric t) returns numeric
 end_function
 
 -- Parse primary expression (number, string, identifier, parenthesized)
-function parse_primary() returns string
-    list tok = current_token()
+-- Input: parser_state
+-- Returns: [result_string, new_parser_state]
+function state_parse_primary(list parser_state) returns list
+    list tok = state_current_token(parser_state)
     numeric len = length(tok)
     
     if len == 0 then
-        parser_error("Unexpected EOF in primary expression")
-        return "ERROR"
+        list new_state = state_parser_error(parser_state, "Unexpected EOF in primary expression")
+        list result = []
+        result = result + ["ERROR"]
+        result = result + [new_state]
+        return result
     end_if
     
     numeric tok_type = tok[0]
@@ -212,65 +286,99 @@ function parse_primary() returns string
     
     -- Number literal
     if tok_type == T_NUMBER then
-        advance()
-        return tok_val
+        list new_state = state_advance(parser_state)
+        list result = []
+        result = result + [tok_val]
+        result = result + [new_state]
+        return result
     end_if
     
     -- String literal
     if tok_type == T_STR_LIT then
-        advance()
-        return tok_val
+        list new_state = state_advance(parser_state)
+        list result = []
+        result = result + [tok_val]
+        result = result + [new_state]
+        return result
     end_if
     
     -- Identifier
     if tok_type == T_ID then
-        advance()
-        return tok_val
+        list new_state = state_advance(parser_state)
+        list result = []
+        result = result + [tok_val]
+        result = result + [new_state]
+        return result
     end_if
     
     -- Parenthesized expression
     if tok_type == T_LPAREN then
-        advance()
-        string expr = parse_expression()
-        expect_token(T_RPAREN)
-        return expr
+        list state1 = state_advance(parser_state)
+        list expr_result = state_parse_expression(state1)
+        string expr = expr_result[0]
+        list state2 = expr_result[1]
+        
+        list expect_result = state_expect_token(state2, T_RPAREN)
+        list state3 = expect_result[1]
+        
+        list result = []
+        result = result + [expr]
+        result = result + [state3]
+        return result
     end_if
     
-    parser_error("Expected primary expression")
-    return "ERROR"
+    list new_state = state_parser_error(parser_state, "Expected primary expression")
+    list result = []
+    result = result + ["ERROR"]
+    result = result + [new_state]
+    return result
 end_function
 
--- Parse expression with operator precedence
-function parse_expression() returns string
-    return parse_expression_prec(0)
+-- ============================================================================
+-- Expression Parsing (Stateless)
+-- ============================================================================
+
+-- Parse expression with operator precedence (stateless)
+-- Input: parser_state
+-- Returns: [result_string, new_parser_state]
+function state_parse_expression(list parser_state) returns list
+    return state_parse_expression_prec(parser_state, 0)
 end_function
 
-function parse_expression_prec(numeric min_prec) returns string
-    string left = parse_primary()
+-- Parse expression with precedence (stateless)
+-- Input: parser_state, min_precedence
+-- Returns: [result_string, new_parser_state]
+function state_parse_expression_prec(list parser_state, numeric min_prec) returns list
+    list left_result = state_parse_primary(parser_state)
+    string left = left_result[0]
+    list current_state = left_result[1]
     
-    numeric continue = 1
-    while continue == 1 do
-        list tok = current_token()
+    numeric should_continue = 1
+    while should_continue == 1 do
+        list tok = state_current_token(current_state)
         numeric len = length(tok)
         
         if len == 0 then
-            continue = 0
+            should_continue = 0
         else
             numeric tok_type = tok[0]
+            numeric is_binop = is_binary_op(tok_type)
             
-            if is_binary_op(tok_type) == 0 then
-                continue = 0
+            if is_binop == 0 then
+                should_continue = 0
             else
                 numeric prec = get_operator_precedence(tok_type)
                 
                 if prec < min_prec then
-                    continue = 0
+                    should_continue = 0
                 else
                     string op = tok[1]
-                    advance()
+                    current_state = state_advance(current_state)
                     
                     numeric next_prec = prec + 1
-                    string right = parse_expression_prec(next_prec)
+                    list right_result = state_parse_expression_prec(current_state, next_prec)
+                    string right = right_result[0]
+                    current_state = right_result[1]
                     
                     left = "(" + left + " " + op + " " + right + ")"
                 end_if
@@ -278,285 +386,386 @@ function parse_expression_prec(numeric min_prec) returns string
         end_if
     end_while
     
-    return left
-end_function
-
--- ============================================================================
--- Statement Parsing (from parser_stmt.mlp & parser_control.mlp)
--- ============================================================================
-
--- Parse variable declaration: numeric x = 10
-function parse_var_decl() returns string
-    list type_tok = current_token()
-    string var_type = type_tok[1]
-    advance()
-    
-    list name_tok = current_token()
-    if length(name_tok) == 0 then
-        parser_error("Expected variable name")
-        return "ERROR"
-    end_if
-    
-    string var_name = name_tok[1]
-    advance()
-    
-    -- Check for assignment
-    string result = var_type + " " + var_name
-    
-    if check_token(T_ASSIGN) then
-        advance()
-        string expr = parse_expression()
-        result = result + " = " + expr
-    end_if
-    
+    list result = []
+    result = result + [left]
+    result = result + [current_state]
     return result
 end_function
 
--- Parse assignment: x = 10
-function parse_assignment(string var_name) returns string
-    advance()  -- Skip =
-    string expr = parse_expression()
-    return var_name + " = " + expr
+-- ============================================================================
+-- Stateless Statement Parsing Functions
+-- YZ_30: Refactored from global state to stateless pattern
+-- ============================================================================
+
+-- Parse variable declaration: numeric x = 10 (stateless)
+-- Input: parser_state
+-- Returns: [result_string, new_parser_state]
+function state_parse_var_decl(list parser_state) returns list
+    list type_tok = state_current_token(parser_state)
+    string var_type = type_tok[1]
+    list state1 = state_advance(parser_state)
+    
+    list name_tok = state_current_token(state1)
+    numeric name_len = length(name_tok)
+    if name_len == 0 then
+        list error_state = state_parser_error(state1, "Expected variable name")
+        list result = []
+        result = result + ["ERROR"]
+        result = result + [error_state]
+        return result
+    end_if
+    
+    string var_name = name_tok[1]
+    list state2 = state_advance(state1)
+    
+    -- Check for assignment
+    string res_str = var_type + " " + var_name
+    list current_state = state2
+    
+    numeric has_assign = state_check_token(current_state, T_ASSIGN)
+    if has_assign == 1 then
+        current_state = state_advance(current_state)
+        list expr_result = state_parse_expression(current_state)
+        string expr = expr_result[0]
+        current_state = expr_result[1]
+        res_str = res_str + " = " + expr
+    end_if
+    
+    list result = []
+    result = result + [res_str]
+    result = result + [current_state]
+    return result
 end_function
 
--- Parse return statement
-function parse_return() returns string
-    advance()  -- Skip 'return'
+-- Parse assignment: x = 10 (stateless)
+-- Input: parser_state, var_name
+-- Returns: [result_string, new_parser_state]
+function state_parse_assignment(list parser_state, string var_name) returns list
+    list state1 = state_advance(parser_state)  -- Skip =
+    list expr_result = state_parse_expression(state1)
+    string expr = expr_result[0]
+    list state2 = expr_result[1]
     
-    list tok = current_token()
+    string res_str = var_name + " = " + expr
+    list result = []
+    result = result + [res_str]
+    result = result + [state2]
+    return result
+end_function
+
+-- Parse return statement (stateless)
+-- Input: parser_state
+-- Returns: [result_string, new_parser_state]
+function state_parse_return(list parser_state) returns list
+    list state1 = state_advance(parser_state)  -- Skip 'return'
+    
+    list tok = state_current_token(state1)
     numeric len = length(tok)
     
     if len == 0 then
-        return "return"
+        list result = []
+        result = result + ["return"]
+        result = result + [state1]
+        return result
     end_if
     
     numeric tok_type = tok[0]
     
     -- Check if there's an expression to return
     if tok_type == T_NUMBER or tok_type == T_STR_LIT or tok_type == T_ID then
-        string expr = parse_expression()
-        return "return " + expr
+        list expr_result = state_parse_expression(state1)
+        string expr = expr_result[0]
+        list state2 = expr_result[1]
+        
+        string res_str = "return " + expr
+        list result = []
+        result = result + [res_str]
+        result = result + [state2]
+        return result
     end_if
     
-    return "return"
+    list result = []
+    result = result + ["return"]
+    result = result + [state1]
+    return result
 end_function
 
--- Parse print/println statement
-function parse_print(numeric is_println) returns string
-    advance()  -- Skip print/println
+-- Parse print/println statement (stateless)
+-- Input: parser_state, is_println
+-- Returns: [result_string, new_parser_state]
+function state_parse_print(list parser_state, numeric is_println) returns list
+    list state1 = state_advance(parser_state)  -- Skip print/println
     
-    expect_token(T_LPAREN)
-    string expr = parse_expression()
-    expect_token(T_RPAREN)
+    list expect_result = state_expect_token(state1, T_LPAREN)
+    list state2 = expect_result[1]
     
+    list expr_result = state_parse_expression(state2)
+    string expr = expr_result[0]
+    list state3 = expr_result[1]
+    
+    list expect_result2 = state_expect_token(state3, T_RPAREN)
+    list state4 = expect_result2[1]
+    
+    string res_str = ""
     if is_println == 1 then
-        return "println(" + expr + ")"
+        res_str = "println(" + expr + ")"
+    else
+        res_str = "print(" + expr + ")"
     end_if
     
-    return "print(" + expr + ")"
+    list result = []
+    result = result + [res_str]
+    result = result + [state4]
+    return result
 end_function
 
--- Parse if statement
-function parse_if_statement() returns string
-    advance()  -- Skip 'if'
+-- Parse if statement (stateless)
+-- Input: parser_state
+-- Returns: [result_string, new_parser_state]
+function state_parse_if_statement(list parser_state) returns list
+    list state1 = state_advance(parser_state)  -- Skip 'if'
     
-    string condition = parse_expression()
+    list cond_result = state_parse_expression(state1)
+    string condition = cond_result[0]
+    list state2 = cond_result[1]
     
-    expect_token(T_THEN)
+    list expect_result = state_expect_token(state2, T_THEN)
+    list state3 = expect_result[1]
     
-    string result = "if " + condition + " then\n"
+    string res_str = "if " + condition + " then\n"
     
     -- Parse then block
-    numeric continue = 1
-    while continue == 1 do
-        list tok = current_token()
+    list current_state = state3
+    numeric should_continue = 1
+    while should_continue == 1 do
+        list tok = state_current_token(current_state)
         numeric len = length(tok)
         
         if len == 0 then
-            continue = 0
+            should_continue = 0
         else
             numeric tok_type = tok[0]
             
             if tok_type == T_ELSE or tok_type == T_END then
-                continue = 0
+                should_continue = 0
             else
-                string stmt = parse_statement()
-                result = result + "  " + stmt + "\n"
+                list stmt_result = state_parse_statement(current_state)
+                string stmt = stmt_result[0]
+                current_state = stmt_result[1]
+                res_str = res_str + "  " + stmt + "\n"
             end_if
         end_if
     end_while
     
     -- Check for else
-    if check_token(T_ELSE) then
-        advance()
-        result = result + "else\n"
+    numeric has_else = state_check_token(current_state, T_ELSE)
+    if has_else == 1 then
+        current_state = state_advance(current_state)
+        res_str = res_str + "else\n"
         
-        continue = 1
-        while continue == 1 do
-            list tok = current_token()
+        should_continue = 1
+        while should_continue == 1 do
+            list tok = state_current_token(current_state)
             numeric len = length(tok)
             
             if len == 0 then
-                continue = 0
+                should_continue = 0
             else
                 numeric tok_type = tok[0]
                 
                 if tok_type == T_END then
-                    continue = 0
+                    should_continue = 0
                 else
-                    string stmt = parse_statement()
-                    result = result + "  " + stmt + "\n"
+                    list stmt_result = state_parse_statement(current_state)
+                    string stmt = stmt_result[0]
+                    current_state = stmt_result[1]
+                    res_str = res_str + "  " + stmt + "\n"
                 end_if
             end_if
         end_while
     end_if
     
-    expect_token(T_END)
-    result = result + "end if"
+    list expect_result2 = state_expect_token(current_state, T_END)
+    current_state = expect_result2[1]
+    res_str = res_str + "end if"
     
+    list result = []
+    result = result + [res_str]
+    result = result + [current_state]
     return result
 end_function
 
--- Parse while loop
-function parse_while_loop() returns string
-    advance()  -- Skip 'while'
+-- Parse while loop (stateless)
+-- Input: parser_state
+-- Returns: [result_string, new_parser_state]
+function state_parse_while_loop(list parser_state) returns list
+    list state1 = state_advance(parser_state)  -- Skip 'while'
     
-    string condition = parse_expression()
+    list cond_result = state_parse_expression(state1)
+    string condition = cond_result[0]
+    list state2 = cond_result[1]
     
-    expect_token(T_DO)
+    list expect_result = state_expect_token(state2, T_DO)
+    list state3 = expect_result[1]
     
-    string result = "while " + condition + " do\n"
+    string res_str = "while " + condition + " do\n"
     
     -- Parse loop body
-    numeric continue = 1
-    while continue == 1 do
-        list tok = current_token()
+    list current_state = state3
+    numeric should_continue = 1
+    while should_continue == 1 do
+        list tok = state_current_token(current_state)
         numeric len = length(tok)
         
         if len == 0 then
-            continue = 0
+            should_continue = 0
         else
             numeric tok_type = tok[0]
             
             if tok_type == T_END then
-                continue = 0
+                should_continue = 0
             else
-                string stmt = parse_statement()
-                result = result + "  " + stmt + "\n"
+                list stmt_result = state_parse_statement(current_state)
+                string stmt = stmt_result[0]
+                current_state = stmt_result[1]
+                res_str = res_str + "  " + stmt + "\n"
             end_if
         end_if
     end_while
     
-    expect_token(T_END)
-    result = result + "end while"
+    list expect_result2 = state_expect_token(current_state, T_END)
+    current_state = expect_result2[1]
+    res_str = res_str + "end while"
     
+    list result = []
+    result = result + [res_str]
+    result = result + [current_state]
     return result
 end_function
 
--- Parse a single statement
-function parse_statement() returns string
-    list tok = current_token()
+-- Parse a single statement (stateless)
+-- Input: parser_state
+-- Returns: [result_string, new_parser_state]
+function state_parse_statement(list parser_state) returns list
+    list tok = state_current_token(parser_state)
     numeric len = length(tok)
     
     if len == 0 then
-        return ""
+        list result = []
+        result = result + [""]
+        result = result + [parser_state]
+        return result
     end_if
     
     numeric tok_type = tok[0]
     
     -- Variable declaration
     if tok_type == T_NUMERIC or tok_type == T_STRING or tok_type == T_BOOLEAN or tok_type == T_LIST then
-        return parse_var_decl()
+        return state_parse_var_decl(parser_state)
     end_if
     
     -- Return statement
     if tok_type == T_RETURN then
-        return parse_return()
+        return state_parse_return(parser_state)
     end_if
     
     -- Print statement
     if tok_type == T_PRINT then
-        return parse_print(0)
+        return state_parse_print(parser_state, 0)
     end_if
     
     if tok_type == T_PRINTLN then
-        return parse_print(1)
+        return state_parse_print(parser_state, 1)
     end_if
     
     -- Control flow
     if tok_type == T_IF then
-        return parse_if_statement()
+        return state_parse_if_statement(parser_state)
     end_if
     
     if tok_type == T_WHILE then
-        return parse_while_loop()
+        return state_parse_while_loop(parser_state)
     end_if
     
     -- Assignment (identifier = expr)
     if tok_type == T_ID then
         string var_name = tok[1]
-        list next_tok = peek_token()
+        list next_tok = state_peek_token(parser_state)
+        numeric next_len = length(next_tok)
         
-        if length(next_tok) > 0 then
+        if next_len > 0 then
             numeric next_type = next_tok[0]
             
             if next_type == T_ASSIGN then
-                advance()  -- Skip identifier
-                return parse_assignment(var_name)
+                list state1 = state_advance(parser_state)  -- Skip identifier
+                return state_parse_assignment(state1, var_name)
             end_if
         end_if
         
         -- Just an expression statement (e.g., function call)
-        return parse_expression()
+        return state_parse_expression(parser_state)
     end_if
     
-    parser_error("Unknown statement type")
-    return "ERROR"
+    list error_state = state_parser_error(parser_state, "Unknown statement type")
+    list result = []
+    result = result + ["ERROR"]
+    result = result + [error_state]
+    return result
 end_function
 
 -- ============================================================================
--- Function Parsing (from parser_func.mlp)
+-- Stateless Top-Level Parsing (Functions, Structs, Enums, Program)
+-- YZ_30: Refactored from global state to stateless pattern
 -- ============================================================================
 
-function parse_function() returns string
-    advance()  -- Skip 'function'
+-- Parse function (stateless)
+-- Input: parser_state
+-- Returns: [result_string, new_parser_state]
+function state_parse_function(list parser_state) returns list
+    list state1 = state_advance(parser_state)  -- Skip 'function'
     
-    list name_tok = current_token()
-    if length(name_tok) == 0 then
-        parser_error("Expected function name")
-        return "ERROR"
+    list name_tok = state_current_token(state1)
+    numeric name_len = length(name_tok)
+    if name_len == 0 then
+        list error_state = state_parser_error(state1, "Expected function name")
+        list result = []
+        result = result + ["ERROR"]
+        result = result + [error_state]
+        return result
     end_if
     
     string func_name = name_tok[1]
-    advance()
+    list state2 = state_advance(state1)
     
-    expect_token(T_LPAREN)
+    list expect_result = state_expect_token(state2, T_LPAREN)
+    list state3 = expect_result[1]
     
     -- Parse parameters
     string params = ""
     numeric param_count = 0
+    list current_state = state3
     
-    numeric continue = 1
-    while continue == 1 do
-        list tok = current_token()
+    numeric should_continue = 1
+    while should_continue == 1 do
+        list tok = state_current_token(current_state)
         numeric len = length(tok)
         
         if len == 0 then
-            continue = 0
+            should_continue = 0
         else
             numeric tok_type = tok[0]
             
             if tok_type == T_RPAREN then
-                continue = 0
+                should_continue = 0
             else
                 -- Parse parameter: type name
                 if tok_type == T_NUMERIC or tok_type == T_STRING or tok_type == T_BOOLEAN or tok_type == T_LIST then
                     string param_type = tok[1]
-                    advance()
+                    current_state = state_advance(current_state)
                     
-                    list pname_tok = current_token()
+                    list pname_tok = state_current_token(current_state)
                     string param_name = pname_tok[1]
-                    advance()
+                    current_state = state_advance(current_state)
                     
                     if param_count > 0 then
                         params = params + ", "
@@ -566,203 +775,244 @@ function parse_function() returns string
                     param_count = param_count + 1
                     
                     -- Check for comma
-                    if check_token(T_COMMA) then
-                        advance()
+                    numeric has_comma = state_check_token(current_state, T_COMMA)
+                    if has_comma == 1 then
+                        current_state = state_advance(current_state)
                     end_if
                 else
-                    continue = 0
+                    should_continue = 0
                 end_if
             end_if
         end_if
     end_while
     
-    expect_token(T_RPAREN)
+    list expect_result2 = state_expect_token(current_state, T_RPAREN)
+    current_state = expect_result2[1]
     
     -- Parse return type
     string return_type = ""
-    if check_token(T_RETURNS) then
-        advance()
-        list ret_tok = current_token()
+    numeric has_returns = state_check_token(current_state, T_RETURNS)
+    if has_returns == 1 then
+        current_state = state_advance(current_state)
+        list ret_tok = state_current_token(current_state)
         return_type = ret_tok[1]
-        advance()
+        current_state = state_advance(current_state)
     end_if
     
-    string result = "function " + func_name + "(" + params + ")"
+    string res_str = "function " + func_name + "(" + params + ")"
     if return_type != "" then
-        result = result + " returns " + return_type
+        res_str = res_str + " returns " + return_type
     end_if
-    result = result + "\n"
+    res_str = res_str + "\n"
     
     -- Parse function body
-    continue = 1
-    while continue == 1 do
-        list tok = current_token()
+    numeric should_continue = 1
+    while should_continue == 1 do
+        list tok = state_current_token(current_state)
         numeric len = length(tok)
         
         if len == 0 then
-            continue = 0
+            should_continue = 0
         else
             numeric tok_type = tok[0]
             
             if tok_type == T_END then
-                continue = 0
+                should_continue = 0
             else
-                string stmt = parse_statement()
-                result = result + "  " + stmt + "\n"
+                list stmt_result = state_parse_statement(current_state)
+                string stmt = stmt_result[0]
+                current_state = stmt_result[1]
+                res_str = res_str + "  " + stmt + "\n"
             end_if
         end_if
     end_while
     
-    expect_token(T_END)
-    result = result + "end function"
+    list expect_result3 = state_expect_token(current_state, T_END)
+    current_state = expect_result3[1]
+    res_str = res_str + "end function"
     
+    list result = []
+    result = result + [res_str]
+    result = result + [current_state]
     return result
 end_function
 
--- ============================================================================
--- Struct/Enum Parsing (from parser_struct.mlp & parser_enum.mlp)
--- ============================================================================
-
-function parse_struct() returns string
-    advance()  -- Skip 'struct'
+-- Parse struct (stateless)
+-- Input: parser_state
+-- Returns: [result_string, new_parser_state]
+function state_parse_struct(list parser_state) returns list
+    list state1 = state_advance(parser_state)  -- Skip 'struct'
     
-    list name_tok = current_token()
-    if length(name_tok) == 0 then
-        parser_error("Expected struct name")
-        return "ERROR"
+    list name_tok = state_current_token(state1)
+    numeric name_len = length(name_tok)
+    if name_len == 0 then
+        list error_state = state_parser_error(state1, "Expected struct name")
+        list result = []
+        result = result + ["ERROR"]
+        result = result + [error_state]
+        return result
     end_if
     
     string struct_name = name_tok[1]
-    advance()
+    list state2 = state_advance(state1)
     
-    string result = "struct " + struct_name + "\n"
+    string res_str = "struct " + struct_name + "\n"
     
     -- Parse fields
-    numeric continue = 1
-    while continue == 1 do
-        list tok = current_token()
+    list current_state = state2
+    numeric should_continue = 1
+    while should_continue == 1 do
+        list tok = state_current_token(current_state)
         numeric len = length(tok)
         
         if len == 0 then
-            continue = 0
+            should_continue = 0
         else
             numeric tok_type = tok[0]
             
             if tok_type == T_END then
-                continue = 0
+                should_continue = 0
             else
                 -- Parse field: type name
                 if tok_type == T_NUMERIC or tok_type == T_STRING or tok_type == T_BOOLEAN or tok_type == T_LIST then
                     string field_type = tok[1]
-                    advance()
+                    current_state = state_advance(current_state)
                     
-                    list fname_tok = current_token()
+                    list fname_tok = state_current_token(current_state)
                     string field_name = fname_tok[1]
-                    advance()
+                    current_state = state_advance(current_state)
                     
-                    result = result + "  " + field_type + " " + field_name + "\n"
+                    res_str = res_str + "  " + field_type + " " + field_name + "\n"
                 else
-                    continue = 0
+                    should_continue = 0
                 end_if
             end_if
         end_if
     end_while
     
-    expect_token(T_END)
-    result = result + "end struct"
+    list expect_result = state_expect_token(current_state, T_END)
+    current_state = expect_result[1]
+    res_str = res_str + "end struct"
     
+    list result = []
+    result = result + [res_str]
+    result = result + [current_state]
     return result
 end_function
 
-function parse_enum() returns string
-    advance()  -- Skip 'enum'
+-- Parse enum (stateless)
+-- Input: parser_state
+-- Returns: [result_string, new_parser_state]
+function state_parse_enum(list parser_state) returns list
+    list state1 = state_advance(parser_state)  -- Skip 'enum'
     
-    list name_tok = current_token()
-    if length(name_tok) == 0 then
-        parser_error("Expected enum name")
-        return "ERROR"
+    list name_tok = state_current_token(state1)
+    numeric name_len = length(name_tok)
+    if name_len == 0 then
+        list error_state = state_parser_error(state1, "Expected enum name")
+        list result = []
+        result = result + ["ERROR"]
+        result = result + [error_state]
+        return result
     end_if
     
     string enum_name = name_tok[1]
-    advance()
+    list state2 = state_advance(state1)
     
-    string result = "enum " + enum_name + "\n"
+    string res_str = "enum " + enum_name + "\n"
     
     -- Parse enum values
-    numeric continue = 1
-    while continue == 1 do
-        list tok = current_token()
+    list current_state = state2
+    numeric should_continue = 1
+    while should_continue == 1 do
+        list tok = state_current_token(current_state)
         numeric len = length(tok)
         
         if len == 0 then
-            continue = 0
+            should_continue = 0
         else
             numeric tok_type = tok[0]
             
             if tok_type == T_END then
-                continue = 0
+                should_continue = 0
             else
                 if tok_type == T_ID then
                     string value_name = tok[1]
-                    advance()
+                    current_state = state_advance(current_state)
                     
                     -- Expect = and number
-                    expect_token(T_ASSIGN)
+                    list expect_result = state_expect_token(current_state, T_ASSIGN)
+                    current_state = expect_result[1]
                     
-                    list num_tok = current_token()
+                    list num_tok = state_current_token(current_state)
                     string value_num = num_tok[1]
-                    advance()
+                    current_state = state_advance(current_state)
                     
-                    result = result + "  " + value_name + " = " + value_num + "\n"
+                    res_str = res_str + "  " + value_name + " = " + value_num + "\n"
                 else
-                    continue = 0
+                    should_continue = 0
                 end_if
             end_if
         end_if
     end_while
     
-    expect_token(T_END)
-    result = result + "end enum"
+    list expect_result2 = state_expect_token(current_state, T_END)
+    current_state = expect_result2[1]
+    res_str = res_str + "end enum"
     
+    list result = []
+    result = result + [res_str]
+    result = result + [current_state]
     return result
 end_function
 
--- ============================================================================
--- Top-Level Parsing
--- ============================================================================
-
-function parse_program() returns string
-    string result = ""
+-- Parse program (stateless)
+-- Input: parser_state
+-- Returns: [result_string, new_parser_state]
+function state_parse_program(list parser_state) returns list
+    string res_str = ""
+    list current_state = parser_state
     
-    numeric continue = 1
-    while continue == 1 do
-        list tok = current_token()
+    numeric should_continue = 1
+    while should_continue == 1 do
+        list tok = state_current_token(current_state)
         numeric len = length(tok)
         
         if len == 0 then
-            continue = 0
+            should_continue = 0
         else
             numeric tok_type = tok[0]
             
             if tok_type == T_FUNCTION then
-                string func = parse_function()
-                result = result + func + "\n\n"
+                list func_result = state_parse_function(current_state)
+                string func = func_result[0]
+                current_state = func_result[1]
+                res_str = res_str + func + "\n\n"
             else if tok_type == T_STRUCT then
-                string struct_def = parse_struct()
-                result = result + struct_def + "\n\n"
+                list struct_result = state_parse_struct(current_state)
+                string struct_def = struct_result[0]
+                current_state = struct_result[1]
+                res_str = res_str + struct_def + "\n\n"
             else if tok_type == T_ENUM then
-                string enum_def = parse_enum()
-                result = result + enum_def + "\n\n"
+                list enum_result = state_parse_enum(current_state)
+                string enum_def = enum_result[0]
+                current_state = enum_result[1]
+                res_str = res_str + enum_def + "\n\n"
             else
                 -- Top-level statement (global var, etc.)
-                string stmt = parse_statement()
-                result = result + stmt + "\n"
+                list stmt_result = state_parse_statement(current_state)
+                string stmt = stmt_result[0]
+                current_state = stmt_result[1]
+                res_str = res_str + stmt + "\n"
             end_if
             end_if
             end_if
         end_if
     end_while
     
+    list result = []
+    result = result + [res_str]
+    result = result + [current_state]
     return result
 end_function
 
@@ -771,7 +1021,7 @@ end_function
 -- ============================================================================
 
 function main() returns numeric
-    println("=== MELP Parser Integration Test ===")
+    println("=== MELP Parser Integration Test (Stateless) ===")
     println("")
     
     -- Create test tokens for a simple program
@@ -799,19 +1049,22 @@ function main() returns numeric
     list tokens = [tok1, tok2, tok3, tok4, tok5, tok6, tok7, tok8, tok9, 
                    tok10, tok11, tok12, tok13, tok14, tok15, tok16]
     
-    init_parser(tokens)
-    
-    string parsed = parse_program()
+    -- Use stateless API (YZ_30)
+    list initial_state = create_parser_state(tokens)
+    list parse_result = state_parse_program(initial_state)
+    string parsed = parse_result[0]
+    list final_state = parse_result[1]
+    numeric error_count = state_get_error_count(final_state)
     
     println("Parsed Program:")
     println(parsed)
     println("")
     
     print("Parse errors: ")
-    println(str(g_error_count))
+    println(str(error_count))
     
-    if g_error_count == 0 then
-        println("SUCCESS: Parser integration working!")
+    if error_count == 0 then
+        println("SUCCESS: Stateless parser working!")
         return 0
     end_if
     

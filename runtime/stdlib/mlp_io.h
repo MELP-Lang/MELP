@@ -89,4 +89,9 @@ int64_t mlp_write_file(const char* filename, const char* content);
 // Returns: 1 on success, 0 on error
 int64_t mlp_append_file(const char* filename, const char* content);
 
+// YZ_25: Wrapper aliases for LLVM backend compatibility
+char* read_file(const char* filename);
+int64_t write_file(const char* filename, const char* content);
+int64_t append_file(const char* filename, const char* content);
+
 #endif

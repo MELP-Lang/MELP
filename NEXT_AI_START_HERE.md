@@ -1,967 +1,387 @@
-# 🚀 STAGE 1 SELF-HOSTING - START HERE!
+# 🚀 NEXT AI START HERE - YZ_01
 
-**Last Session:** Stage 1 YZ_26  
-**Date:** 17 Aralık 2025  
-**Agent:** GitHub Copilot (Claude Sonnet 4.5)  
-**Branch:** main  
-**Status:** 🚧 **YZ_26 Complete - API Wrappers Ready. Next: YZ_27 Integration**
-
-**⚠️ YZ Directory Structure:**
-- `stage_0_YZ/` - Stage 0 sessions (YZ_01 - YZ_97, 80 sessions) ✅ ARCHIVED
-- `stage_1_YZ/` - Stage 1 sessions (YZ_01+, current) ⏳ ACTIVE
+**Son Güncelleme:** 17 Aralık 2025  
+**Güncelleyen:** YZ_01 (İlk AI - Modüler yeniden yapılandırma)  
+**Dal:** `import_design_YZ_01` (oluşturulacak)  
+**Durum:** ⏳ DEVAM EDİYOR
 
 ---
 
-## 🤖 YZ HIZLI BAŞLANGIÇ (İLK OKUYACAĞIN!)
+## ⚠️ ÖNEMLİ: STAGE 1 RESET!
 
-**📋 DETAYLI CHECKLIST İÇİN:** `YZ_CHECKLIST.md` dosyasını oku!
+**Önceki YZ'ler Stage 1'i tamamladı ama...**
+- ❌ Monolitik yapı kullanılmış (MELP_Mimarisi.md'ye aykırı)
+- ❌ Import sistemi yok (modüler yapı imkansız)
+- ✅ 12,371 satır kod var (YENİDEN KULLANILACAK!)
 
-**Yeni YZ geldiğinde yapılacaklar (5 dakika):**
+**Yeni Strateji:**
+1. Stage 0'a import sistemi ekle
+2. Mevcut kodu modüler yapıya dönüştür
+3. Kusursuz mimari elde et
 
-1. **Bu dosyayı oku** → Mevcut durum nedir?
-2. **TODO.md oku** → Ne yapıldı, ne kaldı?
-3. **Son YZ raporunu oku** → stage_1_YZ/YZ_XX.md (en son tamamlanan)
-4. **KULLANICIYA SOR** → "Ne yapmamı istersin?" (TODO'dan seç veya yeni görev)
-
-**Session bittiğinde yapılacaklar (15 dakika):**
-
-1. **YZ raporu yaz** → `stage_1_YZ/YZ_XX.md` (görev, değişiklikler, testler, sonuçlar)
-2. **TODO.md güncelle** → Tamamlananı [x] işaretle, ilerleme %'sini güncelle
-3. **Bu dosyayı güncelle** → Status, tablo ("Last Session" olarak)
-4. **Ana dizini temizle** → `rm -f test_*.mlp *.s *.o temp/*.s*`
-5. **Git commit & push** → Değişiklikleri kendi dalına commit et ve push et
-6. **KULLANICIYA SOR** → "Görev tamamlandı. Sırada ne yapmak istersin?"
-
-**🔧 Git Workflow:**
-```bash
-# 1. Yeni dal oluştur (görev adı + YZ numarası)
-# Format: task-description_YZ_XX
-# Örnek: parser-enhancements_YZ_08, codegen-phase1_YZ_09
-git checkout -b task-description_YZ_XX
-
-# 2. Değişiklikleri ekle
-git add modules/parser_mlp/*.mlp stage_1_YZ/YZ_*.md TODO.md NEXT_AI_START_HERE.md
-
-# 3. Commit et (detaylı mesajla)
-git commit -m "YZ_XX: Task Description
-
-✅ Completed Tasks:
-- Task 1
-- Task 2
-
-📊 Metrics:
-- Files created: X
-- Lines added: Y
-- Tests: Z/Z passing
-
-Status: Complete/Ready for review"
-
-# 4. Push et
-git push -u origin task-description_YZ_XX
-
-# 5. KULLANICIYA SOR: Pull request oluşturalım mı?
-```
-
-**📌 Dal İsimlendirme Kuralı:**
-- Format: `task-description_YZ_XX`
-- Görev adı kısa ve açıklayıcı (kebab-case)
-- Sonunda mutlaka `_YZ_XX` eki (XX = session numarası)
-- Örnekler:
-  - `parser-enhancements_YZ_08`
-  - `codegen-llvm_YZ_09`
-  - `array-indexing_YZ_10`
-  - `ast-optimization_YZ_11`
-
-**⚠️ ÖNEMLİ:** Session bittiğinde mutlaka TODO.md + NEXT_AI_START_HERE.md + YZ raporu + GIT COMMIT yapılmalı!
+**Detaylar:** `TODO.md` dosyasına bak
 
 ---
 
-## 🚨 SYNTAX UYARISI - İLK OKUYACAĞIN ŞEY!
+# 🚀 NEXT AI START HERE - YZ_02
 
-**Kullanıcı kodu (.mlp test/örnek):** Boşluklu → `end if`, `else if`, `end while`  
-**Compiler kodu (parser.mlp, lexer.mlp):** Alt çizgili → `end_if`, `else_if`, `end_while`
+**Son Güncelleme:** 17 Aralık 2025, 22:30  
+**Güncelleyen:** YZ_01 (Import tasarımı tamamlandı ✅)  
+**Dal:** `import_lexer_parser_YZ_02` (oluşturulacak)  
+**Durum:** ⏸️ YZ_02'YE HAZ
 
-**Hızlı Kural:** Örnekler için `end if`, modüller için `end_if`. Kararsızsan → `kurallar_kitabı.md` oku!
-
----
-
-## 📁 DOSYA ORGANIZASYONU KURALI - ÖNEMLİ!
-
-**Test Dosyaları:**
-- ❌ **ANA DİZİNE TEST DOSYASI BIRAKMA!** (test.mlp, test_*.mlp, parser_expr.s vb.)
-- ✅ Tüm test dosyaları `tests/` klasörüne konulmalı
-- ✅ Manuel testler: `tests/manual/test_*.mlp`
-- ✅ Otomatik testler: `tests/auto/`
-- ✅ Test çıktıları: `tests/output/` veya `temp/`
-
-**Geçici Dosyalar:**
-- ✅ `.s`, `.o`, binary dosyalar → `temp/` klasörüne
-- ✅ Çalışma notları → `temp/çıktı.md` veya `temp/notes_*.md`
-
-**Temizlik Sonrası Ana Dizin:**
-```
-MLP/
-├── compiler/          (Stage 0 C compiler)
-├── modules/           (Stage 1 MELP modules)
-├── runtime/           (C runtime libraries)
-├── stage_0_YZ/        (Archived sessions)
-├── stage_1_YZ/        (Active sessions)
-├── tests/             (TÜM TEST DOSYALARI BURAYA!)
-├── temp/              (Geçici dosyalar)
-├── NEXT_AI_START_HERE.md
-├── TODO.md
-└── README.md
-```
-
-**Her YZ Session Sonunda:** Ana dizini temizle, test dosyalarını `tests/` altına taşı!
+IR
 
 ---
 
-## ✅ Stage 0 Tamamlandı - Artık Tarihe Karıştı!
+## 🎉 YZ_01 TAMAMLANDI!
 
-**Stage 0 MVC (Minimum Viable Compiler) 15 Aralık 2025'te tamamlandı!**
+**Harika Haber:** Stage 0'da import sistemi zaten var!
 
-- ✅ 34,432 satır compiler kodu (C)
-- ✅ 4,584 satır runtime kodu (C)
-- ✅ 33 modül
-- ✅ ~90% test geçme oranı
-- ✅ Tüm MVC özellikleri çalışıyor
-
-**Arşivlendi:** 
-- `temp/TODO_old_20251215_*.md`
-- `temp/NEXT_AI_START_HERE_old_20251215_*.md`
-- `temp/STAGE0_SIGNOFF_20251215.md`
-
-**Stage 0 artık feature-frozen!** Sadece bug fix ve performance fix kabul ediliyor.
+YZ_01 tarafından tamamlandı:
+- ✅ Import sistem tasarımı (`docs/IMPORT_SYSTEM_DESIGN.md`)
+- ✅ Stage 0 analizi (import modülü mevcut)
+- ✅ Kural güçlendirme (TODO, NEXT_AI, PROTOKOL)
+- ✅ Proje temizliği (89 dosya düzenlendi)
 
 ---
 
-## 🎯 Stage 1 Hedef: Self-Hosting
+## 📍 MEVCUT DURUM
 
-**MELP compiler'ı MELP dilinde yaz!**
+### Görev: YZ_02 - Stage 0 Import: Lexer + Parser
+**Tahmini:** 4 saat  
+**Durum:** ⏸️ BEKLİYOR
 
-### Strateji: 3 Faz
+#### Tamamlanması Gerekenler:
+- [ ] **2.1** YZ_01 raporunu oku (`YZ_Stage_1/YZ_01_RAPOR.md`)
+- [ ] **2.2** Stage 0 Lexer'a import token ekle
+  - [ ] `TOKEN_IMPORT` tanımla
+  - [ ] `import` keyword'ünü tanı
+- [ ] **2.3** Stage 0 Parser'a import parsing ekle
+  - [ ] Import statement parsing (zaten var, aktive et)
+  - [ ] Test: `import "test"` parse olmalı
+- [ ] **2.4** Test yaz
+  - [ ] `tests/stage_1_tests/test_import_syntax.mlp`
+  - [ ] Basit import parse testi
 
-```
-┌────────────────┐
-│  PHASE 1       │  ← ŞU AN BURDAYIZİ
-│  Parser (MELP) │     4-6 hafta
-└────────────────┘
-        ↓
-┌────────────────┐
-│  PHASE 2       │
-│  CodeGen(MELP) │     4-6 hafta
-└────────────────┘
-        ↓
-┌────────────────┐
-│  PHASE 3       │
-│  Bootstrap     │     2 hafta
-└────────────────┘
-        ↓
-    🎉 SELF-HOSTING COMPLETE!
-```
-
----
-
-## 📊 Self-Hosting İlerleme
-
-| Bileşen | Durum | Dil | Satır | YZ |
-|---------|-------|-----|-------|-----|
-| Lexer | ✅ 100% | MELP | ~1,803 | Stage 0 (YZ_57) |
-| Parser Infra | ✅ 100% | MELP | ~400 | Stage 0 (YZ_97) |
-| Parser Expr | ✅ 100% | MELP | 224 | **Stage 1 (YZ_01) ✅** |
-| Parser Stmt | ✅ 100% | MELP | 103 | **Stage 1 (YZ_02) ✅** |
-| Parser Control | ✅ 100% | MELP | 287 | **Stage 1 (YZ_03) ✅** |
-| Parser Func | ✅ 100% | MELP | 518 | **Stage 1 (YZ_04) ✅** |
-| Parser Struct/Enum | ✅ 100% | MELP | 811 | **Stage 1 (YZ_05) ✅** |
-| Parser Import | ✅ 100% | MELP | 219 | **Stage 1 (YZ_06) ✅** |
-| Parser Switch/Case | ✅ 100% | MELP | 332 | **Stage 1 (YZ_07) ✅** |
-| Parser For Loops | ✅ 100% | MELP | 299 | **Stage 1 (YZ_08) ✅** |
-| Parser Function Calls | ✅ 100% | MELP | 327 | **Stage 1 (YZ_08) ✅** |
-| Parser Array Indexing | ✅ 100% | MELP | 266 | **Stage 1 (YZ_08) ✅** |
-| Parser Pretty Print | ✅ 100% | MELP | 336 | **Stage 1 (YZ_08) ✅** |
-| Parser Compound Assign | ✅ 100% | MELP | 227 | **Stage 1 (YZ_08) ✅** |
-| Parser Integration | ✅ 100% | MELP | 583 | **Stage 1 (YZ_06/07/08) ✅** |
-| CodeGen Infrastructure | ✅ 100% | MELP | 942 | **Stage 1 (YZ_09) ✅** |
-| CodeGen Literals & Vars | ✅ 100% | MELP | 776 | **Stage 1 (YZ_10) ✅** |
-| CodeGen Arithmetic | ✅ 100% | MELP | 472 | **Stage 1 (YZ_11) ✅** |
-| CodeGen Comparison/Logic | ✅ 100% | MELP | 412 | **Stage 1 (YZ_12) ✅** |
-| CodeGen Statements | ✅ 100% | MELP | 145 | **Stage 1 (YZ_13) ✅** |
-| CodeGen Control Flow | ✅ 100% | MELP | 220 | **Stage 1 (YZ_14) ✅** |
-| CodeGen While Loops | ✅ 100% | MELP | 333 | **Stage 1 (YZ_15) ✅** |
-| CodeGen For Loops | ✅ 100% | MELP | 473 | **Stage 1 (YZ_16) ✅** |
-| CodeGen Functions | ✅ 100% | MELP | 518 | **Stage 1 (YZ_17) ✅** |
-| CodeGen Arrays | ✅ 100% | MELP | 465 | **Stage 1 (YZ_18) ✅** |
-| CodeGen Integration | ✅ 100% | MELP | 427 | **Stage 1 (YZ_19) ✅** |
-| Bootstrap Driver | ✅ 100% | MELP | 339 | **Stage 1 (YZ_20) ✅** |
-| Syntax Compatibility | ✅ 100% | - | - | **Stage 1 (YZ_21) ✅** |
-| LLVM Toolchain | ✅ 100% | - | ~400 | **Stage 1 (YZ_22) ✅** |
-| String Type Fix | ✅ 100% | C | 15 | **Stage 1 (YZ_23) ✅** |
-| Compiler Entry Point | ✅ 100% | MELP | 315 | **Stage 1 (YZ_24) ✅** |
-| File I/O Infrastructure | ✅ 100% | C | 20 | **Stage 1 (YZ_25) ✅** |
-| API Wrappers | ✅ 100% | MELP | 225 | **Stage 1 (YZ_26) ✅** |
-| Module Integration | ⏳ 20% | MELP | - | Stage 1 (YZ_27 - Next) |
-
-**TOPLAM:** %60 Complete (Infrastructure + APIs ready, integration next!)
-
-**✅ YZ_26 COMPLETE - Clean API Wrappers Ready!**
-
-**YZ_26 UPDATE (17 December 2025):**
-
-**Completed (Clean API Wrappers):**
-- ✅ Architecture analysis (NO ORCHESTRATION principle)
-- ✅ lexer_api.mlp (90 lines - thin wrapper)
-- ✅ parser_api.mlp (70 lines - clean interface)
-- ✅ codegen_api.mlp (65 lines - IR generation)
-- ✅ compiler_full.mlp updated (architecture docs)
-- ✅ Single-module compilation test PASSED
-- ✅ Execution test PASSED
-
-**Test Results:**
-```bash
-./functions_standalone --backend=llvm modules/compiler_full.mlp temp/compiler_full
-→ 20 functions compiled ✅
-
-LD_LIBRARY_PATH=runtime/stdlib:runtime/sto ./temp/compiler_full
-→ Full pipeline executed ✅
-→ File I/O working ✅
-→ Output written successfully ✅
-```
-
-**API Design:**
-- **Lexer API:** `tokenize_source(source_code) → token_count`
-- **Parser API:** `parser_api_parse(token_list) → ast_string`
-- **CodeGen API:** `generate_llvm_from_ast(ast_string) → status`
-
-**Files Created:**
-- `modules/lexer_mlp/lexer_api.mlp` (90 lines)
-- `modules/parser_mlp/parser_api.mlp` (70 lines)
-- `modules/codegen_mlp/codegen_api.mlp` (65 lines)
-- `stage_1_YZ/YZ_26.md` (documentation)
-
-**Architecture Principles:**
-- ✅ NO ORCHESTRATION - thin wrappers only
-- ✅ Clean interfaces - one public function per module
-- ✅ Single responsibility - clear separation
-- ✅ Implementation hiding - clean contracts
-
-**Stage 0 Finding:**
-- Function name collision in multi-module builds
-- Single-file approach works best for now
-- API wrappers document clean architecture
-- Ready for Stage 1 import system
-
-**Current Status:**
-- ✅ Infrastructure: 100% (all modules exist and work)
-- ✅ API Design: 100% (clean interfaces documented)
-- ⏳ Integration: 20% (stubs in compiler_full.mlp)
-
-**Next Steps (YZ_27):**
-
-**YZ_27: Module Integration & Self-Hosting**
-- [ ] Part 1: Simple test program (function test() returns 42)
-- [ ] Part 2: Self-compile (compiler_full.mlp → output.ll)
-- [ ] Part 3: Bootstrap chain (v1 → v2 → v3, v2 == v3)
-- [ ] Part 4: Convergence test & validation
-
-**Important Decisions:**
-- ✅ **API Wrappers created** - Clean architecture documented
-- ✅ **Single-file approach** - Works with Stage 0
-- ✅ **NO ORCHESTRATION** - Thin wrappers only
-- 🎯 **Next: Integration** - Replace stubs gradually
-
-**Status:** ✅ YZ_26 Complete - Ready for YZ_27 (Integration)!
+#### Kritik Bilgi:
+🎉 **Import altyapısı Stage 0'da hazır!**
+- ✅ `compiler/stage0/modules/import/` (8 dosya)
+- ✅ Module resolution çalışıyor
+- ✅ Import cache çalışıyor
+- ⏳ Sadece TOKEN_IMPORT ekle, aktive et
 
 ---
 
-**✅ YZ_25 COMPLETE - File I/O Infrastructure Ready!**
+## 🎯 SONRAKİ GÖREV: YZ_02
 
-**YZ_25 UPDATE (17 December 2025):**
+**Görev:** Stage 0 Import - Lexer + Parser  
+**Tahmini:** 4 saat
 
-**Completed (File I/O Infrastructure):**
-- ✅ Runtime file I/O wrappers (read_file, write_file, append_file)
-- ✅ LLVM backend compatibility (mlp_* → wrapper mapping)
-- ✅ Stdlib rebuild with new wrappers
-- ✅ compiler_full.mlp updated to use real file I/O
-- ✅ Self-compile test: Compiler reads/writes files successfully!
-- ✅ TODO.md cleaned (945 → 366 lines, backup: temp/TODO_OLD_YZ24.md)
-- ✅ YZ_26-27 plan finalized (no YZ_25A-E, direct to linking)
+### Yapacakları:
+1. YZ_01 raporunu oku
+2. Stage 0 Lexer'a `TOKEN_IMPORT` ekle
+3. Import parsing (AST node)
+4. Test yaz
 
-**Test Results:**
-```bash
-cp modules/compiler_full.mlp input.mlp
-LD_LIBRARY_PATH=runtime/stdlib:runtime/sto ./temp/compiler_full
-→ File read: 320 lines ✅
-→ Output written: output.ll ✅
-→ Pipeline complete (stub codegen) ✅
-```
-
-**Files Modified:**
-- `runtime/stdlib/mlp_io.c` (+15 lines - wrapper functions)
-- `runtime/stdlib/mlp_io.h` (+4 lines - declarations)
-- `modules/compiler_full.mlp` (updated - real file I/O)
-- `TODO.md` (rewritten - 366 lines, clean & focused)
-
-**Current Status:**
-- ✅ Infrastructure: 100% (file I/O, compiler entry point, pipeline)
-- ⏳ Real Implementation: 0% (lexer/parser/codegen still stubs)
-- ⏳ Module Linking: 0% (YZ_26 next task)
-
-**Next Steps (YZ_26-27):**
-
-**YZ_26: Module Linking & Real Implementation**
-- [ ] Part 1: Multi-module compilation test (YZ_44 support)
-- [ ] Part 2: Lexer stub replacement
-- [ ] Part 3: Parser stub replacement
-- [ ] Part 4: CodeGen stub replacement
-- [ ] Part 5: Full multi-module compilation
-- [ ] Part 6: Simple program test (function test() returns numeric return 42 end_function)
-
-**YZ_27: Self-Hosting Convergence**
-- [ ] Part 1: Self-compile (v1 → v2 LLVM IR)
-- [ ] Part 2: Binary compilation (LLVM IR → executable)
-- [ ] Part 3: Generation 3 (v2 → v3)
-- [ ] Part 4: Convergence test (v2 == v3)
-- [ ] Part 5: Test suite validation
-
-**Important Decisions:**
-- ✅ **NO ORCHESTRATION!** Each module has clean API
-- ✅ **NO YZ_25A-E!** Modules already exist, just link them
-- ✅ **Direct to YZ_26** Module linking with existing code
-
-**Status:** ✅ YZ_25 Complete - Ready for YZ_26 (Module Linking)!
+**Detaylar:** `TODO.md` > YZ_02
 
 ---
 
-**✅ YZ_24 COMPLETE - Compiler Entry Point Ready!**
+## 📋 YZ_01 CHECKLİST
 
-**YZ_24 UPDATE (17 December 2025):**
+### ✅ Başlangıç ZORUNLU!
 
-**Completed (Compiler Entry Point - YZ_24):**
-- ✅ Compiler integration module (compiler_integration.mlp - 293 lines)
-- ✅ Main compiler entry point (compiler.mlp - 236 lines)
-- ✅ Combined full compiler (compiler_full.mlp - 315 lines, 20 functions)
-- ✅ Pipeline orchestration (Lexer → Parser → CodeGen)
-- ✅ Command-line interface (usage, version)
-- ✅ File I/O stubs (Stage 0 limitation)
-- ✅ Error/warning reporting infrastructure
-- ✅ All modules compile and run successfully
+**Her YZ session başında MUTLAKA ONAYLA:**
 
-**Test Results:**
-```bash
-./compiler/stage0/modules/functions/functions_standalone \
-  --backend=llvm modules/compiler_full.mlp temp/compiler_full
-→ 20 functions compiled ✅
+```
+ONAYLA - YZ_01:
 
-LD_LIBRARY_PATH=runtime/stdlib:runtime/sto ./temp/compiler_full
-→ Full pipeline executed successfully ✅
+[x] NEXT_AI_START_HERE.md okudum
+[x] MELP_Mimarisi.md okudum ve ONAYLADIM ✅
+[x] TODO.md okudum
+[x] 5 Temel Prensibi anladım:
+    [x] %100 Modüler (her feature = ayrı modül)
+    [x] LLVM Backend (değişmez)
+    [x] Stateless (global state YASAK, const OK)
+    [x] STO (runtime optimization)
+    [x] Struct + Functions (OOP yok)
+[x] Yasakları anladım:
+    [x] Monolitik dosya YASAK
+    [x] Mutable global YASAK (const immutable OK)
+    [x] Önceki kuralları ezme YASAK
+    [x] Import olmadan modül YASAK (FAZ 2+)
+    [x] Stage 0'ı bozma YASAK
+    [x] Ana dizine test dosyası YASAK
+[x] Git status kontrol ettim ✅
+[x] Git dalı oluşturdum: import_design_YZ_01 ✅
+
+✅ ONAYLIYORUM - YZ_01 (17 Aralık 2025, 22:22)
 ```
 
-**Files Created:**
-- `modules/compiler_integration.mlp` (293 lines, 14 functions)
-- `modules/compiler.mlp` (236 lines, 11 functions)
-- `modules/compiler_full.mlp` (315 lines, 20 functions) ⭐
-- `stage_1_YZ/YZ_24.md` (documentation)
+### Geliştirme
+- [ ] Import syntax tasarla
+- [ ] Import mekanizması tasarla
+- [ ] Döküman yaz: `docs/IMPORT_SYSTEM_DESIGN.md`
+- [ ] Stage 0 modifikasyon planı
 
-**Stage 0 Limitations Encountered:**
-- ❌ Global variables not supported (used function-local state)
-- ❌ String concatenation unstable (used sequential println)
-- ❌ Cross-module imports not supported (created single-module version)
-- ❌ Newlines in string literals (simplified test code)
-- ⚠️ String parameters show as memory addresses (functional, display issue)
-
-**Status:** ✅ YZ_24 COMPLETE - Ready for YZ_25 (Real Lexer/Parser/CodeGen Implementation)!
+### Tamamlama
+- [ ] Döküman hazır
+- [ ] Git commit: `git commit -m "YZ_01: Import system design"`
+- [ ] Git push: `git push origin import_design_YZ_01`
+- [ ] Rapor yaz: `YZ_Stage_1/YZ_01_RAPOR.md`
+- [ ] Bu dosyayı güncelle (NEXT_AI_START_HERE.md)
+- [ ] TODO.md'de işaretle: YZ_01 ✅
 
 ---
 
-**✅ YZ_23 COMPLETE - LLVM String Return Type Fixed**
+## 📂 PROJE YAPISI
 
-**YZ_23 UPDATE (17 December 2025):**
-
-**Completed (LLVM String Type Fix - YZ_23):**
-- ✅ Fixed LLVM backend to emit `i8*` for string returns, `i64` for numeric returns
-- ✅ 3 files modified (llvm_backend.h, llvm_backend.c, functions_codegen_llvm.c)
-- ✅ 207 functions compiled successfully (46 i8* string returns, 161 i64 numeric returns)
-- ✅ All 37 Stage 1 modules compile to LLVM IR
-- ✅ Test suite: 15/15 tests passing
-
-**Files Modified:**
-- `compiler/stage0/modules/llvm_backend/llvm_backend.h` (+2 lines)
-- `compiler/stage0/modules/llvm_backend/llvm_backend.c` (+8 lines)
-- `compiler/stage0/modules/functions/functions_codegen_llvm.c` (+5 lines)
-
-**Status:** ✅ YZ_23 COMPLETE - Ready for YZ_24 (Compiler Entry Point)!
-
----
-
-**✅ YZ_17 COMPLETE - Function CodeGen**
-
-**YZ_17 UPDATE (17 December 2025):**
-
-**Completed (Function CodeGen - YZ_17):**
-- ✅ Function declarations (no params, 1 param, 2 params, 3 params)
-- ✅ Function parameter handling (alloca + store pattern)
-- ✅ Return statements (literal, variable, expression)
-- ✅ Function calls (no args, 1 arg, 2 args, 3 args)
-- ✅ Void function calls (procedures)
-- ✅ Complete function examples with body
-- ✅ Integration test with 5 scenarios (factorial, recursive pattern)
-- ✅ 518 lines total, 18 functions, 15/15 tests passing
-
-**Test Results:**
-```bash
-./compiler/stage0/modules/functions/functions_standalone \
-  modules/codegen_mlp/codegen_functions.mlp temp/codegen_functions.s
-→ 15/15 PASSED ✅
-
-./compiler/stage0/modules/functions/functions_standalone \
-  tests/manual/test_codegen_functions_integration.mlp temp/test_integration.s
-→ Integration test PASSED ✅
-```
-
-**Files Created:**
-- `modules/codegen_mlp/codegen_functions.mlp` (518 lines)
-- `tests/manual/test_codegen_functions_integration.mlp` (129 lines)
-
-**Status:** ✅ YZ_17 COMPLETE - Ready for YZ_18 (Array CodeGen)!
-
----
-
-**✅ YZ_16 COMPLETE - For Loop CodeGen**
-
-**YZ_16 UPDATE (17 December 2025):**
-
-**Completed (For Loop CodeGen - YZ_16):**
-- ✅ For-to loop code generation (for i from 1 to 10)
-- ✅ For-downto loop code generation (for i from 10 downto 1)
-- ✅ Loop counter initialization and management
-- ✅ Increment (add) and decrement (sub) operations
-- ✅ Nested for loops (both to and downto)
-- ✅ Mixed nested loops (to + downto)
-- ✅ For loops with body statements
-- ✅ Variable start/end bounds support
-- ✅ 473 lines total, 6 functions, 6/6 tests passing
-
-**Test Results:**
-```bash
-./compiler/stage0/modules/functions/functions_standalone \
-  modules/codegen_mlp/codegen_for.mlp temp/codegen_for.s
-→ 6/6 PASSED ✅
-```
-
-**Files Created:**
-- `modules/codegen_mlp/codegen_for.mlp` (473 lines)
-
-**Status:** ✅ YZ_16 COMPLETE - Ready for YZ_17 (Function CodeGen)!
-
----
-
-**✅ YZ_15 COMPLETE - While Loop CodeGen**
-
-**Completed (While Loop CodeGen - YZ_15):**
-- ✅ While loop code generation (while condition do body end_while)
-- ✅ Loop header, body, and exit labels
-- ✅ Back-edge branch (jump to header)
-- ✅ Counter-based loops with increment
-- ✅ Nested while loops support
-- ✅ Complex conditions (integration with logical ops)
-- ✅ Early exit patterns
-- ✅ 333 lines total, 5 functions, 5/5 tests passing
-
-**Test Results:**
-```bash
-./compiler/stage0/modules/functions/functions_standalone \
-  modules/codegen_mlp/codegen_while.mlp temp/codegen_while.s
-→ 5/5 PASSED ✅
-```
-
-**Files Created:**
-- `modules/codegen_mlp/codegen_while.mlp` (333 lines)
-
-**Status:** ✅ YZ_15 COMPLETE - Ready for YZ_16 (For Loop CodeGen)!
-
----
-
-**✅ YZ_14 COMPLETE - Control Flow CodeGen**
-
-**Completed (Control Flow CodeGen - YZ_14):**
-- ✅ If statement code generation (if-then-end_if)
-- ✅ If-else statement code generation
-- ✅ If-else_if chain code generation
-- ✅ Basic block label management
-- ✅ Branch instruction emission (br i1)
-- ✅ 220 lines total, 4 functions, 4/4 tests passing
-
-**Test Results:**
-```bash
-./compiler/stage0/modules/functions/functions_standalone \
-  modules/codegen_mlp/codegen_control.mlp temp/codegen_control.s
-→ 4/4 PASSED ✅
-```
-
-**Files Created:**
-- `modules/codegen_mlp/codegen_control.mlp` (220 lines)
-
-**Status:** ✅ YZ_14 COMPLETE - Ready for YZ_15 (While Loop CodeGen)!
-
----
-
-**✅ YZ_12 COMPLETE - Comparison & Logical Operators CodeGen**
-
-**YZ_12 UPDATE (16 December 2025):**
-
-**Completed (Comparison & Logical Operators - YZ_12):**
-- ✅ Comparison Operators (194 lines) - ==, !=, <, >, <=, >=
-- ✅ Logical Operators (218 lines) - and, or, not
-- ✅ Boolean Operations - i1 ↔ i64 conversions
-- ✅ 412 lines total, 18 functions, 13 tests
-
-**Test Results:**
-```bash
-./functions_standalone modules/codegen_mlp/codegen_comparison.mlp temp/codegen_comparison.s
-→ 12/12 PASSED ✅
-
-./functions_standalone modules/codegen_mlp/codegen_logical.mlp temp/codegen_logical.s
-→ 10/10 PASSED ✅
-```
-
-**Files Created:**
-- `modules/codegen_mlp/codegen_comparison.mlp` (194 lines)
-- `modules/codegen_mlp/codegen_logical.mlp` (218 lines)
-
-**Status:** ✅ YZ_12 COMPLETE - Ready for YZ_13 (Statement CodeGen)!
-
----
-
-**✅ YZ_11 COMPLETE - Arithmetic Operations CodeGen**
-
-**YZ_11 UPDATE (16 December 2025):**
-
-**Completed (Arithmetic Operations - YZ_11):**
-- ✅ IR Builder (299 lines) - LLVM IR emission functions
-- ✅ Type Mapper (265 lines) - MELP → LLVM type mapping
-- ✅ Symbol Table (277 lines) - Variable tracking structure
-- ✅ Integration Demo (101 lines) - Complete pipeline demo
-- ✅ 942 lines total, 28 functions, 90% test coverage
-
-**Test Results:**
-```bash
-./functions_standalone modules/codegen_mlp/type_mapper.mlp temp/type_mapper.s
-→ 4/4 PASSED ✅
-
-./functions_standalone modules/codegen_mlp/codegen_demo.mlp temp/codegen_demo.s
-→ FULL DEMO WORKING ✅
-```
-
-**Files Created:**
-- `modules/codegen_mlp/ir_builder.mlp` (299 lines)
-- `modules/codegen_mlp/type_mapper.mlp` (265 lines)
-- `modules/codegen_mlp/symbol_table.mlp` (277 lines)
-- `modules/codegen_mlp/codegen_demo.mlp` (101 lines)
-
-**Status:** ✅ YZ_09 COMPLETE - Ready for YZ_10 (Expression CodeGen)!
-
----
-
-**✅ YZ_08 COMPLETE - All 5 Small Parser Tasks Done!**
-
-**YZ_08 UPDATE (16 December 2025):**
-
-**Completed (5 tasks in 1 session!):**
-- ✅ For loop parsing (`for i from x to y`, `for i from x downto y`) - 299 lines
-- ✅ Function call expressions (`func(arg1, arg2, ...)`) - 327 lines
-- ✅ Array/List indexing (`arr[i]`, `matrix[i][j]`) - 266 lines
-- ✅ AST pretty-print (debugging tool) - 336 lines
-- ✅ Compound assignment structure (`+=, -=, *=, /=`) - 227 lines
-- ✅ Integration test updated (9/9 tests passing)
-
-**Test Results:**
-```bash
-./functions_standalone modules/parser_mlp/parser_for.mlp temp/parser_for.s
-→ 4/4 PASSED
-
-./functions_standalone modules/parser_mlp/parser_call.mlp temp/parser_call.s
-→ 6/6 PASSED
-
-./functions_standalone modules/parser_mlp/parser_index.mlp temp/parser_index.s
-→ 6/6 PASSED
-
-./functions_standalone modules/parser_mlp/parser_pretty.mlp temp/parser_pretty.s
-→ 6/6 PASSED
-
-./functions_standalone modules/parser_mlp/parser_compound.mlp temp/parser_compound.s
-→ 5/5 PASSED
-
-./functions_standalone modules/parser_mlp/parser_integration.mlp temp/parser_integration.s
-→ 9/9 PASSED (was 8/8)
-```
-
-**Files Created:**
-- `modules/parser_mlp/parser_for.mlp` (299 lines)
-- `modules/parser_mlp/parser_call.mlp` (327 lines)
-- `modules/parser_mlp/parser_index.mlp` (266 lines)
-- `modules/parser_mlp/parser_pretty.mlp` (336 lines)
-- `modules/parser_mlp/parser_compound.mlp` (227 lines)
-
-**Files Updated:**
-- `modules/parser_mlp/parser_integration.mlp` (583 lines, was 534)
-
-**Total Added:** 1,455 lines of MELP parser code!
-
-**Status:** ✅ YZ_08 COMPLETE - Parser at ~6,686 lines! All small tasks done!
-
----
-
-## 🎯 KULLANICIYA SORU: Ne yapmalıyım?
-
-**Önceki görev (YZ_17):** CodeGen Functions ✅ Tamamlandı (518 satır, 18 fonksiyon, 15/15 test geçti)
-
-**CodeGen Phase (Phase 2):** Part 9/10 ✅ Complete!
-
-**İlerleme:**
-- ✅ YZ_09: Infrastructure (IR Builder, Type Mapper, Symbol Table) - DONE
-- ✅ YZ_10: Literals & Variables - DONE
-- ✅ YZ_11: Arithmetic operators - DONE
-- ✅ YZ_12: Comparison & Logic - DONE
-- ✅ YZ_13: Statements (var decl, assign, return, print) - DONE
-- ✅ YZ_14: Control Flow - If/Else - DONE
-- ✅ YZ_15: While Loops - DONE
-- ✅ YZ_16: For Loops (from/to/downto) - DONE
-- ✅ YZ_17: Functions (declarations, calls, parameters) - DONE
-- ⏳ YZ_18: Arrays (indexing, allocation, element access) - NEXT
-- ⏸️ YZ_19: Integration & final testing...
-
-**Sıradaki görev: YZ_18 - Array CodeGen**
-- Array allocation (alloca for arrays)
-- Array indexing (getelementptr)
-- Multi-dimensional arrays
-- Array element load/store
-- Array initialization
-
-**Tahmini:** 3-4 saat, ~400-500 satır
-
-**Soru:** 
-- YZ_18'e başlamak ister misin?
-- Başka bir şey mi yapalım?
-- Önce YZ_17'yi commit edip push edelim mi?
-
-## 📚 Eski Referans (Arşiv)
-
-### Phase 1 Part 1: Parser Infrastructure (✅ TAMAMLANDI - YZ_97)
-
-**Görev:** Parser'ın temellerini MELP ile kur
-
-#### Step 1: Dizin ve Dosya Yapısı
-```bash
-mkdir -p modules/parser_mlp
-touch modules/parser_mlp/parser_core.mlp
-touch modules/parser_mlp/ast_nodes.mlp
-touch modules/parser_mlp/token_stream.mlp
-```
-
-#### Step 2: AST Node Structures
-
-**Dosya:** `modules/parser_mlp/ast_nodes.mlp`
-
-```mlp
--- AST Node Types (Enum)
-enum ASTNodeType
-    NODE_EXPRESSION = 1
-    NODE_STATEMENT = 2
-    NODE_FUNCTION = 3
-    NODE_LITERAL = 4
-    NODE_BINARY_OP = 5
-    NODE_CALL = 6
-    -- ... daha fazla
-end_enum
-
--- Base AST Node (Struct)
-struct ASTNode
-    numeric node_type        -- ASTNodeType enum
-    numeric line
-    numeric column
-    -- Node-specific data için genişletilebilir
-end_struct
-
--- Expression Node
-struct ExprNode
-    numeric node_type
-    numeric line
-    numeric column
-    numeric expr_type        -- EXPR_LITERAL, EXPR_BINARY, etc.
-    string value            -- For literals
-end_struct
-
--- Statement Node
-struct StmtNode
-    numeric node_type
-    numeric line
-    numeric column
-    numeric stmt_type        -- STMT_VAR, STMT_IF, etc.
-end_struct
-```
-
-#### Step 3: Token Stream Management
-
-**Dosya:** `modules/parser_mlp/token_stream.mlp`
-
-```mlp
--- Global parser state (list of tokens)
-list tokens           -- Token listesi
-numeric current_pos   -- Mevcut pozisyon
-
-function init_parser(list token_list) returns numeric
-    tokens = token_list
-    current_pos = 0
-    return 1
-end_function
-
-function current_token() returns list
-    if current_pos >= length(tokens) then
-        return []  -- EOF
-    end_if
-    return tokens[current_pos]
-end_function
-
-function peek_token() returns list
-    numeric next_pos = current_pos + 1
-    if next_pos >= length(tokens) then
-        return []  -- EOF
-    end_if
-    return tokens[next_pos]
-end_function
-
-function advance() returns numeric
-    current_pos = current_pos + 1
-    return current_pos
-end_function
-
-function expect_token(numeric expected_type) returns boolean
-    list tok = current_token()
-    if length(tok) == 0 then
-        return 0  -- EOF
-    end_if
-    
-    numeric tok_type = tok[0]
-    if tok_type == expected_type then
-        advance()
-        return 1
-    end_if
-    return 0
-end_function
-```
-
-#### Step 4: Error Handling
-
-**Dosya:** `modules/parser_mlp/parser_errors.mlp`
-
-```mlp
-function parser_error(string message, numeric line, numeric col) returns numeric
-    println("Parser Error: " + message)
-    println("  at line " + str(line) + ", column " + str(col))
-    return 0
-end_function
-
-function unexpected_token_error(numeric expected, numeric got) returns numeric
-    println("Unexpected token: expected " + str(expected) + ", got " + str(got))
-    return 0
-end_function
-```
-
-#### Step 5: Integration Test
-
-**Dosya:** `tests/manual/test_parser_init.mlp`
-
-```mlp
--- Test: Initialize parser with token list
-
-function main() returns numeric
-    -- Create a simple token list
-    list tok1 = [1, "function", 1, 1]  -- [type, value, line, col]
-    list tok2 = [32, "main", 1, 10]
-    list tok3 = [20, "(", 1, 14]
-    list tok4 = [21, ")", 1, 15]
-    
-    list token_list = [tok1, tok2, tok3, tok4]
-    
-    init_parser(token_list)
-    
-    list first = current_token()
-    println("First token type: " + str(first[0]))  -- Should be 1
-    
-    advance()
-    list second = current_token()
-    println("Second token type: " + str(second[0]))  -- Should be 32
-    
-    return 0
-end_function
-```
-
----
-
-## 📋 Phase 1 Part 1 Checklist
-
-- [ ] `modules/parser_mlp/` dizini oluştur
-- [ ] `ast_nodes.mlp` - AST node structures
-  - [ ] ASTNodeType enum
-  - [ ] ASTNode base struct
-  - [ ] ExprNode struct
-  - [ ] StmtNode struct
-- [ ] `token_stream.mlp` - Token stream management
-  - [ ] init_parser()
-  - [ ] current_token()
-  - [ ] peek_token()
-  - [ ] advance()
-  - [ ] expect_token()
-- [ ] `parser_errors.mlp` - Error handling
-  - [ ] parser_error()
-  - [ ] unexpected_token_error()
-- [ ] `tests/manual/test_parser_init.mlp` - Integration test
-- [ ] Compile ve test et
-  ```bash
-  ./compiler/stage0/modules/functions/functions_standalone \
-      modules/parser_mlp/token_stream.mlp token_stream.s
-  ```
-
----
-
-## 🚦 Sonraki Adımlar (Part 2+)
-
-**Part 1 tamamlandıktan sonra:**
-
-1. **Part 2:** Expression Parsing
-   - Primary expressions (literals, identifiers)
-   - Binary operations (arithmetic, comparison)
-   - Precedence handling (Pratt parsing)
-
-2. **Part 3:** Statement Parsing
-   - Variable declarations
-   - Control flow (if/while/for)
-   - Function calls
-
-3. **Part 4:** Advanced Parsing
-   - Function definitions
-   - Struct definitions
-   - Module imports
-
-4. **Part 5:** Integration & Testing
-   - Lexer + Parser pipeline
-   - AST validation
-   - End-to-end tests
-
----
-
-## 📁 Dosya Yapısı
-
+### Mevcut (Monolitik):
 ```
 modules/
-├── lexer_mlp/              ← ✅ DONE (YZ_57)
-│   ├── lexer.mlp
-│   ├── tokenize_*.mlp
-│   └── ...
-│
-└── parser_mlp/             ← 🎯 ŞİMDİ BURASI!
-    ├── parser_core.mlp     ← Main parser
-    ├── ast_nodes.mlp       ← AST structures
-    ├── token_stream.mlp    ← Token management
-    ├── parser_errors.mlp   ← Error handling
-    ├── parser_expr.mlp     ← Expression parsing (Part 2)
-    ├── parser_stmt.mlp     ← Statement parsing (Part 3)
-    ├── parser_func.mlp     ← Function parsing (Part 4)
-    └── parser_struct.mlp   ← Struct parsing (Part 4)
-
-tests/
-├── manual/                 ← Manuel test dosyaları
-│   ├── test_parser_*.mlp
-│   └── test_lexer_*.mlp
-└── e2e/                    ← End-to-end testler
-
-temp/                       ← Geçici deneme dosyaları
-    └── experiment_*.mlp
+├── lexer_mlp/        ← 74 dosya
+├── parser_mlp/       ← 12,371 satır
+└── codegen_mlp/      ← (katmanlı yapı)
 ```
 
-### ⚠️ ÖNEMLI: Dosya Organizasyonu
-
-**Ana dizini temiz tut!**
-
-- ✅ Test dosyaları → `tests/manual/` veya `tests/e2e/`
-- ✅ Geçici dosyalar → `temp/`
-- ✅ Ana dizin → Sadece proje dosyaları (README, TODO, MELP_REFERENCE, vb.)
-- ❌ Ana dizinde `test_*.mlp`, `*.s`, `*.o` bırakma!
-
-```bash
-# Cleanup komutu (düzenli çalıştır)
-rm -f test_*.mlp test_*.s test_*.o *.s *.o
+### Hedef (Modüler):
+```
+modules/
+├── core/             ← Shared utilities (YZ_05)
+├── functions/        ← Function feature (YZ_06)
+├── variables/        ← Variable feature (YZ_07)
+├── operators/        ← Operators (YZ_08)
+└── ...               ← 10 modül daha
 ```
 
 ---
 
-## ⚡ Hızlı Başlangıç
+## 🎓 REFERANSLAR
+
+**Önce Oku:**
+1. `MELP_Mimarisi.md` - Temel mimari kuralları
+2. `TODO.md` - 15 YZ görev planı
+3. `compiler/stage0/modules/` - Stage 0 modüler yapı örneği
+
+**Dökümanlar:**
+- `PMPL_SYNTAX.md` - PMPL sözdizimi
+- `compiler/stage0/ARCHITECTURE.md` - Stage 0 mimarisi
+- `docs/LLVM_IR_GUIDE.md` - LLVM IR
+
+**Eski TODO'lar (referans):**
+- `TODO_OLD_YZ26.md` - Önceki Stage 1 TODO
+- `NEXT_AI_START_HERE_OLD_YZ29.md` - Önceki NEXT_AI
+
+---
+
+## ⚠️ HATIRLATMALAR - MELP MİMARİSİ KURALLARI
+
+**⚠️ ÖNEMLİ:** Bu kuralları ihlal eden önceki YZ'ler yüzünden Stage 1 baştan yapılıyor!
+
+### 🎯 5 TEMEL PRENSİP (ASLA İHLAL ETME!)
+
+1. **%100 Modüler** - Her feature ayrı modül (kendi parser + codegen)
+2. **LLVM Backend** - Platform-independent, değiştirilmez  
+3. **Stateless** - Global state YASAK, parametre geçişi
+4. **STO** - Runtime'da otomatik optimizasyon
+5. **Struct + Functions** - OOP YOK (Class/Inheritance yasak)
+
+### ❌ YASAKLAR (BUNLARI YAPMA!)
+
+1. **Monolitik Dosya Oluşturma**
+   - ❌ `parser.mlp` (tüm parsing burada)
+   - ✅ `modules/functions/functions_parser.mlp` (feature bazlı)
+
+2. **Global State Kullanma**
+   ```mlp
+   ❌ list g_tokens  -- Mutable global YASAK!
+   ✅ const numeric TOKEN_ID = 1  -- Immutable const OK
+   ```
+
+3. **Önceki Kuralları Ezme**
+   - Önceki YZ'nin kodunu değiştirmeden önce SOR!
+   - Mimari kararları değiştirme
+
+4. **Import Olmadan Modül**
+   - FAZ 2'den itibaren import ZORUNLU
+
+5. **Stage 0'ı Bozma**
+   - Her değişiklik sonrası test et
+
+6. **Merge/PR Yapma**
+   - Kendi dalında kal
+
+7. **Ana Dizine Test/Geçici Dosya Oluşturma**
+   - ❌ `/test_*.mlp` (ana dizinde)
+   - ✅ `tests/stage_1_tests/test_*.mlp`
+   - Ana dizin temiz kalmalı!
+
+### ✅ YAPMALISIN (ZORUNLU!)
+
+1. **MELP_Mimarisi.md Oku ve Onayla**
+   ```
+   [ ] MELP_Mimarisi.md okudum
+   [ ] 5 temel prensibi anladım
+   [ ] Modüler yapı gereksinimini anladım
+   [ ] Stateless pattern'i anladım
+   [ ] Const = Rust modeli (immutable) anladım
+   
+   ONAYLIYORUM - YZ_XX
+   ```
+
+2. **Modüler Yapı Koru**
+   - Her feature = ayrı modül (parser + codegen)
+   - Bağımsız, izole, test edilebilir
+
+3. **Stateless Tasarım**
+   - Parametre geçişi kullan
+   - State fonksiyondan döndür
+   - Mutable global YASAK
+
+4. **Şüphen Varsa DURDUR**
+   - Mimari ihlal görürsen → DURDUR, kullanıcıya sor
+   - Test başarısız → DURDUR, kullanıcıya sor
+   - Otomatik düzeltme yapma → Kullanıcı onayı al
+
+5. **Her YZ Sonunda**
+   - Rapor yaz: `YZ_Stage_1/YZ_XX_RAPOR.md`
+   - Bu dosyayı güncelle (NEXT_AI_START_HERE.md)
+   - TODO.md'de işaretle
+   - Git commit + push
+   - **Test dosyalarını temizle:** Ana dizinde test dosyası bırakma!
+
+### 📁 DİZİN KURALLARI (ÇOK ÖNEMLİ!)
+
+**Ana dizin kirletme yasağı:**
 
 ```bash
-# 1. Dizin oluştur
-mkdir -p modules/parser_mlp
+# ❌ YANLIŞ - Ana dizine test dosyası
+/home/pardus/projeler/MLP/MLP/test_my_feature.mlp
+/home/pardus/projeler/MLP/MLP/output.ll
+/home/pardus/projeler/MLP/MLP/debug.txt
 
-# 2. İlk dosyayı oluştur
-cat > modules/parser_mlp/ast_nodes.mlp << 'EOF'
--- AST Node Types
-enum ASTNodeType
-    NODE_EXPRESSION = 1
-    NODE_STATEMENT = 2
-    NODE_FUNCTION = 3
-end_enum
+# ✅ DOĞRU - Doğru dizinler
+tests/stage_1_tests/test_my_feature.mlp
+temp/output.ll
+temp/debug.txt
+```
 
-struct ASTNode
-    numeric node_type
-    numeric line
-    numeric column
-end_struct
+**Kural:** Ana dizin sadece:
+- README, TODO, NEXT_AI gibi ana dökümanlar
+- Klasörler (modules/, tests/, temp/, vb.)
+- ⚠️ Test/geçici dosya YASAK!
 
-function main() returns numeric
-    return 0
+### 📖 REFERANSLAR
+
+**MUTLAKA OKU:**
+- ✅ `MELP_Mimarisi.md` - Temel kurallar (Session başında oku!)
+- ✅ `TODO.md` - Görev detayları
+- ✅ `compiler/stage0/modules/` - Modüler yapı örneği
+
+**İhlal Örnekleri (YAPMA!):**
+```mlp
+-- ❌ ÖRNEK 1: Global state (YASAK!)
+list g_tokens = []
+numeric g_pos = 0
+
+-- ✅ DOĞRU: Parametre geçişi
+function parse(list tokens, numeric pos) returns list
+    return [result, new_pos]
 end_function
-EOF
 
-# 3. Compile et
-./compiler/stage0/modules/functions/functions_standalone \
-    modules/parser_mlp/ast_nodes.mlp ast_nodes.s
+-- ❌ ÖRNEK 2: Monolitik dosya (YASAK!)
+-- parser.mlp içinde tüm features
 
-# 4. Test et
-./ast_nodes.s
-echo $?  # Should be 0
+-- ✅ DOĞRU: Feature bazlı modül
+-- modules/functions/functions_parser.mlp
+-- modules/variables/variables_parser.mlp
+```
+
+### 🚨 DURDURMA SENARYOLARI
+
+Aşağıdaki durumlarda İŞİ DURDUR ve kullanıcıya SOR:
+
+1. Mevcut kod global state kullanıyor
+2. Monolitik yapı görüyorsun
+3. Import sistemi yok ama modül yapmak istiyorsun
+4. Test başarısız oluyor
+5. Stage 0 bozuldu
+6. Mimari ihlal görüyorsun
+7. Önceki YZ'nin kararını değiştirmen gerekiyor
+
+**Otomatik düzeltme yapma, önce SOR!**
+
+---
+
+## 🚀 BAŞLANGIÇ KOMUTU
+
+```bash
+# Mevcut durumu kontrol et
+git status
+
+# Yeni dal oluştur
+git checkout -b import_design_YZ_01
+
+# YZ_Stage_1 dizini oluştur
+mkdir -p YZ_Stage_1
+
+# İşe başla!
+# 1. MELP_Mimarisi.md oku
+# 2. C dilinde #include nasıl çalışıyor araştır
+# 3. Import syntax tasarla
+# 4. Döküman yaz: docs/IMPORT_SYSTEM_DESIGN.md
 ```
 
 ---
 
-## 🎯 Başarı Kriterleri (Part 1)
+## 📊 İLERLEME
 
-✅ **Tamamlandı sayılır eğer:**
-1. AST node structures tanımlandı (enum + struct)
-2. Token stream management çalışıyor
-3. Error handling fonksiyonları var
-4. En az 1 integration test passing
-5. Stage 0 compiler ile compile ediliyor
+**Faz 1: Import Sistemi (13h)**
+- [ ] YZ_01 - Import Tasarımı (3h) ⏳ DEVAM EDİYOR
+- [ ] YZ_02 - Lexer + Parser (4h)
+- [ ] YZ_03 - Resolution + Symbol Table (5h)
+- [ ] YZ_04 - CodeGen + Integration (3h)
 
-**Tahmini Süre:** 8-10 saat (~1 hafta)
+**Faz 2: Modüler Stage 1 (26h)**
+- 10 modül (YZ_05 - YZ_14)
 
----
+**Faz 3: Validation (3h)**
+- [ ] YZ_15 - Self-Compile
 
-## 📖 Kaynaklar
-
-- **Lexer Referansı:** `modules/lexer_mlp/lexer.mlp` (YZ_57)
-- **Stage 0 Parser:** `compiler/stage0/modules/parser_core/`
-- **Self-Hosting Plan:** `docs_tr/selfhosting_geçiş_planlaması.md`
-- **MELP Reference:** `MELP_REFERENCE.md`
+**TOPLAM:** 38 saat (tahmini)
 
 ---
 
-## 🚀 HADİ BAŞLAYALIM!
+## 🤝 YZ AKTARIMI
 
-**İlk Görev:** Parser Infrastructure (Part 1)  
-**Tahmini Süre:** 1 hafta  
-**Sonuç:** Parser'ın temelleri MELP'te yazılmış olacak!
+**Sonraki YZ'ye mesajım:**
+
+Merhaba YZ_02! 👋
+
+Ben YZ_01, import sistem tasarımını tamamladım.
+
+**Sana bıraktıklarım:**
+- ✅ Import tasarım dokümanı: `docs/IMPORT_SYSTEM_DESIGN.md`
+- ✅ Stage 0 modifikasyon planı: `YZ_Stage_1/YZ_01_RAPOR.md`
+- ✅ Import syntax: `import "path/to/module.mlp"`
+
+**Senin görevin (YZ_02):**
+1. YZ_01 raporumu oku
+2. Stage 0 Lexer'a TOKEN_IMPORT ekle
+3. Parser'a import parsing ekle
+4. Test yaz
+
+**Kritik notlar:**
+- Stage 0'ı bozmadan çalış
+- Her değişiklik sonrası test et
+- Modüler yapıyı koru
+
+Başarılar! 🚀
 
 ---
 
-**Last Updated:** 15 Aralık 2025  
-**Status:** Stage 1 Phase 1 Part 1 - Ready to Start! 🚀
+**SON GÜNCELLEME:** YZ_01 - Import tasarımı devam ediyor  
+**SONRAKİ:** YZ_02 - Import Lexer/Parser
+
+**MELP kusursuz mimariye kavuşuyor!** 🎯

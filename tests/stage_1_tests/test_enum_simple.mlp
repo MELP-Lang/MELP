@@ -1,0 +1,14 @@
+-- YZ_29 Final Test: Simple return
+enum TokenType
+    T_FUNCTION = 1
+    T_IF = 3
+end_enum
+
+function main() returns numeric
+    -- Direct enum value returns
+    numeric a = T_FUNCTION
+    numeric b = T_IF
+    
+    -- Should return 1 + 3 = 4
+    return a + b
+end_function

@@ -1,0 +1,306 @@
+-- ============================================================================
+-- MELP Self-Hosting: Character Classification Utilities
+-- File: modules/lexer_mlp/char_utils.mlp
+-- Author: YZ_46
+-- Date: 11 Aralık 2025
+-- Purpose: Helper functions for lexical analysis (character type checking)
+-- ============================================================================
+
+-- ============================================================================
+-- ASCII Code Utilities
+-- ============================================================================
+
+-- Get ASCII code of a character (first char of string)
+-- Note: This is a built-in function in MELP runtime
+-- For now, we'll use a workaround with comparison
+function char_code(string c) returns numeric
+    -- Built-in function (will be implemented in runtime)
+    -- For now, we use manual lookup for common cases
+    
+    -- Digits
+    if c == "0" then return 48 end_if
+    if c == "1" then return 49 end_if
+    if c == "2" then return 50 end_if
+    if c == "3" then return 51 end_if
+    if c == "4" then return 52 end_if
+    if c == "5" then return 53 end_if
+    if c == "6" then return 54 end_if
+    if c == "7" then return 55 end_if
+    if c == "8" then return 56 end_if
+    if c == "9" then return 57 end_if
+    
+    -- Lowercase letters (a-z: 97-122)
+    if c == "a" then return 97 end_if
+    if c == "b" then return 98 end_if
+    if c == "c" then return 99 end_if
+    if c == "d" then return 100 end_if
+    if c == "e" then return 101 end_if
+    if c == "f" then return 102 end_if
+    if c == "g" then return 103 end_if
+    if c == "h" then return 104 end_if
+    if c == "i" then return 105 end_if
+    if c == "j" then return 106 end_if
+    if c == "k" then return 107 end_if
+    if c == "l" then return 108 end_if
+    if c == "m" then return 109 end_if
+    if c == "n" then return 110 end_if
+    if c == "o" then return 111 end_if
+    if c == "p" then return 112 end_if
+    if c == "q" then return 113 end_if
+    if c == "r" then return 114 end_if
+    if c == "s" then return 115 end_if
+    if c == "t" then return 116 end_if
+    if c == "u" then return 117 end_if
+    if c == "v" then return 118 end_if
+    if c == "w" then return 119 end_if
+    if c == "x" then return 120 end_if
+    if c == "y" then return 121 end_if
+    if c == "z" then return 122 end_if
+    
+    -- Uppercase letters (A-Z: 65-90)
+    if c == "A" then return 65 end_if
+    if c == "B" then return 66 end_if
+    if c == "C" then return 67 end_if
+    if c == "D" then return 68 end_if
+    if c == "E" then return 69 end_if
+    if c == "F" then return 70 end_if
+    if c == "G" then return 71 end_if
+    if c == "H" then return 72 end_if
+    if c == "I" then return 73 end_if
+    if c == "J" then return 74 end_if
+    if c == "K" then return 75 end_if
+    if c == "L" then return 76 end_if
+    if c == "M" then return 77 end_if
+    if c == "N" then return 78 end_if
+    if c == "O" then return 79 end_if
+    if c == "P" then return 80 end_if
+    if c == "Q" then return 81 end_if
+    if c == "R" then return 82 end_if
+    if c == "S" then return 83 end_if
+    if c == "T" then return 84 end_if
+    if c == "U" then return 85 end_if
+    if c == "V" then return 86 end_if
+    if c == "W" then return 87 end_if
+    if c == "X" then return 88 end_if
+    if c == "Y" then return 89 end_if
+    if c == "Z" then return 90 end_if
+    
+    -- Special characters
+    if c == " " then return 32 end_if
+    if c == "!" then return 33 end_if
+    -- if c == "\"" then return 34 end_if  -- Escape issue, Stage 0 limitation
+    if c == "#" then return 35 end_if
+    if c == "$" then return 36 end_if
+    if c == "%" then return 37 end_if
+    if c == "&" then return 38 end_if
+    if c == "'" then return 39 end_if
+    if c == "(" then return 40 end_if
+    if c == ")" then return 41 end_if
+    if c == "*" then return 42 end_if
+    if c == "+" then return 43 end_if
+    if c == "," then return 44 end_if
+    if c == "-" then return 45 end_if
+    if c == "." then return 46 end_if
+    if c == "/" then return 47 end_if
+    if c == ":" then return 58 end_if
+    if c == ";" then return 59 end_if
+    if c == "<" then return 60 end_if
+    if c == "=" then return 61 end_if
+    if c == ">" then return 62 end_if
+    if c == "?" then return 63 end_if
+    if c == "@" then return 64 end_if
+    if c == "[" then return 91 end_if
+    if c == "\\" then return 92 end_if
+    if c == "]" then return 93 end_if
+    if c == "^" then return 94 end_if
+    if c == "_" then return 95 end_if
+    if c == "`" then return 96 end_if
+    if c == "{" then return 123 end_if
+    if c == "|" then return 124 end_if
+    if c == "}" then return 125 end_if
+    if c == "~" then return 126 end_if
+    
+    -- Whitespace
+    if c == "\n" then return 10 end_if
+    if c == "\t" then return 9 end_if
+    if c == "\r" then return 13 end_if
+    
+    -- Unknown character
+    return 0
+end_function
+
+-- ============================================================================
+-- Character Classification Functions
+-- ============================================================================
+
+-- Check if character is a digit (0-9)
+function is_digit(string c) returns boolean
+    numeric code = char_code(c)
+    if code >= 48 then
+        if code <= 57 then
+            return true
+        end_if
+    end_if
+    return false
+end_function
+
+-- Check if character is lowercase letter (a-z)
+function is_lower(string c) returns boolean
+    numeric code = char_code(c)
+    if code >= 97 then
+        if code <= 122 then
+            return true
+        end_if
+    end_if
+    return false
+end_function
+
+-- Check if character is uppercase letter (A-Z)
+function is_upper(string c) returns boolean
+    numeric code = char_code(c)
+    if code >= 65 then
+        if code <= 90 then
+            return true
+        end_if
+    end_if
+    return false
+end_function
+
+-- Check if character is alphabetic (a-z, A-Z, _)
+function is_alpha(string c) returns boolean
+    if c == "_" then return true end_if
+    if is_lower(c) then
+        return true
+    end_if
+    if is_upper(c) then
+        return true
+    end_if
+    return false
+end_function
+
+-- Check if character is alphanumeric (digit || alpha)
+function is_alphanumeric(string c) returns boolean
+    if is_digit(c) then
+        return true
+    end_if
+    if is_alpha(c) then
+        return true
+    end_if
+    return false
+end_function
+
+-- Check if character is whitespace (space, tab, newline, carriage return)
+function is_whitespace(string c) returns boolean
+    if c == " " then return true end_if
+    if c == "\t" then return true end_if
+    if c == "\n" then return true end_if
+    if c == "\r" then return true end_if
+    return false
+end_function
+
+-- Check if character is an operator symbol
+function is_operator(string c) returns boolean
+    if c == "+" then return true end_if
+    if c == "-" then return true end_if
+    if c == "*" then return true end_if
+    if c == "/" then return true end_if
+    if c == "%" then return true end_if
+    if c == "=" then return true end_if
+    if c == "<" then return true end_if
+    if c == ">" then return true end_if
+    if c == "!" then return true end_if
+    return false
+end_function
+
+-- Check if character is a punctuation symbol
+function is_punctuation(string c) returns boolean
+    if c == "(" then return true end_if
+    if c == ")" then return true end_if
+    if c == "[" then return true end_if
+    if c == "]" then return true end_if
+    if c == "{" then return true end_if
+    if c == "}" then return true end_if
+    if c == "," then return true end_if
+    if c == "." then return true end_if
+    if c == ":" then return true end_if
+    if c == ";" then return true end_if
+    return false
+end_function
+
+-- Check if character is a symbol (operator || punctuation)
+function is_symbol(string c) returns boolean
+    return is_operator(c) || is_punctuation(c)
+end_function
+
+-- ============================================================================
+-- Example Usage (for testing)
+-- ============================================================================
+
+function main() returns numeric
+    println("=== Character Classification Tests ===")
+    println("")
+    
+    -- Test is_digit
+    println("--- is_digit Tests ---")
+    println("is_digit('5'): " + is_digit("5"))      -- true
+    println("is_digit('a'): " + is_digit("a"))      -- false
+    println("is_digit('Z'): " + is_digit("Z"))      -- false
+    println("")
+    
+    -- Test is_alpha
+    println("--- is_alpha Tests ---")
+    println("is_alpha('a'): " + is_alpha("a"))      -- true
+    println("is_alpha('Z'): " + is_alpha("Z"))      -- true
+    println("is_alpha('_'): " + is_alpha("_"))      -- true
+    println("is_alpha('5'): " + is_alpha("5"))      -- false
+    println("is_alpha('+'): " + is_alpha("+"))      -- false
+    println("")
+    
+    -- Test is_alphanumeric
+    println("--- is_alphanumeric Tests ---")
+    println("is_alphanumeric('a'): " + is_alphanumeric("a"))  -- true
+    println("is_alphanumeric('5'): " + is_alphanumeric("5"))  -- true
+    println("is_alphanumeric('_'): " + is_alphanumeric("_"))  -- true
+    println("is_alphanumeric('+'): " + is_alphanumeric("+"))  -- false
+    println("")
+    
+    -- Test is_whitespace
+    println("--- is_whitespace Tests ---")
+    println("is_whitespace(' '): " + is_whitespace(" "))      -- true
+    println("is_whitespace('\t'): " + is_whitespace("\t"))    -- true (tab)
+    println("is_whitespace('a'): " + is_whitespace("a"))      -- false
+    println("")
+    
+    -- Test is_operator
+    println("--- is_operator Tests ---")
+    println("is_operator('+'): " + is_operator("+"))  -- true
+    println("is_operator('='): " + is_operator("="))  -- true
+    println("is_operator('a'): " + is_operator("a"))  -- false
+    println("")
+    
+    -- Test is_punctuation
+    println("--- is_punctuation Tests ---")
+    println("is_punctuation('('): " + is_punctuation("("))  -- true
+    println("is_punctuation(','): " + is_punctuation(","))  -- true
+    println("is_punctuation('a'): " + is_punctuation("a"))  -- false
+    println("")
+    
+    -- Test is_symbol
+    println("--- is_symbol Tests ---")
+    println("is_symbol('+'): " + is_symbol("+"))    -- true
+    println("is_symbol('('): " + is_symbol("("))    -- true
+    println("is_symbol('a'): " + is_symbol("a"))    -- false
+    println("")
+    
+    -- Test char_code
+    println("--- char_code Tests ---")
+    println("char_code('0'): " + char_code("0"))    -- 48
+    println("char_code('A'): " + char_code("A"))    -- 65
+    println("char_code('a'): " + char_code("a"))    -- 97
+    println("char_code('+'): " + char_code("+"))    -- 43
+    println("")
+    
+    println("✅ All character classification tests completed!")
+    
+    return 0
+end_function

@@ -1,0 +1,242 @@
+-- ============================================================================
+-- MELP Parser - State Management Module
+-- ============================================================================
+-- Stage 1 Self-Hosting: Parser State in MELP
+-- Created: December 17, 2025 (YZ_31)
+-- Purpose: Stateless parser state management
+-- Architecture: Modular + Stateless + LLVM + STO + (Struct + Functions)
+-- ============================================================================
+
+-- ============================================================================
+-- Token Type Constants (from lexer)
+-- ============================================================================
+-- YZ_30: Migrated to enum block (Stage 0 compatible)
+-- YZ_29: Unqualified enum support
+-- ============================================================================
+
+enum TokenType
+    -- Keywords
+    T_FUNCTION = 1
+    T_END = 2
+    T_IF = 3
+    T_THEN = 4
+    T_ELSE = 5
+    T_WHILE = 6
+    T_DO = 7
+    T_ASSIGN = 8
+    T_RETURNS = 9
+    T_NUMERIC = 10
+    T_STRING = 11
+    T_BOOLEAN = 12
+    T_LIST = 13
+    T_RETURN = 14
+    T_PRINT = 15
+    T_PRINTLN = 16
+    T_STRUCT = 20
+    T_ENUM = 21
+    
+    -- Operators
+    T_NOT = 31
+    T_PLUS = 37
+    T_MINUS = 38
+    T_MULTIPLY = 39
+    T_DIVIDE = 40
+    T_MODULO = 41
+    T_EQ = 42
+    T_NE = 43
+    T_LT = 44
+    T_GT = 45
+    T_LE = 46
+    T_GE = 47
+    T_AND = 48
+    T_OR = 49
+    
+    -- Delimiters
+    T_LPAREN = 50
+    T_RPAREN = 51
+    T_COMMA = 52
+    T_LBRACKET = 53
+    T_RBRACKET = 54
+    
+    -- Literals & Identifiers
+    T_ID = 32
+    T_NUMBER = 61
+    T_STR_LIT = 62
+    
+    -- EOF
+    T_EOF = 0
+end_enum
+
+-- ============================================================================
+-- Parser State Management (Stateless Architecture)
+-- ============================================================================
+-- YZ_28: Refactored to remove global state (Stage 0 compatibility)
+-- Parser state is passed as list: [tokens, position, error_count]
+-- ============================================================================
+
+-- Create initial parser state
+-- Returns: [token_list, 0, 0]
+function create_parser_state(list token_list) returns list
+    list state = []
+    state = state + [token_list]  -- state[0] = tokens
+    state = state + [0]           -- state[1] = position
+    state = state + [0]           -- state[2] = error_count
+    return state
+end_function
+
+-- Get current token from state
+-- Input: parser_state
+-- Returns: token (list) or [] if EOF
+function state_current_token(list parser_state) returns list
+    list tokens = parser_state[0]
+    numeric pos = parser_state[1]
+    numeric len = length(tokens)
+    
+    if pos >= len then
+        return []  -- EOF
+    end_if
+    return tokens[pos]
+end_function
+
+-- Peek next token from state
+-- Input: parser_state
+-- Returns: next token or [] if EOF
+function state_peek_token(list parser_state) returns list
+    list tokens = parser_state[0]
+    numeric pos = parser_state[1]
+    numeric next_pos = pos + 1
+    numeric len = length(tokens)
+    
+    if next_pos >= len then
+        return []
+    end_if
+    return tokens[next_pos]
+end_function
+
+-- Advance position in state
+-- Input: parser_state
+-- Returns: new parser_state with incremented position
+function state_advance(list parser_state) returns list
+    list tokens = parser_state[0]
+    numeric pos = parser_state[1]
+    numeric err_count = parser_state[2]
+    
+    numeric new_pos = pos + 1
+    
+    list new_state = []
+    new_state = new_state + [tokens]
+    new_state = new_state + [new_pos]
+    new_state = new_state + [err_count]
+    return new_state
+end_function
+
+-- Check if current token matches expected type
+-- Input: parser_state, expected_type
+-- Returns: 1 if match, 0 if not
+function state_check_token(list parser_state, numeric expected_type) returns numeric
+    list tok = state_current_token(parser_state)
+    numeric len = length(tok)
+    
+    if len == 0 then
+        return 0
+    end_if
+    
+    numeric tok_type = tok[0]
+    if tok_type == expected_type then
+        return 1
+    end_if
+    return 0
+end_function
+
+-- Expect token and advance if matched
+-- Input: parser_state, expected_type
+-- Returns: [success (1/0), new_parser_state]
+function state_expect_token(list parser_state, numeric expected_type) returns list
+    numeric match = state_check_token(parser_state, expected_type)
+    
+    if match == 1 then
+        list new_state = state_advance(parser_state)
+        list result = []
+        result = result + [1]
+        result = result + [new_state]
+        return result
+    end_if
+    
+    -- Return failure with unchanged state
+    list result = []
+    result = result + [0]
+    result = result + [parser_state]
+    return result
+end_function
+
+-- ============================================================================
+-- Error Handling (Stateless)
+-- ============================================================================
+
+-- Report parser error and increment error count in state
+-- Input: parser_state, error_message
+-- Returns: new parser_state with incremented error_count
+function state_parser_error(list parser_state, string message) returns list
+    println("Parse Error: " + message)
+    
+    list tokens = parser_state[0]
+    numeric pos = parser_state[1]
+    numeric err_count = parser_state[2]
+    
+    numeric new_err_count = err_count + 1
+    
+    list new_state = []
+    new_state = new_state + [tokens]
+    new_state = new_state + [pos]
+    new_state = new_state + [new_err_count]
+    return new_state
+end_function
+
+-- Report unexpected token error
+-- Input: parser_state, expected_type, got_type
+-- Returns: new parser_state with incremented error_count
+function state_unexpected_token_error(list parser_state, numeric expected, numeric got) returns list
+    print("Unexpected token: expected type ")
+    print(str(expected))
+    print(", got ")
+    println(str(got))
+    
+    list tokens = parser_state[0]
+    numeric pos = parser_state[1]
+    numeric err_count = parser_state[2]
+    
+    numeric new_err_count = err_count + 1
+    
+    list new_state = []
+    new_state = new_state + [tokens]
+    new_state = new_state + [pos]
+    new_state = new_state + [new_err_count]
+    return new_state
+end_function
+
+-- Get error count from state
+function state_get_error_count(list parser_state) returns numeric
+    return parser_state[2]
+end_function
+
+-- ============================================================================
+-- Test Function
+-- ============================================================================
+
+function main() returns numeric
+    println("Parser State Module - Compile Test")
+    
+    -- Minimal test - just verify compilation
+    println("All 9 functions compiled successfully!")
+    println("  - create_parser_state")
+    println("  - state_current_token")
+    println("  - state_peek_token")
+    println("  - state_advance")
+    println("  - state_check_token")
+    println("  - state_expect_token")
+    println("  - state_parser_error")
+    println("  - state_unexpected_token_error")
+    println("  - state_get_error_count")
+    
+    return 0
+end_function

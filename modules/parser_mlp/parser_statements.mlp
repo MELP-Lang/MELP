@@ -1,0 +1,111 @@
+-- ============================================================================
+-- MELP Parser - Statement Parsing Module
+-- ============================================================================
+-- Stage 1 Self-Hosting: Statement parsing in MELP
+-- Created: December 17, 2025 (YZ_31)
+-- Purpose: Stateless statement parsing (var, assign, return, print, if, while)
+-- Architecture: Modular + Stateless + LLVM + STO + (Struct + Functions)
+-- ============================================================================
+
+-- Note: This module requires TokenType enum and state management functions
+-- from parser_state.mlp when concatenated
+
+-- ============================================================================
+-- Statement Parsing Functions
+-- ============================================================================
+
+-- Parse variable declaration: numeric x = 10 (stateless)
+-- Input: parser_state
+-- Returns: [result_string, new_parser_state]
+function state_parse_var_decl(list parser_state) returns list
+    -- Placeholder for standalone compile
+    list result = []
+    result = result + ["numeric x"]
+    result = result + [parser_state]
+    return result
+end_function
+
+-- Parse assignment: x = 10 (stateless)
+-- Input: parser_state, var_name
+-- Returns: [result_string, new_parser_state]
+function state_parse_assignment(list parser_state, string var_name) returns list
+    -- Placeholder for standalone compile
+    list result = []
+    result = result + ["x = 10"]
+    result = result + [parser_state]
+    return result
+end_function
+
+-- Parse return statement (stateless)
+-- Input: parser_state
+-- Returns: [result_string, new_parser_state]
+function state_parse_return(list parser_state) returns list
+    -- Placeholder for standalone compile
+    list result = []
+    result = result + ["return 0"]
+    result = result + [parser_state]
+    return result
+end_function
+
+-- Parse print/println statement (stateless)
+-- Input: parser_state, is_println
+-- Returns: [result_string, new_parser_state]
+function state_parse_print(list parser_state, numeric is_println) returns list
+    -- Placeholder for standalone compile
+    list result = []
+    result = result + ["print(x)"]
+    result = result + [parser_state]
+    return result
+end_function
+
+-- Parse if statement (stateless)
+-- Input: parser_state
+-- Returns: [result_string, new_parser_state]
+function state_parse_if_statement(list parser_state) returns list
+    -- Placeholder for standalone compile
+    list result = []
+    result = result + ["if x then end_if"]
+    result = result + [parser_state]
+    return result
+end_function
+
+-- Parse while loop (stateless)
+-- Input: parser_state
+-- Returns: [result_string, new_parser_state]
+function state_parse_while_loop(list parser_state) returns list
+    -- Placeholder for standalone compile
+    list result = []
+    result = result + ["while x do end_while"]
+    result = result + [parser_state]
+    return result
+end_function
+
+-- Parse a single statement (stateless)
+-- Input: parser_state
+-- Returns: [result_string, new_parser_state]
+function state_parse_statement(list parser_state) returns list
+    -- Placeholder for standalone compile
+    list result = []
+    result = result + ["statement"]
+    result = result + [parser_state]
+    return result
+end_function
+
+-- ============================================================================
+-- Test Function
+-- ============================================================================
+
+function main() returns numeric
+    println("Parser Statements Module - Compile Test")
+    
+    println("All 7 functions compiled successfully!")
+    println("  - state_parse_var_decl")
+    println("  - state_parse_assignment")
+    println("  - state_parse_return")
+    println("  - state_parse_print")
+    println("  - state_parse_if_statement")
+    println("  - state_parse_while_loop")
+    println("  - state_parse_statement")
+    
+    return 0
+end_function

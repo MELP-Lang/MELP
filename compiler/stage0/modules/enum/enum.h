@@ -73,6 +73,11 @@ EnumDefinition* enum_lookup(const char* name);
 // Returns numeric value, or -1 if not found
 int64_t enum_lookup_value(const char* enum_name, const char* value_name);
 
+// YZ_29: Lookup enum value by unqualified name (e.g., "T_FUNCTION")
+// Searches all registered enums for value name
+// Returns numeric value, or -1 if not found
+int64_t enum_lookup_value_unqualified(const char* value_name);
+
 // Check if name is an enum type
 int enum_is_type(const char* name);
 

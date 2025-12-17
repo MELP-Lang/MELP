@@ -1,154 +1,94 @@
-# YZ_refactor Dizini
+# YZ_refactor - Parser Stateless Refactoring Project
 
-**Amaç:** PMPL Architecture Refactor raporları
+**Start Date:** 17 Aralık 2025  
+**Goal:** Remove global state from parser, make it Stage 0 compatible  
+**Estimated Time:** 8-12 hours  
+**Status:** 🚧 IN PROGRESS
 
 ---
 
-## 📁 Dizin Yapısı
+## 🎯 Mission
 
+Convert parser from **stateful** (global variables) to **stateless** (parameter passing) architecture.
+
+**Why:** Stage 0 compiler doesn't support global variables → concat approach fails  
+**Impact:** Enables self-hosting bootstrap (Stage 1 compiles itself)
+
+---
+
+## 📊 Scope
+
+**Files to Modify:**
+- `modules/parser_mlp/parser.mlp` (820 lines, 26 functions)
+
+**NOT touching:**
+- ✅ Lexer (already clean)
+- ✅ CodeGen (already clean)
+- ✅ Other parser modules (will use new API)
+
+---
+
+## 🏗️ Architecture
+
+### Before (Stateful):
+```mlp
+list g_tokens           -- ❌ Global
+numeric g_current_pos   -- ❌ Global
+numeric g_error_count   -- ❌ Global
+
+function parse_primary() returns string
+    list tok = current_token()  -- uses g_tokens
+    advance()                   -- mutates g_current_pos
+    return result
+end_function
 ```
-YZ_refactor/
-├── README.md                  # Bu dosya
-├── REFACTOR_NEXT_AI.md        # Yeni refactor YZ için başlangıç
-├── REFACTOR_STATUS.md         # Genel ilerleme durumu
-├── RF_YZ_1.md                 # Normalize Layer raporu
-├── RF_YZ_2.md                 # Lexer Refactor raporu
-└── RF_YZ_3.md                 # Parser Simplification raporu
-```
 
----
+### After (Stateless):
+```mlp
+-- Parser state: [tokens, position, error_count]
 
-## 🎯 Refactor YZ Sekansı
-
-Bu dizindeki YZ'ler özel **refactor sekansı** kullanır:
-
-- **Normal YZ:** YZ_01, YZ_02, ..., YZ_75 (genel görevler)
-- **Refactor YZ:** RF_YZ_1, RF_YZ_2, RF_YZ_3 (sadece PMPL refactor)
-
-**Fark:**
-- Normal YZ'ler `kurallar_kitabı.md` okur
-- Refactor YZ'ler `TODO_REFACTOR_PMPL.md` okur
-- Refactor YZ'ler sadece PMPL görür, user syntax görmez
-
----
-
-## 📋 Görev Dağılımı
-
-| YZ | Görev | Dosyalar | Süre |
-|----|-------|----------|------|
-| RF_YZ_1 | Normalize Layer | `compiler/stage0/normalize/*` | 2-3h |
-| RF_YZ_2 | Lexer Refactor | `compiler/stage0/modules/lexer/*` | 2-3h |
-| RF_YZ_3 | Parser Simplification | `statement_parser.c`, `functions_standalone.c` | 3-4h |
-
----
-
-## 🚀 Yeni Refactor YZ Başlatma
-
-```bash
-# 1. Status kontrol et
-cat YZ_refactor/REFACTOR_STATUS.md
-
-# 2. Başlangıç dokümanını oku
-cat YZ_refactor/REFACTOR_NEXT_AI.md
-
-# 3. Görev detayını oku
-cat TODO_REFACTOR_PMPL.md
-
-# 4. Rapor oluştur
-touch YZ_refactor/RF_YZ_X.md
-
-# 5. BAŞLA!
+function state_parse_primary(list parser_state) returns list
+    list tok = state_current_token(parser_state)
+    list new_state = state_advance(parser_state)
+    
+    list result = []
+    result = result + [value]      -- result[0]
+    result = result + [new_state]  -- result[1]
+    return result
+end_function
 ```
 
 ---
 
-## 📊 İlerleme Takibi
+## 📝 Progress Tracking
 
-Tüm refactor YZ'leri `REFACTOR_STATUS.md` dosyasını güncellemeli:
+See: [TODO.md](./TODO.md) for detailed task list
 
-```markdown
-RF_YZ_1: 🔴 NOT STARTED → 🟡 IN PROGRESS → 🟢 COMPLETE
-RF_YZ_2: 🔴 NOT STARTED → 🟡 IN PROGRESS → 🟢 COMPLETE
-RF_YZ_3: 🔴 NOT STARTED → 🟡 IN PROGRESS → 🟢 COMPLETE
-```
+**Summary:**
+- ✅ Phase 1: Foundation (10 functions) - COMPLETE
+- ⏳ Phase 2: Expression parsing (2 functions remaining)
+- ⏳ Phase 3: Statement parsing (5 functions)
+- ⏳ Phase 4: Control flow (3 functions)
+- ⏳ Phase 5: Advanced (3 functions)
+- ⏳ Phase 6: Orchestrator (2 functions)
+- ⏳ Phase 7: Testing & validation
 
----
-
-## ⚠️ Önemli Kurallar
-
-1. **Sıralı çalışma:** RF_YZ_1 → RF_YZ_2 → RF_YZ_3
-2. **Bağımlılık:** Bir önceki tamamlanmadan sonraki başlamaz
-3. **Test-driven:** Her YZ kendi testlerini geçmeli
-4. **Commit:** Her YZ tamamlanınca commit yapılmalı
+**Total:** 31 functions | 10 done (32%) | 21 remaining
 
 ---
 
-## 🎓 Refactor Motivasyonu
+## 📂 Session Logs
 
-**Sorun:**
-- Lexer iki kelimelik keyword'leri iki token üretiyor
-- Parser pattern matching hack'leri ile çalışıyor
-- PMPL spec uygulanmamış
-- Self-hosting imkansız
-
-**Çözüm:**
-- Normalize layer: User syntax → PMPL
-- Lexer: Underscore keyword'leri tek token
-- Parser: Basit switch-case, hack yok
-
-**Sonuç:**
-- ✅ PMPL spec'e uygun mimari
-- ✅ Self-hosting mümkün
-- ✅ Multi-syntax support hazır
+- [YZ_28_session1.md](./YZ_28_session1.md) - Foundation ✅ (30 min)
+- YZ_28_session2.md - Expression parsing (TBD)
+- YZ_28_session3.md - Statement parsing (TBD)
 
 ---
 
-## 📝 Rapor Şablonu
+## 🚦 Current Status
 
-Her RF_YZ_X.md dosyası şu formatı takip etmeli:
+**Last Updated:** 17 Aralık 2025, 16:35  
+**Progress:** 10/31 functions (32%)  
+**Next:** Phase 2 - Expression parsing
 
-```markdown
-# RF_YZ_X: [Görev Adı]
-
-**Başlangıç:** [Tarih/Saat]  
-**Görev:** [Açıklama]  
-**Durum:** [NOT STARTED / IN PROGRESS / COMPLETE]
-
-## Yapılanlar
-- [ ] Görev 1
-- [ ] Görev 2
-
-## Testler
-- [ ] Test 1
-- [ ] Test 2
-
-## Karşılaşılan Sorunlar
-[Varsa açıkla]
-
-## Çözümler
-[Nasıl çözüldü]
-
-## Sonuç
-[Özet]
-
-**Bitiş:** [Tarih/Saat]  
-**Test Sonucu:** [PASS / FAIL]  
-**Commit:** [git hash]
-```
-
----
-
-## 🏁 Refactor Tamamlanma
-
-Tüm RF_YZ'ler tamamlandığında:
-
-1. `REFACTOR_STATUS.md` → 100% Complete
-2. `TODO_REFACTOR_PMPL.md` → archive/
-3. `YZ_refactor/` dizini → archive/
-4. Normal `TODO.md`'ye geri dön
-
----
-
-**SON GÜNCELLEME:** 14 Aralık 2025  
-**DURUM:** Refactor başlamadı  
-**SONRAKI ADIM:** RF_YZ_1 başlasın
+See [TODO.md](./TODO.md) for next steps.

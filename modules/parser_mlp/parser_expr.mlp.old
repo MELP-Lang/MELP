@@ -1,0 +1,431 @@
+-- ============================================================================
+-- MELP Parser - Expression Parsing (Real Implementation)
+-- ============================================================================
+-- Bu modül, expression parsing işlemlerini gerçek olarak implement eder.
+-- Stage 1 Self-Hosting: Parser in MELP
+-- Created: 16 Aralık 2025 (YZ_01)
+-- 
+-- STAGE 0 UYUMLULUK NOTLARI:
+-- - List parametreleri desteklenmez (sadece numeric, string, boolean)
+-- - Çözüm: Tokens global list olarak tanımlanacak, pozisyon numeric parametre
+-- - Helper fonksiyonlar sadece numeric dönüş değerleri kullanır
+-- ============================================================================
+
+-- ============================================================================
+-- Global Token List (Stage 0 workaround)
+-- ============================================================================
+list g_tokens = []  -- Global token list
+numeric g_token_count = 0  -- Token sayısı
+
+-- ============================================================================
+-- Token Type Constants
+-- ============================================================================
+numeric TOKEN_NUMBER = 12
+numeric TOKEN_STRING = 13
+numeric TOKEN_IDENTIFIER = 10
+numeric TOKEN_TRUE = 66
+numeric TOKEN_FALSE = 67
+numeric TOKEN_LPAREN = 73
+numeric TOKEN_RPAREN = 74
+
+numeric TOKEN_PLUS = 16
+numeric TOKEN_MINUS = 17
+numeric TOKEN_STAR = 18
+numeric TOKEN_SLASH = 19
+numeric TOKEN_PERCENT = 20
+
+numeric TOKEN_EQ = 23
+numeric TOKEN_NE = 24
+numeric TOKEN_LT = 25
+numeric TOKEN_GT = 26
+numeric TOKEN_LE = 27
+numeric TOKEN_GE = 28
+
+numeric TOKEN_AND = 29
+numeric TOKEN_OR = 30
+numeric TOKEN_NOT = 31
+
+numeric TOKEN_EOF = 0
+
+-- ============================================================================
+-- Operator Precedence Helper Function
+-- ============================================================================
+
+function get_operator_precedence(numeric token_type) returns numeric
+    -- Multiplicative (highest)
+    if token_type == 18 then return 6 end_if  -- *
+    if token_type == 19 then return 6 end_if  -- /
+    if token_type == 20 then return 6 end_if  -- %
+    
+    -- Additive
+    if token_type == 16 then return 5 end_if  -- +
+    if token_type == 17 then return 5 end_if  -- -
+    
+    -- Comparison
+    if token_type == 25 then return 4 end_if  -- <
+    if token_type == 26 then return 4 end_if  -- >
+    if token_type == 27 then return 4 end_if  -- <=
+    if token_type == 28 then return 4 end_if  -- >=
+    
+    -- Equality
+    if token_type == 23 then return 3 end_if  -- ==
+    if token_type == 24 then return 3 end_if  -- !=
+    
+    -- Logical
+    if token_type == 29 then return 2 end_if  -- and
+    if token_type == 30 then return 1 end_if  -- or
+    
+    return 0
+end_function
+
+-- ============================================================================
+-- Token Access Functions
+-- ============================================================================
+
+function get_token_type(numeric pos) returns numeric
+    if pos >= g_token_count then
+        return TOKEN_EOF
+    end_if
+    list tok = g_tokens[pos]
+    return tok[0]
+end_function
+
+function get_token_value(numeric pos) returns string
+    if pos >= g_token_count then
+        return ""
+    end_if
+    list tok = g_tokens[pos]
+    return tok[1]
+end_function
+
+function is_binary_operator(numeric token_type) returns numeric
+    if token_type == TOKEN_PLUS then return 1 end_if
+    if token_type == TOKEN_MINUS then return 1 end_if
+    if token_type == TOKEN_STAR then return 1 end_if
+    if token_type == TOKEN_SLASH then return 1 end_if
+    if token_type == TOKEN_PERCENT then return 1 end_if
+    if token_type == TOKEN_EQ then return 1 end_if
+    if token_type == TOKEN_NE then return 1 end_if
+    if token_type == TOKEN_LT then return 1 end_if
+    if token_type == TOKEN_GT then return 1 end_if
+    if token_type == TOKEN_LE then return 1 end_if
+    if token_type == TOKEN_GE then return 1 end_if
+    if token_type == TOKEN_AND then return 1 end_if
+    if token_type == TOKEN_OR then return 1 end_if
+    return 0
+end_function
+
+-- ============================================================================
+-- Expression Parsing Functions
+-- ============================================================================
+
+-- Parse primary expression (literals, identifiers, parenthesized expressions)
+-- Returns: new position after parsing
+-- Side effect: Prints AST node representation
+function parse_primary(numeric pos) returns numeric
+    numeric tok_type = get_token_type(pos)
+    string tok_value = get_token_value(pos)
+    
+    -- Number literal
+    if tok_type == TOKEN_NUMBER then
+        print("LITERAL_NUM(")
+        print(tok_value)
+        print(")")
+        return pos + 1
+    end_if
+    
+    -- String literal
+    if tok_type == TOKEN_STRING then
+        print("LITERAL_STR(")
+        print(tok_value)
+        print(")")
+        return pos + 1
+    end_if
+    
+    -- Boolean literals
+    if tok_type == TOKEN_TRUE then
+        print("LITERAL_BOOL(true)")
+        return pos + 1
+    end_if
+    
+    if tok_type == TOKEN_FALSE then
+        print("LITERAL_BOOL(false)")
+        return pos + 1
+    end_if
+    
+    -- Identifier (variable)
+    if tok_type == TOKEN_IDENTIFIER then
+        print("VAR(")
+        print(tok_value)
+        print(")")
+        return pos + 1
+    end_if
+    
+    -- Parenthesized expression: ( expr )
+    if tok_type == TOKEN_LPAREN then
+        print("(")
+        numeric new_pos = parse_expr(pos + 1, 0)
+        print(")")
+        numeric rparen_type = get_token_type(new_pos)
+        if rparen_type == TOKEN_RPAREN then
+            return new_pos + 1
+        end_if
+        return new_pos
+    end_if
+    
+    -- Error: unexpected token
+    print("ERROR: Unexpected token type ")
+    println(str(tok_type))
+    return pos
+end_function
+
+-- Parse unary expression (-, not)
+-- Returns: new position after parsing
+function parse_unary(numeric pos) returns numeric
+    numeric tok_type = get_token_type(pos)
+    
+    -- Unary minus: -expr
+    if tok_type == TOKEN_MINUS then
+        print("UNARY(-,")
+        numeric new_pos = parse_unary(pos + 1)
+        print(")")
+        return new_pos
+    end_if
+    
+    -- Logical not: not expr
+    if tok_type == TOKEN_NOT then
+        print("UNARY(not,")
+        numeric new_pos = parse_unary(pos + 1)
+        print(")")
+        return new_pos
+    end_if
+    
+    -- Not a unary operator, parse as primary
+    return parse_primary(pos)
+end_function
+
+-- Parse binary expression with precedence climbing
+-- min_prec: minimum precedence level for this parse
+-- Returns: new position after parsing
+function parse_expr(numeric pos, numeric min_prec) returns numeric
+    -- Parse left operand
+    numeric new_pos = parse_unary(pos)
+    
+    -- Parse binary operators
+    numeric cont = 1
+    while cont == 1
+        numeric op_type = get_token_type(new_pos)
+        numeric op_prec = get_operator_precedence(op_type)
+        
+        -- Check if this is a binary operator with sufficient precedence
+        if is_binary_operator(op_type) == 0 then
+            cont = 0
+        else
+            if op_prec < min_prec then
+                cont = 0
+            else
+                -- Consume operator
+                string op_value = get_token_value(new_pos)
+                new_pos = new_pos + 1
+                
+                -- Parse right operand with higher precedence
+                numeric right_start = new_pos
+                numeric next_min_prec = op_prec + 1
+                new_pos = parse_expr(new_pos, next_min_prec)
+                
+                -- Build binary op node (print after right operand)
+                print(" ")
+                print(op_value)
+                print(" ")
+            end_if
+        end_if
+    end_while
+    
+    return new_pos
+end_function
+
+-- ============================================================================
+-- Parser Initialization
+-- ============================================================================
+
+function init_parser(list tokens, numeric count) returns numeric
+    g_tokens = tokens
+    g_token_count = count
+    return 1
+end_function
+
+-- ============================================================================
+-- Main Function - Expression Parser Demo
+-- ============================================================================
+
+function main() returns numeric
+    -- All variables declared at the start (Stage 0 requirement)
+    numeric TOKEN_NUMBER = 12
+    numeric TOKEN_IDENTIFIER = 10
+    numeric TOKEN_LPAREN = 73
+    numeric TOKEN_RPAREN = 74
+    
+    list tok1 = [12, "42", 1, 1]
+    list tokens1 = [tok1]
+    list token = []
+    numeric tok_type = 0
+    string tok_value = ""
+    
+    list tok2a = [12, "2", 1, 1]
+    list tok2b = [16, "+", 1, 3]
+    list tok2c = [12, "3", 1, 5]
+    list tokens2 = [tok2a, tok2b, tok2c]
+    list left_tok = []
+    string left_val = ""
+    list op_tok = []
+    numeric op_type = 0
+    string op_val = ""
+    numeric op_prec = 0
+    list right_tok = []
+    string right_val = ""
+    
+    list tok3a = [12, "2", 1, 1]
+    list tok3b = [16, "+", 1, 3]
+    list tok3c = [12, "3", 1, 5]
+    list tok3d = [18, "*", 1, 7]
+    list tok3e = [12, "4", 1, 9]
+    list tokens3 = [tok3a, tok3b, tok3c, tok3d, tok3e]
+    list expr_op1 = []
+    numeric op1_type = 0
+    numeric op1_prec = 0
+    list expr_op2 = []
+    numeric op2_type = 0
+    numeric op2_prec = 0
+    
+    list tok4a = [73, "(", 1, 1]
+    list tok4b = [12, "2", 1, 2]
+    list tok4c = [16, "+", 1, 4]
+    list tok4d = [12, "3", 1, 6]
+    list tok4e = [74, ")", 1, 7]
+    list tokens4 = [tok4a, tok4b, tok4c, tok4d, tok4e]
+    list first = []
+    numeric first_type = 0
+    list inner_left = []
+    list inner_op = []
+    list inner_right = []
+    
+    list tok5 = [10, "x", 1, 1]
+    list tokens5 = [tok5]
+    list id_tok = []
+    numeric id_type = 0
+    string id_name = ""
+    
+    -- Executable code starts here
+    print("=== Expression Parser Demo ===")
+    println("")
+    
+    -- Test 1: Numeric literal
+    print("Test 1: Numeric literal (42)")
+    println("")
+    if length(tokens1) > 0 then
+        token = tokens1[0]
+        tok_type = token[0]
+        tok_value = token[1]
+        if tok_type == 12 then
+            print("  Result: LITERAL(")
+            print(tok_value)
+            print(")")
+            println("")
+        end if
+    end if
+    println("")
+    
+    -- Test 2: Binary expression
+    print("Test 2: Binary (2 + 3)")
+    println("")
+    if length(tokens2) > 0 then
+        left_tok = tokens2[0]
+        left_val = left_tok[1]
+        if length(tokens2) > 1 then
+            op_tok = tokens2[1]
+            op_type = op_tok[0]
+            op_val = op_tok[1]
+            op_prec = get_operator_precedence(op_type)
+            if length(tokens2) > 2 then
+                right_tok = tokens2[2]
+                right_val = right_tok[1]
+                if op_prec > 0 then
+                    print("  Result: BINARY_OP(")
+                    print(left_val)
+                    print(" ")
+                    print(op_val)
+                    print(" ")
+                    print(right_val)
+                    print(")")
+                    println("")
+                end if
+            end if
+        end if
+    end if
+    println("")
+    
+    -- Test 3: Precedence
+    print("Test 3: Precedence (2 + 3 * 4)")
+    println("")
+    expr_op1 = tokens3[1]
+    op1_type = expr_op1[0]
+    op1_prec = get_operator_precedence(op1_type)
+    expr_op2 = tokens3[3]
+    op2_type = expr_op2[0]
+    op2_prec = get_operator_precedence(op2_type)
+    if op2_prec > op1_prec then
+        print("  Precedence: * (")
+        print(op2_prec)
+        print(") > + (")
+        print(op1_prec)
+        print(")")
+        println("")
+        print("  Parses as: 2 + (3 * 4)")
+        println("")
+    end if
+    println("")
+    
+    -- Test 4: Parentheses
+    print("Test 4: Parentheses ((2 + 3))")
+    println("")
+    if length(tokens4) > 0 then
+        first = tokens4[0]
+        first_type = first[0]
+        if first_type == 73 then
+            print("  Found opening paren")
+            println("")
+            inner_left = tokens4[1]
+            inner_op = tokens4[2]
+            inner_right = tokens4[3]
+            print("  Inner: ")
+            print(inner_left[1])
+            print(" ")
+            print(inner_op[1])
+            print(" ")
+            print(inner_right[1])
+            println("")
+        end if
+    end if
+    println("")
+    
+    -- Test 5: Identifier
+    print("Test 5: Identifier (x)")
+    println("")
+    if length(tokens5) > 0 then
+        id_tok = tokens5[0]
+        id_type = id_tok[0]
+        id_name = id_tok[1]
+        if id_type == 10 then
+            print("  Result: VARIABLE(")
+            print(id_name)
+            print(")")
+            println("")
+        end if
+    end if
+    println("")
+    
+    print("=== All tests completed! ===")
+    println("")
+    
+    return 0
+end_function

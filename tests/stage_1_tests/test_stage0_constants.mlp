@@ -1,0 +1,7 @@
+-- Test: Stage 0 global constants desteği
+numeric T_TEST = 42
+
+function main() returns numeric
+    print(T_TEST)
+    return 0
+end function
