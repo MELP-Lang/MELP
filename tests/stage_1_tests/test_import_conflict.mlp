@@ -1,0 +1,21 @@
+-- ============================================================================
+-- Test: Symbol Conflict Detection
+-- ============================================================================
+-- Purpose: Test importing modules with conflicting function names
+-- Expected: Should detect duplicate function name 'duplicate_func'
+--          (or allow with last-import-wins behavior)
+-- ============================================================================
+
+import "duplicate_a"
+import "duplicate_b"
+
+function main() returns numeric
+    -- Which duplicate_func() will be called?
+    -- Expected behavior depends on compiler design:
+    -- Option 1: Error on duplicate symbol
+    -- Option 2: Last import wins (duplicate_b)
+    -- Option 3: Namespace required (duplicate_a.duplicate_func)
+    
+    numeric result = duplicate_func()
+    return result
+end_function

@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "module_path": "modules/core/test_module.mlp",
+  "source_mtime": 1766000993,
+  "object_mtime": 1766001092,
+  "object_path": "test_module.o",
+  "assembly_path": "test_module.s",
+  "functions": [
+    "test_helper"
+  ],
+  "dependencies": [
+  ]
+}

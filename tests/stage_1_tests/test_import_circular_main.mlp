@@ -1,0 +1,12 @@
+-- ============================================================================
+-- Test: Circular Import Detection - Main
+-- ============================================================================
+-- Purpose: Trigger circular dependency detection
+-- Expected: Compiler should detect circular import between A and B
+-- ============================================================================
+
+import "test_import_circular_a"
+
+function main() returns numeric
+    return func_a()
+end_function

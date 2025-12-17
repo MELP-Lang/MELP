@@ -131,105 +131,33 @@
 🎉 **Stage 0'da import sistemi TAMAMEN HAZIR!**
 - Sadece parser'a string literal desteği eklendi (1 satır değişiklik)
 - Tüm testler başarılı
-- YZ_03 ve YZ_04 de muhtemelen hazır!
+- File resolution, circular dependency, cache - hepsi çalışıyor!
+- **YZ_03-04 gereksiz, direkt Stage 1 modüler yapıya geçildi**
 
 ---
 
-### ⏳ YZ_03 - Stage 0 Import: File Resolution + Symbol Table
-**Dal:** `import_resolution_YZ_03`  
-**Tahmini:** 5 saat  
-**Durum:** ⏸️ BEKLİYOR
+## 🏗️ FAZ 2: MODÜLER STAGE 1 (YZ_03 - YZ_12)
 
-#### Yapılacaklar:
-- [ ] **3.1** File resolution sistemi
-  - [ ] `import_resolver.c` - Dosya bulma
-  - [ ] Relative path support: `import "../core/utils.mlp"`
-  - [ ] Absolute path support (opsiyonel)
-  - [ ] File caching (aynı dosya 1 kez import)
-- [ ] **3.2** Symbol export/import
-  - [ ] Public functions (default export)
-  - [ ] Symbol table integration
-  - [ ] Namespace prefix (optional): `utils.function_name`
-- [ ] **3.3** Circular dependency detection
-  - [ ] Import graph oluştur
-  - [ ] Cycle detection algoritması
-  - [ ] Hata mesajı: "Circular import detected"
-- [ ] **3.4** Test suite
-  - [ ] Single file import
-  - [ ] Multiple imports
-  - [ ] Circular import (hata testi)
+**Ön Koşul:** ✅ Import sistemi çalışıyor (YZ_01-02 tamamlandı)
 
-#### Başarı Kriterleri:
-- ✅ Import edilen dosyalar bulunuyor ve parse ediliyor
-- ✅ Circular dependency yakalanıyor
-- ✅ Symbol'ler erişilebilir
-
-#### Çıktılar:
-- `compiler/stage0/modules/import/import_resolver.c`
-- `compiler/stage0/modules/import/import_resolver.h`
-- `tests/import/test_multi_import.mlp`
-- `tests/import/test_circular_import.mlp`
-- `YZ_Stage_1/YZ_03_RAPOR.md`
-
----
-
-### ⏳ YZ_04 - Stage 0 Import: CodeGen + Integration
-**Dal:** `import_codegen_YZ_04`  
+### ⏳ YZ_03 - Core Utilities Modülü
+**Dal:** `core_utils_YZ_03`  
 **Tahmini:** 3 saat  
 **Durum:** ⏸️ BEKLİYOR
 
 #### Yapılacaklar:
-- [ ] **4.1** Import codegen (LLVM IR)
-  - [ ] Import edilen dosyaların IR'ını birleştir
-  - [ ] Symbol resolution
-  - [ ] Linkage (external declarations)
-- [ ] **4.2** Stage 0 compiler entegrasyonu
-  - [ ] Main compiler pipeline'a import modülünü ekle
-  - [ ] Multi-file compilation support
-- [ ] **4.3** End-to-end test
-  - [ ] İki dosya: `main.mlp` ve `utils.mlp`
-  - [ ] `main.mlp` import eder, `utils.mlp`'den fonksiyon çağırır
-  - [ ] Compile ve çalıştır
-- [ ] **4.4** Döküman güncelle
-  - [ ] `PMPL_SYNTAX.md` - Import syntax ekle
-  - [ ] `docs/IMPORT_SYSTEM_DESIGN.md` - Implementasyon notları
-
-#### Başarı Kriterleri:
-- ✅ Import sistemi çalışıyor
-- ✅ Multi-file MELP programları derlenebiliyor
-- ✅ Stage 0 self-compile hala çalışıyor
-
-#### Çıktılar:
-- `compiler/stage0/modules/import/import_codegen.c`
-- `tests/import/test_end_to_end.mlp`
-- `tests/import/utils.mlp`
-- Güncellenmiş dökümanlar
-- `YZ_Stage_1/YZ_04_RAPOR.md`
-
----
-
-## 🏗️ FAZ 2: MODÜLER STAGE 1 (YZ_05 - YZ_14)
-
-**Ön Koşul:** Import sistemi çalışıyor olmalı!
-
-### ⏳ YZ_05 - Core Utilities Modülü
-**Dal:** `core_utils_YZ_05`  
-**Tahmini:** 3 saat  
-**Durum:** ⏸️ BEKLİYOR
-
-#### Yapılacaklar:
-- [ ] **5.1** `modules/core/` dizini oluştur
-- [ ] **5.2** Paylaşılan utilities
+- [ ] **3.1** `modules/core/` dizini oluştur
+- [ ] **3.2** Paylaşılan utilities
   - [ ] `char_utils.mlp` ← mevcut `lexer_mlp/char_utils.mlp` (taşı)
   - [ ] `string_utils.mlp` - String operations
   - [ ] `list_utils.mlp` - List operations (ihtiyaç varsa)
-- [ ] **5.3** Token type definitions
+- [ ] **3.3** Token type definitions
   - [ ] `token_types.mlp` - Tüm token sabitleri (enum)
   - [ ] Mevcut koddan çıkar, merkezi hale getir
-- [ ] **5.4** Type mapping
+- [ ] **3.4** Type mapping
   - [ ] `type_mapper.mlp` ← mevcut `codegen_mlp/type_mapper.mlp`
   - [ ] MELP type → LLVM type
-- [ ] **5.5** Test
+- [ ] **3.5** Test
   - [ ] `modules/core/test_core_utils.mlp`
   - [ ] Import ve kullan
 
@@ -243,31 +171,31 @@
 - `modules/core/token_types.mlp`
 - `modules/core/type_mapper.mlp`
 - `modules/core/README.md`
-- `YZ_Stage_1/YZ_05_RAPOR.md`
+- `YZ_Stage_1/YZ_03_RAPOR.md`
 
 ---
 
-### ⏳ YZ_06 - Functions Modülü
-**Dal:** `functions_module_YZ_06`  
+### ⏳ YZ_04 - Functions Modülü
+**Dal:** `functions_module_YZ_04`  
 **Tahmini:** 3 saat  
 **Durum:** ⏸️ BEKLİYOR
 
 #### Yapılacaklar:
-- [ ] **6.1** `modules/functions/` dizini oluştur
-- [ ] **6.2** Parser
+- [ ] **4.1** `modules/functions/` dizini oluştur
+- [ ] **4.2** Parser
   - [ ] `functions_parser.mlp` ← mevcut `parser_mlp/parser_func.mlp`
   - [ ] Import core utilities
   - [ ] Sadece function parsing fonksiyonlarını al
   - [ ] Gereksiz kodu temizle
-- [ ] **6.3** CodeGen
+- [ ] **4.3** CodeGen
   - [ ] `functions_codegen.mlp` ← mevcut `codegen_mlp/codegen_functions.mlp`
   - [ ] Import type_mapper
   - [ ] Function declaration, call, return
-- [ ] **6.4** Test
+- [ ] **4.4** Test
   - [ ] `functions_test.mlp`
   - [ ] Test: `function add(numeric a, numeric b) returns numeric`
   - [ ] Test: `function greet(string name) returns void`
-- [ ] **6.5** README
+- [ ] **4.5** README
   - [ ] Module documentation
   - [ ] Usage examples
 
@@ -281,28 +209,28 @@
 - `modules/functions/functions_codegen.mlp`
 - `modules/functions/functions_test.mlp`
 - `modules/functions/README.md`
-- `YZ_Stage_1/YZ_06_RAPOR.md`
+- `YZ_Stage_1/YZ_04_RAPOR.md`
 
 ---
 
-### ⏳ YZ_07 - Variables Modülü
-**Dal:** `variables_module_YZ_07`  
+### ⏳ YZ_05 - Variables Modülü
+**Dal:** `variables_module_YZ_05`  
 **Tahmini:** 2.5 saat  
 **Durum:** ⏸️ BEKLİYOR
 
 #### Yapılacaklar:
-- [ ] **7.1** `modules/variables/` dizini oluştur
-- [ ] **7.2** Parser
+- [ ] **5.1** `modules/variables/` dizini oluştur
+- [ ] **5.2** Parser
   - [ ] `variables_parser.mlp` ← `parser_mlp/parser_stmt.mlp`'den extract
   - [ ] Variable declaration parsing
   - [ ] Assignment parsing
-- [ ] **7.3** CodeGen
+- [ ] **5.3** CodeGen
   - [ ] `variables_codegen.mlp` ← `codegen_mlp/codegen_variable.mlp`
   - [ ] LLVM alloca, store, load
-- [ ] **7.4** Test
+- [ ] **5.4** Test
   - [ ] Local variables
   - [ ] Type checking
-- [ ] **7.5** README
+- [ ] **5.5** README
 
 #### Başarı Kriterleri:
 - ✅ Variable modülü izole
@@ -313,33 +241,33 @@
 - `modules/variables/variables_codegen.mlp`
 - `modules/variables/variables_test.mlp`
 - `modules/variables/README.md`
-- `YZ_Stage_1/YZ_07_RAPOR.md`
+- `YZ_Stage_1/YZ_05_RAPOR.md`
 
 ---
 
-### ⏳ YZ_08 - Operators Modülü
-**Dal:** `operators_module_YZ_08`  
+### ⏳ YZ_06 - Operators Modülü
+**Dal:** `operators_module_YZ_06`  
 **Tahmini:** 3 saat  
 **Durum:** ⏸️ BEKLİYOR
 
 #### Yapılacaklar:
-- [ ] **8.1** `modules/operators/` dizini oluştur
-- [ ] **8.2** Parser
+- [ ] **6.1** `modules/operators/` dizini oluştur
+- [ ] **6.2** Parser
   - [ ] `operators_parser.mlp` ← `parser_mlp/parser_expr.mlp`'den extract
   - [ ] Arithmetic: +, -, *, /, %
   - [ ] Comparison: ==, !=, <, >, <=, >=
   - [ ] Logical: and, or, not
-- [ ] **8.3** CodeGen
+- [ ] **6.3** CodeGen
   - [ ] `operators_codegen.mlp` ← Mevcut codegen dosyalarından merge:
     - `codegen_arithmetic.mlp`
     - `codegen_comparison.mlp`
     - `codegen_logical.mlp`
-- [ ] **8.4** Test suite
+- [ ] **6.4** Test suite
   - [ ] Arithmetic operations
   - [ ] Comparison operations
   - [ ] Logical operations
   - [ ] Operator precedence
-- [ ] **8.5** README
+- [ ] **6.5** README
 
 #### Başarı Kriterleri:
 - ✅ Tüm operatörler çalışıyor
@@ -350,31 +278,31 @@
 - `modules/operators/operators_codegen.mlp`
 - `modules/operators/operators_test.mlp`
 - `modules/operators/README.md`
-- `YZ_Stage_1/YZ_08_RAPOR.md`
+- `YZ_Stage_1/YZ_06_RAPOR.md`
 
 ---
 
-### ⏳ YZ_09 - Control Flow Modülü
-**Dal:** `control_flow_module_YZ_09`  
+### ⏳ YZ_07 - Control Flow Modülü
+**Dal:** `control_flow_module_YZ_07`  
 **Tahmini:** 3.5 saat  
 **Durum:** ⏸️ BEKLİYOR
 
 #### Yapılacaklar:
-- [ ] **9.1** `modules/control_flow/` dizini oluştur
-- [ ] **9.2** Parser
+- [ ] **7.1** `modules/control_flow/` dizini oluştur
+- [ ] **7.2** Parser
   - [ ] `if_parser.mlp` ← `parser_mlp/parser_control.mlp`
   - [ ] `loop_parser.mlp` ← `parser_mlp/parser_for.mlp`, while parsing
-- [ ] **9.3** CodeGen
+- [ ] **7.3** CodeGen
   - [ ] `control_flow_codegen.mlp` ← Merge:
     - `codegen_control.mlp`
     - `codegen_while.mlp`
     - `codegen_for.mlp`
   - [ ] LLVM branch, label generation
-- [ ] **9.4** Test
+- [ ] **7.4** Test
   - [ ] If/else nesting
   - [ ] While loops
   - [ ] For loops
-- [ ] **9.5** README
+- [ ] **7.5** README
 
 #### Başarı Kriterleri:
 - ✅ Control flow yapıları çalışıyor
@@ -386,26 +314,26 @@
 - `modules/control_flow/control_flow_codegen.mlp`
 - `modules/control_flow/control_flow_test.mlp`
 - `modules/control_flow/README.md`
-- `YZ_Stage_1/YZ_09_RAPOR.md`
+- `YZ_Stage_1/YZ_07_RAPOR.md`
 
 ---
 
-### ⏳ YZ_10 - Literals Modülü
-**Dal:** `literals_module_YZ_10`  
+### ⏳ YZ_08 - Literals Modülü
+**Dal:** `literals_module_YZ_08`  
 **Tahmini:** 2 saat  
 **Durum:** ⏸️ BEKLİYOR
 
 #### Yapılacaklar:
-- [ ] **10.1** `modules/literals/` dizini oluştur
-- [ ] **10.2** Parser
+- [ ] **8.1** `modules/literals/` dizini oluştur
+- [ ] **8.2** Parser
   - [ ] `literals_parser.mlp` ← `lexer_mlp/tokenize_literals.mlp`
   - [ ] Numeric, string, boolean literals
-- [ ] **10.3** CodeGen
+- [ ] **8.3** CodeGen
   - [ ] `literals_codegen.mlp` ← `codegen_mlp/codegen_literal.mlp`
   - [ ] LLVM constant generation
-- [ ] **10.4** Test
+- [ ] **8.4** Test
   - [ ] Integer, float, string, boolean
-- [ ] **10.5** README
+- [ ] **8.5** README
 
 #### Başarı Kriterleri:
 - ✅ Tüm literal türleri destekleniyor
@@ -415,28 +343,28 @@
 - `modules/literals/literals_codegen.mlp`
 - `modules/literals/literals_test.mlp`
 - `modules/literals/README.md`
-- `YZ_Stage_1/YZ_10_RAPOR.md`
+- `YZ_Stage_1/YZ_08_RAPOR.md`
 
 ---
 
-### ⏳ YZ_11 - Arrays Modülü
-**Dal:** `arrays_module_YZ_11`  
+### ⏳ YZ_09 - Arrays Modülü
+**Dal:** `arrays_module_YZ_09`  
 **Tahmini:** 3 saat  
 **Durum:** ⏸️ BEKLİYOR
 
 #### Yapılacaklar:
-- [ ] **11.1** `modules/arrays/` dizini oluştur
-- [ ] **11.2** Parser
+- [ ] **9.1** `modules/arrays/` dizini oluştur
+- [ ] **9.2** Parser
   - [ ] `arrays_parser.mlp` ← Mevcut parser'dan extract
   - [ ] Array declaration, indexing
-- [ ] **11.3** CodeGen
+- [ ] **9.3** CodeGen
   - [ ] `arrays_codegen.mlp` ← `codegen_mlp/codegen_arrays.mlp`
   - [ ] LLVM array allocation, GEP
-- [ ] **11.4** Test
+- [ ] **9.4** Test
   - [ ] Array creation
   - [ ] Indexing
   - [ ] Multi-dimensional
-- [ ] **11.5** README
+- [ ] **9.5** README
 
 #### Başarı Kriterleri:
 - ✅ Array operations çalışıyor
@@ -446,28 +374,28 @@
 - `modules/arrays/arrays_codegen.mlp`
 - `modules/arrays/arrays_test.mlp`
 - `modules/arrays/README.md`
-- `YZ_Stage_1/YZ_11_RAPOR.md`
+- `YZ_Stage_1/YZ_09_RAPOR.md`
 
 ---
 
-### ⏳ YZ_12 - Structs Modülü
-**Dal:** `structs_module_YZ_12`  
+### ⏳ YZ_10 - Structs Modülü
+**Dal:** `structs_module_YZ_10`  
 **Tahmini:** 3 saat  
 **Durum:** ⏸️ BEKLİYOR
 
 #### Yapılacaklar:
-- [ ] **12.1** `modules/structs/` dizini oluştur
-- [ ] **12.2** Parser
+- [ ] **10.1** `modules/structs/` dizini oluştur
+- [ ] **10.2** Parser
   - [ ] `structs_parser.mlp` ← `parser_mlp/parser_struct.mlp`
   - [ ] Struct definition, member access
-- [ ] **12.3** CodeGen
+- [ ] **10.3** CodeGen
   - [ ] `structs_codegen.mlp` ← Mevcut koddan
   - [ ] LLVM struct types, GEP
-- [ ] **12.4** Test
+- [ ] **10.4** Test
   - [ ] Struct definition
   - [ ] Member access
   - [ ] Nested structs
-- [ ] **12.5** README
+- [ ] **10.5** README
 
 #### Başarı Kriterleri:
 - ✅ Struct yapıları çalışıyor
@@ -477,26 +405,26 @@
 - `modules/structs/structs_codegen.mlp`
 - `modules/structs/structs_test.mlp`
 - `modules/structs/README.md`
-- `YZ_Stage_1/YZ_12_RAPOR.md`
+- `YZ_Stage_1/YZ_10_RAPOR.md`
 
 ---
 
-### ⏳ YZ_13 - Enums Modülü
-**Dal:** `enums_module_YZ_13`  
+### ⏳ YZ_11 - Enums Modülü
+**Dal:** `enums_module_YZ_11`  
 **Tahmini:** 2 saat  
 **Durum:** ⏸️ BEKLİYOR
 
 #### Yapılacaklar:
-- [ ] **13.1** `modules/enums/` dizini oluştur
-- [ ] **13.2** Parser
+- [ ] **11.1** `modules/enums/` dizini oluştur
+- [ ] **11.2** Parser
   - [ ] `enums_parser.mlp` ← `parser_mlp/parser_enum.mlp`
-- [ ] **13.3** CodeGen
+- [ ] **11.3** CodeGen
   - [ ] `enums_codegen.mlp`
   - [ ] Enum as integers
-- [ ] **13.4** Test
+- [ ] **11.4** Test
   - [ ] Simple enums
   - [ ] Enum with values
-- [ ] **13.5** README
+- [ ] **11.5** README
 
 #### Başarı Kriterleri:
 - ✅ Enum sistemi çalışıyor
@@ -506,28 +434,28 @@
 - `modules/enums/enums_codegen.mlp`
 - `modules/enums/enums_test.mlp`
 - `modules/enums/README.md`
-- `YZ_Stage_1/YZ_13_RAPOR.md`
+- `YZ_Stage_1/YZ_11_RAPOR.md`
 
 ---
 
-### ⏳ YZ_14 - Integration & Orchestration
-**Dal:** `integration_YZ_14`  
+### ⏳ YZ_12 - Integration & Orchestration
+**Dal:** `integration_YZ_12`  
 **Tahmini:** 4 saat  
 **Durum:** ⏸️ BEKLİYOR
 
 #### Yapılacaklar:
-- [ ] **14.1** `modules/integration/` dizini oluştur
-- [ ] **14.2** Compiler orchestrator
+- [ ] **12.1** `modules/integration/` dizini oluştur
+- [ ] **12.2** Compiler orchestrator
   - [ ] `stage1_compiler.mlp` - Ana compiler
   - [ ] Tüm modülleri import et
   - [ ] Pipeline: Lexer → Parser → CodeGen
-- [ ] **14.3** End-to-end test suite
+- [ ] **12.3** End-to-end test suite
   - [ ] Multi-feature programs
   - [ ] Complex scenarios
-- [ ] **14.4** Build script
+- [ ] **12.4** Build script
   - [ ] `scripts/build_stage1_modular.sh`
   - [ ] Modüler yapıyı compile et
-- [ ] **14.5** README
+- [ ] **12.5** README
 
 #### Başarı Kriterleri:
 - ✅ Tüm modüller entegre
@@ -538,25 +466,25 @@
 - `modules/integration/stage1_compiler.mlp`
 - `scripts/build_stage1_modular.sh`
 - `tests/integration/test_*.mlp`
-- `YZ_Stage_1/YZ_14_RAPOR.md`
+- `YZ_Stage_1/YZ_12_RAPOR.md`
 
 ---
 
-## 🎓 FAZ 3: SELF-COMPILE & VALIDATION (YZ_15)
+## 🎓 FAZ 3: SELF-COMPILE & VALIDATION (YZ_13)
 
-### ⏳ YZ_15 - Self-Compile Test
-**Dal:** `self_compile_YZ_15`  
+### ⏳ YZ_13 - Self-Compile Test
+**Dal:** `self_compile_YZ_13`  
 **Tahmini:** 3 saat  
 **Durum:** ⏸️ BEKLİYOR
 
 #### Yapılacaklar:
-- [ ] **15.1** Stage 1 compiler'ı Stage 0 ile derle
-- [ ] **15.2** Stage 1 compiler'ı kendisiyle derle (bootstrap)
-- [ ] **15.3** Output karşılaştırması
+- [ ] **13.1** Stage 1 compiler'ı Stage 0 ile derle
+- [ ] **13.2** Stage 1 compiler'ı kendisiyle derle (bootstrap)
+- [ ] **13.3** Output karşılaştırması
   - [ ] Binary diff
   - [ ] Behavior validation
-- [ ] **15.4** Performance benchmarks
-- [ ] **15.5** Final documentation
+- [ ] **13.4** Performance benchmarks
+- [ ] **13.5** Final documentation
   - [ ] `YZ_Stage_1/STAGE_1_COMPLETE.md`
   - [ ] Architecture validation
   - [ ] Metrics ve istatistikler
@@ -569,7 +497,7 @@
 
 #### Çıktılar:
 - `YZ_Stage_1/STAGE_1_COMPLETE.md`
-- `YZ_Stage_1/YZ_15_RAPOR.md`
+- `YZ_Stage_1/YZ_13_RAPOR.md`
 - `NEXT_AI_START_HERE.md` (Stage 2 için hazırla)
 
 ---
@@ -642,8 +570,9 @@ compiler/stage0/modules/
 YZ_Stage_1/
 ├── YZ_01_RAPOR.md
 ├── YZ_02_RAPOR.md
+├── YZ_03_RAPOR.md
 ├── ...
-├── YZ_15_RAPOR.md
+├── YZ_13_RAPOR.md
 └── STAGE_1_COMPLETE.md
 ```
 
@@ -876,28 +805,26 @@ parser_temp.mlp             (ana dizinde!)
 
 ## 🎯 İLERLEME TRACKER
 
-### Faz 1: Import Sistemi (13 saat)
-- [ ] YZ_01 - Import Tasarımı (3h)
-- [ ] YZ_02 - Lexer + Parser (4h)
-- [ ] YZ_03 - Resolution + Symbol Table (5h)
-- [ ] YZ_04 - CodeGen + Integration (3h)
+### Faz 1: Import Sistemi (3.5 saat) ✅ TAMAMLANDI
+- [x] YZ_01 - Import Tasarımı (2.5h) ✅
+- [x] YZ_02 - Lexer + Parser (1h) ✅
 
 ### Faz 2: Modüler Stage 1 (26 saat)
-- [ ] YZ_05 - Core Utilities (3h)
-- [ ] YZ_06 - Functions (3h)
-- [ ] YZ_07 - Variables (2.5h)
-- [ ] YZ_08 - Operators (3h)
-- [ ] YZ_09 - Control Flow (3.5h)
-- [ ] YZ_10 - Literals (2h)
-- [ ] YZ_11 - Arrays (3h)
-- [ ] YZ_12 - Structs (3h)
-- [ ] YZ_13 - Enums (2h)
-- [ ] YZ_14 - Integration (4h)
+- [ ] YZ_03 - Core Utilities (3h) ⏸️ ← ŞİMDİ BURASI!
+- [ ] YZ_04 - Functions (3h)
+- [ ] YZ_05 - Variables (2.5h)
+- [ ] YZ_06 - Operators (3h)
+- [ ] YZ_07 - Control Flow (3.5h)
+- [ ] YZ_08 - Literals (2h)
+- [ ] YZ_09 - Arrays (3h)
+- [ ] YZ_10 - Structs (3h)
+- [ ] YZ_11 - Enums (2h)
+- [ ] YZ_12 - Integration (4h)
 
 ### Faz 3: Validation (3 saat)
-- [ ] YZ_15 - Self-Compile (3h)
+- [ ] YZ_13 - Self-Compile (3h)
 
-**TOPLAM:** ~38 saat (gerçekçi tahmin)
+**TOPLAM:** ~32.5 saat (YZ_03-04 atlandı, import hazırdı!)
 
 ---
 

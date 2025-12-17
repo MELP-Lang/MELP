@@ -1,0 +1,12 @@
+-- ============================================================================
+-- Test: Circular Import Detection - Module A
+-- ============================================================================
+-- Purpose: Test circular dependency detection (A imports B, B imports A)
+-- Expected: Should fail with circular import error
+-- ============================================================================
+
+import "test_import_circular_b"
+
+function func_a() returns numeric
+    return func_b()
+end_function

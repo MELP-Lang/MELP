@@ -1,0 +1,16 @@
+-- ============================================================================
+-- Test: Relative Path Import
+-- ============================================================================
+-- Purpose: Test relative path support (from tests/ to modules/)
+-- Expected: Should successfully import from ../modules/advanced/
+-- ============================================================================
+
+-- Note: Stage 0 might not support relative paths yet
+-- This test will verify current behavior
+
+import "string_utils"
+
+function main() returns numeric
+    numeric len = string_length("test")
+    return len
+end_function
