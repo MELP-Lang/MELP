@@ -550,13 +550,16 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
         case STMT_RETURN: {
             ReturnStatement* ret = (ReturnStatement*)stmt->data;
             
+            // YZ_23: Get return type from function declaration
+            int return_type = (ctx->current_func->return_type == FUNC_RETURN_TEXT) ? 1 : 0;
+            
             if (ret->return_value) {
                 LLVMValue* ret_val = generate_expression_llvm(ctx, ret->return_value);
-                llvm_emit_return(ctx->llvm_ctx, ret_val);
+                llvm_emit_return(ctx->llvm_ctx, ret_val, return_type);
                 llvm_value_free(ret_val);
             } else {
                 LLVMValue* zero = llvm_const_i64(0);
-                llvm_emit_return(ctx->llvm_ctx, zero);
+                llvm_emit_return(ctx->llvm_ctx, zero, return_type);
                 llvm_value_free(zero);
             }
             return NULL;
@@ -800,7 +803,9 @@ void function_generate_declaration_llvm(FunctionLLVMContext* ctx, FunctionDeclar
     }
     
     // Emit function start
-    llvm_emit_function_start(ctx->llvm_ctx, func->name, param_names, param_types, param_count);
+    // YZ_23: Map return type (FUNC_RETURN_TEXT=1 -> i8*, others -> i64)
+    int return_type = (func->return_type == FUNC_RETURN_TEXT) ? 1 : 0;
+    llvm_emit_function_start(ctx->llvm_ctx, func->name, param_names, param_types, param_count, return_type);
     llvm_emit_function_entry(ctx->llvm_ctx);
     
     // Generate body statements

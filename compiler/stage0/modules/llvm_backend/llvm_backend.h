@@ -77,8 +77,10 @@ void llvm_emit_module_footer(LLVMContext* ctx);
 // Emit function definition start
 // Example: define i64 @add(i64 %a, i64 %b) {
 // YZ_63: Now supports parameter types (0=numeric/i64, 1=string/i8*)
+// YZ_23: Now supports return types (0=numeric/i64, 1=string/i8*)
 void llvm_emit_function_start(LLVMContext* ctx, const char* name, 
-                               const char** param_names, int* param_types, int param_count);
+                               const char** param_names, int* param_types, int param_count,
+                               int return_type);
 
 // Emit function entry label
 // Example: entry:
@@ -89,8 +91,9 @@ void llvm_emit_function_entry(LLVMContext* ctx);
 void llvm_emit_function_end(LLVMContext* ctx);
 
 // Emit return statement
-// Example: ret i64 %result
-LLVMValue* llvm_emit_return(LLVMContext* ctx, LLVMValue* value);
+// Example: ret i64 %result or ret i8* %result
+// YZ_23: Now supports return types (0=numeric/i64, 1=string/i8*)
+LLVMValue* llvm_emit_return(LLVMContext* ctx, LLVMValue* value, int return_type);
 
 // ============================================================================
 // Variable Emission
