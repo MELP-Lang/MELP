@@ -1,0 +1,474 @@
+-- ============================================================================
+-- MELP Stage 1 - Variables Module Test Suite
+-- ============================================================================
+-- YZ_05 - December 18, 2025
+-- Purpose: Test variable parser and codegen modules
+--
+-- Tests:
+-- 1. Variable declaration parsing (numeric)
+-- 2. Variable declaration parsing (string)
+-- 3. Variable declaration parsing (boolean)
+-- 4. Variable declaration parsing (with initializer)
+-- 5. Variable assignment parsing
+-- 6. Variable declaration codegen (LLVM IR)
+-- 7. Variable assignment codegen (LLVM IR)
+-- 8. Variable load codegen (LLVM IR)
+--
+-- LOCATION: compiler/stage1/modules/variables/test_variables.mlp
+-- ============================================================================
+
+import "variables_parser.mlp"
+import "variables_codegen.mlp"
+import "../core/token_types.mlp"
+
+function main() returns numeric
+    println("=== MELP Stage 1 - Variables Module Tests ===")
+    println("")
+    
+    numeric passed = 0
+    numeric failed = 0
+    
+    -- Test 1: Parse numeric variable declaration
+    println("Test 1: Parse numeric variable (numeric x)")
+    list result1 = test_parse_numeric_var()
+    numeric test1_result = result1[0]
+    
+    if test1_result == 1 then
+        println("  ✅ PASS")
+        passed = passed + 1
+    else
+        println("  ❌ FAIL")
+        failed = failed + 1
+    end_if
+    println("")
+    
+    -- Test 2: Parse string variable declaration
+    println("Test 2: Parse string variable (string name)")
+    list result2 = test_parse_string_var()
+    numeric test2_result = result2[0]
+    
+    if test2_result == 1 then
+        println("  ✅ PASS")
+        passed = passed + 1
+    else
+        println("  ❌ FAIL")
+        failed = failed + 1
+    end_if
+    println("")
+    
+    -- Test 3: Parse boolean variable declaration
+    println("Test 3: Parse boolean variable (boolean flag)")
+    list result3 = test_parse_boolean_var()
+    numeric test3_result = result3[0]
+    
+    if test3_result == 1 then
+        println("  ✅ PASS")
+        passed = passed + 1
+    else
+        println("  ❌ FAIL")
+        failed = failed + 1
+    end_if
+    println("")
+    
+    -- Test 4: Parse variable with initializer
+    println("Test 4: Parse variable with initializer (numeric x = 42)")
+    list result4 = test_parse_var_with_init()
+    numeric test4_result = result4[0]
+    
+    if test4_result == 1 then
+        println("  ✅ PASS")
+        passed = passed + 1
+    else
+        println("  ❌ FAIL")
+        failed = failed + 1
+    end_if
+    println("")
+    
+    -- Test 5: Parse variable assignment
+    println("Test 5: Parse variable assignment (x = 100)")
+    list result5 = test_parse_assignment()
+    numeric test5_result = result5[0]
+    
+    if test5_result == 1 then
+        println("  ✅ PASS")
+        passed = passed + 1
+    else
+        println("  ❌ FAIL")
+        failed = failed + 1
+    end_if
+    println("")
+    
+    -- Test 6: CodeGen variable declaration
+    println("Test 6: CodeGen variable declaration (LLVM IR)")
+    list result6 = test_codegen_declaration()
+    numeric test6_result = result6[0]
+    
+    if test6_result == 1 then
+        println("  ✅ PASS")
+        passed = passed + 1
+    else
+        println("  ❌ FAIL")
+        failed = failed + 1
+    end_if
+    println("")
+    
+    -- Test 7: CodeGen variable assignment
+    println("Test 7: CodeGen variable assignment (LLVM IR)")
+    list result7 = test_codegen_assignment()
+    numeric test7_result = result7[0]
+    
+    if test7_result == 1 then
+        println("  ✅ PASS")
+        passed = passed + 1
+    else
+        println("  ❌ FAIL")
+        failed = failed + 1
+    end_if
+    println("")
+    
+    -- Test 8: CodeGen variable load
+    println("Test 8: CodeGen variable load (LLVM IR)")
+    list result8 = test_codegen_load()
+    numeric test8_result = result8[0]
+    
+    if test8_result == 1 then
+        println("  ✅ PASS")
+        passed = passed + 1
+    else
+        println("  ❌ FAIL")
+        failed = failed + 1
+    end_if
+    println("")
+    
+    -- Summary
+    println("===================")
+    println("Tests Summary:")
+    print("  Passed: ")
+    println(passed)
+    print("  Failed: ")
+    println(failed)
+    println("===================")
+    
+    if failed == 0 then
+        println("✅ All tests passed!")
+        return 0
+    else
+        println("❌ Some tests failed")
+        return 1
+    end_if
+end_function
+
+-- ============================================================================
+-- TEST FUNCTIONS - PARSER
+-- ============================================================================
+
+-- Test 1: Parse numeric variable declaration
+-- Code: numeric x
+function test_parse_numeric_var() returns list
+    -- Create tokens: numeric x
+    list tokens = []
+    tokens = tokens + [[TOKEN_NUMERIC, "numeric"]]
+    tokens = tokens + [[TOKEN_IDENTIFIER, "x"]]
+    
+    -- Parse
+    list result = parse_variable_declaration(tokens, 0)
+    
+    -- Check result
+    if result.length == 0 then
+        println("    Error: Parse failed")
+        return [0]
+    end_if
+    
+    list decl_info = result[0]
+    numeric new_pos = result[1]
+    
+    -- Verify
+    text var_name = decl_info[0]
+    numeric var_type = decl_info[1]
+    
+    if var_name != "x" then
+        println("    Error: Expected name 'x', got '" + var_name + "'")
+        return [0]
+    end_if
+    
+    if var_type != VAR_NUMERIC then
+        println("    Error: Expected VAR_NUMERIC type")
+        return [0]
+    end_if
+    
+    println("    Name: " + var_name)
+    println("    Type: " + get_var_type_name(var_type))
+    
+    return [1]
+end_function
+
+-- Test 2: Parse string variable declaration
+-- Code: string name
+function test_parse_string_var() returns list
+    -- Create tokens: string name
+    list tokens = []
+    tokens = tokens + [[TOKEN_STRING_TYPE, "string"]]
+    tokens = tokens + [[TOKEN_IDENTIFIER, "name"]]
+    
+    -- Parse
+    list result = parse_variable_declaration(tokens, 0)
+    
+    if result.length == 0 then
+        println("    Error: Parse failed")
+        return [0]
+    end_if
+    
+    list decl_info = result[0]
+    text var_name = decl_info[0]
+    numeric var_type = decl_info[1]
+    
+    if var_name != "name" then
+        println("    Error: Expected name 'name'")
+        return [0]
+    end_if
+    
+    if var_type != VAR_STRING then
+        println("    Error: Expected VAR_STRING type")
+        return [0]
+    end_if
+    
+    println("    Name: " + var_name)
+    println("    Type: " + get_var_type_name(var_type))
+    
+    return [1]
+end_function
+
+-- Test 3: Parse boolean variable declaration
+-- Code: boolean flag
+function test_parse_boolean_var() returns list
+    -- Create tokens: boolean flag
+    list tokens = []
+    tokens = tokens + [[TOKEN_BOOLEAN, "boolean"]]
+    tokens = tokens + [[TOKEN_IDENTIFIER, "flag"]]
+    
+    -- Parse
+    list result = parse_variable_declaration(tokens, 0)
+    
+    if result.length == 0 then
+        println("    Error: Parse failed")
+        return [0]
+    end_if
+    
+    list decl_info = result[0]
+    text var_name = decl_info[0]
+    numeric var_type = decl_info[1]
+    
+    if var_name != "flag" then
+        println("    Error: Expected name 'flag'")
+        return [0]
+    end_if
+    
+    if var_type != VAR_BOOLEAN then
+        println("    Error: Expected VAR_BOOLEAN type")
+        return [0]
+    end_if
+    
+    println("    Name: " + var_name)
+    println("    Type: " + get_var_type_name(var_type))
+    
+    return [1]
+end_function
+
+-- Test 4: Parse variable with initializer
+-- Code: numeric x = 42
+function test_parse_var_with_init() returns list
+    -- Create tokens: numeric x = 42
+    list tokens = []
+    tokens = tokens + [[TOKEN_NUMERIC, "numeric"]]
+    tokens = tokens + [[TOKEN_IDENTIFIER, "x"]]
+    tokens = tokens + [[TOKEN_ASSIGN, "="]]
+    tokens = tokens + [[TOKEN_NUMBER, "42"]]
+    
+    -- Parse
+    list result = parse_variable_declaration(tokens, 0)
+    
+    if result.length == 0 then
+        println("    Error: Parse failed")
+        return [0]
+    end_if
+    
+    list decl_info = result[0]
+    text var_name = decl_info[0]
+    numeric var_type = decl_info[1]
+    text init_value = decl_info[2]
+    boolean has_init = decl_info[8]
+    
+    if var_name != "x" then
+        println("    Error: Expected name 'x'")
+        return [0]
+    end_if
+    
+    if var_type != VAR_NUMERIC then
+        println("    Error: Expected VAR_NUMERIC type")
+        return [0]
+    end_if
+    
+    if not has_init then
+        println("    Error: Expected initializer")
+        return [0]
+    end_if
+    
+    if init_value != "42" then
+        println("    Error: Expected value '42', got '" + init_value + "'")
+        return [0]
+    end_if
+    
+    println("    Name: " + var_name)
+    println("    Type: " + get_var_type_name(var_type))
+    println("    Value: " + init_value)
+    
+    return [1]
+end_function
+
+-- Test 5: Parse variable assignment
+-- Code: x = 100
+function test_parse_assignment() returns list
+    -- Create tokens: x = 100
+    list tokens = []
+    tokens = tokens + [[TOKEN_IDENTIFIER, "x"]]
+    tokens = tokens + [[TOKEN_ASSIGN, "="]]
+    tokens = tokens + [[TOKEN_NUMBER, "100"]]
+    
+    -- Parse
+    list result = parse_variable_assignment(tokens, 0)
+    
+    if result.length == 0 then
+        println("    Error: Parse failed")
+        return [0]
+    end_if
+    
+    list assign_info = result[0]
+    text var_name = assign_info[0]
+    text value = assign_info[1]
+    
+    if var_name != "x" then
+        println("    Error: Expected name 'x'")
+        return [0]
+    end_if
+    
+    if value != "100" then
+        println("    Error: Expected value '100'")
+        return [0]
+    end_if
+    
+    println("    Name: " + var_name)
+    println("    Value: " + value)
+    
+    return [1]
+end_function
+
+-- ============================================================================
+-- TEST FUNCTIONS - CODEGEN
+-- ============================================================================
+
+-- Test 6: CodeGen variable declaration
+function test_codegen_declaration() returns list
+    -- Create declaration info for: numeric count = 10
+    list decl_info = [
+        "count",           -- [0] name
+        VAR_NUMERIC,       -- [1] type
+        "10",              -- [2] init value
+        STORAGE_DATA,      -- [3] storage
+        false,             -- [4] is pointer
+        false,             -- [5] is array
+        0,                 -- [6] array size
+        VAR_NUMERIC,       -- [7] base type
+        true               -- [8] has initializer
+    ]
+    
+    -- Generate LLVM IR
+    text ir_code = codegen_variable_declaration(decl_info, "  ")
+    
+    -- Verify output contains expected strings
+    if ir_code.length == 0 then
+        println("    Error: No IR generated")
+        return [0]
+    end_if
+    
+    -- Should contain: alloca, store
+    boolean has_alloca = false
+    boolean has_store = false
+    
+    if ir_code.contains("alloca") then
+        has_alloca = true
+    end_if
+    
+    if ir_code.contains("store") then
+        has_store = true
+    end_if
+    
+    if not has_alloca then
+        println("    Error: Missing 'alloca' instruction")
+        return [0]
+    end_if
+    
+    if not has_store then
+        println("    Error: Missing 'store' instruction")
+        return [0]
+    end_if
+    
+    println("    Generated LLVM IR:")
+    println(ir_code)
+    
+    return [1]
+end_function
+
+-- Test 7: CodeGen variable assignment
+function test_codegen_assignment() returns list
+    -- Create assignment info for: count = 20
+    list assign_info = [
+        "count",    -- [0] name
+        "20",       -- [1] value
+        false       -- [2] is expression
+    ]
+    
+    -- Generate LLVM IR
+    text ir_code = codegen_variable_assignment(assign_info, VAR_NUMERIC, "  ")
+    
+    if ir_code.length == 0 then
+        println("    Error: No IR generated")
+        return [0]
+    end_if
+    
+    -- Should contain: store
+    if not ir_code.contains("store") then
+        println("    Error: Missing 'store' instruction")
+        return [0]
+    end_if
+    
+    println("    Generated LLVM IR:")
+    println(ir_code)
+    
+    return [1]
+end_function
+
+-- Test 8: CodeGen variable load
+function test_codegen_load() returns list
+    -- Generate load for: count
+    text ir_code = codegen_variable_load("count", VAR_NUMERIC, "temp1", "  ")
+    
+    if ir_code.length == 0 then
+        println("    Error: No IR generated")
+        return [0]
+    end_if
+    
+    -- Should contain: load
+    if not ir_code.contains("load") then
+        println("    Error: Missing 'load' instruction")
+        return [0]
+    end_if
+    
+    println("    Generated LLVM IR:")
+    println(ir_code)
+    
+    return [1]
+end_function
+
+-- ============================================================================
+-- END OF TESTS
+-- ============================================================================

@@ -1,0 +1,361 @@
+-- ============================================================================
+-- variables_codegen.mlp - Variable LLVM IR Code Generation
+-- ============================================================================
+-- Stage 1 Variables Module - CodeGen Component
+-- Converted from: compiler/stage0/modules/variable/variable_codegen.c
+--
+-- Purpose:
+--   Generate LLVM IR code for variable declarations and assignments
+--   - alloca: Allocate stack space for local variables
+--   - store: Store value to variable
+--   - load: Load value from variable
+--
+-- Stateless Pattern:
+--   - No mutable global state
+--   - All state passed as parameters
+--   - Returns generated IR code as text
+--
+-- Dependencies:
+--   - variables_parser.mlp (VAR_* constants, STORAGE_* constants)
+--
+-- Module: Variables
+-- Author: YZ_05
+-- Date: 18 Aralık 2025
+-- ============================================================================
+
+-- Import parser constants
+import "compiler/stage1/modules/variables/variables_parser.mlp"
+
+-- ============================================================================
+-- LLVM TYPE MAPPING
+-- ============================================================================
+
+-- Map variable type to LLVM type
+function var_type_to_llvm_type(numeric var_type) returns text
+    if var_type == VAR_NUMERIC then
+        return "i64"  -- 64-bit integer (STO will optimize)
+    else_if var_type == VAR_STRING then
+        return "i8*"  -- Pointer to string
+    else_if var_type == VAR_BOOLEAN then
+        return "i1"   -- 1-bit boolean
+    else_if var_type == VAR_POINTER then
+        return "i8*"  -- Generic pointer
+    else_if var_type == VAR_ARRAY then
+        return "i8*"  -- Array pointer
+    else_if var_type == VAR_LIST then
+        return "i8*"  -- List pointer
+    else_if var_type == VAR_TUPLE then
+        return "i8*"  -- Tuple pointer
+    else
+        return "i64"  -- Default
+    end_if
+end_function
+
+-- Map base type to LLVM element type (for pointers/arrays)
+function base_type_to_llvm_type(numeric base_type) returns text
+    if base_type == VAR_NUMERIC then
+        return "i64"
+    else_if base_type == VAR_STRING then
+        return "i8*"
+    else_if base_type == VAR_BOOLEAN then
+        return "i1"
+    else
+        return "i64"
+    end_if
+end_function
+
+-- ============================================================================
+-- VARIABLE DECLARATION CODEGEN
+-- ============================================================================
+
+-- Generate LLVM IR for variable declaration
+--
+-- Input:
+--   decl_info: list - Declaration info from parser
+--     [0]: text - Variable name
+--     [1]: numeric - Variable type
+--     [2]: text - Initial value
+--     [3]: numeric - Storage location
+--     [4]: boolean - Is pointer
+--     [5]: boolean - Is array
+--     [6]: numeric - Array size
+--     [7]: numeric - Base type
+--     [8]: boolean - Has initializer
+--   indent: text - Indentation string (e.g., "  ")
+--
+-- Output:
+--   text - Generated LLVM IR code
+--
+function codegen_variable_declaration(list decl_info, text indent) returns text
+    text var_name = decl_info[0]
+    numeric var_type = decl_info[1]
+    text init_value = decl_info[2]
+    numeric storage = decl_info[3]
+    boolean is_pointer = decl_info[4]
+    boolean is_array = decl_info[5]
+    numeric array_size = decl_info[6]
+    numeric base_type = decl_info[7]
+    boolean has_init = decl_info[8]
+    
+    text result = ""
+    
+    -- Comment for clarity
+    text type_name = get_var_type_name(var_type)
+    result = result + indent + "; Variable: " + var_name + " (type: " + type_name + ")\n"
+    
+    -- Get LLVM type
+    text llvm_type = ""
+    
+    if is_pointer then
+        -- Pointer type: i64* (pointer to base type)
+        text base_llvm = base_type_to_llvm_type(base_type)
+        llvm_type = base_llvm + "*"
+        result = result + indent + "; Pointer to " + get_var_type_name(base_type) + "\n"
+    else_if is_array then
+        -- Array type: [N x i64]* (pointer to array of base type)
+        text base_llvm = base_type_to_llvm_type(base_type)
+        
+        if array_size > 0 then
+            text size_str = text(array_size)
+            llvm_type = "[" + size_str + " x " + base_llvm + "]*"
+            result = result + indent + "; Array of " + get_var_type_name(base_type)
+            result = result + " [size: " + size_str + "]\n"
+        else
+            -- Dynamic array
+            llvm_type = base_llvm + "*"
+            result = result + indent + "; Dynamic array of " + get_var_type_name(base_type) + "\n"
+        end_if
+    else
+        -- Simple type
+        llvm_type = var_type_to_llvm_type(var_type)
+    end_if
+    
+    -- Allocate stack space: %var_name = alloca TYPE
+    result = result + indent + "%" + var_name + " = alloca " + llvm_type
+    
+    -- Add alignment for optimization
+    if var_type == VAR_NUMERIC then
+        result = result + ", align 8"  -- 8-byte alignment for i64
+    else_if var_type == VAR_STRING then
+        result = result + ", align 8"  -- 8-byte alignment for pointer
+    else_if var_type == VAR_BOOLEAN then
+        result = result + ", align 1"  -- 1-byte alignment for i1
+    else
+        result = result + ", align 8"  -- Default 8-byte alignment
+    end_if
+    
+    result = result + "\n"
+    
+    -- Initialize if value provided
+    if has_init and init_value != "" then
+        result = result + codegen_variable_initialization(var_name, var_type, init_value, indent)
+    end_if
+    
+    return result
+end_function
+
+-- ============================================================================
+-- VARIABLE INITIALIZATION CODEGEN
+-- ============================================================================
+
+-- Generate LLVM IR for variable initialization
+--
+-- Input:
+--   var_name: text - Variable name
+--   var_type: numeric - Variable type
+--   init_value: text - Initial value
+--   indent: text - Indentation
+--
+-- Output:
+--   text - Generated LLVM IR code for initialization
+--
+function codegen_variable_initialization(text var_name, numeric var_type, text init_value, text indent) returns text
+    text result = ""
+    
+    result = result + indent + "; Initialize " + var_name + "\n"
+    
+    -- Store value: store TYPE VALUE, TYPE* %var_name
+    text llvm_type = var_type_to_llvm_type(var_type)
+    
+    if var_type == VAR_NUMERIC then
+        -- Numeric initialization
+        result = result + indent + "store " + llvm_type + " " + init_value
+        result = result + ", " + llvm_type + "* %" + var_name + ", align 8\n"
+        
+    else_if var_type == VAR_STRING then
+        -- String initialization (constant string)
+        -- Create global constant for string literal
+        text str_label = "@.str." + var_name
+        numeric str_len = init_value.length
+        text len_str = text(str_len + 1)  -- +1 for null terminator
+        
+        result = result + indent + "; String constant: " + init_value + "\n"
+        result = result + str_label + " = private unnamed_addr constant ["
+        result = result + len_str + " x i8] c\"" + init_value + "\\00\", align 1\n"
+        
+        -- Store pointer to string
+        result = result + indent + "%str_ptr_" + var_name + " = getelementptr inbounds ["
+        result = result + len_str + " x i8], [" + len_str + " x i8]* " + str_label
+        result = result + ", i32 0, i32 0\n"
+        
+        result = result + indent + "store i8* %str_ptr_" + var_name
+        result = result + ", i8** %" + var_name + ", align 8\n"
+        
+    else_if var_type == VAR_BOOLEAN then
+        -- Boolean initialization
+        text bool_val = "0"
+        if init_value == "true" then
+            bool_val = "1"
+        end_if
+        
+        result = result + indent + "store i1 " + bool_val
+        result = result + ", i1* %" + var_name + ", align 1\n"
+        
+    else
+        -- Generic initialization (for future types)
+        result = result + indent + "store " + llvm_type + " 0"
+        result = result + ", " + llvm_type + "* %" + var_name + ", align 8\n"
+    end_if
+    
+    return result
+end_function
+
+-- ============================================================================
+-- VARIABLE ASSIGNMENT CODEGEN
+-- ============================================================================
+
+-- Generate LLVM IR for variable assignment
+--
+-- Input:
+--   assign_info: list - Assignment info from parser
+--     [0]: text - Variable name
+--     [1]: text - Value
+--     [2]: boolean - Is expression
+--   var_type: numeric - Variable type (must be known from context)
+--   indent: text - Indentation
+--
+-- Output:
+--   text - Generated LLVM IR code
+--
+function codegen_variable_assignment(list assign_info, numeric var_type, text indent) returns text
+    text var_name = assign_info[0]
+    text value_str = assign_info[1]
+    boolean is_expr = assign_info[2]
+    
+    text result = ""
+    
+    result = result + indent + "; Assignment: " + var_name + " = " + value_str + "\n"
+    
+    text llvm_type = var_type_to_llvm_type(var_type)
+    
+    if is_expr then
+        -- Complex expression - placeholder for now
+        result = result + indent + "; TODO: Complex expression codegen\n"
+        result = result + indent + "store " + llvm_type + " 0"
+        result = result + ", " + llvm_type + "* %" + var_name + ", align 8\n"
+    else
+        -- Simple value assignment
+        if var_type == VAR_NUMERIC then
+            result = result + indent + "store i64 " + value_str
+            result = result + ", i64* %" + var_name + ", align 8\n"
+            
+        else_if var_type == VAR_STRING then
+            -- String assignment (similar to initialization)
+            text str_label = "@.str.assign." + var_name
+            numeric str_len = value_str.length
+            text len_str = text(str_len + 1)
+            
+            result = result + str_label + " = private unnamed_addr constant ["
+            result = result + len_str + " x i8] c\"" + value_str + "\\00\", align 1\n"
+            
+            result = result + indent + "%str_ptr_assign_" + var_name
+            result = result + " = getelementptr inbounds [" + len_str + " x i8], ["
+            result = result + len_str + " x i8]* " + str_label + ", i32 0, i32 0\n"
+            
+            result = result + indent + "store i8* %str_ptr_assign_" + var_name
+            result = result + ", i8** %" + var_name + ", align 8\n"
+            
+        else_if var_type == VAR_BOOLEAN then
+            text bool_val = "0"
+            if value_str == "true" then
+                bool_val = "1"
+            end_if
+            
+            result = result + indent + "store i1 " + bool_val
+            result = result + ", i1* %" + var_name + ", align 1\n"
+            
+        else
+            -- Generic assignment
+            result = result + indent + "store " + llvm_type + " " + value_str
+            result = result + ", " + llvm_type + "* %" + var_name + ", align 8\n"
+        end_if
+    end_if
+    
+    return result
+end_function
+
+-- ============================================================================
+-- VARIABLE ACCESS (LOAD) CODEGEN
+-- ============================================================================
+
+-- Generate LLVM IR to load variable value
+--
+-- Input:
+--   var_name: text - Variable name
+--   var_type: numeric - Variable type
+--   result_reg: text - Result register name (e.g., "temp1")
+--   indent: text - Indentation
+--
+-- Output:
+--   text - Generated LLVM IR code
+--
+function codegen_variable_load(text var_name, numeric var_type, text result_reg, text indent) returns text
+    text result = ""
+    
+    result = result + indent + "; Load " + var_name + "\n"
+    
+    text llvm_type = var_type_to_llvm_type(var_type)
+    
+    -- Load value: %result_reg = load TYPE, TYPE* %var_name
+    result = result + indent + "%" + result_reg + " = load " + llvm_type
+    result = result + ", " + llvm_type + "* %" + var_name
+    
+    if var_type == VAR_NUMERIC then
+        result = result + ", align 8\n"
+    else_if var_type == VAR_STRING then
+        result = result + ", align 8\n"
+    else_if var_type == VAR_BOOLEAN then
+        result = result + ", align 1\n"
+    else
+        result = result + ", align 8\n"
+    end_if
+    
+    return result
+end_function
+
+-- ============================================================================
+-- UTILITY FUNCTIONS
+-- ============================================================================
+
+-- Generate complete variable declaration with initialization
+function codegen_complete_variable(list decl_info) returns text
+    text indent = "  "
+    return codegen_variable_declaration(decl_info, indent)
+end_function
+
+-- Generate simple variable assignment (non-expression)
+function codegen_simple_assignment(text var_name, numeric var_type, text value) returns text
+    list assign_info = [var_name, value, false]
+    text indent = "  "
+    return codegen_variable_assignment(assign_info, var_type, indent)
+end_function
+
+-- Generate variable load operation
+function codegen_simple_load(text var_name, numeric var_type, text result_reg) returns text
+    text indent = "  "
+    return codegen_variable_load(var_name, var_type, result_reg, indent)
+end_function
+
+-- ============================================================================
+-- END OF MODULE
+-- ============================================================================
