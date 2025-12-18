@@ -114,18 +114,21 @@ end_function
 --       [1]: numeric - Variable type (VAR_NUMERIC, VAR_STRING, etc.)
 --       [2]: text - Initial value (or empty string if none)
 --       [3]: numeric - Storage location (STORAGE_*)
---       [4]: boolean - Is pointer
---       [5]: boolean - Is array
+--       [4]: numeric - Is pointer
+--       [5]: numeric - Is array
 --       [6]: numeric - Array size (0 if dynamic or not array)
 --       [7]: numeric - Base type (for pointers/arrays)
---       [8]: boolean - Has initializer
+--       [8]: numeric - Has initializer
 --     new_position: numeric - Updated position after parsing
 --
 -- Returns empty list [] if parsing fails
 --
 function parse_variable_declaration(list tokens, numeric pos) returns list
+    -- Get tokens length once (Stage 0 doesn't support .length in IF)
+    numeric tokens_len = tokens.length
+    
     -- Check bounds
-    if pos >= tokens.length then
+    if pos >= tokens_len then
         return []
     end_if
     
@@ -142,12 +145,12 @@ function parse_variable_declaration(list tokens, numeric pos) returns list
     numeric current_pos = pos + 1  -- Move past type token
     
     -- Check for pointer (*) or array ([])
-    boolean is_pointer = false
-    boolean is_array = false
+    numeric is_pointer = false
+    numeric is_array = false
     numeric array_size = 0
     numeric actual_type = base_type
     
-    if current_pos >= tokens.length then
+    if current_pos >= tokens_len then
         return []  -- Unexpected end
     end_if
     
@@ -160,7 +163,7 @@ function parse_variable_declaration(list tokens, numeric pos) returns list
         actual_type = VAR_POINTER
         current_pos = current_pos + 1
         
-        if current_pos >= tokens.length then
+        if current_pos >= tokens_len then
             return []
         end_if
         
@@ -173,7 +176,7 @@ function parse_variable_declaration(list tokens, numeric pos) returns list
         actual_type = VAR_ARRAY
         current_pos = current_pos + 1
         
-        if current_pos >= tokens.length then
+        if current_pos >= tokens_len then
             return []
         end_if
         
@@ -182,11 +185,11 @@ function parse_variable_declaration(list tokens, numeric pos) returns list
         
         -- Check for array size
         if next_type == TOKEN_NUMBER then
-            text size_str = next_token[1]
+            string size_str = next_token[1]
             array_size = numeric(size_str)  -- Convert string to number
             current_pos = current_pos + 1
             
-            if current_pos >= tokens.length then
+            if current_pos >= tokens_len then
                 return []
             end_if
             
@@ -201,7 +204,7 @@ function parse_variable_declaration(list tokens, numeric pos) returns list
         
         current_pos = current_pos + 1
         
-        if current_pos >= tokens.length then
+        if current_pos >= tokens_len then
             return []
         end_if
         
@@ -214,16 +217,16 @@ function parse_variable_declaration(list tokens, numeric pos) returns list
         return []  -- Expected identifier
     end_if
     
-    text var_name = next_token[1]
+    string var_name = next_token[1]
     current_pos = current_pos + 1
     
     -- Initialize declaration info
-    text init_value = ""
+    string init_value = ""
     numeric storage_loc = STORAGE_BSS  -- Default: uninitialized
-    boolean has_initializer = false
+    numeric has_initializer = false
     
     -- Check for optional '=' initializer
-    if current_pos < tokens.length then
+    if current_pos < tokens_len then
         list assign_token = tokens[current_pos]
         numeric assign_type = assign_token[0]
         
@@ -231,7 +234,7 @@ function parse_variable_declaration(list tokens, numeric pos) returns list
             has_initializer = true
             current_pos = current_pos + 1
             
-            if current_pos >= tokens.length then
+            if current_pos >= tokens_len then
                 return []  -- Expected value after '='
             end_if
             
@@ -305,14 +308,17 @@ end_function
 --     assignment_info: list - Assignment details
 --       [0]: text - Variable name
 --       [1]: text - Value (simple literal or identifier)
---       [2]: boolean - Is expression (true if not simple literal)
+--       [2]: numeric - Is expression (true if not simple literal)
 --     new_position: numeric - Updated position after parsing
 --
 -- Returns empty list [] if parsing fails
 --
 function parse_variable_assignment(list tokens, numeric pos) returns list
+    -- Get tokens length once (Stage 0 doesn't support .length in IF)
+    numeric tokens_len = tokens.length
+    
     -- Check bounds
-    if pos >= tokens.length then
+    if pos >= tokens_len then
         return []
     end_if
     
@@ -324,11 +330,11 @@ function parse_variable_assignment(list tokens, numeric pos) returns list
         return []  -- Not an assignment
     end_if
     
-    text var_name = id_token[1]
+    string var_name = id_token[1]
     numeric current_pos = pos + 1
     
     -- Expect '='
-    if current_pos >= tokens.length then
+    if current_pos >= tokens_len then
         return []
     end_if
     
@@ -342,14 +348,14 @@ function parse_variable_assignment(list tokens, numeric pos) returns list
     current_pos = current_pos + 1
     
     -- Parse value
-    if current_pos >= tokens.length then
+    if current_pos >= tokens_len then
         return []  -- Expected value
     end_if
     
     list value_token = tokens[current_pos]
     numeric value_type = value_token[0]
-    text value_str = ""
-    boolean is_expression = false
+    string value_str = ""
+    numeric is_expression = false
     
     -- Parse simple values
     if value_type == TOKEN_NUMBER then

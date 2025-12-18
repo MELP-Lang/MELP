@@ -183,7 +183,9 @@ function parse_enum_assignment(list tokens, numeric pos) returns list
     
     -- Parse value expression (could be enum value reference)
     list value_result = parse_enum_value_reference(tokens, current_pos)
-    if value_result[0] == 0 then
+    numeric temp_value_result_0_1 = 0
+    temp_value_result_0_1 = value_result[0]
+    if temp_value_result_0_1 == 0 then
         return [0, pos]  -- Failed to parse value
     end_if
     

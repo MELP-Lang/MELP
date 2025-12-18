@@ -19,9 +19,9 @@
 -- ============================================================================
 
 -- Import core utilities (YZ_03)
-import "../core/token_types.mlp"
-import "../core/char_utils.mlp"
-import "../core/type_mapper.mlp"
+-- import "../core/token_types.mlp"
+-- import "../core/char_utils.mlp"
+-- import "../core/type_mapper.mlp"
 
 -- ============================================================================
 -- CONSTANTS - Function Parameter & Return Types

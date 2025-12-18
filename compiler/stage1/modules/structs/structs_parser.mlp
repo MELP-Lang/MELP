@@ -89,14 +89,18 @@ const numeric STRUCT_MEMBER_ASSIGN = 5   -- Member assignment (person.name = "Jo
 function parse_struct_definition(list tokens, numeric pos) returns list
     -- Expect: struct
     token = tokens[pos]
-    if token[0] != TOKEN_STRUCT then
+    numeric temp_token_0_1 = 0
+    temp_token_0_1 = token[0]
+    if temp_token_0_1 != TOKEN_STRUCT then
         return [0, pos]  -- Not a struct definition
     end_if
     pos = pos + 1
     
     -- Expect: struct name (identifier)
     token = tokens[pos]
-    if token[0] != TOKEN_IDENTIFIER then
+    numeric temp_token_0_2 = 0
+    temp_token_0_2 = token[0]
+    if temp_token_0_2 != TOKEN_IDENTIFIER then
         return [0, pos]  -- Error: expected struct name
     end_if
     struct_name = token[1]
@@ -111,7 +115,9 @@ function parse_struct_definition(list tokens, numeric pos) returns list
         token = tokens[pos]
         
         -- Check for end_struct
-        if token[0] == TOKEN_END_STRUCT then
+        numeric temp_token_0_3 = 0
+        temp_token_0_3 = token[0]
+        if temp_token_0_3 == TOKEN_END_STRUCT then
             pos = pos + 1
             break
         end_if
@@ -162,7 +168,9 @@ function parse_struct_member(list tokens, numeric pos) returns list
     member_type = ""
     
     -- Check for primitive types
-    if token[0] == TOKEN_NUMERIC then
+    numeric temp_token_0_4 = 0
+    temp_token_0_4 = token[0]
+    if temp_token_0_4 == TOKEN_NUMERIC then
         member_type = "numeric"
         pos = pos + 1
     else if token[0] == TOKEN_STRING then
@@ -184,7 +192,9 @@ function parse_struct_member(list tokens, numeric pos) returns list
     
     -- Expect: member name (identifier)
     token = tokens[pos]
-    if token[0] != TOKEN_IDENTIFIER then
+    numeric temp_token_0_5 = 0
+    temp_token_0_5 = token[0]
+    if temp_token_0_5 != TOKEN_IDENTIFIER then
         return [0, pos]  -- Error: expected member name
     end_if
     member_name = token[1]
@@ -219,7 +229,9 @@ end_function
 function parse_struct_instantiation(list tokens, numeric pos) returns list
     -- Expect: struct type (identifier)
     token = tokens[pos]
-    if token[0] != TOKEN_IDENTIFIER then
+    numeric temp_token_0_6 = 0
+    temp_token_0_6 = token[0]
+    if temp_token_0_6 != TOKEN_IDENTIFIER then
         return [0, pos]  -- Not a struct instantiation
     end_if
     struct_type = token[1]
@@ -227,7 +239,9 @@ function parse_struct_instantiation(list tokens, numeric pos) returns list
     
     -- Expect: instance name (identifier)
     token = tokens[pos]
-    if token[0] != TOKEN_IDENTIFIER then
+    numeric temp_token_0_7 = 0
+    temp_token_0_7 = token[0]
+    if temp_token_0_7 != TOKEN_IDENTIFIER then
         return [0, pos]  -- Error: expected instance name
     end_if
     instance_name = token[1]
@@ -235,14 +249,18 @@ function parse_struct_instantiation(list tokens, numeric pos) returns list
     
     -- Expect: = (assignment)
     token = tokens[pos]
-    if token[0] != TOKEN_ASSIGN then
+    numeric temp_token_0_8 = 0
+    temp_token_0_8 = token[0]
+    if temp_token_0_8 != TOKEN_ASSIGN then
         return [0, pos]  -- Error: expected =
     end_if
     pos = pos + 1
     
     -- Expect: { (left brace)
     token = tokens[pos]
-    if token[0] != TOKEN_LBRACE then
+    numeric temp_token_0_9 = 0
+    temp_token_0_9 = token[0]
+    if temp_token_0_9 != TOKEN_LBRACE then
         return [0, pos]  -- Error: expected {
     end_if
     pos = pos + 1
@@ -256,14 +274,18 @@ function parse_struct_instantiation(list tokens, numeric pos) returns list
         token = tokens[pos]
         
         -- Check for }
-        if token[0] == TOKEN_RBRACE then
+        numeric temp_token_0_10 = 0
+        temp_token_0_10 = token[0]
+        if temp_token_0_10 == TOKEN_RBRACE then
             pos = pos + 1
             break
         end_if
         
         -- Parse: member_name = value
         -- Expect: identifier
-        if token[0] != TOKEN_IDENTIFIER then
+        numeric temp_token_0_11 = 0
+        temp_token_0_11 = token[0]
+        if temp_token_0_11 != TOKEN_IDENTIFIER then
             return [0, pos]  -- Error: expected member name
         end_if
         member_name = token[1]
@@ -271,7 +293,9 @@ function parse_struct_instantiation(list tokens, numeric pos) returns list
         
         -- Expect: =
         token = tokens[pos]
-        if token[0] != TOKEN_ASSIGN then
+        numeric temp_token_0_12 = 0
+        temp_token_0_12 = token[0]
+        if temp_token_0_12 != TOKEN_ASSIGN then
             return [0, pos]  -- Error: expected =
         end_if
         pos = pos + 1
@@ -288,7 +312,9 @@ function parse_struct_instantiation(list tokens, numeric pos) returns list
         
         -- Check for comma (optional)
         token = tokens[pos]
-        if token[0] == TOKEN_COMMA then
+        numeric temp_token_0_13 = 0
+        temp_token_0_13 = token[0]
+        if temp_token_0_13 == TOKEN_COMMA then
             pos = pos + 1
         end_if
     end_while
@@ -323,7 +349,9 @@ end_function
 function parse_member_access(list tokens, numeric pos) returns list
     -- Expect: instance name (identifier)
     token = tokens[pos]
-    if token[0] != TOKEN_IDENTIFIER then
+    numeric temp_token_0_14 = 0
+    temp_token_0_14 = token[0]
+    if temp_token_0_14 != TOKEN_IDENTIFIER then
         return [0, pos]  -- Not a member access
     end_if
     instance_name = token[1]
@@ -331,14 +359,18 @@ function parse_member_access(list tokens, numeric pos) returns list
     
     -- Expect: . (dot)
     token = tokens[pos]
-    if token[0] != TOKEN_DOT then
+    numeric temp_token_0_15 = 0
+    temp_token_0_15 = token[0]
+    if temp_token_0_15 != TOKEN_DOT then
         return [0, pos]  -- Not a member access
     end_if
     pos = pos + 1
     
     -- Expect: member name (identifier)
     token = tokens[pos]
-    if token[0] != TOKEN_IDENTIFIER then
+    numeric temp_token_0_16 = 0
+    temp_token_0_16 = token[0]
+    if temp_token_0_16 != TOKEN_IDENTIFIER then
         return [0, pos]  -- Error: expected member name
     end_if
     member_name = token[1]
@@ -384,7 +416,9 @@ function parse_member_assignment(list tokens, numeric pos) returns list
     
     -- Expect: = (assignment)
     token = tokens[pos]
-    if token[0] != TOKEN_ASSIGN then
+    numeric temp_token_0_17 = 0
+    temp_token_0_17 = token[0]
+    if temp_token_0_17 != TOKEN_ASSIGN then
         return [0, pos]  -- Not an assignment
     end_if
     pos = pos + 1

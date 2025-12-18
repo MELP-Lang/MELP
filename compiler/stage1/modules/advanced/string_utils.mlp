@@ -2,12 +2,12 @@
 -- Advanced Module - String utilities  
 -- ============================================================================
 
-function string_length(string text) returns numeric
+function str_length(string str) returns numeric
     -- Simple mock implementation for testing
     return 10
 end_function
 
-function string_concat(string a, string b) returns string
-    -- Mock implementation
-    return "combined"
+function str_concat(string a_str, string b_str) returns numeric
+    -- Mock implementation - changed to numeric for testing
+    return 0
 end_function

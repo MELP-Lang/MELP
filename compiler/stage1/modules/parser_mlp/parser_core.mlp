@@ -75,7 +75,9 @@ function main() returns numeric
     
     -- Parse function signature
     list cur = tokens[pos]
-    if cur[0] == T_FUNCTION then
+    numeric temp_cur_0_1 = 0
+    temp_cur_0_1 = cur[0]
+    if temp_cur_0_1 == T_FUNCTION then
         print("  Parsed: function ")
         pos = pos + 1
         
@@ -117,7 +119,9 @@ function main() returns numeric
         
         -- Parse returns
         cur = tokens[pos]
-        if cur[0] == T_RETURNS then
+        numeric temp_cur_0_2 = 0
+        temp_cur_0_2 = cur[0]
+        if temp_cur_0_2 == T_RETURNS then
             print(") returns ")
             pos = pos + 1
             
@@ -129,7 +133,9 @@ function main() returns numeric
         
         -- Parse body (return a + b)
         cur = tokens[pos]
-        if cur[0] == T_RETURN then
+        numeric temp_cur_0_3 = 0
+        temp_cur_0_3 = cur[0]
+        if temp_cur_0_3 == T_RETURN then
             print("  Body: return ")
             pos = pos + 1
             
@@ -186,7 +192,9 @@ function main() returns numeric
     pos = 0
     cur = tokens2[pos]
     
-    if cur[0] == T_IF then
+    numeric temp_cur_0_4 = 0
+    temp_cur_0_4 = cur[0]
+    if temp_cur_0_4 == T_IF then
         print("  Parsed: if ")
         pos = pos + 1
         
@@ -210,7 +218,9 @@ function main() returns numeric
         
         -- Parse then block
         cur = tokens2[pos]
-        if cur[0] == T_RETURN then
+        numeric temp_cur_0_5 = 0
+        temp_cur_0_5 = cur[0]
+        if temp_cur_0_5 == T_RETURN then
             print("    return ")
             pos = pos + 1
             
@@ -222,12 +232,16 @@ function main() returns numeric
         
         -- Parse else
         cur = tokens2[pos]
-        if cur[0] == T_ELSE then
+        numeric temp_cur_0_6 = 0
+        temp_cur_0_6 = cur[0]
+        if temp_cur_0_6 == T_ELSE then
             println("  else")
             pos = pos + 1
             
             cur = tokens2[pos]
-            if cur[0] == T_RETURN then
+            numeric temp_cur_0_7 = 0
+            temp_cur_0_7 = cur[0]
+            if temp_cur_0_7 == T_RETURN then
                 print("    return ")
                 pos = pos + 1
                 
