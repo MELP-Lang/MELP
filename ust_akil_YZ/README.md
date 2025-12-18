@@ -28,7 +28,8 @@
 - ✅ Zaman tahminleri gerçekçi mi?
 
 ### 4. Döküman Yönetimi
-- ✅ NEXT_AI_START_HERE.md güncel mi?
+- ✅ ../NEXT_AI_START_HERE.md güncel mi? (kod YZ için)
+- ✅ UST_AKIL_START_HERE.md güncel mi? (üst akıl için)
 - ✅ TODO.md stratejisi doğru mu?
 - ✅ ARCHITECTURE.md ihlal ediliyor mu?
 - ✅ Raporlar tutarlı mı?
@@ -42,7 +43,7 @@
     ↓
   Karar verir
     ↓
-NEXT_AI_START_HERE.md günceller
+../NEXT_AI_START_HERE.md günceller (kod YZ için)
     ↓
 Diğer pencerelerdeki Sonnetler
     ↓
@@ -68,7 +69,7 @@ Diğer pencerelerdeki Sonnetler
 ```
 ust_akil_YZ/
 ├── README.md                  ← Üst akıl genel bilgi
-├── NEXT_AI_START_HERE.md      ← Sonraki üst akıl için talimat
+├── UST_AKIL_START_HERE.md     ← Sonraki üst akıl için talimat
 ├── YZ_UA_01_RAPOR.md          ← İlk üst akıl raporu
 ├── YZ_UA_02_RAPOR.md          ← İkinci üst akıl raporu (gelecek)
 └── DECISIONS_LOG.md           ← Tüm kararlar kronolojik
@@ -99,14 +100,15 @@ ust_akil_YZ/
 
 **Yeni üst akıl geldiğinde:**
 
-1. ✅ `NEXT_AI_START_HERE.md` oku
+1. ✅ `UST_AKIL_START_HERE.md` oku
 2. ✅ En son raporu oku (`YZ_UA_XX_RAPOR.md`)
 3. ✅ `DECISIONS_LOG.md` oku (tüm kararlar)
 4. ✅ `TODO.md` kontrol et (güncel mi?)
 5. ✅ ARCHITECTURE.md oku (ihlal var mı?)
 6. ✅ Mevcut durumu analiz et
 7. ✅ Yeni rapor yaz
-8. ✅ NEXT_AI güncelle
+8. ✅ UST_AKIL_START_HERE.md güncelle (sonraki üst akıl için)
+9. ✅ ../NEXT_AI_START_HERE.md güncelle (kod YZ için)
 
 ---
 

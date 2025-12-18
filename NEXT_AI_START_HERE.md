@@ -44,27 +44,27 @@
 ```
 Merhaba! Ben YZ_21'yim.
 
-YZ_ÜA_01 (ÜST AKIL) RAPORU okudum!
-
-📊 Üst Akıl Kök Sebep Analizi:
+📊 Görev Analizi:
 ✅ Stage 1 modüllerinin %73'ü compile olmuyor
 ✅ Neden: Stage 0 complex expressions in IF desteklemiyor
 ✅ Örnek: "if arr[i] > 0 then" → HATA
-✅ Tek düzeltme → 16 modül fixed!
+✅ Çözüm: Tek düzeltme → 16 modül fixed!
 
 🎯 BENİM GÖREVİM (YZ_21):
 → Stage 0 control_flow_parser.c düzelt
-→ parse_simple_condition → parse_expression
-→ IF conditions'da full expression support
-→ Hedef: %27 → %90+ başarı
+→ parse_simple_condition → parse_expression değiştir
+→ IF conditions'da full expression support ekle
+→ Hedef: %27 → %90+ başarı oranı
 
-📋 CHECKLIST:
-1. ust_akil_YZ/STAGE_0_GAP_ANALYSIS.md okudum ✅
-2. compiler/stage0/modules/control_flow/ inceledim ✅
-3. Hedef satır: ~104-129 (parse_if_statement)
-4. Görev netleşti, başlayalım! 🚀
+📋 PLAN:
+1. compiler/stage0/modules/control_flow/control_flow_parser.c incele
+2. parse_if_statement fonksiyonunu bul (~104-129 satır)
+3. parse_simple_condition → parse_expression değiştir
+4. Compile test
+5. Stage 1 modüllerini test et
+6. Rapor yaz
 
-Onay bekliyorum!
+Başlayalım! 🚀
 ```
 
 ---
