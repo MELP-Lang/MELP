@@ -210,6 +210,9 @@ Başlamamı ister misiniz?
 - Stage 0 compiler güncel mi kontrol et
 - Test dosyalarının path'lerini kontrol et
 - Test runner script'i incele
+- **Const import validation:**
+  - token_types.mlp import ediliyor mu?
+  - Cross-module const kullanımı test et
 
 **Adım 2: Modül Testlerini Sırayla Çalıştır**
 - YZ_03: core tests (15 tests)
@@ -226,13 +229,23 @@ Başlamamı ister misiniz?
 - Her test için: PASS/FAIL
 - Başarısız testlerin hata mesajları
 - Stage 0 vs Stage 1 syntax farklılıkları
+- **Fix strategy:**
+  - %70 altındaysa: debugging session başlat
+  - Common failure patterns analizi
+  - Quick fixes vs major rewrites
 
-**Adım 4: Self-Compile Test**
+**Adım 4: Integration Tests**
+- Multi-module programs
+- Cross-module function calls
+- Cross-module const kullanımı
+- Import chain tests (A imports B imports C)
+
+**Adım 5: Self-Compile Test**
 - Stage 1 compiler'ı Stage 0 ile derle
 - Stage 1 compiler'ı kendisiyle derle
 - Output karşılaştırması
 
-**Adım 5: Final Rapor**
+**Adım 6: Final Rapor**
 - Test sonuçları özeti
 - Başarı oranı
 - Known issues

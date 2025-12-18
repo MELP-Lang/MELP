@@ -957,6 +957,9 @@ Total: 92/92 tests passed (100%)
 
 #### Yapılacaklar:
 - [ ] **14.1** 93 Test Suite'ini Çalıştır ⭐
+  - [ ] **14.1.1** Const import validation
+    - [ ] token_types.mlp import ediliyor mu?
+    - [ ] Cross-module const kullanımı test et
   - [ ] YZ_03 - core tests (15 tests)
   - [ ] YZ_04 - functions tests (6 tests)
   - [ ] YZ_05 - variables tests (8 tests)
@@ -971,6 +974,10 @@ Total: 92/92 tests passed (100%)
   - [ ] Başarılı testleri katalogla
   - [ ] Başarısız testlerin sebeplerini analiz et
   - [ ] Stage 0 vs Stage 1 syntax farklılıklarını belirle
+  - [ ] **14.2.1** Fix strategy
+    - [ ] %70 altındaysa: debugging session başlat
+    - [ ] Common failure patterns analizi
+    - [ ] Quick fixes vs major rewrites
 
 - [ ] **14.3** Stage 1 compiler'ı Stage 0 ile derle
 - [ ] **14.4** Stage 1 compiler'ı kendisiyle derle (bootstrap)
@@ -983,6 +990,11 @@ Total: 92/92 tests passed (100%)
   - [ ] Architecture validation
   - [ ] Metrics ve istatistikler
   - [ ] Test raporu: `YZ_14_TEST_REPORT.md`
+- [ ] **14.8** Integration tests
+  - [ ] Multi-module programs
+  - [ ] Cross-module function calls
+  - [ ] Cross-module const kullanımı
+  - [ ] Import chain tests (A imports B imports C)
 
 #### Başarı Kriterleri:
 - ✅ En az %70 test geçiyor (ilk denemede)
