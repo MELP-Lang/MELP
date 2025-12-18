@@ -81,7 +81,9 @@ function parse_array_literal(list tokens, numeric pos) returns list
     
     -- Check for empty array []
     list next_token = tokens[current_pos]
-    if next_token[0] == TOKEN_RBRACKET then
+    numeric next_token_type = 0
+    next_token_type = next_token[0]
+    if next_token_type == TOKEN_RBRACKET then
         -- Empty array
         list array_node = [ARRAY_LITERAL, elements, 0]
         return [array_node, current_pos + 1]
@@ -192,7 +194,9 @@ function parse_array_index(list tokens, numeric pos) returns list
     numeric next_pos = pos + 1
     list bracket_token = tokens[next_pos]
     
-    if bracket_token[0] != TOKEN_LBRACKET then
+    numeric bracket_type = 0
+    bracket_type = bracket_token[0]
+    if bracket_type != TOKEN_LBRACKET then
         return [[], pos]  -- Not array indexing
     end_if
     
@@ -212,7 +216,9 @@ function parse_array_index(list tokens, numeric pos) returns list
     
     -- Check for closing ']'
     list close_bracket = tokens[index_pos]
-    if close_bracket[0] != TOKEN_RBRACKET then
+    numeric close_bracket_type = 0
+    close_bracket_type = close_bracket[0]
+    if close_bracket_type != TOKEN_RBRACKET then
         return [[], pos]  -- Syntax error
     end_if
     
@@ -256,14 +262,18 @@ function parse_array_length(list tokens, numeric pos) returns list
     -- Check for '('
     numeric current_pos = pos + 1
     list lparen = tokens[current_pos]
-    if lparen[0] != TOKEN_LPAREN then
+    numeric lparen_type = 0
+    lparen_type = lparen[0]
+    if lparen_type != TOKEN_LPAREN then
         return [[], pos]  -- Syntax error
     end_if
     
     -- Get array identifier
     current_pos = current_pos + 1
     list array_token = tokens[current_pos]
-    if array_token[0] != TOKEN_IDENTIFIER then
+    numeric array_token_type = 0
+    array_token_type = array_token[0]
+    if array_token_type != TOKEN_IDENTIFIER then
         return [[], pos]  -- Syntax error
     end_if
     
@@ -272,7 +282,9 @@ function parse_array_length(list tokens, numeric pos) returns list
     -- Check for ')'
     current_pos = current_pos + 1
     list rparen = tokens[current_pos]
-    if rparen[0] != TOKEN_RPAREN then
+    numeric rparen_type = 0
+    rparen_type = rparen[0]
+    if rparen_type != TOKEN_RPAREN then
         return [[], pos]  -- Syntax error
     end_if
     
@@ -311,7 +323,9 @@ function parse_array_declaration(list tokens, numeric pos) returns list
     -- Get identifier
     numeric current_pos = pos + 1
     list id_token = tokens[current_pos]
-    if id_token[0] != TOKEN_IDENTIFIER then
+    numeric id_token_type = 0
+    id_token_type = id_token[0]
+    if id_token_type != TOKEN_IDENTIFIER then
         return [[], pos]  -- Syntax error
     end_if
     
@@ -320,7 +334,9 @@ function parse_array_declaration(list tokens, numeric pos) returns list
     -- Check for '='
     current_pos = current_pos + 1
     list assign_token = tokens[current_pos]
-    if assign_token[0] != TOKEN_ASSIGN then
+    numeric assign_token_type = 0
+    assign_token_type = assign_token[0]
+    if assign_token_type != TOKEN_ASSIGN then
         return [[], pos]  -- Syntax error
     end_if
     

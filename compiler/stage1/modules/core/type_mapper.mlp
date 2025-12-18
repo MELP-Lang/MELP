@@ -120,8 +120,17 @@ function types_compatible(numeric lhs_kind, numeric rhs_kind) returns numeric
     end_if
     
     -- Numeric compatibility (int can be assigned float, vice versa)
-    if (lhs_kind == TYPE_INT or lhs_kind == TYPE_FLOAT) and
-       (rhs_kind == TYPE_INT or rhs_kind == TYPE_FLOAT) then
+    numeric lhs_is_numeric = 0
+    if lhs_kind == TYPE_INT or lhs_kind == TYPE_FLOAT then
+        lhs_is_numeric = 1
+    end_if
+    
+    numeric rhs_is_numeric = 0
+    if rhs_kind == TYPE_INT or rhs_kind == TYPE_FLOAT then
+        rhs_is_numeric = 1
+    end_if
+    
+    if lhs_is_numeric == 1 and rhs_is_numeric == 1 then
         return 1
     end_if
     
@@ -135,8 +144,19 @@ end_function
 
 -- Check if type is a primitive (int, float, bool, char, string)
 function is_primitive_type(numeric kind) returns numeric
-    if kind == TYPE_INT or kind == TYPE_FLOAT or kind == TYPE_BOOL or 
-       kind == TYPE_CHAR or kind == TYPE_STRING then
+    if kind == TYPE_INT then
+        return 1
+    end_if
+    if kind == TYPE_FLOAT then
+        return 1
+    end_if
+    if kind == TYPE_BOOL then
+        return 1
+    end_if
+    if kind == TYPE_CHAR then
+        return 1
+    end_if
+    if kind == TYPE_STRING then
         return 1
     end_if
     return 0
@@ -144,7 +164,13 @@ end_function
 
 -- Check if type is a composite type (array, struct, enum)
 function is_composite_type(numeric kind) returns numeric
-    if kind == TYPE_ARRAY or kind == TYPE_STRUCT or kind == TYPE_ENUM then
+    if kind == TYPE_ARRAY then
+        return 1
+    end_if
+    if kind == TYPE_STRUCT then
+        return 1
+    end_if
+    if kind == TYPE_ENUM then
         return 1
     end_if
     return 0

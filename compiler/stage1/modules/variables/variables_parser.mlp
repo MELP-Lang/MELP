@@ -55,38 +55,46 @@ const numeric STORAGE_HEAP = 4      -- Dynamic allocation via malloc
 function token_to_var_type(numeric token_type) returns numeric
     if token_type == TOKEN_NUMERIC then
         return VAR_NUMERIC
-    else_if token_type == TOKEN_STRING_TYPE then
-        return VAR_STRING
-    else_if token_type == TOKEN_BOOLEAN then
-        return VAR_BOOLEAN
-    else_if token_type == TOKEN_ARRAY then
-        return VAR_ARRAY
-    else_if token_type == TOKEN_LIST then
-        return VAR_LIST
-    else_if token_type == TOKEN_TUPLE then
-        return VAR_TUPLE
-    else
-        return -1  -- Invalid type
     end_if
+    if token_type == TOKEN_STRING_TYPE then
+        return VAR_STRING
+    end_if
+    if token_type == TOKEN_BOOLEAN then
+        return VAR_BOOLEAN
+    end_if
+    if token_type == TOKEN_ARRAY then
+        return VAR_ARRAY
+    end_if
+    if token_type == TOKEN_LIST then
+        return VAR_LIST
+    end_if
+    if token_type == TOKEN_TUPLE then
+        return VAR_TUPLE
+    end_if
+    return -1  -- Invalid type
 end_function
 
 -- Check if token is a type keyword
-function is_type_token(numeric token_type) returns boolean
+function is_type_token(numeric token_type) returns numeric
     if token_type == TOKEN_NUMERIC then
-        return true
-    else_if token_type == TOKEN_STRING_TYPE then
-        return true
-    else_if token_type == TOKEN_BOOLEAN then
-        return true
-    else_if token_type == TOKEN_ARRAY then
-        return true
-    else_if token_type == TOKEN_LIST then
-        return true
-    else_if token_type == TOKEN_TUPLE then
-        return true
-    else
-        return false
+        return 1
     end_if
+    if token_type == TOKEN_STRING_TYPE then
+        return 1
+    end_if
+    if token_type == TOKEN_BOOLEAN then
+        return 1
+    end_if
+    if token_type == TOKEN_ARRAY then
+        return 1
+    end_if
+    if token_type == TOKEN_LIST then
+        return 1
+    end_if
+    if token_type == TOKEN_TUPLE then
+        return 1
+    end_if
+    return 0
 end_function
 
 -- ============================================================================
@@ -158,7 +166,8 @@ function parse_variable_declaration(list tokens, numeric pos) returns list
         
         next_token = tokens[current_pos]
         next_type = next_token[0]
-    else_if next_type == TOKEN_LBRACKET then
+    end_if
+    if next_type == TOKEN_LBRACKET then
         -- Check for array: numeric[10] or numeric[]
         is_array = true
         actual_type = VAR_ARRAY
@@ -234,19 +243,23 @@ function parse_variable_declaration(list tokens, numeric pos) returns list
                 init_value = value_token[1]
                 storage_loc = STORAGE_DATA
                 current_pos = current_pos + 1
-            else_if value_type == TOKEN_STRING then
+            end_if
+            if value_type == TOKEN_STRING then
                 init_value = value_token[1]
                 storage_loc = STORAGE_DATA
                 current_pos = current_pos + 1
-            else_if value_type == TOKEN_TRUE then
+            end_if
+            if value_type == TOKEN_TRUE then
                 init_value = "true"
                 storage_loc = STORAGE_DATA
                 current_pos = current_pos + 1
-            else_if value_type == TOKEN_FALSE then
+            end_if
+            if value_type == TOKEN_FALSE then
                 init_value = "false"
                 storage_loc = STORAGE_DATA
                 current_pos = current_pos + 1
-            else_if value_type == TOKEN_IDENTIFIER then
+            end_if
+            if value_type == TOKEN_IDENTIFIER then
                 -- Variable reference: numeric x = y
                 init_value = value_token[1]
                 storage_loc = STORAGE_BSS  -- Runtime initialization
@@ -342,16 +355,20 @@ function parse_variable_assignment(list tokens, numeric pos) returns list
     if value_type == TOKEN_NUMBER then
         value_str = value_token[1]
         current_pos = current_pos + 1
-    else_if value_type == TOKEN_STRING then
+    end_if
+    if value_type == TOKEN_STRING then
         value_str = value_token[1]
         current_pos = current_pos + 1
-    else_if value_type == TOKEN_TRUE then
+    end_if
+    if value_type == TOKEN_TRUE then
         value_str = "true"
         current_pos = current_pos + 1
-    else_if value_type == TOKEN_FALSE then
+    end_if
+    if value_type == TOKEN_FALSE then
         value_str = "false"
         current_pos = current_pos + 1
-    else_if value_type == TOKEN_IDENTIFIER then
+    end_if
+    if value_type == TOKEN_IDENTIFIER then
         value_str = value_token[1]
         current_pos = current_pos + 1
     else
@@ -378,17 +395,23 @@ end_function
 function get_var_type_name(numeric var_type) returns text
     if var_type == VAR_NUMERIC then
         return "numeric"
-    else_if var_type == VAR_STRING then
+    end_if
+    if var_type == VAR_STRING then
         return "string"
-    else_if var_type == VAR_BOOLEAN then
+    end_if
+    if var_type == VAR_BOOLEAN then
         return "boolean"
-    else_if var_type == VAR_POINTER then
+    end_if
+    if var_type == VAR_POINTER then
         return "pointer"
-    else_if var_type == VAR_ARRAY then
+    end_if
+    if var_type == VAR_ARRAY then
         return "array"
-    else_if var_type == VAR_LIST then
+    end_if
+    if var_type == VAR_LIST then
         return "list"
-    else_if var_type == VAR_TUPLE then
+    end_if
+    if var_type == VAR_TUPLE then
         return "tuple"
     else
         return "unknown"
@@ -399,13 +422,17 @@ end_function
 function get_storage_name(numeric storage) returns text
     if storage == STORAGE_REGISTER then
         return "register"
-    else_if storage == STORAGE_STACK then
+    end_if
+    if storage == STORAGE_STACK then
         return "stack"
-    else_if storage == STORAGE_DATA then
+    end_if
+    if storage == STORAGE_DATA then
         return "data"
-    else_if storage == STORAGE_BSS then
+    end_if
+    if storage == STORAGE_BSS then
         return "bss"
-    else_if storage == STORAGE_HEAP then
+    end_if
+    if storage == STORAGE_HEAP then
         return "heap"
     else
         return "unknown"

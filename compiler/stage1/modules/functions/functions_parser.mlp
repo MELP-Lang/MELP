@@ -174,7 +174,9 @@ function parse_function_declaration(list tokens, numeric pos) returns list
             
             -- Parameter name
             current_token = tokens[current_pos]
-            if current_token[0] != TOKEN_IDENTIFIER then
+            numeric token_type_check = 0
+            token_type_check = current_token[0]
+            if token_type_check != TOKEN_IDENTIFIER then
                 -- Error: Expected parameter name
                 return [0, current_pos]
             end_if
@@ -207,7 +209,9 @@ function parse_function_declaration(list tokens, numeric pos) returns list
     
     -- 5. Right parenthesis ')' (already at this token)
     current_token = tokens[current_pos]
-    if current_token[0] != TOKEN_RPAREN then
+    numeric token_type_paren = 0
+    token_type_paren = current_token[0]
+    if token_type_paren != TOKEN_RPAREN then
         -- Error: Expected ')'
         return [0, current_pos]
     end_if
@@ -243,7 +247,9 @@ function parse_function_declaration(list tokens, numeric pos) returns list
             current_pos = current_pos + 1
             current_token = tokens[current_pos]
             
-            if current_token[0] == TOKEN_FUNCTION then
+            numeric next_token_type = 0
+            next_token_type = current_token[0]
+            if next_token_type == TOKEN_FUNCTION then
                 found_end = 1
                 current_pos = current_pos + 1
             end_if
@@ -325,7 +331,9 @@ function parse_function_call(list tokens, numeric pos, string func_name) returns
     
     -- 3. Expect ')'
     current_token = tokens[current_pos]
-    if current_token[0] != TOKEN_RPAREN then
+    numeric final_token_type = 0
+    final_token_type = current_token[0]
+    if final_token_type != TOKEN_RPAREN then
         -- Error: Expected ')'
         return [0, current_pos]
     end_if

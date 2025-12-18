@@ -132,9 +132,8 @@ function parse_string_literal(list tokens, numeric pos) returns list
     
     -- Create literal node
     -- token_value already contains the string content (without quotes)
-    -- Original text includes quotes
-    string original_text = "\"" + token_value + "\""
-    list literal = [LIT_STRING, token_value, original_text]
+    -- Original text includes quotes (for display/debug purposes)
+    list literal = [LIT_STRING, token_value, token_value]
     
     return [literal, pos + 1]
 end_function
@@ -203,25 +202,29 @@ end_function
 function parse_literal(list tokens, numeric pos) returns list
     -- Try boolean first (most specific)
     list result = parse_boolean_literal(tokens, pos)
-    if result[0] != [] then
+    list result_node = result[0]
+    if result_node != [] then
         return result
     end_if
     
     -- Try string literal
     list result2 = parse_string_literal(tokens, pos)
-    if result2[0] != [] then
+    list result2_node = result2[0]
+    if result2_node != [] then
         return result2
     end_if
     
     -- Try integer literal
     list result3 = parse_integer_literal(tokens, pos)
-    if result3[0] != [] then
+    list result3_node = result3[0]
+    if result3_node != [] then
         return result3
     end_if
     
     -- Try float literal (TIER 1)
     list result4 = parse_float_literal(tokens, pos)
-    if result4[0] != [] then
+    list result4_node = result4[0]
+    if result4_node != [] then
         return result4
     end_if
     
