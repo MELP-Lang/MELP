@@ -221,6 +221,20 @@ boolean flag = true
 - #4 (nested control flow) keşfedildi
 - #5 (array declaration) test edilmedi
 
+**18 Ara 2025 23:00 - YZ_22 (SYSTEMATIC ANALYSIS ✅):**
+- ✅ DATA-DRIVEN APPROACH BAŞARILI!
+- 42 modül test edildi (17 başarı / 25 başarısız = %40.48)
+- 6 kritik pattern tespit edildi:
+  1. "Expected 'function'" - 90x (#7 olarak eklenecek)
+  2. "Expected '(' after print" - 22x (#8)
+  3. "Expected ')' after index" - 20x (#9)
+  4. "Expected 'then'" - 17x (#10)
+  5. "Module not found" - 15x (#11)
+  6. "Unexpected token arithmetic" - 7x (YZ_21 partial fix)
+- Tools: test_all_stage1_modules.sh, analyze_error_patterns.sh
+- Strategy: 3-phase (Quick wins → Core → Polish)
+- See: stage_1_YZ/YZ_22_SYSTEMATIC_ANALYSIS.md
+
 ---
 
 ## 📝 NOTLAR
