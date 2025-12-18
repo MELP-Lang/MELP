@@ -227,6 +227,54 @@ ArithmeticExpr* arith_cond = arithmetic_parse_expression_stateless(lexer, tok);
 
 ---
 
+### KARAR #11: Strategy Pivot to Data-Driven Approach
+**Tarih:** 18 Ara 2025 22:00  
+**Üst Akıl:** YZ_ÜA_01  
+**Tetikleyen:** YZ_21 partial success (boolean fix → başarı artmadı)
+
+**YZ_21 Sonuçları:**
+```
+✅ Boolean literal fix yapıldı (true/false assignment)
+✅ arithmetic_parser.c güncellendi
+⚠️ Başarı: %30.55 → %30.55 (DEĞİŞMEDİ!)
+❌ Hedef %90+ ulaşılamadı
+```
+
+**Öğrenilenler:**
+- ❌ Single-point fix yaklaşımı yetersiz
+- ❌ GAP_ANALYSIS tahminleri yeterince spesifik değil
+- ❌ "Complex expressions in IF" çok geniş - tek fix yetmedi
+- ✅ Stage 1 modülleri ÇOKLU sorunlardan başarısız
+- ✅ Her fix incremental iyileştirme yapıyor
+- ✅ Systematic, data-driven approach gerekli
+
+**YENİ STRATEJİ:**
+```
+ESKİ (İPTAL): Gap analiz → Tahmin → Fix → Başarı bekle
+YENİ (ONAY): Test → Veri topla → Pattern → Önceliklendir → Fix → Ölç → Tekrarla
+```
+
+**YZ_22 Görevi:**
+1. Test harness: 36 modülü tek tek test
+2. Error logging: Her modülün hatasını kaydet
+3. Pattern analysis: En yaygın hataları grupla
+4. Prioritization: Quick wins belirle
+5. Strategy: Data-driven fix roadmap
+
+**Tahmini:**
+- YZ_22: 2-3 saat (analysis only)
+- YZ_23-25: Top 3 pattern'leri fix et (her biri 1-2 saat)
+- YZ_26+: İhtiyaca göre
+
+**Başarı Kriteri:**
+- ❌ %90+ tek seferde (unrealistic!)
+- ✅ Her YZ +10-20% iyileştirme (sustainable!)
+- ✅ Data-driven decision making
+
+**Sonuç:** ✅ YZ_22 için NEXT_AI_START_HERE.md güncellendi (YZ_21 tarafından)
+
+---
+
 ## Gelecek Kararlar
 
 ### YZ_ÜA_02 için beklenenler:
