@@ -60,14 +60,17 @@ compiler/stage0/modules/     compiler/stage1/modules/
      (C kodu)                   (MELP kodu)
 ```
 
-**İlerleme:** 1/34 modül tamamlandı ✅ (core/)  
-**Kalan:** 33 modül
+**İlerleme:** 9/34 modül tamamlandı ✅ (core, functions, variables, operators, control_flow, literals, arrays, structs, enums)  
+**Kalan:** 25 modül  
+**Import Sistemi:** ✅ TAMAMLANDI (YZ_13)  
+**Bootstrap:** ✅ TAMAMLANDI (YZ_12)
 
 ---
 
 ## 📋 YZ ZİNCİRİ - GÖREV AKTARIMI
 
-### **Mevcut YZ:** YZ_01 (İlk AI)
+### **Mevcut YZ:** YZ_13 ✅ (Tamamlandı)
+### **Sonraki YZ:** YZ_14 (Full Test Suite & Self-Compile)
 ### **Sonraki YZ:** YZ_02 (bir sonraki AI oturumu)
 
 **Her YZ görev bitiminde:**
@@ -893,26 +896,96 @@ Total: 92/92 tests passed (100%)
 
 ---
 
-## 🎓 FAZ 3: SELF-COMPILE & VALIDATION (YZ_13)
+### ✅ YZ_13 - Import System Enhancement ⭐ **TAMAMLANDI!**
+**Dal:** `import_enhancement_YZ_13`  
+**Tahmini:** 4-6 saat  
+**Gerçek:** 3 saat ⚡  
+**Durum:** ✅ TAMAMLANDI (18 Aralık 2025, 23:45)
 
-### ⏳ YZ_13 - Self-Compile Test
-**Dal:** `self_compile_YZ_13`  
-**Tahmini:** 3 saat  
+**🎉 BAŞARI:** Import sistemi güçlendirildi! Relative path + const support eklendi!
+
+#### Tamamlananlar:
+- [x] **13.1** Stage 0 Import Sistemi Analizi ✅
+  - [x] `compiler/stage0/modules/import/import.c` incelendi
+  - [x] Mevcut capabilities analiz edildi
+  - [x] Enhancement ihtiyaçları belirlendi
+
+- [x] **13.2** Relative Path Support ✅
+  - [x] `import "compiler/stage1/modules/core/token_types.mlp"` çalışıyor
+  - [x] Backward compatible (eski syntax hala çalışıyor)
+  - [x] Path resolution enhanced
+
+- [x] **13.3** Const Support Integration ✅
+  - [x] YZ_CONST branch merge edildi
+  - [x] Top-level const parsing eklendi
+  - [x] Import'ta const parsing eklendi
+  - [x] Stateless architecture korundu
+
+- [x] **13.4** Test ve Doğrulama ✅
+  - [x] math_helper import test - PASSED ✅
+  - [x] Stage 1 main.mlp compilation - PASSED ✅
+  - [x] Const import test - PASSED ✅
+  - [x] 3/3 custom tests PASSED (100%)
+
+- [x] **13.5** Rapor ✅
+  - [x] `YZ_Stage_1/YZ_13_RAPOR.md` - Detaylı rapor (344 satır)
+
+#### Başarı Kriterleri:
+- ✅ Import sistemi güçlendirildi
+- ✅ Relative path support çalışıyor
+- ✅ Const parsing support çalışıyor
+- ✅ Stateless architecture korundu
+- ✅ Testler geçiyor (100%)
+- ✅ Stage 1 main.mlp compile oluyor
+
+#### Çıktılar:
+- ✅ `compiler/stage0/modules/import/import.c` - Enhanced (+30 satır)
+- ✅ `compiler/stage0/modules/functions/functions_standalone.c` - Enhanced (+20 satır)
+- ✅ `tests/stage_1_tests/math_helper.mlp` - Test helper
+- ✅ `tests/stage_1_tests/test_real_import.mlp` - Import test
+- ✅ `tests/stage_1_tests/test_stage1_simple.mlp` - Const test
+- ✅ `YZ_Stage_1/YZ_13_RAPOR.md` - Rapor
+
+---
+
+## 🎓 FAZ 3: SELF-COMPILE & VALIDATION (YZ_14)
+
+### ⏳ YZ_14 - Full Test Suite & Self-Compile
+**Dal:** `full_tests_YZ_14`  
+**Tahmini:** 4-6 saat  
 **Durum:** ⏸️ BEKLİYOR
 
 #### Yapılacaklar:
-- [ ] **13.1** Stage 1 compiler'ı Stage 0 ile derle
-- [ ] **13.2** Stage 1 compiler'ı kendisiyle derle (bootstrap)
-- [ ] **13.3** Output karşılaştırması
+- [ ] **14.1** 93 Test Suite'ini Çalıştır ⭐
+  - [ ] YZ_03 - core tests (15 tests)
+  - [ ] YZ_04 - functions tests (6 tests)
+  - [ ] YZ_05 - variables tests (8 tests)
+  - [ ] YZ_06 - operators tests (8 tests)
+  - [ ] YZ_07 - control_flow tests (12 tests)
+  - [ ] YZ_08 - literals tests (10 tests)
+  - [ ] YZ_09 - arrays tests (10 tests)
+  - [ ] YZ_10 - structs tests (12 tests)
+  - [ ] YZ_11 - enums tests (12 tests)
+
+- [ ] **14.2** Test Sonuçları Analizi
+  - [ ] Başarılı testleri katalogla
+  - [ ] Başarısız testlerin sebeplerini analiz et
+  - [ ] Stage 0 vs Stage 1 syntax farklılıklarını belirle
+
+- [ ] **14.3** Stage 1 compiler'ı Stage 0 ile derle
+- [ ] **14.4** Stage 1 compiler'ı kendisiyle derle (bootstrap)
+- [ ] **14.5** Output karşılaştırması
   - [ ] Binary diff
   - [ ] Behavior validation
-- [ ] **13.4** Performance benchmarks
-- [ ] **13.5** Final documentation
+- [ ] **14.6** Performance benchmarks
+- [ ] **14.7** Final documentation
   - [ ] `YZ_Stage_1/STAGE_1_COMPLETE.md`
   - [ ] Architecture validation
   - [ ] Metrics ve istatistikler
+  - [ ] Test raporu: `YZ_14_TEST_REPORT.md`
 
 #### Başarı Kriterleri:
+- ✅ En az %70 test geçiyor (ilk denemede)
 - ✅ Self-compile başarılı
 - ✅ Output consistent
 - ✅ Performance kabul edilebilir
