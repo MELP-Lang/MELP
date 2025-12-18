@@ -192,6 +192,9 @@ int main(int argc, char** argv) {
     // Phase 6: Set source code for enhanced error messages
     error_set_source(source, input_file);
     
+    // YZ_28: Set current source file for import resolution
+    import_set_current_source_file(input_file);
+    
     // Create lexer
     Lexer* lexer = lexer_create(source);
     if (!lexer) {

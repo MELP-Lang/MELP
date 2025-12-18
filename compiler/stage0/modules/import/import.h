@@ -18,7 +18,12 @@ typedef struct ImportStatement {
 ImportStatement* import_statement_create(const char* module_name);
 void import_statement_free(ImportStatement* import_stmt);
 
+// YZ_28: Set current source file for relative import resolution
+void import_set_current_source_file(const char* path);
+const char* import_get_current_source_file(void);
+
 // Module path resolution
+// YZ_28: Relative paths resolved based on source file location
 // Search order:
 // 1. ./modules/core/module_name.mlp
 // 2. ./modules/advanced/module_name.mlp  

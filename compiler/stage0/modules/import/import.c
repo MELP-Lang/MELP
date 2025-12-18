@@ -6,6 +6,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <sys/stat.h>
+#include <libgen.h>  // YZ_28: For dirname()
+#include <limits.h>  // YZ_28: For PATH_MAX
 
 // YZ_36: Need to include lexer and parser for module loading
 #include "../lexer/lexer.h"
@@ -14,6 +16,17 @@
 #include "../variable/variable.h"         // YZ_13: For const declarations
 #include "../variable/variable_parser.h"  // YZ_13: For const parsing
 #include "../error/error.h"
+
+// YZ_28: Current source file being compiled (for relative import resolution)
+static const char* g_current_source_file = NULL;
+
+void import_set_current_source_file(const char* path) {
+    g_current_source_file = path;
+}
+
+const char* import_get_current_source_file(void) {
+    return g_current_source_file;
+}
 
 // ============================================================================
 // Phase 11: Circular Import Detection (YZ_37)
@@ -90,10 +103,42 @@ char* import_resolve_module_path(const char* module_name) {
     char path[512];
     
     // YZ_13: Enhancement - Support relative paths
-    // If module_name contains path separators, treat as relative/absolute path
+    // YZ_28: Fix - Resolve relative paths based on source file location, not CWD
     if (strchr(module_name, '/') != NULL || strchr(module_name, '\\') != NULL) {
         // Direct path (relative or absolute)
-        // Check if it exists as-is
+        
+        // YZ_28: If relative path and we know the source file, resolve relative to it
+        if (module_name[0] != '/' && g_current_source_file) {
+            // Get directory of current source file
+            char source_dir[PATH_MAX];
+            char* source_copy = strdup(g_current_source_file);
+            char* dir = dirname(source_copy);
+            snprintf(source_dir, sizeof(source_dir), "%s", dir);
+            free(source_copy);
+            
+            // Build path relative to source file's directory
+            snprintf(path, sizeof(path), "%s/%s", source_dir, module_name);
+            
+            // Normalize path (resolve .. and .)
+            char resolved_path[PATH_MAX];
+            if (realpath(path, resolved_path)) {
+                if (file_exists(resolved_path)) {
+                    return strdup(resolved_path);
+                }
+            }
+            
+            // Try adding .mlp extension if not present
+            if (strstr(module_name, ".mlp") == NULL) {
+                snprintf(path, sizeof(path), "%s/%s.mlp", source_dir, module_name);
+                if (realpath(path, resolved_path)) {
+                    if (file_exists(resolved_path)) {
+                        return strdup(resolved_path);
+                    }
+                }
+            }
+        }
+        
+        // Fallback: Check if it exists as-is (absolute path or CWD-relative)
         if (file_exists(module_name)) {
             return strdup(module_name);
         }
@@ -111,6 +156,21 @@ char* import_resolve_module_path(const char* module_name) {
     }
     
     // Original search order for simple module names:
+    // YZ_28: First check in same directory as source file
+    if (g_current_source_file) {
+        char source_dir[PATH_MAX];
+        char* source_copy = strdup(g_current_source_file);
+        char* dir = dirname(source_copy);
+        snprintf(source_dir, sizeof(source_dir), "%s", dir);
+        free(source_copy);
+        
+        // Try in source file's directory first
+        snprintf(path, sizeof(path), "%s/%s", source_dir, module_name);
+        if (file_exists(path)) {
+            return strdup(path);
+        }
+    }
+    
     // 1. modules/core/module_name.mlp
     snprintf(path, sizeof(path), "modules/core/%s.mlp", module_name);
     if (file_exists(path)) {
@@ -250,6 +310,10 @@ FunctionDeclaration* import_load_module(const char* module_path) {
     // YZ_37: Save current error context before parsing module
     int saved_context = error_save_context();
     
+    // YZ_28: Save current source file and set it to this module for nested imports
+    const char* prev_source_file = g_current_source_file;
+    g_current_source_file = module_path;
+    
     // Set error context for this module
     error_set_source(source, module_path);
     
@@ -340,6 +404,7 @@ FunctionDeclaration* import_load_module(const char* module_path) {
             // Parse error - restore context and cleanup
             lexer_free(lexer);
             free(source);
+            g_current_source_file = prev_source_file;  // YZ_28: Restore
             error_restore_context(saved_context);
             import_pop_stack();  // YZ_37: Pop from import stack
             error_fatal("Failed to parse module: %s", module_path);
@@ -361,6 +426,9 @@ FunctionDeclaration* import_load_module(const char* module_path) {
     
     // YZ_37: Restore original error context
     error_restore_context(saved_context);
+    
+    // YZ_28: Restore previous source file
+    g_current_source_file = prev_source_file;
     
     // YZ_37: Pop from import stack (successful parse)
     import_pop_stack();
