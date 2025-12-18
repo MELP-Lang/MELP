@@ -29,10 +29,34 @@ The **Enums Module** provides parsing and code generation for enumeration types 
 
 ### Stateless Design
 
-All functions follow the stateless pattern:
-- **Input:** Tokens + position (or enum nodes)
-- **Output:** [result, new_position] or LLVM IR string
-- **No mutable global state** (except compile-time registry)
+**✅ FULLY STATELESS** - All functions are pure, no mutable global state!
+
+**Pattern:**
+- **Input:** Tokens + position (parser) OR enum nodes + registry (codegen)
+- **Output:** [result, new_position] OR [code, updated_registry]
+- **Registry:** Passed as parameter, returned as updated value (immutable pattern)
+- **No side effects:** All state transformations explicit
+
+**Key Principle:**
+```mlp
+-- ❌ OLD (Global State - Violates MELP_Mimarisi.md)
+list g_enum_registry = []
+function register_enum(list enum_node) returns boolean
+    g_enum_registry = append(g_enum_registry, enum_node)  -- Mutates global!
+end_function
+
+-- ✅ NEW (Stateless - Compliant)
+function register_enum(list enum_node, list enum_registry) returns list
+    list updated_registry = append(enum_registry, enum_node)
+    return [true, updated_registry]  -- Returns new state
+end_function
+```
+
+**All codegen functions signature:**
+- `codegen_enum_definition(enum_node, enum_registry, indent) → [code, updated_registry]`
+- `codegen_enum_value_reference(ref_node, enum_registry) → llvm_ir_string`
+- `codegen_enum_assignment(node, enum_registry, indent, ctx) → llvm_ir_string`
+- `codegen_enum_comparison(left, right, enum_registry, op, indent, reg) → [code, new_reg]`
 
 ### Files
 
