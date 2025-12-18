@@ -49,7 +49,7 @@ const numeric FUNC_RETURN_STRUCT = 4
 
 -- Convert token type to function parameter type
 -- STATELESS: Returns numeric type ID
-function token_to_param_type(token_type: numeric) returns numeric
+function token_to_param_type(numeric token_type) returns numeric
     if token_type == TOKEN_NUMERIC then
         return FUNC_PARAM_NUMERIC
     end_if
@@ -76,7 +76,7 @@ end_function
 
 -- Convert token type to function return type
 -- STATELESS: Returns numeric type ID
-function token_to_return_type(token_type: numeric) returns numeric
+function token_to_return_type(numeric token_type) returns numeric
     if token_type == TOKEN_NUMERIC then
         return FUNC_RETURN_NUMERIC
     end_if
@@ -113,7 +113,7 @@ end_function
 --         params = [[type, name], [type, name], ...]
 --
 -- STATELESS: Takes tokens + position, returns result + new position
-function parse_function_declaration(tokens: list, pos: numeric) returns list
+function parse_function_declaration(list tokens, numeric pos) returns list
     -- Result structure
     string func_name = ""
     list params = []
@@ -274,7 +274,7 @@ end_function
 --         args = [arg1, arg2, ...]
 --
 -- STATELESS: Takes tokens + position, returns result + new position
-function parse_function_call(tokens: list, pos: numeric, func_name: string) returns list
+function parse_function_call(list tokens, numeric pos, string func_name) returns list
     list args = []
     numeric current_pos = pos
     
@@ -348,7 +348,7 @@ end_function
 --         return_value = expression or 0 for void
 --
 -- STATELESS: Takes tokens + position, returns result + new position
-function parse_return_statement(tokens: list, pos: numeric) returns list
+function parse_return_statement(list tokens, numeric pos) returns list
     numeric current_pos = pos
     
     -- 1. Expect 'return' keyword
