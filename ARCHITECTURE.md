@@ -59,6 +59,299 @@ IF working on Stage 1:
 
 ---
 
+## RULE #0: Token Canonical Source ⚡
+
+### Single Source of Truth
+
+**Canonical Source:** `compiler/stage0/modules/lexer/lexer.h`
+- `TokenType` enum is **SINGLE SOURCE OF TRUTH**
+- All documentation must reference `lexer.h`
+- Documentation divergence = architecture violation
+
+**Documentation Synchronization:**
+- `docs/PMPL_REFERENCE.md`: Must sync with `lexer.h`
+- `docs_tr/PMPL_SOZDIZIMI.md`: Must sync with `lexer.h`
+- Sync check: **Mandatory before YZ handoff**
+
+### AI Agent Rules
+
+1. **ALWAYS** reference `lexer.h` for token names
+2. **NEVER** invent new token names arbitrarily
+3. **New token?** → Update `lexer.h` FIRST, then docs
+4. **Token rename?** → Update `lexer.h` + ALL docs + ALL code
+
+### Token Naming Convention
+
+```c
+// ✅ CORRECT (from lexer.h):
+TOKEN_IF          // if keyword
+TOKEN_END_IF      // end_if keyword (PMPL - single token!)
+TOKEN_WHILE       // while keyword
+TOKEN_END_WHILE   // end_while keyword
+
+// ❌ WRONG (invented names):
+TOKEN_IF_END      // Inconsistent with lexer.h
+TOKEN_IFEND       // Not in lexer.h
+TOKEN_END_OF_IF   // Not standard naming
+```
+
+### Enforcement
+
+- **Pre-commit:** Check docs/code token synchronization
+- **YZ handoff:** Verify token consistency across files
+- **Violation:** YZ work rejected, must fix before merge
+
+**Why This Matters:**
+> "Sürekli farklı YZ ile çalışıyoruz ve her gelen YZ kendi tokenine 
+>  kendi adını veriyor... Bu kesinlikle o listede baştan belirtilmeli."
+> 
+> *User insight: Token inconsistency prevents at scale*
+
+---
+
+## RULE #1: Module Responsibility & Token Ownership 🎯
+
+### Core Principle
+
+**"Her modül kendi parserine ve kendi codegenine karşı sorumludur."**  
+*"Every module owns its parser and codegen pair."*
+
+### What This Means
+
+**Module = Parser + Codegen Pair (Isolated Unit)**
+
+```c
+// ✅ CORRECT (Module Autonomy):
+
+// Module A: arithmetic_parser.c + arithmetic_codegen.c
+Token* arithmetic_parse(Lexer* lexer) {
+    // Produces: TOKEN_PLUS, TOKEN_MINUS, etc.
+    // A's codegen understands A's tokens
+    return create_arithmetic_token(...);
+}
+
+// Module B: complex_parser.c + complex_codegen.c  
+// B imports A
+Token* complex_parse(Lexer* lexer) {
+    Token* arith = arithmetic_parse(lexer);  // Use A as BLACK BOX
+    // B doesn't care what tokens A produces internally
+    // B only cares: "Did A succeed? What's the result?"
+    return create_complex_token(arith);
+}
+```
+
+```c
+// ❌ WRONG (Module Coupling - Violates Encapsulation):
+
+// Module B trying to understand A's internals
+Token* complex_parse(Lexer* lexer) {
+    Token* arith = arithmetic_parse(lexer);
+    
+    if (arith->type == TOKEN_PLUS) {  // ❌ VIOLATION!
+        // B shouldn't inspect A's internal token types!
+        // This creates coupling between B and A's internals
+    }
+}
+```
+
+### Token Responsibility Rules
+
+1. **Module produces tokens for ITS OWN codegen**
+   - Parser creates tokens
+   - Codegen consumes those same tokens
+   - Parser/Codegen = contract boundary
+
+2. **Module doesn't transform tokens for imported modules**
+   - Import = composition, not coupling
+   - Don't modify imported module's output
+   - Don't adapt tokens to match importer's expectations
+
+3. **Import = use as black box, not peek inside**
+   - Call imported module's parser
+   - Trust its result
+   - Don't inspect internal token structure
+
+4. **Token contract = parser/codegen pair boundary**
+   - Parser promises: "I produce these tokens"
+   - Codegen promises: "I understand these tokens"
+   - Outside world: "I don't care about your tokens"
+
+### Handling Token Mismatches
+
+```c
+// Scenario: Module A produces TOKEN_X (A's codegen understands it)
+//           Module B imports A, B's codegen doesn't understand TOKEN_X
+
+// ❌ WRONG SOLUTION:
+//    Transform TOKEN_X → TOKEN_Y in parser
+//    → Violates A's encapsulation
+//    → Creates token translation layer (complexity)
+//    → Breaks clean module boundaries
+
+// ✅ RIGHT SOLUTIONS:
+//    Option 1: B's codegen learns TOKEN_X (extend B's capabilities)
+//    Option 2: B doesn't import A (use different module)
+//    Option 3: Design modules with compatible token contracts
+```
+
+### Reasoning
+
+- **Module = Isolated Unit** (parser + codegen)
+- **Import = Composition**, not coupling
+- **Token transformation = Responsibility leak**
+- **Clean boundaries = Scalability**
+
+**Analogy:**
+```
+Library API in software engineering:
+- Library exports functions (black box)
+- Client calls functions (doesn't inspect internals)
+- Library changes internals (doesn't break clients)
+
+MELP Modules:
+- Module exports parser (black box)
+- Importer calls parser (doesn't inspect tokens)
+- Module changes tokens (doesn't break importers)
+```
+
+---
+
+## RULE #2: PMPL Stability & Modification Rules 📜
+
+### What is PMPL?
+
+**PMPL = Pragmatic MLP Base Syntax**
+- Internal contract: **Lexer → Parser → Codegen**
+- Normalized from user syntax (any language + any style)
+- User **NEVER** sees PMPL directly
+
+**Why PMPL Exists:**
+```
+User writes:     end if          (2 tokens? 1 token? Ambiguous!)
+PMPL normalizes: end_if          (Single token! Parser-friendly!)
+Lexer produces:  TOKEN_END_IF    (Unambiguous!)
+```
+
+### PMPL Keywords (Examples)
+
+| User Syntax | PMPL | Token | Reason |
+|-------------|------|-------|--------|
+| `end if` | `end_if` | `TOKEN_END_IF` | Single token (no ambiguity) |
+| `else if` | `else_if` | `TOKEN_ELSE_IF` | Single token |
+| `continue for` | `continue_for` | `TOKEN_CONTINUE_FOR` | Specific loop control |
+| `exit while` | `exit_while` | `TOKEN_EXIT_WHILE` | Specific loop control |
+
+### AI Agent Modification Rules
+
+**✅ ALLOWED (With User Approval):**
+
+1. **Add new PMPL keyword** (e.g., `end_match`)
+   - **Requires:** User approval + documentation update
+   - **Process:** 
+     1. Request user approval
+     2. Update `lexer.h` (add `TOKEN_END_MATCH`)
+     3. Update `docs/PMPL_REFERENCE.md`
+     4. Update `docs_tr/PMPL_SOZDIZIMI.md`
+   - **Example:** YZ_87 added `end_match` for pattern matching
+
+2. **Modify PMPL syntax** (e.g., `;` for type inference)
+   - **Requires:** User approval + architecture review
+   - **Reasoning:** PMPL = internal contract (controlled change OK)
+   - **Example:** YZ_25 added `;` syntax for type inference
+   - **Constraint:** Must be backward compatible
+
+**❌ FORBIDDEN (Without User Approval):**
+
+1. **Remove existing PMPL keyword**
+   - **Breaks:** All existing code using that keyword
+   - **Never allowed:** Fundamental keywords (`end_if`, `end_while`, etc.)
+
+2. **Change PMPL keyword meaning**
+   - **Breaks:** Parser expectations, codegen assumptions
+   - **Example:** Changing `end_if` to mean `end_function` = CHAOS
+
+3. **Modify user-facing syntax**
+   - **Reason:** User contract, not AI decision
+   - **Example:** Changing `print` to `println` without user request
+   - **Process:** User decides syntax, AI implements
+
+### Boundary Clarity
+
+```
+┌─────────────────────────────────────────────┐
+│  User Code (Any Syntax + Any Language)     │
+│  Example: "end if", "endif", "}", "fi"     │
+└─────────────────────────────────────────────┘
+                    ↓ normalize
+┌─────────────────────────────────────────────┐
+│  PMPL Code (English + PMPL Keywords)        │  ← AI WORKS HERE
+│  Example: end_if (single token)             │
+└─────────────────────────────────────────────┘
+                    ↓ lexer
+┌─────────────────────────────────────────────┐
+│  Token Stream                                │  ← AI WORKS HERE
+│  Example: TOKEN_END_IF                       │
+└─────────────────────────────────────────────┘
+                    ↓ parser → codegen
+┌─────────────────────────────────────────────┐
+│  Assembly / LLVM IR                          │  ← AI WORKS HERE
+└─────────────────────────────────────────────┘
+```
+
+**AI Agent Zones:**
+- **Primary Work:** PMPL layer and below (lexer/parser/codegen)
+- **Ask User:** User syntax layer changes
+- **Never Touch:** Normalization layer (without user approval)
+
+### Modification Examples
+
+**✅ OK: Add `end_match` (new PMPL keyword)**
+```
+Reason:     PMPL extension, doesn't break existing code
+Process:    1. User approves "pattern matching feature"
+            2. AI adds TOKEN_END_MATCH to lexer.h
+            3. AI updates documentation
+            4. AI implements parser/codegen logic
+Impact:     New feature, backward compatible
+```
+
+**✅ OK: `;` for type inference (PMPL syntax change)**
+```
+Reason:     Backward compatible, opt-in feature
+Process:    1. User approves "type inference with ;"
+            2. AI modifies parser logic (; handling)
+            3. AI updates documentation
+Impact:     Optional syntax, old code still works
+```
+
+**❌ NOT OK: Change `print` to `println` (user syntax)**
+```
+Reason:     Breaks user code expectations
+Problem:    User wrote "print x" expecting certain behavior
+            AI changes meaning = broken user code
+Process:    ONLY user can decide this change
+```
+
+**❌ NOT OK: Remove `end_if` (existing PMPL)**
+```
+Reason:     Fundamental keyword, breaks ALL IF statements
+Problem:    Existing MELP code has "if ... end_if"
+            Removing = instant chaos
+Process:    NEVER allowed (breaking change)
+```
+
+### PMPL Stability Guarantee
+
+**User Contract:**
+> PMPL keywords are **stable**. Adding new keywords is OK (with approval),  
+> but removing or changing existing keywords breaks the contract.
+
+**AI Contract:**
+> Work with PMPL confidently. Lexer.h tokens are your interface.  
+> Extend carefully (with approval), never break existing tokens.
+
+---
+
 ## 🚨 CRITICAL: AI AGENT WORKFLOW 🚨
 
 **EVERY AI AGENT MUST:**

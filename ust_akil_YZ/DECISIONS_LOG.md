@@ -1707,6 +1707,319 @@ Analogy:
   Both violate MELP core architecture
   Both must be forbidden with same severity
 
+Next: Decision #20.2 (Import Strategy)
+```
+
+---
+
+### KARAR #22: Token List Source of Truth + Module Responsibility Documentation
+**Tarih:** 18 Ara 2025 23:00  
+**Üst Akıl:** YZ_ÜA_01  
+**Karar:**
+```
+User Discovery: Token inconsistency risk
+- YZ'ler farklı token isimleri kullanıyor (TOKEN_IF vs TOKEN_IF_END)
+- Module responsibility boundaries unclear
+- PMPL vs User Syntax boundary unclear
+
+✅ GOOD NEWS: Token List EXISTS and CORRECT!
+- lexer.h: Complete, well-documented TokenType enum
+- docs/PMPL_REFERENCE.md: Synchronized with lexer.h
+- docs_tr/PMPL_SOZDIZIMI.md: Synchronized with lexer.h
+- Naming consistent: TOKEN_IF, TOKEN_END_IF (correct!)
+
+❌ ARCHITECTURE VIOLATIONS FOUND:
+```
+
+**VIOLATION #1: Token Source of Truth Ambiguous**
+```
+Problem: 3 token lists exist, which is canonical?
+
+Current State:
+├─ compiler/stage0/modules/lexer/lexer.h (CODE)
+├─ docs/PMPL_REFERENCE.md (English docs)
+└─ docs_tr/PMPL_SOZDIZIMI.md (Turkish docs)
+
+Risk:
+- AI agents don't know which to check
+- Sync drift between code/docs inevitable
+- Token naming conflicts possible
+
+Root Cause:
+- No clear statement: "lexer.h is canonical"
+- Docs could diverge without detection
+- AI agents might reference wrong source
+```
+
+**VIOLATION #2: Module Responsibility Undocumented** 🔥
+```
+User's EXCELLENT Rule (Verbatim):
+"Her modül kendi parserine ve kendi codegenine karşı sorumludur.
+ Bir modül başka bir modülü import ettiğinde import ettiği modülün
+ codegeninin ne beklediği ile ilgilenmez, kendi codegeninin 
+ beklediği tokenleri üretir."
+
+TRANSLATION (Architecture Critical):
+"Every module is responsible for its own parser and codegen.
+ When a module imports another module, it does NOT care what 
+ the imported module's codegen expects, it produces tokens
+ that ITS OWN codegen expects."
+
+Problem: This rule is NOWHERE in architecture docs!
+- NOT in ARCHITECTURE.md
+- NOT in kurallar_kitabı_v1.md
+- NOT in selfhosting_geçiş_planlaması.md
+- NOT documented ANYWHERE!
+
+Severity: Same as Decision #20 (API pattern)
+- This is CORE PHILOSOPHY
+- Affects module boundaries
+- Affects import/export design
+- Affects token responsibility
+
+Current Status:
+- User knows it ✅
+- AI agents DON'T KNOW IT ❌
+- Module violations possible ❌
+```
+
+**VIOLATION #3: PMPL Boundary Unclear**
+```
+From kurallar_kitabı_v1.md:
+"Yeni gelen AI sadece zincirin 4. halkasından sonraki 
+ bölüm ile ilgilenecektir."
+ 
+Translation:
+"New AI only works AFTER normalization (4th link)"
+
+Problem: Boundary not enforced!
+
+Evidence:
+- YZ_19: Print syntax change (user-facing!)
+- YZ_25: Type inference ; syntax (PMPL change!)
+- No clear rule: "AI can/cannot modify PMPL"
+
+Confusion:
+- Can AI add new PMPL keywords? (e.g., end_if)
+- Can AI modify PMPL syntax? (e.g., ; for type inference)
+- Can AI change user-facing syntax? (e.g., print vs println)
+
+Risk:
+- PMPL creep (uncontrolled keyword additions)
+- Syntax inconsistency
+- docs/syntax.json vs code divergence
+```
+
+**Gerekçe:**
+
+User's insight **100% CORRECT:**
+
+1. **Token Consistency Critical:**
+   - YZ_21-30: Different AIs working on different modules
+   - Without canonical token list: naming conflicts inevitable
+   - TOKEN_IF vs TOKEN_IF_END chaos at scale
+
+2. **Module Responsibility = Isolation:**
+   - Parallel to "Her modül ölüdür" philosophy
+   - Module boundaries = clean interfaces
+   - Import doesn't mean "understand internals"
+   - Each module autonomous (parser + codegen pair)
+
+3. **Token List vs Monolithic:**
+   - Monolithic: One file knows all tokens
+   - Modular: Each module declares token contract
+   - BUT: Shared token enum needed (lexer.h)
+   - Resolution: lexer.h = canonical, modules reference
+
+4. **PMPL Stability:**
+   - PMPL = internal contract (lexer → parser → codegen)
+   - User syntax = external contract (user → PMPL)
+   - Both must be stable, documented, controlled
+   - Boundary violations = architecture chaos
+
+**Çözüm:**
+
+### Part A: Token Source of Truth
+
+**ARCHITECTURE.md Addition (New Rule #0):**
+```markdown
+## RULE #0: Token Canonical Source
+
+**Canonical Source:** `compiler/stage0/modules/lexer/lexer.h`
+- TokenType enum is SINGLE SOURCE OF TRUTH
+- All documentation must reference lexer.h
+- Docs divergence = architecture violation
+
+**Documentation:**
+- docs/PMPL_REFERENCE.md: Must sync with lexer.h
+- docs_tr/PMPL_SOZDIZIMI.md: Must sync with lexer.h
+- Sync check: Mandatory before YZ handoff
+
+**AI Agent Rules:**
+1. ALWAYS reference lexer.h for token names
+2. NEVER invent new token names
+3. New token? → Update lexer.h FIRST, then docs
+4. Token rename? → Update lexer.h + ALL docs + ALL code
+
+**Enforcement:**
+- Pre-commit: Check docs/code token sync
+- YZ handoff: Verify token consistency
+- Violation: YZ work rejected
+```
+
+### Part B: Module Responsibility
+
+**ARCHITECTURE.md Addition (New Rule #1):**
+```markdown
+## RULE #1: Module Responsibility & Token Ownership
+
+**Core Principle:**
+"Her modül kendi parserine ve kendi codegenine karşı sorumludur."
+("Every module owns its parser and codegen pair.")
+
+**What This Means:**
+
+✅ CORRECT (Module Autonomy):
+```c
+// Module A (arithmetic_parser.c + arithmetic_codegen.c)
+Token* parse_arithmetic(Lexer* lexer) {
+    // Produces: TOKEN_PLUS, TOKEN_MINUS (A's tokens)
+    // A's codegen understands A's tokens
+}
+
+// Module B imports A
+Token* parse_complex(Lexer* lexer) {
+    Token* arith = parse_arithmetic(lexer);  // Use A as black box
+    // B doesn't care what A produces internally
+    // B only cares: "Did A succeed?"
+}
+```
+
+❌ WRONG (Module Coupling):
+```c
+// Module B trying to understand A's internals
+Token* parse_complex(Lexer* lexer) {
+    Token* arith = parse_arithmetic(lexer);
+    if (arith->type == TOKEN_PLUS) {  // ❌ Violates A's encapsulation!
+        // B shouldn't know A's internal tokens
+    }
+}
+```
+
+**Token Responsibility:**
+1. Module produces tokens for ITS OWN codegen
+2. Module doesn't transform tokens for imported modules
+3. Import = use as black box, not peek inside
+4. Token contract = parser/codegen pair boundary
+
+**If Token Mismatch:**
+```c
+// Module A produces TOKEN_X (A's codegen understands it)
+// Module B imports A, B's codegen doesn't understand TOKEN_X
+
+WRONG: Transform TOKEN_X → TOKEN_Y in parser
+RIGHT: B's codegen learns TOKEN_X, OR B doesn't import A
+```
+
+**Reasoning:**
+- Module = isolated unit (parser + codegen)
+- Import = composition, not coupling
+- Token transformation = responsibility leak
+- Clean boundaries = scalability
+```
+
+### Part C: PMPL Boundary
+
+**ARCHITECTURE.md Addition (New Rule #2):**
+```markdown
+## RULE #2: PMPL Stability & Modification Rules
+
+**What is PMPL:**
+- Internal contract: Lexer → Parser → Codegen
+- Pragmatic MLP Base Syntax
+- User NEVER sees PMPL (normalized from user syntax)
+
+**PMPL Keywords (Examples):**
+- `end_if` (not "end if" - single token for parser)
+- `else_if` (not "else if")
+- `continue_for`, `exit_while` (specific loop control)
+
+**AI Agent Modification Rules:**
+
+✅ ALLOWED (With User Approval):
+1. Add new PMPL keyword (e.g., `end_match`)
+   - Requires: User approval + docs update
+   - Update: lexer.h + PMPL_REFERENCE.md + PMPL_SOZDIZIMI.md
+
+2. Modify PMPL syntax (e.g., ; for type inference)
+   - Requires: User approval + architecture review
+   - Reasoning: PMPL = internal contract (controlled change OK)
+
+❌ FORBIDDEN (Without User Approval):
+1. Remove existing PMPL keyword
+   - Breaks: Existing code
+2. Change PMPL keyword meaning
+   - Breaks: Parser expectations
+3. Modify user-facing syntax
+   - Reason: User contract, not AI decision
+
+**Boundary Clarity:**
+```
+User Code (Any Syntax)
+    ↓ normalize
+PMPL Code (English + PMPL keywords)
+    ↓ lexer/parser/codegen
+Assembly/IR
+
+AI Works Here: ↑ (PMPL and below)
+AI Asks User: ← (User syntax changes)
+```
+
+**Examples:**
+
+✅ OK: Add `end_match` (new PMPL keyword)
+- Reason: PMPL extension, doesn't break existing code
+- Process: User approval → lexer.h → docs
+
+✅ OK: `;` for type inference (PMPL syntax change)
+- Reason: Backward compatible, opt-in
+- Process: User approval → parser logic → docs
+
+❌ NOT OK: Change `print` to `println` (user syntax)
+- Reason: Breaks user code
+- Process: User decision ONLY
+
+❌ NOT OK: Remove `end_if` (existing PMPL)
+- Reason: Breaks all IF statements
+- Process: NEVER (fundamental keyword)
+```
+
+**Sonuç:**
+
+✅ **Token Source of Truth:** lexer.h = canonical (ARCHITECTURE.md Rule #0)  
+✅ **Module Responsibility:** Documented (ARCHITECTURE.md Rule #1)  
+✅ **PMPL Boundary:** Clear rules (ARCHITECTURE.md Rule #2)  
+✅ **User's Concerns:** All addressed with explicit rules  
+
+**Impact:**
+- Token inconsistency: PREVENTED (canonical source)
+- Module coupling: PREVENTED (responsibility boundaries)
+- PMPL chaos: PREVENTED (modification rules)
+- AI agent confusion: ELIMINATED (clear guidelines)
+
+**Next Steps:**
+1. Update ARCHITECTURE.md with Rules #0, #1, #2
+2. Add token sync check to YZ handoff process
+3. Document module responsibility in module templates
+4. Clarify PMPL modification approval process
+
+**Quote (User Wisdom):**
+> "Sürekli farklı YZ ile çalışıyoruz ve her gelen YZ kendi 
+>  tokenine kendi adını veriyor... Bu kesinlikle o listede 
+>  baştan belirtilmeli."
+
+Architecture saves future YZ'ler from chaos! 🎯
+
 User Quote:
   "Nasıl ki monolitik çözümü reddediyorsak,
    aynı kararlılıkla API çözümünü de reddetmeliyiz."
