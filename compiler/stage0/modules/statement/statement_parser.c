@@ -8,6 +8,7 @@
 #include "../arithmetic/arithmetic_parser.h"       // ✅ Expressions
 #include "../arithmetic/arithmetic.h"              // ✅ ArithmeticExpr
 #include "../functions/functions.h"                // ✅ ReturnStatement
+#include "../functions/functions_parser.h"         // ✅ YZ_26: Function parsing
 #include "../lexer/lexer.h"                        // ✅ Token operations
 #include "../error/error.h"                        // ✅ Error handling system
 #include "../array/array.h"                        // ✅ YZ_15: IndexAccess, ArrayAssignment
@@ -261,6 +262,22 @@ Statement* statement_parse(Parser* parser) {
         if (enum_data) {
             stmt = statement_create(STMT_ENUM);
             stmt->data = enum_data;
+            stmt->next = NULL;
+        }
+        
+        return stmt;
+    }
+    
+    // ✅ YZ_26: FUNCTION definition - use functions module
+    if (tok->type == TOKEN_FUNCTION) {
+        // Put token back - parse_function_declaration expects to read it
+        lexer_unget_token(parser->lexer, tok);
+        
+        FunctionDeclaration* func_data = parse_function_declaration(parser->lexer);
+        
+        if (func_data) {
+            stmt = statement_create(STMT_FUNCTION);
+            stmt->data = func_data;
             stmt->next = NULL;
         }
         

@@ -83,6 +83,19 @@ ComparisonExpr* comparison_parse_expression_stateless(Lexer* lexer, Token* first
         expr->left_value = strdup(first_token->value);
         expr->left_is_literal = 1;
         expr->is_string = 1;
+    } else if (first_token->type == TOKEN_LBRACKET) {  // YZ_26: Empty list literal support []
+        // Check if next token is ']' for empty list
+        Token* next = lexer_next_token(lexer);
+        if (next && next->type == TOKEN_RBRACKET) {
+            expr->left_value = strdup("[]");
+            expr->left_is_literal = 1;
+            token_free(next);
+        } else {
+            // Not empty list, unget token and fail
+            if (next) lexer_unget_token(lexer, next);
+            free(expr);
+            return NULL;
+        }
     } else if (first_token->type == TOKEN_IDENTIFIER) {
         expr->left_value = strdup(first_token->value);
         expr->left_is_literal = 0;
@@ -156,6 +169,23 @@ ComparisonExpr* comparison_parse_expression_stateless(Lexer* lexer, Token* first
         expr->right_value = strdup(right_tok->value);
         expr->right_is_literal = 1;
         expr->is_string = 1;
+    } else if (right_tok->type == TOKEN_LBRACKET) {  // YZ_26: Empty list literal support []
+        // Check if next token is ']' for empty list
+        Token* next = lexer_next_token(lexer);
+        if (next && next->type == TOKEN_RBRACKET) {
+            expr->right_value = strdup("[]");
+            expr->right_is_literal = 1;
+            token_free(next);
+            token_free(right_tok);
+            right_tok = NULL;
+        } else {
+            // Not empty list, unget token and fail
+            if (next) lexer_unget_token(lexer, next);
+            token_free(right_tok);
+            free(expr->left_value);
+            free(expr);
+            return NULL;
+        }
     } else if (right_tok->type == TOKEN_IDENTIFIER) {
         expr->right_value = strdup(right_tok->value);
         expr->right_is_literal = 0;
