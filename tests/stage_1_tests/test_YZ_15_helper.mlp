@@ -1,0 +1,11 @@
+-- ============================================================================
+-- Helper Module for Import Test
+-- ============================================================================
+
+function helper_add(x: numeric, y: numeric) returns numeric
+    return x + y
+end_function
+
+function helper_multiply(x: numeric, y: numeric) returns numeric
+    return x * y
+end_function

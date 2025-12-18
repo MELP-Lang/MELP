@@ -1,0 +1,62 @@
+-- ============================================================================
+-- YZ_15 Test: Type Annotations & Boolean Keyword
+-- ============================================================================
+-- Tests:
+-- 1. Type annotations (param: type) - NEW SYNTAX
+-- 2. Boolean keyword
+-- 3. Old syntax backward compatibility
+-- ============================================================================
+
+-- Test 1: New syntax - Type annotations after parameters
+function add_numbers(x: numeric, y: numeric) returns numeric
+    numeric result = x + y
+    return result
+end_function
+
+function greet(name: string) returns string
+    return name
+end_function
+
+function check_flag(enabled: boolean) returns numeric
+    if enabled then
+        return 1
+    else
+        return 0
+    end_if
+end_function
+
+-- Test 2: Old syntax - Type before parameters (backward compatibility)
+function old_add(numeric a, numeric b) returns numeric
+    return a + b
+end_function
+
+-- Test 3: Mixed parameters (new and struct types)
+function process_data(count: numeric, message: string) returns numeric
+    return count
+end_function
+
+-- Test 4: Boolean parameters and returns
+function is_valid(flag: boolean) returns boolean
+    return flag
+end_function
+
+-- Test 5: Complex function with multiple typed parameters
+function calculate(
+    value1: numeric,
+    value2: numeric,
+    use_max: boolean
+) returns numeric
+    if use_max then
+        if value1 > value2 then
+            return value1
+        else
+            return value2
+        end_if
+    else
+        if value1 < value2 then
+            return value1
+        else
+            return value2
+        end_if
+    end_if
+end_function

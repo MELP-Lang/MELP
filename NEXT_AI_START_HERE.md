@@ -34,10 +34,16 @@ YZ_14 bulguları:
 3. Incremental bootstrap
 
 Görevlerim:
-1. Type annotation parser ekle (parse but ignore)
-2. Boolean keyword support
-3. Relative import path fix
-4. Test ve doğrula
+0. ⚠️ ÖNCE: Enums mimari ihlalini düzelt (30-45 dk) - KRİTİK!
+   - g_enum_registry global state → Parametre geçişi
+   - MELP_Mimarisi.md'ye uyumlu hale getir
+   - Stage 2'ye kadar bırakılırsa daha büyük sorun!
+1. Type annotation parser ekle (parse but ignore) (2 saat)
+2. Boolean keyword support (→ numeric alias) (1 saat)
+3. Relative import path fix (1 saat)
+4. Test ve doğrula (30 dk)
+
+Toplam: ~5 saat
 
 Başlamamı ister misiniz?
 ```

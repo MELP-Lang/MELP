@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "module_path": "tests/stage_1_tests/test_YZ_15_helper.mlp",
+  "source_mtime": 1766054037,
+  "object_mtime": 0,
+  "object_path": null,
+  "assembly_path": "test_YZ_15_helper.s",
+  "functions": [
+    "helper_add",
+    "helper_multiply"
+  ],
+  "dependencies": [
+  ]
+}

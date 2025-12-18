@@ -1019,13 +1019,34 @@ Total: 92/92 tests passed (100%)
 **Çözüm:** Minimal Stage 0 enhancement + Stage 1 cleanup + Incremental bootstrap  
 **Tahmini:** 10-15 saat
 
-### ⏳ YZ_15 - Stage 0 Enhancement (Minimal)
+### ⏳ YZ_15 - Stage 0 Enhancement + Enum Fix (Minimal)
 **Dal:** `stage0_enhancement_YZ_15`  
-**Tahmini:** 4-6 saat  
+**Tahmini:** 5 saat  
 **Durum:** ⏸️ BEKLİYOR
 
 #### Yapılacaklar:
-- [ ] **15.1** Type Annotation Parser (2-3 saat)
+
+- [ ] **15.0** ⚠️ ÖNCE: Enums Mimari İhlalini Düzelt (30-45 dk) - **KRİTİK!**
+  - [ ] **SORUN:**
+    ```mlp
+    -- compiler/stage1/modules/enums/enums_codegen.mlp:47
+    list g_enum_registry = []  -- ❌ MUTABLE GLOBAL STATE - MİMARİ İHLALİ!
+    ```
+  - [ ] **ÇÖZÜM:** Compile-time const (Rust modeli)
+    - Enum değerleri compile-time constant olarak tanımla
+    - Runtime registry'e gerek yok
+    - LLVM IR'da direkt constant emit et
+  - [ ] **UYGULAMA:**
+    - `enums_codegen.mlp` global state'i kaldır
+    - Registry'yi parametre olarak geçir (gerekirse)
+    - Stateless pattern'e uyumlu hale getir
+  - [ ] **DOĞRULA:**
+    - MELP_Mimarisi.md compliance
+    - Stateless pattern validation
+    - `test_enums.mlp` çalışıyor olmalı
+  - [ ] **NOT:** Stage 2'ye kadar bırakılırsa daha büyük sorun!
+
+- [ ] **15.1** Type Annotation Parser (2 saat)
   - [ ] Lexer: Colon `:` detection after parameter
   - [ ] Parser: `param: type` syntax support
   - [ ] Implementation: Parse but IGNORE type (backward compat)
@@ -1037,20 +1058,23 @@ Total: 92/92 tests passed (100%)
   - [ ] Implementation: Zero runtime overhead (compile-time mapping)
   - [ ] Test: `boolean flag = 1` çalışmalı
   
-- [ ] **15.3** Relative Import Path Fix (1-2 saat)
+- [ ] **15.3** Relative Import Path Fix (1 saat)
   - [ ] Import resolver: `../` ve `./` normalization
   - [ ] Path joining: Current file path + relative path
   - [ ] Error handling: Better error messages
   - [ ] Test: `import "../core/token_types.mlp"` çalışmalı
   
-- [ ] **15.4** Validation Tests (1 saat)
+- [ ] **15.4** Validation Tests (30 dk)
   - [ ] Test: char_utils.mlp compile olmalı
   - [ ] Test: type_mapper.mlp compile olmalı
   - [ ] Test: functions_parser.mlp compile olmalı
+  - [ ] Test: **enums_codegen.mlp** compile olmalı (mimari ihlali düzeltilmiş!)
   - [ ] Success rate: En az %50 modül dosyası
   - [ ] Regression: Existing tests hala geçmeli
 
 #### Başarı Kriterleri:
+- ✅ **Enum global state KALDIRILDI** - MİMARİ TEMİZ!
+- ✅ MELP_Mimarisi.md'ye %100 uyumlu
 - ✅ Type annotation syntax parse ediliyor (ignore edilse de)
 - ✅ Boolean keyword tanınıyor
 - ✅ Relative imports çözülüyor
@@ -1059,6 +1083,7 @@ Total: 92/92 tests passed (100%)
 - ✅ Existing tests geçiyor (regression yok)
 
 #### Çıktılar:
+- `compiler/stage1/modules/enums/enums_codegen.mlp` (✨ GLOBAL STATE REMOVED!)
 - `compiler/stage0/modules/functions/functions_parser.c` (type annotation support)
 - `compiler/stage0/modules/lexer/lexer.c` (boolean keyword)
 - `compiler/stage0/modules/import/import.c` (relative path fix)
@@ -1069,64 +1094,40 @@ Total: 92/92 tests passed (100%)
 
 ### ⏳ YZ_16 - Stage 1 Syntax Cleanup
 **Dal:** `stage1_cleanup_YZ_16`  
-**Tahmini:** 4-6 saat  
+**Tahmini:** 3-4 saat  
 **Durum:** ⏸️ BEKLİYOR
-**⚠️ ÖNCELİK:** Enum global state removal!
+**NOT:** Enum global state YZ_15'te düzeltildi! ✅
 
 #### Yapılacaklar:
-- [ ] **16.1** ⚠️ Enum Module Fix (MİMARİ İHLALİ - ÖNCELİK!) (2 saat)
-  - [ ] **SORUN TANIMLA:**
-    ```mlp
-    -- compiler/stage1/modules/enums/enums_codegen.mlp:47
-    list g_enum_registry = []  -- ❌ GLOBAL MUTABLE STATE!
-    ```
-  - [ ] **ÇÖZÜM 1:** Compile-time const (Rust modeli)
-    - Enum değerleri compile-time constant olarak tanımla
-    - Runtime registry'e gerek kalmaz
-    - LLVM IR'da direkt constant olarak emit et
-  - [ ] **ÇÖZÜM 2:** Parametre geçişi (fallback)
-    - Registry'i function parametresi olarak geç
-    - Her fonksiyon `enum_registry` parametresi alsın
-    - Stateless pattern koru
-  - [ ] **UYGULAMA:**
-    - `enums_codegen.mlp` yeniden yaz
-    - Global state tamamen kaldır
-    - Test dosyasını güncelle
-  - [ ] **DOĞRULA:**
-    - MELP_Mimarisi.md compliance check
-    - Stateless pattern validation
-    - Test suite çalıştır
   
-- [ ] **16.2** String Operations Simplification (1-2 saat)
+- [ ] **16.1** String Operations Simplification (1-2 saat)
   - [ ] Complex string concat → Basitleştir
   - [ ] String interpolation → Kaldır veya basit hale getir
   - [ ] Stage 0 capabilities ile uyumlu hale getir
   
-- [ ] **16.3** Type Annotations Normalization (1 saat)
+- [ ] **16.2** Type Annotations Normalization (1 saat)
   - [ ] Tüm modüllerde consistent format
   - [ ] `param: type` → Doğru kullanım
   - [ ] Type inference where possible
   
-- [ ] **16.4** Import Path Standardization (1 saat)
+- [ ] **16.3** Import Path Standardization (1 saat)
   - [ ] Tüm relative import path'leri kontrol et
   - [ ] Consistent format: `../module/file.mlp`
   - [ ] Dead import'ları temizle
   
-- [ ] **16.5** Validation (1 saat)
+- [ ] **16.4** Validation (1 saat)
   - [ ] Her modül Stage 0 ile compile olmalı
-  - [ ] Success rate: %70+ bekleniyor
+  - [ ] Success rate: %80+ bekleniyor (YZ_15'ten sonra)
   - [ ] Architecture compliance check
 
 #### Başarı Kriterleri:
-- ✅ **GLOBAL STATE YOK!** (Enum modülü temiz)
+- ✅ %80+ modül dosyası compile oluyor
 - ✅ MELP_Mimarisi.md'ye %100 uyumlu
-- ✅ %70+ modül dosyası compile oluyor
 - ✅ Stateless pattern her yerde
 - ✅ Import path'leri doğru
 - ✅ String operations basit ve Stage 0 compatible
 
 #### Çıktılar:
-- `compiler/stage1/modules/enums/enums_codegen.mlp` (yeniden yazılmış - NO GLOBAL STATE!)
 - Updated module files (imports, string ops)
 - `YZ_Stage_1/YZ_16_RAPOR.md`
 - Architecture compliance report

@@ -1,0 +1,12 @@
+-- ============================================================================
+-- YZ_15 Test: Relative Import
+-- ============================================================================
+
+-- Test relative import (full path from project root)
+import "tests/stage_1_tests/test_YZ_15_helper.mlp"
+
+function main() returns numeric
+    numeric a = helper_add(5, 10)
+    numeric b = helper_multiply(3, 4)
+    return a + b
+end_function

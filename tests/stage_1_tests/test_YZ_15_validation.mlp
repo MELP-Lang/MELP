@@ -1,0 +1,58 @@
+-- ============================================================================
+-- YZ_15 Validation Test
+-- ============================================================================
+-- Tests all YZ_15 enhancements:
+-- 1. Type annotations (param: type)
+-- 2. Boolean keyword
+-- 3. Relative imports
+-- ============================================================================
+
+-- Test 1: Type Annotations
+function add_numbers(x: numeric, y: numeric) returns numeric
+    return x + y
+end_function
+
+function greet(name: string) returns string
+    return "Hello"
+end_function
+
+function check_flag(enabled: boolean) returns boolean
+    return enabled
+end_function
+
+-- Test 2: Boolean Type
+boolean flag1 = true
+boolean flag2 = false
+boolean result = flag1
+
+-- Test 3: Mixed old/new syntax (backward compatibility)
+function old_style(numeric a, numeric b) returns numeric
+    return a + b
+end_function
+
+function new_style(a: numeric, b: numeric) returns numeric
+    return a + b
+end_function
+
+-- Test 4: Multiple parameters with types
+function complex_function(
+    count: numeric,
+    message: string,
+    enabled: boolean
+) returns numeric
+    if enabled then
+        return count
+    else
+        return 0
+    end_if
+end_function
+
+-- Test 5: Function calls
+numeric sum = add_numbers(5, 10)
+string greeting = greet("World")
+boolean check = check_flag(true)
+
+-- Print results
+print sum
+print greeting
+print check
