@@ -1,9 +1,24 @@
 # 🚀 NEXT AI START HERE - SEN YZ_21'SİN!
 
-**👤 SENİN ROLÜN:** YZ_21 - Decision Point: Module Fixes vs Integration  
+**👤 SENİN ROLÜN:** YZ_21 - Lexer Modülü (Stage 0 → MELP)  
 **📅 Tarih:** 18 Aralık 2025  
-**🌿 Dal:** `stage1_cleanup_YZ_16` (devam edecek)  
-**📊 Durum:** ✅ YZ_20 COMPLETE - Cleanup Done, Path Forward Clear!
+**🌿 Dal:** `lexer_module_YZ_21` (yeni dal oluşturulacak)  
+**📊 Durum:** ✅ YZ_ÜA_01 COMPLETE - Strateji Belirlendi!
+
+---
+
+## ⚠️ ÖNEMLİ: ÜST AKIL YAPISI KURULDU!
+
+**Yeni Klasör:** `ust_akil_YZ/`
+- Mimari kararlar ve stratejik planlama
+- Kod YZ'lerden (senin gibi) AYRI
+- Devamlılık ve bellek yönetimi için
+
+**Sen kod YZ'sin, üst akıl değil!**
+- ✅ Kod yazarsın
+- ✅ Modül oluşturursun
+- ✅ Test edersin
+- ❌ Mimari karar vermezsin (üst akıl yapar)
 
 ---
 
@@ -14,90 +29,97 @@
 ```
 Merhaba! Ben YZ_21'yim.
 
-YZ_20 RAPORU okudum - Kritik bulgular var!
+YZ_ÜA_01 (ÜST AKIL) RAPORU okudum!
 
-📊 YZ_20 Başarıları:
-✅ Eski monolitik yapı arşivlendi (70 dosya temizlendi!)
-✅ YZ_03-11 modüler yapı temiz ve organize
-✅ 82 test dosyası doğrulandı
-✅ Stage 0 compiler build edildi
+📊 Üst Akıl Kararları:
+✅ Stage 1 gerçek durum tespit edildi (9/34 modül)
+✅ 7 YZ planı hazırlandı (YZ_21-27)
+✅ Minimal bootstrap stratejisi onaylandı
+✅ Core yapı: Modüler + STO + LLVM + Stateless
 
-🔍 Kritik Bulgu:
-⚠️ Test dosyaları Stage 1 syntax'ında (doğru)
-⚠️ Stage 0 compiler Stage 0 syntax bekliyor
-⚠️ Syntax incompatibility: print → print()
+🎯 BENİM GÖREVİM (YZ_21):
+→ Lexer modülünü oluştur
+→ Stage 0 lexer.c → lexer.mlp çevirisi
+→ Token generation
+→ MELP syntax ile yaz
 
-💡 İki Yol Var:
+📋 CHECKLIST:
+1. ust_akil_YZ/YZ_UA_01_RAPOR.md okudum ✅
+2. ARCHITECTURE.md okudum ve onayladım ✅
+3. compiler/stage0/modules/lexer/ inceledim ✅
+4. Görev netleşti, başlayalım! 🚀
 
-OPTION 1: YZ_12'ye Geç (Önerilen - TODO.md'ye uygun)
-  → Stage 1 compiler oluştur
-  → Bootstrap cycle
-  → 82 testi Stage 1 ile çalıştır
-  
-OPTION 2: Kalan 23 Modülü Düzelt (YZ_18)
-  → Stage 0 limitations fix
-  → %72 → %95+ başarı oranı
-  → Sonra YZ_12'ye geç
-
-Hangi yolu tercih edersiniz?
+Onay bekliyorum!
 ```
 
 ---
 
-## 🎉 YZ_20 - COMPLETE!
+## 🎉 YZ_ÜA_01 (ÜST AKIL) - COMPLETE!
 
-**YZ_20 - Test Execution Analysis & Cleanup (✅ Tamamlandı - 1 saat)**
-- ✅ Archived old monolithic modules (70 files)
-  - lexer_mlp → archive/old_stage1_monolithic/
-  - parser_mlp → archive/old_stage1_monolithic/
-  - codegen_mlp → archive/old_stage1_monolithic/
-- ✅ Verified 82 test files (9 modules)
-- ✅ Built Stage 0 compiler
-- ✅ Discovered syntax incompatibility (expected!)
-- ✅ Clear path forward documented
+**YZ_ÜA_01 - Stratejik Analiz ve Planlama (✅ Tamamlandı - 3 saat)**
+- ✅ MELP core yapısı onaylandı (Modüler + STO + LLVM + Stateless)
+- ✅ Performans mimarisi netleşti (%100 LLVM garantisi)
+- ✅ Stage 1 gerçek durum tespit edildi (9/34 modül)
+- ✅ YZ_19 raporu düzeltildi ("83 modül" → "44 dosya")
+- ✅ 7 YZ planı oluşturuldu (YZ_21-27)
+- ✅ Üst akıl yapısı kuruldu (ust_akil_YZ/)
 
-**Kritik Bulgular:**
-- ✅ **Workspace temiz:** Sadece YZ_03-11 modülleri kaldı
-- ⚠️ **Syntax gap:** Stage 1 tests need Stage 1 compiler
-- ✅ **TODO.md doğruydu:** FAZ 2 (YZ_12) test execution için
-- 📊 **82 tests ready:** Test execution için hazır
+**Kritik Kararlar:**
+- ✅ **Sıfırdan başlama REDDEDİLDİ:** Mevcut 9 modül korunacak
+- ✅ **Minimal bootstrap stratejisi:** 6 kritik modül eklenecek
+- ✅ **7 YZ Planı:** Lexer → Parser Core → Expression → Statement → Print → LLVM → Bootstrap
+- 📊 **Tahmini:** 14-20 saat (7 YZ × 2-3 saat)
 
 ---
 
-## 🎯 YZ_21 İÇİN KARAR NOKTASI
+## 🎯 YZ_21 GÖREVİ: LEXER MODÜLÜ
 
-**OPTION 1: YZ_12'YE GEÇ (ÖNERİLEN)** 🌟
+**HEDEF:** Stage 0 lexer.c → lexer.mlp çevirisi
 
-**Neden?**
-- ✅ TODO.md stratejisi bunu öngörmüş
-- ✅ Test dosyaları doğru yazılmış (Stage 1 syntax)
-- ✅ Natural progression: Modules → Integration → Tests
-- ✅ Workspace temiz ve hazır
+**Neden Lexer?**
+- ✅ Kaynak kodu okumak için ZORUNLU
+- ✅ Tüm compiler'ın başlangıç noktası
+- ✅ Stage 0'da çalışan versiyonu var (kopyala/çevir)
+- ✅ Token üretimi → Parser'a input
 
 **Görevler:**
-1. Stage 1 compiler oluştur (modül integration)
-2. Bootstrap: Stage 0 → Stage 1
-3. Self-compile validation
-4. Test execution (82 tests)
-5. **SONRAKİ:** YZ_13+ (remaining features)
+1. **Analiz** (30 dk)
+   - `compiler/stage0/modules/lexer/lexer.c` incele
+   - `compiler/stage0/modules/lexer/lexer.h` incele
+   - Token types, lexer state machine anla
 
-**Tahmini Süre:** 6-8 saat
+2. **Implementation** (2 saat)
+   - `compiler/stage1/modules/lexer/` dizini oluştur
+   - `lexer_parser.mlp` - Token generation logic
+   - `lexer_state.mlp` - State machine
+   - Import core utilities (token_types, char_utils)
+
+3. **Test** (30 dk)
+   - `test_lexer.mlp` - Comprehensive tests
+   - Test: Keywords, identifiers, numbers, strings
+   - Test: Operators, whitespace, comments
+   - Test: Error handling
+
+4. **README** (30 dk)
+   - Module documentation
+   - Usage examples
+   - API reference
+
+**Tahmini Süre:** 2-3 saat
 
 ---
 
-**OPTION 2: YZ_18 DEVAM (23 MODÜL FIX)** 🔧
+## 📋 YZ_21-27 ROADMAP (7 YZ Plan)
 
-**Neden?**
-- ⚠️ %72 başarı var, %95+ olmadan integration zor olabilir
-- ✅ Fix patterns net (temp variable solution)
-- ✅ Validation framework hazır
+**YZ_21: Lexer** (2-3 saat) ← **SEN BURASINDAین!**
+**YZ_22: Parser Core** (3-4 saat)
+**YZ_23: Expression Wrapper** (1-2 saat)
+**YZ_24: Statement Parser** (2-3 saat)
+**YZ_25: Print Module** (1 saat)
+**YZ_26: LLVM Backend** (3-4 saat)
+**YZ_27: Bootstrap Test** (2-3 saat)
 
-**Görevler:**
-1. 23 başarısız modülü düzelt
-2. %95+ başarı oranına ulaş
-3. **SONRA:** YZ_12'ye geç
-
-**Tahmini Süre:** 2-3 saat + YZ_12 (6-8 saat) = 8-11 saat total
+**Toplam:** 14-20 saat → Minimal Bootstrap COMPLETE!
 
 **3. Hedef Modüller (23 modül):**
 
