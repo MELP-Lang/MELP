@@ -184,6 +184,49 @@ Hedef: %27 → %90+ başarı
 
 ---
 
+### KARAR #10: YZ_21 Talimat Netleştirme
+**Tarih:** 18 Ara 2025 20:30  
+**Üst Akıl:** YZ_ÜA_01  
+**Sorun:**
+```
+YZ_21 ilk yaklaşımda yanlış dosya değiştirdi:
+- comparison_parser.c → Array access string olarak parse etti
+- Sonuç: %27 → %30.55 (sadece +%3.55!)
+- Beklenen: %90+ başarı
+```
+**Kök Sebep:**
+- Talimat belirsizdi: "parse_expression() kullan"
+- YZ_21 anladı: comparison_parse_expression_stateless() geliştir
+- Gerçek: arithmetic_parse_expression_stateless() ZATEN array/property access destekliyor
+
+**NETLEŞTİRME:**
+```c
+// compiler/stage0/modules/control_flow/control_flow_parser.c
+// Satır 29 ZATEN DOĞRU:
+ArithmeticExpr* arith_cond = arithmetic_parse_expression_stateless(lexer, tok);
+
+// SORUN: Belki arithmetic parser TAM çalışmıyor?
+// VEYA: Codegen kısmı ArithmeticExpr'i handle edemiyor?
+```
+
+**YZ_21'e Yeni Talimat:**
+1. ✅ control_flow_parser.c ZATEN arithmetic parser kullanıyor (doğru!)
+2. ✅ arithmetic_parser.c ZATEN array access destekliyor (doğru!)
+3. ⚠️ **SORUN BAŞKA YERDE:**
+   - Belki arithmetic parser eksik?
+   - Belki codegen ArithmeticExpr handle edemiyor?
+   - Belki nested control flow problemi var?
+4. ✅ YZ_21 root cause'u BUL, sonra düzelt
+
+**Öğrenim:**
+- ❌ "parse_expression kullan" → Belirsiz!
+- ✅ "arithmetic_parse_expression_stateless kullan" → Net!
+- ✅ Dosya adı + satır numarası VER!
+
+**Sonuç:** ⏸️ YZ_21 devam ediyor, root cause analysis yapıyor
+
+---
+
 ## Gelecek Kararlar
 
 ### YZ_ÜA_02 için beklenenler:
