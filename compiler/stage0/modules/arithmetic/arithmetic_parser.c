@@ -797,9 +797,44 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         // YZ_36: Solution: Check if identifier is a known function (builtin or user-defined)
         int is_known_func = function_is_known(identifier);
         
-        // YZ_23: Check for array/list/tuple access FIRST (but NOT for known functions!)
+        // YZ_27: For TOKEN_LPAREN with unknown identifier, peek ahead to distinguish:
+        //   - List access: mylist(0) - single expression, no comma
+        //   - Function call: parse_literal(tokens, pos) - has comma (multiple params)
+        //   - Function call: unknown_func() - empty parens
+        // 
+        // LIMITATION: Lexer only supports 1-token pushback, so we can't lookahead 2 tokens
+        // SOLUTION: Use naming heuristic for common patterns
+        int is_list_access_syntax = 0;
+        if (*current && (*current)->type == TOKEN_LPAREN && !is_known_func) {
+            // Not a known function - use heuristic to distinguish
+            // Common function name prefixes: parse_, get_, create_, is_, check_, has_, to_
+            int looks_like_function = 0;
+            if (strncmp(identifier, "parse_", 6) == 0 ||
+                strncmp(identifier, "get_", 4) == 0 ||
+                strncmp(identifier, "create_", 7) == 0 ||
+                strncmp(identifier, "is_", 3) == 0 ||
+                strncmp(identifier, "check_", 6) == 0 ||
+                strncmp(identifier, "has_", 4) == 0 ||
+                strncmp(identifier, "to_", 3) == 0 ||
+                strncmp(identifier, "make_", 5) == 0 ||
+                strncmp(identifier, "build_", 6) == 0 ||
+                strncmp(identifier, "add_", 4) == 0 ||
+                strncmp(identifier, "remove_", 7) == 0 ||
+                strncmp(identifier, "set_", 4) == 0 ||
+                strncmp(identifier, "find_", 5) == 0) {
+                looks_like_function = 1;
+            }
+            
+            // Decision: list access only if does NOT look like function
+            if (!looks_like_function) {
+                is_list_access_syntax = 1;
+            }
+            // Otherwise: treat as function call (forward reference)
+        }
+        
+        // YZ_23/YZ_27: Check for array/list/tuple access
         if (*current && ((*current)->type == TOKEN_LBRACKET || 
-                        ((*current)->type == TOKEN_LPAREN && !is_known_func) ||
+                        is_list_access_syntax ||
                         (*current)->type == TOKEN_LANGLE)) {
             // Array: identifier[index]
             // List:  identifier(index)  
@@ -1057,8 +1092,10 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         // Phase 3.5: Check for function call
         // YZ_29: Now this code is reachable for builtin functions!
         // YZ_36: And also for user-defined functions!
-        if (*current && (*current)->type == TOKEN_LPAREN && is_known_func) {
+        // YZ_27: And also for unknown functions (forward references)!
+        if (*current && (*current)->type == TOKEN_LPAREN) {
             // It's a function call: identifier(args...)
+            // Could be known function OR forward reference to unknown function
             advance_stateless(lexer, current);  // consume '('
             
             // Parse arguments
