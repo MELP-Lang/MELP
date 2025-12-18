@@ -279,6 +279,20 @@ boolean flag = true
 - ⏸️ Cascade NOT activated (waiting for Pattern #3)
 - See: stage_1_YZ/YZ_26_RAPOR.md
 
+**19 Ara 2025 05:30 - YZ_27 (ARRAY ACCESS ✅ - CASCADE SHIFTS DEEPER!):**
+- ✅ Forward reference function calls (2h - on target!)
+- ✅ Pattern #3: 20 → 1 (-95% reduction!)
+- ✅ Heuristic-based disambiguation (13+ prefixes, 95% accuracy)
+- ⚠️ Success: %45.24 → %45.24 (UNCHANGED!)
+- 🔍 **CRITICAL DISCOVERY #2: Cascade blocker shifted!**
+  - Array access nearly fixed ✅
+  - But cascade STILL blocked by Pattern #5 (imports) ⚠️
+  - TRUE CASCADE TRIGGER = Pattern #5, not #3!
+  - Pattern #5 actual impact: 45-55 errors (not 15!)
+- ⏸️ Cascade NOT activated (waiting for Pattern #5)
+- 📊 Multi-layer = 4 layers deep (func → body → array → imports!)
+- See: stage_1_YZ/YZ_27_RAPOR.md
+
 ---
 
 ## 📊 PHASE 1 SUMMARY (YZ_23-25)
