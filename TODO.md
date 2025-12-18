@@ -1074,30 +1074,49 @@ Total: 92/92 tests passed (100%)
 
 ---
 
-### ⏳ YZ_16 - Stage 1 Syntax Cleanup
+### 🔄 YZ_16 - Stage 1 Syntax Cleanup (IN PROGRESS)
 **Dal:** `stage1_cleanup_YZ_16`  
 **Tahmini:** 3-4 saat  
-**Durum:** ⏸️ BEKLİYOR
-**NOT:** Enum global state YZ_15'te düzeltildi! ✅
+**Gerçek:** ~1.5 saat (devam ediyor)  
+**Durum:** 🔄 IN PROGRESS - Phase 1 Complete  
+**Tarih:** 18 Aralık 2025
 
-#### Yapılacaklar:
+#### Tamamlananlar:
+- [x] **16.1** Type Annotations Normalization (Phase 1) ✅
+  - [x] Core utilities: char_utils.mlp (12 functions) ✅
+  - [x] Core utilities: type_mapper.mlp (7 functions) ✅
+  - [x] Functions: functions_parser.mlp (5 functions) ✅
+  - [x] Functions: functions_codegen.mlp (9 functions) ✅
+  - [x] Format: `param: type` → `type param` ✅
+  - [x] Total: 33 functions fixed ✅
+
+- [x] **16.2** Validation Testing ✅
+  - [x] Simple function test: SUCCESS ✅
+  - [x] char_utils.mlp test: PARTIAL (expression issues found) ⚠️
+  - [x] Strategy document created ✅
+
+#### Yapılacaklar (Next YZ):
   
-- [ ] **16.1** String Operations Simplification (1-2 saat)
-  - [ ] Complex string concat → Basitleştir
-  - [ ] String interpolation → Kaldır veya basit hale getir
-  - [ ] Stage 0 capabilities ile uyumlu hale getir
+- [ ] **16.3** Expression Simplification
+  - [ ] Complex parenthesized expressions → Simplify
+  - [ ] `(a and b) or (c and d)` → Intermediate variables
+  - [ ] Test with Stage 0
   
-- [ ] **16.2** Type Annotations Normalization (1 saat)
-  - [ ] Tüm modüllerde consistent format
-  - [ ] `param: type` → Doğru kullanım
-  - [ ] Type inference where possible
+- [ ] **16.4** Module-by-Module Validation
+  - [ ] Test each module with Stage 0
+  - [ ] Catalog real errors
+  - [ ] Fix issues incrementally
   
-- [ ] **16.3** Import Path Standardization (1 saat)
-  - [ ] Tüm relative import path'leri kontrol et
-  - [ ] Consistent format: `../module/file.mlp`
-  - [ ] Dead import'ları temizle
+- [ ] **16.5** String Operations Review
+  - [ ] Test multi-operand concat: `a + b + c + d`
+  - [ ] Check if simplification needed
+  - [ ] Fix only if broken
   
-- [ ] **16.4** Validation (1 saat)
+- [ ] **16.6** Import Path Standardization
+  - [ ] Verify all relative paths
+  - [ ] Fix broken imports
+  
+- [ ] **16.7** Final Validation
   - [ ] Her modül Stage 0 ile compile olmalı
   - [ ] Success rate: %80+ bekleniyor (YZ_15'ten sonra)
   - [ ] Architecture compliance check
