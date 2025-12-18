@@ -9,6 +9,7 @@ typedef struct {
     FILE* output;
     int data_section_active;
     int bss_section_active;
+    int rodata_section_active;  // YZ_CONST: For read-only constants
 } VariableCodegen;
 
 // Create/free codegen

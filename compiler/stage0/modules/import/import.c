@@ -87,7 +87,28 @@ static int file_exists(const char* path) {
 char* import_resolve_module_path(const char* module_name) {
     char path[512];
     
-    // Search order:
+    // YZ_13: Enhancement - Support relative paths
+    // If module_name contains path separators, treat as relative/absolute path
+    if (strchr(module_name, '/') != NULL || strchr(module_name, '\\') != NULL) {
+        // Direct path (relative or absolute)
+        // Check if it exists as-is
+        if (file_exists(module_name)) {
+            return strdup(module_name);
+        }
+        
+        // Try adding .mlp extension if not present
+        if (strstr(module_name, ".mlp") == NULL) {
+            snprintf(path, sizeof(path), "%s.mlp", module_name);
+            if (file_exists(path)) {
+                return strdup(path);
+            }
+        }
+        
+        // Path not found
+        return NULL;
+    }
+    
+    // Original search order for simple module names:
     // 1. modules/core/module_name.mlp
     snprintf(path, sizeof(path), "modules/core/%s.mlp", module_name);
     if (file_exists(path)) {

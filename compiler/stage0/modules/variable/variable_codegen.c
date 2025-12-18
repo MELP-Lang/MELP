@@ -64,6 +64,7 @@ VariableCodegen* variable_codegen_create(FILE* output) {
     codegen->output = output;
     codegen->data_section_active = 0;
     codegen->bss_section_active = 0;
+    codegen->rodata_section_active = 0;  // YZ_CONST
     return codegen;
 }
 
@@ -87,6 +88,17 @@ void variable_codegen_bss_section(VariableCodegen* codegen) {
         fprintf(codegen->output, "\nsection .bss\n");
         codegen->bss_section_active = 1;
         codegen->data_section_active = 0;
+        codegen->rodata_section_active = 0;  // YZ_CONST
+    }
+}
+
+// YZ_CONST: Ensure .rodata section is active (for constants)
+void variable_codegen_rodata_section(VariableCodegen* codegen) {
+    if (!codegen->rodata_section_active) {
+        fprintf(codegen->output, "\nsection .rodata\n");
+        codegen->rodata_section_active = 1;
+        codegen->data_section_active = 0;
+        codegen->bss_section_active = 0;
     }
 }
 
@@ -110,7 +122,14 @@ void variable_codegen_declaration(VariableCodegen* codegen, VariableDeclaration*
         type_desc = "boolean";
     }
     
-    fprintf(f, "    ; Variable: %s (type: %s)\n", decl->name, type_desc);
+    fprintf(f, "    ; Variable: %s (type: %s)%s\n", decl->name, type_desc, 
+            decl->is_const ? " [CONST]" : "");  // YZ_CONST: Mark constants
+    
+    // YZ_CONST: Constants must have initializers and go to .rodata
+    if (decl->is_const && !decl->value && !decl->init_expr) {
+        fprintf(f, "    ; ERROR: Const variable '%s' must have an initializer\n", decl->name);
+        return;
+    }
     
     // Handle pointer types
     if (decl->is_pointer) {
@@ -159,7 +178,24 @@ void variable_codegen_declaration(VariableCodegen* codegen, VariableDeclaration*
     }
     
     if (decl->type == VAR_NUMERIC) {
-        // Numeric variable
+        // YZ_CONST: Const numeric goes to .rodata
+        if (decl->is_const) {
+            if (decl->value) {
+                fprintf(f, "    ; Const numeric in .rodata\n");
+                variable_codegen_rodata_section(codegen);
+                // Determine if int or float
+                if (strchr(decl->value, '.')) {
+                    fprintf(f, "    const_%s: dq %s  ; const float\n", decl->name, decl->value);
+                } else {
+                    fprintf(f, "    const_%s: dq %s  ; const integer\n", decl->name, decl->value);
+                }
+            } else {
+                fprintf(f, "    ; ERROR: Const must have compile-time value\n");
+            }
+            return;
+        }
+        
+        // Numeric variable (non-const)
         if (decl->internal_num_type == INTERNAL_INT64) {
             fprintf(f, "    ; STO: INT64 optimization\n");
             variable_codegen_bss_section(codegen);
@@ -200,7 +236,20 @@ void variable_codegen_declaration(VariableCodegen* codegen, VariableDeclaration*
         }
         
     } else if (decl->type == VAR_STRING) {
-        // String variable
+        // YZ_CONST: Const string goes to .rodata
+        if (decl->is_const) {
+            if (decl->value) {
+                fprintf(f, "    ; Const string in .rodata\n");
+                variable_codegen_rodata_section(codegen);
+                fprintf(f, "    const_%s: db \"%s\", 0  ; const string\n", decl->name, decl->value);
+                fprintf(f, "    const_%s_len equ $ - const_%s - 1\n", decl->name, decl->name);
+            } else {
+                fprintf(f, "    ; ERROR: Const must have compile-time value\n");
+            }
+            return;
+        }
+        
+        // String variable (non-const)
         if (decl->internal_str_type == INTERNAL_SSO) {
             fprintf(f, "    ; STO: SSO optimization (≤23 chars)\n");
             variable_codegen_data_section(codegen);
@@ -222,7 +271,20 @@ void variable_codegen_declaration(VariableCodegen* codegen, VariableDeclaration*
         }
         
     } else if (decl->type == VAR_BOOLEAN) {
-        // Boolean variable
+        // YZ_CONST: Const boolean goes to .rodata
+        if (decl->is_const) {
+            if (decl->value) {
+                fprintf(f, "    ; Const boolean in .rodata\n");
+                variable_codegen_rodata_section(codegen);
+                int bool_val = strcmp(decl->value, "true") == 0 ? 1 : 0;
+                fprintf(f, "    const_%s: db %d  ; const boolean\n", decl->name, bool_val);
+            } else {
+                fprintf(f, "    ; ERROR: Const must have compile-time value\n");
+            }
+            return;
+        }
+        
+        // Boolean variable (non-const)
         fprintf(f, "    ; Boolean: %s\n", decl->value);
         variable_codegen_bss_section(codegen);
         fprintf(f, "    var_%s: resb 1  ; 1 byte for boolean\n", decl->name);

@@ -55,6 +55,9 @@ typedef struct {
     int is_array;                        // 1 if array type
     int array_size;                      // Array size (0 = dynamic)
     
+    // ========== YZ_CONST: Const Support ==========
+    bool is_const;                       // 1 if constant (immutable)
+    
     // ========== Phase 2: STO Integration ==========
     STOTypeInfo* sto_info;               // Full STO analysis result (heap allocated)
     bool sto_analyzed;                   // Has STO analysis been performed?

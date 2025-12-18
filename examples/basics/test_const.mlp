@@ -1,0 +1,28 @@
+-- ============================================================================
+-- test_const.mlp - Test Const Keyword Support (YZ_CONST)
+-- ============================================================================
+-- Purpose: Test const variable declarations
+-- Expected: Compile successfully and generate .rodata section
+-- ============================================================================
+
+-- YZ_CONST: Global constant declarations
+const numeric PI = 3.14159
+const numeric MAX_USERS = 100
+const string APP_NAME = "MELP Compiler"
+const boolean DEBUG_MODE = true
+
+function main() returns numeric
+    -- YZ_CONST: Local constant declarations
+    const numeric LOCAL_CONST = 42
+    const string GREETING = "Hello, World!"
+    
+    -- Use constants
+    println("Application: " + APP_NAME)
+    println("Debug Mode: " + DEBUG_MODE)
+    println("Max Users: " + MAX_USERS)
+    println("Pi: " + PI)
+    println("Local Constant: " + LOCAL_CONST)
+    println(GREETING)
+    
+    return 0
+end_function

@@ -189,6 +189,8 @@ static Token* read_identifier(Lexer* lexer) {
     else if (strcmp(value, "returns") == 0) type = TOKEN_RETURNS;
     // Module keywords
     else if (strcmp(value, "import") == 0) type = TOKEN_IMPORT;
+    // Const keyword
+    else if (strcmp(value, "const") == 0) type = TOKEN_CONST;
     // Struct keywords
     else if (strcmp(value, "struct") == 0) type = TOKEN_STRUCT;
     else if (strcmp(value, "enum") == 0) type = TOKEN_ENUM;

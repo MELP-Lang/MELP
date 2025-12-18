@@ -1,0 +1,19 @@
+-- ============================================================================
+-- Test: Simple Import Test
+-- ============================================================================
+-- Purpose: Test if Stage 0 can import Stage 1 modules
+-- Strategy: Import token_types.mlp and use a constant
+-- ============================================================================
+
+import "compiler/stage1/modules/core/token_types.mlp"
+
+function main() returns numeric
+    println("Testing simple import...")
+    
+    -- Use a constant from token_types
+    numeric token_id = TOKEN_NUMERIC
+    println("TOKEN_NUMERIC = ")
+    println(token_id)
+    
+    return 0
+end_function

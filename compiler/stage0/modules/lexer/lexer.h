@@ -97,6 +97,8 @@ typedef enum {
     // Module keywords
     TOKEN_IMPORT,          // import module_name
     TOKEN_MODULE,          // module keyword
+    // Const keyword
+    TOKEN_CONST,           // const (constant declaration)
     // I/O keywords
     TOKEN_PRINT,
     TOKEN_PRINTLN,         // println builtin (YZ_47)
