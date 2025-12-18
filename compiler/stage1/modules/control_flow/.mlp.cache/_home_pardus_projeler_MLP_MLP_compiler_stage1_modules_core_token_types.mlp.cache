@@ -1,0 +1,12 @@
+{
+  "version": "1.0",
+  "module_path": "/home/pardus/projeler/MLP/MLP/compiler/stage1/modules/core/token_types.mlp",
+  "source_mtime": 1766004799,
+  "object_mtime": 0,
+  "object_path": null,
+  "assembly_path": "token_types.s",
+  "functions": [
+  ],
+  "dependencies": [
+  ]
+}

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>  // YZ_29: For isdigit()
 
 // ✅ Phase 3.2: Label counter for logical short-circuit
 static int logical_label_counter = 0;
@@ -36,13 +37,109 @@ static void load_value(FILE* output, const char* value, int is_literal, int reg_
             // Numeric literal
             fprintf(output, "    movq $%s, %%r%d  # Literal\n", value, reg_num + 8);
         } else {
-            // Variable - lookup offset
-            if (context) {
-                FunctionDeclaration* func = (FunctionDeclaration*)context;
-                int offset = function_get_var_offset(func, value);
-                fprintf(output, "    movq %d(%%rbp), %%r%d  # Load %s\n", offset, reg_num + 8, value);
+            // YZ_29: Check for member access (variable.member) or array access (variable[index])
+            const char* dot = strchr(value, '.');
+            const char* lbracket = strchr(value, '[');
+            
+            if (dot && (!lbracket || dot < lbracket)) {
+                // Member access detected (and comes before any array access)
+                size_t base_len = dot - value;
+                char* base_var = malloc(base_len + 1);
+                strncpy(base_var, value, base_len);
+                base_var[base_len] = '\0';
+                const char* member_name = dot + 1;
+                
+                // Currently only support .length member
+                if (strcmp(member_name, "length") == 0) {
+                    // Load list/array length
+                    // List structure: [capacity (8 bytes), size (8 bytes), data pointer (8 bytes)]
+                    // Length is at offset +8 from base
+                    if (context) {
+                        FunctionDeclaration* func = (FunctionDeclaration*)context;
+                        int offset = function_get_var_offset(func, base_var);
+                        fprintf(output, "    movq %d(%%rbp), %%r%d  # Load %s address\n", offset, reg_num + 8, base_var);
+                        fprintf(output, "    movq 8(%%r%d), %%r%d  # Load .length\n", reg_num + 8, reg_num + 8);
+                    } else {
+                        fprintf(output, "    movq (%s), %%r%d  # Load %s address\n", base_var, reg_num + 8, base_var);
+                        fprintf(output, "    movq 8(%%r%d), %%r%d  # Load .length\n", reg_num + 8, reg_num + 8);
+                    }
+                } else {
+                    // Unsupported member - fallback to variable lookup
+                    fprintf(output, "    # Warning: Unsupported member access: %s\n", value);
+                    if (context) {
+                        FunctionDeclaration* func = (FunctionDeclaration*)context;
+                        int offset = function_get_var_offset(func, value);
+                        fprintf(output, "    movq %d(%%rbp), %%r%d  # Load %s\n", offset, reg_num + 8, value);
+                    } else {
+                        fprintf(output, "    movq (%s), %%r%d\n", value, reg_num + 8);
+                    }
+                }
+                
+                free(base_var);
+            } else if (lbracket) {
+                // Array access detected: variable[index]
+                size_t base_len = lbracket - value;
+                char* base_var = malloc(base_len + 1);
+                strncpy(base_var, value, base_len);
+                base_var[base_len] = '\0';
+                
+                // Extract index (between [ and ])
+                const char* rbracket = strchr(lbracket, ']');
+                if (rbracket) {
+                    size_t index_len = rbracket - lbracket - 1;
+                    char* index_str = malloc(index_len + 1);
+                    strncpy(index_str, lbracket + 1, index_len);
+                    index_str[index_len] = '\0';
+                    
+                    // Load array element
+                    // Array structure: [capacity, size, data_pointer]
+                    // Element at index i: data_pointer + (i * 8)
+                    if (context) {
+                        FunctionDeclaration* func = (FunctionDeclaration*)context;
+                        int base_offset = function_get_var_offset(func, base_var);
+                        
+                        // Load array base address
+                        fprintf(output, "    movq %d(%%rbp), %%rax  # Load %s address\n", base_offset, base_var);
+                        
+                        // Load data pointer (offset +16 in array structure)
+                        fprintf(output, "    movq 16(%%rax), %%rax  # Load data pointer\n");
+                        
+                        // Check if index is literal or variable
+                        if (isdigit(index_str[0]) || (index_str[0] == '-' && isdigit(index_str[1]))) {
+                            // Literal index
+                            long index_val = atol(index_str);
+                            fprintf(output, "    movq %ld(%%rax), %%r%d  # Load %s[%s]\n", 
+                                    index_val * 8, reg_num + 8, base_var, index_str);
+                        } else {
+                            // Variable index
+                            int index_offset = function_get_var_offset(func, index_str);
+                            fprintf(output, "    movq %d(%%rbp), %%rcx  # Load index %s\n", index_offset, index_str);
+                            fprintf(output, "    shl $3, %%rcx  # Multiply by 8\n");
+                            fprintf(output, "    addq %%rcx, %%rax  # Add offset\n");
+                            fprintf(output, "    movq (%%rax), %%r%d  # Load %s[%s]\n", reg_num + 8, base_var, index_str);
+                        }
+                    } else {
+                        fprintf(output, "    # Error: Array access without context: %s\n", value);
+                        fprintf(output, "    movq $0, %%r%d\n", reg_num + 8);
+                    }
+                    
+                    free(index_str);
+                } else {
+                    // Malformed array access
+                    fprintf(output, "    # Error: Malformed array access: %s\n", value);
+                    fprintf(output, "    movq $0, %%r%d\n", reg_num + 8);
+                }
+                
+                free(base_var);
             } else {
-                fprintf(output, "    movq (%s), %%r%d\n", value, reg_num + 8);
+                // Variable - lookup offset
+                if (context) {
+                    FunctionDeclaration* func = (FunctionDeclaration*)context;
+                    int offset = function_get_var_offset(func, value);
+                    fprintf(output, "    movq %d(%%rbp), %%r%d  # Load %s\n", offset, reg_num + 8, value);
+                } else {
+                    fprintf(output, "    movq (%s), %%r%d\n", value, reg_num + 8);
+                }
             }
         }
     }

@@ -1179,6 +1179,54 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
             return expr;
         }
         
+        // YZ_29: Check for member access on variables (e.g., tokens.length, list.type)
+        // This handles member access on ANY identifier, not just structs
+        if (*current && (*current)->type == TOKEN_DOT) {
+            advance_stateless(lexer, current);  // consume '.'
+            
+            if (!*current || (*current)->type != TOKEN_IDENTIFIER) {
+                fprintf(stderr, "Error: Expected member name after '.'\n");
+                free(identifier);
+                free(expr);
+                return NULL;
+            }
+            
+            char* member_name = strdup((*current)->value);
+            advance_stateless(lexer, current);  // consume member name
+            
+            // Create a generic member access expression
+            // For now, we treat this as: identifier.member
+            // The codegen will handle built-in members like .length, .type, etc.
+            
+            // Build the member access string: "identifier.member"
+            size_t access_len = strlen(identifier) + strlen(member_name) + 2;  // +2 for '.' and '\0'
+            char* access_str = malloc(access_len);
+            snprintf(access_str, access_len, "%s.%s", identifier, member_name);
+            
+            free(identifier);
+            free(member_name);
+            
+            expr->is_literal = 0;
+            expr->value = access_str;  // Store "identifier.member" as value
+            expr->is_float = 0;
+            expr->is_string = 0;
+            expr->is_boolean = 0;
+            expr->is_member_access = 1;  // Mark as member access
+            expr->member_access = NULL;  // No MemberAccess struct for now
+            
+            // STO info: assume numeric result (most common for .length, etc.)
+            STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
+            sto_info->type = INTERNAL_TYPE_INT64;
+            sto_info->is_constant = false;
+            sto_info->needs_promotion = true;
+            sto_info->mem_location = MEM_REGISTER;
+            expr->sto_info = sto_info;
+            expr->sto_analyzed = true;
+            expr->needs_overflow_check = true;
+            
+            return expr;
+        }
+        
         // It's a variable
         expr->is_literal = 0;
         expr->value = identifier;

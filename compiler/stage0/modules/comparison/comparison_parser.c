@@ -1,4 +1,5 @@
 #include "comparison_parser.h"
+#include "../arithmetic/arithmetic_parser.h"  // YZ_29: For member access support
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -97,8 +98,64 @@ ComparisonExpr* comparison_parse_expression_stateless(Lexer* lexer, Token* first
             return NULL;
         }
     } else if (first_token->type == TOKEN_IDENTIFIER) {
-        expr->left_value = strdup(first_token->value);
-        expr->left_is_literal = 0;
+        // YZ_29: Check for member access (identifier.member) or array access (identifier[index])
+        Token* lookahead = lexer_next_token(lexer);
+        
+        if (lookahead && lookahead->type == TOKEN_DOT) {
+            // Member access detected: identifier.member
+            Token* member_tok = lexer_next_token(lexer);
+            if (!member_tok || member_tok->type != TOKEN_IDENTIFIER) {
+                token_free(lookahead);
+                if (member_tok) token_free(member_tok);
+                free(expr);
+                return NULL;
+            }
+            
+            // Build member access string: "identifier.member"
+            size_t len = strlen(first_token->value) + strlen(member_tok->value) + 2;  // +2 for '.' and '\0'
+            expr->left_value = malloc(len);
+            snprintf(expr->left_value, len, "%s.%s", first_token->value, member_tok->value);
+            expr->left_is_literal = 0;  // Member access is not a literal
+            
+            token_free(lookahead);
+            token_free(member_tok);
+        } else if (lookahead && lookahead->type == TOKEN_LBRACKET) {
+            // Array access detected: identifier[index]
+            // Read index (should be number or identifier)
+            Token* index_tok = lexer_next_token(lexer);
+            if (!index_tok) {
+                token_free(lookahead);
+                free(expr);
+                return NULL;
+            }
+            
+            // Expect closing bracket
+            Token* rbracket = lexer_next_token(lexer);
+            if (!rbracket || rbracket->type != TOKEN_RBRACKET) {
+                token_free(lookahead);
+                token_free(index_tok);
+                if (rbracket) token_free(rbracket);
+                free(expr);
+                return NULL;
+            }
+            
+            // Build array access string: "identifier[index]"
+            size_t len = strlen(first_token->value) + strlen(index_tok->value) + 3;  // +3 for '[', ']', '\0'
+            expr->left_value = malloc(len);
+            snprintf(expr->left_value, len, "%s[%s]", first_token->value, index_tok->value);
+            expr->left_is_literal = 0;  // Array access is not a literal
+            
+            token_free(lookahead);
+            token_free(index_tok);
+            token_free(rbracket);
+        } else {
+            // Simple identifier, no member/array access
+            if (lookahead) {
+                lexer_unget_token(lexer, lookahead);
+            }
+            expr->left_value = strdup(first_token->value);
+            expr->left_is_literal = 0;
+        }
         // TODO: Check variable type from symbol table for is_string
     } else {
         free(expr);
@@ -187,8 +244,74 @@ ComparisonExpr* comparison_parse_expression_stateless(Lexer* lexer, Token* first
             return NULL;
         }
     } else if (right_tok->type == TOKEN_IDENTIFIER) {
-        expr->right_value = strdup(right_tok->value);
-        expr->right_is_literal = 0;
+        // YZ_29: Check for member access (identifier.member) or array access (identifier[index])
+        Token* lookahead = lexer_next_token(lexer);
+        
+        if (lookahead && lookahead->type == TOKEN_DOT) {
+            // Member access detected: identifier.member
+            Token* member_tok = lexer_next_token(lexer);
+            if (!member_tok || member_tok->type != TOKEN_IDENTIFIER) {
+                token_free(lookahead);
+                if (member_tok) token_free(member_tok);
+                token_free(right_tok);
+                free(expr->left_value);
+                free(expr);
+                return NULL;
+            }
+            
+            // Build member access string: "identifier.member"
+            size_t len = strlen(right_tok->value) + strlen(member_tok->value) + 2;  // +2 for '.' and '\0'
+            expr->right_value = malloc(len);
+            snprintf(expr->right_value, len, "%s.%s", right_tok->value, member_tok->value);
+            expr->right_is_literal = 0;  // Member access is not a literal
+            
+            token_free(lookahead);
+            token_free(member_tok);
+            token_free(right_tok);
+            right_tok = NULL;
+        } else if (lookahead && lookahead->type == TOKEN_LBRACKET) {
+            // Array access detected: identifier[index]
+            // Read index (should be number or identifier)
+            Token* index_tok = lexer_next_token(lexer);
+            if (!index_tok) {
+                token_free(lookahead);
+                token_free(right_tok);
+                free(expr->left_value);
+                free(expr);
+                return NULL;
+            }
+            
+            // Expect closing bracket
+            Token* rbracket = lexer_next_token(lexer);
+            if (!rbracket || rbracket->type != TOKEN_RBRACKET) {
+                token_free(lookahead);
+                token_free(index_tok);
+                if (rbracket) token_free(rbracket);
+                token_free(right_tok);
+                free(expr->left_value);
+                free(expr);
+                return NULL;
+            }
+            
+            // Build array access string: "identifier[index]"
+            size_t len = strlen(right_tok->value) + strlen(index_tok->value) + 3;  // +3 for '[', ']', '\0'
+            expr->right_value = malloc(len);
+            snprintf(expr->right_value, len, "%s[%s]", right_tok->value, index_tok->value);
+            expr->right_is_literal = 0;  // Array access is not a literal
+            
+            token_free(lookahead);
+            token_free(index_tok);
+            token_free(rbracket);
+            token_free(right_tok);
+            right_tok = NULL;
+        } else {
+            // Simple identifier, no member/array access
+            if (lookahead) {
+                lexer_unget_token(lexer, lookahead);
+            }
+            expr->right_value = strdup(right_tok->value);
+            expr->right_is_literal = 0;
+        }
         // TODO: Check variable type from symbol table for is_string
     } else {
         token_free(right_tok);
