@@ -1005,9 +1005,179 @@ Total: 92/92 tests passed (100%)
 - ✅ MELP_Mimarisi.md'ye %100 uyumlu
 
 #### Çıktılar:
-- `YZ_Stage_1/STAGE_1_COMPLETE.md`
-- `YZ_Stage_1/YZ_13_RAPOR.md`
-- `NEXT_AI_START_HERE.md` (Stage 2 için hazırla)
+- ✅ `YZ_Stage_1/YZ_14_RAPOR.md` (650+ satır)
+- ✅ Test analysis complete
+- ✅ Solution strategies documented
+- ⚠️ **CRITICAL:** Enum global state ihlali keşfedildi!
+
+---
+
+## 🔧 FAZ 4: HYBRID APPROACH - SYNTAX FIX (YZ_15 - YZ_17)
+
+**Durum:** YZ_14 keşfi sonrası yeni strateji  
+**Sebep:** Stage 1 syntax ≠ Stage 0 syntax (incompatibility %94.5)  
+**Çözüm:** Minimal Stage 0 enhancement + Stage 1 cleanup + Incremental bootstrap  
+**Tahmini:** 10-15 saat
+
+### ⏳ YZ_15 - Stage 0 Enhancement (Minimal)
+**Dal:** `stage0_enhancement_YZ_15`  
+**Tahmini:** 4-6 saat  
+**Durum:** ⏸️ BEKLİYOR
+
+#### Yapılacaklar:
+- [ ] **15.1** Type Annotation Parser (2-3 saat)
+  - [ ] Lexer: Colon `:` detection after parameter
+  - [ ] Parser: `param: type` syntax support
+  - [ ] Implementation: Parse but IGNORE type (backward compat)
+  - [ ] Test: `function name(x: numeric)` parse edilmeli
+  
+- [ ] **15.2** Boolean Keyword Support (1 saat)
+  - [ ] Lexer: `boolean` keyword tanımı
+  - [ ] Parser: `boolean` → `numeric` alias
+  - [ ] Implementation: Zero runtime overhead (compile-time mapping)
+  - [ ] Test: `boolean flag = 1` çalışmalı
+  
+- [ ] **15.3** Relative Import Path Fix (1-2 saat)
+  - [ ] Import resolver: `../` ve `./` normalization
+  - [ ] Path joining: Current file path + relative path
+  - [ ] Error handling: Better error messages
+  - [ ] Test: `import "../core/token_types.mlp"` çalışmalı
+  
+- [ ] **15.4** Validation Tests (1 saat)
+  - [ ] Test: char_utils.mlp compile olmalı
+  - [ ] Test: type_mapper.mlp compile olmalı
+  - [ ] Test: functions_parser.mlp compile olmalı
+  - [ ] Success rate: En az %50 modül dosyası
+  - [ ] Regression: Existing tests hala geçmeli
+
+#### Başarı Kriterleri:
+- ✅ Type annotation syntax parse ediliyor (ignore edilse de)
+- ✅ Boolean keyword tanınıyor
+- ✅ Relative imports çözülüyor
+- ✅ En az 9/18 modül dosyası compile oluyor
+- ✅ Backward compatibility korunuyor
+- ✅ Existing tests geçiyor (regression yok)
+
+#### Çıktılar:
+- `compiler/stage0/modules/functions/functions_parser.c` (type annotation support)
+- `compiler/stage0/modules/lexer/lexer.c` (boolean keyword)
+- `compiler/stage0/modules/import/import.c` (relative path fix)
+- `YZ_Stage_1/YZ_15_RAPOR.md`
+- Test results summary
+
+---
+
+### ⏳ YZ_16 - Stage 1 Syntax Cleanup
+**Dal:** `stage1_cleanup_YZ_16`  
+**Tahmini:** 4-6 saat  
+**Durum:** ⏸️ BEKLİYOR
+**⚠️ ÖNCELİK:** Enum global state removal!
+
+#### Yapılacaklar:
+- [ ] **16.1** ⚠️ Enum Module Fix (MİMARİ İHLALİ - ÖNCELİK!) (2 saat)
+  - [ ] **SORUN TANIMLA:**
+    ```mlp
+    -- compiler/stage1/modules/enums/enums_codegen.mlp:47
+    list g_enum_registry = []  -- ❌ GLOBAL MUTABLE STATE!
+    ```
+  - [ ] **ÇÖZÜM 1:** Compile-time const (Rust modeli)
+    - Enum değerleri compile-time constant olarak tanımla
+    - Runtime registry'e gerek kalmaz
+    - LLVM IR'da direkt constant olarak emit et
+  - [ ] **ÇÖZÜM 2:** Parametre geçişi (fallback)
+    - Registry'i function parametresi olarak geç
+    - Her fonksiyon `enum_registry` parametresi alsın
+    - Stateless pattern koru
+  - [ ] **UYGULAMA:**
+    - `enums_codegen.mlp` yeniden yaz
+    - Global state tamamen kaldır
+    - Test dosyasını güncelle
+  - [ ] **DOĞRULA:**
+    - MELP_Mimarisi.md compliance check
+    - Stateless pattern validation
+    - Test suite çalıştır
+  
+- [ ] **16.2** String Operations Simplification (1-2 saat)
+  - [ ] Complex string concat → Basitleştir
+  - [ ] String interpolation → Kaldır veya basit hale getir
+  - [ ] Stage 0 capabilities ile uyumlu hale getir
+  
+- [ ] **16.3** Type Annotations Normalization (1 saat)
+  - [ ] Tüm modüllerde consistent format
+  - [ ] `param: type` → Doğru kullanım
+  - [ ] Type inference where possible
+  
+- [ ] **16.4** Import Path Standardization (1 saat)
+  - [ ] Tüm relative import path'leri kontrol et
+  - [ ] Consistent format: `../module/file.mlp`
+  - [ ] Dead import'ları temizle
+  
+- [ ] **16.5** Validation (1 saat)
+  - [ ] Her modül Stage 0 ile compile olmalı
+  - [ ] Success rate: %70+ bekleniyor
+  - [ ] Architecture compliance check
+
+#### Başarı Kriterleri:
+- ✅ **GLOBAL STATE YOK!** (Enum modülü temiz)
+- ✅ MELP_Mimarisi.md'ye %100 uyumlu
+- ✅ %70+ modül dosyası compile oluyor
+- ✅ Stateless pattern her yerde
+- ✅ Import path'leri doğru
+- ✅ String operations basit ve Stage 0 compatible
+
+#### Çıktılar:
+- `compiler/stage1/modules/enums/enums_codegen.mlp` (yeniden yazılmış - NO GLOBAL STATE!)
+- Updated module files (imports, string ops)
+- `YZ_Stage_1/YZ_16_RAPOR.md`
+- Architecture compliance report
+
+---
+
+### ⏳ YZ_17 - Incremental Bootstrap
+**Dal:** `incremental_bootstrap_YZ_17`  
+**Tahmini:** 3-4 saat  
+**Durum:** ⏸️ BEKLİYOR
+
+#### Yapılacaklar:
+- [ ] **17.1** Core Modules Bootstrap (1 saat)
+  - [ ] Stage 0 ile compile: token_types.mlp
+  - [ ] Stage 0 ile compile: char_utils.mlp
+  - [ ] Stage 0 ile compile: type_mapper.mlp
+  - [ ] Binary'ler test et
+  
+- [ ] **17.2** Functions + Variables Bootstrap (1 saat)
+  - [ ] Stage 0 ile compile: functions_parser.mlp
+  - [ ] Stage 0 ile compile: functions_codegen.mlp
+  - [ ] Stage 0 ile compile: variables_parser.mlp
+  - [ ] Stage 0 ile compile: variables_codegen.mlp
+  
+- [ ] **17.3** Full Compiler Bootstrap (1 saat)
+  - [ ] Tüm modülleri sırayla compile et (dependency order)
+  - [ ] Stage 1 main.mlp compile et
+  - [ ] Stage 1 compiler binary oluştur
+  
+- [ ] **17.4** Self-Compile Test (30 min)
+  - [ ] Stage 1 compiler ile kendi modüllerini compile et
+  - [ ] Output karşılaştırması
+  - [ ] Binary diff
+  
+- [ ] **17.5** Validation (30 min)
+  - [ ] Test suite çalıştır (93 tests)
+  - [ ] Success rate: %70+ bekleniyor
+  - [ ] Performance benchmark
+
+#### Başarı Kriterleri:
+- ✅ Core modules bootstrap başarılı
+- ✅ Full compiler binary oluşuyor
+- ✅ Self-compile çalışıyor
+- ✅ %70+ test geçiyor
+- ✅ Binary stable ve consistent
+
+#### Çıktılar:
+- `compiler/stage1/stage1_compiler` (working binary!)
+- `YZ_Stage_1/YZ_17_RAPOR.md`
+- `YZ_Stage_1/BOOTSTRAP_COMPLETE.md`
+- Test results (93 tests)
 
 ---
 
