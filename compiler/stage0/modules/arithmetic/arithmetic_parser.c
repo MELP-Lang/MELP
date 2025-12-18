@@ -132,6 +132,28 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
         return expr;
     }
     
+    // YZ_21: Boolean literals (true/false)
+    if (parser->current_token->type == TOKEN_TRUE || parser->current_token->type == TOKEN_FALSE) {
+        expr->is_literal = 1;
+        expr->value = strdup(parser->current_token->value);
+        expr->is_float = 0;
+        expr->is_string = 0;
+        expr->is_boolean = 1;
+        
+        // STO analysis: boolean = INTERNAL_TYPE_BOOLEAN
+        STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
+        sto_info->type = INTERNAL_TYPE_BOOLEAN;
+        sto_info->is_constant = true;
+        sto_info->needs_promotion = false;
+        sto_info->mem_location = MEM_REGISTER;
+        expr->sto_info = sto_info;
+        expr->sto_analyzed = true;
+        expr->needs_overflow_check = false;
+        
+        advance(parser);
+        return expr;
+    }
+    
     // Variable or Function Call
     if (parser->current_token->type == TOKEN_IDENTIFIER) {
         char* identifier = strdup(parser->current_token->value);
@@ -672,6 +694,27 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         expr->sto_info = sto_info;
         expr->sto_analyzed = true;
         expr->needs_overflow_check = (sto_info->type == INTERNAL_TYPE_INT64);
+        
+        advance_stateless(lexer, current);
+        return expr;
+    }
+    
+    // YZ_21: Boolean literals (true/false) - stateless
+    if ((*current)->type == TOKEN_TRUE || (*current)->type == TOKEN_FALSE) {
+        expr->is_literal = 1;
+        expr->value = strdup((*current)->value);
+        expr->is_float = 0;
+        expr->is_string = 0;
+        expr->is_boolean = 1;
+        
+        STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
+        sto_info->type = INTERNAL_TYPE_BOOLEAN;
+        sto_info->is_constant = true;
+        sto_info->needs_promotion = false;
+        sto_info->mem_location = MEM_REGISTER;
+        expr->sto_info = sto_info;
+        expr->sto_analyzed = true;
+        expr->needs_overflow_check = false;
         
         advance_stateless(lexer, current);
         return expr;

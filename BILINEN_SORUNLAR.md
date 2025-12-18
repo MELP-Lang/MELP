@@ -106,7 +106,7 @@ end
 ---
 
 ### ⚠️ #5: Array Declaration
-**Durum:** 🔴 NEW - YZ_21 testing  
+**Durum:** 🟡 UNKNOWN - Not tested  
 **Etki:** TBD
 
 **Destekleniyor mu?**
@@ -117,6 +117,39 @@ numeric arr[5]  -- ❌ Desteklenmiyor?
 **İlgili Dosyalar:**
 - `compiler/stage0/modules/variables/variable_declaration_parser.c`
 - `compiler/stage0/modules/arrays/array_parser.c`
+
+---
+
+### 🟢 #6: Boolean Literal Assignment (FIXED)
+**Durum:** 🟢 FIXED - YZ_21  
+**Fix Date:** 18 Aralık 2025  
+**Git Commit:** (pending)
+
+**Sorun:**
+```mlp
+boolean flag = true  -- ❌ "Unexpected token in arithmetic expression"
+```
+
+**Sebep:**
+- `arithmetic_parser.c` sadece TOKEN_NUMBER parse ediyordu
+- TOKEN_TRUE/TOKEN_FALSE desteklenmiyordu
+
+**Fix:**
+- `compiler/stage0/modules/arithmetic/arithmetic_parser.c`
+- TOKEN_TRUE/TOKEN_FALSE support eklendi (2 yerde)
+- STOTypeInfo: INTERNAL_TYPE_BOOLEAN
+
+**Test:**
+```mlp
+boolean flag
+flag = true   -- ✅ ARTIK ÇALIŞIYOR
+flag = false  -- ✅ ÇALIŞIYOR
+```
+
+**Etki:**
+- ✅ Boolean literals artık parse ediliyor
+- ⚠️ Stage 1 başarı oranı artmadı (%30.55 → %30.55)
+- Not: Başka sorunlar var, systematic analysis gerekli
 
 ---
 
@@ -155,7 +188,14 @@ boolean flag = true
 - **Parser Modülleri:** 24/27 (%89)
 - **Codegen Modülleri:** 16/17 (%94)
 
-### Stage 1 Modül Başarı (YZ_21 Hedefi):
+### Stage 1 Modül Başarı (YZ_21 Sonrası):
+- **Toplam:** 11/36 modül (%30.55) ← DEĞİŞMEDİ
+- **YZ_03-11 Core:** 6/22 (%27) ← Hala kritik
+- **Parser Modülleri:** 24/27 (%89)
+- **Codegen Modülleri:** 16/17 (%94)
+- **Boolean fix:** ✅ Çözüldü ama başarı oranına etki yok
+
+### Stage 1 Modül Başarı (Hedef):
 - **Hedef:** 32+/36 (%90+)
 - **YZ_03-11 Core:** 20+/22 (%90+)
 
@@ -168,12 +208,18 @@ boolean flag = true
 - #1-#3 tespit edildi
 - #F1-#F2 false alarms düzeltildi
 
-**18 Ara 2025 21:00 - YZ_21:**
+**18 Ara 2025 21:00 - YZ_21 (BAŞLANGIÇ):**
 - #1 için comparison_parser.c değiştirdi (YANLIŞ DOSYA!)
-- Sonuç: %27 → %30.55 (sadece +%3.55)
-- Root cause: control_flow ZATEN doğru kodu kullanıyor
+- Geri alındı
+
+**18 Ara 2025 22:00 - YZ_21 (ROOT CAUSE):**
+- Root cause discovery: Boolean literal assignment
+- #6 tespit edildi ve FİX EDİLDİ
+- arithmetic_parser.c: TOKEN_TRUE/TOKEN_FALSE support
+- Sonuç: %30.55 → %30.55 (başarı artmadı)
+- Öğrenim: Tek fix yeterli değil, systematic analysis gerekli
 - #4 (nested control flow) keşfedildi
-- #5 (array declaration) test ediliyor
+- #5 (array declaration) test edilmedi
 
 ---
 
@@ -196,11 +242,16 @@ boolean flag = true
 
 ## 🎯 ÖNCELIK SIRALAMASI
 
-1. 🔴 #1: Complex expressions in IF (16 modül etki)
-2. 🔴 #4: Nested control flow bug (kritik pattern)
-3. 🔴 #5: Array declaration (validation needed)
-4. 🟡 #2: Parenthesized boolean (1 modül)
-5. 🟡 #3: Expression in function calls (1 modül)
+1. 🔴 **SYSTEMATIC ANALYSIS NEEDED** (YZ_22 önerisi)
+   - Her modülü tek tek test et
+   - Hata pattern'lerini grupla
+   - Data-driven approach
+   
+2. 🔴 #1: Complex expressions in IF (16 modül etki - ama belki başka sebep?)
+3. 🔴 #4: Nested control flow bug (kritik pattern)
+4. 🟡 #5: Array declaration (validation needed)
+5. 🟡 #2: Parenthesized boolean (1 modül)
+6. 🟡 #3: Expression in function calls (1 modül)
 
 ---
 
