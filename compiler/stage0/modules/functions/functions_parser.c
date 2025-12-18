@@ -89,52 +89,106 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
     // Parse parameters
     tok = lexer_next_token(lexer);
     if (tok->type != TOKEN_RPAREN) {
-        // First parameter: type name
-        // MLP format: function name(numeric x, string y)
+        // First parameter: type name OR name: type
+        // MLP format: function name(numeric x, string y)          [OLD - type param]
+        // YZ_15 format: function name(x: numeric, y: string)      [NEW - param: type]
         // YZ_84: Also supports: function name(Point p1, Address addr)
         
-        // Read type first
-        FunctionParamType param_type = token_to_param_type(tok->type);
+        FunctionParamType param_type = FUNC_PARAM_NUMERIC;  // Default
         char* struct_type_name = NULL;
+        char* param_name = NULL;
         
-        // YZ_84: Check if it's a struct type (IDENTIFIER that matches a struct definition)
+        // YZ_15: Check for type annotation syntax (param: type)
+        // Lookahead: If IDENTIFIER followed by COLON, it's new syntax
         if (tok->type == TOKEN_IDENTIFIER) {
-            // Could be a struct type name
-            StructDef* struct_def = struct_lookup_definition(tok->value);
-            if (struct_def) {
-                // It's a struct type!
-                param_type = FUNC_PARAM_STRUCT;
-                struct_type_name = strdup(tok->value);
-                token_free(tok);
-                tok = lexer_next_token(lexer);  // Get parameter name
+            // Save identifier (might be param name OR type name)
+            char* first_token = strdup(tok->value);
+            token_free(tok);
+            tok = lexer_next_token(lexer);
+            
+            // Check if followed by colon (new syntax: param: type)
+            if (tok->type == TOKEN_COLON) {
+                // NEW SYNTAX: param: type
+                param_name = first_token;  // First token was param name
+                token_free(tok);  // Consume colon
+                tok = lexer_next_token(lexer);  // Get type
+                
+                // Parse type after colon
+                if (tok->type == TOKEN_NUMERIC || tok->type == TOKEN_STRING_TYPE || 
+                    tok->type == TOKEN_BOOLEAN || tok->type == TOKEN_LIST) {
+                    param_type = token_to_param_type(tok->type);
+                    token_free(tok);
+                    tok = lexer_next_token(lexer);
+                } else if (tok->type == TOKEN_IDENTIFIER) {
+                    // Could be struct type
+                    StructDef* struct_def = struct_lookup_definition(tok->value);
+                    if (struct_def) {
+                        param_type = FUNC_PARAM_STRUCT;
+                        struct_type_name = strdup(tok->value);
+                    }
+                    token_free(tok);
+                    tok = lexer_next_token(lexer);
+                } else {
+                    error_parser(tok->line, "Expected type after ':' in parameter");
+                    free(first_token);
+                    if (tok) token_free(tok);
+                    function_free(func);
+                    return NULL;
+                }
             } else {
-                // Not a struct type, treat as parameter name with default numeric type
-                param_type = FUNC_PARAM_NUMERIC;
+                // OLD SYNTAX: Could be struct type OR parameter name
+                StructDef* struct_def = struct_lookup_definition(first_token);
+                if (struct_def) {
+                    // It's a struct type! (old syntax: Point p)
+                    param_type = FUNC_PARAM_STRUCT;
+                    struct_type_name = strdup(first_token);
+                    free(first_token);
+                    
+                    // Get parameter name
+                    if (tok->type != TOKEN_IDENTIFIER) {
+                        error_parser(tok->line, "Expected parameter name after struct type");
+                        token_free(tok);
+                        function_free(func);
+                        return NULL;
+                    }
+                    param_name = strdup(tok->value);
+                    token_free(tok);
+                    tok = lexer_next_token(lexer);
+                } else {
+                    // Not a struct, must be parameter name with default numeric type
+                    param_name = first_token;
+                    param_type = FUNC_PARAM_NUMERIC;
+                    // tok already points to next token
+                }
             }
-        } 
-        // Type tokens: TOKEN_NUMERIC, TOKEN_STRING_TYPE, TOKEN_BOOLEAN, TOKEN_LIST
+        }
+        // Type tokens first (old syntax: numeric x, boolean flag)
         else if (tok->type == TOKEN_NUMERIC || tok->type == TOKEN_STRING_TYPE || 
                  tok->type == TOKEN_BOOLEAN || tok->type == TOKEN_LIST) {
-            // Valid type found, consume it and read parameter name
+            // OLD SYNTAX: type param
+            param_type = token_to_param_type(tok->type);
+            token_free(tok);
+            tok = lexer_next_token(lexer);
+            
+            // Get parameter name
+            if (tok->type != TOKEN_IDENTIFIER) {
+                error_parser(tok->line, "Expected parameter name after type");
+                token_free(tok);
+                function_free(func);
+                return NULL;
+            }
+            param_name = strdup(tok->value);
             token_free(tok);
             tok = lexer_next_token(lexer);
         } else {
-            // No type specified, default to numeric, current token is param name
-            param_type = FUNC_PARAM_NUMERIC;
-        }
-        
-        // Then parameter name
-        if (tok->type != TOKEN_IDENTIFIER) {
-            error_parser(tok->line, "Expected parameter name");
+            error_parser(tok->line, "Expected parameter type or name");
             token_free(tok);
             function_free(func);
             return NULL;
         }
         
-        char* param_name = strdup(tok->value);
-        token_free(tok);
-        
-        tok = lexer_next_token(lexer);
+        // Now we have: param_name, param_type, (optional) struct_type_name
+        // tok points to next token (could be ASSIGN, COMMA, or RPAREN)
         int has_default = 0;
         
         // Check for default value: = expr
@@ -164,51 +218,97 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
         }
         free(param_name);
         
-        // Additional parameters: , type name
+        // Additional parameters: , type name OR , name: type
         while (tok->type == TOKEN_COMMA) {
             token_free(tok);
             
             tok = lexer_next_token(lexer);
             
-            // Read type
-            param_type = token_to_param_type(tok->type);
+            // Reset for next parameter
+            param_type = FUNC_PARAM_NUMERIC;
             struct_type_name = NULL;
+            param_name = NULL;
             
-            // YZ_84: Check if it's a struct type
+            // YZ_15: Check for type annotation syntax (param: type)
             if (tok->type == TOKEN_IDENTIFIER) {
-                StructDef* struct_def = struct_lookup_definition(tok->value);
-                if (struct_def) {
-                    param_type = FUNC_PARAM_STRUCT;
-                    struct_type_name = strdup(tok->value);
-                    token_free(tok);
+                char* first_token = strdup(tok->value);
+                token_free(tok);
+                tok = lexer_next_token(lexer);
+                
+                // Check if followed by colon (new syntax)
+                if (tok->type == TOKEN_COLON) {
+                    // NEW SYNTAX: param: type
+                    param_name = first_token;
+                    token_free(tok);  // Consume colon
                     tok = lexer_next_token(lexer);
+                    
+                    // Parse type
+                    if (tok->type == TOKEN_NUMERIC || tok->type == TOKEN_STRING_TYPE || 
+                        tok->type == TOKEN_BOOLEAN || tok->type == TOKEN_LIST) {
+                        param_type = token_to_param_type(tok->type);
+                        token_free(tok);
+                        tok = lexer_next_token(lexer);
+                    } else if (tok->type == TOKEN_IDENTIFIER) {
+                        StructDef* struct_def = struct_lookup_definition(tok->value);
+                        if (struct_def) {
+                            param_type = FUNC_PARAM_STRUCT;
+                            struct_type_name = strdup(tok->value);
+                        }
+                        token_free(tok);
+                        tok = lexer_next_token(lexer);
+                    } else {
+                        error_parser(tok->line, "Expected type after ':'");
+                        free(first_token);
+                        if (tok) token_free(tok);
+                        function_free(func);
+                        return NULL;
+                    }
                 } else {
-                    param_type = FUNC_PARAM_NUMERIC;
+                    // OLD SYNTAX: Check if it's struct type
+                    StructDef* struct_def = struct_lookup_definition(first_token);
+                    if (struct_def) {
+                        param_type = FUNC_PARAM_STRUCT;
+                        struct_type_name = strdup(first_token);
+                        free(first_token);
+                        
+                        if (tok->type != TOKEN_IDENTIFIER) {
+                            error_parser(tok->line, "Expected parameter name");
+                            token_free(tok);
+                            function_free(func);
+                            return NULL;
+                        }
+                        param_name = strdup(tok->value);
+                        token_free(tok);
+                        tok = lexer_next_token(lexer);
+                    } else {
+                        // Parameter name with default numeric type
+                        param_name = first_token;
+                        param_type = FUNC_PARAM_NUMERIC;
+                    }
                 }
             }
-            // YZ_63: Check if we consumed a type token
+            // OLD SYNTAX: Type token first
             else if (tok->type == TOKEN_NUMERIC || tok->type == TOKEN_STRING_TYPE || 
                      tok->type == TOKEN_BOOLEAN || tok->type == TOKEN_LIST) {
-                // Valid type found, consume it and read parameter name
+                param_type = token_to_param_type(tok->type);
+                token_free(tok);
+                tok = lexer_next_token(lexer);
+                
+                if (tok->type != TOKEN_IDENTIFIER) {
+                    error_parser(tok->line, "Expected parameter name after type");
+                    token_free(tok);
+                    function_free(func);
+                    return NULL;
+                }
+                param_name = strdup(tok->value);
                 token_free(tok);
                 tok = lexer_next_token(lexer);
             } else {
-                // No type specified, default to numeric
-                param_type = FUNC_PARAM_NUMERIC;
-            }
-            
-            // Then parameter name
-            if (tok->type != TOKEN_IDENTIFIER) {
-                error_parser(tok->line, "Expected parameter name after ','");
+                error_parser(tok->line, "Expected parameter after ','");
                 token_free(tok);
                 function_free(func);
                 return NULL;
             }
-            
-            param_name = strdup(tok->value);
-            token_free(tok);
-            
-            tok = lexer_next_token(lexer);
             has_default = 0;
             
             // Check for default value
