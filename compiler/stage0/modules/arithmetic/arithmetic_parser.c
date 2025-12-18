@@ -155,7 +155,12 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
     }
     
     // Variable or Function Call
-    if (parser->current_token->type == TOKEN_IDENTIFIER) {
+    // YZ_25: Also accept type keywords as function names (for type conversion: string(), numeric(), boolean())
+    if (parser->current_token->type == TOKEN_IDENTIFIER ||
+        parser->current_token->type == TOKEN_STRING_TYPE ||
+        parser->current_token->type == TOKEN_NUMERIC ||
+        parser->current_token->type == TOKEN_BOOLEAN ||
+        parser->current_token->type == TOKEN_LIST) {
         char* identifier = strdup(parser->current_token->value);
         advance(parser);
         
@@ -755,7 +760,13 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
     }
     
     // Variable or Function Call or Collection Access (YZ_86: or 'self')
-    if ((*current)->type == TOKEN_IDENTIFIER || (*current)->type == TOKEN_SELF) {
+    // YZ_25: Also accept type keywords as function names (for type conversion: string(), numeric(), boolean())
+    if ((*current)->type == TOKEN_IDENTIFIER || 
+        (*current)->type == TOKEN_SELF ||
+        (*current)->type == TOKEN_STRING_TYPE ||
+        (*current)->type == TOKEN_NUMERIC ||
+        (*current)->type == TOKEN_BOOLEAN ||
+        (*current)->type == TOKEN_LIST) {
         char* identifier = strdup((*current)->value);
         advance_stateless(lexer, current);
         
