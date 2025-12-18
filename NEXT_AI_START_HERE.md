@@ -7,16 +7,18 @@
 
 ---
 
-## ⚠️ ÖNEMLİ: STRATEJİ DEĞİŞTİ!
+## ⚠️ ÖNEMLİ: STRATEJİ 2. KEZ DEĞİŞTİ! (YZ_ÜA_01 KARARLI)
 
-**Önceki Plan:** Lexer modülü (Stage 0 → MELP çevirisi)  
-**YENİ Plan:** Stage 0'ı güçlendir (IF condition enhancement)
+**İlk Plan (YZ_20):** Module-by-module fix (23 modül, 2-3 saat)  
+**İkinci Plan (YZ_ÜA_01 ÖNCESI):** Lexer modülü (Stage 0 → MELP çevirisi)  
+**YENİ KARŞI Plan (YZ_ÜA_01 SONRASI):** **Stage 0'ı güçlendir önce!**
 
 **Neden Değişti?**
 - ✅ Kök sebep analizi yapıldı (`ust_akil_YZ/STAGE_0_GAP_ANALYSIS.md`)
-- ✅ Stage 1 başarısızlık nedeni bulundu: **Complex expressions in IF**
+- ✅ Stage 1 başarısızlık nedeni bulundu: **Complex expressions in IF desteklenmiyor**
 - ✅ %27 başarı → %90+ başarı potansiyeli (16 modül fixed!)
 - ✅ Minimal değişiklik (1-2 saat) maksimum etki
+- ✅ **Tavuk-yumurta problemi:** Stage 1 modülleri Stage 0'ın desteklemediği feature'lar kullanıyor
 
 ---
 
@@ -44,22 +46,22 @@ Merhaba! Ben YZ_21'yim.
 
 YZ_ÜA_01 (ÜST AKIL) RAPORU okudum!
 
-📊 Üst Akıl Kararları:
-✅ Stage 1 gerçek durum tespit edildi (9/34 modül)
-✅ 7 YZ planı hazırlandı (YZ_21-27)
-✅ Minimal bootstrap stratejisi onaylandı
-✅ Core yapı: Modüler + STO + LLVM + Stateless
+📊 Üst Akıl Kök Sebep Analizi:
+✅ Stage 1 modüllerinin %73'ü compile olmuyor
+✅ Neden: Stage 0 complex expressions in IF desteklemiyor
+✅ Örnek: "if arr[i] > 0 then" → HATA
+✅ Tek düzeltme → 16 modül fixed!
 
 🎯 BENİM GÖREVİM (YZ_21):
-→ Lexer modülünü oluştur
-→ Stage 0 lexer.c → lexer.mlp çevirisi
-→ Token generation
-→ MELP syntax ile yaz
+→ Stage 0 control_flow_parser.c düzelt
+→ parse_simple_condition → parse_expression
+→ IF conditions'da full expression support
+→ Hedef: %27 → %90+ başarı
 
 📋 CHECKLIST:
-1. ust_akil_YZ/YZ_UA_01_RAPOR.md okudum ✅
-2. ARCHITECTURE.md okudum ve onayladım ✅
-3. compiler/stage0/modules/lexer/ inceledim ✅
+1. ust_akil_YZ/STAGE_0_GAP_ANALYSIS.md okudum ✅
+2. compiler/stage0/modules/control_flow/ inceledim ✅
+3. Hedef satır: ~104-129 (parse_if_statement)
 4. Görev netleşti, başlayalım! 🚀
 
 Onay bekliyorum!
@@ -85,54 +87,171 @@ Onay bekliyorum!
 
 ---
 
-## 🎯 YZ_21 GÖREVİ: LEXER MODÜLÜ
+## 🎯 YZ_21 GÖREVİ: STAGE 0 IF CONDITION ENHANCEMENT
 
-**HEDEF:** Stage 0 lexer.c → lexer.mlp çevirisi
+**HEDEF:** Stage 0 control_flow_parser.c → Complex expression support in IF conditions
 
-**Neden Lexer?**
-- ✅ Kaynak kodu okumak için ZORUNLU
-- ✅ Tüm compiler'ın başlangıç noktası
-- ✅ Stage 0'da çalışan versiyonu var (kopyala/çevir)
-- ✅ Token üretimi → Parser'a input
+**Neden Bu Görev Kritik?**
+- ✅ Stage 1 modüllerinin %73'ü bu yüzden compile olmuyor (16/22 modül)
+- ✅ Tek bir değişiklik → 16 modül otomatik çalışır
+- ✅ Minimal risk, maksimum etki
+- ✅ Tavuk-yumurta problemini çözer (Stage 1, Stage 0'ın desteklemediği syntax kullanıyor)
+
+**Root Cause (ust_akil_YZ/STAGE_0_GAP_ANALYSIS.md'den):**
+```c
+// compiler/stage0/modules/control_flow/control_flow_parser.c
+// Satır ~104-129
+
+int parse_if_statement(Parser *parser, ...) {
+    // ...
+    expect_token(parser, TOKEN_IF, "Expected 'if'");
+    
+    // ❌ SORUN BURASI:
+    ASTNode *condition = parse_simple_condition(parser);  // Sadece basit: a > b
+    
+    // ✅ OLMASI GEREKEN:
+    // ASTNode *condition = parse_expression(parser);  // arr[i] > 0, func() == x
+}
+```
+
+**Mevcut Durum:**
+- ❌ Desteklemiyor: `if arr[i] > 0 then`
+- ❌ Desteklemiyor: `if func() == value then`
+- ❌ Desteklemiyor: `if obj.property then`
+- ❌ Desteklemiyor: `if (a and b) or c then`
+- ✅ Destekliyor: `if a > b then`
 
 **Görevler:**
-1. **Analiz** (30 dk)
-   - `compiler/stage0/modules/lexer/lexer.c` incele
-   - `compiler/stage0/modules/lexer/lexer.h` incele
-   - Token types, lexer state machine anla
 
-2. **Implementation** (2 saat)
-   - `compiler/stage1/modules/lexer/` dizini oluştur
-   - `lexer_parser.mlp` - Token generation logic
-   - `lexer_state.mlp` - State machine
-   - Import core utilities (token_types, char_utils)
+### 1. KEŞFET (30 dk)
+```bash
+# Dosyaları incele
+cat compiler/stage0/modules/control_flow/control_flow_parser.c | grep -A 20 "parse_if_statement"
+cat compiler/stage0/modules/control_flow/control_flow_parser.h
+cat compiler/stage0/modules/expression/expression_parser.c | grep -A 10 "parse_expression"
 
-3. **Test** (30 dk)
-   - `test_lexer.mlp` - Comprehensive tests
-   - Test: Keywords, identifiers, numbers, strings
-   - Test: Operators, whitespace, comments
-   - Test: Error handling
+# parse_expression fonksiyonunun signature'ını öğren
+# Hangi parametreler alıyor? Ne döndürüyor?
+```
 
-4. **README** (30 dk)
-   - Module documentation
-   - Usage examples
-   - API reference
+### 2. DEĞİŞTİR (30 dk)
+```c
+// compiler/stage0/modules/control_flow/control_flow_parser.c
+// Satır ~104-129
 
-**Tahmini Süre:** 2-3 saat
+// ÖNCE:
+ASTNode *condition = parse_simple_condition(parser);
+
+// SONRA:
+ASTNode *condition = parse_expression(parser);
+```
+
+**UYARI:** 
+- ✅ `parse_expression` forward declaration var mı kontrol et
+- ✅ `#include "../expression/expression_parser.h"` ekle (gerekiyorsa)
+- ✅ Sadece IF condition kısmını değiştir (WHILE/FOR dokunma şimdilik)
+
+### 3. COMPILE TEST (15 dk)
+```bash
+cd compiler/stage0
+make clean
+make
+
+# Hata varsa:
+# - Missing include? → Header ekle
+# - Wrong signature? → parse_expression parametrelerini düzelt
+```
+
+### 4. VALIDATION TEST (45 dk)
+```bash
+# Stage 1 modüllerini compile et (şu an %27 başarı)
+cd /home/pardus/projeler/MLP/MLP
+./compiler/stage0/melp_compiler compiler/stage1/modules/functions/functions_parser.mlp
+
+# Test modülleri:
+# - functions_parser.mlp (if tokens.length > 0)
+# - variables_parser.mlp (if pos >= tokens.length)
+# - operators_parser.mlp (if arr[i] != 0)
+# - char_utils.mlp (if (c >= 'a' and c <= 'z'))
+
+# Beklenen: %27 → %90+ başarı!
+```
+
+### 5. RAPOR (30 dk)
+```markdown
+# YZ_21_RAPOR.md
+
+## 🎯 Stage 0 IF Condition Enhancement
+
+**Durum:** ✅ COMPLETE / ⚠️ PARTIAL / ❌ FAILED
+
+**Değişiklikler:**
+- compiler/stage0/modules/control_flow/control_flow_parser.c (1 satır değişti)
+- [Varsa diğer değişiklikler]
+
+**Sonuçlar:**
+- Stage 1 compile success: 27% → X%
+- Sabit modüller: [liste]
+- Hala hatalı modüller: [liste]
+
+**Sorunlar:**
+[Varsa beklenmedik sorunlar]
+
+**Öneriler:**
+- Devam stratejisi: [YZ_22 nedir?]
+```
+
+**Tahmini Süre:** 1-2 saat (önceki tahmin: 2-3 saat Lexer için)
 
 ---
 
-## 📋 YZ_21-27 ROADMAP (7 YZ Plan)
+## 📋 YZ ROADMAP - YENİ STRATEJİ (ÜST AKIL KARARLI)
 
-**YZ_21: Lexer** (2-3 saat) ← **SEN BURASINDAین!**
-**YZ_22: Parser Core** (3-4 saat)
-**YZ_23: Expression Wrapper** (1-2 saat)
-**YZ_24: Statement Parser** (2-3 saat)
-**YZ_25: Print Module** (1 saat)
-**YZ_26: LLVM Backend** (3-4 saat)
-**YZ_27: Bootstrap Test** (2-3 saat)
+**FAZ 1: Stage 0 Enhancement (ÖNCE BU!)**
+- **YZ_21: IF Condition Enhancement** (1-2 saat) ← **SEN BURASINDAین!**
+  - Stage 0'ı güçlendir
+  - parse_simple_condition → parse_expression
+  - Hedef: %27 → %90+ başarı
 
-**Toplam:** 14-20 saat → Minimal Bootstrap COMPLETE!
+**FAZ 2: Geriye Kalan Gaps (YZ_21 sonucuna göre)**
+- **YZ_22: Parenthesized Boolean Expressions?** (Sadece gerekiyorsa)
+  - char_utils.mlp hatası: `if (c >= 'a' and c <= 'z')`
+  - Belki YZ_21 zaten çözer?
+  
+- **YZ_23: Expression in Function Calls?** (Sadece gerekiyorsa)
+  - parser_api.mlp hatası: `append_to_array(arr, create_token(...))`
+  - Belki YZ_21 zaten çözer?
+
+**FAZ 3: Stage 1 Tamamlama (Stage 0 yeterli olduktan sonra)**
+- **YZ_24-30:** Eksik kritik modülleri ekle (lexer, parser_core, vb.)
+  - Eski YZ_21-27 planı (7 YZ → Lexer, Parser, Expression, Statement, Print, LLVM, Bootstrap)
+  - Şimdi ertelendi, Stage 0 önce yeterli olmalı
+
+**Strateji Felsefesi:**
+```
+ÖNCE: Stage 1 modülleri yaz → Stage 0 compile edemiyor
+SONRA (YZ_ÜA_01): Stage 0'ı güçlendir → Stage 1 modülleri otomatik çalışır
+```
+
+**Tahmini Süre:**
+- YZ_21: 1-2 saat
+- YZ_22-23: 0-2 saat (YZ_21 başarılı olursa belki 0!)
+- YZ_24-30: TBD (YZ_ÜA_02 karar verecek)
+
+---
+
+## ⚠️ ESKİ PLAN (ÜST AKIL TARAFINDAN İPTAL EDİLDİ)
+
+~~**YZ_21: Lexer** (2-3 saat)~~  
+~~**YZ_22: Parser Core** (3-4 saat)~~  
+~~**YZ_23: Expression Wrapper** (1-2 saat)~~  
+~~**YZ_24: Statement Parser** (2-3 saat)~~  
+~~**YZ_25: Print Module** (1 saat)~~  
+~~**YZ_26: LLVM Backend** (3-4 saat)~~  
+~~**YZ_27: Bootstrap Test** (2-3 saat)~~  
+~~**Toplam:** 14-20 saat → Minimal Bootstrap COMPLETE!~~
+
+**İptal Nedeni:** Tavuk-yumurta problemi. Stage 1 modülleri yazmak için Stage 0'ın desteklemediği feature'lar gerekiyor. Önce Stage 0'ı güçlendir, sonra Stage 1'i yaz!
 
 **3. Hedef Modüller (23 modül):**
 
