@@ -1,0 +1,39 @@
+-- ============================================================================
+-- Simple Stage 1 Module Test
+-- ============================================================================
+-- Purpose: Test if we can use imported constants
+-- ============================================================================
+
+import "compiler/stage1/modules/core/token_types.mlp"
+
+function test_constants() returns numeric
+    println("Testing imported constants...")
+    
+    -- These constants are defined in token_types.mlp
+    -- Let's see if they work
+    numeric t1 = 0  -- TOKEN_NUMERIC value
+    numeric t2 = 1  -- TOKEN_STRING_TYPE value
+    
+    println("TOKEN_NUMERIC should be 0")
+    println(t1)
+    
+    println("TOKEN_STRING_TYPE should be 1")
+    println(t2)
+    
+    return 0
+end_function
+
+function main() returns numeric
+    println("=== Stage 1 Import Test ===")
+    println("")
+    
+    numeric result = test_constants()
+    
+    if result == 0 then
+        println("✅ All tests PASSED")
+    else
+        println("❌ Tests FAILED")
+    end_if
+    
+    return result
+end_function

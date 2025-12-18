@@ -1,0 +1,11 @@
+-- ============================================================================
+-- Helper Module: math_helper.mlp
+-- ============================================================================
+
+function add_numbers(numeric a, numeric b) returns numeric
+    return a + b
+end_function
+
+function multiply_numbers(numeric a, numeric b) returns numeric
+    return a * b
+end_function

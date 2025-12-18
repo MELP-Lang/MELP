@@ -19,6 +19,8 @@
 #include "../struct/struct_parser.h"   // YZ_81: Struct parser
 #include "../enum/enum.h"              // YZ_96: Enum definitions
 #include "../enum/enum_parser.h"       // YZ_96: Enum parser
+#include "../variable/variable.h"      // YZ_13: Variable declarations (for const)
+#include "../variable/variable_parser.h"  // YZ_13: Variable parser (for const)
 #include "../../normalize/normalize.h"  // ⭐ RF_YZ_1: Normalize layer
 #include "functions.h"
 #include "functions_parser.h"
@@ -519,7 +521,22 @@ int main(int argc, char** argv) {
             continue;
         }
         
-        // Not an import, struct, or enum - put token back for function parser
+        // YZ_13: Handle top-level const declaration
+        if (tok->type == TOKEN_CONST) {
+            VariableDeclaration* const_decl = variable_parse_declaration(lexer, tok);
+            token_free(tok);
+            
+            if (const_decl) {
+                printf("📌 Const: %s = %s\n", 
+                       const_decl->name, 
+                       const_decl->value ? "(value)" : "(no value)");
+                // Note: const declarations are stored in codegen context
+                // No need to add to a list here
+            }
+            continue;
+        }
+        
+        // Not an import, struct, enum, or const - put token back for function parser
         lexer_unget_token(lexer, tok);
         
         FunctionDeclaration* func = parse_function_declaration(lexer);

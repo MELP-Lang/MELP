@@ -1,0 +1,19 @@
+-- ============================================================================
+-- Test: Real Import Test
+-- ============================================================================
+
+import "tests/stage_1_tests/math_helper.mlp"
+
+function main() returns numeric
+    println("Testing import...")
+    
+    numeric sum = add_numbers(10, 5)
+    println("10 + 5 = ")
+    println(sum)
+    
+    numeric product = multiply_numbers(4, 7)
+    println("4 * 7 = ")
+    println(product)
+    
+    return 0
+end_function

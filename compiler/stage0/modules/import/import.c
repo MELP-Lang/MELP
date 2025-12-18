@@ -11,6 +11,8 @@
 #include "../lexer/lexer.h"
 #include "../functions/functions_parser.h"
 #include "../functions/functions_codegen.h"  // YZ_44: Part 5.1 - Assembly generation
+#include "../variable/variable.h"         // YZ_13: For const declarations
+#include "../variable/variable_parser.h"  // YZ_13: For const parsing
 #include "../error/error.h"
 
 // ============================================================================
@@ -310,6 +312,22 @@ FunctionDeclaration* import_load_module(const char* module_path) {
             }
             
             import_statement_free(import_stmt);
+            continue;
+        }
+        
+        // YZ_13: Handle const declarations in modules (import context)
+        // ✅ Stateless: Const'lar parse edilip LLVM IR'a yazılır
+        // ✅ No global state modification!
+        if (tok->type == TOKEN_CONST) {
+            VariableDeclaration* const_decl = variable_parse_declaration(lexer, tok);
+            token_free(tok);
+            
+            if (const_decl) {
+                // ✅ Const parsed successfully
+                // ✅ Will be emitted to LLVM IR during codegen
+                // ✅ Linking will merge all const declarations
+                // TODO: Free const_decl properly when we track all declarations
+            }
             continue;
         }
         

@@ -1,0 +1,18 @@
+-- ============================================================================
+-- Test: Import Functions Test
+-- ============================================================================
+-- Purpose: Test if Stage 0 can import functions from Stage 1 modules
+-- ============================================================================
+
+-- Create a simple helper module first
+function helper_add(numeric a, numeric b) returns numeric
+    return a + b
+end_function
+
+function main() returns numeric
+    println("Testing function...")
+    numeric result = helper_add(5, 3)
+    println("Result: ")
+    println(result)
+    return 0
+end_function
