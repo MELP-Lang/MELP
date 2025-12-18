@@ -1,18 +1,78 @@
 # MELP Architecture Rules - IMMUTABLE
 
-## 🚨 CRITICAL: AI AGENT WORKFLOW (NEW - 9 Aralık 2025) 🚨
+## 🚨 RULE #-1: CORE PHILOSOPHY (READ THIS FIRST!) 🚨
+
+### "Her modül ölüdür, onu çağıran diriltir ve öldürür"
+*"Every module is dead, the caller resurrects and kills it"*
+
+**WHAT THIS MEANS (CRITICALLY IMPORTANT!):**
+
+```
+❌ FORBIDDEN: API/Service Pattern (Global/Shared Instance)
+   Module exists globally → Caller uses it → Module stays alive
+   → Breaks: Stateless, STO isolation, Lifecycle control
+   → Result: State leaks, context corruption, chaos
+
+✅ REQUIRED: Template/Instantiation Pattern  
+   Module is template → Caller instantiates → Caller owns instance → Caller destroys
+   → Preserves: Stateless, STO context, Full lifecycle
+   → Result: Clean isolation, predictable behavior
+```
+
+**CONCRETE EXAMPLE:**
+
+```c
+// ❌ WRONG (API Pattern - Stage 0 temporary compromise):
+comparison_parse_expression(lexer, token);
+// Module lives globally, state shared, STO context lost
+
+// ✅ CORRECT (Template Pattern - Stage 1 MANDATORY):
+COMPARISON_INSTANCE(my_parser);  // Resurrect (birth)
+comparison_parse_MY_PARSER(lexer, token);  // Use with full control
+COMPARISON_DESTROY(my_parser);   // Kill (death)
+// Module instance owned by caller, state isolated, STO preserved
+```
+
+**WHY MANDATORY:**
+1. **Stateless:** API pattern = global state = VIOLATION
+2. **STO:** API pattern = lost optimization context = BROKEN
+3. **Philosophy:** "Caller resurrects & kills" = impossible with API pattern
+
+**ENFORCEMENT:**
+- Stage 0: API pattern (C limitation) - TECHNICAL DEBT ONLY
+- Stage 1: Template pattern MANDATORY - NO EXCEPTIONS
+- Violation severity: ARCHITECTURE BREAKING (same as monolithic code)
+
+**FOR AI AGENTS:**
+```
+IF working on Stage 0:
+  → API pattern allowed (document as technical debt)
+  → Add comment: "// TODO Stage 1: Convert to template pattern"
+
+IF working on Stage 1:
+  → API pattern FORBIDDEN
+  → Template pattern REQUIRED
+  → No compromise, no exceptions
+```
+
+**This is as critical as rejecting monolithic architecture!**
+
+---
+
+## 🚨 CRITICAL: AI AGENT WORKFLOW 🚨
 
 **EVERY AI AGENT MUST:**
 
-1. **Read this file FIRST** before making any changes
-2. **Create a numbered branch**: `git checkout -b feature-name_YZ_XX`
+1. **Read Rule #-1 FIRST** - Understand core philosophy
+2. **Read this file FIRST** before making any changes
+3. **Create a numbered branch**: `git checkout -b feature-name_YZ_XX`
    - YZ_01 = First AI agent (this session)
    - YZ_02 = Second AI agent
    - YZ_03 = Third AI agent, etc.
-3. **Work on your branch**, make commits with clear messages
-4. **Before finishing**: `git push origin feature-name_YZ_XX`
-5. **Leave a handoff note** in `/NEXT_AI_START_HERE.md`
-6. **⚠️ NEVER merge or create pull requests** - Human will review and merge
+4. **Work on your branch**, make commits with clear messages
+5. **Before finishing**: `git push origin feature-name_YZ_XX`
+6. **Leave a handoff note** in `/NEXT_AI_START_HERE.md`
+7. **⚠️ NEVER merge or create pull requests** - Human will review and merge
 
 **Example:**
 ```bash
@@ -30,15 +90,17 @@ git push origin sto-cleanup_YZ_01
 - Clear audit trail
 - **Human reviews and merges** - AI never merges to main
 
-**CURRENT AI:** YZ_49 (Phase 12: STO Refactoring - Documentation)
-**PREVIOUS AI:** YZ_48 (12 Aralık 2025 - println() Complete) ✅ COMPLETED
+**CURRENT AI:** YZ_ÜA_01 (Upper Mind - Stage 1 Strategy & Architecture)
+**PREVIOUS AI:** YZ_28 (18 Aralık 2025 - Import Path Resolution) ✅ COMPLETED
 
 ---
 
-## ⚠️ FOR AI AGENTS: READ THIS FIRST ⚠️
+## ⚠️ FOR AI AGENTS: VIOLATIONS TO AVOID ⚠️
 
-Previous AI agents violated these rules and created a 736-line monolithic `main.c`.
-**DO NOT REPEAT THIS MISTAKE.**
+**Historical mistakes (DO NOT REPEAT):**
+1. ❌ Created 736-line monolithic `main.c` (violated modular rule)
+2. ❌ Used API pattern without understanding philosophy (violated Rule #-1)
+3. ❌ Ignored "ölüdür" principle (violated lifecycle control)
 
 ---
 
