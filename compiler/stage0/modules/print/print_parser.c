@@ -6,6 +6,7 @@
 #include <string.h>
 
 // YZ_61: Stateless pattern - receives already-read 'print' token
+// YZ_23: Support both print(...) and print ... syntax
 PrintStatement* parse_print_statement(Lexer* lexer, Token* print_token) {
     // Verify it's actually a print token (sanity check)
     if (print_token->type != TOKEN_PRINT) {
@@ -13,17 +14,19 @@ PrintStatement* parse_print_statement(Lexer* lexer, Token* print_token) {
         return NULL;
     }
     
-    // Expect '('
+    // YZ_23: Check if next token is '(' (optional parentheses)
     Token* tok = lexer_next_token(lexer);
-    if (tok->type != TOKEN_LPAREN) {
-        fprintf(stderr, "Error: Expected '(' after 'print'\n");
+    int has_parens = 0;
+    
+    if (tok->type == TOKEN_LPAREN) {
+        // Variant 1: print(expr) - with parentheses
+        has_parens = 1;
         token_free(tok);
-        return NULL;
+        tok = lexer_next_token(lexer);
     }
-    token_free(tok);
+    // else: Variant 2: print expr - without parentheses (tok already has first token)
     
     // Parse expression using arithmetic parser (supports all expressions including array indexing)
-    tok = lexer_next_token(lexer);
     
     PrintStatement* stmt = malloc(sizeof(PrintStatement));
     
@@ -86,16 +89,18 @@ PrintStatement* parse_print_statement(Lexer* lexer, Token* print_token) {
         // Don't free tok - arithmetic parser consumed it
     }
     
-    // Expect ')'
-    tok = lexer_next_token(lexer);
-    if (tok->type != TOKEN_RPAREN) {
-        fprintf(stderr, "Error: Expected ')' after string\n");
+    // YZ_23: Expect ')' only if we had opening '('
+    if (has_parens) {
+        tok = lexer_next_token(lexer);
+        if (tok->type != TOKEN_RPAREN) {
+            fprintf(stderr, "Error: Expected ')' after expression in print()\n");
+            token_free(tok);
+            free(stmt->value);
+            free(stmt);
+            return NULL;
+        }
         token_free(tok);
-        free(stmt->value);
-        free(stmt);
-        return NULL;
     }
-    token_free(tok);
     
     return stmt;
 }
