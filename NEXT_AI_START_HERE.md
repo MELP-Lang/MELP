@@ -1,41 +1,41 @@
-# 🚀 NEXT AI START HERE - SEN YZ_13'SÜN!
+# 🚀 NEXT AI START HERE - SEN YZ_14'SÜN!
 
-**👤 SENİN ROLÜN:** YZ_13 - Import System Enhancement & Test Execution  
+**👤 SENİN ROLÜN:** YZ_14 - Full Test Suite Execution & Self-Compile  
 **📅 Tarih:** 18 Aralık 2025  
-**🌿 Dal:** `import_enhancement_YZ_13` (oluşturulacak)  
-**📊 Durum:** ⏸️ YZ_13 BEKLİYOR - YZ_12 BOOTSTRAP TAMAMLANDI!
+**🌿 Dal:** `full_tests_YZ_14` (oluşturulacak)  
+**📊 Durum:** ⏸️ YZ_14 BEKLİYOR - YZ_13 IMPORT ENHANCEMENT TAMAMLANDI!
 
 ---
 
-## 👋 MERHABA YZ_13!
+## 👋 MERHABA YZ_14!
 
 **Kullanıcıya ilk mesajın şöyle olmalı:**
 
 ```
-Merhaba! Ben YZ_13'üm.
+Merhaba! Ben YZ_14'üm.
 
 NEXT_AI_START_HERE.md ve TODO.md'yi okudum.
-Görevim: Import System Enhancement & Test Execution
+Görevim: Full Test Suite Execution & Self-Compile
 
-YZ_12 bana şunları bıraktı:
-- ✅ Stage 1 compiler hazır (main.mlp + bootstrap)
-- ✅ 9 modül tamamlanmış (YZ_03 - YZ_11)
-- ✅ Test runner script hazır
-- ⚠️  Import sistemi basic (güçlendirilmeli)
-- ⏳ 93 test henüz çalıştırılmadı
+YZ_13 bana şunları bıraktı:
+- ✅ Import sistemi güçlendirildi (relative path + const support)
+- ✅ Stage 1 compiler bootstrap edilmiş
+- ✅ 9 modül hazır (YZ_03 - YZ_11)
+- ✅ Import test'leri geçiyor (3/3 PASSED)
+- ⏳ 93 modül testi henüz çalıştırılmadı
 
 Görevlerim:
-1. Import sistemini güçlendir
-2. Modülleri gerçek entegre et
-3. 93 test'i çalıştır
-4. Test raporunu yaz
+1. 93 test suite'ini çalıştır
+2. Test sonuçlarını analiz et
+3. Self-compile test yap
+4. Final raporu yaz
 
 Başlamamı ister misiniz?
 ```
 
 ---
 
-## 🎉 YZ_01 - YZ_12 TAMAMLANDI!
+## 🎉 YZ_01 - YZ_13 TAMAMLANDI!
 
 **YZ_01 - Import Tasarımı (✅ Tamamlandı - 2.5 saat)**
 - ✅ Import sistem tasarımı
@@ -152,85 +152,104 @@ Başlamamı ister misiniz?
 - ⚠️  Import sistemi basic (modüller entegre değil)
 - ⏸️  Test execution YZ_13'e ertelendi
 - ✅ Rapor: `YZ_Stage_1/YZ_12_RAPOR.md`
-## 🎯 YZ_13 İÇİN SONRAKİ ADIMLAR
+
+**YZ_13 - Import Enhancement (✅ Tamamlandı - 3 saat!)**
+- ✅ Stage 0 import sistemi analiz edildi
+- ✅ **Relative path support eklendi!** `import "path/to/module.mlp"` çalışıyor
+- ✅ **Const support eklendi!** Top-level const declarations parse ediliyor
+- ✅ YZ_CONST branch merge edildi (const keyword support)
+- ✅ **Stateless architecture korundu** - Global state YOK!
+- ✅ Import test'leri: 3/3 PASSED ✅
+  - math_helper import test
+  - Stage 1 main.mlp compilation
+  - Const import test
+- ✅ LLVM linking otomatik symbol resolution (const'lar için symbol table gerekmedi!)
+- ✅ Rapor: `YZ_Stage_1/YZ_13_RAPOR.md` (344 satır)
+
+---
+
+## 🎯 YZ_14 İÇİN SONRAKİ ADIMLAR
 
 **1. İlk Mesajın (Kullanıcıya):**
 ```
-Merhaba! Ben YZ_13'üm.
+Merhaba! Ben YZ_14'üm.
 
-YZ_12_RAPOR.md okudum. Stage 1 compiler bootstrap edilmiş! 🎉
+YZ_13_RAPOR.md okudum. Import sistemi güçlendirilmiş! 🎉
 
 Görevim:
-1. Import sistemini güçlendir (Stage 0 basic import → Stage 1 advanced)
-2. Modülleri gerçek entegre et (main.mlp import'ları aç)
-3. 93 test'i çalıştır (test runner hazır)
-4. Test raporunu yaz
+1. 93 test suite'ini çalıştır (YZ_03 - YZ_11 modülleri)
+2. Test sonuçlarını analiz et ve rapor yaz
+3. Self-compile test yap (Stage 1 kendi kendini compile etsin)
+4. Final validation ve dokümantasyon
 
-⚠️  KRİTİK: Import sistemi olmadan modüller entegre edilemez!
-✅ PLAN: Önce import → Sonra integration → Sonra tests
+✅ Import sistemi hazır
+✅ Bootstrap başarılı
+⏳ Testler çalıştırılacak
 
 Başlamamı ister misiniz?
 ```
 
 **2. Yapman Gerekenler:**
 1. ✅ `MELP_Mimarisi.md` oku ve ONAYLA
-2. ✅ `TODO.md` oku (YZ_13 bölümü)
-3. ✅ `YZ_Stage_1/YZ_12_RAPOR.md` oku
-4. ✅ Stage 1 compiler'ı test et (`./compiler/stage1/stage1_compiler`)
-5. ✅ Git dalı oluştur: `git checkout -b import_enhancement_YZ_13`
+2. ✅ `TODO.md` oku (YZ_14 bölümü)
+3. ✅ `YZ_Stage_1/YZ_13_RAPOR.md` oku
+4. ✅ Git dalı oluştur: `git checkout -b full_tests_YZ_14`
 6. ▶️ İşe başla!
 
-**3. YZ_12'den Önemli Notlar:**
-- ✅ Stage 1 compiler binary hazır (`compiler/stage1/stage1_compiler`)
-- ✅ main.mlp oluşturuldu (189 satır)
-- ✅ Bootstrap başarılı
-- ✅ 9 test dosyası syntax validated
-- ⚠️  **İMPORT SİSTEMİ BASIC** - Bu YZ_13'ün ana görevi!
-- ⏸️  Testler hazır ama çalıştırılamıyor (modüller entegre değil)
+**3. YZ_13'den Önemli Notlar:**
+- ✅ Import sistemi güçlendirildi! Relative path + const support
+- ✅ Stateless architecture korundu (global state YOK)
+- ✅ Import testleri geçiyor (3/3 PASSED)
+- ✅ Stage 0 compiler rebuild edildi
+- ✅ LLVM linking otomatik symbol resolution yapıyor
+- ⏳ 93 modül testi henüz çalıştırılmadı
 
-**4. Import System Enhancement Plan:**
+**4. Full Test Suite Execution Plan:**
 
-**Adım 1: Stage 0 Import Analizi**
-- `compiler/stage0/modules/import/` incelemesi
-- Mevcut import capabilities
-- Limitations ve enhancement ihtiyaçları
+**Adım 1: Test Ortamını Hazırla**
+- Stage 0 compiler güncel mi kontrol et
+- Test dosyalarının path'lerini kontrol et
+- Test runner script'i incele
 
-**Adım 2: Import Path Resolution**
-- Relative path support (`import "../core/token_types.mlp"`)
-- Module search paths
-- Circular dependency detection
+**Adım 2: Modül Testlerini Sırayla Çalıştır**
+- YZ_03: core tests (15 tests)
+- YZ_04: functions tests (6 tests)
+- YZ_05: variables tests (8 tests)
+- YZ_06: operators tests (8 tests)
+- YZ_07: control_flow tests (12 tests)
+- YZ_08: literals tests (10 tests)
+- YZ_09: arrays tests (10 tests)
+- YZ_10: structs tests (12 tests)
+- YZ_11: enums tests (12 tests)
 
-**Adım 3: Module Registry**
-- Compile-time module registry
-- Symbol resolution across modules
-- Dependency graph
+**Adım 3: Test Sonuçlarını Katalogla**
+- Her test için: PASS/FAIL
+- Başarısız testlerin hata mesajları
+- Stage 0 vs Stage 1 syntax farklılıkları
 
-**Adım 4: main.mlp Integration**
-- Import statements'ları aç
-- Modülleri sırayla entegre et
-- Compile errors çöz
+**Adım 4: Self-Compile Test**
+- Stage 1 compiler'ı Stage 0 ile derle
+- Stage 1 compiler'ı kendisiyle derle
+- Output karşılaştırması
 
-**Adım 5: Test Execution**
-- `./scripts/run_all_tests_stage1.sh`
-- 93 test çalıştır
-- Sonuçları analiz et
-- Test raporu yaz
+**Adım 5: Final Rapor**
+- Test sonuçları özeti
+- Başarı oranı
+- Known issues
+- Recommendations for next steps
 
 **5. Beklenen Zorluklar:**
-- Import path resolution (relative paths)
-- Symbol table merging (modüller arası)
-- Circular dependencies
-- Type conflicts
-- Function name collisions
+- Test dosyalarındaki Stage 1 syntax (Stage 0'da yok olabilir)
+- Import path'leri düzeltme
+- Advanced features (Stage 0'da eksik olabilir)
+- Performance issues
 
 **6. Başarı Kriterleri:**
-- ✅ Import sistemi çalışıyor
-- ✅ Tüm 9 modül entegre
-- ✅ main.mlp compile oluyor
-- ✅ En az 70/93 test geçiyor (ilk denemede)
-- ✅ Test raporu hazır
-Başlamamı ister misiniz?
-```
+- ✅ En az %70 test geçiyor (65+/93)
+- ✅ Self-compile başarılı
+- ✅ Test raporu detaylı
+- ✅ Known issues kataloglanmış
+- ✅ Stage 1 production-ready
 
 **2. Yapman Gerekenler:**
 1. ✅ `MELP_Mimarisi.md` oku ve ONAYLA
