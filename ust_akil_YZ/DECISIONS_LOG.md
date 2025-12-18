@@ -123,6 +123,67 @@ ust_akil_YZ/ klasörü oluşturuldu
 
 ---
 
+### KARAR #7: Stage 0 Gap Analysis - Kök Sebep Bulundu
+**Tarih:** 18 Ara 2025 17:30  
+**Üst Akıl:** YZ_ÜA_01  
+**Karar:**
+```
+Stage 1 başarısızlık kök sebebi: Complex expressions in IF conditions
+Stage 0 parser limitation → YZ_03-11 modülleri %27 başarı
+```
+**Gerekçe:**
+- YZ_19 raporu incelendi: "Complex expressions in IF desteklenmiyor"
+- 16/22 modül bu tek sorundan etkileniyor
+- IF conditions: Sadece `a > b` çalışıyor
+- ÇALIŞMIYOR: `arr[i] > 0`, `func() == val`, `obj.prop`
+
+**Sonuç:** ✅ Kök sebep tespit edildi, çözüm stratejisi değişti
+
+---
+
+### KARAR #8: Strateji Değişikliği - Stage 0 Enhancement
+**Tarih:** 18 Ara 2025 17:45  
+**Üst Akıl:** YZ_ÜA_01  
+**Karar:**
+```
+❌ ESKI Strateji: Stage 1'i sıfırdan yaz (14-20 saat)
+✅ YENİ Strateji: Stage 0'ı güçlendir (1-2 saat!)
+```
+**Gerekçe:**
+- Seçenek A: Full enhancement (3-4 saat, riskli)
+- Seçenek B: Workarounds (2 saat, ugly code)
+- **Seçenek C: IF-only enhancement** (1-2 saat, minimal risk, max impact) ⭐
+
+**Neden Seçenek C?**
+- Minimal değişiklik (sadece IF parsing)
+- Maksimum etki (16 modül fixed)
+- Stage 0 felsefesine uygun (hala minimal)
+- Hızlı (1-2 saat vs 14-20 saat)
+
+**Sonuç:** ✅ 7 YZ planı iptal, yeni 1 YZ planı (YZ_21: IF enhancement)
+
+---
+
+### KARAR #9: YZ_21 Görev Tanımı
+**Tarih:** 18 Ara 2025 18:00  
+**Üst Akıl:** YZ_ÜA_01  
+**Karar:**
+```
+YZ_21: Stage 0 IF Condition Enhancement
+Dosya: compiler/stage0/modules/control_flow/control_flow_parser.c
+Değişiklik: parse_simple_condition() → parse_expression()
+Hedef: %27 → %90+ başarı
+```
+**Gerekçe:**
+- En kritik sorun tek değişiklikle çözülür
+- parse_expression() zaten var, sadece integrate et
+- Regression riski minimal
+- Test stratejisi net
+
+**Sonuç:** ✅ YZ_21 görevi tanımlandı, NEXT_AI güncellendi
+
+---
+
 ## Gelecek Kararlar
 
 ### YZ_ÜA_02 için beklenenler:
