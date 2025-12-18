@@ -961,15 +961,15 @@ Total: 92/92 tests passed (100%)
   - [ ] **14.1.1** Const import validation
     - [ ] token_types.mlp import ediliyor mu?
     - [ ] Cross-module const kullanımı test et
-  - [ ] YZ_03 - core tests (15 tests)
-  - [ ] YZ_04 - functions tests (6 tests)
-  - [ ] YZ_05 - variables tests (8 tests)
-  - [ ] YZ_06 - operators tests (8 tests)
-  - [ ] YZ_07 - control_flow tests (12 tests)
-  - [ ] YZ_08 - literals tests (10 tests)
-  - [ ] YZ_09 - arrays tests (10 tests)
-  - [ ] YZ_10 - structs tests (12 tests)
-  - [ ] YZ_11 - enums tests (12 tests)
+  - [x] YZ_03 - core tests (3 tests) ✅
+  - [x] YZ_04 - literals tests (10 tests) ✅
+  - [x] YZ_05 - operators tests (8 tests) ✅
+  - [x] YZ_06 - variables tests (8 tests) ✅
+  - [x] YZ_07 - arrays tests (10 tests) ✅
+  - [x] YZ_08 - control_flow tests (13 tests) ✅
+  - [x] YZ_09 - functions tests (6 tests) ✅
+  - [x] YZ_10 - structs tests (12 tests) ✅
+  - [x] YZ_11 - enums tests (12 tests) ✅
 
 - [ ] **14.2** Test Sonuçları Analizi
   - [ ] Başarılı testleri katalogla
