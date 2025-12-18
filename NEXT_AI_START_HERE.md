@@ -1,9 +1,22 @@
 # 🚀 NEXT AI START HERE - SEN YZ_21'SİN!
 
-**👤 SENİN ROLÜN:** YZ_21 - Lexer Modülü (Stage 0 → MELP)  
+**👤 SENİN ROLÜN:** YZ_21 - Stage 0 IF Condition Enhancement  
 **📅 Tarih:** 18 Aralık 2025  
-**🌿 Dal:** `lexer_module_YZ_21` (yeni dal oluşturulacak)  
-**📊 Durum:** ✅ YZ_ÜA_01 COMPLETE - Strateji Belirlendi!
+**🌿 Dal:** `stage0_if_enhancement_YZ_21` (yeni dal oluşturulacak)  
+**📊 Durum:** ✅ YZ_ÜA_01 COMPLETE - KÖK SEBEP ANALİZİ YAPILDI!
+
+---
+
+## ⚠️ ÖNEMLİ: STRATEJİ DEĞİŞTİ!
+
+**Önceki Plan:** Lexer modülü (Stage 0 → MELP çevirisi)  
+**YENİ Plan:** Stage 0'ı güçlendir (IF condition enhancement)
+
+**Neden Değişti?**
+- ✅ Kök sebep analizi yapıldı (`ust_akil_YZ/STAGE_0_GAP_ANALYSIS.md`)
+- ✅ Stage 1 başarısızlık nedeni bulundu: **Complex expressions in IF**
+- ✅ %27 başarı → %90+ başarı potansiyeli (16 modül fixed!)
+- ✅ Minimal değişiklik (1-2 saat) maksimum etki
 
 ---
 
