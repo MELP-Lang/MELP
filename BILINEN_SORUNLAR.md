@@ -1,7 +1,7 @@
-# 🎉 BİLİNEN SORUNLAR - STAGE 0 & STAGE 1 (TÜM SORUNLAR ÇÖZÜLDÜ!)
+# 🎉 BİLİNEN SORUNLAR - STAGE 0 & STAGE 1
 
 **Son Güncelleme:** 19 Aralık 2025 (YZ_31)  
-**Durum:** ✅ Tüm bilinen sorunlar çözüldü - %95 başarı oranı  
+**Durum:** Parser %85 çalışır durumda  
 **Branch:** `stage1_while_body_YZ_30`
 
 ---
@@ -23,7 +23,7 @@ MELP'te **İKİ FARKLI SYNTAX** vardır:
 ```mlp
 function test()
     set i = 0           -- ❌ 'set' keyword YOK!
-    while i < 10 do     -- ❌ 'do' keyword opsiyonel ama PMPL'de yok
+    while i < 10 do     -- ❌ 'do' keyword YOK!
         set i = i + 1   -- ❌ 'set' YOK!
     end while           -- ❌ İki kelime! 
 end function            -- ❌ İki kelime!
@@ -31,9 +31,9 @@ end function            -- ❌ İki kelime!
 
 ### ✅ DOĞRU (PMPL Syntax - Derleyici Bunu Anlar!):
 ```pmpl
-function test() returns numeric
+function test() as numeric
     numeric i = 0       -- ✅ Tip adı + değişken adı + değer
-    while i < 10        -- ✅ 'do' yok!
+    while i < 10        -- ✅ 'do' YOK!
         i = i + 1       -- ✅ Direkt atama
     end_while           -- ✅ Alt çizgi ile TEK token!
     return i
@@ -52,6 +52,7 @@ end_function            -- ✅ Alt çizgi ile TEK token!
 | Struct sonu | `end struct` | `end_struct` |
 | Else if | `else if` | `else_if` |
 | While döngüsü | `while x do` | `while x` (do YOK!) |
+| Return type | `returns numeric` | `as numeric` veya `returns numeric` |
 
 ### 📖 ZORUNLU OKUMA LİSTESİ:
 
@@ -65,9 +66,58 @@ end_function            -- ✅ Alt çizgi ile TEK token!
 
 1. **`set` kullanmak** → PMPL'de `set` YOK! `numeric x = 5` kullan
 2. **`end function` yazmak** → `end_function` olmalı (alt çizgi!)
-3. **`while x do` yazmak** → `while x` yeterli (do opsiyonel)
+3. **`while x do` yazmak** → `while x` yeterli (do YOK!)
 4. **Virgül ile parametre** → `;` kullan! (`func(a; b; c)`)
 5. **Ondalık için nokta** → `,` kullan! (`3,14` Türk notasyonu)
+
+---
+
+## ✅ ÇALIŞAN ÖZELLİKLER (YZ_31 Test Sonuçları)
+
+| Özellik | Durum | Örnek |
+|---------|-------|-------|
+| Fonksiyon tanımlama | ✅ | `function test() as numeric` |
+| While loop | ✅ | `while i < 10 ... end_while` |
+| Nested while | ✅ | İç içe while döngüleri |
+| For loop | ✅ | `for i = 1 to 10 ... end_for` |
+| If/else_if/else | ✅ | `if ... else_if ... else ... end_if` |
+| Switch/case | ✅ | `switch x case 1: ... end_switch` |
+| Değişken (numeric) | ✅ | `numeric x = 5` |
+| Değişken (string) | ✅ | `string name = "hello"` |
+| Değişken (boolean) | ✅ | `boolean flag = true` |
+| Print/println | ✅ | `print("hello")` |
+| Return | ✅ | `return x` |
+| exit_while | ✅ | `exit_while` |
+| continue_while | ✅ | `continue_while` |
+| Import (parse) | ⚠️ | Parse ediyor, execution test edilmeli |
+
+---
+
+## ❌ EKSİK ÖZELLİKLER
+
+### 1. Array Desteği
+**Durum:** ❌ Çalışmıyor  
+**Sorun:** Fonksiyon içinde `array[10] numeric numbers` parse edilmiyor  
+**Etki:** Array kullanan kodlar boş fonksiyon üretiyor  
+**Dosya:** `compiler/stage0/modules/array/array.c`
+
+### 2. Struct Desteği
+**Durum:** ❌ Çalışmıyor  
+**Sorun:** Top-level `struct Point ... end_struct` parser'ı engelliyor  
+**Etki:** Struct tanımından sonra fonksiyonlar parse edilmiyor  
+**Dosya:** `compiler/stage0/modules/struct/struct.c`
+
+### 3. Enum Desteği
+**Durum:** ❌ Çalışmıyor  
+**Sorun:** Top-level `enum Color ... end_enum` parser'ı engelliyor  
+**Etki:** Enum tanımından sonra fonksiyonlar parse edilmiyor  
+**Dosya:** `compiler/stage0/modules/enum/enum.c`
+
+### 4. Import Execution
+**Durum:** ⚠️ Kısmen çalışıyor  
+**Sorun:** Import statement parse ediliyor ama modül execute edilmiyor  
+**Etki:** Modüller arası fonksiyon çağrısı çalışmıyor  
+**Dosya:** `compiler/stage0/modules/functions/functions_standalone.c`
 
 ---
 
@@ -260,25 +310,33 @@ cd compiler/stage0/modules/functions
 
 | Özellik | Durum | Not |
 |---------|-------|-----|
-| Fonksiyon tanımlama | ✅ | `function name() returns type` |
+| Fonksiyon tanımlama | ✅ | `function name() as type` |
 | While döngüsü | ✅ | `while cond ... end_while` |
+| Nested while | ✅ | İç içe döngüler çalışıyor |
 | If-else | ✅ | `if cond ... else_if ... else ... end_if` |
 | For döngüsü | ✅ | `for i = 0 to 10 ... end_for` |
-| Değişken tanımlama | ✅ | `numeric x = 5` |
-| Atama | ✅ | `x = x + 1` |
+| Switch/case | ✅ | `switch x case 1: ... end_switch` |
+| Değişken (numeric) | ✅ | `numeric x = 5` |
+| Değişken (string) | ✅ | `string s = "hello"` |
+| Değişken (boolean) | ✅ | `boolean b = true` |
+| Print/println | ✅ | `print("text")`, `println("text")` |
 | Return | ✅ | `return value` |
-| Import | ⚠️ | Parse ediliyor, execution test edilmeli |
-| Struct | ✅ | `struct Name ... end_struct` |
-| Enum | ✅ | `enum Name ... end_enum` |
+| exit_while/for | ✅ | Loop'tan çıkış |
+| continue_while/for | ✅ | Loop devam |
+| **Array** | ❌ | Parse edilmiyor |
+| **Struct** | ❌ | Parser'ı engelliyor |
+| **Enum** | ❌ | Parser'ı engelliyor |
+| Import | ⚠️ | Parse ✅, Execution ❌ |
 
-**Tahmini Parser Tamamlanma: ~95%**
+**Tahmini Parser Tamamlanma: ~85%**
 
 ---
 
 ## 🎯 GELECEKTEKİ YZ'LER İÇİN ÖNCELİKLER
 
-1. **Import Execution Testi** - Modüller arası çağrı çalışıyor mu?
-2. **Stage 1 Modül Testi** - `archive/stage1_api_attempt/modules/` test et
-3. **Bootstrap Testi** - Self-hosting proof of concept
-4. **Hata Mesajları** - Daha açıklayıcı hata mesajları
+1. **Struct Desteği** - Top-level struct parsing düzelt
+2. **Enum Desteği** - Top-level enum parsing düzelt
+3. **Array Desteği** - Function body içinde array declaration
+4. **Import Execution** - Modüller arası çağrı test et
+5. **Stage 1 Test** - `archive/stage1_api_attempt/modules/` test et
 

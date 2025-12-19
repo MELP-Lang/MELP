@@ -1,50 +1,61 @@
 # NEXT AI START HERE - YZ Görev Dosyası
 
-**Son Güncelleme:** 19 Aralık 2025, 04:30  
-**Önceki YZ:** YZ_ÜA_03 (YZ_30)  
+**Son Güncelleme:** 19 Aralık 2025, 15:00  
+**Önceki YZ:** YZ_31  
 **Dal:** `stage1_while_body_YZ_30`  
-**Commit'ler:** `ad9b3a7`, `9dc9c9a`, `90cf3fd`
+**Commit'ler:** `596b768` (PMPL sync), `84d4b37`, `8db2720`
 
 ---
 
-## ✅ YZ_30 TAMAMLANAN İŞLER
+## ✅ YZ_31 TAMAMLANAN İŞLER
 
-### 8 Kritik Bug Düzeltildi:
-1. Arrow operator `->` (lexer.c)
-2. Generic `end` keyword (statement_parser.c)
-3. Two-word `end X` terminators (statement_parser.c)
-4. Two-word `exit X` statements (statement_parser.c)
-5. Function call in assignment (arithmetic_parser.c)
-6. While boolean condition (comparison_parser.c)
-7. Import execution (functions_standalone.c)
-8. List return type (functions.h, functions_parser.c)
+### PMPL vs MLP Karışıklığı Çözüldü:
+- **`do` keyword kaldırıldı** - Parser artık `while cond` bekliyor (do yok!)
+- **For loop `=` desteği** - Hem `for i = 1` hem `for i from 1` kabul
+- **`as` return type aliası** - `returns` ile aynı işlev
 
-### Sonuçlar:
-- **15/20 dosya hatasız** (önceki: 3/20)
-- **82+ fonksiyon** parse edildi (önceki: 22)
-- Başarı oranı: **%45 → %75**
+### Test Sonuçları:
+| Özellik | Durum |
+|---------|-------|
+| Fonksiyon | ✅ |
+| While loop | ✅ |
+| Nested while | ✅ |
+| For loop | ✅ |
+| If/else_if/else | ✅ |
+| Switch/case | ✅ |
+| String değişken | ✅ |
+| Boolean değişken | ✅ |
+| Print/println | ✅ |
+| exit_while | ✅ |
+| continue_while | ✅ |
+| Return | ✅ |
+
+### Parser Tamamlanma: **~85%**
 
 ---
 
-## 🎯 SONRAKİ GÖREV: Function Call Heuristic İyileştirme
+## 🎯 SONRAKİ GÖREV: Struct/Enum/Array Desteği
 
-### Sorun:
-`test4(1, 2, 3, 4)` gibi çağrılar hata veriyor:
-```
-error: Expected ')' after list index
-```
+### Eksik Kalanlar:
 
-### Neden:
-`arithmetic_parser.c`'de function/list ayrımı heuristic'e dayalı.
-`test4` ismi heuristic'te yok → list access olarak algılanıyor.
+| Özellik | Durum | Sorun |
+|---------|-------|-------|
+| **Array** | ❌ | Fonksiyon içinde parse edilmiyor |
+| **Struct** | ❌ | Top-level struct fonksiyonları engelliyor |
+| **Enum** | ❌ | Top-level enum fonksiyonları engelliyor |
+| **Import exec** | ⚠️ | Parse ediyor, execution test edilmeli |
 
-### Çözüm Önerileri:
-1. **Virgül kontrolü:** Parantez içinde virgül varsa = function call
-2. **Default function:** Unknown identifier + `(` = function call varsay
-3. **Heuristic genişlet:** Daha fazla prefix/isim ekle
+### Öncelik Sırası:
+1. **Struct** - Top-level struct parsing
+2. **Enum** - Top-level enum parsing  
+3. **Array** - Function body içinde array declaration
+4. **Import execution** - Modüller arası çağrı
 
-### İlgili Dosya:
-`compiler/stage0/modules/arithmetic/arithmetic_parser.c` (satır 800-970)
+### İlgili Dosyalar:
+- `compiler/stage0/modules/struct/struct.c`
+- `compiler/stage0/modules/enum/enum.c`
+- `compiler/stage0/modules/array/array.c`
+- `compiler/stage0/modules/functions/functions_standalone.c`
 
 ---
 
