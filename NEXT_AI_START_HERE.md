@@ -1,89 +1,102 @@
 # NEXT AI START HERE - YZ Görev Dosyası
 
-**Son Güncelleme:** 19 Aralık 2025, 03:00  
-**Üst Akıl:** YZ_ÜA_03 (3. Üst Akıl)  
+**Son Güncelleme:** 19 Aralık 2025, 04:30  
+**Önceki YZ:** YZ_ÜA_03 (YZ_30)  
 **Dal:** `stage1_while_body_YZ_30`  
-**Son Commit:** `ad9b3a7` - YZ_30: Fix 4 critical Stage 0 blockers
+**Commit'ler:** `ad9b3a7`, `9dc9c9a`, `90cf3fd`
 
 ---
 
-## ✅ TAMAMLANAN GÖREVLER - YZ_30
+## ✅ YZ_30 TAMAMLANAN İŞLER
 
-### Çözülen Sorunlar:
+### 8 Kritik Bug Düzeltildi:
+1. Arrow operator `->` (lexer.c)
+2. Generic `end` keyword (statement_parser.c)
+3. Two-word `end X` terminators (statement_parser.c)
+4. Two-word `exit X` statements (statement_parser.c)
+5. Function call in assignment (arithmetic_parser.c)
+6. While boolean condition (comparison_parser.c)
+7. Import execution (functions_standalone.c)
+8. List return type (functions.h, functions_parser.c)
 
-1. **Arrow Operator (->)**
-   - `lexer.c`: `->`artık TOKEN_RETURNS olarak tokenize ediliyor
-   - Multi-function dosyalar parse ediliyor
-
-2. **Generic 'end' Keyword**
-   - `statement_parser.c`: TOKEN_END case eklendi
-   - Python-style function terminator çalışıyor
-
-3. **Function Call in Assignment**
-   - `arithmetic_parser.c`: Heuristic genişletildi
-   - `numeric x = add(3, 4)` artık çalışıyor
-
-4. **While Boolean Condition**
-   - `comparison_parser.c`: Lookahead token'lar eklendi
-   - `while flag do` artık parse ediliyor
-
-5. **Import Execution**
-   - `functions_standalone.c`: Import handling eklendi
-   - Modüller yüklenip parse ediliyor
-
-### Test Sonuçları:
-\`\`\`
-✅ char_utils.mlp: 11 functions, 0 errors
-✅ lexer_api.mlp: 3 functions, 0 errors
-✅ token.mlp: 8 functions, 0 errors
-\`\`\`
+### Sonuçlar:
+- **15/20 dosya hatasız** (önceki: 3/20)
+- **82+ fonksiyon** parse edildi (önceki: 22)
+- Başarı oranı: **%45 → %75**
 
 ---
 
-## 🎯 SONRAKİ GÖREV: print() İfade Desteği
+## 🎯 SONRAKİ GÖREV: Function Call Heuristic İyileştirme
 
-### Problem:
-Stage 0'da print() içinde expression desteklenmiyor:
-\`\`\`mlp
-print("Result: " + result)  -- ❌ Çalışmıyor
-print("Result: ")           -- ✅ Çalışıyor
-print(result)               -- ✅ Çalışıyor
-\`\`\`
+### Sorun:
+`test4(1, 2, 3, 4)` gibi çağrılar hata veriyor:
+```
+error: Expected ')' after list index
+```
 
-### İlgili Dosyalar:
-- `compiler/stage0/modules/print/print_parser.c`
+### Neden:
+`arithmetic_parser.c`'de function/list ayrımı heuristic'e dayalı.
+`test4` ismi heuristic'te yok → list access olarak algılanıyor.
+
+### Çözüm Önerileri:
+1. **Virgül kontrolü:** Parantez içinde virgül varsa = function call
+2. **Default function:** Unknown identifier + `(` = function call varsay
+3. **Heuristic genişlet:** Daha fazla prefix/isim ekle
+
+### İlgili Dosya:
+`compiler/stage0/modules/arithmetic/arithmetic_parser.c` (satır 800-970)
 
 ---
 
-## 📋 KALAN SORUNLAR (BILINEN_SORUNLAR.md)
+## 📊 TEST KOMUTLARI
 
-1. **Complex Expressions in IF** - `if arr[i] != 0 then`
-2. **Parenthesized Boolean** - `if (a and b) or c then`
-3. **Expression in Function Calls** - `func(create_token(type, value))`
-4. **Array Declaration** - `numeric arr[5]`
+```bash
+# Derle
+cd compiler/stage0/modules/functions && make
+
+# Tek dosya test
+./functions_compiler input.mlp output.s
+
+# Batch test
+for f in /path/*.mlp; do
+  ./functions_compiler "$f" /tmp/out.s 2>&1
+done
+```
 
 ---
 
 ## 📁 ÖNEMLİ DOSYALAR
 
-### Stage 0 Compiler:
-\`\`\`
+### Stage 0 Compiler (C):
+```
 compiler/stage0/modules/
 ├── arithmetic/arithmetic_parser.c  ← Function call heuristic
-├── comparison/comparison_parser.c  ← While boolean fix
-├── functions/functions_standalone.c ← Import handling
-├── lexer/lexer.c                   ← Arrow operator
-├── statement/statement_parser.c    ← Generic end keyword
-└── print/print_parser.c            ← Next target
-\`\`\`
+├── comparison/comparison_parser.c  ← Boolean conditions
+├── statement/statement_parser.c    ← Block terminators
+├── lexer/lexer.c                   ← Tokenization
+└── functions/                      ← Function parsing
+```
 
 ### Stage 1 Test Dosyaları:
-\`\`\`
+```
 archive/old_stage1_monolithic/
-├── lexer_mlp/
-│   ├── char_utils.mlp    ✅ 11 functions
-│   ├── token.mlp         ✅ 8 functions
-│   └── lexer_api.mlp     ✅ 3 functions
-└── parser_mlp/
-    └── ...
-\`\`\`
+├── lexer_mlp/     ← 15/20 başarılı
+└── parser_mlp/    ← Test edilmedi
+```
+
+---
+
+## ⚠️ KURALLAR
+
+1. **Template Pattern:** Tüm state parametre olarak geçmeli
+2. **Global state yasak:** `static` değişken kullanma
+3. **Modüler yapı:** Her modül bağımsız çalışmalı
+4. **STO entegrasyonu:** Overflow koruması aktif
+
+---
+
+## 📚 REFERANSLAR
+
+- `BILINEN_SORUNLAR.md` - Detaylı bug listesi
+- `ARCHITECTURE.md` - Mimari kurallar
+- `stage_0_YZ/` - Önceki AI raporları
