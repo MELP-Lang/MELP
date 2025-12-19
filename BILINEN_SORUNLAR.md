@@ -1,12 +1,36 @@
 # 🐛 BİLİNEN SORUNLAR - STAGE 0 & STAGE 1
 
-**Son Güncelleme:** 18 Aralık 2025  
-**Durum:** YZ_21 active investigation  
-**Kaynak:** YZ_ÜA_01 Gap Analysis + YZ_21 discoveries
+**Son Güncelleme:** 18 Aralık 2025 (YZ_30 Güncellemesi)  
+**Durum:** YZ_30 - Major fixes applied  
+**Kaynak:** YZ_ÜA_01 Gap Analysis + YZ_21 discoveries + YZ_30 fixes
 
 ---
 
-## 📊 STAGE 0 EKSİKLER
+## 🟢 YZ_30 ÇÖZÜLEN SORUNLAR
+
+### ✅ Arrow Operator (->)
+**Fix:** `lexer.c` - `->`artık TOKEN_RETURNS olarak tokenize ediliyor
+**Etki:** Multi-function dosyalar artık parse ediliyor
+
+### ✅ Generic 'end' Keyword  
+**Fix:** `statement_parser.c` - TOKEN_END case eklendi
+**Etki:** Python-style function terminator çalışıyor
+
+### ✅ Function Call in Assignment
+**Fix:** `arithmetic_parser.c` - Heuristic genişletildi
+**Etki:** `numeric x = add(3, 4)` artık çalışıyor
+
+### ✅ While Boolean Condition
+**Fix:** `comparison_parser.c` - Lookahead token'lar eklendi
+**Etki:** `while flag do` artık parse ediliyor
+
+### ✅ Import Execution
+**Fix:** `functions_standalone.c` - Import handling eklendi
+**Etki:** Modüller yüklenip parse ediliyor
+
+---
+
+## 📊 STAGE 0 KALAN EKSİKLER
 
 ### ❌ #1: Complex Expressions in IF Conditions (KRİTİK)
 **Durum:** 🔴 ACTIVE - YZ_21 investigating  
