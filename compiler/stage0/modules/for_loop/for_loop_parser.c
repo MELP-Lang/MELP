@@ -93,10 +93,10 @@ ForLoop* for_loop_parse(Lexer* lexer, Token* for_token) {
     loop->var_name = strdup(next_tok->value);
     token_free(next_tok);
     
-    // Expect: 'from' keyword (YZ_87: for i from 0 to 10)
+    // Expect: '=' or 'from' keyword (PMPL: for i = 0 to 10, also accept: for i from 0 to 10)
     Token* from_tok = lexer_next_token(lexer);
-    if (from_tok->type != TOKEN_FROM) {
-        fprintf(stderr, "Error: Expected 'from' after variable name at line %d (syntax: for i from 0 to 10)\n", for_token->line);
+    if (from_tok->type != TOKEN_ASSIGN && from_tok->type != TOKEN_FROM) {
+        fprintf(stderr, "Error: Expected '=' or 'from' after variable name at line %d (syntax: for i = 0 to 10)\n", for_token->line);
         token_free(from_tok);
         for_loop_free(loop);
         return NULL;

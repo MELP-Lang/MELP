@@ -31,6 +31,66 @@ ComparisonExpr* comparison_parse_expression_stateless(Lexer* lexer, Token* first
     expr->next = NULL;
     expr->is_negated = 0;
     
+    // YZ_31: Handle parenthesized expressions: (a > 0 and b > 0) or c > 0
+    if (first_token->type == TOKEN_LPAREN) {
+        // Parenthesized condition - parse inner expression recursively
+        Token* inner_tok = lexer_next_token(lexer);
+        if (!inner_tok) {
+            free(expr);
+            return NULL;
+        }
+        
+        // Parse the inner comparison expression
+        ComparisonExpr* inner_expr = comparison_parse_expression_stateless(lexer, inner_tok);
+        if (!inner_expr) {
+            free(expr);
+            return NULL;
+        }
+        
+        // Expect closing parenthesis
+        Token* rparen = lexer_next_token(lexer);
+        if (!rparen || rparen->type != TOKEN_RPAREN) {
+            // Missing ')' - try to continue anyway
+            if (rparen) {
+                lexer_unget_token(lexer, rparen);
+            }
+        } else {
+            token_free(rparen);
+        }
+        
+        // Copy inner expression to our expr
+        expr->left_value = inner_expr->left_value;
+        expr->left_is_literal = inner_expr->left_is_literal;
+        expr->right_value = inner_expr->right_value;
+        expr->right_is_literal = inner_expr->right_is_literal;
+        expr->op = inner_expr->op;
+        expr->is_float = inner_expr->is_float;
+        expr->is_string = inner_expr->is_string;
+        expr->chain_op = inner_expr->chain_op;
+        expr->next = inner_expr->next;
+        expr->is_negated = inner_expr->is_negated;
+        
+        // Don't free inner_expr's members since we took ownership
+        free(inner_expr);
+        
+        // Check for logical operator after parenthesis: (expr) and/or ...
+        Token* logic_tok = lexer_next_token(lexer);
+        if (logic_tok && (logic_tok->type == TOKEN_AND || logic_tok->type == TOKEN_OR)) {
+            expr->chain_op = (logic_tok->type == TOKEN_AND) ? LOG_AND : LOG_OR;
+            token_free(logic_tok);
+            
+            // Parse the rest of the condition
+            Token* next_tok = lexer_next_token(lexer);
+            if (next_tok) {
+                expr->next = comparison_parse_expression_stateless(lexer, next_tok);
+            }
+        } else if (logic_tok) {
+            lexer_unget_token(lexer, logic_tok);
+        }
+        
+        return expr;
+    }
+    
     // YZ_18: Handle boolean literals and variables (if flag syntax)
     if (first_token->type == TOKEN_TRUE || first_token->type == TOKEN_FALSE) {
         // Boolean literal: if true or if false
@@ -43,16 +103,15 @@ ComparisonExpr* comparison_parse_expression_stateless(Lexer* lexer, Token* first
     } else if (first_token->type == TOKEN_IDENTIFIER) {
         // Check if this is a boolean variable without comparison operator
         Token* lookahead = lexer_next_token(lexer);
-        // YZ_30: Also check for TOKEN_DO (while flag do), TOKEN_NEWLINE, and other block starters
+        // YZ_31: PMPL has no 'do' keyword - check for block starters
         // If next token is NOT a comparison operator, treat as boolean condition
         if (lookahead && (lookahead->type == TOKEN_THEN || lookahead->type == TOKEN_AND || 
                           lookahead->type == TOKEN_OR || lookahead->type == TOKEN_RPAREN ||
-                          lookahead->type == TOKEN_DO ||
                           lookahead->type == TOKEN_IDENTIFIER ||  // Next statement (while flag\n  x = ...)
                           lookahead->type == TOKEN_NUMERIC ||     // Type keyword means body started
                           lookahead->type == TOKEN_STRING_TYPE ||
                           lookahead->type == TOKEN_BOOLEAN)) {
-            // Boolean variable: if flag then... OR while flag do... OR while flag (newline)
+            // Boolean variable: if flag then... OR while flag (newline)
             lexer_unget_token(lexer, lookahead);
             expr->left_value = strdup(first_token->value);
             expr->left_is_literal = 0;

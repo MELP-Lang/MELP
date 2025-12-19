@@ -71,14 +71,8 @@ WhileStatement* control_flow_parse_while(Lexer* lexer, Token* while_token) {
         return NULL;
     }
     
-    // YZ_90: Consume optional 'do' keyword after condition
-    Token* do_tok = lexer_next_token(lexer);
-    if (do_tok && do_tok->type == TOKEN_DO) {
-        token_free(do_tok);  // Consume 'do'
-    } else if (do_tok) {
-        // Not 'do' - put it back for body parsing
-        lexer_unget_token(lexer, do_tok);
-    }
+    // PMPL: No 'do' keyword after while condition
+    // Body will be parsed by statement_parser recursively
     
     // Don't parse body - statement_parser will handle recursively
     return stmt;
