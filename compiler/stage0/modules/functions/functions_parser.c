@@ -29,6 +29,9 @@ static FunctionReturnType token_to_return_type(TokenType type) {
         case TOKEN_STRING_TYPE: return FUNC_RETURN_TEXT;  // YZ_63: string type keyword
         case TOKEN_STRING: return FUNC_RETURN_TEXT;        // Legacy: string literal token
         case TOKEN_BOOLEAN: return FUNC_RETURN_BOOLEAN;
+        case TOKEN_LIST: return FUNC_RETURN_LIST;          // YZ_30: list return type
+        case TOKEN_TUPLE: return FUNC_RETURN_LIST;         // YZ_30: tuple also returns list
+        case TOKEN_ARRAY: return FUNC_RETURN_LIST;         // YZ_30: array returns list
         default: return FUNC_RETURN_VOID;
     }
 }

@@ -857,7 +857,14 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
                 strncmp(identifier, "insert_", 7) == 0 ||
                 strncmp(identifier, "count_", 6) == 0 ||
                 strncmp(identifier, "len_", 4) == 0 ||
-                strncmp(identifier, "size_", 5) == 0) {
+                strncmp(identifier, "size_", 5) == 0 ||
+                strncmp(identifier, "starts_with_", 12) == 0 ||   // YZ_30: string utilities
+                strncmp(identifier, "ends_with_", 10) == 0 ||
+                strncmp(identifier, "contains_", 9) == 0 ||
+                strncmp(identifier, "skip_", 5) == 0 ||
+                strncmp(identifier, "scan_", 5) == 0 ||
+                strncmp(identifier, "tokenize_", 9) == 0 ||
+                strncmp(identifier, "lex_", 4) == 0) {
                 looks_like_function = 1;
             }
             

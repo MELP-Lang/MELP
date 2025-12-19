@@ -59,6 +59,26 @@ Statement* statement_parse(Parser* parser) {
             }
         
         case TOKEN_END:  // YZ_30: Generic 'end' keyword (Python-style function terminator)
+            {
+                // YZ_30: Check for 'end X' (two-word terminators)
+                // Supports: end function, end if, end while, end for, end struct
+                Token* after = lexer_next_token(parser->lexer);
+                if (after && (after->type == TOKEN_FUNCTION ||
+                              after->type == TOKEN_IF ||
+                              after->type == TOKEN_WHILE ||
+                              after->type == TOKEN_FOR ||
+                              after->type == TOKEN_STRUCT ||
+                              after->type == TOKEN_SWITCH)) {
+                    // 'end X' - consume both tokens
+                    token_free(after);
+                }  else if (after) {
+                    // Not a block keyword - put it back
+                    lexer_unget_token(parser->lexer, after);
+                }
+                token_free(tok);
+                return NULL;  // End of block
+            }
+        
         case TOKEN_END_WHILE:
         case TOKEN_END_FOR:
         case TOKEN_END_FUNCTION:
@@ -459,9 +479,36 @@ Statement* statement_parse(Parser* parser) {
     }
     
     // ✅ YZ_90: Standalone EXIT - generic loop exit (PMPL spec allows this)
+    // YZ_30: Also handle 'exit while', 'exit for', 'exit if' (two-word syntax)
     if (tok->type == TOKEN_EXIT) {
+        // Check for 'exit X' pattern
+        Token* after = lexer_next_token(parser->lexer);
+        StatementType exit_type = STMT_EXIT;  // Default: generic exit
+        
+        if (after) {
+            if (after->type == TOKEN_WHILE) {
+                exit_type = STMT_EXIT_WHILE;
+                token_free(after);
+            } else if (after->type == TOKEN_FOR) {
+                exit_type = STMT_EXIT_FOR;
+                token_free(after);
+            } else if (after->type == TOKEN_IF) {
+                exit_type = STMT_EXIT_IF;
+                token_free(after);
+            } else if (after->type == TOKEN_FUNCTION) {
+                exit_type = STMT_EXIT_FUNCTION;
+                token_free(after);
+            } else if (after->type == TOKEN_SWITCH) {
+                exit_type = STMT_EXIT_SWITCH;
+                token_free(after);
+            } else {
+                // Not a known block type - put it back
+                lexer_unget_token(parser->lexer, after);
+            }
+        }
+        
         token_free(tok);
-        stmt = statement_create(STMT_EXIT);
+        stmt = statement_create(exit_type);
         stmt->data = NULL;
         stmt->next = NULL;
         return stmt;

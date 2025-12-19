@@ -25,7 +25,8 @@ typedef enum {
     FUNC_RETURN_TEXT,
     FUNC_RETURN_BOOLEAN,
     FUNC_RETURN_VOID,
-    FUNC_RETURN_STRUCT  // YZ_84: Struct return type
+    FUNC_RETURN_LIST,    // YZ_30: List return type
+    FUNC_RETURN_STRUCT   // YZ_84: Struct return type
 } FunctionReturnType;
 
 typedef struct Statement Statement;
