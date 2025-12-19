@@ -59,8 +59,10 @@ function init_parser() returns void
 
 ## 📋 YZ ZİNCİRİ - GÖREV AKTARIMI
 
-### **Mevcut YZ:** YZ_01 (Import Execution)
-### **Son Güncelleme:** 19 Aralık 2025, 01:30
+### **Mevcut YZ:** YZ_37 (Function Call Arguments)
+### **Son Güncelleme:** 19 Aralık 2025, 02:15
+
+**YZ_36 ✅ TAMAMLANDI** - Çoklu else_if chain desteği eklendi!
 
 **Her YZ görev bitiminde:**
 1. ✅ İşini tamamla

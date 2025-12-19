@@ -1,82 +1,170 @@
 # NEXT AI START HERE - YZ Görev Dosyası
 
-**Son Güncelleme:** 19 Aralık 2025, 23:30  
-**Önceki YZ:** YZ_32  
+**Son Güncelleme:** 19 Aralık 2025  
+**Önceki YZ:** YZ_36  
+**Mevcut YZ:** YZ_37  
 **Dal:** `stage1_while_body_YZ_30`  
 **Commit'ler:** Bekliyor
 
 ---
 
-## ✅ YZ_32 TAMAMLANAN İŞLER
+## ✅ YZ_36 TAMAMLANDI! (19 Aralık 2025)
 
-### Import Sistemi Düzeltildi:
-- **Path resolution** - `.mlp` uzantısı otomatik ekleniyor
-- **Import execution** - Modüller yükleniyor ve parse ediliyor
-- **Fonksiyon çağrısı** - Import edilen fonksiyonlar çağrılabiliyor
+### Çoklu `else_if` Chain Desteği - BAŞARILI! ✅
 
-### Struct/Enum Top-Level Parsing:
-- **Struct** - ✅ Top-level struct parsing çalışıyor
-- **Enum** - ✅ Top-level enum parsing çalışıyor
-- **Enum bug fix** - Registry double-linking sorunu çözüldü
+**Sorun:** 2+ `else_if` içeren if-else_if-else chain'leri parse edilmiyordu.
 
-### Assembly Syntax Düzeltmesi:
-- `.intel_syntax noprefix` → `.att_syntax` (register format uyumu)
+**Kök Neden:** 
+1. TOKEN_ELSE_IF tek token ama ELSE + IF olarak handle edilmeliydi
+2. Recursive else_if chain handling eksikti
+3. TOKEN_ELSE_IF'ten sonra IF token lexer'a geri konmuyordu
 
-### Test Sonuçları:
-| Özellik | Durum |
-|---------|-------|
-| Fonksiyon | ✅ |
-| While/For/If | ✅ |
-| Struct (top-level) | ✅ |
-| Enum (top-level) | ✅ |
-| Import (path + exec) | ✅ |
-| Import + function call | ✅ |
-| STO runtime link | ✅ |
+**Çözüm:**
+1. **Helper Functions Eklendi:**
+   - `parse_statement_list()` - Statement listesi parse eder (kod tekrarını önler)
+   - `parse_else_chain()` - Recursive else/else_if chain handler
 
-### Parser Tamamlanma: **~90%**
+2. **TOKEN_ELSE_IF Handling:**
+   - TOKEN_ELSE_IF görünce → synthetic TOKEN_ELSE + TOKEN_IF yarat
+   - TOKEN_IF'i lexer'a geri koy (`lexer_unget_token`)
+   - TOKEN_ELSE'i current_token'a koy (parent için)
+
+3. **Recursive Chain:**
+   - `parse_else_chain()` kendini çağırarak sınırsız else_if destekler
+   - Her else_if → nested if statement olarak temsil edilir
+   - Parent if'in `end_if`'ini paylaşır (PMPL syntax'a uygun)
+
+**Test Sonuçları:**
+```pmpl
+✅ 1 else_if + else → Çalışıyor
+✅ 2 else_if + else → Çalışıyor  
+✅ 3 else_if + else → Çalışıyor
+✅ 5 else_if + else → Çalışıyor
+✅ else_if without final else → Çalışıyor
+✅ Nested if içinde else_if → Çalışıyor (zaten destekliyordu)
+```
+
+**Örnek Çalışan Kod:**
+```pmpl
+function test4() as numeric
+    numeric x = 4
+    if x == 1 then
+        return 1
+    else_if x == 2 then
+        return 2
+    else_if x == 3 then
+        return 3
+    else_if x == 4 then
+        return 4
+    else_if x == 5 then
+        return 5
+    else
+        return 0
+    end_if
+end_function
+
+-- Test: x=4 → return 4 ✅ BAŞARILI!
+```
+
+**Değişen Dosyalar:**
+- `compiler/stage0/modules/statement/statement_parser.c`
+  - Helper functions: parse_statement_list(), parse_else_chain()
+  - TOKEN_ELSE_IF handling düzeltildi (IF token lexer'a geri konuyor)
+  - If statement parsing basitleştirildi (150+ satır kodu → 15 satır!)
+
+**Kod Kalitesi:**
+- ✅ Recursive, clean, maintainable
+- ✅ No code duplication
+- ✅ Template pattern (stateless)
+- ✅ Merkezi dosya YOK (modular design)
 
 ---
 
-## 🎯 SONRAKİ GÖREVLER (YZ_33)
+## 🎯 SONRAKİ GÖREVLER (YZ_37+)
 
-### 1. Fonksiyon Çağrısında `;` Ayırıcı Desteği ⚠️ ÖNCELİKLİ
+### 1. Function Call Argument Parsing Bug (YÜKSEK ÖNCELİK!)
 
-**Sorun:** Fonksiyon çağrısında `;` ayırıcı parse edilmiyor, sadece `,` çalışıyor.
+**Sorun:** Function call'larda argument parse edilmiyor.
+```pmpl
+function classify(numeric x) as numeric
+    return x
+end_function
 
-```mlp
--- ŞU AN ÇALIŞMIYOR:
-numeric sum = add(10; 20)
-
--- ŞU AN ÇALIŞIYOR (ama YANLIŞ syntax):
-numeric sum = add(10, 20)
+function main() as numeric
+    return classify(3)  -- ❌ Argument '3' push edilmiyor!
+end_function
 ```
 
-**Neden Önemli:** PMPL'de parametre ayırıcı HER ZAMAN `;` çünkü `,` Türk sayı formatında ondalık ayırıcı (345,95).
+**Assembly Çıktısı:**
+```asm
+main:
+    call classify  # ❌ No argument!
+    movq %rax, %r8
+```
 
-**Düzeltilecek Dosya:** `compiler/stage0/modules/arithmetic/arithmetic_parser.c`
-- `parse_function_call_args()` fonksiyonunda `;` desteği ekle
+**Beklenen:**
+```asm
+main:
+    movq $3, %rdi  # ✅ Argument 3
+    call classify
+    movq %rax, %r8
+```
 
-### 2. Array Desteği (~4%)
+**Olası Neden:**
+- `arithmetic_parser.c` - function call parsing
+- Argument list parse ediliyor mu?
+- Codegen'de argument push eksik mi?
 
-**Eksikler:**
-- Array declaration: `numeric[] arr`
-- Array indexing: `arr[i]`
-- Array literal: `[1, 2, 3]` veya `[1; 2; 3]`
+**Aksiyonlar:**
+- [ ] `arithmetic_parser.c` → function call parsing kontrol et
+- [ ] `functions_codegen.c` → call codegen'de argument handling
+- [ ] Test: single arg, multiple args, no args
 
-**Dosyalar:**
-- `compiler/stage0/modules/array/array_parser.c`
-- `compiler/stage0/modules/statement/statement_parser.c` (array declaration)
+---
 
-### 3. Struct/Enum Kullanımı (~4%)
+### 2. Stage 0 Completion Checkpoint
 
-**Eksikler:**
-- Struct instance: `Person p`
-- Field access: `p.name`
-- Enum usage: `Status.ACTIVE`
+YZ_36 ile birlikte **else_if blocker kaldırıldı!** Stage 0 artık:
 
-**Dosyalar:**
-- `compiler/stage0/modules/struct/struct_parser.c`
-- `compiler/stage0/modules/enum/enum_parser.c`
+**✅ Desteklediklerimiz:**
+- Functions (declaration, call, return)
+- Variables (declaration, assignment)
+- If-else-else_if (sınırsız chain!) ✅ YENİ!
+- While loops (body parsing fixed)
+- For loops
+- Arrays (literal, index access)
+- Structs (definition, instantiation)
+- Enums (definition, usage)
+- Switch-case
+- Operators (arithmetic, comparison, logical)
+- Print statements
+- Import statements (path resolution)
+- Comments
+
+**❌ Kalan Blocker'lar:**
+1. **Function call arguments** (yukarıda) - YÜKSEK ÖNCELİK
+2. **Import execution** - Module load/execute eksik
+3. **While loop return** - Return inside while çalışmıyor
+
+**Tahmin:** 2-3 YZ ile Stage 0 → %60-65 tamamlanmış olur!
+
+---
+
+## ⚠️ PÜF NOKTALARI
+
+### PMPL Syntax Kuralları
+- `else_if` = TEK TOKEN (TOKEN_ELSE_IF)
+- Tüm chain için TEK `end_if`
+- `else_if` sayısı sınırsız olmalı
+
+### Mimari Kurallar
+- ❌ Merkezi dosya YOK
+- ✅ `main()` = entry point fonksiyonu (merkezi değil!)
+- ✅ Her dosya bağımsız, modüler
+
+---
+
+*YZ_36 tarafından güncellendi - 19 Aralık 2025*
 
 ---
 

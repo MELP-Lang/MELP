@@ -1,5 +1,6 @@
 #include "comparison_codegen.h"
 #include "../functions/functions.h"  // For variable offset lookup
+#include "../enum/enum.h"  // YZ_35: For enum value access
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -48,6 +49,15 @@ static void load_value(FILE* output, const char* value, int is_literal, int reg_
                 strncpy(base_var, value, base_len);
                 base_var[base_len] = '\0';
                 const char* member_name = dot + 1;
+                
+                // YZ_35: Check if this is an enum value access (e.g., Status.ACTIVE)
+                int64_t enum_val = enum_lookup_value(base_var, member_name);
+                if (enum_val != -1) {
+                    fprintf(output, "    # YZ_35: Enum value: %s.%s = %ld\n", base_var, member_name, enum_val);
+                    fprintf(output, "    movq $%ld, %%r%d  # Load enum value\n", enum_val, reg_num + 8);
+                    free(base_var);
+                    return;
+                }
                 
                 // Currently only support .length member
                 if (strcmp(member_name, "length") == 0) {

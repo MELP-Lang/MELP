@@ -187,9 +187,10 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
                 }
                 arguments[arg_count++] = arg;
                 
-                // Parse remaining arguments (comma-separated)
-                while (parser->current_token && parser->current_token->type == TOKEN_COMMA) {
-                    advance(parser);  // consume ','
+                // Parse remaining arguments (semicolon separated - PMPL standard)
+                while (parser->current_token && 
+                       parser->current_token->type == TOKEN_SEMICOLON) {
+                    advance(parser);  // consume ';'
                     
                     // Resize array if needed
                     if (arg_count >= arg_capacity) {
@@ -1146,10 +1147,10 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
                         
                         if ((*current)->type == TOKEN_RPAREN) {
                             break;
-                        } else if ((*current)->type == TOKEN_COMMA) {
-                            advance_stateless(lexer, current);  // consume ','
+                        } else if ((*current)->type == TOKEN_SEMICOLON) {
+                            advance_stateless(lexer, current);  // consume ';'
                         } else {
-                            fprintf(stderr, "Error: Expected ',' or ')' in method call\n");
+                            fprintf(stderr, "Error: Expected ';' or ')' in method call\n");
                             for (int i = 0; i < arg_count; i++) {
                                 arithmetic_expr_free(arguments[i]);
                             }
@@ -1309,9 +1310,10 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
                 }
                 arguments[arg_count++] = arg;
                 
-                // Parse remaining arguments (comma-separated)
-                while (*current && (*current)->type == TOKEN_COMMA) {
-                    advance_stateless(lexer, current);  // consume ','
+                // Parse remaining arguments (semicolon separated - PMPL standard)
+                while (*current && 
+                       (*current)->type == TOKEN_SEMICOLON) {
+                    advance_stateless(lexer, current);  // consume ';'
                     
                     // Resize array if needed
                     if (arg_count >= arg_capacity) {
@@ -1674,9 +1676,10 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         types[0] = first_elem->is_string ? VAR_STRING : VAR_NUMERIC;
         length = 1;
         
-        // Parse remaining elements
-        while (*current && (*current)->type == TOKEN_COMMA) {
-            advance_stateless(lexer, current);  // Skip ','
+        // Parse remaining elements (semicolon separated - PMPL standard)
+        while (*current && 
+               (*current)->type == TOKEN_SEMICOLON) {
+            advance_stateless(lexer, current);  // Skip ';'
             
             // Check capacity
             if (length >= capacity) {

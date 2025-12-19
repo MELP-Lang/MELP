@@ -123,6 +123,9 @@ int main(int argc, char** argv) {
             if (struct_def) {
                 printf("📦 Struct: %s\n", struct_def->name);
                 
+                // YZ_34: Register struct for instance declaration (Point p1)
+                struct_register_definition(struct_def);
+                
                 if (!structs) {
                     structs = struct_def;
                 } else {
@@ -140,6 +143,9 @@ int main(int argc, char** argv) {
             
             if (enum_def) {
                 printf("📦 Enum: %s\n", enum_def->name);
+                
+                // YZ_35: Register enum so it can be looked up for value access
+                enum_register(enum_def);
                 
                 if (!enums) {
                     enums = enum_def;

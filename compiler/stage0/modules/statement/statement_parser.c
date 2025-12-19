@@ -22,6 +22,83 @@
 #include <stdlib.h>
 #include <string.h>
 
+// Forward declarations
+static Statement* parse_else_chain(Parser* parser);
+static Statement* parse_statement_list(Parser* parser);
+
+// Helper: Parse a list of statements until block terminator
+static Statement* parse_statement_list(Parser* parser) {
+    Statement* head = NULL;
+    Statement* tail = NULL;
+    
+    while (1) {
+        Statement* stmt = statement_parse(parser);
+        if (!stmt) break;
+        
+        if (!head) {
+            head = stmt;
+            tail = stmt;
+        } else {
+            tail->next = stmt;
+            tail = stmt;
+        }
+    }
+    
+    return head;
+}
+
+// Helper: Parse else/else_if chain recursively (YZ_36 - Recursive else_if)
+// Returns: Statement* representing else body (may contain nested if for else_if)
+static Statement* parse_else_chain(Parser* parser) {
+    // Check if current_token has ELSE (set by parent)
+    Token* check = parser->current_token;
+    if (!check || check->type != TOKEN_ELSE) {
+        return NULL;  // No else/else_if
+    }
+    
+    // Consume ELSE token
+    parser->current_token = NULL;
+    token_free(check);
+    
+    // Peek: is it else_if?
+    Token* peek = lexer_next_token(parser->lexer);
+    
+    if (peek && peek->type == TOKEN_IF) {
+        // This is else_if! Create nested if
+        IfStatement* nested_if = control_flow_parse_if(parser->lexer, peek);
+        token_free(peek);
+        
+        if (!nested_if) {
+            return NULL;
+        }
+        
+        // Parse then body of nested if
+        nested_if->then_body = parse_statement_list(parser);
+        
+        // RECURSIVE: Check for more else/else_if in the chain
+        Statement* nested_else = parse_else_chain(parser);
+        if (nested_else) {
+            nested_if->has_else = 1;
+            nested_if->else_body = nested_else;
+        }
+        
+        // Wrap nested if as statement
+        Statement* stmt = statement_create(STMT_IF);
+        stmt->data = nested_if;
+        stmt->next = NULL;
+        return stmt;
+        
+    } else {
+        // Normal else - no if following
+        if (peek) {
+            lexer_unget_token(parser->lexer, peek);
+        }
+        
+        // Parse else body
+        return parse_statement_list(parser);
+    }
+}
+
 // Statement parsing with modular imports
 // Each statement type delegates to its specific module
 
@@ -152,86 +229,34 @@ Statement* statement_parse(Parser* parser) {
         return NULL;
     }
     
-    // ✅ ELSE_IF keyword - treat as else clause with nested if
+    // YZ_36: ELSE_IF handling - convert to ELSE + IF for parent
+    // TOKEN_ELSE_IF is a single token, but we need to handle it as ELSE + IF
     if (tok->type == TOKEN_ELSE_IF) {
-        token_free(tok);  // Consume else_if token
+        // This else_if is at the same level as the parent if
+        // We need to:
+        // 1. Free the TOKEN_ELSE_IF
+        // 2. Create synthetic TOKEN_ELSE for current_token
+        // 3. Create synthetic TOKEN_IF and push to lexer
         
-        // Create a synthetic TOKEN_IF to reuse if parsing logic
-        Token* synthetic_if = malloc(sizeof(Token));
-        synthetic_if->type = TOKEN_IF;
-        synthetic_if->value = strdup("if");
-        synthetic_if->line = parser->lexer->line;
-        synthetic_if->has_leading_whitespace = 0;
+        token_free(tok);
         
-        // Parse as new if statement using existing if logic
-        IfStatement* if_data = control_flow_parse_if(parser->lexer, synthetic_if);
-        token_free(synthetic_if);
+        // Create synthetic IF token and push to lexer
+        Token* if_tok = malloc(sizeof(Token));
+        if_tok->type = TOKEN_IF;
+        if_tok->value = strdup("if");
+        if_tok->line = parser->lexer->line;
+        if_tok->has_leading_whitespace = 0;
+        lexer_unget_token(parser->lexer, if_tok);
         
-        if (if_data) {
-            stmt = statement_create(STMT_IF);
-            stmt->data = if_data;
-            stmt->next = NULL;
-            
-            // Parse then body recursively
-            Statement* body_head = NULL;
-            Statement* body_tail = NULL;
-            
-            while (1) {
-                Statement* body_stmt = statement_parse(parser);
-                if (!body_stmt) {
-                    break;
-                }
-                
-                if (!body_head) {
-                    body_head = body_stmt;
-                    body_tail = body_stmt;
-                } else {
-                    body_tail->next = body_stmt;
-                    body_tail = body_stmt;
-                }
-            }
-            
-            if_data->then_body = body_head;
-            
-            // Check for chained else/else_if after this else_if's end_if
-            Token* check_tok = parser->current_token;
-            if (check_tok && check_tok->type == TOKEN_ELSE) {
-                parser->current_token = NULL;
-                token_free(check_tok);
-                if_data->has_else = 1;
-                
-                // Parse else body recursively
-                Statement* else_head = NULL;
-                Statement* else_tail = NULL;
-                
-                while (1) {
-                    Statement* body_stmt = statement_parse(parser);
-                    if (!body_stmt) {
-                        break;
-                    }
-                    
-                    if (!else_head) {
-                        else_head = body_stmt;
-                        else_tail = body_stmt;
-                    } else {
-                        else_tail->next = body_stmt;
-                        else_tail = body_stmt;
-                    }
-                }
-                
-                if_data->else_body = else_head;
-            }
-        }
+        // Create synthetic ELSE token for parent
+        Token* else_tok = malloc(sizeof(Token));
+        else_tok->type = TOKEN_ELSE;
+        else_tok->value = strdup("else");
+        else_tok->line = parser->lexer->line;
+        else_tok->has_leading_whitespace = 0;
+        parser->current_token = else_tok;
         
-        // Signal parent that this was an else_if by putting synthetic ELSE in current_token
-        Token* synthetic_else = malloc(sizeof(Token));
-        synthetic_else->type = TOKEN_ELSE;
-        synthetic_else->value = strdup("else");
-        synthetic_else->line = parser->lexer->line;
-        synthetic_else->has_leading_whitespace = 0;
-        parser->current_token = synthetic_else;
-        
-        return stmt;
+        return NULL;  // Parent will check current_token
     }
     
     // ✅ YZ_35: IMPORT statement - use import module
@@ -346,7 +371,7 @@ Statement* statement_parse(Parser* parser) {
         return stmt;  // ✅ No more control_flow_parser_free!
     }
     
-    // ✅ IF statement - NEW STATELESS PATTERN!
+    // ✅ IF statement - NEW STATELESS PATTERN! (YZ_36: Recursive else_if)
     if (tok->type == TOKEN_IF) {
         
         // ✅ NEW STATELESS PATTERN - No malloc/free!
@@ -361,63 +386,19 @@ Statement* statement_parse(Parser* parser) {
             stmt->data = if_data;
             stmt->next = NULL;
             
-            // Parse then body recursively
-            Statement* body_head = NULL;
-            Statement* body_tail = NULL;
+            // Parse then body using helper
+            if_data->then_body = parse_statement_list(parser);
             
-            while (1) {
-                Statement* body_stmt = statement_parse(parser);
-                if (!body_stmt) {
-                    break;
-                }
-                
-                if (!body_head) {
-                    body_head = body_stmt;
-                    body_tail = body_stmt;
-                } else {
-                    body_tail->next = body_stmt;
-                    body_tail = body_stmt;
-                }
-            }
-            
-            // ✅ Store then body in IfStatement
-            if_data->then_body = body_head;
-            
-            // ✅ Check for ELSE clause (this is the ONLY difference from while!)
-            // After "end if", statement_parser will have put next token in current_token
-            // This could be "else" or something else
-            Token* check_tok = parser->current_token;
-            if (check_tok && check_tok->type == TOKEN_ELSE) {
-                parser->current_token = NULL;  // Consume "else"
-                token_free(check_tok);
+            // ✅ YZ_36: Check for ELSE/ELSE_IF chain using recursive helper!
+            // After "end_if", statement_parse may have set current_token to ELSE
+            Statement* else_body = parse_else_chain(parser);
+            if (else_body) {
                 if_data->has_else = 1;
-                
-                // Parse else body recursively (SAME AS WHILE/THEN BODY PARSING!)
-                Statement* else_head = NULL;
-                Statement* else_tail = NULL;
-                
-                while (1) {
-                    Statement* body_stmt = statement_parse(parser);
-                    if (!body_stmt) {
-                        break;
-                    }
-                    
-                    if (!else_head) {
-                        else_head = body_stmt;
-                        else_tail = body_stmt;
-                    } else {
-                        else_tail->next = body_stmt;
-                        else_tail = body_stmt;
-                    }
-                }
-                
-                // ✅ Store else body in IfStatement
-                if_data->else_body = else_head;
+                if_data->else_body = else_body;
             }
-            // If no else, just continue
         }
         
-        return stmt;  // ✅ No more control_flow_parser_free!
+        return stmt;  // ✅ Clean and simple!
     }
     
     // ✅ YZ_89: SWITCH statement

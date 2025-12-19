@@ -85,10 +85,10 @@ Collection* array_parse_literal(Lexer* lexer, Token* lbracket_token) {
     elements[0] = first_elem;
     length = 1;
     
-    // Parse remaining elements (comma-separated)
+    // Parse remaining elements (semicolon separated - PMPL standard)
     tok = lexer_next_token(lexer);  // OWNED
-    while (tok && tok->type == TOKEN_COMMA) {
-        token_free(tok);  // Free comma
+    while (tok && tok->type == TOKEN_SEMICOLON) {
+        token_free(tok);  // Free semicolon
         
         // Check capacity
         if (length >= capacity) {

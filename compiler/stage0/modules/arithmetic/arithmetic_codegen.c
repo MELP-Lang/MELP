@@ -3,6 +3,7 @@
 #include "../functions/functions.h"  // For FunctionDeclaration type
 #include "../array/array_codegen.h"  // YZ_14: For array access codegen
 #include "../struct/struct.h"  // YZ_82: For member access
+#include "../enum/enum.h"  // YZ_35: For enum value access
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -400,6 +401,20 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
             fprintf(output, ".%s", access->member_chain[i]);
         }
         fprintf(output, "\n");
+        
+        // YZ_35: Check if this is an enum value access (e.g., Status.ACTIVE)
+        // Enum values are compiled to .equ directives, not struct instances
+        if (access->chain_length == 1) {
+            // Try to lookup as enum value first
+            int64_t enum_val = enum_lookup_value(access->struct_instance, access->member_chain[0]);
+            if (enum_val != -1) {
+                fprintf(output, "    # YZ_35: Enum value access: %s.%s = %ld\n", 
+                        access->struct_instance, access->member_chain[0], enum_val);
+                fprintf(output, "    movq $%ld, %%r%d  # Load enum value\n", 
+                        enum_val, target_reg + 8);
+                return;
+            }
+        }
         
         // Look up struct instance
         StructInstanceInfo* inst_info = struct_lookup_instance(access->struct_instance);
