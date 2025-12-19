@@ -1,46 +1,385 @@
 # NEXT AI START HERE - YZ Görev Dosyası
 
 **Son Güncelleme:** 20 Aralık 2025  
-**Önceki YZ:** YZ_99  
-**Mevcut YZ:** YZ_100  
+**Mevcut YZ:** YZ_106  
 **Dal:** `stage1_while_body_YZ_30`  
-**Commit'ler:** 4ebcd2f (YZ_99 tamamlandı)
+**Durum:** Stage 0 derleme düzeltildi ✅, Stage 1 syntax dönüşümü gerekiyor
 
 ---
 
-## 🎯 YZ_100 GÖREVİ: Stage 0 Final Features Check
+## ⚠️ KRİTİK KURALLAR (TÜM YZ'LER İÇİN - MUTLAKA OKU!)
 
-### Durum
-YZ_99 ile array declaration tamamlandı! Stage 0 artık çok olgun durumda. Final eksiklikleri kontrol edelim:
+### ❌ YAPMA:
+- Script ile toplu değişiklik yapma
+- Çalışan dosyaları değiştirme (test etmeden)
+- Stage 0 C kodlarına dokunma (`compiler/stage0/`)
+- Birden fazla dizinde aynı anda çalışma
+- `pmlp_kesin_sozdizimi.md` kurallarını ihlal etme
 
-### Yapılacaklar
-- [ ] **Struct parsing**: Top-level struct declaration parse edilemiyor
-- [ ] **Enum parsing**: Top-level enum declaration parse edilemiyor
-- [ ] Stage 0 feature completion assessment
-- [ ] Stage 1 bootstrap hazırlığı
+### ✅ YAP:
+- Sadece kendi dizinindeki dosyalarla çalış
+- Her değişiklikten ÖNCE ve SONRA test et
+- Sorun bulursan raporla, zorla düzeltme
+- Virgül (`,`) → Noktalı virgül (`;`) dönüşümü **manuel** yap
+- Üst Akıl'a danış (kullanıcıya sor)
+
+---
+
+## 📁 DOSYA KONUMLARI
+
+| Konum | Açıklama |
+|-------|----------|
+| `archive/stage1_api_attempt/modules/` | Stage 1 MLP modülleri (TEST EDİLECEK) |
+| `compiler/stage0/modules/functions/functions_compiler` | Stage 0 compiler (DOKUNMA!) |
+| `temp/` | Test dizini (güvenli alan) |
+| `pmlp_kesin_sozdizimi.md` | PMPL syntax kuralları (OKU!) |
+
+---
+
+## 📊 MEVCUT DURUM
+
+**Stage 0:** ✅ %97+ tamamlandı  
+**Stage 1:** 🔴 %80 yazıldı, ama MAJOR syntax uyumsuzlukları var!  
+**Import:** ✅ Çalışıyor (YZ_103 doğruladı)
+
+### Başarılı Testler:
+- ✅ `char_utils.mlp` - 11 fonksiyon, exit code 67
+- ✅ `bootstrap_test_fixed.mlp` - exit code 30
+
+### 🔴 YZ_104 KEŞFİ: 3 Büyük Syntax Uyumsuzluğu
+
+**1. List Literal Syntax YANLIŞ (79+ instance sadece functions/ içinde)**
+```pmpl
+-- Stage 1 dosyalarında (YANLIŞ):
+list result = [0, current_pos]
+
+-- PMPL standardı (DOĞRU):
+list result = (0; current_pos;)
+```
+- **Parantez tipi:** `[]` → `()` olmalı
+- **Ayırıcı:** `,` → `;` olmalı
+- **Trailing semicolon:** Her eleman sonunda `;` olmalı
+
+**2. `const` Keyword Desteklenmiyor**
+```pmpl
+const numeric FUNC_PARAM_NUMERIC = 0  -- ❌ Stage 0 desteklemiyor!
+```
+
+**3. Function Parameter Syntax (DÜZELTİLDİ ✅)**
+```pmpl
+-- Eski: function name(a, b, c)
+-- Yeni: function name(a; b; c)  ✅ YZ_104 düzeltti
+```
+
+### 📊 PMPL Koleksiyon Syntax Referansı (pmlp_kesin_sozdizimi.md)
+
+| Tip | Parantez | Ayırıcı | Örnek |
+|-----|----------|---------|-------|
+| Array | `[]` | `;` | `[1; 2; 3;]` (homojen) |
+| List | `()` | `;` | `(1; "a"; true;)` (heterojen) |
+| Tuple | `<>` | `;` | `<1; "a"; true>` (immutable) |
+
+---
+
+## 🎯 GÖREV DAĞILIMI
+
+| YZ | Dizin | Dosya Sayısı | Durum |
+|----|-------|--------------|-------|
+| YZ_103 | char_utils.mlp | 1 | ✅ TAMAMLANDI |
+| YZ_104 | `functions/` | 3 | ✅ ANALİZ TAMAMLANDI - List literal blocker bulundu |
+| YZ_105-108 | Diğer modüller | ~25 | ⏸️ DURDURULDU - Syntax dönüşümü gerekiyor |
+
+---
+
+## 🔴 ACİL KARAR GEREKİYOR
+
+**YZ_104 keşfi:** Stage 1 modülleri PMPL standartlarına uymuyor!
+
+### 3 Seçenek:
+
+**Seçenek A: Script ile Dönüşüm (Riskli)**
+- Otomatik `[a, b]` → `(a; b;)` dönüşümü
+- String içindeki virgülleri bozabilir
+- ~2-3 saat script geliştirme + test
+
+**Seçenek B: Manuel Dönüşüm (Güvenli ama Yavaş)**
+- Her dosyayı tek tek düzeltme
+- ~6-8 saat (38 dosya × 10 dakika)
+- En güvenilir sonuç
+
+**Seçenek C: Stage 1'i Yeniden Yaz (Temiz Başlangıç)**
+- PMPL standartlarına uygun yeni modüller
+- Mevcut 13K satır → referans olarak kullan
+- ~2-3 hafta
+
+### 💡 ÖNERİ: Seçenek A + Kontrollü Test
+1. Backup al
+2. Script geliştir (sadece list literal dönüşümü)
+3. Küçük dosyada test et
+4. Başarılı ise tüm dosyalara uygula
+5. Her dosyayı manuel doğrula
+
+---
+
+## 🎯 YZ_106 GÖREVİ: Stage 1 List Literal Syntax Dönüşümü
+
+### Problem
+Stage 1 modülleri Python-style list syntax kullanıyor, PMPL standardına uymuyor.
+
+### Dönüşüm Kuralları
+```pmpl
+-- YANLIŞ (Python-style):
+list result = [0, current_pos]
+return [func_decl, current_pos]
+
+-- DOĞRU (PMPL):
+list result = (0; current_pos;)
+return (func_decl; current_pos;)
+```
+
+### Adımlar
+1. `archive/stage1_api_attempt/modules/` dizininin backup'ını al
+2. Küçük bir dosyayla başla (örn: `core/char_utils.mlp` - zaten çalışıyor)
+3. `functions/functions_parser.mlp` dosyasını dönüştür:
+   - `[` → `(` 
+   - `]` → `)`
+   - Liste içindeki `,` → `;`
+   - Her eleman sonuna `;` ekle (trailing semicolon)
+4. Test et: `./compiler/stage0/modules/functions/functions_compiler <dosya> temp/test.s`
+5. Başarılı ise diğer dosyalara geç
+
+### Dikkat!
+- String içindeki `[` ve `]` karakterlerine DOKUNMA!
+- Yorum satırlarındaki örneklere dikkat et
+- Her dosyadan sonra test et
+
+### Hedef Dosyalar (Öncelik Sırasıyla)
+1. `functions/functions_parser.mlp` (~80 list literal)
+2. `functions/functions_codegen.mlp` (~30 list literal)
+3. `variables/variables_parser.mlp`
+4. Diğerleri...
 
 ### Test Komutu
 ```bash
-cd temp
-cat > test_struct.mlp << 'EOF'
+cd /home/pardus/projeler/MLP/MLP
+./compiler/stage0/modules/functions/functions_compiler \
+    archive/stage1_api_attempt/modules/functions/functions_parser.mlp \
+    temp/test.s 2>&1
+```
+
+### Başarı Kriteri
+- Derleme hatası yok
+- Assembly dosyası üretiliyor
+
+---
+
+## ✅ YZ_105 GÖREVİ: TAMAMLANDI
+
+### Sonuç
+- ✅ `arithmetic_parser.c` forward declaration/implementation uyumsuzluğu düzeltildi
+- ✅ 14 fonksiyon çağrısı güncellendi
+- ✅ Diğer modüller de güncellendi (string_interpolation.c, array_parser.c, vb.)
+- ✅ Stage 0 compiler derleniyor
+- ✅ `const` desteği çalışıyor
+
+### Rapor
+`temp/YZ_105_SONUC.md`
+
+---
+
+## ✅ YZ_104 GÖREVİ: TAMAMLANDI
+
+### Sonuç
+- ✅ `functions/` dizini analiz edildi (3 dosya)
+- ✅ Function parameter syntax düzeltildi (9 fonksiyon)
+- ✅ Function call syntax düzeltildi (7 çağrı)
+- 🔴 **Major blocker keşfedildi:** List literal syntax uyumsuzluğu
+
+### Bulgular
+Stage 1 modülleri Python-style list syntax kullanıyor:
+- `[a, b, c]` → PMPL'de `(a; b; c;)` olmalı
+- 79+ instance sadece functions/ içinde
+- Tüm 38 modülde benzer sorun var
+
+### Rapor
+`temp/YZ_104_report.md` - Detaylı analiz
+
+---
+
+## 🎯 YZ_102 GÖREVİ: Critical Bugs & Documentation
+
+### Durum
+YZ_100 ve YZ_101 ile Stage 0 feature set tamamlandı! 🎉  
+YZ_104 kısmen tamamlandı - list literal syntax sorunu keşfedildi!  
+Ancak 3 kritik bug kaldı → önce bunları çöz!
+
+### Öncelik 1: Kritik Bug Fixes (2-3 saat)
+
+**🔴 1. List Index Access:**
+```pmpl
+list numbers = (1; 2; 3; 4; 5)
+return numbers(0)    -- ❌ Fonksiyon çağrısı sanılıyor!
+```
+**Dosya:** `arithmetic_parser.c`  
+**Çözüm:** Variable vs function ayrımı (symbol table lookup)
+
+**🔴 2. Struct Field in Expression:**
+```pmpl
+function main() as numeric
+    Point pt
+    pt.x = 10
+    return pt.x    -- ❌ Variable lookup eksik!
+end_function
+```
+**Dosya:** `arithmetic_codegen.c`  
+**Çözüm:** Variable registry + stack offset tracking
+
+**🔴 3. Enum Variable Usage:**
+```pmpl
+function main() as numeric
+    Color c = Color.Red
+    return c    -- ❌ Variable 'c' okuyamıyor!
+end_function
+```
+**Dosya:** `arithmetic_codegen.c`  
+**Çözüm:** Enum variable stack lookup (struct field ile aynı sistem)
+
+### Öncelik 2: Documentation (2-3 saat)
+
+- [ ] Stage 0 completion documentation
+- [ ] Stage 1 bootstrap plan
+- [ ] Test coverage review
+- [ ] Known bugs list update
+
+### Stage 0 Feature Matrix
+
+| Feature | Status | Test |
+|---------|--------|------|
+| Functions | ✅ | Return, params, calls |
+| Variables | ✅ | Declaration, assignment |
+| Arrays | ✅ | Declaration, access, bounds check |
+| Structs | ✅ | Definition, instance, member access |
+| Enums | ✅ | Definition, initialization |
+| **List index access** | ❌ | `list(0)` → function call bug |
+| **Variable in expr** | ❌ | `return pt.x` fails |
+| **Enum variable read** | ❌ | `return c` fails |
+| If-else-else_if | ✅ | Unlimited chain |
+| While loops | ✅ | Body parsing |
+| For loops | ✅ | Range iteration |
+| Switch-case | ✅ | Multiple cases |
+| Operators | ✅ | Arithmetic, comparison, logical |
+| Print | ✅ | String output |
+| Import | ✅ | Module loading |
+| Comments | ✅ | Single & multi-line |
+
+### Başarı Kriteri
+1. ✅ 3 kritik bug fix
+2. ✅ Stage 0 completion doc
+3. ✅ Stage 1 bootstrap plan
+
+Stage 0 → **%98 tamamlanmış!** 🚀
+
+---
+
+## ✅ YZ_101 TAMAMLANDI! (20 Aralık 2025)
+
+### Enum Initialization Support - BAŞARILI! ✅
+
+**Sorun:** Enum variable initialization desteklenmiyordu: `Color c = Color.Red`
+
+**Çözüm:**
+1. **Statement Type Eklendi:**
+   - `STMT_ENUM_VARIABLE` statement type
+   - `EnumVariable` struct (enum_type, var_name, init_value, has_initializer)
+
+2. **Parser Desteği:**
+   - `enum_is_type()` ile enum type detection
+   - `enum_lookup_value()` ile value resolution
+   - Syntax: `EnumType varname = EnumType.ValueName`
+
+3. **Codegen Desteği:**
+   - Stack'te 8-byte allocation (int64)
+   - Initial value assignment
+   - Optional initializer support
+
+**Test Sonuçları:**
+```pmpl
+enum Color
+    Red      # = 0
+    Green    # = 1
+    Blue     # = 2
+end_enum
+
+function main() as numeric
+    Color c = Color.Green  # c = 1
+    return 0
+end_function
+```
+**Exit code:** 0 ✅
+
+**Combined Test (Struct + Enum + Array):**
+```pmpl
 struct Point
     numeric x
     numeric y
 end_struct
 
-function main() as numeric
-    Point p
-    p.x = 10
-    return p.x
-end_function
-EOF
+enum Status
+    Active
+    Inactive
+end_enum
 
-../compiler/stage0/modules/functions/functions_compiler test_struct.mlp test_struct.s
-# Struct parse ediliyor mu?
+function main() as numeric
+    numeric[3] arr
+    Point p
+    Status s = Status.Active
+    
+    arr[0] = 10
+    arr[1] = 20
+    p.x = arr[0]
+    p.y = arr[1]
+    
+    return p.x + p.y  # = 30
+end_function
+```
+**Exit code:** 30 ✅
+
+**Değişen Dosyalar:**
+- `compiler/stage0/modules/statement/statement.h` - STMT_ENUM_VARIABLE added
+- `compiler/stage0/modules/statement/statement.c` - enum_variable_free support
+- `compiler/stage0/modules/statement/statement_parser.c` - Enum variable parsing
+- `compiler/stage0/modules/statement/statement_codegen.c` - Enum variable codegen
+- `compiler/stage0/modules/enum/enum.h` - EnumVariable struct
+- `compiler/stage0/modules/enum/enum.c` - EnumVariable functions
+
+---
+
+## ✅ YZ_100 TAMAMLANDI! (20 Aralık 2025)
+
+### Stage 0 Final Features Check - BAŞARILI! ✅
+
+**Görev:** Struct ve Enum parsing kontrolü
+
+**Test Sonuçları:**
+- ✅ Struct parsing: ÇALIŞIYOR (Point struct test → exit code 10)
+- ✅ Enum parsing: ÇALIŞIYOR (Color enum test compiled)
+- ✅ Struct + Array: ÇALIŞIYOR (exit code 30)
+- ❌ Enum initialization: ÇALIŞMIYOR → **YZ_101'e taşındı**
+
+**Bulgu:**
+- Struct ve Enum **declaration** parsing çalışıyor
+- Enum **variable initialization** desteği eksikti
+- Array bounds checking için `libmlp_stdlib.a` link edilmeli
+
+**Link Komutu (Doğru):**
+```bash
+gcc -no-pie output.s \
+    -L../../runtime/sto -lsto_runtime \
+    -L../../runtime/stdlib -lmlp_stdlib \
+    -o program
 ```
 
-### Başarı Kriteri
-Struct ve enum tanımlamaları parse edilmeli. Eğer parse ediliyorsa, Stage 0 → %95+ tamamlanmış demektir!
+---
 
 ---
 

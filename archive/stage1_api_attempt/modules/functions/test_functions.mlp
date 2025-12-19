@@ -157,7 +157,7 @@ function test_parse_simple_function() returns list
     tokens = [tok1, tok2, tok3, tok4, tok5, tok6, tok7, tok8, tok9, tok10, tok11]
     
     -- Parse
-    list result = parse_function_declaration(tokens, 0)
+    list result = parse_function_declaration(tokens; 0)
     list func_decl = result[0]
     numeric new_pos = result[1]
     
@@ -217,7 +217,7 @@ function test_parse_function_with_params() returns list
               tok11, tok12, tok13, tok14, tok15, tok16]
     
     -- Parse
-    list result = parse_function_declaration(tokens, 0)
+    list result = parse_function_declaration(tokens; 0)
     list func_decl = result[0]
     
     -- Verify
@@ -281,7 +281,7 @@ function test_parse_function_call() returns list
     tokens = [tok1, tok2, tok3, tok4, tok5, tok6, tok7]
     
     -- Parse (starting from LPAREN, func_name already parsed)
-    list result = parse_function_call(tokens, 1, "add")
+    list result = parse_function_call(tokens; 1; "add")
     list func_call = result[0]
     
     -- Verify
@@ -326,7 +326,7 @@ function test_parse_return_statement() returns list
     tokens = [tok1, tok2, tok3]
     
     -- Parse
-    list result = parse_return_statement(tokens, 0)
+    list result = parse_return_statement(tokens; 0)
     list return_stmt = result[0]
     
     -- Verify
@@ -367,7 +367,7 @@ function test_codegen_function_prologue() returns list
     numeric return_type = 0  -- FUNC_RETURN_NUMERIC
     
     -- Generate prologue
-    string ir = codegen_function_prologue(func_name, params, return_type)
+    string ir = codegen_function_prologue(func_name; params; return_type)
     
     -- Verify
     if ir == "" then
@@ -399,7 +399,7 @@ function test_codegen_function_call() returns list
     
     -- Generate call
     numeric register_num = 1
-    list result = codegen_function_call(func_call, register_num)
+    list result = codegen_function_call(func_call; register_num)
     string ir = result[0]
     numeric next_reg = result[1]
     

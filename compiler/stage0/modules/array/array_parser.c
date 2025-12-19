@@ -75,7 +75,7 @@ Collection* array_parse_literal(Lexer* lexer, Token* lbracket_token) {
     }
     
     // Parse first element using stateless arithmetic parser
-    ArithmeticExpr* first_elem = arithmetic_parse_expression_stateless(lexer, tok);
+    ArithmeticExpr* first_elem = arithmetic_parse_expression_stateless(lexer, tok, NULL);
     if (!first_elem) {
         error_parser(tok->line, "Failed to parse array element");
         token_free(tok);
@@ -107,7 +107,7 @@ Collection* array_parse_literal(Lexer* lexer, Token* lbracket_token) {
             return NULL;
         }
         
-        ArithmeticExpr* elem = arithmetic_parse_expression_stateless(lexer, tok);
+        ArithmeticExpr* elem = arithmetic_parse_expression_stateless(lexer, tok, NULL);
         if (!elem) {
             error_parser(tok->line, "Failed to parse array element");
             token_free(tok);
@@ -174,7 +174,7 @@ Collection* array_parse_list_literal(Lexer* lexer, Token* lparen_token) {
         }
         
         // Parse element
-        ArithmeticExpr* elem = arithmetic_parse_expression_stateless(lexer, tok);
+        ArithmeticExpr* elem = arithmetic_parse_expression_stateless(lexer, tok, NULL);
         if (!elem) {
             error_parser(tok->line, "Failed to parse list element");
             token_free(tok);
@@ -269,7 +269,7 @@ Collection* array_parse_tuple_literal(Lexer* lexer, Token* less_token) {
     }
     
     // Parse first element
-    ArithmeticExpr* first_elem = arithmetic_parse_expression_stateless(lexer, tok);
+    ArithmeticExpr* first_elem = arithmetic_parse_expression_stateless(lexer, tok, NULL);
     if (!first_elem) {
         error_parser(tok->line, "Failed to parse tuple element");
         token_free(tok);
@@ -305,7 +305,7 @@ Collection* array_parse_tuple_literal(Lexer* lexer, Token* less_token) {
             return NULL;
         }
         
-        ArithmeticExpr* elem = arithmetic_parse_expression_stateless(lexer, tok);
+        ArithmeticExpr* elem = arithmetic_parse_expression_stateless(lexer, tok, NULL);
         if (!elem) {
             error_parser(tok->line, "Failed to parse tuple element");
             token_free(tok);
@@ -423,7 +423,7 @@ IndexAccess* array_parse_index_access(Lexer* lexer, const char* base_name, Token
         } else {
             // Expression starting with identifier: arr[i+1]
             lexer_unget_token(lexer, lookahead);  // Put back
-            ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok);
+            ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok, NULL);
             if (!expr) {
                 error_parser(tok->line, "Failed to parse index expression");
                 token_free(tok);
@@ -438,7 +438,7 @@ IndexAccess* array_parse_index_access(Lexer* lexer, const char* base_name, Token
         }
     } else {
         // Expression index - use arithmetic parser
-        ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok);
+        ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok, NULL);
         if (!expr) {
             error_parser(tok->line, "Failed to parse index expression");
             token_free(tok);

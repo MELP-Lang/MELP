@@ -718,6 +718,51 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
             break;
         }
         
+        // YZ_101: Enum variable declaration
+        case STMT_ENUM_VARIABLE: {
+            EnumVariable* enum_var = (EnumVariable*)stmt->data;
+            if (enum_var) {
+                fprintf(output, "    # Enum variable: %s %s\n", 
+                        enum_var->enum_type, enum_var->var_name);
+                
+                // Allocate 8 bytes on stack (int64)
+                current_stack_offset += 8;
+                
+                // YZ_102: Register enum variable in function context for lookups
+                // Create LocalVariable entry manually to sync with current_stack_offset
+                if (func) {
+                    LocalVariable* var = malloc(sizeof(LocalVariable));
+                    var->name = strdup(enum_var->var_name);
+                    var->is_numeric = 1;  // Enums are numeric (int64)
+                    var->is_array = 0;
+                    var->array_length = 0;
+                    var->is_tuple = 0;
+                    var->tuple_length = 0;
+                    var->is_list = 0;
+                    var->list_length = 0;
+                    var->stack_offset = -current_stack_offset;  // Negative offset from rbp
+                    
+                    // Add to front of local_vars list
+                    var->next = func->local_vars;
+                    func->local_vars = var;
+                    func->local_var_count++;
+                }
+                
+                if (enum_var->has_initializer) {
+                    // Store initial value
+                    fprintf(output, "    movq $%ld, %%rax  # %s = %ld\n", 
+                            enum_var->init_value, enum_var->var_name, enum_var->init_value);
+                    fprintf(output, "    movq %%rax, -%d(%%rbp)  # Store at [rbp - %d]\n",
+                            current_stack_offset, current_stack_offset);
+                } else {
+                    // Uninitialized - just reserve space
+                    fprintf(output, "    # %s at [rbp - %d] (uninitialized)\n",
+                            enum_var->var_name, current_stack_offset);
+                }
+            }
+            break;
+        }
+        
         // YZ_82/YZ_83: Member assignment - store value at struct offset (nested support)
         case STMT_MEMBER_ASSIGNMENT: {
             MemberAssignment* mem_assign = (MemberAssignment*)stmt->data;

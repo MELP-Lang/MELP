@@ -14,6 +14,8 @@
 #include "../enum/enum.h"
 #include "../enum/enum_parser.h"
 #include "../enum/enum_codegen.h"
+#include "../variable/variable.h"
+#include "../variable/variable_parser.h"
 #include "functions.h"
 #include "functions_parser.h"
 #include "functions_codegen.h"
@@ -153,6 +155,20 @@ int main(int argc, char** argv) {
                     last_enum->next = enum_def;
                 }
                 last_enum = enum_def;
+            }
+            continue;
+        }
+        
+        // YZ_104: Handle const declarations at top level
+        if (tok->type == TOKEN_CONST) {
+            VariableDeclaration* const_decl = variable_parse_declaration(lexer, tok);
+            token_free(tok);
+            
+            if (const_decl) {
+                printf("📦 Const: %s\n", const_decl->name);
+                // Note: const values will be inlined during codegen
+                // For now, we just skip them at top level
+                // TODO: Track consts for codegen if needed
             }
             continue;
         }

@@ -57,7 +57,8 @@ static ArithmeticExpr* parse_interpolation_expression(const char* expr_str) {
     }
     
     // Parse expression using stateless API
-    ArithmeticExpr* expr = arithmetic_parse_expression_stateless(mini_lexer, first_token);
+    // NULL func for string interpolation context (no local variable scope)
+    ArithmeticExpr* expr = arithmetic_parse_expression_stateless(mini_lexer, first_token, NULL);
     
     // First token is consumed by parser, don't free it
     lexer_free(mini_lexer);

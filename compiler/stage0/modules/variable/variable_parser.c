@@ -160,7 +160,8 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
         
         // Use stateless arithmetic parser for expression parsing
         // tok is OWNED by us and will be consumed by arithmetic parser
-        ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok);
+        // NULL func for global scope (const declarations at top level)
+        ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok, NULL);
         token_free(tok);  // arithmetic parser borrowed it, we still own it
         
         if (expr) {
@@ -294,7 +295,8 @@ VariableAssignment* variable_parse_assignment(Lexer* lexer, Token* identifier_to
     
     // Parse expression using stateless arithmetic API
     // tok is OWNED and will be consumed
-    ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok);
+    // NULL func for global scope (assignments at top level)
+    ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok, NULL);
     token_free(tok);  // We own it, arithmetic parser borrowed it
     
     if (expr) {

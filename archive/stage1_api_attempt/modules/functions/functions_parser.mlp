@@ -113,7 +113,7 @@ end_function
 --         params = [[type, name], [type, name], ...]
 --
 -- STATELESS: Takes tokens + position, returns result + new position
-function parse_function_declaration(list tokens, numeric pos) returns list
+function parse_function_declaration(list tokens; numeric pos) returns list
     -- Result structure
     string func_name = ""
     list params = []
@@ -280,7 +280,7 @@ end_function
 --         args = [arg1, arg2, ...]
 --
 -- STATELESS: Takes tokens + position, returns result + new position
-function parse_function_call(list tokens, numeric pos, string func_name) returns list
+function parse_function_call(list tokens; numeric pos; string func_name) returns list
     list args = []
     numeric current_pos = pos
     
@@ -356,7 +356,7 @@ end_function
 --         return_value = expression or 0 for void
 --
 -- STATELESS: Takes tokens + position, returns result + new position
-function parse_return_statement(list tokens, numeric pos) returns list
+function parse_return_statement(list tokens; numeric pos) returns list
     numeric current_pos = pos
     
     -- 1. Expect 'return' keyword

@@ -540,7 +540,7 @@ Statement* statement_parse(Parser* parser) {
             return NULL;
         }
         
-        ArithmeticExpr* arg_expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok);
+        ArithmeticExpr* arg_expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok, NULL);
         token_free(expr_tok);
         
         if (!arg_expr) {
@@ -586,7 +586,7 @@ Statement* statement_parse(Parser* parser) {
             return NULL;
         }
         
-        ArithmeticExpr* expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok);
+        ArithmeticExpr* expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok, NULL);
         token_free(expr_tok);
         
         // Create return statement with expression
@@ -651,6 +651,93 @@ Statement* statement_parse(Parser* parser) {
             
             stmt = statement_create(STMT_STRUCT_INSTANCE);
             stmt->data = instance;
+            stmt->next = NULL;
+            return stmt;
+        }
+        
+        // YZ_101: Check if this is an enum variable declaration (Color c = Color.Red)
+        if (enum_is_type(tok->value)) {
+            // This is an enum type!
+            char* enum_type = strdup(tok->value);
+            token_free(tok);
+            
+            // Next token should be variable name
+            Token* var_name_tok = lexer_next_token(parser->lexer);
+            if (!var_name_tok || var_name_tok->type != TOKEN_IDENTIFIER) {
+                free(enum_type);
+                if (var_name_tok) token_free(var_name_tok);
+                error_parser(0, "Expected variable name after enum type '%s'", enum_type);
+                return NULL;
+            }
+            
+            char* var_name = strdup(var_name_tok->value);
+            token_free(var_name_tok);
+            
+            // Check for optional initializer: = EnumType.Value
+            Token* eq_tok = lexer_next_token(parser->lexer);
+            int64_t init_value = 0;
+            int has_initializer = 0;
+            
+            if (eq_tok && eq_tok->type == TOKEN_ASSIGN) {
+                token_free(eq_tok);
+                has_initializer = 1;
+                
+                // Expect: EnumType.ValueName
+                Token* type_tok = lexer_next_token(parser->lexer);
+                if (!type_tok || type_tok->type != TOKEN_IDENTIFIER) {
+                    free(enum_type);
+                    free(var_name);
+                    if (type_tok) token_free(type_tok);
+                    error_parser(0, "Expected enum type in initializer");
+                    return NULL;
+                }
+                
+                Token* dot_tok = lexer_next_token(parser->lexer);
+                if (!dot_tok || dot_tok->type != TOKEN_DOT) {
+                    free(enum_type);
+                    free(var_name);
+                    token_free(type_tok);
+                    if (dot_tok) token_free(dot_tok);
+                    error_parser(0, "Expected '.' in enum value");
+                    return NULL;
+                }
+                token_free(dot_tok);
+                
+                Token* value_tok = lexer_next_token(parser->lexer);
+                if (!value_tok || value_tok->type != TOKEN_IDENTIFIER) {
+                    free(enum_type);
+                    free(var_name);
+                    token_free(type_tok);
+                    if (value_tok) token_free(value_tok);
+                    error_parser(0, "Expected enum value name");
+                    return NULL;
+                }
+                
+                // Lookup enum value
+                init_value = enum_lookup_value(type_tok->value, value_tok->value);
+                if (init_value == -1) {
+                    error_parser(0, "Unknown enum value: %s.%s", type_tok->value, value_tok->value);
+                    free(enum_type);
+                    free(var_name);
+                    token_free(type_tok);
+                    token_free(value_tok);
+                    return NULL;
+                }
+                
+                token_free(type_tok);
+                token_free(value_tok);
+            } else if (eq_tok) {
+                // Not '=' - put it back
+                lexer_unget_token(parser->lexer, eq_tok);
+            }
+            
+            // Create enum variable
+            EnumVariable* enum_var = enum_variable_create(enum_type, var_name, init_value, has_initializer);
+            free(enum_type);
+            free(var_name);
+            
+            stmt = statement_create(STMT_ENUM_VARIABLE);
+            stmt->data = enum_var;
             stmt->next = NULL;
             return stmt;
         }
@@ -739,7 +826,7 @@ Statement* statement_parse(Parser* parser) {
                 return NULL;
             }
             
-            ArithmeticExpr* expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok);
+            ArithmeticExpr* expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok, NULL);
             token_free(expr_tok);
             
             if (!expr) {
@@ -772,7 +859,7 @@ Statement* statement_parse(Parser* parser) {
             lexer_unget_token(parser->lexer, next_tok);
             
             // Parse function call using arithmetic parser
-            ArithmeticExpr* call_expr = arithmetic_parse_expression_stateless(parser->lexer, tok);
+            ArithmeticExpr* call_expr = arithmetic_parse_expression_stateless(parser->lexer, tok, NULL);
             
             if (!call_expr) {
                 token_free(tok);
@@ -829,7 +916,7 @@ Statement* statement_parse(Parser* parser) {
                 return NULL;
             }
             
-            ArithmeticExpr* expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok);
+            ArithmeticExpr* expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok, NULL);
             token_free(expr_tok);
             
             if (!expr) {
@@ -867,7 +954,7 @@ Statement* statement_parse(Parser* parser) {
                 return NULL;
             }
             
-            ArithmeticExpr* expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok);
+            ArithmeticExpr* expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok, NULL);
             token_free(expr_tok);
             
             if (expr) {

@@ -1,0 +1,23 @@
+{
+  "version": "1.0",
+  "module_path": "/home/pardus/projeler/MLP/MLP/archive/stage1_api_attempt/modules/core/char_utils.mlp",
+  "source_mtime": 1766056366,
+  "object_mtime": 0,
+  "object_path": null,
+  "assembly_path": "char_utils.s",
+  "functions": [
+    "is_digit",
+    "is_alpha",
+    "is_alnum",
+    "is_space",
+    "is_upper",
+    "is_lower",
+    "to_upper",
+    "to_lower",
+    "is_identifier_start",
+    "is_identifier_char",
+    "is_ascii"
+  ],
+  "dependencies": [
+  ]
+}

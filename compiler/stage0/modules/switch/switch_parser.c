@@ -31,7 +31,7 @@ SwitchStatement* switch_parse(Parser* parser, Token* switch_tok) {
         return NULL;
     }
     
-    void* expression = arithmetic_parse_expression_stateless(parser->lexer, expr_tok);
+    void* expression = arithmetic_parse_expression_stateless(parser->lexer, expr_tok, NULL);
     token_free(expr_tok);
     
     if (!expression) {
@@ -68,7 +68,7 @@ SwitchStatement* switch_parse(Parser* parser, Token* switch_tok) {
                 return NULL;
             }
             
-            void* case_value = arithmetic_parse_expression_stateless(parser->lexer, case_tok);
+            void* case_value = arithmetic_parse_expression_stateless(parser->lexer, case_tok, NULL);
             token_free(case_tok);
             
             if (!case_value) {

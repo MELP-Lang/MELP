@@ -84,4 +84,23 @@ int enum_is_type(const char* name);
 // Free all registered enums
 void enum_registry_free(void);
 
+// ============================================================================
+// YZ_101: Enum Variable Declaration
+// ============================================================================
+// Represents: Color c = Color.Red
+
+typedef struct EnumVariable {
+    char* enum_type;        // Enum type name (e.g., "Color")
+    char* var_name;         // Variable name (e.g., "c")
+    int64_t init_value;     // Initial value (e.g., 0 for Color.Red)
+    int has_initializer;    // 1 if initialized, 0 if not
+} EnumVariable;
+
+// Create enum variable
+EnumVariable* enum_variable_create(const char* enum_type, const char* var_name, 
+                                    int64_t init_value, int has_initializer);
+
+// Free enum variable
+void enum_variable_free(EnumVariable* var);
+
 #endif // ENUM_H

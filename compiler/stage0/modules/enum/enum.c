@@ -159,3 +159,28 @@ void enum_registry_free(void) {
     }
     enum_registry = NULL;
 }
+
+// ============================================================================
+// YZ_101: Enum Variable Functions
+// ============================================================================
+
+EnumVariable* enum_variable_create(const char* enum_type, const char* var_name, 
+                                    int64_t init_value, int has_initializer) {
+    EnumVariable* var = malloc(sizeof(EnumVariable));
+    if (!var) return NULL;
+    
+    var->enum_type = strdup(enum_type);
+    var->var_name = strdup(var_name);
+    var->init_value = init_value;
+    var->has_initializer = has_initializer;
+    
+    return var;
+}
+
+void enum_variable_free(EnumVariable* var) {
+    if (!var) return;
+    
+    if (var->enum_type) free(var->enum_type);
+    if (var->var_name) free(var->var_name);
+    free(var);
+}

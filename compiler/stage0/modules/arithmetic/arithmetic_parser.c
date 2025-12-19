@@ -552,11 +552,12 @@ char* arithmetic_parse_assignment(ArithmeticParser* parser, ArithmeticExpr** exp
 // ========================================
 
 // Forward declarations for stateless recursive descent
-static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current);
-static ArithmeticExpr* parse_power_stateless(Lexer* lexer, Token** current);
-static ArithmeticExpr* parse_term_stateless(Lexer* lexer, Token** current);
-static ArithmeticExpr* parse_factor_stateless(Lexer* lexer, Token** current);
-static ArithmeticExpr* parse_bitwise_stateless(Lexer* lexer, Token** current);
+// YZ_104: Added FunctionDeclaration* func parameter for local variable resolution
+static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current, FunctionDeclaration* func);
+static ArithmeticExpr* parse_power_stateless(Lexer* lexer, Token** current, FunctionDeclaration* func);
+static ArithmeticExpr* parse_term_stateless(Lexer* lexer, Token** current, FunctionDeclaration* func);
+static ArithmeticExpr* parse_factor_stateless(Lexer* lexer, Token** current, FunctionDeclaration* func);
+static ArithmeticExpr* parse_bitwise_stateless(Lexer* lexer, Token** current, FunctionDeclaration* func);
 
 // Helper: Advance to next token (stateless)
 static void advance_stateless(Lexer* lexer, Token** current) {
@@ -567,7 +568,7 @@ static void advance_stateless(Lexer* lexer, Token** current) {
 }
 
 // Parse primary (stateless)
-static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
+static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current, FunctionDeclaration* func) {
     if (!current || !*current) return NULL;
     
     // YZ_18: Handle NOT operator (unary boolean NOT)
@@ -575,7 +576,7 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         advance_stateless(lexer, current);  // consume 'not'
         
         // Parse the operand
-        ArithmeticExpr* operand = parse_primary_stateless(lexer, current);
+        ArithmeticExpr* operand = parse_primary_stateless(lexer, current, func);
         if (!operand) return NULL;
         
         // Create XOR with 1: not x = x xor 1
@@ -625,7 +626,7 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         advance_stateless(lexer, current);  // consume '-'
         
         // Parse the operand (must be a primary expression)
-        ArithmeticExpr* operand = parse_primary_stateless(lexer, current);
+        ArithmeticExpr* operand = parse_primary_stateless(lexer, current, func);
         if (!operand) return NULL;
         
         // Create subtraction: 0 - operand
@@ -1095,7 +1096,7 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
                     arguments = malloc(sizeof(ArithmeticExpr*) * arg_capacity);
                     
                     while (1) {
-                        ArithmeticExpr* arg = parse_bitwise_stateless(lexer, current);
+                        ArithmeticExpr* arg = parse_bitwise_stateless(lexer, current, func);
                         if (!arg) {
                             for (int i = 0; i < arg_count; i++) {
                                 arithmetic_expr_free(arguments[i]);
@@ -1281,7 +1282,7 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
                 arguments = malloc(sizeof(ArithmeticExpr*) * arg_capacity);
                 
                 // Parse first argument
-                ArithmeticExpr* arg = parse_bitwise_stateless(lexer, current);
+                ArithmeticExpr* arg = parse_bitwise_stateless(lexer, current, func);
                 if (!arg) {
                     free(identifier);
                     free(arguments);
@@ -1301,7 +1302,7 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
                         arguments = realloc(arguments, sizeof(ArithmeticExpr*) * arg_capacity);
                     }
                     
-                    arg = parse_bitwise_stateless(lexer, current);
+                    arg = parse_bitwise_stateless(lexer, current, func);
                     if (!arg) {
                         for (int i = 0; i < arg_count; i++) {
                             arithmetic_expr_free(arguments[i]);
@@ -1496,7 +1497,7 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         }
         
         // Parse first element to see what follows
-        ArithmeticExpr* first_elem = parse_bitwise_stateless(lexer, current);
+        ArithmeticExpr* first_elem = parse_bitwise_stateless(lexer, current, func);
         if (!first_elem) {
             fprintf(stderr, "Error: Failed to parse element after '('\n");
             free(expr);
@@ -1534,7 +1535,7 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
                 }
                 
                 // Parse next element
-                ArithmeticExpr* elem = parse_bitwise_stateless(lexer, current);
+                ArithmeticExpr* elem = parse_bitwise_stateless(lexer, current, func);
                 if (!elem) {
                     fprintf(stderr, "Error: Failed to parse list element\n");
                     for (int i = 0; i < length; i++) {
@@ -1644,7 +1645,7 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         VarType* types = malloc(sizeof(VarType) * capacity);
         
         // Parse first element
-        ArithmeticExpr* first_elem = parse_bitwise_stateless(lexer, current);
+        ArithmeticExpr* first_elem = parse_bitwise_stateless(lexer, current, func);
         if (!first_elem) {
             fprintf(stderr, "Error: Failed to parse tuple element\n");
             free(elements);
@@ -1669,7 +1670,7 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
             }
             
             // Parse next element
-            ArithmeticExpr* elem = parse_bitwise_stateless(lexer, current);
+            ArithmeticExpr* elem = parse_bitwise_stateless(lexer, current, func);
             if (!elem) {
                 fprintf(stderr, "Error: Failed to parse tuple element\n");
                 for (int i = 0; i < length; i++) {
@@ -1731,14 +1732,14 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
 }
 
 // Parse power (stateless)
-static ArithmeticExpr* parse_power_stateless(Lexer* lexer, Token** current) {
-    ArithmeticExpr* left = parse_primary_stateless(lexer, current);
+static ArithmeticExpr* parse_power_stateless(Lexer* lexer, Token** current, FunctionDeclaration* func) {
+    ArithmeticExpr* left = parse_primary_stateless(lexer, current, func);
     if (!left) return NULL;
     
     while (*current && (*current)->type == TOKEN_POWER) {
         advance_stateless(lexer, current);
         
-        ArithmeticExpr* right = parse_primary_stateless(lexer, current);
+        ArithmeticExpr* right = parse_primary_stateless(lexer, current, func);
         if (!right) {
             arithmetic_expr_free(left);
             return NULL;
@@ -1772,8 +1773,8 @@ static ArithmeticExpr* parse_power_stateless(Lexer* lexer, Token** current) {
 }
 
 // Parse term (stateless)
-static ArithmeticExpr* parse_term_stateless(Lexer* lexer, Token** current) {
-    ArithmeticExpr* left = parse_power_stateless(lexer, current);
+static ArithmeticExpr* parse_term_stateless(Lexer* lexer, Token** current, FunctionDeclaration* func) {
+    ArithmeticExpr* left = parse_power_stateless(lexer, current, func);
     if (!left) return NULL;
     
     while (*current) {
@@ -1791,7 +1792,7 @@ static ArithmeticExpr* parse_term_stateless(Lexer* lexer, Token** current) {
         
         advance_stateless(lexer, current);
         
-        ArithmeticExpr* right = parse_power_stateless(lexer, current);
+        ArithmeticExpr* right = parse_power_stateless(lexer, current, func);
         if (!right) {
             arithmetic_expr_free(left);
             return NULL;
@@ -1825,8 +1826,8 @@ static ArithmeticExpr* parse_term_stateless(Lexer* lexer, Token** current) {
 }
 
 // Parse factor (stateless)
-static ArithmeticExpr* parse_factor_stateless(Lexer* lexer, Token** current) {
-    ArithmeticExpr* left = parse_term_stateless(lexer, current);
+static ArithmeticExpr* parse_factor_stateless(Lexer* lexer, Token** current, FunctionDeclaration* func) {
+    ArithmeticExpr* left = parse_term_stateless(lexer, current, func);
     if (!left) return NULL;
     
     while (*current) {
@@ -1842,7 +1843,7 @@ static ArithmeticExpr* parse_factor_stateless(Lexer* lexer, Token** current) {
         
         advance_stateless(lexer, current);
         
-        ArithmeticExpr* right = parse_term_stateless(lexer, current);
+        ArithmeticExpr* right = parse_term_stateless(lexer, current, func);
         if (!right) {
             arithmetic_expr_free(left);
             return NULL;
@@ -1877,8 +1878,8 @@ static ArithmeticExpr* parse_factor_stateless(Lexer* lexer, Token** current) {
 }
 
 // Parse bitwise (stateless)
-static ArithmeticExpr* parse_bitwise_stateless(Lexer* lexer, Token** current) {
-    ArithmeticExpr* left = parse_factor_stateless(lexer, current);
+static ArithmeticExpr* parse_bitwise_stateless(Lexer* lexer, Token** current, FunctionDeclaration* func) {
+    ArithmeticExpr* left = parse_factor_stateless(lexer, current, func);
     if (!left) return NULL;
     
     while (*current) {
@@ -1896,7 +1897,7 @@ static ArithmeticExpr* parse_bitwise_stateless(Lexer* lexer, Token** current) {
         
         advance_stateless(lexer, current);
         
-        ArithmeticExpr* right = parse_factor_stateless(lexer, current);
+        ArithmeticExpr* right = parse_factor_stateless(lexer, current, func);
         if (!right) {
             arithmetic_expr_free(left);
             return NULL;
@@ -1930,7 +1931,8 @@ static ArithmeticExpr* parse_bitwise_stateless(Lexer* lexer, Token** current) {
 }
 
 // PUBLIC: Parse expression (stateless) - entry point
-ArithmeticExpr* arithmetic_parse_expression_stateless(Lexer* lexer, Token* first_token) {
+// YZ_102: Added func parameter for variable lookup context
+ArithmeticExpr* arithmetic_parse_expression_stateless(Lexer* lexer, Token* first_token, FunctionDeclaration* func) {
     if (!lexer || !first_token) return NULL;
     
     // We borrow first_token but advance consumes tokens
@@ -1940,7 +1942,7 @@ ArithmeticExpr* arithmetic_parse_expression_stateless(Lexer* lexer, Token* first
     current->value = first_token->value ? strdup(first_token->value) : NULL;
     current->line = first_token->line;
     
-    ArithmeticExpr* result = parse_bitwise_stateless(lexer, &current);
+    ArithmeticExpr* result = parse_bitwise_stateless(lexer, &current, func);
     
     // ✅ YZ_32: Apply constant folding optimization
     if (result) {
@@ -1957,7 +1959,7 @@ ArithmeticExpr* arithmetic_parse_expression_stateless(Lexer* lexer, Token* first
 }
 
 // PUBLIC: Parse assignment (stateless)
-char* arithmetic_parse_assignment_stateless(Lexer* lexer, Token* first_token, ArithmeticExpr** expr) {
+char* arithmetic_parse_assignment_stateless(Lexer* lexer, Token* first_token, ArithmeticExpr** expr, FunctionDeclaration* func) {
     if (!lexer || !first_token || !expr) return NULL;
     
     if (first_token->type != TOKEN_IDENTIFIER) return NULL;
@@ -1981,7 +1983,7 @@ char* arithmetic_parse_assignment_stateless(Lexer* lexer, Token* first_token, Ar
     }
     
     // Parse expression
-    *expr = arithmetic_parse_expression_stateless(lexer, expr_tok);
+    *expr = arithmetic_parse_expression_stateless(lexer, expr_tok, func);
     token_free(expr_tok);
     
     if (!*expr) {

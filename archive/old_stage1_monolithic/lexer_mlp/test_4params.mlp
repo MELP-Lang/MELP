@@ -1,8 +1,8 @@
-function test4(numeric a, numeric b, numeric c, numeric d) returns numeric
+function test4(numeric a; numeric b; numeric c; numeric d) returns numeric
     return a + b + c + d
 end function
 
 function main() returns numeric
-    numeric result = test4(1, 2, 3, 4)
+    numeric result = test4(1; 2; 3; 4)
     return result
 end function

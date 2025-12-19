@@ -48,7 +48,7 @@ PrintStatement* parse_print_statement(Lexer* lexer, Token* print_token) {
             // It's an expression - use arithmetic parser
             lexer_unget_token(lexer, next);
             
-            ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok);
+            ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok, NULL);
             if (!expr) {
                 token_free(tok);
                 free(stmt);
@@ -63,7 +63,7 @@ PrintStatement* parse_print_statement(Lexer* lexer, Token* print_token) {
             if (next) lexer_unget_token(lexer, next);
             
             // Create simple variable expression
-            ArithmeticExpr* var_expr = arithmetic_parse_expression_stateless(lexer, tok);
+            ArithmeticExpr* var_expr = arithmetic_parse_expression_stateless(lexer, tok, NULL);
             if (!var_expr) {
                 token_free(tok);
                 free(stmt);
@@ -76,7 +76,7 @@ PrintStatement* parse_print_statement(Lexer* lexer, Token* print_token) {
         }
     } else {
         // Try to parse as general expression (numbers, etc.)
-        ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok);
+        ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok, NULL);
         if (!expr) {
             fprintf(stderr, "Error: Expected expression in print()\n");
             token_free(tok);

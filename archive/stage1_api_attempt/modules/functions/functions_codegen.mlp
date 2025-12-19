@@ -101,7 +101,7 @@ end_function
 -- Output: string - LLVM IR code
 --
 -- STATELESS: Pure function, no side effects
-function codegen_function_prologue(string func_name, list params, numeric return_type) returns string
+function codegen_function_prologue(string func_name; list params; numeric return_type) returns string
     string ir = ""
     
     -- 1. Function signature
@@ -175,7 +175,7 @@ end_function
 -- Output: string - LLVM IR code
 --
 -- STATELESS: Pure function, no side effects
-function codegen_function_epilogue(numeric return_type, string return_value) returns string
+function codegen_function_epilogue(numeric return_type; string return_value) returns string
     string ir = ""
     
     string llvm_return_type = return_type_to_llvm(return_type)
@@ -201,7 +201,7 @@ end_function
 -- Output: string - Complete LLVM IR for function
 --
 -- STATELESS: Pure function, no side effects
-function codegen_function_declaration(list func_decl, string body_ir) returns string
+function codegen_function_declaration(list func_decl; string body_ir) returns string
     string func_name = func_decl[0]
     list params = func_decl[1]
     numeric return_type = func_decl[2]
@@ -209,13 +209,13 @@ function codegen_function_declaration(list func_decl, string body_ir) returns st
     string ir = ""
     
     -- Prologue
-    ir = ir + codegen_function_prologue(func_name, params, return_type)
+    ir = ir + codegen_function_prologue(func_name; params; return_type)
     
     -- Body
     ir = ir + body_ir
     
     -- Epilogue (with default return for now)
-    ir = ir + codegen_function_epilogue(return_type, "0")
+    ir = ir + codegen_function_epilogue(return_type; "0")
     
     return ir
 end_function
@@ -228,7 +228,7 @@ end_function
 --         next_register - updated register number
 --
 -- STATELESS: Takes state, returns new state
-function codegen_function_call(list func_call, numeric register_num) returns list
+function codegen_function_call(list func_call; numeric register_num) returns list
     string func_name = func_call[0]
     list args = func_call[1]
     
@@ -287,7 +287,7 @@ end_function
 -- Output: string - LLVM IR code
 --
 -- STATELESS: Pure function, no side effects
-function codegen_return_statement(list return_stmt, numeric return_type) returns string
+function codegen_return_statement(list return_stmt; numeric return_type) returns string
     list return_value = return_stmt[0]
     
     string ir = ""
@@ -315,7 +315,7 @@ end_function
 -- Output: list [ir_code, next_register]
 --
 -- STATELESS: Takes state, returns new state
-function codegen_param_load(string param_name, numeric param_type, numeric register_num) returns list
+function codegen_param_load(string param_name; numeric param_type; numeric register_num) returns list
     string llvm_type = param_type_to_llvm(param_type)
     
     string result_reg = "%" + string(register_num)
