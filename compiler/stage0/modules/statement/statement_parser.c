@@ -58,6 +58,7 @@ Statement* statement_parse(Parser* parser) {
                 return NULL;
             }
         
+        case TOKEN_END:  // YZ_30: Generic 'end' keyword (Python-style function terminator)
         case TOKEN_END_WHILE:
         case TOKEN_END_FOR:
         case TOKEN_END_FUNCTION:

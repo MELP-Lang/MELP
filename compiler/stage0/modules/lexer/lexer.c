@@ -339,7 +339,12 @@ Token* lexer_next_token(Lexer* lexer) {
         return make_token_ws(TOKEN_PLUS, "+", lexer->line, had_whitespace);
     }
     
+    // YZ_30: Check for -> (arrow) operator before checking minus
     if (c == '-') {
+        if (lexer->source[lexer->pos + 1] == '>') {
+            lexer->pos += 2;
+            return make_token_ws(TOKEN_RETURNS, "->", lexer->line, had_whitespace);
+        }
         lexer->pos++;
         return make_token_ws(TOKEN_MINUS, "-", lexer->line, had_whitespace);
     }

@@ -43,9 +43,16 @@ ComparisonExpr* comparison_parse_expression_stateless(Lexer* lexer, Token* first
     } else if (first_token->type == TOKEN_IDENTIFIER) {
         // Check if this is a boolean variable without comparison operator
         Token* lookahead = lexer_next_token(lexer);
+        // YZ_30: Also check for TOKEN_DO (while flag do), TOKEN_NEWLINE, and other block starters
+        // If next token is NOT a comparison operator, treat as boolean condition
         if (lookahead && (lookahead->type == TOKEN_THEN || lookahead->type == TOKEN_AND || 
-                          lookahead->type == TOKEN_OR || lookahead->type == TOKEN_RPAREN)) {
-            // Boolean variable: if flag then...
+                          lookahead->type == TOKEN_OR || lookahead->type == TOKEN_RPAREN ||
+                          lookahead->type == TOKEN_DO ||
+                          lookahead->type == TOKEN_IDENTIFIER ||  // Next statement (while flag\n  x = ...)
+                          lookahead->type == TOKEN_NUMERIC ||     // Type keyword means body started
+                          lookahead->type == TOKEN_STRING_TYPE ||
+                          lookahead->type == TOKEN_BOOLEAN)) {
+            // Boolean variable: if flag then... OR while flag do... OR while flag (newline)
             lexer_unget_token(lexer, lookahead);
             expr->left_value = strdup(first_token->value);
             expr->left_is_literal = 0;

@@ -804,11 +804,14 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
         // 
         // LIMITATION: Lexer only supports 1-token pushback, so we can't lookahead 2 tokens
         // SOLUTION: Use naming heuristic for common patterns
+        // YZ_30: Enhanced heuristics - more function patterns
         int is_list_access_syntax = 0;
         if (*current && (*current)->type == TOKEN_LPAREN && !is_known_func) {
             // Not a known function - use heuristic to distinguish
-            // Common function name prefixes: parse_, get_, create_, is_, check_, has_, to_
+            // Common function name prefixes/patterns
             int looks_like_function = 0;
+            
+            // Prefix-based patterns
             if (strncmp(identifier, "parse_", 6) == 0 ||
                 strncmp(identifier, "get_", 4) == 0 ||
                 strncmp(identifier, "create_", 7) == 0 ||
@@ -821,8 +824,151 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
                 strncmp(identifier, "add_", 4) == 0 ||
                 strncmp(identifier, "remove_", 7) == 0 ||
                 strncmp(identifier, "set_", 4) == 0 ||
-                strncmp(identifier, "find_", 5) == 0) {
+                strncmp(identifier, "find_", 5) == 0 ||
+                strncmp(identifier, "read_", 5) == 0 ||
+                strncmp(identifier, "write_", 6) == 0 ||
+                strncmp(identifier, "emit_", 5) == 0 ||
+                strncmp(identifier, "generate_", 9) == 0 ||
+                strncmp(identifier, "compile_", 8) == 0 ||
+                strncmp(identifier, "process_", 8) == 0 ||
+                strncmp(identifier, "handle_", 7) == 0 ||
+                strncmp(identifier, "init_", 5) == 0 ||
+                strncmp(identifier, "free_", 5) == 0 ||
+                strncmp(identifier, "alloc_", 6) == 0 ||
+                strncmp(identifier, "new_", 4) == 0 ||
+                strncmp(identifier, "delete_", 7) == 0 ||
+                strncmp(identifier, "load_", 5) == 0 ||
+                strncmp(identifier, "save_", 5) == 0 ||
+                strncmp(identifier, "open_", 5) == 0 ||
+                strncmp(identifier, "close_", 6) == 0 ||
+                strncmp(identifier, "print_", 6) == 0 ||
+                strncmp(identifier, "scan_", 5) == 0 ||
+                strncmp(identifier, "next_", 5) == 0 ||
+                strncmp(identifier, "prev_", 5) == 0 ||
+                strncmp(identifier, "first_", 6) == 0 ||
+                strncmp(identifier, "last_", 5) == 0 ||
+                strncmp(identifier, "push_", 5) == 0 ||
+                strncmp(identifier, "pop_", 4) == 0 ||
+                strncmp(identifier, "peek_", 5) == 0 ||
+                strncmp(identifier, "clear_", 6) == 0 ||
+                strncmp(identifier, "reset_", 6) == 0 ||
+                strncmp(identifier, "update_", 7) == 0 ||
+                strncmp(identifier, "append_", 7) == 0 ||
+                strncmp(identifier, "insert_", 7) == 0 ||
+                strncmp(identifier, "count_", 6) == 0 ||
+                strncmp(identifier, "len_", 4) == 0 ||
+                strncmp(identifier, "size_", 5) == 0) {
                 looks_like_function = 1;
+            }
+            
+            // YZ_30: Exact match for common short function names
+            // These are typical math/utility functions
+            if (!looks_like_function) {
+                if (strcmp(identifier, "add") == 0 ||
+                    strcmp(identifier, "sub") == 0 ||
+                    strcmp(identifier, "mul") == 0 ||
+                    strcmp(identifier, "div") == 0 ||
+                    strcmp(identifier, "mod") == 0 ||
+                    strcmp(identifier, "pow") == 0 ||
+                    strcmp(identifier, "sqrt") == 0 ||
+                    strcmp(identifier, "abs") == 0 ||
+                    strcmp(identifier, "min") == 0 ||
+                    strcmp(identifier, "max") == 0 ||
+                    strcmp(identifier, "sum") == 0 ||
+                    strcmp(identifier, "avg") == 0 ||
+                    strcmp(identifier, "len") == 0 ||
+                    strcmp(identifier, "size") == 0 ||
+                    strcmp(identifier, "count") == 0 ||
+                    strcmp(identifier, "print") == 0 ||
+                    strcmp(identifier, "println") == 0 ||
+                    strcmp(identifier, "read") == 0 ||
+                    strcmp(identifier, "write") == 0 ||
+                    strcmp(identifier, "open") == 0 ||
+                    strcmp(identifier, "close") == 0 ||
+                    strcmp(identifier, "push") == 0 ||
+                    strcmp(identifier, "pop") == 0 ||
+                    strcmp(identifier, "peek") == 0 ||
+                    strcmp(identifier, "append") == 0 ||
+                    strcmp(identifier, "insert") == 0 ||
+                    strcmp(identifier, "remove") == 0 ||
+                    strcmp(identifier, "clear") == 0 ||
+                    strcmp(identifier, "reset") == 0 ||
+                    strcmp(identifier, "init") == 0 ||
+                    strcmp(identifier, "free") == 0 ||
+                    strcmp(identifier, "alloc") == 0 ||
+                    strcmp(identifier, "malloc") == 0 ||
+                    strcmp(identifier, "realloc") == 0 ||
+                    strcmp(identifier, "calloc") == 0 ||
+                    strcmp(identifier, "strcmp") == 0 ||
+                    strcmp(identifier, "strlen") == 0 ||
+                    strcmp(identifier, "strcpy") == 0 ||
+                    strcmp(identifier, "strcat") == 0 ||
+                    strcmp(identifier, "memcpy") == 0 ||
+                    strcmp(identifier, "memset") == 0 ||
+                    strcmp(identifier, "floor") == 0 ||
+                    strcmp(identifier, "ceil") == 0 ||
+                    strcmp(identifier, "round") == 0 ||
+                    strcmp(identifier, "sin") == 0 ||
+                    strcmp(identifier, "cos") == 0 ||
+                    strcmp(identifier, "tan") == 0 ||
+                    strcmp(identifier, "log") == 0 ||
+                    strcmp(identifier, "exp") == 0 ||
+                    strcmp(identifier, "rand") == 0 ||
+                    strcmp(identifier, "srand") == 0 ||
+                    strcmp(identifier, "exit") == 0 ||
+                    strcmp(identifier, "assert") == 0 ||
+                    strcmp(identifier, "error") == 0 ||
+                    strcmp(identifier, "warn") == 0 ||
+                    strcmp(identifier, "debug") == 0 ||
+                    strcmp(identifier, "info") == 0 ||
+                    strcmp(identifier, "trace") == 0 ||
+                    strcmp(identifier, "call") == 0 ||
+                    strcmp(identifier, "invoke") == 0 ||
+                    strcmp(identifier, "run") == 0 ||
+                    strcmp(identifier, "exec") == 0 ||
+                    strcmp(identifier, "eval") == 0 ||
+                    strcmp(identifier, "apply") == 0 ||
+                    strcmp(identifier, "map") == 0 ||
+                    strcmp(identifier, "filter") == 0 ||
+                    strcmp(identifier, "reduce") == 0 ||
+                    strcmp(identifier, "sort") == 0 ||
+                    strcmp(identifier, "reverse") == 0 ||
+                    strcmp(identifier, "find") == 0 ||
+                    strcmp(identifier, "search") == 0 ||
+                    strcmp(identifier, "index") == 0 ||
+                    strcmp(identifier, "contains") == 0 ||
+                    strcmp(identifier, "exists") == 0 ||
+                    strcmp(identifier, "empty") == 0 ||
+                    strcmp(identifier, "full") == 0 ||
+                    strcmp(identifier, "copy") == 0 ||
+                    strcmp(identifier, "clone") == 0 ||
+                    strcmp(identifier, "dup") == 0 ||
+                    strcmp(identifier, "swap") == 0 ||
+                    strcmp(identifier, "move") == 0 ||
+                    strcmp(identifier, "shift") == 0 ||
+                    strcmp(identifier, "unshift") == 0 ||
+                    strcmp(identifier, "slice") == 0 ||
+                    strcmp(identifier, "splice") == 0 ||
+                    strcmp(identifier, "concat") == 0 ||
+                    strcmp(identifier, "join") == 0 ||
+                    strcmp(identifier, "split") == 0 ||
+                    strcmp(identifier, "trim") == 0 ||
+                    strcmp(identifier, "upper") == 0 ||
+                    strcmp(identifier, "lower") == 0 ||
+                    strcmp(identifier, "format") == 0 ||
+                    strcmp(identifier, "parse") == 0 ||
+                    strcmp(identifier, "encode") == 0 ||
+                    strcmp(identifier, "decode") == 0 ||
+                    strcmp(identifier, "hash") == 0 ||
+                    strcmp(identifier, "compare") == 0 ||
+                    strcmp(identifier, "equals") == 0 ||
+                    strcmp(identifier, "match") == 0 ||
+                    strcmp(identifier, "test") == 0 ||
+                    strcmp(identifier, "check") == 0 ||
+                    strcmp(identifier, "verify") == 0 ||
+                    strcmp(identifier, "validate") == 0) {
+                    looks_like_function = 1;
+                }
             }
             
             // Decision: list access only if does NOT look like function
