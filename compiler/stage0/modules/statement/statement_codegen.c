@@ -134,8 +134,29 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
                 
                 fprintf(output, "    # Variable: %s at %d(%%rbp)\n", decl->name, offset);
                 
-                // ✅ NEW: Handle array initialization
-                if (decl->is_array && decl->value && decl->value[0] == '[') {
+                // ✅ YZ_99: Handle array declaration with size (numeric[5] arr)
+                if (decl->is_array && decl->array_size > 0 && (!decl->value || decl->value[0] != '[')) {
+                    // Array declaration without initializer - allocate only
+                    fprintf(output, "    # Array declaration: %s[%d]\n", decl->name, decl->array_size);
+                    
+                    // Register array for bounds checking
+                    function_register_array_var(func, decl->name, decl->array_size, 1);
+                    
+                    // YZ_99: Create .rodata string literal for array name (for bounds check error messages)
+                    fprintf(output, "\n.section .rodata\n");
+                    fprintf(output, ".str_arr_%s:\n", decl->name);
+                    fprintf(output, "    .string \"%s\"\n", decl->name);
+                    fprintf(output, ".text\n\n");
+                    
+                    // Allocate array via STO runtime
+                    fprintf(output, "    movq $%d, %%rdi      # count\n", decl->array_size);
+                    fprintf(output, "    movq $8, %%rsi       # elem_size (8 bytes)\n");
+                    fprintf(output, "    call sto_array_alloc # Returns pointer in %%rax\n");
+                    fprintf(output, "    movq %%rax, %d(%%rbp)  # Store array pointer at %s\n", 
+                            offset, decl->name);
+                }
+                // ✅ Handle array initialization with literal
+                else if (decl->is_array && decl->value && decl->value[0] == '[') {
                     // Array literal: [1, 2, 3]
                     fprintf(output, "    # Array initialization: %s = %s\n", decl->name, decl->value);
                     
@@ -162,6 +183,12 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
                     
                     // Register array with length for bounds checking
                     function_register_array_var(func, decl->name, element_count, 1);
+                    
+                    // YZ_99: Create .rodata string literal for array name (for bounds check error messages)
+                    fprintf(output, "\n.section .rodata\n");
+                    fprintf(output, ".str_arr_%s:\n", decl->name);
+                    fprintf(output, "    .string \"%s\"\n", decl->name);
+                    fprintf(output, ".text\n\n");
                     
                     // Allocate array via STO runtime
                     fprintf(output, "    # Allocate array with %d elements\n", element_count);

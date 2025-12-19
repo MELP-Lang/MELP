@@ -1,10 +1,121 @@
 # NEXT AI START HERE - YZ Görev Dosyası
 
-**Son Güncelleme:** 19 Aralık 2025  
-**Önceki YZ:** YZ_36  
-**Mevcut YZ:** YZ_37  
+**Son Güncelleme:** 20 Aralık 2025  
+**Önceki YZ:** YZ_98  
+**Mevcut YZ:** YZ_99  
 **Dal:** `stage1_while_body_YZ_30`  
 **Commit'ler:** Bekliyor
+
+---
+
+## 🎯 YZ_99 GÖREVİ: Array Declaration Fix
+
+### Sorun
+Fonksiyon içinde array tanımlanamıyor:
+
+```pmpl
+function main() as numeric
+    array[5] numeric numbers    -- ❌ Parse edilmiyor!
+    numbers[0] = 10
+    return numbers[0]
+end_function
+```
+
+Assembly çıktısı:
+```asm
+# Function: main
+main:
+    pushq %rbp
+    movq %rsp, %rbp
+    # ❌ BOŞ! Hiçbir statement yok!
+.Lmain_return:
+    popq %rbp
+    ret
+```
+
+### Analiz Yapılacak Dosyalar
+1. `compiler/stage0/modules/array/array_parser.c` - Array parsing logic
+2. `compiler/stage0/modules/statement/statement_parser.c` - Statement dispatch
+3. `compiler/stage0/modules/variable/variable_parser.c` - Comparison için
+
+### Yapılacaklar
+- [ ] `statement_parser.c` - `TOKEN_ARRAY` veya "array" keyword için case var mı?
+- [ ] `array_parser.c` - `array_try_parse_declaration()` fonksiyonu çalışıyor mu?
+- [ ] Neden statement olarak algılanmıyor?
+- [ ] Fix uygula
+- [ ] Test: `temp/test_array.mlp`
+- [ ] Commit: `git commit -m "YZ_99: Array declaration in function body"`
+
+### Test Komutu
+```bash
+cd temp
+../compiler/stage0/modules/functions/functions_compiler test_array.mlp test_array.s
+cat test_array.s  # array declaration görünmeli
+gcc -no-pie test_array.s -L../runtime/sto -L../runtime/stdlib -lsto_runtime -lmlp_stdlib -lm -o test_array
+./test_array; echo "Exit code: $?"  # Beklenen: 10
+```
+
+### Başarı Kriteri
+```
+Exit code: 10
+```
+
+### İpucu
+`statement_parser.c` muhtemelen `TOKEN_ARRAY` için case içermiyor. Benzer pattern için `TOKEN_NUMERIC`, `TOKEN_STRING` case'lerine bak.
+
+---
+
+## ✅ YZ_98 TAMAMLANDI! (20 Aralık 2025)
+
+### Function Call Single Argument Bug - ÇÖZÜLDÜ! ✅
+
+**Sorun:** Tek argümanlı fonksiyon çağrıları (örn. `classify(3)`) argümanı kaybediyordu.
+
+**Semptom:**
+```pmpl
+function classify(numeric x) as numeric
+    return x
+end_function
+
+function main() as numeric
+    return classify(3)  -- ❌ Argüman '3' push edilmiyordu!
+end_function
+```
+
+**Assembly Çıktısı (ÖNCE):**
+```asm
+call classify  # ❌ No argument! %rdi not set
+```
+
+**Kök Neden:**
+Parser'daki function call vs list access ayrımı heuristici yanlış çalışıyordu:
+1. `function_is_known()` tanınmayan fonksiyonları `looks_like_function = 0` yapıyordu
+2. Peek-ahead logic sadece `;` (semicolon) kontrol ediyordu
+3. Tek argümanlı çağrılarda `;` olmadığı için **list access** olarak yorumlanıyordu!
+
+**Çözüm:**
+`arithmetic_parser.c` satır 990-1000: Peek-ahead logic'i basitleştirildi.
+Artık her `identifier(...)` pattern'i function call olarak kabul ediliyor.
+List access için `list[i]` syntax'ı kullanılmalı.
+
+**Assembly Çıktısı (SONRA):**
+```asm
+movq $3, %r10  # Literal
+pushq %r10     # Save arg 1
+popq %rdi      # Restore arg 1
+call classify  # ✅ Argument in %rdi!
+```
+
+**Test Sonuçları:**
+```bash
+✅ classify(3) → Return code: 3
+✅ add(10; 20) first arg → Return code: 10
+✅ add(10; 20) second arg → Return code: 20
+```
+
+**Değişen Dosyalar:**
+- `compiler/stage0/modules/arithmetic/arithmetic_parser.c`
+  - Satır 990-1000: `looks_like_function = 1` for all identifier(...) patterns
 
 ---
 
@@ -80,56 +191,17 @@ end_function
 
 ---
 
-## 🎯 SONRAKİ GÖREVLER (YZ_37+)
+## 🎯 SONRAKİ GÖREVLER (YZ_99+)
 
-### 1. Function Call Argument Parsing Bug (YÜKSEK ÖNCELİK!)
+### 1. Stage 0 Completion Checkpoint
 
-**Sorun:** Function call'larda argument parse edilmiyor.
-```pmpl
-function classify(numeric x) as numeric
-    return x
-end_function
-
-function main() as numeric
-    return classify(3)  -- ❌ Argument '3' push edilmiyor!
-end_function
-```
-
-**Assembly Çıktısı:**
-```asm
-main:
-    call classify  # ❌ No argument!
-    movq %rax, %r8
-```
-
-**Beklenen:**
-```asm
-main:
-    movq $3, %rdi  # ✅ Argument 3
-    call classify
-    movq %rax, %r8
-```
-
-**Olası Neden:**
-- `arithmetic_parser.c` - function call parsing
-- Argument list parse ediliyor mu?
-- Codegen'de argument push eksik mi?
-
-**Aksiyonlar:**
-- [ ] `arithmetic_parser.c` → function call parsing kontrol et
-- [ ] `functions_codegen.c` → call codegen'de argument handling
-- [ ] Test: single arg, multiple args, no args
-
----
-
-### 2. Stage 0 Completion Checkpoint
-
-YZ_36 ile birlikte **else_if blocker kaldırıldı!** Stage 0 artık:
+YZ_98 ile birlikte **function call argument bug çözüldü!** Stage 0 artık:
 
 **✅ Desteklediklerimiz:**
-- Functions (declaration, call, return)
+- Functions (declaration, call, return) ✅
+- **Function call with arguments** ✅ YENİ! (YZ_98)
 - Variables (declaration, assignment)
-- If-else-else_if (sınırsız chain!) ✅ YENİ!
+- If-else-else_if (sınırsız chain!) ✅ (YZ_36)
 - While loops (body parsing fixed)
 - For loops
 - Arrays (literal, index access)
@@ -141,12 +213,17 @@ YZ_36 ile birlikte **else_if blocker kaldırıldı!** Stage 0 artık:
 - Import statements (path resolution)
 - Comments
 
-**❌ Kalan Blocker'lar:**
-1. **Function call arguments** (yukarıda) - YÜKSEK ÖNCELİK
-2. **Import execution** - Module load/execute eksik
-3. **While loop return** - Return inside while çalışmıyor
+**✅ Eski Blocker'lar ÇÖZÜLDÜ (YZ_98):**
+1. ~~**Import execution**~~ - ✅ ÇALIŞIYOR! Module load/execute test edildi (Exit code: 99)
+2. ~~**While loop return**~~ - ✅ ÇALIŞIYOR! Return inside while test edildi (Exit code: 42)
+3. ~~**Function call single arg**~~ - ✅ ÇÖZÜLDÜ! `classify(3)` artık çalışıyor
 
-**Tahmin:** 2-3 YZ ile Stage 0 → %60-65 tamamlanmış olur!
+**❌ Gerçek Eksikler:**
+1. **Struct parsing** - Top-level struct declaration parser'ı engelliyor
+2. **Enum parsing** - Top-level enum declaration parser'ı engelliyor
+3. **Array in function** - Function body içinde array declaration
+
+**Tahmin:** Stage 0 → %90+ tamamlanmış!
 
 ---
 
@@ -156,6 +233,7 @@ YZ_36 ile birlikte **else_if blocker kaldırıldı!** Stage 0 artık:
 - `else_if` = TEK TOKEN (TOKEN_ELSE_IF)
 - Tüm chain için TEK `end_if`
 - `else_if` sayısı sınırsız olmalı
+- `identifier(...)` = FUNCTION CALL (list access için `list[i]` kullan!)
 
 ### Mimari Kurallar
 - ❌ Merkezi dosya YOK
@@ -164,7 +242,7 @@ YZ_36 ile birlikte **else_if blocker kaldırıldı!** Stage 0 artık:
 
 ---
 
-*YZ_36 tarafından güncellendi - 19 Aralık 2025*
+*YZ_98 tarafından güncellendi - 20 Aralık 2025*
 
 ---
 

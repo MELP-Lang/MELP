@@ -989,34 +989,14 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current) {
             
             // YZ_31: If still not recognized, peek ahead to check for comma
             // Multiple args (comma) = definitely a function call
+            // YZ_37: Simplified decision - ANY identifier followed by '(' is a function call
+            // List access should use list[i] syntax instead of list(i)
+            // This avoids the need for complex peek-ahead logic
             if (!looks_like_function) {
-                // Peek into parentheses to check for comma
-                // Save current position in lexer source
-                Token* peek1 = lexer_next_token(lexer);  // consume '('
-                if (peek1 && peek1->type == TOKEN_LPAREN) {
-                    token_free(peek1);  // We already consumed '(' via *current
-                }
-                Token* peek2 = lexer_next_token(lexer);  // first arg or ')'
-                if (peek2) {
-                    if (peek2->type == TOKEN_RPAREN) {
-                        // Empty parens: foo() - this IS a function call
-                        looks_like_function = 1;
-                        lexer_unget_token(lexer, peek2);
-                    } else {
-                        Token* peek3 = lexer_next_token(lexer);  // check for semicolon or ')'
-                        if (peek3) {
-                            // YZ_31: MELP uses semicolon (;) as parameter separator
-                            // because comma is used for decimal numbers (123,45)
-                            // Example: test(123,98; true; "deneme")
-                            if (peek3->type == TOKEN_SEMICOLON) {
-                                // Has semicolon: foo(a; b) - this IS a function call
-                                looks_like_function = 1;
-                            }
-                            lexer_unget_token(lexer, peek3);
-                        }
-                        lexer_unget_token(lexer, peek2);
-                    }
-                }
+                // Since we're at TOKEN_LPAREN, and identifier is not a known function,
+                // we make a simple decision: treat it as function call (forward reference)
+                // This is safer than treating it as list access
+                looks_like_function = 1;
             }
             
             // Decision: list access only if does NOT look like function

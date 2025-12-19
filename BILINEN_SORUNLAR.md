@@ -1,7 +1,7 @@
 # 🎉 BİLİNEN SORUNLAR - STAGE 0 & STAGE 1
 
-**Son Güncelleme:** 19 Aralık 2025 (YZ_31)  
-**Durum:** Parser %85 çalışır durumda  
+**Son Güncelleme:** 20 Aralık 2025 (YZ_98)  
+**Durum:** Parser %90+ çalışır durumda  
 **Branch:** `stage1_while_body_YZ_30`
 
 ---
@@ -89,7 +89,7 @@ end_function            -- ✅ Alt çizgi ile TEK token!
 | Return | ✅ | `return x` |
 | exit_while | ✅ | `exit_while` |
 | continue_while | ✅ | `continue_while` |
-| Import (parse) | ⚠️ | Parse ediyor, execution test edilmeli |
+| Import (parse + exec) | ✅ | Parse ediyor VE çalıştırıyor |
 
 ---
 
@@ -114,9 +114,9 @@ end_function            -- ✅ Alt çizgi ile TEK token!
 **Dosya:** `compiler/stage0/modules/enum/enum.c`
 
 ### 4. Import Execution
-**Durum:** ⚠️ Kısmen çalışıyor  
-**Sorun:** Import statement parse ediliyor ama modül execute edilmiyor  
-**Etki:** Modüller arası fonksiyon çağrısı çalışmıyor  
+**Durum:** ✅ ÇÖZÜLDÜ (YZ_98)  
+**Test:** Import edilen modüldeki fonksiyonlar çağrılabiliyor  
+**Kanıt:** `test_import_main.mlp` → Exit code: 99 (helper_func çağrıldı)  
 **Dosya:** `compiler/stage0/modules/functions/functions_standalone.c`
 
 ---
@@ -326,17 +326,39 @@ cd compiler/stage0/modules/functions
 | **Array** | ❌ | Parse edilmiyor |
 | **Struct** | ❌ | Parser'ı engelliyor |
 | **Enum** | ❌ | Parser'ı engelliyor |
-| Import | ⚠️ | Parse ✅, Execution ❌ |
+| Import | ✅ | Parse ✅, Execution ✅ |
 
-**Tahmini Parser Tamamlanma: ~85%**
+**Tahmini Parser Tamamlanma: ~90%**
 
 ---
 
 ## 🎯 GELECEKTEKİ YZ'LER İÇİN ÖNCELİKLER
 
 1. **Struct Desteği** - Top-level struct parsing düzelt
-2. **Enum Desteği** - Top-level enum parsing düzelt
+2. **Enum Desteği** - Top-level enum parsing düzelt  
 3. **Array Desteği** - Function body içinde array declaration
-4. **Import Execution** - Modüller arası çağrı test et
-5. **Stage 1 Test** - `archive/stage1_api_attempt/modules/` test et
+4. ~~**Import Execution**~~ - ✅ ÇÖZÜLDÜ (YZ_98)
+5. **Stage 1 Test** - `compiler/stage1_old/modules/` test et
+
+---
+
+## ✅ YZ_98 ÇÖZÜLEN SORUNLAR (20 Aralık 2025)
+
+### ✅ While Loop Return
+**Durum:** ✅ ÇALIŞIYOR  
+**Test:** While içinden `return 42` → Exit code: 42  
+**Assembly:** `jmp .Lfind_value_return` doğru üretiliyor  
+**Dosya:** `compiler/stage0/modules/control_flow/`
+
+### ✅ Import Execution  
+**Durum:** ✅ ÇALIŞIYOR  
+**Test:** `import "lib.mlp"` → `helper_func()` çağrıldı → Exit code: 99  
+**Assembly:** Import edilen fonksiyonlar ana dosyaya ekleniyor  
+**Dosya:** `compiler/stage0/modules/functions/functions_standalone.c`
+
+### ✅ Function Call Single Argument Bug
+**Durum:** ✅ ÇÖZÜLDÜ  
+**Sorun:** `classify(3)` argümanı kaybediyordu (0 args)  
+**Çözüm:** Heuristic basitleştirildi - tüm `identifier(...)` = function call  
+**Dosya:** `compiler/stage0/modules/arithmetic/arithmetic_parser.c`
 
