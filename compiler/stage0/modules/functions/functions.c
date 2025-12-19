@@ -21,6 +21,16 @@ void function_add_param(FunctionDeclaration* func, const char* name, FunctionPar
     param->name = strdup(name);
     param->type = type;
     param->struct_type_name = NULL;  // YZ_84: Initialize struct type
+    // YZ_31: Initialize advanced parameter modifiers
+    param->default_value = NULL;
+    param->default_str = NULL;
+    param->has_default = 0;
+    param->is_ref = 0;
+    param->is_out = 0;
+    param->is_optional = 0;
+    param->is_variadic = 0;
+    param->precision_digits = 0;
+    param->precision_decimals = 0;
     param->next = NULL;
     
     if (func->params == NULL) {
@@ -41,6 +51,16 @@ void function_add_struct_param(FunctionDeclaration* func, const char* name, cons
     param->name = strdup(name);
     param->type = FUNC_PARAM_STRUCT;
     param->struct_type_name = strdup(struct_type);
+    // YZ_31: Initialize advanced parameter modifiers
+    param->default_value = NULL;
+    param->default_str = NULL;
+    param->has_default = 0;
+    param->is_ref = 0;
+    param->is_out = 0;
+    param->is_optional = 0;
+    param->is_variadic = 0;
+    param->precision_digits = 0;
+    param->precision_decimals = 0;
     param->next = NULL;
     
     if (func->params == NULL) {
@@ -70,6 +90,7 @@ void function_free(FunctionDeclaration* func) {
         FunctionParam* next = param->next;
         free(param->name);
         free(param->struct_type_name);  // YZ_84: Free struct type name
+        free(param->default_str);       // YZ_31: Free default value string
         free(param);
         param = next;
     }

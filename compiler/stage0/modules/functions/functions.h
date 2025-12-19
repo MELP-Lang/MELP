@@ -15,8 +15,16 @@ typedef struct FunctionParam {
     char* name;
     FunctionParamType type;
     char* struct_type_name;  // YZ_84: Struct type name (if type == FUNC_PARAM_STRUCT)
-    void* default_value;     // TIER 1: Default parameter value
-    int has_default;         // TIER 1: Whether param has default
+    // YZ_31: Advanced parameter modifiers
+    void* default_value;     // Default parameter value (for := syntax)
+    char* default_str;       // Default value as string (for codegen)
+    int has_default;         // Whether param has default value
+    int is_ref;              // ref keyword - pass by reference
+    int is_out;              // out keyword - output parameter
+    int is_optional;         // optional keyword
+    int is_variadic;         // ... syntax - variadic parameter
+    int precision_digits;    // {X,Y} syntax - total digits (0 = not set)
+    int precision_decimals;  // {X,Y} syntax - decimal places (0 = not set)
     struct FunctionParam* next;
 } FunctionParam;
 

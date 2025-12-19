@@ -194,13 +194,14 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
         // tok points to next token (could be ASSIGN, COMMA, or RPAREN)
         int has_default = 0;
         
-        // Check for default value: = expr
-        if (tok->type == TOKEN_ASSIGN) {
+        // Check for default value: = expr OR := expr (YZ_31: new syntax)
+        if (tok->type == TOKEN_ASSIGN || tok->type == TOKEN_COLON_ASSIGN) {
             token_free(tok);
             tok = lexer_next_token(lexer);
             has_default = 1;
             // Parse default value (simplified - just skip expression)
-            while (tok->type != TOKEN_COMMA && tok->type != TOKEN_RPAREN && tok->type != TOKEN_EOF) {
+            // YZ_31: MELP uses ; as parameter separator, not ,
+            while (tok->type != TOKEN_SEMICOLON && tok->type != TOKEN_RPAREN && tok->type != TOKEN_EOF) {
                 token_free(tok);
                 tok = lexer_next_token(lexer);
             }
@@ -221,8 +222,8 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
         }
         free(param_name);
         
-        // Additional parameters: , type name OR , name: type
-        while (tok->type == TOKEN_COMMA) {
+        // Additional parameters: ; type name OR ; name: type (YZ_31: MELP uses ; as separator)
+        while (tok->type == TOKEN_SEMICOLON) {
             token_free(tok);
             
             tok = lexer_next_token(lexer);
@@ -314,13 +315,14 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
             }
             has_default = 0;
             
-            // Check for default value
-            if (tok->type == TOKEN_ASSIGN) {
+            // Check for default value: = expr OR := expr (YZ_31)
+            if (tok->type == TOKEN_ASSIGN || tok->type == TOKEN_COLON_ASSIGN) {
                 token_free(tok);
                 tok = lexer_next_token(lexer);
                 has_default = 1;
                 // Skip default value expression
-                while (tok->type != TOKEN_COMMA && tok->type != TOKEN_RPAREN && tok->type != TOKEN_EOF) {
+                // YZ_31: MELP uses ; as parameter separator
+                while (tok->type != TOKEN_SEMICOLON && tok->type != TOKEN_RPAREN && tok->type != TOKEN_EOF) {
                     token_free(tok);
                     tok = lexer_next_token(lexer);
                 }
