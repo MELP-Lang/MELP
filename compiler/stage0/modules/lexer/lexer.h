@@ -88,6 +88,7 @@ typedef enum {
     TOKEN_FUNCTION,
     TOKEN_RETURN,
     TOKEN_RETURNS,         // returns (for return type declaration)
+    TOKEN_AS,              // as (alternative for return type: func() as numeric)
     // Struct keywords
     TOKEN_STRUCT,
     TOKEN_ENUM,

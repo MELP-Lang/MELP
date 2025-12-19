@@ -351,10 +351,10 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
     }
     token_free(tok);
     
-    // Optional return type: returns numeric
+    // Optional return type: returns numeric OR as numeric (YZ_31: 'as' alternative)
     tok = lexer_next_token(lexer);
     
-    if (tok && tok->type == TOKEN_RETURNS) {
+    if (tok && (tok->type == TOKEN_RETURNS || tok->type == TOKEN_AS)) {
         token_free(tok);
         tok = lexer_next_token(lexer);
         
