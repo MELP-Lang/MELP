@@ -164,7 +164,13 @@ char* import_resolve_module_path(const char* module_name) {
         snprintf(source_dir, sizeof(source_dir), "%s", dir);
         free(source_copy);
         
-        // Try in source file's directory first
+        // Try in source file's directory first (with .mlp extension)
+        snprintf(path, sizeof(path), "%s/%s.mlp", source_dir, module_name);
+        if (file_exists(path)) {
+            return strdup(path);
+        }
+        
+        // Try without extension (in case module_name already has it)
         snprintf(path, sizeof(path), "%s/%s", source_dir, module_name);
         if (file_exists(path)) {
             return strdup(path);

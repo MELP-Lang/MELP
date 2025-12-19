@@ -8,6 +8,12 @@
 #include "../lexer/lexer.h"
 #include "../import/import.h"
 #include "../import/import_parser.h"
+#include "../struct/struct.h"
+#include "../struct/struct_parser.h"
+#include "../struct/struct_codegen.h"
+#include "../enum/enum.h"
+#include "../enum/enum_parser.h"
+#include "../enum/enum_codegen.h"
 #include "functions.h"
 #include "functions_parser.h"
 #include "functions_codegen.h"
@@ -61,12 +67,16 @@ int main(int argc, char** argv) {
         return 1;
     }
     
-    // Parse all functions (and handle imports)
+    // Parse all top-level declarations (imports, structs, enums, functions)
     FunctionDeclaration* functions = NULL;
     FunctionDeclaration* last_func = NULL;
+    StructDef* structs = NULL;
+    StructDef* last_struct = NULL;
+    EnumDefinition* enums = NULL;
+    EnumDefinition* last_enum = NULL;
     
     while (1) {
-        // Peek next token to check for import
+        // Peek next token to check type
         Token* tok = lexer_next_token(lexer);
         if (!tok || tok->type == TOKEN_EOF) {
             if (tok) token_free(tok);
@@ -100,6 +110,47 @@ int main(int argc, char** argv) {
             continue;
         }
         
+        // YZ_32: Handle struct definitions at top level
+        if (tok->type == TOKEN_STRUCT) {
+            // Create temporary parser for struct parsing
+            Parser temp_parser;
+            temp_parser.lexer = lexer;
+            temp_parser.current_token = NULL;
+            
+            StructDef* struct_def = parse_struct_definition(&temp_parser);
+            token_free(tok);
+            
+            if (struct_def) {
+                printf("📦 Struct: %s\n", struct_def->name);
+                
+                if (!structs) {
+                    structs = struct_def;
+                } else {
+                    last_struct->next = struct_def;
+                }
+                last_struct = struct_def;
+            }
+            continue;
+        }
+        
+        // YZ_32: Handle enum definitions at top level
+        if (tok->type == TOKEN_ENUM) {
+            EnumDefinition* enum_def = enum_parse(lexer, tok);
+            token_free(tok);
+            
+            if (enum_def) {
+                printf("📦 Enum: %s\n", enum_def->name);
+                
+                if (!enums) {
+                    enums = enum_def;
+                } else {
+                    last_enum->next = enum_def;
+                }
+                last_enum = enum_def;
+            }
+            continue;
+        }
+        
         // Put token back for function parser
         lexer_unget_token(lexer, tok);
         
@@ -126,9 +177,35 @@ int main(int argc, char** argv) {
         return 1;
     }
     
-    // Generate assembly header
-    fprintf(output, ".intel_syntax noprefix\n");
-    fprintf(output, ".text\n\n");
+    // Generate assembly header (AT&T syntax - matches register format with % prefix)
+    fprintf(output, ".att_syntax\n");
+    fprintf(output, ".data\n\n");
+    
+    // YZ_32: Generate struct metadata (for runtime type info)
+    StructDef* s = structs;
+    while (s) {
+        // Count fields
+        int field_count = 0;
+        for (StructMember* m = s->members; m; m = m->next) field_count++;
+        
+        fprintf(output, "# Struct: %s (%d fields, size: %zu bytes)\n", 
+                s->name, field_count, s->total_size);
+        s = s->next;
+    }
+    
+    // YZ_32: Generate enum constants
+    EnumDefinition* e = enums;
+    while (e) {
+        fprintf(output, "# Enum: %s\n", e->name);
+        int i = 0;
+        for (EnumValue* v = e->values; v; v = v->next, i++) {
+            fprintf(output, ".equ %s_%s, %ld\n", e->name, v->name, (long)v->value);
+        }
+        fprintf(output, "\n");
+        e = e->next;
+    }
+    
+    fprintf(output, "\n.text\n\n");
     
     // Generate code for each function
     FunctionDeclaration* func = functions;
@@ -140,6 +217,13 @@ int main(int argc, char** argv) {
     // Close output
     fclose(output);
     
+    // Report summary
+    int func_count = 0, struct_count = 0, enum_count = 0;
+    for (FunctionDeclaration* f = functions; f; f = f->next) func_count++;
+    for (StructDef* st = structs; st; st = st->next) struct_count++;
+    for (EnumDefinition* en = enums; en; en = en->next) enum_count++;
+    
     printf("✅ Compiled %s -> %s\n", input_file, output_file);
+    printf("   📊 %d functions, %d structs, %d enums\n", func_count, struct_count, enum_count);
     return 0;
 }

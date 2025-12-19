@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "module_path": "/tmp/mlp_test/helper.mlp",
+  "source_mtime": 1766143730,
+  "object_mtime": 0,
+  "object_path": null,
+  "assembly_path": "helper.s",
+  "functions": [
+    "square"
+  ],
+  "dependencies": [
+  ]
+}

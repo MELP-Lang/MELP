@@ -1,12 +1,11 @@
 {
   "version": "1.0",
-  "module_path": "modules/core/math_utils.mlp",
-  "source_mtime": 1766001158,
+  "module_path": "/tmp/mlp_import_test/math.mlp",
+  "source_mtime": 1766145124,
   "object_mtime": 0,
   "object_path": null,
-  "assembly_path": "math_utils.s",
+  "assembly_path": "math.s",
   "functions": [
-    "add",
     "multiply"
   ],
   "dependencies": [

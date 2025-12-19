@@ -115,8 +115,8 @@ EnumDefinition* enum_parse(Lexer* lexer, Token* enum_tok) {
         enum_definition_add_value(def, enum_val);
     }
     
-    // Register the enum
-    enum_register(def);
+    // Note: Caller is responsible for adding to their list
+    // enum_register() removed to avoid double-linking
     
     return def;
 }

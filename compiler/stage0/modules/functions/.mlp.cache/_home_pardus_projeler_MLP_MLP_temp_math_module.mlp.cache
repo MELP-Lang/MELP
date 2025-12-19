@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "module_path": "/home/pardus/projeler/MLP/MLP/temp/math_module.mlp",
+  "source_mtime": 1766173715,
+  "object_mtime": 0,
+  "object_path": null,
+  "assembly_path": "math_module.s",
+  "functions": [
+    "add",
+    "multiply"
+  ],
+  "dependencies": [
+  ]
+}

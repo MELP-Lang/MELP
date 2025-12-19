@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "module_path": "/home/pardus/projeler/MLP/MLP/temp/test_module.mlp",
+  "source_mtime": 1766173607,
+  "object_mtime": 0,
+  "object_path": null,
+  "assembly_path": "test_module.s",
+  "functions": [
+    "helper"
+  ],
+  "dependencies": [
+  ]
+}
