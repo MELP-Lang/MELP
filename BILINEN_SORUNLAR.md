@@ -6,6 +6,71 @@
 
 ---
 
+## 🚨🚨🚨 YENİ YZ'LER İÇİN KRİTİK UYARILAR 🚨🚨🚨
+
+### ⚠️ PMPL vs MLP AYRIMI - ÇOK ÖNEMLİ!
+
+MELP'te **İKİ FARKLI SYNTAX** vardır:
+
+| Katman | Adı | Kim Görür | Örnek |
+|--------|-----|-----------|-------|
+| Kullanıcı | **MLP** | Kullanıcı | `end if`, `end function`, `set x = 5` |
+| Derleyici | **PMPL** | Lexer/Parser | `end_if`, `end_function`, `numeric x = 5` |
+
+**Stage 0 derleyicisi SADECE PMPL görür!**
+
+### ❌ YANLIŞ (MLP Syntax - Derleyici Anlamaz!):
+```mlp
+function test()
+    set i = 0           -- ❌ 'set' keyword YOK!
+    while i < 10 do     -- ❌ 'do' keyword opsiyonel ama PMPL'de yok
+        set i = i + 1   -- ❌ 'set' YOK!
+    end while           -- ❌ İki kelime! 
+end function            -- ❌ İki kelime!
+```
+
+### ✅ DOĞRU (PMPL Syntax - Derleyici Bunu Anlar!):
+```pmpl
+function test() returns numeric
+    numeric i = 0       -- ✅ Tip adı + değişken adı + değer
+    while i < 10        -- ✅ 'do' yok!
+        i = i + 1       -- ✅ Direkt atama
+    end_while           -- ✅ Alt çizgi ile TEK token!
+    return i
+end_function            -- ✅ Alt çizgi ile TEK token!
+```
+
+### 📋 PMPL Syntax Kuralları:
+
+| Özellik | MLP (Kullanıcı) | PMPL (Derleyici) |
+|---------|-----------------|------------------|
+| Değişken tanımlama | `set x = 5` | `numeric x = 5` |
+| Fonksiyon sonu | `end function` | `end_function` |
+| While sonu | `end while` | `end_while` |
+| If sonu | `end if` | `end_if` |
+| For sonu | `end for` | `end_for` |
+| Struct sonu | `end struct` | `end_struct` |
+| Else if | `else if` | `else_if` |
+| While döngüsü | `while x do` | `while x` (do YOK!) |
+
+### 📖 ZORUNLU OKUMA LİSTESİ:
+
+**Test yapmadan önce bu belgeleri MUTLAKA okuyun:**
+
+1. **`PMPL_SYNTAX.md`** - PMPL'nin resmi syntax referansı
+2. **`MELP_Mimarisi.md`** - MLP vs PMPL farkı
+3. **`ARCHITECTURE.md`** - Modüler yapı kuralları
+
+### 🔴 SIK YAPILAN HATALAR:
+
+1. **`set` kullanmak** → PMPL'de `set` YOK! `numeric x = 5` kullan
+2. **`end function` yazmak** → `end_function` olmalı (alt çizgi!)
+3. **`while x do` yazmak** → `while x` yeterli (do opsiyonel)
+4. **Virgül ile parametre** → `;` kullan! (`func(a; b; c)`)
+5. **Ondalık için nokta** → `,` kullan! (`3,14` Türk notasyonu)
+
+---
+
 ## ✅ YZ_30 + YZ_31 ÇÖZÜLEN SORUNLAR
 
 ### ✅ #1: Arrow Operator (->) Parse Edilmiyordu
@@ -156,4 +221,64 @@ Sayılar:
 Fonksiyon çağrısı:
   func(arg1; arg2; arg3)  - Parametre ayracı ; (noktalı virgül)
 ```
+
+---
+
+## 🧪 TEST YAPARKEN DİKKAT!
+
+### Doğru Test Dosyası Örneği:
+
+```pmpl
+-- test_example.mlp (PMPL syntax!)
+function factorial(numeric n) returns numeric
+    if n <= 1
+        return 1
+    end_if
+    return n * factorial(n - 1)
+end_function
+
+function test_while() returns numeric
+    numeric i = 0
+    numeric sum = 0
+    while i < 10
+        sum = sum + i
+        i = i + 1
+    end_while
+    return sum
+end_function
+```
+
+### Test Komutu:
+```bash
+cd compiler/stage0/modules/functions
+./functions_compiler test_example.mlp output.s
+```
+
+---
+
+## 📊 PARSER DURUMU
+
+| Özellik | Durum | Not |
+|---------|-------|-----|
+| Fonksiyon tanımlama | ✅ | `function name() returns type` |
+| While döngüsü | ✅ | `while cond ... end_while` |
+| If-else | ✅ | `if cond ... else_if ... else ... end_if` |
+| For döngüsü | ✅ | `for i = 0 to 10 ... end_for` |
+| Değişken tanımlama | ✅ | `numeric x = 5` |
+| Atama | ✅ | `x = x + 1` |
+| Return | ✅ | `return value` |
+| Import | ⚠️ | Parse ediliyor, execution test edilmeli |
+| Struct | ✅ | `struct Name ... end_struct` |
+| Enum | ✅ | `enum Name ... end_enum` |
+
+**Tahmini Parser Tamamlanma: ~95%**
+
+---
+
+## 🎯 GELECEKTEKİ YZ'LER İÇİN ÖNCELİKLER
+
+1. **Import Execution Testi** - Modüller arası çağrı çalışıyor mu?
+2. **Stage 1 Modül Testi** - `archive/stage1_api_attempt/modules/` test et
+3. **Bootstrap Testi** - Self-hosting proof of concept
+4. **Hata Mesajları** - Daha açıklayıcı hata mesajları
 
