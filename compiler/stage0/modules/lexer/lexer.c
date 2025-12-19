@@ -192,6 +192,9 @@ static Token* read_identifier(Lexer* lexer) {
     else if (strcmp(value, "import") == 0) type = TOKEN_IMPORT;
     // Const keyword
     else if (strcmp(value, "const") == 0) type = TOKEN_CONST;
+    else if (strcmp(value, "ref") == 0) type = TOKEN_REF;  // YZ_31: reference parameter
+    else if (strcmp(value, "out") == 0) type = TOKEN_OUT;  // YZ_31: output parameter
+    else if (strcmp(value, "optional") == 0) type = TOKEN_OPTIONAL;  // YZ_31: optional parameter
     // Struct keywords
     else if (strcmp(value, "struct") == 0) type = TOKEN_STRUCT;
     else if (strcmp(value, "enum") == 0) type = TOKEN_ENUM;
@@ -404,6 +407,11 @@ Token* lexer_next_token(Lexer* lexer) {
     }
     
     if (c == ':') {
+        // YZ_31: Check for := (default value assignment)
+        if (lexer->source[lexer->pos + 1] == '=') {
+            lexer->pos += 2;
+            return make_token_ws(TOKEN_COLON_ASSIGN, ":=", lexer->line, had_whitespace);
+        }
         lexer->pos++;
         return make_token_ws(TOKEN_COLON, ":", lexer->line, had_whitespace);
     }
@@ -423,7 +431,23 @@ Token* lexer_next_token(Lexer* lexer) {
         return make_token_ws(TOKEN_RBRACKET, "]", lexer->line, had_whitespace);
     }
     
+    // YZ_31: Curly braces for precision syntax {5,14}
+    if (c == '{') {
+        lexer->pos++;
+        return make_token_ws(TOKEN_LBRACE, "{", lexer->line, had_whitespace);
+    }
+    
+    if (c == '}') {
+        lexer->pos++;
+        return make_token_ws(TOKEN_RBRACE, "}", lexer->line, had_whitespace);
+    }
+    
     if (c == '.') {
+        // YZ_31: Check for ... (ellipsis/variadic)
+        if (lexer->source[lexer->pos + 1] == '.' && lexer->source[lexer->pos + 2] == '.') {
+            lexer->pos += 3;
+            return make_token_ws(TOKEN_ELLIPSIS, "...", lexer->line, had_whitespace);
+        }
         lexer->pos++;
         return make_token_ws(TOKEN_DOT, ".", lexer->line, had_whitespace);
     }
