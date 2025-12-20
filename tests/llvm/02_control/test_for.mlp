@@ -1,0 +1,7 @@
+function main() returns numeric
+    numeric sum = 0
+    for (numeric i = 0; i < 6; i = i + 1)
+        sum = sum + i
+    end for
+    return sum
+end function

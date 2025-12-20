@@ -1,0 +1,10 @@
+Test,ASM_Compile,LLVM_Compile
+test_basic.mlp,YES,YES
+test_func.mlp,YES,YES
+test_simple_main.mlp,YES,YES
+test_if_boolean.mlp,YES,YES
+test_while_simple.mlp,YES,YES
+test_for_simple.mlp,YES,YES
+test_llvm_assign.mlp,YES,YES
+test_llvm_if.mlp,YES,YES
+test_llvm_functions.mlp,YES,YES

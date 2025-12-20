@@ -1,0 +1,7 @@
+function main() returns numeric
+    numeric x = 10
+    if (x > 5)
+        return 99
+    end if
+    return 0
+end function

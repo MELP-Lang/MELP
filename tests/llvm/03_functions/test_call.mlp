@@ -1,0 +1,7 @@
+function helper() returns numeric
+    return 15
+end function
+
+function main() returns numeric
+    return helper()
+end function

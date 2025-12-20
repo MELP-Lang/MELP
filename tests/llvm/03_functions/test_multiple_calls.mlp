@@ -1,0 +1,13 @@
+function double(numeric x) returns numeric
+    return x * 2
+end function
+
+function triple(numeric x) returns numeric
+    return x * 3
+end function
+
+function main() returns numeric
+    numeric a = double(5)
+    numeric b = triple(5)
+    return a + b
+end function

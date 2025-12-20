@@ -1,0 +1,6 @@
+function main() returns numeric
+    numeric a = 50
+    numeric b = 30
+    numeric c = 20
+    return a + b + c
+end function

@@ -1,0 +1,8 @@
+function main() returns numeric
+    numeric x = 3
+    if (x > 5)
+        return 0
+    else
+        return 55
+    end if
+end function

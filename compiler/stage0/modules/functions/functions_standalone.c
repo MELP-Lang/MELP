@@ -50,7 +50,7 @@ static char* read_file(const char* path) {
 }
 
 int main(int argc, char** argv) {
-    BackendType backend = BACKEND_ASSEMBLY;  // Default
+    BackendType backend = BACKEND_LLVM;  // Default: LLVM (YZ_04)
     const char* input_file = NULL;
     const char* output_file = NULL;
     
@@ -70,8 +70,8 @@ int main(int argc, char** argv) {
         } else if (strcmp(argv[i], "--help") == 0) {
             printf("Usage: %s [options] <input.mlp> <output>\n", argv[0]);
             printf("Options:\n");
-            printf("  --backend=assembly    Generate x86-64 assembly (default)\n");
-            printf("  --backend=llvm        Generate LLVM IR\n");
+            printf("  --backend=llvm        Generate LLVM IR (default)\n");
+            printf("  --backend=assembly    Generate x86-64 assembly (legacy)\n");
             printf("  --help                Show this help\n");
             return 0;
         } else if (!input_file) {
