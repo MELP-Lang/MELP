@@ -1,13 +1,52 @@
 # NEXT AI START HERE - YZ Görev Dosyası
 
 **Son Güncelleme:** 20 Aralık 2025 (YZ_ÜA_02)  
-**Mevcut YZ:** YZ_111 🎯 (Sonraki görev bekliyor)  
+**Mevcut YZ:** YZ_112 🎯 (Tuple Parser Desteği)  
 **Dal:** `stage1_list_literal_fix_YZ_106`  
-**Durum:** 🎉 TÜM BUG'LAR ÇÖZÜLDÜ! Stage 0 %99+ tamamlandı!
+**Durum:** Stage 0 %99+ | Stage 1 tuple syntax düzeltme bekliyor
 
 ---
 
-## 🎉🎉🎉 BÜYÜK MİLESTONE TAMAMLANDI! 🎉🎉🎉
+## 🎯 YZ_112: Tuple Return in Expression - PARSER FIX
+
+### Problem
+`return <a; b>` syntax'ı çalışmıyor. Parser tuple literal'i tanıyor ama return statement'da kullanınca hata veriyor.
+
+### Test Case
+```pmpl
+function main() as numeric
+    return <10; 20>
+end_function
+```
+**Hata:** `Error: Unexpected token in arithmetic expression`
+
+### Analiz (YZ_ÜA_02 tarafından)
+1. `arithmetic_parser.c` satır 1609: Tuple literal `<x; y>` parsing VAR ✅
+2. `statement_parser.c` satır 579: Return expression parsing VAR ✅
+3. **Sorun:** `arithmetic_parse_expression_stateless()` çağrısı TOKEN_LANGLE'ı tanımıyor olabilir
+
+### Kontrol Edilecek Dosyalar
+- `compiler/stage0/modules/arithmetic/arithmetic_parser.c` - `parse_primary_stateless()` (satır ~1609)
+- `compiler/stage0/modules/statement/statement_parser.c` - Return parsing (satır ~579)
+
+### Başarı Kriteri
+```bash
+cat > /tmp/test.mlp << 'EOF'
+function main() as numeric
+    return <10; 20>
+end_function
+EOF
+./functions_compiler /tmp/test.mlp /tmp/test.s
+# Hata olmamalı, tuple derlenmeli
+```
+
+### İlgili Belgeler
+- `logs/STAGE1_MODULE_ANALYSIS.md` - Stage 1 modül sorunları
+- `pmlp_kesin_sozdizimi.md` - Tuple syntax: `<elem1; elem2>`
+
+---
+
+## 🎉 ÖNCEKİ BAŞARILAR
 
 ### Stage 0 Bug Fix Serisi - TÜM BUG'LAR ÇÖZÜLDÜ!
 
@@ -17,11 +56,15 @@
 | YZ_109 | Struct/Enum in Comparison | Member access | ✅ |
 | YZ_110 | List Index Access | Dereference | ✅ |
 
+### Bootstrap Test
+- ✅ `bootstrap_minimal.mlp` derlendi
+- ✅ Exit code 230 (10+20 + 10*20 = 230)
+
 ### Proje Durumu
 
 ```
 Stage 0: %99+ TAMAMLANDI! 🎉
-Stage 1: %88 (~14/16 modül)
+Stage 1: %88 (~14/16 modül) - Tuple fix sonrası %95+ olacak
 Import:  Tree Shaking aktif ✅
 Bug'lar: 3/3 ÇÖZÜLDÜ ✅
 ```
