@@ -1,6 +1,7 @@
 #include "comparison_codegen.h"
 #include "../functions/functions.h"  // For variable offset lookup
 #include "../enum/enum.h"  // YZ_35: For enum value access
+#include "../struct/struct.h"  // YZ_109: For struct member access in comparisons
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -74,14 +75,45 @@ static void load_value(FILE* output, const char* value, int is_literal, int reg_
                         fprintf(output, "    movq 8(%%r%d), %%r%d  # Load .length\n", reg_num + 8, reg_num + 8);
                     }
                 } else {
-                    // Unsupported member - fallback to variable lookup
-                    fprintf(output, "    # Warning: Unsupported member access: %s\n", value);
-                    if (context) {
-                        FunctionDeclaration* func = (FunctionDeclaration*)context;
-                        int offset = function_get_var_offset(func, value);
-                        fprintf(output, "    movq %d(%%rbp), %%r%d  # Load %s\n", offset, reg_num + 8, value);
+                    // YZ_109: Try struct member access
+                    StructInstanceInfo* inst_info = struct_lookup_instance(base_var);
+                    if (inst_info) {
+                        // Found struct instance - load member
+                        StructDef* def = inst_info->definition;
+                        StructMember* member = def->members;
+                        int member_offset = -1;
+                        
+                        while (member) {
+                            if (strcmp(member->name, member_name) == 0) {
+                                member_offset = member->offset;
+                                break;
+                            }
+                            member = member->next;
+                        }
+                        
+                        if (member_offset != -1) {
+                            // Calculate final offset
+                            if (inst_info->is_pointer) {
+                                fprintf(output, "    movq %d(%%rbp), %%r10  # Load struct pointer\n", inst_info->stack_offset);
+                                fprintf(output, "    movq %d(%%r10), %%r%d  # Load %s.%s\n", member_offset, reg_num + 8, base_var, member_name);
+                            } else {
+                                int final_offset = inst_info->stack_offset - member_offset;
+                                fprintf(output, "    movq %d(%%rbp), %%r%d  # Load %s.%s\n", -final_offset, reg_num + 8, base_var, member_name);
+                            }
+                        } else {
+                            fprintf(output, "    # ERROR: Member '%s' not found in struct\n", member_name);
+                            fprintf(output, "    movq $0, %%r%d\n", reg_num + 8);
+                        }
                     } else {
-                        fprintf(output, "    movq (%s), %%r%d\n", value, reg_num + 8);
+                        // Unsupported member - fallback to variable lookup
+                        fprintf(output, "    # Warning: Unsupported member access: %s\n", value);
+                        if (context) {
+                            FunctionDeclaration* func = (FunctionDeclaration*)context;
+                            int offset = function_get_var_offset(func, value);
+                            fprintf(output, "    movq %d(%%rbp), %%r%d  # Load %s\n", offset, reg_num + 8, value);
+                        } else {
+                            fprintf(output, "    movq (%s), %%r%d\n", value, reg_num + 8);
+                        }
                     }
                 }
                 

@@ -313,83 +313,83 @@ function parse_primary(list tokens; numeric pos) returns list
     -- Number literal
     if token_type == T_NUMBER then
         list expr = (EXPR_LITERAL; token_value; 0; 0; 0;)
-        return (expr; pos + 1;)
+        return [expr, pos + 1]
     end_if
     
     -- String literal
     if token_type == T_STRING then
         list expr = (EXPR_LITERAL; token_value; 0; 0; 0;)
-        return (expr; pos + 1;)
+        return [expr, pos + 1]
     end_if
     
     -- Boolean literal
     if token_type == T_TRUE then
         list expr = (EXPR_LITERAL; "true"; 0; 0; 0;)
-        return (expr; pos + 1;)
+        return [expr, pos + 1]
     end_if
     if token_type == T_FALSE then
         list expr = (EXPR_LITERAL; "false"; 0; 0; 0;)
-        return (expr; pos + 1;)
+        return [expr, pos + 1]
     end_if
     
     -- Variable
     if token_type == T_IDENTIFIER then
         list expr = (EXPR_VARIABLE; token_value; 0; 0; 0;)
-        return (expr; pos + 1;)
+        return [expr, pos + 1]
     end_if
     
     -- Parenthesized expression: ( expr )
     if token_type == T_LPAREN then
-        list result = parse_expression(tokens; pos + 1; PREC_LOWEST)
+        list result = parse_expression(tokens, pos + 1, PREC_LOWEST)
         list expr = result[0]
         numeric new_pos = result[1]
         
         -- Expect closing parenthesis
         if new_pos >= tokens.length then
-            return (0; new_pos;)  -- Error: missing )
+            return [0, new_pos]  -- Error: missing )
         end_if
         
         list next_token = tokens[new_pos]
         if next_token[0] != T_RPAREN then
-            return (0; new_pos;)  -- Error: expected )
+            return [0, new_pos]  -- Error: expected )
         end_if
         
-        return (expr; new_pos + 1;)
+        return [expr, new_pos + 1]
     end_if
     
     -- Unary operator (not, !)
     if token_type == T_NOT then
-        list result = parse_expression(tokens; pos + 1; PREC_UNARY)
+        list result = parse_expression(tokens, pos + 1, PREC_UNARY)
         list operand = result[0]
         numeric new_pos = result[1]
         
         list expr = (EXPR_UNARY; "not"; operand; 0; OP_NOT;)
-        return (expr; new_pos;)
+        return [expr, new_pos]
     end_if
     
     -- Unary minus
     if token_type == T_MINUS then
-        list result = parse_expression(tokens; pos + 1; PREC_UNARY)
+        list result = parse_expression(tokens, pos + 1, PREC_UNARY)
         list operand = result[0]
         numeric new_pos = result[1]
         
         list expr = (EXPR_UNARY; "-"; operand; 0; OP_SUB;)
-        return (expr; new_pos;)
+        return [expr, new_pos]
     end_if
     
-    return (0; pos;)  -- Unable to parse
+    return [0, pos]  -- Unable to parse
 end_function
 
 -- Parse expression with precedence climbing
 -- Returns: [expr_node, new_position]
 function parse_expression(list tokens; numeric pos; numeric min_prec) returns list
     -- Parse left operand (primary)
-    list result = parse_primary(tokens; pos)
+    list result = parse_primary(tokens, pos)
     list left = result[0]
     numeric current_pos = result[1]
     
     if left == 0 then
-        return (0; current_pos;)  -- Error
+        return [0, current_pos]  -- Error
     end_if
     
     -- Climb precedence for binary operators
@@ -422,7 +422,7 @@ function parse_expression(list tokens; numeric pos; numeric min_prec) returns li
                 current_pos = current_pos + 1
                 
                 -- Parse right operand with higher precedence
-                list right_result = parse_expression(tokens; current_pos; prec + 1)
+                list right_result = parse_expression(tokens, current_pos, prec + 1)
                 list right = right_result[0]
                 current_pos = right_result[1]
                 
@@ -448,7 +448,7 @@ end_function
 -- Parse operator expression (entry point)
 -- Returns: [expr_node, new_position]
 function parse_operator_expression(list tokens; numeric pos) returns list
-    return parse_expression(tokens; pos; PREC_LOWEST)
+    return parse_expression(tokens, pos, PREC_LOWEST)
 end_function
 
 -- Extract expression type

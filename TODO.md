@@ -1,9 +1,11 @@
 # MELP Stage 0 Parser - Görev Listesi
 
-**Son Güncelleme:** 20 Aralık 2025 (YZ_102)  
-**Branch:** `stage1_while_body_YZ_30`  
+**Son Güncelleme:** 20 Aralık 2025 (YZ_ÜA_02)  
+**Branch:** `stage1_list_literal_fix_YZ_106`  
 **Parser Durumu:** %97+ tamamlandı 🎉  
-**Bootstrap:** Başladı! 🚀
+**Stage 1:** %88 (~14/16 modül) 🚀  
+**Import:** Tree Shaking aktif ✅  
+**Variable Lookup:** Struct+Enum comparison fix ✅ (YZ_109)
 
 ---
 
@@ -18,27 +20,125 @@
 | For loop | ✅ | `for i = 1 to 10 ... end_for` |
 | If/else_if/else (sınırsız) | ✅ | `if ... else_if ... else_if ... else ... end_if` |
 | Import execution | ✅ | `import "lib.mlp"` → fonksiyon çağrılıyor |
+| **Import Tree Shaking** | ✅ | Parse hatası → Skip + Continue (YZ_108) |
 | Struct definition | ✅ | `struct Point ... end_struct` |
 | Struct instantiation | ✅ | `Point p`, `p.x = 10` |
-| **Struct field in expr** | ✅ | `return pt.x` (YZ_102 verified) |
 | Enum definition | ✅ | `enum Color ... end_enum` |
 | **Enum initialization** | ✅ | `Color c = Color.Red` (YZ_101) |
-| **Enum variable usage** | ✅ | `return c` (YZ_102 fixed!) |
 | **Array declaration** | ✅ | `numeric[5] arr` (YZ_99) |
 | Array access | ✅ | `arr[0] = 10`, `return arr[0]` |
 | String operations | ✅ | `length(name)`, string literal |
 | Variable declaration | ✅ | `numeric x = 5`, `string s = "hi"` |
 | Print/println | ✅ | `print("hello")` |
-| **Stage 1 Bootstrap** | ✅ | `bootstrap_test_fixed.mlp` runs! |
 
-### ⏸️ Ertelenen Sorunlar:
-| Özellik | Sorun | Durum |
-|---------|-------|-------|
-| **List index access** | `mylist(0)` fonksiyon çağrısı sanılıyor | ⏸️ Context geçirme gerekiyor |
+### ⏸️ Bilinen Sorunlar (Bug Fix Bekliyor):
+| Bug | Sorun | YZ | Durum |
+|-----|-------|-----|-------|
+| **#1: List index** | `mylist(0)` fonksiyon çağrısı sanılıyor | YZ_110 | ⏸️ Bekliyor |
+| ~~**#2: Struct field**~~ | ~~`return pt.x` codegen eksik~~ | ~~YZ_109~~ | ✅ **ÇÖZÜLDÜ** |
+| ~~**#3: Enum variable**~~ | ~~`return c` variable okuyamıyor~~ | ~~YZ_109~~ | ✅ **ÇÖZÜLDÜ** |
 
 ---
 
-## 🎯 YZ GÖREVLERİ
+## 🎯 AKTİF YZ GÖREVLERİ
+
+### ✅ YZ_109: Variable Lookup Fix (Bug #2 + #3) - TAMAMLANDI!
+**Tamamlanma:** 20 Aralık 2025  
+**Dosya:** `compiler/stage0/modules/comparison/comparison_codegen.c`
+
+**Keşif:**
+- Bug #2 (Struct field): `arithmetic_codegen.c` zaten çalışıyordu ✅
+- Bug #3 (Enum variable): Zaten çalışıyordu ✅
+- **Gerçek Sorun:** `comparison_codegen.c` struct member access desteklemiyordu
+
+**Fix:**
+- Header: `#include "../struct/struct.h"` eklendi
+- `load_value()` fonksiyonuna struct member access logic eklendi
+- `struct_lookup_instance()` ile instance bulma
+- Member offset hesaplama + pointer/value handling
+
+**Test Sonuçları:**
+- ✅ Struct field return: Exit 10
+- ✅ Struct field in if: Exit 42
+- ✅ Enum variable: Exit 2
+- ✅ Comprehensive: Exit 18
+
+**Sonraki:** YZ_110 (Bug #1: List index access)
+
+---
+
+### ✅ YZ_108: Import Warning → Skip Fix - TAMAMLANDI!
+**Tamamlanma:** 20 Aralık 2025  
+**Dosya:** `compiler/stage0/modules/import/import.c`
+
+**Değişiklik:**
+- Parse hatası → Fatal error → Modül iptal ❌
+- Parse hatası → Warning + Skip → Döngü devam ✅
+
+**Sonuç:**
+- Stage 1: %75 → %88 (12/16 → 14+/16)
+- Import chain çalışıyor
+- Rust-Style Tree Shaking aktif
+
+---
+
+### 📋 YZ_109: Variable Lookup Fix (Bug #2 + #3)
+**Öncelik:** 🔴 Yüksek  
+**Tahmini Süre:** 2-4 saat  
+**Dosya:** `compiler/stage0/modules/arithmetic/arithmetic_codegen.c`
+
+**Bug #2: Struct Field in Expression**
+```pmpl
+Point pt
+pt.x = 10
+return pt.x    -- ❌ Variable lookup eksik
+```
+
+**Bug #3: Enum Variable Usage**
+```pmpl
+Color c = Color.Red
+return c    -- ❌ Variable okuyamıyor
+```
+
+**Çözüm:**
+- Variable registry + stack offset tracking
+- İki bug benzer çözüm (aynı dosya)
+
+**Başarı Kriteri:**
+```bash
+# Test struct field
+echo "struct Point numeric x end_struct function main() as numeric Point p p.x = 42 return p.x end_function" > test.mlp
+./functions_compiler test.mlp test.s && gcc -no-pie test.s -o test && ./test
+# Expected: Exit code 42
+```
+
+---
+
+### 📋 YZ_110: List Index Access Fix (Bug #1)
+**Öncelik:** 🟡 Orta  
+**Tahmini Süre:** 1-2 saat  
+**Dosya:** `compiler/stage0/modules/arithmetic/arithmetic_parser.c`
+
+**Sorun:**
+```pmpl
+list numbers = (1; 2; 3;)
+return numbers(0)    -- ❌ Fonksiyon çağrısı sanılıyor
+```
+
+**Çözüm:**
+- Variable vs function disambiguation
+- Symbol table lookup veya heuristic
+
+**Başarı Kriteri:**
+```bash
+# List index test
+./functions_compiler list_test.mlp test.s
+# numbers(0) should return element, not call function
+```
+
+---
+
+## 📋 TAMAMLANAN YZ'LER
 
 ### ✅ YZ_99: Array Declaration Fix - TAMAMLANDI!
 **Tamamlanma:** 20 Aralık 2025  
