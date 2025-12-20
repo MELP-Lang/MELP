@@ -6,6 +6,7 @@
 #include <string.h>
 
 // YZ_61: Stateless pattern - receives already-read 'print' token
+// YZ_23: Support both print(...) and print ... syntax
 PrintStatement* parse_print_statement(Lexer* lexer, Token* print_token) {
     // Verify it's actually a print token (sanity check)
     if (print_token->type != TOKEN_PRINT) {
@@ -13,17 +14,19 @@ PrintStatement* parse_print_statement(Lexer* lexer, Token* print_token) {
         return NULL;
     }
     
-    // Expect '('
+    // YZ_23: Check if next token is '(' (optional parentheses)
     Token* tok = lexer_next_token(lexer);
-    if (tok->type != TOKEN_LPAREN) {
-        fprintf(stderr, "Error: Expected '(' after 'print'\n");
+    int has_parens = 0;
+    
+    if (tok->type == TOKEN_LPAREN) {
+        // Variant 1: print(expr) - with parentheses
+        has_parens = 1;
         token_free(tok);
-        return NULL;
+        tok = lexer_next_token(lexer);
     }
-    token_free(tok);
+    // else: Variant 2: print expr - without parentheses (tok already has first token)
     
     // Parse expression using arithmetic parser (supports all expressions including array indexing)
-    tok = lexer_next_token(lexer);
     
     PrintStatement* stmt = malloc(sizeof(PrintStatement));
     
@@ -45,7 +48,7 @@ PrintStatement* parse_print_statement(Lexer* lexer, Token* print_token) {
             // It's an expression - use arithmetic parser
             lexer_unget_token(lexer, next);
             
-            ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok);
+            ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok, NULL);
             if (!expr) {
                 token_free(tok);
                 free(stmt);
@@ -60,7 +63,7 @@ PrintStatement* parse_print_statement(Lexer* lexer, Token* print_token) {
             if (next) lexer_unget_token(lexer, next);
             
             // Create simple variable expression
-            ArithmeticExpr* var_expr = arithmetic_parse_expression_stateless(lexer, tok);
+            ArithmeticExpr* var_expr = arithmetic_parse_expression_stateless(lexer, tok, NULL);
             if (!var_expr) {
                 token_free(tok);
                 free(stmt);
@@ -73,7 +76,7 @@ PrintStatement* parse_print_statement(Lexer* lexer, Token* print_token) {
         }
     } else {
         // Try to parse as general expression (numbers, etc.)
-        ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok);
+        ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok, NULL);
         if (!expr) {
             fprintf(stderr, "Error: Expected expression in print()\n");
             token_free(tok);
@@ -86,16 +89,18 @@ PrintStatement* parse_print_statement(Lexer* lexer, Token* print_token) {
         // Don't free tok - arithmetic parser consumed it
     }
     
-    // Expect ')'
-    tok = lexer_next_token(lexer);
-    if (tok->type != TOKEN_RPAREN) {
-        fprintf(stderr, "Error: Expected ')' after string\n");
+    // YZ_23: Expect ')' only if we had opening '('
+    if (has_parens) {
+        tok = lexer_next_token(lexer);
+        if (tok->type != TOKEN_RPAREN) {
+            fprintf(stderr, "Error: Expected ')' after expression in print()\n");
+            token_free(tok);
+            free(stmt->value);
+            free(stmt);
+            return NULL;
+        }
         token_free(tok);
-        free(stmt->value);
-        free(stmt);
-        return NULL;
     }
-    token_free(tok);
     
     return stmt;
 }

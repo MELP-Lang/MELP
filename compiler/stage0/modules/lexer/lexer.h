@@ -88,6 +88,7 @@ typedef enum {
     TOKEN_FUNCTION,
     TOKEN_RETURN,
     TOKEN_RETURNS,         // returns (for return type declaration)
+    TOKEN_AS,              // as (alternative for return type: func() as numeric)
     // Struct keywords
     TOKEN_STRUCT,
     TOKEN_ENUM,
@@ -97,6 +98,11 @@ typedef enum {
     // Module keywords
     TOKEN_IMPORT,          // import module_name
     TOKEN_MODULE,          // module keyword
+    // Const keyword
+    TOKEN_CONST,           // const (constant declaration)
+    TOKEN_REF,             // ref (reference parameter)
+    TOKEN_OUT,             // out (output parameter)
+    TOKEN_OPTIONAL,        // optional (optional parameter)
     // I/O keywords
     TOKEN_PRINT,
     TOKEN_PRINTLN,         // println builtin (YZ_47)
@@ -105,12 +111,16 @@ typedef enum {
     TOKEN_RPAREN,          // )
     TOKEN_LBRACKET,        // [
     TOKEN_RBRACKET,        // ]
+    TOKEN_LBRACE,          // { (precision/block)
+    TOKEN_RBRACE,          // } (precision/block)
     TOKEN_LANGLE,          // < (tuple literal, not comparison)
     TOKEN_RANGLE,          // > (tuple literal, not comparison)
     TOKEN_COMMA,           // ,
     TOKEN_COLON,           // :
+    TOKEN_COLON_ASSIGN,    // := (default value assignment)
     TOKEN_SEMICOLON,       // ;
     TOKEN_DOT,             // .
+    TOKEN_ELLIPSIS,        // ... (variadic parameters)
     TOKEN_CONTINUATION,    // _ or \ (line continuation)
     TOKEN_EOF,
     TOKEN_ERROR

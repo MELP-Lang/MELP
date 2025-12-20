@@ -8,6 +8,7 @@
 #include "../arithmetic/arithmetic_parser.h"       // ✅ Expressions
 #include "../arithmetic/arithmetic.h"              // ✅ ArithmeticExpr
 #include "../functions/functions.h"                // ✅ ReturnStatement
+#include "../functions/functions_parser.h"         // ✅ YZ_26: Function parsing
 #include "../lexer/lexer.h"                        // ✅ Token operations
 #include "../error/error.h"                        // ✅ Error handling system
 #include "../array/array.h"                        // ✅ YZ_15: IndexAccess, ArrayAssignment
@@ -20,6 +21,83 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+// Forward declarations
+static Statement* parse_else_chain(Parser* parser);
+static Statement* parse_statement_list(Parser* parser);
+
+// Helper: Parse a list of statements until block terminator
+static Statement* parse_statement_list(Parser* parser) {
+    Statement* head = NULL;
+    Statement* tail = NULL;
+    
+    while (1) {
+        Statement* stmt = statement_parse(parser);
+        if (!stmt) break;
+        
+        if (!head) {
+            head = stmt;
+            tail = stmt;
+        } else {
+            tail->next = stmt;
+            tail = stmt;
+        }
+    }
+    
+    return head;
+}
+
+// Helper: Parse else/else_if chain recursively (YZ_36 - Recursive else_if)
+// Returns: Statement* representing else body (may contain nested if for else_if)
+static Statement* parse_else_chain(Parser* parser) {
+    // Check if current_token has ELSE (set by parent)
+    Token* check = parser->current_token;
+    if (!check || check->type != TOKEN_ELSE) {
+        return NULL;  // No else/else_if
+    }
+    
+    // Consume ELSE token
+    parser->current_token = NULL;
+    token_free(check);
+    
+    // Peek: is it else_if?
+    Token* peek = lexer_next_token(parser->lexer);
+    
+    if (peek && peek->type == TOKEN_IF) {
+        // This is else_if! Create nested if
+        IfStatement* nested_if = control_flow_parse_if(parser->lexer, peek);
+        token_free(peek);
+        
+        if (!nested_if) {
+            return NULL;
+        }
+        
+        // Parse then body of nested if
+        nested_if->then_body = parse_statement_list(parser);
+        
+        // RECURSIVE: Check for more else/else_if in the chain
+        Statement* nested_else = parse_else_chain(parser);
+        if (nested_else) {
+            nested_if->has_else = 1;
+            nested_if->else_body = nested_else;
+        }
+        
+        // Wrap nested if as statement
+        Statement* stmt = statement_create(STMT_IF);
+        stmt->data = nested_if;
+        stmt->next = NULL;
+        return stmt;
+        
+    } else {
+        // Normal else - no if following
+        if (peek) {
+            lexer_unget_token(parser->lexer, peek);
+        }
+        
+        // Parse else body
+        return parse_statement_list(parser);
+    }
+}
 
 // Statement parsing with modular imports
 // Each statement type delegates to its specific module
@@ -55,6 +133,27 @@ Statement* statement_parse(Parser* parser) {
                 }
                 token_free(tok);
                 return NULL;
+            }
+        
+        case TOKEN_END:  // YZ_30: Generic 'end' keyword (Python-style function terminator)
+            {
+                // YZ_30: Check for 'end X' (two-word terminators)
+                // Supports: end function, end if, end while, end for, end struct
+                Token* after = lexer_next_token(parser->lexer);
+                if (after && (after->type == TOKEN_FUNCTION ||
+                              after->type == TOKEN_IF ||
+                              after->type == TOKEN_WHILE ||
+                              after->type == TOKEN_FOR ||
+                              after->type == TOKEN_STRUCT ||
+                              after->type == TOKEN_SWITCH)) {
+                    // 'end X' - consume both tokens
+                    token_free(after);
+                }  else if (after) {
+                    // Not a block keyword - put it back
+                    lexer_unget_token(parser->lexer, after);
+                }
+                token_free(tok);
+                return NULL;  // End of block
             }
         
         case TOKEN_END_WHILE:
@@ -130,86 +229,34 @@ Statement* statement_parse(Parser* parser) {
         return NULL;
     }
     
-    // ✅ ELSE_IF keyword - treat as else clause with nested if
+    // YZ_36: ELSE_IF handling - convert to ELSE + IF for parent
+    // TOKEN_ELSE_IF is a single token, but we need to handle it as ELSE + IF
     if (tok->type == TOKEN_ELSE_IF) {
-        token_free(tok);  // Consume else_if token
+        // This else_if is at the same level as the parent if
+        // We need to:
+        // 1. Free the TOKEN_ELSE_IF
+        // 2. Create synthetic TOKEN_ELSE for current_token
+        // 3. Create synthetic TOKEN_IF and push to lexer
         
-        // Create a synthetic TOKEN_IF to reuse if parsing logic
-        Token* synthetic_if = malloc(sizeof(Token));
-        synthetic_if->type = TOKEN_IF;
-        synthetic_if->value = strdup("if");
-        synthetic_if->line = parser->lexer->line;
-        synthetic_if->has_leading_whitespace = 0;
+        token_free(tok);
         
-        // Parse as new if statement using existing if logic
-        IfStatement* if_data = control_flow_parse_if(parser->lexer, synthetic_if);
-        token_free(synthetic_if);
+        // Create synthetic IF token and push to lexer
+        Token* if_tok = malloc(sizeof(Token));
+        if_tok->type = TOKEN_IF;
+        if_tok->value = strdup("if");
+        if_tok->line = parser->lexer->line;
+        if_tok->has_leading_whitespace = 0;
+        lexer_unget_token(parser->lexer, if_tok);
         
-        if (if_data) {
-            stmt = statement_create(STMT_IF);
-            stmt->data = if_data;
-            stmt->next = NULL;
-            
-            // Parse then body recursively
-            Statement* body_head = NULL;
-            Statement* body_tail = NULL;
-            
-            while (1) {
-                Statement* body_stmt = statement_parse(parser);
-                if (!body_stmt) {
-                    break;
-                }
-                
-                if (!body_head) {
-                    body_head = body_stmt;
-                    body_tail = body_stmt;
-                } else {
-                    body_tail->next = body_stmt;
-                    body_tail = body_stmt;
-                }
-            }
-            
-            if_data->then_body = body_head;
-            
-            // Check for chained else/else_if after this else_if's end_if
-            Token* check_tok = parser->current_token;
-            if (check_tok && check_tok->type == TOKEN_ELSE) {
-                parser->current_token = NULL;
-                token_free(check_tok);
-                if_data->has_else = 1;
-                
-                // Parse else body recursively
-                Statement* else_head = NULL;
-                Statement* else_tail = NULL;
-                
-                while (1) {
-                    Statement* body_stmt = statement_parse(parser);
-                    if (!body_stmt) {
-                        break;
-                    }
-                    
-                    if (!else_head) {
-                        else_head = body_stmt;
-                        else_tail = body_stmt;
-                    } else {
-                        else_tail->next = body_stmt;
-                        else_tail = body_stmt;
-                    }
-                }
-                
-                if_data->else_body = else_head;
-            }
-        }
+        // Create synthetic ELSE token for parent
+        Token* else_tok = malloc(sizeof(Token));
+        else_tok->type = TOKEN_ELSE;
+        else_tok->value = strdup("else");
+        else_tok->line = parser->lexer->line;
+        else_tok->has_leading_whitespace = 0;
+        parser->current_token = else_tok;
         
-        // Signal parent that this was an else_if by putting synthetic ELSE in current_token
-        Token* synthetic_else = malloc(sizeof(Token));
-        synthetic_else->type = TOKEN_ELSE;
-        synthetic_else->value = strdup("else");
-        synthetic_else->line = parser->lexer->line;
-        synthetic_else->has_leading_whitespace = 0;
-        parser->current_token = synthetic_else;
-        
-        return stmt;
+        return NULL;  // Parent will check current_token
     }
     
     // ✅ YZ_35: IMPORT statement - use import module
@@ -267,6 +314,22 @@ Statement* statement_parse(Parser* parser) {
         return stmt;
     }
     
+    // ✅ YZ_26: FUNCTION definition - use functions module
+    if (tok->type == TOKEN_FUNCTION) {
+        // Put token back - parse_function_declaration expects to read it
+        lexer_unget_token(parser->lexer, tok);
+        
+        FunctionDeclaration* func_data = parse_function_declaration(parser->lexer);
+        
+        if (func_data) {
+            stmt = statement_create(STMT_FUNCTION);
+            stmt->data = func_data;
+            stmt->next = NULL;
+        }
+        
+        return stmt;
+    }
+    
     // ✅ WHILE statement - use control_flow module
     if (tok->type == TOKEN_WHILE) {
         // ✅ NEW STATELESS PATTERN - No malloc/free!
@@ -308,7 +371,7 @@ Statement* statement_parse(Parser* parser) {
         return stmt;  // ✅ No more control_flow_parser_free!
     }
     
-    // ✅ IF statement - NEW STATELESS PATTERN!
+    // ✅ IF statement - NEW STATELESS PATTERN! (YZ_36: Recursive else_if)
     if (tok->type == TOKEN_IF) {
         
         // ✅ NEW STATELESS PATTERN - No malloc/free!
@@ -323,63 +386,19 @@ Statement* statement_parse(Parser* parser) {
             stmt->data = if_data;
             stmt->next = NULL;
             
-            // Parse then body recursively
-            Statement* body_head = NULL;
-            Statement* body_tail = NULL;
+            // Parse then body using helper
+            if_data->then_body = parse_statement_list(parser);
             
-            while (1) {
-                Statement* body_stmt = statement_parse(parser);
-                if (!body_stmt) {
-                    break;
-                }
-                
-                if (!body_head) {
-                    body_head = body_stmt;
-                    body_tail = body_stmt;
-                } else {
-                    body_tail->next = body_stmt;
-                    body_tail = body_stmt;
-                }
-            }
-            
-            // ✅ Store then body in IfStatement
-            if_data->then_body = body_head;
-            
-            // ✅ Check for ELSE clause (this is the ONLY difference from while!)
-            // After "end if", statement_parser will have put next token in current_token
-            // This could be "else" or something else
-            Token* check_tok = parser->current_token;
-            if (check_tok && check_tok->type == TOKEN_ELSE) {
-                parser->current_token = NULL;  // Consume "else"
-                token_free(check_tok);
+            // ✅ YZ_36: Check for ELSE/ELSE_IF chain using recursive helper!
+            // After "end_if", statement_parse may have set current_token to ELSE
+            Statement* else_body = parse_else_chain(parser);
+            if (else_body) {
                 if_data->has_else = 1;
-                
-                // Parse else body recursively (SAME AS WHILE/THEN BODY PARSING!)
-                Statement* else_head = NULL;
-                Statement* else_tail = NULL;
-                
-                while (1) {
-                    Statement* body_stmt = statement_parse(parser);
-                    if (!body_stmt) {
-                        break;
-                    }
-                    
-                    if (!else_head) {
-                        else_head = body_stmt;
-                        else_tail = body_stmt;
-                    } else {
-                        else_tail->next = body_stmt;
-                        else_tail = body_stmt;
-                    }
-                }
-                
-                // ✅ Store else body in IfStatement
-                if_data->else_body = else_head;
+                if_data->else_body = else_body;
             }
-            // If no else, just continue
         }
         
-        return stmt;  // ✅ No more control_flow_parser_free!
+        return stmt;  // ✅ Clean and simple!
     }
     
     // ✅ YZ_89: SWITCH statement
@@ -441,9 +460,36 @@ Statement* statement_parse(Parser* parser) {
     }
     
     // ✅ YZ_90: Standalone EXIT - generic loop exit (PMPL spec allows this)
+    // YZ_30: Also handle 'exit while', 'exit for', 'exit if' (two-word syntax)
     if (tok->type == TOKEN_EXIT) {
+        // Check for 'exit X' pattern
+        Token* after = lexer_next_token(parser->lexer);
+        StatementType exit_type = STMT_EXIT;  // Default: generic exit
+        
+        if (after) {
+            if (after->type == TOKEN_WHILE) {
+                exit_type = STMT_EXIT_WHILE;
+                token_free(after);
+            } else if (after->type == TOKEN_FOR) {
+                exit_type = STMT_EXIT_FOR;
+                token_free(after);
+            } else if (after->type == TOKEN_IF) {
+                exit_type = STMT_EXIT_IF;
+                token_free(after);
+            } else if (after->type == TOKEN_FUNCTION) {
+                exit_type = STMT_EXIT_FUNCTION;
+                token_free(after);
+            } else if (after->type == TOKEN_SWITCH) {
+                exit_type = STMT_EXIT_SWITCH;
+                token_free(after);
+            } else {
+                // Not a known block type - put it back
+                lexer_unget_token(parser->lexer, after);
+            }
+        }
+        
         token_free(tok);
-        stmt = statement_create(STMT_EXIT);
+        stmt = statement_create(exit_type);
         stmt->data = NULL;
         stmt->next = NULL;
         return stmt;
@@ -494,7 +540,7 @@ Statement* statement_parse(Parser* parser) {
             return NULL;
         }
         
-        ArithmeticExpr* arg_expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok);
+        ArithmeticExpr* arg_expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok, NULL);
         token_free(expr_tok);
         
         if (!arg_expr) {
@@ -540,7 +586,7 @@ Statement* statement_parse(Parser* parser) {
             return NULL;
         }
         
-        ArithmeticExpr* expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok);
+        ArithmeticExpr* expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok, NULL);
         token_free(expr_tok);
         
         // Create return statement with expression
@@ -553,7 +599,8 @@ Statement* statement_parse(Parser* parser) {
     }
     
     // ✅ Variable declaration - use variable module (STATELESS)
-    if (tok->type == TOKEN_NUMERIC || tok->type == TOKEN_STRING_TYPE || tok->type == TOKEN_BOOLEAN ||
+    // YZ_CONST: Also handle const declarations
+    if (tok->type == TOKEN_CONST || tok->type == TOKEN_NUMERIC || tok->type == TOKEN_STRING_TYPE || tok->type == TOKEN_BOOLEAN ||
         tok->type == TOKEN_ARRAY || tok->type == TOKEN_LIST || tok->type == TOKEN_TUPLE) {
         // Call stateless version - tok is borrowed by variable_parse_declaration
         VariableDeclaration* decl = variable_parse_declaration(parser->lexer, tok);
@@ -604,6 +651,93 @@ Statement* statement_parse(Parser* parser) {
             
             stmt = statement_create(STMT_STRUCT_INSTANCE);
             stmt->data = instance;
+            stmt->next = NULL;
+            return stmt;
+        }
+        
+        // YZ_101: Check if this is an enum variable declaration (Color c = Color.Red)
+        if (enum_is_type(tok->value)) {
+            // This is an enum type!
+            char* enum_type = strdup(tok->value);
+            token_free(tok);
+            
+            // Next token should be variable name
+            Token* var_name_tok = lexer_next_token(parser->lexer);
+            if (!var_name_tok || var_name_tok->type != TOKEN_IDENTIFIER) {
+                free(enum_type);
+                if (var_name_tok) token_free(var_name_tok);
+                error_parser(0, "Expected variable name after enum type '%s'", enum_type);
+                return NULL;
+            }
+            
+            char* var_name = strdup(var_name_tok->value);
+            token_free(var_name_tok);
+            
+            // Check for optional initializer: = EnumType.Value
+            Token* eq_tok = lexer_next_token(parser->lexer);
+            int64_t init_value = 0;
+            int has_initializer = 0;
+            
+            if (eq_tok && eq_tok->type == TOKEN_ASSIGN) {
+                token_free(eq_tok);
+                has_initializer = 1;
+                
+                // Expect: EnumType.ValueName
+                Token* type_tok = lexer_next_token(parser->lexer);
+                if (!type_tok || type_tok->type != TOKEN_IDENTIFIER) {
+                    free(enum_type);
+                    free(var_name);
+                    if (type_tok) token_free(type_tok);
+                    error_parser(0, "Expected enum type in initializer");
+                    return NULL;
+                }
+                
+                Token* dot_tok = lexer_next_token(parser->lexer);
+                if (!dot_tok || dot_tok->type != TOKEN_DOT) {
+                    free(enum_type);
+                    free(var_name);
+                    token_free(type_tok);
+                    if (dot_tok) token_free(dot_tok);
+                    error_parser(0, "Expected '.' in enum value");
+                    return NULL;
+                }
+                token_free(dot_tok);
+                
+                Token* value_tok = lexer_next_token(parser->lexer);
+                if (!value_tok || value_tok->type != TOKEN_IDENTIFIER) {
+                    free(enum_type);
+                    free(var_name);
+                    token_free(type_tok);
+                    if (value_tok) token_free(value_tok);
+                    error_parser(0, "Expected enum value name");
+                    return NULL;
+                }
+                
+                // Lookup enum value
+                init_value = enum_lookup_value(type_tok->value, value_tok->value);
+                if (init_value == -1) {
+                    error_parser(0, "Unknown enum value: %s.%s", type_tok->value, value_tok->value);
+                    free(enum_type);
+                    free(var_name);
+                    token_free(type_tok);
+                    token_free(value_tok);
+                    return NULL;
+                }
+                
+                token_free(type_tok);
+                token_free(value_tok);
+            } else if (eq_tok) {
+                // Not '=' - put it back
+                lexer_unget_token(parser->lexer, eq_tok);
+            }
+            
+            // Create enum variable
+            EnumVariable* enum_var = enum_variable_create(enum_type, var_name, init_value, has_initializer);
+            free(enum_type);
+            free(var_name);
+            
+            stmt = statement_create(STMT_ENUM_VARIABLE);
+            stmt->data = enum_var;
             stmt->next = NULL;
             return stmt;
         }
@@ -692,7 +826,7 @@ Statement* statement_parse(Parser* parser) {
                 return NULL;
             }
             
-            ArithmeticExpr* expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok);
+            ArithmeticExpr* expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok, NULL);
             token_free(expr_tok);
             
             if (!expr) {
@@ -725,7 +859,7 @@ Statement* statement_parse(Parser* parser) {
             lexer_unget_token(parser->lexer, next_tok);
             
             // Parse function call using arithmetic parser
-            ArithmeticExpr* call_expr = arithmetic_parse_expression_stateless(parser->lexer, tok);
+            ArithmeticExpr* call_expr = arithmetic_parse_expression_stateless(parser->lexer, tok, NULL);
             
             if (!call_expr) {
                 token_free(tok);
@@ -782,7 +916,7 @@ Statement* statement_parse(Parser* parser) {
                 return NULL;
             }
             
-            ArithmeticExpr* expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok);
+            ArithmeticExpr* expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok, NULL);
             token_free(expr_tok);
             
             if (!expr) {
@@ -820,7 +954,7 @@ Statement* statement_parse(Parser* parser) {
                 return NULL;
             }
             
-            ArithmeticExpr* expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok);
+            ArithmeticExpr* expr = arithmetic_parse_expression_stateless(parser->lexer, expr_tok, NULL);
             token_free(expr_tok);
             
             if (expr) {

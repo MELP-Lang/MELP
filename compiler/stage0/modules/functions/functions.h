@@ -1,6 +1,8 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
+#include <stdint.h>  // YZ_121: For int64_t
+
 typedef enum {
     FUNC_PARAM_NUMERIC,
     FUNC_PARAM_TEXT,
@@ -15,8 +17,16 @@ typedef struct FunctionParam {
     char* name;
     FunctionParamType type;
     char* struct_type_name;  // YZ_84: Struct type name (if type == FUNC_PARAM_STRUCT)
-    void* default_value;     // TIER 1: Default parameter value
-    int has_default;         // TIER 1: Whether param has default
+    // YZ_31: Advanced parameter modifiers
+    void* default_value;     // Default parameter value (for := syntax)
+    char* default_str;       // Default value as string (for codegen)
+    int has_default;         // Whether param has default value
+    int is_ref;              // ref keyword - pass by reference
+    int is_out;              // out keyword - output parameter
+    int is_optional;         // optional keyword
+    int is_variadic;         // ... syntax - variadic parameter
+    int precision_digits;    // {X,Y} syntax - total digits (0 = not set)
+    int precision_decimals;  // {X,Y} syntax - decimal places (0 = not set)
     struct FunctionParam* next;
 } FunctionParam;
 
@@ -25,7 +35,8 @@ typedef enum {
     FUNC_RETURN_TEXT,
     FUNC_RETURN_BOOLEAN,
     FUNC_RETURN_VOID,
-    FUNC_RETURN_STRUCT  // YZ_84: Struct return type
+    FUNC_RETURN_LIST,    // YZ_30: List return type
+    FUNC_RETURN_STRUCT   // YZ_84: Struct return type
 } FunctionReturnType;
 
 typedef struct Statement Statement;
@@ -41,6 +52,8 @@ typedef struct LocalVariable {
     int tuple_length;  // YZ_21: Tuple element count
     int is_list;       // YZ_22: 1=list, 0=other
     int list_length;   // YZ_22: List element count
+    int is_const;      // YZ_121: 1=const, 0=mutable
+    int64_t const_value;  // YZ_121: Compile-time value if is_const=1
     struct LocalVariable* next;
 } LocalVariable;
 
@@ -86,6 +99,7 @@ void return_statement_free(ReturnStatement* ret);
 void function_register_local_var(FunctionDeclaration* func, const char* name);
 void function_register_local_var_with_type(FunctionDeclaration* func, const char* name, int is_numeric);
 void function_register_array_var(FunctionDeclaration* func, const char* name, int length, int is_numeric);
+void function_set_var_const(FunctionDeclaration* func, const char* name, int64_t value);  // YZ_121
 int function_var_exists(FunctionDeclaration* func, const char* name);  // YZ_25: Check if variable is declared
 const char* function_find_similar_var(FunctionDeclaration* func, const char* name);  // YZ_25: Find similar variable name
 void function_register_tuple_var(FunctionDeclaration* func, const char* name, int length);  // YZ_21

@@ -11,31 +11,48 @@
 // Token ownership: type_token is BORROWED, other tokens are OWNED
 
 // Parse variable declaration: numeric x = 10
+// OR const declaration: const numeric x = 10
 // type_token is BORROWED from caller - don't free it!
 VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token) {
     if (!lexer || !type_token) {
         return NULL;
     }
     
-    // Check for type keyword (type_token is BORROWED)
+    // YZ_CONST: Check if this is a const declaration
+    bool is_const = false;
+    Token* actual_type_token = type_token;
+    
+    if (type_token->type == TOKEN_CONST) {
+        is_const = true;
+        // Read next token for the actual type
+        actual_type_token = lexer_next_token(lexer);
+        if (!actual_type_token) {
+            fprintf(stderr, "Error: Expected type after 'const'\n");
+            return NULL;
+        }
+    }
+    
+    // Check for type keyword (actual_type_token is OWNED if is_const, BORROWED otherwise)
     VarType base_type;
-    if (type_token->type == TOKEN_NUMERIC) {
+    if (actual_type_token->type == TOKEN_NUMERIC) {
         base_type = VAR_NUMERIC;
-    } else if (type_token->type == TOKEN_STRING_TYPE) {
+    } else if (actual_type_token->type == TOKEN_STRING_TYPE) {
         base_type = VAR_STRING;
-    } else if (type_token->type == TOKEN_BOOLEAN) {
+    } else if (actual_type_token->type == TOKEN_BOOLEAN) {
         base_type = VAR_BOOLEAN;
-    } else if (type_token->type == TOKEN_ARRAY) {
+    } else if (actual_type_token->type == TOKEN_ARRAY) {
         base_type = VAR_ARRAY;  // YZ_74: Array type keyword
-    } else if (type_token->type == TOKEN_LIST) {
+    } else if (actual_type_token->type == TOKEN_LIST) {
         base_type = VAR_LIST;
-    } else if (type_token->type == TOKEN_TUPLE) {
+    } else if (actual_type_token->type == TOKEN_TUPLE) {
         base_type = VAR_TUPLE;
     } else {
+        if (is_const) token_free(actual_type_token);
         return NULL;  // Not a variable declaration
     }
     
-    // type_token consumed by reading, read next token (OWNED)
+    // actual_type_token consumed by reading, read next token (OWNED)
+    if (is_const) token_free(actual_type_token);  // YZ_CONST: Free if we owned it
     Token* tok = lexer_next_token(lexer);
     if (!tok) return NULL;
     
@@ -98,6 +115,8 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
     decl->internal_str_type = INTERNAL_RODATA;
     decl->storage = STORAGE_BSS;
     decl->has_decimal_point = 0;
+    decl->is_const = is_const;  // YZ_CONST: Set const flag
+    decl->next = NULL;  // YZ_121: Initialize next pointer
     
     // Phase 2: Initialize STO fields
     decl->sto_info = NULL;
@@ -110,6 +129,13 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
     
     // Check for optional '=' initializer
     if (tok->type != TOKEN_ASSIGN) {
+        // YZ_CONST: Const variables must have initializer
+        if (is_const) {
+            fprintf(stderr, "Error: Const variable '%s' must have an initializer\n", decl->name);
+            variable_declaration_free(decl);
+            token_free(tok);
+            return NULL;
+        }
         // No initializer - just declaration
         // Push back the token we read so caller can use it
         lexer_unget_token(lexer, tok);
@@ -130,12 +156,14 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
         tok->type == TOKEN_STRING ||
         tok->type == TOKEN_LPAREN ||  // YZ_19: list literal (1;2;) or parenthesized expression
         tok->type == TOKEN_LANGLE ||  // YZ_20: tuple literal <1,2>
+        tok->type == TOKEN_LESS ||    // YZ_112: tuple literal with whitespace before < (e.g., "= <1;2>")
         tok->type == TOKEN_NOT ||     // YZ_18: Handle NOT operator
         tok->type == TOKEN_MINUS) {   // YZ_41: Handle unary minus (negative numbers)
         
         // Use stateless arithmetic parser for expression parsing
         // tok is OWNED by us and will be consumed by arithmetic parser
-        ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok);
+        // NULL func for global scope (const declarations at top level)
+        ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok, NULL);
         token_free(tok);  // arithmetic parser borrowed it, we still own it
         
         if (expr) {
@@ -269,7 +297,8 @@ VariableAssignment* variable_parse_assignment(Lexer* lexer, Token* identifier_to
     
     // Parse expression using stateless arithmetic API
     // tok is OWNED and will be consumed
-    ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok);
+    // NULL func for global scope (assignments at top level)
+    ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok, NULL);
     token_free(tok);  // We own it, arithmetic parser borrowed it
     
     if (expr) {

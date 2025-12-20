@@ -78,3 +78,14 @@ docs/.doctrees/
 # Environment
 .env
 .env.local
+temp/build/
+*.o
+*.s
+*.ll
+melp_workshop/editors/mlp_code_editor/node_modules/
+melp_workshop/editors/mlp_pixi_designer/node_modules/
+*/node_modules/
+melp_workshop/
+*/node_modules/
+*.cache
+.mlp.cache/

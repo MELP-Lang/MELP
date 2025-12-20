@@ -11,6 +11,14 @@
 #include "../for_loop/for_loop.h"  // YZ_28: ForLoop type
 #include "../struct/struct.h"      // YZ_84: Struct definitions
 
+// YZ_121: Global const list (temporary hack for const support)
+// TODO: Pass as parameter when refactoring signature
+static VariableDeclaration* global_const_list = NULL;
+
+void function_codegen_set_global_consts(VariableDeclaration* consts) {
+    global_const_list = consts;
+}
+
 // Now we can use real expression codegen AND statement codegen!
 // arithmetic_parse_expression() and arithmetic_generate_code()
 // statement_generate_code() for function bodies
@@ -151,6 +159,12 @@ static void scan_statement_for_variables(FunctionDeclaration* func, Statement* s
             // STO: Register with type flag (1=numeric, 0=string)
             int is_numeric = (decl->type != VAR_STRING) ? 1 : 0;
             function_register_local_var_with_type(func, decl->name, is_numeric);
+            
+            // YZ_121: If const, set const value
+            if (decl->is_const && decl->value) {
+                int64_t const_val = atoll(decl->value);
+                function_set_var_const(func, decl->name, const_val);
+            }
         }
     }
     
@@ -258,6 +272,19 @@ void function_generate_declaration(FILE* output, FunctionDeclaration* func) {
     while (stmt) {
         scan_statement_for_variables(func, stmt);
         stmt = stmt->next;
+    }
+    
+    // YZ_121: Add global consts after scan
+    if (global_const_list) {
+        VariableDeclaration* c = global_const_list;
+        while (c) {
+            if (c->is_const && c->value) {
+                int64_t const_val = atoll(c->value);
+                function_register_local_var_with_type(func, c->name, 1);  // numeric type
+                function_set_var_const(func, c->name, const_val);
+            }
+            c = c->next;
+        }
     }
     
     // NOW generate prologue with correct count

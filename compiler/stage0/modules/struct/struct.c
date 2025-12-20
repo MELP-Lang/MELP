@@ -152,31 +152,39 @@ void struct_member_access_free(MemberAccess* access) {
 }
 
 // YZ_82: Struct definition registry (simple linked list)
-static StructDef* registered_structs = NULL;
+// YZ_34 FIX: Use separate wrapper to avoid conflicting with main struct list
+typedef struct StructRegistryEntry {
+    StructDef* def;
+    struct StructRegistryEntry* next;
+} StructRegistryEntry;
+
+static StructRegistryEntry* registered_structs = NULL;
 
 void struct_register_definition(StructDef* def) {
     if (!def) return;
     
     // Check if already registered (avoid duplicates)
-    StructDef* current = registered_structs;
+    StructRegistryEntry* current = registered_structs;
     while (current) {
-        if (strcmp(current->name, def->name) == 0) {
+        if (strcmp(current->def->name, def->name) == 0) {
             // Already registered, skip
             return;
         }
         current = current->next;
     }
     
-    // Add to front of list
-    def->next = registered_structs;
-    registered_structs = def;
+    // Create new registry entry
+    StructRegistryEntry* entry = malloc(sizeof(StructRegistryEntry));
+    entry->def = def;
+    entry->next = registered_structs;
+    registered_structs = entry;
 }
 
 StructDef* struct_lookup_definition(const char* name) {
-    StructDef* current = registered_structs;
+    StructRegistryEntry* current = registered_structs;
     while (current) {
-        if (strcmp(current->name, name) == 0) {
-            return current;
+        if (strcmp(current->def->name, name) == 0) {
+            return current->def;
         }
         current = current->next;
     }
@@ -184,8 +192,14 @@ StructDef* struct_lookup_definition(const char* name) {
 }
 
 void struct_clear_definitions(void) {
-    // Don't free the structs themselves, just clear the registry
+    // Free registry entries but not the structs themselves
     // The structs are owned by the main compiler
+    StructRegistryEntry* current = registered_structs;
+    while (current) {
+        StructRegistryEntry* next = current->next;
+        free(current);
+        current = next;
+    }
     registered_structs = NULL;
 }
 

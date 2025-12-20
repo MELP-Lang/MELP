@@ -128,6 +128,28 @@ int enum_is_type(const char* name) {
     return enum_lookup(name) != NULL ? 1 : 0;
 }
 
+// YZ_29: Lookup enum value without enum name (unqualified)
+// Searches all registered enums for a matching value name
+// Returns first match (like C enums - collision = first wins)
+int64_t enum_lookup_value_unqualified(const char* value_name) {
+    if (!value_name) return -1;
+    
+    // Search all registered enums
+    EnumDefinition* def = enum_registry;
+    while (def) {
+        EnumValue* val = def->values;
+        while (val) {
+            if (strcmp(val->name, value_name) == 0) {
+                return val->value;  // Found!
+            }
+            val = val->next;
+        }
+        def = def->next;
+    }
+    
+    return -1;  // Not found
+}
+
 void enum_registry_free(void) {
     EnumDefinition* def = enum_registry;
     while (def) {
@@ -136,4 +158,29 @@ void enum_registry_free(void) {
         def = next;
     }
     enum_registry = NULL;
+}
+
+// ============================================================================
+// YZ_101: Enum Variable Functions
+// ============================================================================
+
+EnumVariable* enum_variable_create(const char* enum_type, const char* var_name, 
+                                    int64_t init_value, int has_initializer) {
+    EnumVariable* var = malloc(sizeof(EnumVariable));
+    if (!var) return NULL;
+    
+    var->enum_type = strdup(enum_type);
+    var->var_name = strdup(var_name);
+    var->init_value = init_value;
+    var->has_initializer = has_initializer;
+    
+    return var;
+}
+
+void enum_variable_free(EnumVariable* var) {
+    if (!var) return;
+    
+    if (var->enum_type) free(var->enum_type);
+    if (var->var_name) free(var->var_name);
+    free(var);
 }

@@ -36,17 +36,14 @@ IfStatement* control_flow_parse_if(Lexer* lexer, Token* if_token) {
         return NULL;
     }
     
-    // Read 'then' keyword
+    // YZ_24: 'then' keyword is now OPTIONAL
     tok = lexer_next_token(lexer);
-    if (!tok || tok->type != TOKEN_THEN) {
-        fprintf(stderr, "Error: Expected 'then' after if condition\n");
-        // Free what we own
-        comparison_expr_free(stmt->condition);
-        free(stmt);
-        if (tok) token_free(tok);
-        return NULL;
+    if (tok && tok->type == TOKEN_THEN) {
+        token_free(tok);  // Consume optional 'then'
+    } else if (tok) {
+        // Not 'then' - put it back for body parsing
+        lexer_unget_token(lexer, tok);
     }
-    token_free(tok);  // We read it, we free it
     
     // Don't parse body - statement_parser will handle recursively
     return stmt;
@@ -74,14 +71,8 @@ WhileStatement* control_flow_parse_while(Lexer* lexer, Token* while_token) {
         return NULL;
     }
     
-    // YZ_90: Consume optional 'do' keyword after condition
-    Token* do_tok = lexer_next_token(lexer);
-    if (do_tok && do_tok->type == TOKEN_DO) {
-        token_free(do_tok);  // Consume 'do'
-    } else if (do_tok) {
-        // Not 'do' - put it back for body parsing
-        lexer_unget_token(lexer, do_tok);
-    }
+    // PMPL: No 'do' keyword after while condition
+    // Body will be parsed by statement_parser recursively
     
     // Don't parse body - statement_parser will handle recursively
     return stmt;

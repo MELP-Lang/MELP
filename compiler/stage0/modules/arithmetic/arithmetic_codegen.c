@@ -3,6 +3,7 @@
 #include "../functions/functions.h"  // For FunctionDeclaration type
 #include "../array/array_codegen.h"  // YZ_14: For array access codegen
 #include "../struct/struct.h"  // YZ_82: For member access
+#include "../enum/enum.h"  // YZ_35: For enum value access
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,7 +39,29 @@ static int is_var_string_type(const char* var_name, FunctionDeclaration* func) {
 
 // Generate assembly for loading a value into register
 static void generate_load(FILE* output, const char* value, int reg_num, int is_float, FunctionDeclaration* func) {
-    // If func provided, get actual stack offset
+    // YZ_121: Check if variable is const
+    if (func) {
+        LocalVariable* var = func->local_vars;
+        while (var) {
+            if (strcmp(var->name, value) == 0) {
+                if (var->is_const) {
+                    // Const: load immediate value
+                    if (is_float) {
+                        fprintf(output, "    # TODO: Float const not yet supported\n");
+                        fprintf(output, "    movsd %d(%%rbp), %%xmm%d\n", var->stack_offset, reg_num);
+                    } else {
+                        fprintf(output, "    movq $%ld, %%r%d  # Load const %s\n", 
+                                var->const_value, reg_num + 8, value);
+                    }
+                    return;
+                }
+                break;
+            }
+            var = var->next;
+        }
+    }
+    
+    // Non-const: load from stack
     if (func) {
         int offset = function_get_var_offset(func, value);
         
@@ -121,6 +144,29 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
     // Phase 3.5: Function call
     if (expr->is_function_call && expr->func_call) {
         FunctionCallExpr* call = expr->func_call;
+        
+        // YZ_110: Check if this is actually a list access disguised as function call
+        // This happens when parser cannot determine if identifier is a list variable
+        if (func && function_is_list(func, call->function_name) && call->arg_count == 1) {
+            // Convert function call to list access
+            fprintf(output, "    # List access: %s(index)\n", call->function_name);
+            
+            // Get list variable offset
+            int list_offset = function_get_var_offset(func, call->function_name);
+            
+            // Evaluate index expression
+            arithmetic_generate_code(output, call->arguments[0], func);
+            fprintf(output, "    movq %%r8, %%rsi  # Index in rsi\n");
+            
+            // Load list pointer
+            fprintf(output, "    movq %d(%%rbp), %%rdi  # Load list pointer\n", list_offset);
+            
+            // Call sto_list_get (returns pointer to element)
+            fprintf(output, "    call sto_list_get  # Get element pointer\n");
+            fprintf(output, "    movq (%%rax), %%r8  # Dereference to get value\n");
+            
+            return;
+        }
         
         fprintf(output, "    # Function call: %s()\n", call->function_name);
         
@@ -298,6 +344,99 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
         return;
     }
     
+    // YZ_29: Generic member access (e.g., tokens.length, list.type)
+    // This handles built-in members on collections and variables
+    if (expr->is_member_access && !expr->member_access && expr->value) {
+        // expr->value contains "identifier.member" string
+        fprintf(output, "    # YZ_29: Member access: %s\n", expr->value);
+        
+        // Parse the member access string to get base and member
+        char* dot_pos = strchr(expr->value, '.');
+        if (!dot_pos) {
+            fprintf(output, "    # ERROR: Invalid member access format\n");
+            fprintf(output, "    xorq %%r%d, %%r%d  # Error fallback\n", 
+                    target_reg + 8, target_reg + 8);
+            return;
+        }
+        
+        size_t base_len = dot_pos - expr->value;
+        char* base_name = strndup(expr->value, base_len);
+        char* member_name = strdup(dot_pos + 1);
+        
+        // Handle built-in collection members
+        if (strcmp(member_name, "length") == 0) {
+            // tokens.length -> len(tokens)
+            // Transform into a len() function call
+            fprintf(output, "    # YZ_29: %s.length -> len(%s)\n", base_name, base_name);
+            
+            // Get variable offset
+            int offset = function_get_var_offset(func, base_name);
+            if (offset == 0) {
+                fprintf(output, "    # ERROR: Variable '%s' not found\n", base_name);
+                fprintf(output, "    xorq %%r%d, %%r%d  # Error fallback\n", 
+                        target_reg + 8, target_reg + 8);
+                free(base_name);
+                free(member_name);
+                return;
+            }
+            
+            // Save registers if needed
+            if (target_reg > 0) {
+                fprintf(output, "    pushq %%r8\n");
+                fprintf(output, "    pushq %%r9\n");
+            }
+            
+            // Load list/collection into %rdi (first argument)
+            fprintf(output, "    movq %d(%%rbp), %%rdi  # Load %s for len()\n",
+                    offset, base_name);
+            
+            // Call len() builtin - this needs to be implemented in runtime
+            // For now, we'll generate assembly that gets the length from list header
+            // MELP lists are structures: [length (8 bytes), capacity (8 bytes), data...]
+            fprintf(output, "    movq (%%rdi), %%rax  # Get length from list header\n");
+            fprintf(output, "    movq %%rax, %%r%d  # Store length result\n", target_reg + 8);
+            
+            // Restore registers
+            if (target_reg > 0) {
+                fprintf(output, "    popq %%r9\n");
+                fprintf(output, "    popq %%r8\n");
+            }
+            
+        } else if (strcmp(member_name, "type") == 0) {
+            // list.type -> get type information
+            fprintf(output, "    # Get type of %s\n", base_name);
+            // For now, return a placeholder value (type introspection TBD)
+            fprintf(output, "    movq $0, %%r%d  # Type info placeholder\n", target_reg + 8);
+            
+        } else if (strcmp(member_name, "value") == 0) {
+            // result.value -> get value field
+            fprintf(output, "    # Get value field of %s\n", base_name);
+            int offset = function_get_var_offset(func, base_name);
+            if (offset == 0) {
+                fprintf(output, "    # ERROR: Variable '%s' not found\n", base_name);
+                fprintf(output, "    xorq %%r%d, %%r%d  # Error fallback\n", 
+                        target_reg + 8, target_reg + 8);
+                free(base_name);
+                free(member_name);
+                return;
+            }
+            
+            // Assuming value is the first/main field - load directly
+            fprintf(output, "    movq %d(%%rbp), %%r%d  # Load %s.value\n",
+                    offset, target_reg + 8, base_name);
+            
+        } else {
+            // Unknown member - error
+            fprintf(output, "    # ERROR: Unknown member '%s' on %s\n", member_name, base_name);
+            fprintf(output, "    xorq %%r%d, %%r%d  # Error fallback\n", 
+                    target_reg + 8, target_reg + 8);
+        }
+        
+        free(base_name);
+        free(member_name);
+        return;
+    }
+    
     // YZ_82/YZ_83: Struct member access (p.x or p.addr.zip)
     if (expr->is_member_access && expr->member_access) {
         MemberAccess* access = (MemberAccess*)expr->member_access;
@@ -307,6 +446,20 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
             fprintf(output, ".%s", access->member_chain[i]);
         }
         fprintf(output, "\n");
+        
+        // YZ_35: Check if this is an enum value access (e.g., Status.ACTIVE)
+        // Enum values are compiled to .equ directives, not struct instances
+        if (access->chain_length == 1) {
+            // Try to lookup as enum value first
+            int64_t enum_val = enum_lookup_value(access->struct_instance, access->member_chain[0]);
+            if (enum_val != -1) {
+                fprintf(output, "    # YZ_35: Enum value access: %s.%s = %ld\n", 
+                        access->struct_instance, access->member_chain[0], enum_val);
+                fprintf(output, "    movq $%ld, %%r%d  # Load enum value\n", 
+                        enum_val, target_reg + 8);
+                return;
+            }
+        }
         
         // Look up struct instance
         StructInstanceInfo* inst_info = struct_lookup_instance(access->struct_instance);

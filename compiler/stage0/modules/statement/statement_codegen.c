@@ -134,8 +134,29 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
                 
                 fprintf(output, "    # Variable: %s at %d(%%rbp)\n", decl->name, offset);
                 
-                // ✅ NEW: Handle array initialization
-                if (decl->is_array && decl->value && decl->value[0] == '[') {
+                // ✅ YZ_99: Handle array declaration with size (numeric[5] arr)
+                if (decl->is_array && decl->array_size > 0 && (!decl->value || decl->value[0] != '[')) {
+                    // Array declaration without initializer - allocate only
+                    fprintf(output, "    # Array declaration: %s[%d]\n", decl->name, decl->array_size);
+                    
+                    // Register array for bounds checking
+                    function_register_array_var(func, decl->name, decl->array_size, 1);
+                    
+                    // YZ_99: Create .rodata string literal for array name (for bounds check error messages)
+                    fprintf(output, "\n.section .rodata\n");
+                    fprintf(output, ".str_arr_%s:\n", decl->name);
+                    fprintf(output, "    .string \"%s\"\n", decl->name);
+                    fprintf(output, ".text\n\n");
+                    
+                    // Allocate array via STO runtime
+                    fprintf(output, "    movq $%d, %%rdi      # count\n", decl->array_size);
+                    fprintf(output, "    movq $8, %%rsi       # elem_size (8 bytes)\n");
+                    fprintf(output, "    call sto_array_alloc # Returns pointer in %%rax\n");
+                    fprintf(output, "    movq %%rax, %d(%%rbp)  # Store array pointer at %s\n", 
+                            offset, decl->name);
+                }
+                // ✅ Handle array initialization with literal
+                else if (decl->is_array && decl->value && decl->value[0] == '[') {
                     // Array literal: [1, 2, 3]
                     fprintf(output, "    # Array initialization: %s = %s\n", decl->name, decl->value);
                     
@@ -162,6 +183,12 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
                     
                     // Register array with length for bounds checking
                     function_register_array_var(func, decl->name, element_count, 1);
+                    
+                    // YZ_99: Create .rodata string literal for array name (for bounds check error messages)
+                    fprintf(output, "\n.section .rodata\n");
+                    fprintf(output, ".str_arr_%s:\n", decl->name);
+                    fprintf(output, "    .string \"%s\"\n", decl->name);
+                    fprintf(output, ".text\n\n");
                     
                     // Allocate array via STO runtime
                     fprintf(output, "    # Allocate array with %d elements\n", element_count);
@@ -562,10 +589,31 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
                 
                 // Special case: simple variable reference
                 if (!expr->left && !expr->right && expr->value && !expr->is_literal) {
-                    // It's a variable reference - load from stack
-                    int offset = function_get_var_offset(func, expr->value);
-                    fprintf(output, "    movq %d(%%rbp), %%r8  # Load %s\n", 
-                            offset, expr->value);
+                    // YZ_121: Check if variable is const
+                    int is_const_var = 0;
+                    int64_t const_val = 0;
+                    LocalVariable* var = func->local_vars;
+                    while (var) {
+                        if (strcmp(var->name, expr->value) == 0) {
+                            if (var->is_const) {
+                                is_const_var = 1;
+                                const_val = var->const_value;
+                            }
+                            break;
+                        }
+                        var = var->next;
+                    }
+                    
+                    if (is_const_var) {
+                        // Load immediate const value
+                        fprintf(output, "    movq $%ld, %%r8  # Load const %s\n", 
+                                const_val, expr->value);
+                    } else {
+                        // Load from stack
+                        int offset = function_get_var_offset(func, expr->value);
+                        fprintf(output, "    movq %d(%%rbp), %%r8  # Load %s\n", 
+                                offset, expr->value);
+                    }
                 } else {
                     // Complex expression - use arithmetic codegen
                     arithmetic_generate_code(output, expr, func);
@@ -687,6 +735,51 @@ void statement_generate_code(FILE* output, Statement* stmt, FunctionDeclaration*
                 
                 fprintf(output, "    # %s is at [rbp - %d] (REGISTERED)\n", 
                         instance->instance_name, current_stack_offset);
+            }
+            break;
+        }
+        
+        // YZ_101: Enum variable declaration
+        case STMT_ENUM_VARIABLE: {
+            EnumVariable* enum_var = (EnumVariable*)stmt->data;
+            if (enum_var) {
+                fprintf(output, "    # Enum variable: %s %s\n", 
+                        enum_var->enum_type, enum_var->var_name);
+                
+                // Allocate 8 bytes on stack (int64)
+                current_stack_offset += 8;
+                
+                // YZ_102: Register enum variable in function context for lookups
+                // Create LocalVariable entry manually to sync with current_stack_offset
+                if (func) {
+                    LocalVariable* var = malloc(sizeof(LocalVariable));
+                    var->name = strdup(enum_var->var_name);
+                    var->is_numeric = 1;  // Enums are numeric (int64)
+                    var->is_array = 0;
+                    var->array_length = 0;
+                    var->is_tuple = 0;
+                    var->tuple_length = 0;
+                    var->is_list = 0;
+                    var->list_length = 0;
+                    var->stack_offset = -current_stack_offset;  // Negative offset from rbp
+                    
+                    // Add to front of local_vars list
+                    var->next = func->local_vars;
+                    func->local_vars = var;
+                    func->local_var_count++;
+                }
+                
+                if (enum_var->has_initializer) {
+                    // Store initial value
+                    fprintf(output, "    movq $%ld, %%rax  # %s = %ld\n", 
+                            enum_var->init_value, enum_var->var_name, enum_var->init_value);
+                    fprintf(output, "    movq %%rax, -%d(%%rbp)  # Store at [rbp - %d]\n",
+                            current_stack_offset, current_stack_offset);
+                } else {
+                    // Uninitialized - just reserve space
+                    fprintf(output, "    # %s at [rbp - %d] (uninitialized)\n",
+                            enum_var->var_name, current_stack_offset);
+                }
             }
             break;
         }

@@ -21,6 +21,7 @@ typedef enum {
     STMT_STRUCT_INSTANCE,   // YZ_82: Point p (struct instance declaration)
     STMT_MEMBER_ASSIGNMENT, // YZ_82: p.x = 10 (struct member assignment)
     STMT_ENUM,              // YZ_96: enum definition
+    STMT_ENUM_VARIABLE,     // YZ_101: Color c = Color.Red (enum variable declaration)
     STMT_BLOCK,
     STMT_EXIT,              // YZ_28: exit, exit for, exit while, exit if, exit function
     STMT_EXIT_FOR,          // YZ_28: exit for

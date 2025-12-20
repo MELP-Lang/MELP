@@ -21,6 +21,16 @@ void function_add_param(FunctionDeclaration* func, const char* name, FunctionPar
     param->name = strdup(name);
     param->type = type;
     param->struct_type_name = NULL;  // YZ_84: Initialize struct type
+    // YZ_31: Initialize advanced parameter modifiers
+    param->default_value = NULL;
+    param->default_str = NULL;
+    param->has_default = 0;
+    param->is_ref = 0;
+    param->is_out = 0;
+    param->is_optional = 0;
+    param->is_variadic = 0;
+    param->precision_digits = 0;
+    param->precision_decimals = 0;
     param->next = NULL;
     
     if (func->params == NULL) {
@@ -41,6 +51,16 @@ void function_add_struct_param(FunctionDeclaration* func, const char* name, cons
     param->name = strdup(name);
     param->type = FUNC_PARAM_STRUCT;
     param->struct_type_name = strdup(struct_type);
+    // YZ_31: Initialize advanced parameter modifiers
+    param->default_value = NULL;
+    param->default_str = NULL;
+    param->has_default = 0;
+    param->is_ref = 0;
+    param->is_out = 0;
+    param->is_optional = 0;
+    param->is_variadic = 0;
+    param->precision_digits = 0;
+    param->precision_decimals = 0;
     param->next = NULL;
     
     if (func->params == NULL) {
@@ -70,6 +90,7 @@ void function_free(FunctionDeclaration* func) {
         FunctionParam* next = param->next;
         free(param->name);
         free(param->struct_type_name);  // YZ_84: Free struct type name
+        free(param->default_str);       // YZ_31: Free default value string
         free(param);
         param = next;
     }
@@ -138,6 +159,8 @@ void function_register_local_var_with_type(FunctionDeclaration* func, const char
     var->tuple_length = 0;         // YZ_21: Default: no length
     var->is_list = 0;              // YZ_22: Default: not a list
     var->list_length = 0;          // YZ_22: Default: no length
+    var->is_const = 0;             // YZ_121: Default: not const
+    var->const_value = 0;          // YZ_121: Default: 0
     
     // Assign stack offset: -8, -16, -24, ...
     func->local_var_count++;
@@ -418,6 +441,24 @@ int function_get_list_length(FunctionDeclaration* func, const char* name) {
     }
     
     return 0;  // Not found or not a list
+}
+
+// YZ_121: Set variable as const with value
+void function_set_var_const(FunctionDeclaration* func, const char* name, int64_t value) {
+    if (!func || !name) return;
+    
+    LocalVariable* var = func->local_vars;
+    while (var) {
+        if (strcmp(var->name, name) == 0) {
+            var->is_const = 1;
+            var->const_value = value;
+            // YZ_121: Const doesn't need stack space - decrement count
+            func->local_var_count--;
+            var->stack_offset = 0;  // Const has no stack offset
+            return;
+        }
+        var = var->next;
+    }
 }
 
 // Check if function is a builtin (stdlib function)
