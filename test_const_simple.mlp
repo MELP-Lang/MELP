@@ -1,0 +1,12 @@
+-- ============================================================================
+-- test_const_simple.mlp - Simple const test (YZ_119 Debug)
+-- ============================================================================
+-- Purpose: Test const handling in Stage 1 compiler
+-- Expected exit code: 88
+-- ============================================================================
+
+const numeric MY_CONST = 88
+
+function main() returns numeric
+    return MY_CONST
+end_function

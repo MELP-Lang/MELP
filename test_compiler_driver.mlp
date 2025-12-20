@@ -1,0 +1,53 @@
+-- ============================================================================
+-- test_compiler_driver.mlp - Simple compiler driver test (YZ_119 Phase 3)
+-- ============================================================================
+-- Purpose: Test a minimal compiler pipeline simulation
+-- Expected exit code: 42 (successful compilation code)
+-- ============================================================================
+
+function tokenize(numeric input_length) returns numeric
+    if input_length > 0 then
+        return 10
+    end_if
+    return 0
+end_function
+
+function parse(numeric token_count) returns numeric
+    if token_count > 5 then
+        return 15
+    end_if
+    return 0
+end_function
+
+function generate_code(numeric parse_result) returns numeric
+    if parse_result > 10 then
+        return 17
+    end_if
+    return 0
+end_function
+
+function compile_pipeline(numeric source_size) returns numeric
+    numeric tokens
+    numeric parsed
+    numeric generated
+    numeric success
+    
+    tokens = tokenize(source_size)
+    parsed = parse(tokens)
+    generated = generate_code(parsed)
+    
+    if tokens > 0 and parsed > 0 and generated > 0 then
+        success = tokens + parsed + generated
+        return success
+    end_if
+    
+    return 0
+end_function
+
+function main() returns numeric
+    numeric result
+    
+    result = compile_pipeline(100)
+    
+    return result
+end_function

@@ -1,0 +1,114 @@
+-- ============================================================================
+-- test_module_chain.mlp - Module chain test without consts (YZ_119 Phase 2)
+-- ============================================================================
+-- Purpose: Test multiple module functions working together
+-- Expected exit code: 75
+-- ============================================================================
+
+-- ============================================================================
+-- CHAR_UTILS MODULE FUNCTIONS
+-- ============================================================================
+
+function is_digit(numeric c) returns numeric
+    if c >= 48 and c <= 57 then
+        return 1
+    end_if
+    return 0
+end_function
+
+function is_alpha(numeric c) returns numeric
+    if c >= 65 and c <= 90 then
+        return 1
+    end_if
+    if c >= 97 and c <= 122 then
+        return 1
+    end_if
+    return 0
+end_function
+
+-- ============================================================================
+-- TOKEN PROCESSING FUNCTIONS
+-- ============================================================================
+
+-- Parse numeric literal token
+function parse_number_token(numeric first_char) returns numeric
+    numeric value
+    
+    -- Check if it's a digit
+    if is_digit(first_char) == 1 then
+        -- Simple digit to value conversion
+        value = first_char - 48
+        return value
+    end_if
+    
+    return 0
+end_function
+
+-- Parse identifier token
+function parse_identifier_token(numeric first_char) returns numeric
+    numeric is_valid
+    
+    -- Check if it starts with a letter
+    is_valid = is_alpha(first_char)
+    
+    if is_valid == 1 then
+        return 1  -- Valid identifier
+    end_if
+    
+    return 0
+end_function
+
+-- ============================================================================
+-- LEXER FUNCTIONS
+-- ============================================================================
+
+-- Simple lexer that processes a character
+function lex_char(numeric c) returns numeric
+    numeric token_type
+    
+    -- Try parsing as number
+    token_type = parse_number_token(c)
+    if token_type > 0 then
+        return token_type + 10  -- Return digit value + offset
+    end_if
+    
+    -- Try parsing as identifier
+    token_type = parse_identifier_token(c)
+    if token_type == 1 then
+        return 20  -- Identifier token
+    end_if
+    
+    return 0
+end_function
+
+-- ============================================================================
+-- TEST SUITE
+-- ============================================================================
+
+function main() returns numeric
+    numeric test1
+    numeric test2
+    numeric test3
+    numeric total
+    
+    -- Test 1: Lex a digit '5' (ASCII 53) -> should return 15 (5 + 10)
+    test1 = lex_char(53)
+    
+    -- Test 2: Lex a letter 'M' (ASCII 77) -> should return 20
+    test2 = lex_char(77)
+    
+    -- Test 3: Process digit '7' (ASCII 55) -> should return 17 (7 + 10)
+    test3 = lex_char(55)
+    
+    -- Test 4: Direct char_utils check - 'Z' (90)
+    numeric test4
+    test4 = is_alpha(90)
+    if test4 == 1 then
+        test4 = 23
+    end_if
+    
+    -- Total: 15 + 20 + 17 + 23 = 75
+    total = test1 + test2 + test3 + test4
+    
+    return total
+end_function

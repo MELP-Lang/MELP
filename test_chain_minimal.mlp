@@ -1,0 +1,33 @@
+function is_digit(numeric c) returns numeric
+    if c >= 48 and c <= 57 then
+        return 1
+    end_if
+    return 0
+end_function
+
+function is_alpha(numeric c) returns numeric
+    if c >= 65 and c <= 90 then
+        return 1
+    end_if
+    if c >= 97 and c <= 122 then
+        return 1
+    end_if
+    return 0
+end_function
+
+function main() returns numeric
+    numeric d1
+    numeric d2
+    numeric a1
+    numeric a2
+    numeric total
+    
+    d1 = is_digit(53)
+    d2 = is_digit(55)
+    a1 = is_alpha(77)
+    a2 = is_alpha(90)
+    
+    total = d1 + d2 + a1 + a2
+    
+    return total * 20
+end_function

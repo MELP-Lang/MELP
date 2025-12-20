@@ -1,0 +1,150 @@
+-- ============================================================================
+-- test_token_chain.mlp - Token types + token processing chain test (YZ_119)
+-- ============================================================================
+-- Purpose: Test token type constants and token processing logic
+-- Expected exit code: 88 (TOKEN_SEMICOLON constant value)
+-- ============================================================================
+
+-- ============================================================================
+-- TOKEN TYPE CONSTANTS (subset from token_types.mlp)
+-- ============================================================================
+
+const numeric TOKEN_NUMERIC = 0
+const numeric TOKEN_STRING_TYPE = 1
+const numeric TOKEN_IDENTIFIER = 6
+const numeric TOKEN_NUMBER = 8
+const numeric TOKEN_STRING = 9
+
+const numeric TOKEN_PLUS = 12
+const numeric TOKEN_MINUS = 13
+const numeric TOKEN_MULTIPLY = 14
+const numeric TOKEN_DIVIDE = 15
+
+const numeric TOKEN_IF = 28
+const numeric TOKEN_THEN = 29
+const numeric TOKEN_ELSE = 30
+const numeric TOKEN_END_IF = 44
+
+const numeric TOKEN_FUNCTION = 68
+const numeric TOKEN_RETURN = 69
+
+const numeric TOKEN_LPAREN = 80
+const numeric TOKEN_RPAREN = 81
+const numeric TOKEN_SEMICOLON = 88
+const numeric TOKEN_EOF = 91
+
+-- ============================================================================
+-- TOKEN PROCESSING FUNCTIONS
+-- ============================================================================
+
+-- Check if token is a type keyword
+function is_type_token(numeric token_type) returns numeric
+    if token_type == TOKEN_NUMERIC then
+        return 1
+    end_if
+    if token_type == TOKEN_STRING_TYPE then
+        return 1
+    end_if
+    return 0
+end_function
+
+-- Check if token is an operator
+function is_operator_token(numeric token_type) returns numeric
+    if token_type >= TOKEN_PLUS and token_type <= TOKEN_DIVIDE then
+        return 1
+    end_if
+    return 0
+end_function
+
+-- Check if token is a delimiter
+function is_delimiter_token(numeric token_type) returns numeric
+    if token_type == TOKEN_LPAREN then
+        return 1
+    end_if
+    if token_type == TOKEN_RPAREN then
+        return 1
+    end_if
+    if token_type == TOKEN_SEMICOLON then
+        return 1
+    end_if
+    return 0
+end_function
+
+-- Get operator precedence
+function get_operator_precedence(numeric token_type) returns numeric
+    if token_type == TOKEN_PLUS then
+        return 1
+    end_if
+    if token_type == TOKEN_MINUS then
+        return 1
+    end_if
+    if token_type == TOKEN_MULTIPLY then
+        return 2
+    end_if
+    if token_type == TOKEN_DIVIDE then
+        return 2
+    end_if
+    return 0
+end_function
+
+-- Check if token starts a statement
+function is_statement_start(numeric token_type) returns numeric
+    if token_type == TOKEN_IF then
+        return 1
+    end_if
+    if token_type == TOKEN_FUNCTION then
+        return 1
+    end_if
+    if token_type == TOKEN_RETURN then
+        return 1
+    end_if
+    return 0
+end_function
+
+-- ============================================================================
+-- TEST SUITE
+-- ============================================================================
+
+function main() returns numeric
+    numeric test1
+    numeric test2
+    numeric test3
+    numeric test4
+    numeric test5
+    numeric result
+    
+    -- Test 1: is_type_token with TOKEN_NUMERIC (0)
+    test1 = is_type_token(TOKEN_NUMERIC)
+    
+    -- Test 2: is_operator_token with TOKEN_MULTIPLY (14)
+    test2 = is_operator_token(TOKEN_MULTIPLY)
+    
+    -- Test 3: is_delimiter_token with TOKEN_SEMICOLON (88)
+    test3 = is_delimiter_token(TOKEN_SEMICOLON)
+    
+    -- Test 4: get_operator_precedence - multiply should be 2
+    test4 = get_operator_precedence(TOKEN_MULTIPLY)
+    
+    -- Test 5: is_statement_start with TOKEN_IF (28)
+    test5 = is_statement_start(TOKEN_IF)
+    
+    -- Calculate result: all should succeed
+    result = 0
+    if test1 == 1 then
+        result = result + 10
+    end_if
+    if test2 == 1 then
+        result = result + 20
+    end_if
+    if test3 == 1 then
+        result = result + 30
+    end_if
+    if test4 == 2 then
+        result = result + 20
+    end_if
+    if test5 == 1 then
+        result = result + 8
+    end_if
+    
+    return result  -- Expected: 88 (10+20+30+20+8)
+end_function

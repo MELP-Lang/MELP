@@ -1,0 +1,49 @@
+function is_digit(numeric c) returns numeric
+    if c >= 48 and c <= 57 then
+        return 1
+    end_if
+    return 0
+end_function
+
+function is_alpha(numeric c) returns numeric
+    if c >= 65 and c <= 90 then
+        return 1
+    end_if
+    if c >= 97 and c <= 122 then
+        return 1
+    end_if
+    return 0
+end_function
+
+function process_char(numeric c) returns numeric
+    if is_digit(c) == 1 then
+        return c - 48 + 10
+    end_if
+    
+    if is_alpha(c) == 1 then
+        return 20
+    end_if
+    
+    return 0
+end_function
+
+function main() returns numeric
+    numeric t1
+    numeric t2
+    numeric t3
+    numeric t4
+    numeric result
+    
+    t1 = process_char(53)
+    t2 = process_char(77)
+    t3 = process_char(55)
+    t4 = is_alpha(90)
+    
+    if t4 == 1 then
+        t4 = 23
+    end_if
+    
+    result = t1 + t2 + t3 + t4
+    
+    return result
+end_function

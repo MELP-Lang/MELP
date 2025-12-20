@@ -1,0 +1,78 @@
+-- test_module_chain_v2.mlp - Module chain without consts
+
+function is_digit(numeric c) returns numeric
+    if c >= 48 and c <= 57 then
+        return 1
+    end_if
+    return 0
+end_function
+
+function is_alpha(numeric c) returns numeric
+    if c >= 65 and c <= 90 then
+        return 1
+    end_if
+    if c >= 97 and c <= 122 then
+        return 1
+    end_if
+    return 0
+end_function
+
+function parse_number_token(numeric first_char) returns numeric
+    numeric value = 0
+    
+    if is_digit(first_char) == 1 then
+        value = first_char - 48
+        return value
+    end_if
+    
+    return 0
+end_function
+
+function parse_identifier_token(numeric first_char) returns numeric
+    numeric is_valid = 0
+    
+    is_valid = is_alpha(first_char)
+    
+    if is_valid == 1 then
+        return 1
+    end_if
+    
+    return 0
+end_function
+
+function lex_char(numeric c) returns numeric
+    numeric token_type = 0
+    
+    token_type = parse_number_token(c)
+    if token_type > 0 then
+        return token_type + 10
+    end_if
+    
+    token_type = parse_identifier_token(c)
+    if token_type == 1 then
+        return 20
+    end_if
+    
+    return 0
+end_function
+
+function main() returns numeric
+    numeric test1
+    numeric test2
+    numeric test3
+    numeric test4
+    numeric total
+    
+    test1 = lex_char(53)
+    test2 = lex_char(77)
+    test3 = lex_char(55)
+    
+    test4 = is_alpha(90)
+    if test4 == 1 then
+        test4 = 23
+    end_if
+    
+    total = test1 + test2 + test3 + test4
+    
+    return total
+end_function
