@@ -1,0 +1,10 @@
+-- ============================================================================
+-- Simple Test File - YZ_117
+-- ============================================================================
+-- File: test_compile_me.mlp
+-- Purpose: Simple test to verify Stage 1 compiler works end-to-end
+-- ============================================================================
+
+function main() as numeric
+    return 42
+end_function

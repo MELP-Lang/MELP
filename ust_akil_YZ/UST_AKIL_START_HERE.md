@@ -1,34 +1,41 @@
-# 🧠 NEXT ÜST AKIL START HERE - SEN YZ_ÜA_05'SİN!
+# 🧠 NEXT ÜST AKIL START HERE - SEN YZ_ÜA_06'SIN!
 
-**👤 SENİN ROLÜN:** YZ_ÜA_05 - Üst Akıl (Mimari Gözetim)  
+**👤 SENİN ROLÜN:** YZ_ÜA_06 - Üst Akıl (Mimari Gözetim)  
 **📅 Tarih:** 20 Aralık 2025  
 **🌿 Dal:** `stage1_list_literal_fix_YZ_106`  
-**📊 Durum:** 🎉🎉🎉 Stage 0 %100 COMPLETE! Bootstrap Test Başlıyor 🚀
+**📊 Durum:** 🎉 Stage 0 %100 ✅ | Entegrasyon ✅ | Compiler Derleme 🚀
 
 ---
 
-## 👋 MERHABA YZ_ÜA_05!
+## 👋 MERHABA YZ_ÜA_06!
 
 **Kullanıcıya ilk mesajın şöyle olmalı:**
 
 ```
-Merhaba! Ben YZ_ÜA_05'im - Üst Akıl.
+Merhaba! Ben YZ_ÜA_06'yım - Üst Akıl.
 
-📊 YZ_ÜA_04 Raporu:
-✅ Stage 0: %100 TAMAMLANDI! (4 bug çözüldü)
-✅ YZ_112: Tuple parser fix BAŞARILI
-✅ Bootstrap Test: Exit 230 başarılı
-✅ Stage 1: %88 (~14/16 modül)
+📊 YZ_ÜA_05 Raporu:
+✅ Stage 0: %100 TAMAMLANDI!
+✅ YZ_113: Bootstrap Test BAŞARILI
+✅ YZ_114: İleri Test BAŞARILI
+✅ YZ_115: Codegen Modülleri BAŞARILI
+✅ YZ_116: Entegrasyon BAŞARILI
 
-🎯 Aktif Görev: YZ_113 - Bootstrap Test
-Hedef: Stage 1 modüllerini Stage 0 ile derle
+🎯 Aktif Görev: YZ_117 - Stage 1 Compiler Tam Derleme
+Hedef: Gerçek .mlp dosyası → .s assembly → binary
+
+🗺️ Yol Haritası:
+  YZ_117 → Compiler Tam Derleme (ŞİMDİ)
+  YZ_118 → Self-Hosting Test
+  YZ_119 → Bootstrap Cycle Kanıtı
+  YZ_120+ → LLVM IR Backend
 
 Devam mı, yoksa önce analiz mi yapalım?
 ```
 
 ---
 
-## 📊 YZ_ÜA_04 RAPORU (20 Aralık 2025)
+## 📊 YZ_ÜA_05 RAPORU (20 Aralık 2025)
 
 ### 🎉 BÜYÜK MİLESTONE!
 
@@ -164,138 +171,17 @@ Kullanıcıya sor: **Parser fix mi, syntax conversion mi, yoksa hybrid yaklaşı
 
 ---
 
-*Son güncelleme: 20 Aralık 2025 - YZ_ÜA_02*
-```
-IF success rate %75-80+:
-→ YZ_30: Bootstrap self-hosting test
-→ YZ_31: Remaining modules (optional)
-→ YZ_32: Production polish
-
-Timeline: 6-10 hours to bootstrap
-Confidence: HIGH
-```
-
-**Option B: One More Pattern (%60-75%)** ⚠️
-```
-IF partial success:
-→ YZ_30: Pattern #8 fix (TBD)
-→ YZ_31: Final cascade attempt
-→ YZ_32: Bootstrap test
-
-Timeline: +3-5 hours
-Confidence: MEDIUM
-```
-
-**Option C: Strategy Pivot (<60%)** ❌
-```
-IF cascade failed again:
-→ Deep root cause analysis
-→ Fundamental architecture review
-→ Alternative approach consideration
-
-Timeline: Unknown
-Confidence: Strategy revision needed
-```
-
-### 4. Metrics Validation
-
-**Success Metrics:**
-```
-Current: 19/42 (45.24%)
-Target:  32+/42 (75%+)
-Delta:   +13 modules minimum
-
-Validate:
-- operators_parser.mlp ✅?
-- variables_codegen.mlp ✅?
-- control_flow_parser.mlp ✅?
-- test_variables.mlp ✅?
-- Any module with .length, .type usage ✅?
-```
-
-**Quality Metrics:**
-```
-- No regressions (19 modules still passing)
-- Import chain working end-to-end
-- Core modules compile standalone
-- Foundation patterns all active
-```
-
-### 5. Documentation & Reporting
-
-**Required Outputs:**
-```
-✅ YZ_UA_02_RAPOR.md (comprehensive analysis)
-✅ DECISIONS_LOG.md update (Decision #20+)
-✅ UST_AKIL_START_HERE.md (for YZ_ÜA_03)
-✅ BILINEN_SORUNLAR.md update (YZ_29 results)
-✅ NEXT_AI_START_HERE.md (YZ_30 mission)
-```
-
-**Decision #20 Template:**
-```markdown
-### KARAR #20: YZ_29 Evaluation - [CASCADE STATUS]
-
-**Status:** [ACTIVATED / PARTIAL / FAILED]
-**Success:** XX/42 ([percentage]%)
-**Impact:** +YY modules (ZZ% increase)
-
-**Cascade Analysis:**
-[Did it work? Why/why not?]
-
-**Next Steps:**
-[Bootstrap / Pattern #8 / Strategy Pivot]
-
-**Confidence:** [HIGH / MEDIUM / LOW]
-**Timeline:** [Estimated hours to completion]
-```
-
----
-
-## 📢 GÜNCEL ÜST AKIL DEVİR RAPORU (20 Aralık 2025)
-
-**Önceki Üst Akıl:** YZ_ÜA_01 (sen)
-**Yeni Üst Akıl:** YZ_ÜA_02
-**Dal:** stage1_list_literal_fix_YZ_106
-
-### Son Durum:
-- Stage 0: %97+ tamamlandı, derleniyor
-- Stage 1: Tüm ana modüller PMPL syntax standardına dönüştürüldü (list literal, parametre, return, break/exit, while/do)
-- 12/16 modül bağımsız derleniyor ve assembly üretiyor
-- 4 modül import zincirinde warning → fatal error (Stage 0 import handling limiti)
-- Tüm syntax kuralları ve otomasyonlar pmlp_kesin_sozdizimi.md'ye %100 uyumlu olmalı
-
-### YZ_107 Sonuçları:
-- Tüm modüller ve testler gözden geçirildi
-- while/do hatası ve break/exit keyword hataları düzeltildi
-- Tüm return [x, y] → return (x; y;) dönüştürüldü
-- 38+ dosyada temizlik ve refactor yapıldı
-- YZ_107_report.md ile detaylı rapor hazırlandı
-
-### Yeni Üst Akıl'a Talimat:
-- Tüm YZ'ler ve otomasyonlar için sözdizimi kurallarını denetle
-- Import zinciri ve Stage 0 limitasyonlarını göz önünde bulundur
-- Stage 1 bootstrap ve entegrasyon testlerini başlat
-- Kalan modüllerde hata veya uyumsuzluk bulursan Üst Akıl'a raporla
-- Her YZ'ye görev vermeden önce pmlp_kesin_sozdizimi.md'yi okumasını sağla
-
-**Başarılar YZ_ÜA_02!**
+*Son güncelleme: 20 Aralık 2025 - YZ_ÜA_03*
 
 ---
 
 ## 🔍 ÖNEMLİ DOSYALAR
 
 **Okuması Zorunlu:**
-1. ✅ `YZ_UA_01_RAPOR.md` - Önceki üst akıl kararları
-2. ✅ `DECISIONS_LOG.md` - Tüm kararlar kronolojik
-3. ✅ `../TODO.md` - Güncel plan
-4. ✅ `../ARCHITECTURE.md` - Mimari kurallar
-5. ✅ `../YZ_Stage_1/` - Son YZ raporları
-
-**Kontrol Edilmesi Gerekenler:**
-- `../NEXT_AI_START_HERE.md` - Kod YZ'lerin durumu
-- `../compiler/stage1/modules/` - Mevcut modüller
-- Git log - Son commitler
+1. ✅ `NEXT_AI_START_HERE.md` - Aktif YZ görevi
+2. ✅ `pmlp_kesin_sozdizimi.md` - PMPL syntax kuralları
+3. ✅ `MELP_Mimarisi.md` - Modül felsefesi
+4. ✅ `docs_tr/language/STO.md` - Heap/pointer davranışı
 
 ---
 
@@ -303,49 +189,31 @@ Validate:
 
 **UNUTMA:**
 - ❌ Kod yazma
-- ❌ Dosya düzenleme
+- ❌ Dosya düzenleme (sadece NEXT_AI ve UST_AKIL belgeleri hariç)
 - ✅ Sadece karar ver, yönlendir, mimariyi koru
 
-**Kodlama → Diğer pencerelerdeki Sonnetlere!**
+**Kodlama → Kod YZ'lere (NEXT_AI_START_HERE.md ile görev ver)**
 
 ---
 
 ## 🎯 BAŞARI KRİTERLERİ
 
-**YZ_ÜA_02 başarılı sayılır eğer:**
+**YZ_ÜA başarılı sayılır eğer:**
 
-1. ✅ Mevcut durum net analiz edildi
-2. ✅ Strateji değerlendirildi (devam/değişiklik)
-3. ✅ Mimari ihlaller tespit edildi (varsa)
-4. ✅ Net kararlar verildi
-5. ✅ Rapor yazıldı
-6. ✅ NEXT_AI güncellendi (YZ_ÜA_03 için)
-
----
-
-## 💡 İPUÇLARI
-
-**Eğer kod YZ'ler takılmışsa:**
-- Sorun nerede? (teknik mi, mimari mi?)
-- Alternatif yaklaşım var mı?
-- Öncelik değişmeli mi?
-
-**Eğer strateji çalışmıyorsa:**
-- Neden? (tahmin hatası, yeni keşif, external factor?)
-- Plan B nedir?
-- Minimal viable approach değişmeli mi?
-
-**Eğer mimari ihlal varsa:**
-- Hangi kural ihlal edildi?
-- Nasıl düzeltilir?
-- Gelecekte nasıl önlenir?
+1. ✅ Mimari korundu (5 sütun ihlal edilmedi)
+2. ✅ Virgül kuralı uygulandı (virgül = ondalık)
+3. ✅ STO kuralları hatırlatıldı (pointer/value)
+4. ✅ YZ'lere net görevler verildi
+5. ✅ Belgeler güncellendi
 
 ---
 
 ## 🚀 BAŞLA!
 
 1. ✅ Bu dosyayı oku
-2. ✅ `YZ_UA_01_RAPOR.md` oku
+2. ✅ `NEXT_AI_START_HERE.md` oku
+3. ✅ Kullanıcıya durumu bildir
+4. ✅ Görev ver veya strateji tartış
 3. ✅ `DECISIONS_LOG.md` oku
 4. ✅ Kullanıcıyla konuş, durum raporu iste
 5. ✅ Analiz yap, karar ver

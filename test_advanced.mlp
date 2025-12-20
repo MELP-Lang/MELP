@@ -1,0 +1,21 @@
+-- ============================================================================
+-- Advanced Test File - YZ_117
+-- ============================================================================
+-- File: test_advanced.mlp
+-- Purpose: Test multiple functions and arithmetic
+-- ============================================================================
+
+function add(numeric a; numeric b) as numeric
+    return a + b
+end_function
+
+function multiply(numeric x; numeric y) as numeric
+    return x * y
+end_function
+
+function main() as numeric
+    numeric result1 = add(10; 20)
+    numeric result2 = multiply(5; 6)
+    numeric final = add(result1; result2)
+    return final
+end_function

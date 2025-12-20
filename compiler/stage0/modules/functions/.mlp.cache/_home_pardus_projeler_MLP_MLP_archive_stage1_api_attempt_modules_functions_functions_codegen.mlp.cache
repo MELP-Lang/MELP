@@ -1,0 +1,27 @@
+{
+  "version": "1.0",
+  "module_path": "/home/pardus/projeler/MLP/MLP/archive/stage1_api_attempt/modules/functions/functions_codegen.mlp",
+  "source_mtime": 1766203924,
+  "object_mtime": 1766195960,
+  "object_path": "functions_codegen.o",
+  "assembly_path": "functions_codegen.s",
+  "functions": [
+    "type_name_to_kind",
+    "type_kind_to_name",
+    "types_compatible",
+    "is_primitive_type",
+    "is_composite_type",
+    "is_callable_type",
+    "param_type_to_llvm",
+    "return_type_to_llvm",
+    "codegen_function_prologue",
+    "codegen_function_epilogue",
+    "codegen_function_declaration",
+    "codegen_function_call",
+    "codegen_return_statement",
+    "codegen_param_load"
+  ],
+  "dependencies": [
+    "/home/pardus/projeler/MLP/MLP/archive/stage1_api_attempt/modules/core/type_mapper.mlp"
+  ]
+}
