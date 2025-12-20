@@ -3,6 +3,7 @@
 #include "../arithmetic/arithmetic_parser.h"  // ✅ For expression parsing
 #include "../arithmetic/arithmetic.h"         // ✅ ArithmeticExpr
 #include "../array/array_parser.h"            // ✅ For array literal parsing
+#include "../array/array.h"                   // ✅ For Collection types
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -34,6 +35,8 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
     
     // Check for type keyword (actual_type_token is OWNED if is_const, BORROWED otherwise)
     VarType base_type;
+    bool needs_type_inference = false;
+    
     if (actual_type_token->type == TOKEN_NUMERIC) {
         base_type = VAR_NUMERIC;
     } else if (actual_type_token->type == TOKEN_STRING_TYPE) {
@@ -46,14 +49,149 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
         base_type = VAR_LIST;
     } else if (actual_type_token->type == TOKEN_TUPLE) {
         base_type = VAR_TUPLE;
+    } else if (is_const && actual_type_token->type == TOKEN_IDENTIFIER) {
+        // YZ_01: Type inference for const declarations (const x = 88)
+        needs_type_inference = true;
+        // Don't consume actual_type_token yet - it's the variable name
+        // We'll handle it below in the type inference flow
     } else {
         if (is_const) token_free(actual_type_token);
         return NULL;  // Not a variable declaration
     }
     
+    Token* tok = NULL;
+    char* var_name = NULL;
+    
+    // YZ_01: Type inference flow
+    if (needs_type_inference) {
+        // actual_type_token was the variable name, not a type
+        // We need to: identifier = expression
+        var_name = strdup(actual_type_token->value);
+        
+        // Free actual_type_token now that we've copied the value
+        if (is_const) token_free(actual_type_token);
+        
+        // Expect '=' token
+        tok = lexer_next_token(lexer);
+        if (!tok || tok->type != TOKEN_ASSIGN) {
+            fprintf(stderr, "Error: Expected '=' after variable name in type inference\n");
+            if (tok) token_free(tok);
+            free(var_name);
+            return NULL;
+        }
+        token_free(tok);  // consume '='
+        
+        // Parse expression to infer type
+        tok = lexer_next_token(lexer);
+        if (!tok) {
+            fprintf(stderr, "Error: Expected expression after '=' in type inference\n");
+            free(var_name);
+            return NULL;
+        }
+        
+        // Parse the expression
+        ArithmeticExpr* expr = arithmetic_parse_expression_stateless(lexer, tok, NULL);
+        if (!expr) {
+            fprintf(stderr, "Error: Failed to parse expression for type inference\n");
+            token_free(tok);
+            free(var_name);
+            return NULL;
+        }
+        
+        // Infer type from expression
+        if (expr->is_literal && !expr->is_collection) {
+            // Check value to determine type
+            if (expr->value) {
+                // Check if it's a number (contains only digits, -, .)
+                char* v = expr->value;
+                bool is_number = true;
+                bool has_decimal = false;
+                int i = 0;
+                if (v[0] == '-') i = 1;  // Skip negative sign
+                for (; v[i] != '\0'; i++) {
+                    if (v[i] == '.') {
+                        has_decimal = true;
+                    } else if (v[i] < '0' || v[i] > '9') {
+                        is_number = false;
+                        break;
+                    }
+                }
+                
+                if (is_number) {
+                    base_type = VAR_NUMERIC;
+                } else if (strcmp(expr->value, "true") == 0 || strcmp(expr->value, "false") == 0) {
+                    base_type = VAR_BOOLEAN;
+                } else {
+                    base_type = VAR_STRING;
+                }
+            } else {
+                fprintf(stderr, "Error: Cannot infer type from empty expression\n");
+                arithmetic_expr_free(expr);
+                free(var_name);
+                return NULL;
+            }
+        } else if (expr->is_collection) {
+            // Collection type - check which kind
+            if (expr->collection) {
+                if (expr->collection->type == COLL_LIST) {
+                    base_type = VAR_LIST;
+                } else if (expr->collection->type == COLL_TUPLE) {
+                    base_type = VAR_TUPLE;
+                } else {
+                    base_type = VAR_ARRAY;
+                }
+            } else {
+                fprintf(stderr, "Error: Cannot infer type from null collection\n");
+                arithmetic_expr_free(expr);
+                free(var_name);
+                return NULL;
+            }
+        } else {
+            // Complex expression - assume numeric by default
+            base_type = VAR_NUMERIC;
+        }
+        
+        // Create the declaration with inferred type
+        VariableDeclaration* decl = malloc(sizeof(VariableDeclaration));
+        decl->name = var_name;
+        decl->type = base_type;
+        decl->base_type = base_type;
+        decl->is_pointer = 0;
+        decl->is_array = 0;
+        decl->array_size = 0;
+        decl->value = NULL;
+        decl->init_expr = NULL;
+        decl->internal_num_type = INTERNAL_INT64;
+        decl->internal_str_type = INTERNAL_RODATA;
+        decl->storage = STORAGE_BSS;
+        decl->has_decimal_point = 0;
+        decl->is_const = is_const;
+        decl->next = NULL;
+        
+        // Phase 2: Initialize STO fields
+        decl->sto_info = NULL;
+        decl->sto_analyzed = false;
+        decl->needs_overflow_check = false;
+        
+        // Store the expression
+        if (expr->is_literal && !expr->left && !expr->right && !expr->is_collection) {
+            decl->value = strdup(expr->value);
+            decl->storage = STORAGE_DATA;
+            arithmetic_expr_free(expr);
+        } else {
+            decl->init_expr = expr;
+            decl->storage = STORAGE_BSS;
+            decl->sto_analyzed = false;
+        }
+        
+        token_free(tok);
+        return decl;
+    }
+    
+    // Normal flow (with explicit type)
     // actual_type_token consumed by reading, read next token (OWNED)
     if (is_const) token_free(actual_type_token);  // YZ_CONST: Free if we owned it
-    Token* tok = lexer_next_token(lexer);
+    tok = lexer_next_token(lexer);
     if (!tok) return NULL;
     
     // Check for pointer (*) or array ([])
