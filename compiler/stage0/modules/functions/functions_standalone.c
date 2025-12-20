@@ -19,6 +19,13 @@
 #include "functions.h"
 #include "functions_parser.h"
 #include "functions_codegen.h"
+#include "functions_codegen_llvm.h"
+
+// Backend type selection
+typedef enum {
+    BACKEND_ASSEMBLY,
+    BACKEND_LLVM
+} BackendType;
 
 // Read entire file into string
 static char* read_file(const char* path) {
@@ -43,13 +50,42 @@ static char* read_file(const char* path) {
 }
 
 int main(int argc, char** argv) {
-    if (argc != 3) {
-        fprintf(stderr, "Usage: %s <input.mlp> <output.s>\n", argv[0]);
-        return 1;
+    BackendType backend = BACKEND_ASSEMBLY;  // Default
+    const char* input_file = NULL;
+    const char* output_file = NULL;
+    
+    // Parse arguments
+    for (int i = 1; i < argc; i++) {
+        if (strncmp(argv[i], "--backend=", 10) == 0) {
+            char* backend_name = argv[i] + 10;
+            if (strcmp(backend_name, "llvm") == 0) {
+                backend = BACKEND_LLVM;
+            } else if (strcmp(backend_name, "assembly") == 0) {
+                backend = BACKEND_ASSEMBLY;
+            } else {
+                fprintf(stderr, "Unknown backend: %s\n", backend_name);
+                fprintf(stderr, "Available backends: assembly, llvm\n");
+                return 1;
+            }
+        } else if (strcmp(argv[i], "--help") == 0) {
+            printf("Usage: %s [options] <input.mlp> <output>\n", argv[0]);
+            printf("Options:\n");
+            printf("  --backend=assembly    Generate x86-64 assembly (default)\n");
+            printf("  --backend=llvm        Generate LLVM IR\n");
+            printf("  --help                Show this help\n");
+            return 0;
+        } else if (!input_file) {
+            input_file = argv[i];
+        } else if (!output_file) {
+            output_file = argv[i];
+        }
     }
     
-    const char* input_file = argv[1];
-    const char* output_file = argv[2];
+    if (!input_file || !output_file) {
+        fprintf(stderr, "Usage: %s [options] <input.mlp> <output>\n", argv[0]);
+        fprintf(stderr, "Use --help for more information\n");
+        return 1;
+    }
     
     // YZ_30: Set current source file for relative import resolution
     import_set_current_source_file(input_file);
@@ -205,44 +241,76 @@ int main(int argc, char** argv) {
         return 1;
     }
     
-    // Generate assembly header (AT&T syntax - matches register format with % prefix)
-    fprintf(output, ".att_syntax\n");
-    fprintf(output, ".data\n\n");
-    
-    // YZ_32: Generate struct metadata (for runtime type info)
-    StructDef* s = structs;
-    while (s) {
-        // Count fields
-        int field_count = 0;
-        for (StructMember* m = s->members; m; m = m->next) field_count++;
-        
-        fprintf(output, "# Struct: %s (%d fields, size: %zu bytes)\n", 
-                s->name, field_count, s->total_size);
-        s = s->next;
-    }
-    
-    // YZ_32: Generate enum constants
-    EnumDefinition* e = enums;
-    while (e) {
-        fprintf(output, "# Enum: %s\n", e->name);
-        int i = 0;
-        for (EnumValue* v = e->values; v; v = v->next, i++) {
-            fprintf(output, ".equ %s_%s, %ld\n", e->name, v->name, (long)v->value);
+    // Generate code based on backend selection
+    if (backend == BACKEND_LLVM) {
+        // LLVM IR generation
+        FunctionLLVMContext* llvm_ctx = function_llvm_context_create(output);
+        if (!llvm_ctx) {
+            fprintf(stderr, "Error: Failed to create LLVM context\n");
+            fclose(output);
+            return 1;
         }
-        fprintf(output, "\n");
-        e = e->next;
-    }
-    
-    fprintf(output, "\n.text\n\n");
-    
-    // YZ_121: Set global consts for codegen
-    function_codegen_set_global_consts(consts);
-    
-    // Generate code for each function
-    FunctionDeclaration* func = functions;
-    while (func) {
-        function_generate_declaration(output, func);
-        func = func->next;
+        
+        // YZ_121: Set global consts for codegen
+        function_codegen_set_global_consts(consts);
+        
+        // Generate module header
+        function_generate_module_header_llvm(output);
+        
+        // Generate all functions
+        FunctionDeclaration* func = functions;
+        while (func) {
+            function_generate_declaration_llvm(llvm_ctx, func);
+            func = func->next;
+        }
+        
+        // Generate module footer (includes string globals)
+        function_generate_module_footer_llvm(output);
+        
+        // Cleanup
+        function_llvm_context_free(llvm_ctx);
+        
+    } else {
+        // Assembly generation
+        // Generate assembly header (AT&T syntax - matches register format with % prefix)
+        fprintf(output, ".att_syntax\n");
+        fprintf(output, ".data\n\n");
+        
+        // YZ_32: Generate struct metadata (for runtime type info)
+        StructDef* s = structs;
+        while (s) {
+            // Count fields
+            int field_count = 0;
+            for (StructMember* m = s->members; m; m = m->next) field_count++;
+            
+            fprintf(output, "# Struct: %s (%d fields, size: %zu bytes)\n", 
+                    s->name, field_count, s->total_size);
+            s = s->next;
+        }
+        
+        // YZ_32: Generate enum constants
+        EnumDefinition* e = enums;
+        while (e) {
+            fprintf(output, "# Enum: %s\n", e->name);
+            int i = 0;
+            for (EnumValue* v = e->values; v; v = v->next, i++) {
+                fprintf(output, ".equ %s_%s, %ld\n", e->name, v->name, (long)v->value);
+            }
+            fprintf(output, "\n");
+            e = e->next;
+        }
+        
+        fprintf(output, "\n.text\n\n");
+        
+        // YZ_121: Set global consts for codegen
+        function_codegen_set_global_consts(consts);
+        
+        // Generate code for each function
+        FunctionDeclaration* func = functions;
+        while (func) {
+            function_generate_declaration(output, func);
+            func = func->next;
+        }
     }
     
     // Close output
