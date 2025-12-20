@@ -1,83 +1,150 @@
 # NEXT AI START HERE - YZ Görev Dosyası
 
-**Son Güncelleme:** 20 Aralık 2025 (YZ_109)  
-**Mevcut YZ:** YZ_110 🎯 AKTİF  
+**Son Güncelleme:** 20 Aralık 2025 (YZ_ÜA_02)  
+**Mevcut YZ:** YZ_111 🎯 (Sonraki görev bekliyor)  
 **Dal:** `stage1_list_literal_fix_YZ_106`  
-**Durum:** YZ_109 tamamlandı! Struct field comparison fix ✅
+**Durum:** 🎉 TÜM BUG'LAR ÇÖZÜLDÜ! Stage 0 %99+ tamamlandı!
 
 ---
 
-## 🎉 YZ_109 TAMAMLANDI!
+## 🎉🎉🎉 BÜYÜK MİLESTONE TAMAMLANDI! 🎉🎉🎉
 
-**Başarı:** Bug #2 (Struct Field in Comparison) Fixed!
-- Bug #2: ✅ Struct field `arithmetic_codegen.c` zaten çalışıyordu
-- Bug #2 FIX: ✅ `comparison_codegen.c` struct member access eklendi
-- Bug #3: ✅ Enum variables zaten çalışıyordu
-- Comprehensive Test: ✅ Exit code 18 (tüm testler başarılı)
+### Stage 0 Bug Fix Serisi - TÜM BUG'LAR ÇÖZÜLDÜ!
 
-**Değişiklik:**
-- `comparison_codegen.c`: Struct member access desteği eklendi (satır 63-108)
-- Header include: `#include "../struct/struct.h"`
+| YZ | Bug | Çözüm | Durum |
+|----|-----|-------|-------|
+| YZ_108 | Import Warning → Fatal | Skip + Continue | ✅ |
+| YZ_109 | Struct/Enum in Comparison | Member access | ✅ |
+| YZ_110 | List Index Access | Dereference | ✅ |
 
----
+### Proje Durumu
 
-## 🎯 YZ_110 GÖREVİ: List Index Access Fix (Bug #1)
-
-### 📋 Üst Akıl Kararları (YZ_ÜA_02)
-
-**KARAR #24:** Bug'lar YZ'lere bölündü:
-- YZ_108: ✅ Import Fix (TAMAMLANDI)
-- YZ_109: ✅ Bug #2 + #3 (TAMAMLANDI - Variable Lookup)
-- YZ_110: Bug #1 (List Index Access)
-
----
-
-### 🎯 Bug #1: List Index Access Parsed as Function Call
-
-### 🎯 Bug #1: List Index Access Parsed as Function Call
-
-**Sorun:**
-```pmpl
-function main() as numeric
-    list<numeric> mylist = {10; 20; 30}
-    return mylist(0)    -- ❌ Fonksiyon çağrısı olarak parse ediliyor!
-end_function
+```
+Stage 0: %99+ TAMAMLANDI! 🎉
+Stage 1: %88 (~14/16 modül)
+Import:  Tree Shaking aktif ✅
+Bug'lar: 3/3 ÇÖZÜLDÜ ✅
 ```
 
-**Beklenen:** `mylist[0]` array access syntax
-**Gerçek:** Parser bunu `mylist(0)` function call olarak görüyor
+---
 
-**Dosya:** Lexer/Parser - list index syntax recognition
+## 📖 ZORUNLU OKUMA LİSTESİ (TÜM YZ'LER İÇİN!)
 
-**Çözüm:** List index access için özel syntax/parser desteği
+**Görev başlamadan ÖNCE bu belgeleri oku:**
+
+| # | Belge | İçerik | Neden Önemli |
+|---|-------|--------|--------------|
+| 1 | `pmlp_kesin_sozdizimi.md` | PMPL syntax kuralları | `;` ayırıcı, `end_if` tek token |
+| 2 | `MELP_Mimarisi.md` | Modül felsefesi, stateless | "Ölü şablon" prensibi |
+| 3 | `docs_tr/language/STO.md` | Smart Type Optimization | **Heap/stack, pointer davranışı** |
+| 4 | `BILINEN_SORUNLAR.md` | Mevcut bug'lar ve çözümler | Tekrar çalışma önlenir |
+
+### ⚠️ STO.md ÖZELLİKLE ÖNEMLİ!
+
+**Kritik bilgi:** List'ler heap'te saklanıyor ve pointer olarak tutuluyor!
+- `sto_list_get(list, index)` → **pointer** döner (değer DEĞİL!)
+- Dereference gerekli: `movq (%rax), %r8`
+- Bu bilgi olmadan list/array işlemleri YANLIŞ olur!
 
 ---
+
+## 🎯 SONRAKİ ADIMLAR (YZ_111+)
+
+Stage 0 tamamlandı! Artık şu seçenekler var:
+
+### Seçenek A: Stage 1 Bootstrap Test
+- 14/16 modül çalışıyor
+- Minimal self-hosting testi
+- Stage 1 compiler'ın kendini derlemesi
+
+### Seçenek B: Stage 1 Kalan Modüller
+- 2 modül hâlâ sorunlu (import chain)
+- %88 → %100 hedefi
+
+### Seçenek C: LLVM Backend Başlangıcı
+- x86-64 Assembly → LLVM IR
+- Cross-platform destek
+
+**Üst Akıl Önerisi:** Seçenek A - Bootstrap Test
+
+### 📂 Dosya
+
+`compiler/stage0/modules/arithmetic/arithmetic_parser.c`
+
+### 🔍 Kök Neden
+
+`identifier(expr)` pattern'i her zaman function call olarak parse ediliyor.  
+Variable mı function mı ayırt edilemiyor.
+
+### 💡 Olası Çözümler
+
+**Seçenek A: Symbol Table Lookup**
+- Parse sırasında identifier'ın variable mı function mı olduğunu kontrol et
+- Karmaşık: Symbol table'a erişim gerekiyor
+
+**Seçenek B: Syntax Farklılaştırma**
+- Function call: `func(args)`
+- List access: `list[index]` veya `list(index)` farklı token
+
+**Seçenek C: Heuristic**
+- Tek argümanlı ve numeric → muhtemelen list access
+- Riskli: Yanlış pozitif olabilir
+
+### ⚠️ NOT
+
+Bu bug **parser seviyesinde** (codegen değil). Önceki bug'lardan farklı bir yaklaşım gerekebilir.
+
+PMPL'de koleksiyon syntax'ı:
+- Array: `arr[i]` → `[]` ile
+- List: `list(i)` → `()` ile  
+- Tuple: `tuple<i>` → `<>` ile
 
 ### ✅ Başarı Kriterleri
 
 ```bash
 # Test: List index access
 cd compiler/stage0/modules/functions
-./functions_compiler test_list.mlp test.s
-gcc -no-pie test.s -L../../runtime/sto -lsto_runtime -o test && ./test
-# Expected: Exit code = 10 (first element)
+
+# Test dosyası oluştur
+cat > /tmp/test_list.mlp << 'EOF'
+function main() as numeric
+    list numbers = (10; 20; 30;)
+    return numbers(0)
+end_function
+EOF
+
+./functions_compiler /tmp/test_list.mlp /tmp/test_list.s
+gcc -no-pie /tmp/test_list.s -L../../runtime/sto -lsto_runtime -o /tmp/test_list
+/tmp/test_list
+echo "Exit: $?"
+# Expected: Exit code = 10
+```
+
+### 📖 MUTLAKA OKU
+
+1. **`pmlp_kesin_sozdizimi.md`** - PMPL syntax kuralları (list syntax bölümü)
+2. **`MELP_Mimarisi.md`** - Modül felsefesi
+3. **`arithmetic_parser.c`** - Function call parsing kodu
+
+### 🎯 Öneri
+
+Önce `arithmetic_parser.c`'de function call parsing'i incele:
+```bash
+grep -n "function.*call\|identifier.*paren\|LPAREN" compiler/stage0/modules/arithmetic/arithmetic_parser.c | head -20
 ```
 
 ---
 
-### 📖 MUTLAKA OKU
+## 📊 PROJE DURUMU
 
-1. **`MELP_Mimarisi.md`** - Modül felsefesi
-2. **`pmlp_kesin_sozdizimi.md`** - PMPL syntax kuralları (list syntax)
-3. **`TODO.md`** - Güncel görev listesi
+```
+Stage 0: %98+ (1 bug kaldı)
+Stage 1: %88 (~14/16 modül)
+Import:  Tree Shaking aktif ✅
+Bug'lar: 2/3 çözüldü, 1 kaldı
+```
 
----
-
-## 📊 YZ_109 Test Sonuçları
-
-**Dosya:** `compiler/stage0/modules/arithmetic/arithmetic_parser.c`
-
-**Öncelik:** YZ_109 tamamlandıktan sonra
+Bu son bug çözülünce Stage 0 %99+ olacak! 🚀
 
 ---
 

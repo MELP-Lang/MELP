@@ -7,27 +7,27 @@
 -- YZ: YZ_22
 -- ============================================================================
 
-function add(numeric a; numeric b) returns numeric
+function add(numeric a; numeric b) as numeric
     return a + b
 end_function
 
-function multiply(numeric x; numeric y) returns numeric
+function multiply(numeric x; numeric y) as numeric
     return x * y
 end_function
 
-function calculate() returns numeric
+function calculate() as numeric
     numeric a = 10
     numeric b = 20
     numeric sum = 0
     numeric product = 0
     
-    sum = add(a, b)
-    product = multiply(a, b)
+    sum = add(a; b)
+    product = multiply(a; b)
     
     return sum + product
 end_function
 
-function main() returns numeric
+function main() as numeric
     numeric result = 0
     result = calculate()
     return result

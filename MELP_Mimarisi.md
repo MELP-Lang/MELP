@@ -1,7 +1,26 @@
 # MELP MİMARİSİ - AI Asistan Kuralları
 
-**Son Güncelleme:** 20 Aralık 2025 (YZ_ÜA_02: Modül felsefesi eklendi)  
+**Son Güncelleme:** 20 Aralık 2025 (YZ_ÜA_02: Modül felsefesi + STO eklendi)  
 **Amaç:** Her AI asistanı bu dosyayı okuyup onaylamalıdır
+
+---
+
+## 📖 ZORUNLU OKUMA (TÜM YZ'LER İÇİN!)
+
+| # | Belge | Neden Önemli |
+|---|-------|--------------|
+| 1 | **Bu dosya** | Mimari kurallar, modül felsefesi |
+| 2 | `pmlp_kesin_sozdizimi.md` | PMPL syntax (`;` ayırıcı, `end_if` tek token) |
+| 3 | `docs_tr/language/STO.md` | **Heap/stack, pointer davranışı** |
+| 4 | `BILINEN_SORUNLAR.md` | Mevcut bug'lar |
+
+### ⚠️ STO BİLGİSİ KRİTİK!
+
+```
+List/Array → Heap'te saklanır → Pointer olarak tutulur
+sto_list_get() → POINTER döner (değer DEĞİL!)
+Dereference gerekli: movq (%rax), %r8
+```
 
 ---
 

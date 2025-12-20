@@ -123,6 +123,29 @@ static void generate_expr_code(FILE* output, ArithmeticExpr* expr, int target_re
     if (expr->is_function_call && expr->func_call) {
         FunctionCallExpr* call = expr->func_call;
         
+        // YZ_110: Check if this is actually a list access disguised as function call
+        // This happens when parser cannot determine if identifier is a list variable
+        if (func && function_is_list(func, call->function_name) && call->arg_count == 1) {
+            // Convert function call to list access
+            fprintf(output, "    # List access: %s(index)\n", call->function_name);
+            
+            // Get list variable offset
+            int list_offset = function_get_var_offset(func, call->function_name);
+            
+            // Evaluate index expression
+            arithmetic_generate_code(output, call->arguments[0], func);
+            fprintf(output, "    movq %%r8, %%rsi  # Index in rsi\n");
+            
+            // Load list pointer
+            fprintf(output, "    movq %d(%%rbp), %%rdi  # Load list pointer\n", list_offset);
+            
+            // Call sto_list_get (returns pointer to element)
+            fprintf(output, "    call sto_list_get  # Get element pointer\n");
+            fprintf(output, "    movq (%%rax), %%r8  # Dereference to get value\n");
+            
+            return;
+        }
+        
         fprintf(output, "    # Function call: %s()\n", call->function_name);
         
         // x86-64 calling convention registers: rdi, rsi, rdx, rcx, r8, r9
