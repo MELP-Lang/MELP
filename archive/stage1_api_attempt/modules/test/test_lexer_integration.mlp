@@ -1,0 +1,107 @@
+-- ============================================================================
+-- MELP Stage 1 - Lexer Integration Test (YZ_116)
+-- ============================================================================
+-- File: modules/test/test_lexer_integration.mlp
+-- Purpose: Test basic lexer functionality for self-hosting
+-- Date: 20 December 2025
+-- ============================================================================
+
+import "core/char_utils.mlp"
+import "core/token_types.mlp"
+
+function test_char_classification() returns numeric
+    println("[TEST] Character Classification")
+    
+    -- Test digit detection
+    numeric digit_result = is_digit("5")
+    if digit_result == 1 then
+        println("  ✓ is_digit('5') = true")
+    else
+        println("  ✗ is_digit('5') failed")
+        return 1
+    end_if
+    
+    -- Test alpha detection  
+    numeric alpha_result = is_alpha("a")
+    if alpha_result == 1 then
+        println("  ✓ is_alpha('a') = true")
+    else
+        println("  ✗ is_alpha('a') failed")
+        return 1
+    end_if
+    
+    -- Test whitespace detection
+    numeric space_result = is_space(" ")
+    if space_result == 1 then
+        println("  ✓ is_space(' ') = true")
+    else
+        println("  ✗ is_space(' ') failed")
+        return 1
+    end_if
+    
+    println("[TEST] Character Classification - PASSED")
+    return 0
+end_function
+
+function test_token_types() returns numeric
+    println("[TEST] Token Type Constants")
+    
+    -- Test some basic token constants
+    if TOKEN_EOF == 0 then
+        println("  ✓ TOKEN_EOF defined")
+    else
+        println("  ✗ TOKEN_EOF unexpected value")
+        return 1
+    end_if
+    
+    if TOKEN_IDENTIFIER >= 1 then
+        println("  ✓ TOKEN_IDENTIFIER defined")
+    else
+        println("  ✗ TOKEN_IDENTIFIER not found")
+        return 1
+    end_if
+    
+    if TOKEN_NUMBER >= 1 then
+        println("  ✓ TOKEN_NUMBER defined")
+    else
+        println("  ✗ TOKEN_NUMBER not found")
+        return 1
+    end_if
+    
+    println("[TEST] Token Type Constants - PASSED")
+    return 0
+end_function
+
+function main() returns numeric
+    println("==============================================")
+    println("MELP Stage 1 - Lexer Integration Test (YZ_116)")
+    println("==============================================")
+    println("")
+    
+    numeric result = 0
+    
+    -- Test 1: Character classification
+    result = test_char_classification()
+    if result != 0 then
+        println("")
+        println("FAILED: Character classification")
+        return 1
+    end_if
+    
+    println("")
+    
+    -- Test 2: Token types
+    result = test_token_types()
+    if result != 0 then
+        println("")
+        println("FAILED: Token types")
+        return 2
+    end_if
+    
+    println("")
+    println("==============================================")
+    println("ALL TESTS PASSED!")
+    println("==============================================")
+    
+    return 0
+end_function

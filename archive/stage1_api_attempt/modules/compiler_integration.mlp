@@ -64,7 +64,7 @@ end_function
 
 -- Tokenize entire source code
 -- Returns: list of tokens (or empty list on error)
--- Token format: [type, value, line, column]
+-- Token format: [type; value; line; column]
 function tokenize_source(string source) returns list
     log_verbose("Starting lexer phase...")
     
@@ -91,7 +91,7 @@ end_function
 
 -- Parse token stream into AST
 -- Returns: AST root node (list representation)
--- AST format: [node_type, data1, data2, children_list]
+-- AST format: [node_type; data1; data2; children_list]
 function parse_tokens(list tokens) returns list
     log_verbose("Starting parser phase...")
     
@@ -104,12 +104,12 @@ function parse_tokens(list tokens) returns list
     
     -- Parsing phases:
     -- 1. Parse imports (parser_import.mlp)
-    -- 2. Parse struct/enum definitions (parser_struct.mlp, parser_enum.mlp)
+    -- 2. Parse struct/enum definitions (parser_struct.mlp; parser_enum.mlp)
     -- 3. Parse function declarations (parser_func.mlp)
-    -- 4. Parse statements (parser_stmt.mlp, parser_control.mlp)
+    -- 4. Parse statements (parser_stmt.mlp; parser_control.mlp)
     
     -- TODO: Actual parser integration
-    -- For now, return empty AST
+    -- For now; return empty AST
     
     log_verbose("Parser phase complete")
     return ast_root
@@ -181,7 +181,7 @@ end_function
 -- UTILITY FUNCTIONS
 -- ============================================================================
 
--- These would manage global state, but Stage 0 doesn't support globals
+-- These would manage global state; but Stage 0 doesn't support globals
 -- Kept for API compatibility with future versions
 
 function set_verbose(numeric enable) returns numeric

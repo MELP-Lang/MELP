@@ -16,7 +16,7 @@ function test_calculation() returns numeric
     numeric result = 0
     
     -- Should calculate 3^2 + 4^2 = 9 + 16 = 25
-    result = sum_of_squares(a, b)
+    result = sum_of_squares(a; b)
     
     return result
 end_function

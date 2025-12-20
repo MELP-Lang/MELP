@@ -1,7 +1,7 @@
 -- ============================================================================
 -- MELP Stage 1 - Functions Module Test Suite
 -- ============================================================================
--- YZ_04 - December 18, 2025
+-- YZ_04 - December 18; 2025
 -- Purpose: Test function parser and codegen modules
 --
 -- Tests:
@@ -172,7 +172,7 @@ function test_parse_simple_function() returns list
     numeric return_type = func_decl[2]
     
     if func_name != "main" then
-        println("  Error: Expected func_name='main', got: " + func_name)
+        println("  Error: Expected func_name='main'; got: " + func_name)
         return (0;)
     end_if
     
@@ -195,7 +195,7 @@ function test_parse_function_with_params() returns list
     -- Create tokens
     list tokens = []
     
-    -- function add ( numeric a , numeric b ) returns numeric ...
+    -- function add ( numeric a ; numeric b ) returns numeric ...
     list tok1 = (TOKEN_FUNCTION; "function"; 1; 1;)
     list tok2 = (TOKEN_IDENTIFIER; "add"; 1; 10;)
     list tok3 = (TOKEN_LPAREN; "("; 1; 13;)
@@ -230,7 +230,7 @@ function test_parse_function_with_params() returns list
     numeric return_type = func_decl[2]
     
     if func_name != "add" then
-        println("  Error: Expected func_name='add', got: " + func_name)
+        println("  Error: Expected func_name='add'; got: " + func_name)
         return (0;)
     end_if
     
@@ -256,19 +256,19 @@ function test_parse_function_with_params() returns list
         return (0;)
     end_if
     
-    println("  Function parsed: " + func_name + "(a, b)")
+    println("  Function parsed: " + func_name + "(a; b)")
     println("  Parameters: 2")
     
     return (1;)
 end_function
 
 -- Test 3: Parse function call
--- Code: add(1, 2)
+-- Code: add(1; 2)
 function test_parse_function_call() returns list
     -- Create tokens
     list tokens = []
     
-    -- add ( 1 , 2 )
+    -- add ( 1 ; 2 )
     list tok1 = (TOKEN_IDENTIFIER; "add"; 1; 1;)
     list tok2 = (TOKEN_LPAREN; "("; 1; 4;)
     list tok3 = (TOKEN_NUMBER; "1"; 1; 5;)
@@ -279,7 +279,7 @@ function test_parse_function_call() returns list
     
     tokens = (tok1; tok2; tok3; tok4; tok5; tok6; tok7;)
     
-    -- Parse (starting from LPAREN, func_name already parsed)
+    -- Parse (starting from LPAREN; func_name already parsed)
     list result = parse_function_call(tokens; 1; "add")
     list func_call = result[0]
     
@@ -344,7 +344,7 @@ function test_parse_return_statement() returns list
     string value = return_value[1]
     
     if value != "42" then
-        println("  Error: Expected value='42', got: " + value)
+        println("  Error: Expected value='42'; got: " + value)
         return (0;)
     end_if
     
@@ -358,7 +358,7 @@ function test_codegen_function_prologue() returns list
     -- Create function declaration
     string func_name = "add"
     
-    -- Parameters: (numeric a, numeric b)
+    -- Parameters: (numeric a; numeric b)
     list param1 = (0; "a";)  -- FUNC_PARAM_NUMERIC=0
     list param2 = (0; "b";)
     list params = (param1; param2;)

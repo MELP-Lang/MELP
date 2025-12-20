@@ -1,8 +1,8 @@
 -- ============================================================================
 -- MELP Stage 1 - Functions Parser Module
 -- ============================================================================
--- YZ_04 - December 18, 2025
--- Purpose: Parse function declarations, calls, and returns (MELP implementation)
+-- YZ_04 - December 18; 2025
+-- Purpose: Parse function declarations; calls; and returns (MELP implementation)
 --
 -- Based on: compiler/stage0/modules/functions/functions_parser.c
 -- Uses: compiler/stage1/modules/core/ utilities (YZ_03)
@@ -13,9 +13,9 @@
 -- - Return statements: return expr
 --
 -- ARCHITECTURE COMPLIANCE:
--- - ✅ Stateless (no mutable globals, const OK)
+-- - ✅ Stateless (no mutable globals; const OK)
 -- - ✅ Modular (functions feature isolated)
--- - ✅ Uses core utilities (token_types, char_utils, type_mapper)
+-- - ✅ Uses core utilities (token_types; char_utils; type_mapper)
 -- ============================================================================
 
 -- Import core utilities (YZ_03)
@@ -108,11 +108,11 @@ end_function
 --
 -- Input: tokens - list of tokens to parse
 --        pos - current position in token list
--- Output: list [function_decl, new_pos]
---         function_decl = [name, params, return_type, body]
---         params = [[type, name], [type, name], ...]
+-- Output: list [function_decl; new_pos]
+--         function_decl = [name; params; return_type; body]
+--         params = [[type; name]; [type; name]; ...]
 --
--- STATELESS: Takes tokens + position, returns result + new position
+-- STATELESS: Takes tokens + position; returns result + new position
 function parse_function_declaration(list tokens; numeric pos) returns list
     -- Result structure
     string func_name = ""
@@ -218,7 +218,7 @@ function parse_function_declaration(list tokens; numeric pos) returns list
     
     current_pos = current_pos + 1
     
-    -- 6. 'returns' keyword (optional, default void)
+    -- 6. 'returns' keyword (optional; default void)
     current_token = tokens[current_pos]
     token_type = current_token[0]
     
@@ -232,7 +232,7 @@ function parse_function_declaration(list tokens; numeric pos) returns list
     end_if
     
     -- 7. Function body (statements until 'end_function')
-    -- For now, we'll mark body parsing position
+    -- For now; we'll mark body parsing position
     -- Actual body parsing would be done by statement parser
     numeric body_start = current_pos
     
@@ -270,16 +270,16 @@ function parse_function_declaration(list tokens; numeric pos) returns list
 end_function
 
 -- Parse function call
--- Syntax: func_name(arg1, arg2, ...)
+-- Syntax: func_name(arg1; arg2; ...)
 --
 -- Input: tokens - list of tokens
 --        pos - current position
 --        func_name - function name (already parsed)
--- Output: list [function_call, new_pos]
---         function_call = [func_name, args]
---         args = [arg1, arg2, ...]
+-- Output: list [function_call; new_pos]
+--         function_call = [func_name; args]
+--         args = [arg1; arg2; ...]
 --
--- STATELESS: Takes tokens + position, returns result + new position
+-- STATELESS: Takes tokens + position; returns result + new position
 function parse_function_call(list tokens; numeric pos; string func_name) returns list
     list args = ()
     numeric current_pos = pos
@@ -304,7 +304,7 @@ function parse_function_call(list tokens; numeric pos; string func_name) returns
         numeric parsing_args = 1
         
         while parsing_args == 1
-            -- For now, we'll just store the token as argument
+            -- For now; we'll just store the token as argument
             -- Proper expression parsing would be done by expression parser
             list arg = tokens[current_pos]
             args = args + (arg;)
@@ -322,7 +322,7 @@ function parse_function_call(list tokens; numeric pos; string func_name) returns
                     -- End of arguments
                     parsing_args = 0
                 else
-                    -- Could be part of expression, for now just move on
+                    -- Could be part of expression; for now just move on
                     parsing_args = 0
                 end_if
             end_if
@@ -351,11 +351,11 @@ end_function
 --
 -- Input: tokens - list of tokens
 --        pos - current position
--- Output: list [return_stmt, new_pos]
+-- Output: list [return_stmt; new_pos]
 --         return_stmt = [return_value]
 --         return_value = expression or 0 for void
 --
--- STATELESS: Takes tokens + position, returns result + new position
+-- STATELESS: Takes tokens + position; returns result + new position
 function parse_return_statement(list tokens; numeric pos) returns list
     numeric current_pos = pos
     
@@ -371,7 +371,7 @@ function parse_return_statement(list tokens; numeric pos) returns list
     current_pos = current_pos + 1
     
     -- 2. Parse return value (expression)
-    -- For now, we'll just store the next token
+    -- For now; we'll just store the next token
     -- Proper expression parsing would be done by expression parser
     current_token = tokens[current_pos]
     token_type = current_token[0]

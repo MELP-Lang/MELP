@@ -12,7 +12,7 @@
 -- Stateless Pattern:
 --   - No mutable global state
 --   - All state passed as parameters
---   - Returns [result, new_position] tuple
+--   - Returns [result; new_position] tuple
 --
 -- Dependencies:
 --   - core/token_types.mlp (TOKEN_* constants)
@@ -32,10 +32,10 @@ import "compiler/stage1/modules/core/token_types.mlp"
 const numeric VAR_NUMERIC = 0
 const numeric VAR_STRING = 1
 const numeric VAR_BOOLEAN = 2
-const numeric VAR_POINTER = 3      -- Pointer type (numeric*, string*)
-const numeric VAR_ARRAY = 4        -- Array type (numeric[], string[])
-const numeric VAR_LIST = 5         -- List type () - heterogeneous, mutable
-const numeric VAR_TUPLE = 6        -- Tuple type <> - heterogeneous, immutable
+const numeric VAR_POINTER = 3      -- Pointer type (numeric*; string*)
+const numeric VAR_ARRAY = 4        -- Array type (numeric[]; string[])
+const numeric VAR_LIST = 5         -- List type () - heterogeneous; mutable
+const numeric VAR_TUPLE = 6        -- Tuple type <> - heterogeneous; immutable
 
 -- ============================================================================
 -- STORAGE LOCATION CONSTANTS
@@ -104,14 +104,14 @@ end_function
 -- Parse variable declaration: numeric x = 10
 --
 -- Input:
---   tokens: list - Token stream [[type, value], [type, value], ...]
+--   tokens: list - Token stream [[type; value]; [type; value]; ...]
 --   pos: numeric - Current position in token stream
 --
 -- Output:
---   list - [declaration_info, new_position]
+--   list - [declaration_info; new_position]
 --     declaration_info: list - Variable declaration details
 --       [0]: text - Variable name
---       [1]: numeric - Variable type (VAR_NUMERIC, VAR_STRING, etc.)
+--       [1]: numeric - Variable type (VAR_NUMERIC; VAR_STRING; etc.)
 --       [2]: text - Initial value (or empty string if none)
 --       [3]: numeric - Storage location (STORAGE_*)
 --       [4]: numeric - Is pointer
@@ -269,7 +269,7 @@ function parse_variable_declaration(list tokens; numeric pos) returns list
                 current_pos = current_pos + 1
             else
                 -- Complex expression (would need expression parser)
-                -- For now, mark as runtime initialization
+                -- For now; mark as runtime initialization
                 init_value = ""
                 storage_loc = STORAGE_BSS
                 -- Don't advance position - let caller handle expression
@@ -290,11 +290,11 @@ end_function
 -- Parse variable assignment: x = 20
 --
 -- Input:
---   tokens: list - Token stream [[type, value], [type, value], ...]
+--   tokens: list - Token stream [[type; value]; [type; value]; ...]
 --   pos: numeric - Current position (should be at identifier)
 --
 -- Output:
---   list - [assignment_info, new_position]
+--   list - [assignment_info; new_position]
 --     assignment_info: list - Assignment details
 --       [0]: text - Variable name
 --       [1]: text - Value (simple literal or identifier)

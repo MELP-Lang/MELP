@@ -58,7 +58,7 @@ const numeric TOKEN_CASE = 39            -- case
 const numeric TOKEN_DEFAULT = 40         -- default
 const numeric TOKEN_EACH = 41            -- for each item in collection
 const numeric TOKEN_IN = 42              -- for each item in collection
-const numeric TOKEN_EXIT = 43            -- exit, exit for, exit while, exit if, exit function
+const numeric TOKEN_EXIT = 43            -- exit; exit for; exit while; exit if; exit function
 
 -- PMPL Block Terminators (underscore keywords)
 const numeric TOKEN_END_IF = 44          -- end_if
@@ -119,10 +119,9 @@ const numeric TOKEN_LPAREN = 80          -- (
 const numeric TOKEN_RPAREN = 81          -- )
 const numeric TOKEN_LBRACKET = 82        -- [
 const numeric TOKEN_RBRACKET = 83        -- ]
-const numeric TOKEN_LANGLE = 84          -- < (tuple literal, not comparison)
-const numeric TOKEN_RANGLE = 85          -- > (tuple literal, not comparison)
-const numeric TOKEN_COMMA = 86           -- ,
-const numeric TOKEN_COLON = 87           -- :
+const numeric TOKEN_LANGLE = 84          -- < (tuple literal; not comparison)
+const numeric TOKEN_RANGLE = 85          -- > (tuple literal; not comparison)
+const numeric TOKEN_COMMA = 86           -- ; const numeric TOKEN_COLON = 87           -- :
 const numeric TOKEN_SEMICOLON = 88       -- ;
 const numeric TOKEN_DOT = 89             -- .
 const numeric TOKEN_CONTINUATION = 90    -- _ or \ (line continuation)

@@ -1,0 +1,43 @@
+{
+  "version": "1.0",
+  "module_path": "/home/pardus/projeler/MLP/MLP/archive/stage1_api_attempt/modules/operators/operators_codegen.mlp",
+  "source_mtime": 1766203924,
+  "object_mtime": 0,
+  "object_path": null,
+  "assembly_path": "operators_codegen.s",
+  "functions": [
+    "type_name_to_kind",
+    "type_kind_to_name",
+    "types_compatible",
+    "is_primitive_type",
+    "is_composite_type",
+    "is_callable_type",
+    "token_to_operator",
+    "get_precedence",
+    "get_operator_name",
+    "is_operator",
+    "is_unary_operator",
+    "is_binary_operator",
+    "parse_primary",
+    "parse_expression",
+    "parse_operator_expression",
+    "get_expr_type",
+    "get_expr_value",
+    "get_expr_left",
+    "get_expr_right",
+    "get_expr_operator",
+    "codegen_arithmetic_binary",
+    "codegen_comparison_binary",
+    "codegen_logical_binary",
+    "codegen_logical_unary",
+    "codegen_expression",
+    "codegen_operator_expression",
+    "codegen_bool_to_i64",
+    "codegen_i64_to_bool",
+    "codegen_string_compare"
+  ],
+  "dependencies": [
+    "/home/pardus/projeler/MLP/MLP/archive/stage1_api_attempt/modules/core/type_mapper.mlp",
+    "/home/pardus/projeler/MLP/MLP/archive/stage1_api_attempt/modules/operators/operators_parser.mlp"
+  ]
+}

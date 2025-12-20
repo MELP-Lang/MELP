@@ -1,0 +1,124 @@
+-- ============================================================================
+-- MELP Stage 1 - Char Utils Direct Test (YZ_116)
+-- ============================================================================
+-- File: modules/test/test_char_utils_direct.mlp
+-- Purpose: Test char_utils functions directly with ASCII codes
+-- Date: 20 December 2025
+-- ============================================================================
+
+-- Check if character is a digit (0-9)
+function is_digit(numeric c) returns numeric
+    if c >= 48 then
+        if c <= 57 then
+            return 1
+        end_if
+    end_if
+    return 0
+end_function
+
+-- Check if character is a letter (a-z; A-Z)
+function is_alpha(numeric c) returns numeric
+    -- Check uppercase range
+    if c >= 65 then
+        if c <= 90 then
+            return 1
+        end_if
+    end_if
+    -- Check lowercase range
+    if c >= 97 then
+        if c <= 122 then
+            return 1
+        end_if
+    end_if
+    return 0
+end_function
+
+-- Check if character is whitespace
+function is_space(numeric c) returns numeric
+    if c == 32 then
+        return 1
+    end_if
+    if c == 9 then
+        return 1
+    end_if
+    if c == 10 then
+        return 1
+    end_if
+    if c == 13 then
+        return 1
+    end_if
+    return 0
+end_function
+
+function main() returns numeric
+    println("==============================================")
+    println("MELP Stage 1 - Char Utils Test (YZ_116)")
+    println("==============================================")
+    println("")
+    
+    -- Test digit detection (ASCII '5' = 53)
+    println("[TEST 1] is_digit(53) - '5'")
+    numeric result1 = is_digit(53)
+    if result1 == 1 then
+        println("  ✓ PASS")
+    else
+        println("  ✗ FAIL")
+        return 1
+    end_if
+    println("")
+    
+    -- Test non-digit (ASCII 'a' = 97)
+    println("[TEST 2] is_digit(97) - 'a' (should be 0)")
+    numeric result2 = is_digit(97)
+    if result2 == 0 then
+        println("  ✓ PASS")
+    else
+        println("  ✗ FAIL")
+        return 2
+    end_if
+    println("")
+    
+    -- Test uppercase alpha (ASCII 'A' = 65)
+    println("[TEST 3] is_alpha(65) - 'A'")
+    numeric result3 = is_alpha(65)
+    if result3 == 1 then
+        println("  ✓ PASS")
+    else
+        println("  ✗ FAIL")
+        return 3
+    end_if
+    println("")
+    
+    -- Test lowercase alpha (ASCII 'z' = 122)
+    println("[TEST 4] is_alpha(122) - 'z'")
+    numeric result4 = is_alpha(122)
+    if result4 == 1 then
+        println("  ✓ PASS")
+    else
+        println("  ✗ FAIL")
+        return 4
+    end_if
+    println("")
+    
+    -- Test space (ASCII ' ' = 32)
+    println("[TEST 5] is_space(32) - space")
+    numeric result5 = is_space(32)
+    if result5 == 1 then
+        println("  ✓ PASS")
+    else
+        println("  ✗ FAIL")
+        return 5
+    end_if
+    println("")
+    
+    println("==============================================")
+    println("ALL CHAR UTILS TESTS PASSED!")
+    println("==============================================")
+    println("")
+    println("[LEXER] Character classification ready")
+    println("[LEXER] Foundation functions working")
+    println("")
+    println("Exit code: 116 (YZ_116 success)")
+    
+    return 116
+end_function

@@ -1,7 +1,7 @@
 -- ============================================================================
 -- test_core.mlp - Test Suite for Core Utilities Module
 -- ============================================================================
--- Tests for: token_types.mlp, char_utils.mlp, type_mapper.mlp
+-- Tests for: token_types.mlp; char_utils.mlp; type_mapper.mlp
 -- ============================================================================
 
 import "core/token_types"
@@ -105,9 +105,9 @@ function test_type_mapper() returns numeric
     if type_kind_to_name(TYPE_BOOL) != "boolean" then return 1 end_if
     
     -- Test types_compatible
-    if types_compatible(TYPE_INT, TYPE_INT) != 1 then return 1 end_if
-    if types_compatible(TYPE_INT, TYPE_FLOAT) != 1 then return 1 end_if
-    if types_compatible(TYPE_INT, TYPE_STRING) != 0 then return 1 end_if
+    if types_compatible(TYPE_INT; TYPE_INT) != 1 then return 1 end_if
+    if types_compatible(TYPE_INT; TYPE_FLOAT) != 1 then return 1 end_if
+    if types_compatible(TYPE_INT; TYPE_STRING) != 0 then return 1 end_if
     
     -- Test type classification
     if is_primitive_type(TYPE_INT) != 1 then return 1 end_if

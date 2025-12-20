@@ -7,7 +7,7 @@
 -- 
 -- Description:
 --   Stateless LLVM IR code generation for structs in Stage 1 compiler.
---   Generates struct type definitions, instantiation, and member access.
+--   Generates struct type definitions; instantiation; and member access.
 --
 -- Features:
 --   - LLVM struct type definitions
@@ -17,7 +17,7 @@
 --
 -- Architecture:
 --   - STATELESS: All state passed as parameters
---   - Returns: [llvm_code, updated_context] pattern
+--   - Returns: [llvm_code; updated_context] pattern
 --   - No mutable globals (const OK - Rust model)
 --
 -- Dependencies:
@@ -50,15 +50,15 @@ const string LLVM_LIST = "[0 x i64]*"  -- Simplified array pointer
 --   Generates LLVM struct type definition.
 --
 -- LLVM IR:
---   %Person = type { i8*, i64 }  ; { name: string, age: numeric }
+--   %Person = type { i8*; i64 }  ; { name: string; age: numeric }
 --
 -- Parameters:
 --   struct_node (list): Struct definition node from parser
 --   indent (string): Indentation string
---   context (list): Codegen context (type registry, variables, etc.)
+--   context (list): Codegen context (type registry; variables; etc.)
 --
 -- Returns:
---   list: [llvm_code, updated_context]
+--   list: [llvm_code; updated_context]
 --   - llvm_code (string): Generated LLVM IR
 --   - updated_context (list): Updated context with registered type
 -- ----------------------------------------------------------------------------
@@ -94,7 +94,7 @@ function codegen_struct_definition(list struct_node; string indent; list context
     i = 0
     while i < type_idx
         if i > 0 then
-            code = code + ", "
+            code = code + "; "
         end_if
         code = code + llvm_types[i]
         i = i + 1
@@ -103,7 +103,7 @@ function codegen_struct_definition(list struct_node; string indent; list context
     code = code + " }\n"
     
     -- Register struct type in context (for later use)
-    -- context = [type_registry, variables, ...]
+    -- context = [type_registry; variables; ...]
     -- TODO: Add to type registry
     
     return (code; context;)
@@ -119,13 +119,13 @@ end_function
 --   %john = alloca %Person
 --
 -- Parameters:
---   struct_type (string): Struct type name (e.g., "Person")
---   instance_name (string): Instance variable name (e.g., "john")
+--   struct_type (string): Struct type name (e.g.; "Person")
+--   instance_name (string): Instance variable name (e.g.; "john")
 --   indent (string): Indentation string
 --   context (list): Codegen context
 --
 -- Returns:
---   list: [llvm_code, updated_context]
+--   list: [llvm_code; updated_context]
 -- ----------------------------------------------------------------------------
 function codegen_struct_allocation(string struct_type; string instance_name; string indent; list context) returns list
     code = indent
@@ -146,10 +146,10 @@ end_function
 --
 -- LLVM IR:
 --   %john = alloca %Person
---   %name_ptr = getelementptr %Person, %Person* %john, i32 0, i32 0
---   store i8* @str_John, i8** %name_ptr
---   %age_ptr = getelementptr %Person, %Person* %john, i32 0, i32 1
---   store i64 30, i64* %age_ptr
+--   %name_ptr = getelementptr %Person; %Person* %john; i32 0; i32 0
+--   store i8* @str_John; i8** %name_ptr
+--   %age_ptr = getelementptr %Person; %Person* %john; i32 0; i32 1
+--   store i64 30; i64* %age_ptr
 --
 -- Parameters:
 --   instance_node (list): Struct instantiation node from parser
@@ -157,7 +157,7 @@ end_function
 --   context (list): Codegen context
 --
 -- Returns:
---   list: [llvm_code, updated_context]
+--   list: [llvm_code; updated_context]
 -- ----------------------------------------------------------------------------
 function codegen_struct_instantiation(list instance_node; string indent; list context) returns list
     struct_type = instance_node[1]
@@ -167,13 +167,13 @@ function codegen_struct_instantiation(list instance_node; string indent; list co
     code = ""
     
     -- 1. Allocate struct
-    result = codegen_struct_allocation(struct_type, instance_name, indent, context)
+    result = codegen_struct_allocation(struct_type; instance_name; indent; context)
     code = code + result[0]
     context = result[1]
     
     -- 2. Initialize members
     -- TODO: Get struct definition from context to get member indices
-    -- For now, assume member order matches initializer order
+    -- For now; assume member order matches initializer order
     
     numeric init_idx = 0
     while init_idx < len(initializers)
@@ -189,11 +189,11 @@ function codegen_struct_instantiation(list instance_node; string indent; list co
         gep_code = gep_code + member_name
         gep_code = gep_code + "_ptr = getelementptr %"
         gep_code = gep_code + struct_type
-        gep_code = gep_code + ", %"
+        gep_code = gep_code + "; %"
         gep_code = gep_code + struct_type
         gep_code = gep_code + "* %"
         gep_code = gep_code + instance_name
-        gep_code = gep_code + ", i32 0, i32 "
+        gep_code = gep_code + "; i32 0; i32 "
         -- TODO: Get actual member index
         gep_code = gep_code + "0"  -- Simplified
         gep_code = gep_code + "\n"
@@ -205,7 +205,7 @@ function codegen_struct_instantiation(list instance_node; string indent; list co
         store_code = indent
         store_code = store_code + "store i64 "
         store_code = store_code + member_value
-        store_code = store_code + ", i64* %"
+        store_code = store_code + "; i64* %"
         store_code = store_code + instance_name
         store_code = store_code + "_"
         store_code = store_code + member_name
@@ -226,8 +226,8 @@ end_function
 --   Generates LLVM IR for struct member access (read).
 --
 -- LLVM IR:
---   %name_ptr = getelementptr %Person, %Person* %john, i32 0, i32 0
---   %name = load i8*, i8** %name_ptr
+--   %name_ptr = getelementptr %Person; %Person* %john; i32 0; i32 0
+--   %name = load i8*; i8** %name_ptr
 --
 -- Parameters:
 --   access_node (list): Member access node from parser
@@ -236,7 +236,7 @@ end_function
 --   context (list): Codegen context
 --
 -- Returns:
---   list: [llvm_code, updated_context]
+--   list: [llvm_code; updated_context]
 -- ----------------------------------------------------------------------------
 function codegen_member_access(list access_node; string result_var; string indent; list context) returns list
     instance_name = access_node[1]
@@ -245,7 +245,7 @@ function codegen_member_access(list access_node; string result_var; string inden
     code = ""
     
     -- TODO: Get struct type and member index from context
-    -- For now, hardcoded
+    -- For now; hardcoded
     struct_type = "Person"  -- Should come from context
     member_idx = 0          -- Should be looked up
     member_llvm_type = "i64" -- Should be inferred
@@ -258,11 +258,11 @@ function codegen_member_access(list access_node; string result_var; string inden
     gep_code = gep_code + ptr_var
     gep_code = gep_code + " = getelementptr %"
     gep_code = gep_code + struct_type
-    gep_code = gep_code + ", %"
+    gep_code = gep_code + "; %"
     gep_code = gep_code + struct_type
     gep_code = gep_code + "* %"
     gep_code = gep_code + instance_name
-    gep_code = gep_code + ", i32 0, i32 "
+    gep_code = gep_code + "; i32 0; i32 "
     gep_code = gep_code + "0"  -- member_idx as string
     gep_code = gep_code + "\n"
     
@@ -274,7 +274,7 @@ function codegen_member_access(list access_node; string result_var; string inden
     load_code = load_code + result_var
     load_code = load_code + " = load "
     load_code = load_code + member_llvm_type
-    load_code = load_code + ", "
+    load_code = load_code + "; "
     load_code = load_code + member_llvm_type
     load_code = load_code + "* %"
     load_code = load_code + ptr_var
@@ -292,8 +292,8 @@ end_function
 --   Generates LLVM IR for struct member assignment (write).
 --
 -- LLVM IR:
---   %age_ptr = getelementptr %Person, %Person* %john, i32 0, i32 1
---   store i64 25, i64* %age_ptr
+--   %age_ptr = getelementptr %Person; %Person* %john; i32 0; i32 1
+--   store i64 25; i64* %age_ptr
 --
 -- Parameters:
 --   assign_node (list): Member assignment node from parser
@@ -301,7 +301,7 @@ end_function
 --   context (list): Codegen context
 --
 -- Returns:
---   list: [llvm_code, updated_context]
+--   list: [llvm_code; updated_context]
 -- ----------------------------------------------------------------------------
 function codegen_member_assignment(list assign_node; string indent; list context) returns list
     instance_name = assign_node[1]
@@ -323,11 +323,11 @@ function codegen_member_assignment(list assign_node; string indent; list context
     gep_code = gep_code + ptr_var
     gep_code = gep_code + " = getelementptr %"
     gep_code = gep_code + struct_type
-    gep_code = gep_code + ", %"
+    gep_code = gep_code + "; %"
     gep_code = gep_code + struct_type
     gep_code = gep_code + "* %"
     gep_code = gep_code + instance_name
-    gep_code = gep_code + ", i32 0, i32 "
+    gep_code = gep_code + "; i32 0; i32 "
     gep_code = gep_code + "0"
     gep_code = gep_code + "\n"
     
@@ -340,7 +340,7 @@ function codegen_member_assignment(list assign_node; string indent; list context
     store_code = store_code + member_llvm_type
     store_code = store_code + " "
     store_code = store_code + value_expr  -- Simplified: assume it's a value
-    store_code = store_code + ", "
+    store_code = store_code + "; "
     store_code = store_code + member_llvm_type
     store_code = store_code + "* %"
     store_code = store_code + ptr_var
@@ -400,7 +400,7 @@ end_function
 --   member_count (numeric): Number of members
 --
 -- Returns:
---   string: LLVM struct type (e.g., "%Person = type { i8*, i64 }")
+--   string: LLVM struct type (e.g.; "%Person = type { i8*; i64 }")
 -- ----------------------------------------------------------------------------
 function get_struct_llvm_type(string struct_name; list member_types; numeric member_count) returns string
     type_str = "%"
@@ -410,7 +410,7 @@ function get_struct_llvm_type(string struct_name; list member_types; numeric mem
     numeric i = 0
     while i < member_count
         if i > 0 then
-            type_str = type_str + ", "
+            type_str = type_str + "; "
         end_if
         type_str = type_str + member_types[i]
         i = i + 1
@@ -441,11 +441,11 @@ function build_gep_instruction(string result_var; string struct_type; string ins
     gep = gep + result_var
     gep = gep + " = getelementptr %"
     gep = gep + struct_type
-    gep = gep + ", %"
+    gep = gep + "; %"
     gep = gep + struct_type
     gep = gep + "* %"
     gep = gep + instance_var
-    gep = gep + ", i32 0, i32 "
+    gep = gep + "; i32 0; i32 "
     -- Convert member_idx to string (TODO: needs string conversion)
     gep = gep + "0"  -- Simplified
     
@@ -463,7 +463,7 @@ end_function
 --   member_name (string): Member name to find
 --
 -- Returns:
---   numeric: Member index (0-based), or -1 if not found
+--   numeric: Member index (0-based); or -1 if not found
 -- ----------------------------------------------------------------------------
 function get_member_index(list struct_node; string member_name) returns numeric
     members = get_struct_members(struct_node)

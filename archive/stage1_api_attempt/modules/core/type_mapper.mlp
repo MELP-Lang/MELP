@@ -15,7 +15,7 @@ const numeric TYPE_VOID = 4          -- void
 const numeric TYPE_CHAR = 5          -- char
 const numeric TYPE_ARRAY = 6         -- array[T]
 const numeric TYPE_POINTER = 7       -- *T
-const numeric TYPE_FUNCTION = 8      -- func(T1, T2) -> T3
+const numeric TYPE_FUNCTION = 8      -- func(T1; T2) -> T3
 const numeric TYPE_STRUCT = 9        -- struct {...}
 const numeric TYPE_ENUM = 10         -- enum {...}
 const numeric TYPE_GENERIC = 11      -- T (generic type parameter)
@@ -119,7 +119,7 @@ function types_compatible(numeric lhs_kind; numeric rhs_kind) returns numeric
         return 1
     end_if
     
-    -- Numeric compatibility (int can be assigned float, vice versa)
+    -- Numeric compatibility (int can be assigned float; vice versa)
     numeric lhs_is_numeric = 0
     if lhs_kind == TYPE_INT or lhs_kind == TYPE_FLOAT then
         lhs_is_numeric = 1
@@ -142,7 +142,7 @@ function types_compatible(numeric lhs_kind; numeric rhs_kind) returns numeric
     return 0
 end_function
 
--- Check if type is a primitive (int, float, bool, char, string)
+-- Check if type is a primitive (int; float; bool; char; string)
 function is_primitive_type(numeric kind) returns numeric
     if kind == TYPE_INT then
         return 1
@@ -162,7 +162,7 @@ function is_primitive_type(numeric kind) returns numeric
     return 0
 end_function
 
--- Check if type is a composite type (array, struct, enum)
+-- Check if type is a composite type (array; struct; enum)
 function is_composite_type(numeric kind) returns numeric
     if kind == TYPE_ARRAY then
         return 1

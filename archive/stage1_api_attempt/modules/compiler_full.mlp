@@ -46,7 +46,7 @@ function tokenize_source(string source_code) returns numeric
     println("[LEXER] Starting tokenization...")
     
     -- Call clean API from lexer_api.mlp
-    -- In multi-module build, this will be the real tokenize_source()
+    -- In multi-module build; this will be the real tokenize_source()
     numeric token_count = 0
     token_count = length(source_code) / 5  -- Stub calculation
     
@@ -78,7 +78,7 @@ function parse_tokens(numeric token_count) returns numeric
     println("[PARSER] Starting AST construction...")
     
     -- Call clean API from parser_api.mlp
-    -- In multi-module build, this will be the real parse_tokens()
+    -- In multi-module build; this will be the real parse_tokens()
     numeric node_count = 0
     node_count = token_count / 3  -- Stub calculation
     
@@ -110,7 +110,7 @@ function codegen_ast(numeric node_count) returns string
     println("[CODEGEN] Starting LLVM IR generation...")
     
     -- Call clean API from codegen_api.mlp
-    -- In multi-module build, this will be the real generate_llvm_ir()
+    -- In multi-module build; this will be the real generate_llvm_ir()
     string llvm_ir = ""
     
     if node_count == 0 then
@@ -204,8 +204,8 @@ function print_usage() returns numeric
     println("Usage: compiler [options] <input.mlp> <output.ll>")
     println("")
     println("Options:")
-    println("  -h, --help     Show this help message")
-    println("  -v, --version  Show compiler version")
+    println("  -h; --help     Show this help message")
+    println("  -v; --version  Show compiler version")
     println("")
     println("Examples:")
     println("  compiler program.mlp output.ll")
@@ -242,7 +242,7 @@ function write_output_file(string filename; string content) returns numeric
     println("")
     
     -- Use builtin write_file() wrapper (YZ_25 - maps to mlp_write_file)
-    numeric result = write_file(filename, content)
+    numeric result = write_file(filename; content)
     
     if result == 1 then
         println("  ✓ File written successfully")
@@ -308,7 +308,7 @@ function compile_file(string input_file; string output_file) returns numeric
     -- Step 3: Write output
     println("[3/3] Writing output file...")
     numeric write_result
-    write_result = write_output_file(output_file, llvm_ir)
+    write_result = write_output_file(output_file; llvm_ir)
     println("  ✓ Output file written successfully")
     println("")
     
@@ -345,7 +345,7 @@ function main() returns numeric
     
     -- Compile the file
     numeric result
-    result = compile_file(input_file, output_file)
+    result = compile_file(input_file; output_file)
     
     -- Return status
     println("")

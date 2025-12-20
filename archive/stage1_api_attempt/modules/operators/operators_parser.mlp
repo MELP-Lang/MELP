@@ -1,10 +1,10 @@
 -- ============================================================================
 -- MELP Stage 1 - Operators Parser Module
 -- ============================================================================
--- Purpose: Parse arithmetic, comparison, and logical operators
+-- Purpose: Parse arithmetic; comparison; and logical operators
 -- Author: YZ_06
 -- Date: 18 Aralık 2025
--- Source: Stage 0 arithmetic/, comparison/, logical/ modules
+-- Source: Stage 0 arithmetic/; comparison/; logical/ modules
 -- Dependencies: core/token_types.mlp
 -- ============================================================================
 
@@ -44,7 +44,7 @@ const numeric OP_BIT_XOR = 32   -- ^ (bitwise XOR)
 -- EXPRESSION NODE TYPES
 -- ============================================================================
 
-const numeric EXPR_LITERAL = 1      -- Literal value (number, string, boolean)
+const numeric EXPR_LITERAL = 1      -- Literal value (number; string; boolean)
 const numeric EXPR_VARIABLE = 2     -- Variable reference
 const numeric EXPR_BINARY = 3       -- Binary operation (left op right)
 const numeric EXPR_UNARY = 4        -- Unary operation (op operand)
@@ -54,17 +54,17 @@ const numeric EXPR_UNARY = 4        -- Unary operation (op operand)
 -- ============================================================================
 
 const numeric PREC_LOWEST = 0
-const numeric PREC_OR = 1           -- or, ||
-const numeric PREC_AND = 2          -- and, &&
-const numeric PREC_EQUALITY = 3     -- ==, !=
-const numeric PREC_COMPARISON = 4   -- <, >, <=, >=
+const numeric PREC_OR = 1           -- or; ||
+const numeric PREC_AND = 2          -- and; &&
+const numeric PREC_EQUALITY = 3     -- ==; !=
+const numeric PREC_COMPARISON = 4   -- <; >; <=; >=
 const numeric PREC_BIT_OR = 5       -- |
 const numeric PREC_BIT_XOR = 6      -- ^
 const numeric PREC_BIT_AND = 7      -- &
-const numeric PREC_TERM = 8         -- +, -
-const numeric PREC_FACTOR = 9       -- *, /, %
+const numeric PREC_TERM = 8         -- +; -
+const numeric PREC_FACTOR = 9       -- *; /; %
 const numeric PREC_POWER = 10       -- **
-const numeric PREC_UNARY = 11       -- !, not, - (unary)
+const numeric PREC_UNARY = 11       -- !; not; - (unary)
 const numeric PREC_HIGHEST = 12
 
 -- ============================================================================
@@ -297,9 +297,9 @@ end_function
 -- EXPRESSION PARSING (Pratt Parser / Precedence Climbing)
 -- ============================================================================
 
--- Parse primary expression (literal, variable, parenthesized expression)
--- Returns: [expr_node, new_position]
--- expr_node: [node_type, value, left_child, right_child, operator]
+-- Parse primary expression (literal; variable; parenthesized expression)
+-- Returns: [expr_node; new_position]
+-- expr_node: [node_type; value; left_child; right_child; operator]
 function parse_primary(list tokens; numeric pos) returns list
     -- Safety check
     if pos >= tokens.length then
@@ -313,83 +313,83 @@ function parse_primary(list tokens; numeric pos) returns list
     -- Number literal
     if token_type == T_NUMBER then
         list expr = (EXPR_LITERAL; token_value; 0; 0; 0;)
-        return [expr, pos + 1]
+        return [expr; pos + 1]
     end_if
     
     -- String literal
     if token_type == T_STRING then
         list expr = (EXPR_LITERAL; token_value; 0; 0; 0;)
-        return [expr, pos + 1]
+        return [expr; pos + 1]
     end_if
     
     -- Boolean literal
     if token_type == T_TRUE then
         list expr = (EXPR_LITERAL; "true"; 0; 0; 0;)
-        return [expr, pos + 1]
+        return [expr; pos + 1]
     end_if
     if token_type == T_FALSE then
         list expr = (EXPR_LITERAL; "false"; 0; 0; 0;)
-        return [expr, pos + 1]
+        return [expr; pos + 1]
     end_if
     
     -- Variable
     if token_type == T_IDENTIFIER then
         list expr = (EXPR_VARIABLE; token_value; 0; 0; 0;)
-        return [expr, pos + 1]
+        return [expr; pos + 1]
     end_if
     
     -- Parenthesized expression: ( expr )
     if token_type == T_LPAREN then
-        list result = parse_expression(tokens, pos + 1, PREC_LOWEST)
+        list result = parse_expression(tokens; pos + 1; PREC_LOWEST)
         list expr = result[0]
         numeric new_pos = result[1]
         
         -- Expect closing parenthesis
         if new_pos >= tokens.length then
-            return [0, new_pos]  -- Error: missing )
+            return [0; new_pos]  -- Error: missing )
         end_if
         
         list next_token = tokens[new_pos]
         if next_token[0] != T_RPAREN then
-            return [0, new_pos]  -- Error: expected )
+            return [0; new_pos]  -- Error: expected )
         end_if
         
-        return [expr, new_pos + 1]
+        return [expr; new_pos + 1]
     end_if
     
-    -- Unary operator (not, !)
+    -- Unary operator (not; !)
     if token_type == T_NOT then
-        list result = parse_expression(tokens, pos + 1, PREC_UNARY)
+        list result = parse_expression(tokens; pos + 1; PREC_UNARY)
         list operand = result[0]
         numeric new_pos = result[1]
         
         list expr = (EXPR_UNARY; "not"; operand; 0; OP_NOT;)
-        return [expr, new_pos]
+        return [expr; new_pos]
     end_if
     
     -- Unary minus
     if token_type == T_MINUS then
-        list result = parse_expression(tokens, pos + 1, PREC_UNARY)
+        list result = parse_expression(tokens; pos + 1; PREC_UNARY)
         list operand = result[0]
         numeric new_pos = result[1]
         
         list expr = (EXPR_UNARY; "-"; operand; 0; OP_SUB;)
-        return [expr, new_pos]
+        return [expr; new_pos]
     end_if
     
-    return [0, pos]  -- Unable to parse
+    return [0; pos]  -- Unable to parse
 end_function
 
 -- Parse expression with precedence climbing
--- Returns: [expr_node, new_position]
+-- Returns: [expr_node; new_position]
 function parse_expression(list tokens; numeric pos; numeric min_prec) returns list
     -- Parse left operand (primary)
-    list result = parse_primary(tokens, pos)
+    list result = parse_primary(tokens; pos)
     list left = result[0]
     numeric current_pos = result[1]
     
     if left == 0 then
-        return [0, current_pos]  -- Error
+        return [0; current_pos]  -- Error
     end_if
     
     -- Climb precedence for binary operators
@@ -422,7 +422,7 @@ function parse_expression(list tokens; numeric pos; numeric min_prec) returns li
                 current_pos = current_pos + 1
                 
                 -- Parse right operand with higher precedence
-                list right_result = parse_expression(tokens, current_pos, prec + 1)
+                list right_result = parse_expression(tokens; current_pos; prec + 1)
                 list right = right_result[0]
                 current_pos = right_result[1]
                 
@@ -446,9 +446,9 @@ end_function
 -- ============================================================================
 
 -- Parse operator expression (entry point)
--- Returns: [expr_node, new_position]
+-- Returns: [expr_node; new_position]
 function parse_operator_expression(list tokens; numeric pos) returns list
-    return parse_expression(tokens, pos, PREC_LOWEST)
+    return parse_expression(tokens; pos; PREC_LOWEST)
 end_function
 
 -- Extract expression type

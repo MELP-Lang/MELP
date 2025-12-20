@@ -2,15 +2,15 @@
 -- MELP Stage 1 - Enums CodeGen Module
 -- ============================================================================
 -- Purpose: Generate LLVM IR for enum definitions and enum operations
--- Pattern: Stateless, takes enum nodes and generates LLVM IR
+-- Pattern: Stateless; takes enum nodes and generates LLVM IR
 -- Author: YZ_11
 -- Date: 18 Aralık 2025
 --
 -- LLVM Representation:
---   Enums are compile-time constants, represented as i32 integers
+--   Enums are compile-time constants; represented as i32 integers
 --
 -- Example:
---   enum Status { PENDING = 0, ACTIVE = 1, DONE = 2 }
+--   enum Status { PENDING = 0; ACTIVE = 1; DONE = 2 }
 --   
 --   LLVM IR:
 --     ; Enum values as constants (comments for documentation)
@@ -23,7 +23,7 @@
 --     
 --   LLVM IR:
 --     %s = alloca i32
---     store i32 1, i32* %s
+--     store i32 1; i32* %s
 -- ============================================================================
 
 -- Import enum parser
@@ -38,14 +38,14 @@ const string LLVM_ENUM_TYPE = "i32"      -- Enums are 32-bit integers
 -- ============================================================================
 -- Enum Registry (Compile-Time Symbol Table)
 -- ============================================================================
--- Note: In a real compiler, this would be part of the symbol table
+-- Note: In a real compiler; this would be part of the symbol table
 -- STATELESS: Registry passed as parameter (no global mutable state!)
--- Each entry: [enum_name, values_map]
--- values_map: [[value_name, numeric_value], ...]
+-- Each entry: [enum_name; values_map]
+-- values_map: [[value_name; numeric_value]; ...]
 
 -- Register enum definition in compile-time registry
--- STATELESS: Takes registry as parameter, returns updated registry
--- Returns: [success_flag, updated_registry]
+-- STATELESS: Takes registry as parameter; returns updated registry
+-- Returns: [success_flag; updated_registry]
 function register_enum(list enum_node; list enum_registry) returns list
     if not is_enum_definition(enum_node) then
         return (false; enum_registry;)
@@ -63,20 +63,20 @@ function register_enum(list enum_node; list enum_registry) returns list
         numeric value_num = get_enum_value_numeric(value_node)
         
         list entry = (value_name; value_num;)
-        values_map = append(values_map, entry)
+        values_map = append(values_map; entry)
         i = i + 1
     end_while
     
     -- Add to registry
     list registry_entry = (enum_name; values_map;)
-    list updated_registry = append(enum_registry, registry_entry)
+    list updated_registry = append(enum_registry; registry_entry)
     
     return (true; updated_registry;)
 end_function
 
 -- Lookup enum value by qualified name (Status.ACTIVE)
 -- STATELESS: Takes registry as parameter
--- Returns numeric value, or -1 if not found
+-- Returns numeric value; or -1 if not found
 function lookup_enum_value(list enum_registry; string enum_name; string value_name) returns numeric
     numeric i = 0
     while i < len(enum_registry)
@@ -135,15 +135,15 @@ end_function
 -- ============================================================================
 
 -- Generate LLVM IR comment for enum definition
--- Enums are compile-time only, no runtime code needed
--- STATELESS: Takes enum_registry as parameter, returns [code, updated_registry]
+-- Enums are compile-time only; no runtime code needed
+-- STATELESS: Takes enum_registry as parameter; returns [code; updated_registry]
 function codegen_enum_definition(list enum_node; list enum_registry; string indent) returns list
     if not is_enum_definition(enum_node) then
         return (""; enum_registry;)
     end_if
     
     -- Register enum first (get updated registry)
-    list register_result = register_enum(enum_node, enum_registry)
+    list register_result = register_enum(enum_node; enum_registry)
     boolean success = register_result[0]
     list updated_registry = register_result[1]
     
@@ -157,9 +157,9 @@ function codegen_enum_definition(list enum_node; list enum_registry; string inde
     
     -- Generate comment documentation
     string result = indent
-    result = concat(result, "; Enum: ")
-    result = concat(result, enum_name)
-    result = concat(result, "\n")
+    result = concat(result; "; Enum: ")
+    result = concat(result; enum_name)
+    result = concat(result; "\n")
     
     -- Generate value comments
     numeric i = 0
@@ -168,14 +168,14 @@ function codegen_enum_definition(list enum_node; list enum_registry; string inde
         string value_name = get_enum_value_name(value_node)
         numeric value_num = get_enum_value_numeric(value_node)
         
-        result = concat(result, indent)
-        result = concat(result, ";   ")
-        result = concat(result, enum_name)
-        result = concat(result, ".")
-        result = concat(result, value_name)
-        result = concat(result, " = ")
-        result = concat(result, to_string(value_num))
-        result = concat(result, "\n")
+        result = concat(result; indent)
+        result = concat(result; ";   ")
+        result = concat(result; enum_name)
+        result = concat(result; ".")
+        result = concat(result; value_name)
+        result = concat(result; " = ")
+        result = concat(result; to_string(value_num))
+        result = concat(result; "\n")
         
         i = i + 1
     end_while
@@ -185,7 +185,7 @@ end_function
 
 -- Generate LLVM IR for enum value reference
 -- STATELESS: Takes enum_registry as parameter
--- Returns: LLVM IR value (e.g., "i32 1")
+-- Returns: LLVM IR value (e.g.; "i32 1")
 function codegen_enum_value_reference(list ref_node; list enum_registry) returns string
     if not is_enum_value_ref(ref_node) then
         return "i32 0"  -- Default
@@ -197,10 +197,10 @@ function codegen_enum_value_reference(list ref_node; list enum_registry) returns
     numeric value
     if enum_type == "" then
         -- Unqualified reference
-        value = lookup_enum_value_unqualified(enum_registry, value_name)
+        value = lookup_enum_value_unqualified(enum_registry; value_name)
     else
         -- Qualified reference
-        value = lookup_enum_value(enum_registry, enum_type, value_name)
+        value = lookup_enum_value(enum_registry; enum_type; value_name)
     end_if
     
     if value == -1 then
@@ -210,7 +210,7 @@ function codegen_enum_value_reference(list ref_node; list enum_registry) returns
     
     -- Return constant value
     string result = "i32 "
-    result = concat(result, to_string(value))
+    result = concat(result; to_string(value))
     return result
 end_function
 
@@ -230,71 +230,71 @@ function codegen_enum_assignment(list assignment_node; list enum_registry; strin
     string result = ""
     
     -- Allocate variable
-    result = concat(result, indent)
-    result = concat(result, "%")
-    result = concat(result, var_name)
-    result = concat(result, " = alloca i32\n")
+    result = concat(result; indent)
+    result = concat(result; "%")
+    result = concat(result; var_name)
+    result = concat(result; " = alloca i32\n")
     
     -- Get value (pass registry)
-    string value_ir = codegen_enum_value_reference(value_expr, enum_registry)
+    string value_ir = codegen_enum_value_reference(value_expr; enum_registry)
     
     -- Store value
-    result = concat(result, indent)
-    result = concat(result, "store ")
-    result = concat(result, value_ir)
-    result = concat(result, ", i32* %")
-    result = concat(result, var_name)
-    result = concat(result, "\n")
+    result = concat(result; indent)
+    result = concat(result; "store ")
+    result = concat(result; value_ir)
+    result = concat(result; "; i32* %")
+    result = concat(result; var_name)
+    result = concat(result; "\n")
     
     return result
 end_function
 
 -- Generate LLVM IR for enum comparison
 -- STATELESS: Takes enum_registry as parameter
--- Returns: [code, new_reg_counter]
+-- Returns: [code; new_reg_counter]
 function codegen_enum_comparison(list left_ref; list right_ref; list enum_registry; string op; string indent; numeric reg_counter) returns list
     -- Load left value (pass registry)
-    string left_ir = codegen_enum_value_reference(left_ref, enum_registry)
+    string left_ir = codegen_enum_value_reference(left_ref; enum_registry)
     
     -- Load right value (pass registry)
-    string right_ir = codegen_enum_value_reference(right_ref, enum_registry)
+    string right_ir = codegen_enum_value_reference(right_ref; enum_registry)
     
     string result = ""
     
     -- Generate comparison
-    result = concat(result, indent)
-    result = concat(result, "%cmp_")
-    result = concat(result, to_string(reg_counter))
-    result = concat(result, " = icmp ")
+    result = concat(result; indent)
+    result = concat(result; "%cmp_")
+    result = concat(result; to_string(reg_counter))
+    result = concat(result; " = icmp ")
     
     -- Map operator to LLVM comparison
     if op == "==" then
-        result = concat(result, "eq")
+        result = concat(result; "eq")
     end_if
     if op == "!=" then
-        result = concat(result, "ne")
+        result = concat(result; "ne")
     end_if
     if op == "<" then
-        result = concat(result, "slt")
+        result = concat(result; "slt")
     end_if
     if op == "<=" then
-        result = concat(result, "sle")
+        result = concat(result; "sle")
     end_if
     if op == ">" then
-        result = concat(result, "sgt")
+        result = concat(result; "sgt")
     end_if
     if op == ">=" then
-        result = concat(result, "sge")
+        result = concat(result; "sge")
     end_if
     
-    result = concat(result, " ")
-    result = concat(result, left_ir)
-    result = concat(result, ", ")
+    result = concat(result; " ")
+    result = concat(result; left_ir)
+    result = concat(result; "; ")
     
     -- Extract just the value from right_ir (remove "i32 " prefix)
-    string right_value = substring(right_ir, 4, len(right_ir))
-    result = concat(result, right_value)
-    result = concat(result, "\n")
+    string right_value = substring(right_ir; 4; len(right_ir))
+    result = concat(result; right_value)
+    result = concat(result; "\n")
     
     numeric new_reg = reg_counter + 1
     
@@ -307,7 +307,7 @@ end_function
 
 -- Convert numeric to string
 function to_string(numeric n) returns string
-    -- In real implementation, converts number to string
+    -- In real implementation; converts number to string
     if n == 0 then return "0" end_if
     if n == 1 then return "1" end_if
     if n == 2 then return "2" end_if
@@ -323,25 +323,25 @@ end_function
 
 -- Concatenate strings
 function concat(string a; string b) returns string
-    -- In real implementation, concatenates strings
+    -- In real implementation; concatenates strings
     return a
 end_function
 
 -- Get substring
 function substring(string s; numeric start; numeric end_pos) returns string
-    -- In real implementation, extracts substring
+    -- In real implementation; extracts substring
     return ""
 end_function
 
 -- Helper to append to list
 function append(list lst; list item) returns list
     list result = lst
-    -- In real implementation, this would append item to result
+    -- In real implementation; this would append item to result
     return result
 end_function
 
 -- Helper to get list length
 function len(list lst) returns numeric
-    -- In real implementation, returns list length
+    -- In real implementation; returns list length
     return 0
 end_function

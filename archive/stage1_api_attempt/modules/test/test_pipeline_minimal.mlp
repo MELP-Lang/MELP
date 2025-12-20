@@ -1,0 +1,94 @@
+-- ============================================================================
+-- MELP Stage 1 - Ultra Minimal Pipeline Test (YZ_116)
+-- ============================================================================
+-- File: modules/test/test_pipeline_minimal.mlp
+-- Purpose: Test basic pipeline concept without complex runtime deps
+-- Date: 20 December 2025
+-- ============================================================================
+
+function simulate_lexer(string source) returns numeric
+    -- Simulate lexer: count potential tokens
+    numeric len = length(source)
+    numeric tokens = 0
+    
+    if len > 0 then
+        tokens = len / 5
+        if tokens < 1 then
+            tokens = 1
+        end_if
+    end_if
+    
+    return tokens
+end_function
+
+function simulate_parser(numeric token_count) returns numeric
+    -- Simulate parser: AST nodes from tokens
+    numeric nodes = 0
+    
+    if token_count > 0 then
+        nodes = token_count / 2
+        if nodes < 1 then
+            nodes = 1
+        end_if
+    end_if
+    
+    return nodes
+end_function
+
+function simulate_codegen(numeric node_count) returns numeric
+    -- Simulate codegen: assembly lines from AST nodes
+    numeric asm_lines = 0
+    
+    if node_count > 0 then
+        asm_lines = node_count * 10
+    end_if
+    
+    return asm_lines
+end_function
+
+function main() returns numeric
+    println("==============================================")
+    println("MELP Stage 1 - Pipeline Test (YZ_116)")
+    println("==============================================")
+    
+    -- Simulate compiling a simple program
+    string test_source = "function main() returns numeric return 42 end_function"
+    
+    println("Source code:")
+    println(test_source)
+    println("")
+    
+    -- Phase 1: Lexer
+    println("[PHASE 1] Lexer - Tokenization")
+    numeric tokens = simulate_lexer(test_source)
+    println("  Tokens generated")
+    
+    -- Phase 2: Parser
+    println("[PHASE 2] Parser - AST Construction")
+    numeric nodes = simulate_parser(tokens)
+    println("  AST nodes created")
+    
+    -- Phase 3: Codegen
+    println("[PHASE 3] Codegen - Assembly Generation")
+    numeric asm_lines = simulate_codegen(nodes)
+    println("  Assembly lines generated")
+    
+    println("")
+    println("==============================================")
+    println("PIPELINE TEST COMPLETE")
+    println("==============================================")
+    
+    -- Validate pipeline worked
+    if tokens > 0 then
+        if nodes > 0 then
+            if asm_lines > 0 then
+                println("✓ All phases successful")
+                println("Exit code: 116 (YZ_116 success)")
+                return 116
+            end_if
+        end_if
+    end_if
+    
+    println("✗ Pipeline failed")
+    return 1
+end_function

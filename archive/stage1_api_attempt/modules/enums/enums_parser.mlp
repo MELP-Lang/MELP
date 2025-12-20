@@ -2,7 +2,7 @@
 -- MELP Stage 1 - Enums Parser Module
 -- ============================================================================
 -- Purpose: Parse enum definitions and enum value usage
--- Pattern: Stateless, returns [result, new_position]
+-- Pattern: Stateless; returns [result; new_position]
 -- Author: YZ_11
 -- Date: 18 Aralık 2025
 --
@@ -34,10 +34,10 @@ const numeric ENUM_ASSIGNMENT = 4        -- Enum variable assignment: Status s =
 -- ============================================================================
 -- Enum Node Structures
 -- ============================================================================
--- Enum Definition: [ENUM_DEFINITION, enum_name, values_list, value_count]
--- Enum Value: [ENUM_VALUE, value_name, numeric_value]
--- Enum Value Reference: [ENUM_VALUE_REF, enum_type, value_name]
--- Enum Assignment: [ENUM_ASSIGNMENT, enum_type, var_name, value_expr]
+-- Enum Definition: [ENUM_DEFINITION; enum_name; values_list; value_count]
+-- Enum Value: [ENUM_VALUE; value_name; numeric_value]
+-- Enum Value Reference: [ENUM_VALUE_REF; enum_type; value_name]
+-- Enum Assignment: [ENUM_ASSIGNMENT; enum_type; var_name; value_expr]
 
 -- ============================================================================
 -- Core Parser Functions (STATELESS!)
@@ -45,7 +45,7 @@ const numeric ENUM_ASSIGNMENT = 4        -- Enum variable assignment: Status s =
 
 -- Parse enum definition
 -- Syntax: enum Status ... end_enum
--- Returns: [enum_node, new_position]
+-- Returns: [enum_node; new_position]
 function parse_enum_definition(list tokens; numeric pos) returns list
     -- Expect TOKEN_ENUM
     if tokens[pos] != TOKEN_ENUM then
@@ -102,14 +102,14 @@ function parse_enum_definition(list tokens; numeric pos) returns list
             current_pos = current_pos + 2  -- Skip number + value
             auto_value = value + 1  -- Next auto value
         else
-            -- No explicit value, use auto-increment
+            -- No explicit value; use auto-increment
             value = auto_value
             auto_value = auto_value + 1
         end_if
         
         -- Create enum value node
         list value_node = (ENUM_VALUE; value_name; value;)
-        values_list = append(values_list, value_node)
+        values_list = append(values_list; value_node)
         value_count = value_count + 1
     end_while
     
@@ -119,8 +119,8 @@ function parse_enum_definition(list tokens; numeric pos) returns list
     return (enum_node; current_pos;)
 end_function
 
--- Parse enum value reference (e.g., Status.ACTIVE or just ACTIVE)
--- Returns: [enum_value_ref_node, new_position]
+-- Parse enum value reference (e.g.; Status.ACTIVE or just ACTIVE)
+-- Returns: [enum_value_ref_node; new_position]
 function parse_enum_value_reference(list tokens; numeric pos) returns list
     -- Check for identifier (could be enum value)
     if tokens[pos] != TOKEN_IDENTIFIER then
@@ -156,7 +156,7 @@ end_function
 
 -- Parse enum variable assignment
 -- Syntax: Status s = ACTIVE
--- Returns: [assignment_node, new_position]
+-- Returns: [assignment_node; new_position]
 function parse_enum_assignment(list tokens; numeric pos) returns list
     -- Expect: Type identifier = value
     if tokens[pos] != TOKEN_IDENTIFIER then
@@ -182,7 +182,7 @@ function parse_enum_assignment(list tokens; numeric pos) returns list
     current_pos = current_pos + 1  -- Skip '='
     
     -- Parse value expression (could be enum value reference)
-    list value_result = parse_enum_value_reference(tokens, current_pos)
+    list value_result = parse_enum_value_reference(tokens; current_pos)
     numeric temp_value_result_0_1 = 0
     temp_value_result_0_1 = value_result[0]
     if temp_value_result_0_1 == 0 then
@@ -339,19 +339,19 @@ end_function
 -- Helper to append to list
 function append(list lst; list item) returns list
     list result = lst
-    -- In real implementation, this would append item to result
-    -- For now, we assume lists support dynamic append
+    -- In real implementation; this would append item to result
+    -- For now; we assume lists support dynamic append
     return result
 end_function
 
 -- Helper to get string length
 function len(list lst) returns numeric
-    -- In real implementation, returns list length
+    -- In real implementation; returns list length
     return 0
 end_function
 
 -- Helper to get character code
 function ord(string ch) returns numeric
-    -- In real implementation, returns ASCII value
+    -- In real implementation; returns ASCII value
     return 0
 end_function

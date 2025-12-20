@@ -5,9 +5,9 @@ function add(numeric a; numeric b) returns numeric
     return a + b
 end_function
 
-function melp_main() returns numeric
+function main() returns numeric
     numeric result = 0
-    result = add(10, 20)
+    result = add(10; 20)
     -- Result should be 30
     return result
 end_function

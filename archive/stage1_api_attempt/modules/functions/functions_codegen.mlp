@@ -1,8 +1,8 @@
 -- ============================================================================
 -- MELP Stage 1 - Functions CodeGen Module
 -- ============================================================================
--- YZ_04 - December 18, 2025
--- Purpose: Generate LLVM IR for function declarations, calls, and returns
+-- YZ_04 - December 18; 2025
+-- Purpose: Generate LLVM IR for function declarations; calls; and returns
 --
 -- Based on: compiler/stage0/modules/functions/functions_codegen.c
 -- Uses: compiler/stage1/modules/core/type_mapper.mlp (YZ_03)
@@ -14,7 +14,7 @@
 -- - Return statements (ret instruction)
 --
 -- ARCHITECTURE COMPLIANCE:
--- - ✅ Stateless (no mutable globals, const OK)
+-- - ✅ Stateless (no mutable globals; const OK)
 -- - ✅ Modular (functions feature isolated)
 -- - ✅ Uses core utilities (type_mapper for LLVM type conversion)
 -- ============================================================================
@@ -96,11 +96,11 @@ end_function
 
 -- Generate LLVM IR for function declaration prologue
 -- Input: func_name - function name
---        params - list of [type, name] pairs
+--        params - list of [type; name] pairs
 --        return_type - numeric return type constant
 -- Output: string - LLVM IR code
 --
--- STATELESS: Pure function, no side effects
+-- STATELESS: Pure function; no side effects
 function codegen_function_prologue(string func_name; list params; numeric return_type) returns string
     string ir = ""
     
@@ -135,7 +135,7 @@ function codegen_function_prologue(string func_name; list params; numeric return
         string llvm_type = param_type_to_llvm(param_type)
         
         if i > 0 then
-            ir = ir + ", "
+            ir = ir + "; "
         end_if
         
         ir = ir + llvm_type + " %" + param_name
@@ -160,7 +160,7 @@ function codegen_function_prologue(string func_name; list params; numeric return
         ir = ir + "  %" + param_name + ".addr = alloca " + llvm_type + "\n"
         
         -- Store parameter value
-        ir = ir + "  store " + llvm_type + " %" + param_name + ", "
+        ir = ir + "  store " + llvm_type + " %" + param_name + "; "
         ir = ir + llvm_type + "* %" + param_name + ".addr\n"
         
         i = i + 1
@@ -174,7 +174,7 @@ end_function
 --        return_value - optional return value (0 for void)
 -- Output: string - LLVM IR code
 --
--- STATELESS: Pure function, no side effects
+-- STATELESS: Pure function; no side effects
 function codegen_function_epilogue(numeric return_type; string return_value) returns string
     string ir = ""
     
@@ -196,11 +196,11 @@ function codegen_function_epilogue(numeric return_type; string return_value) ret
 end_function
 
 -- Generate LLVM IR for complete function declaration
--- Input: func_decl - [name, params, return_type, body_start, body_end]
+-- Input: func_decl - [name; params; return_type; body_start; body_end]
 --        body_ir - LLVM IR for function body (from statement codegen)
 -- Output: string - Complete LLVM IR for function
 --
--- STATELESS: Pure function, no side effects
+-- STATELESS: Pure function; no side effects
 function codegen_function_declaration(list func_decl; string body_ir) returns string
     string func_name = func_decl[0]
     list params = func_decl[1]
@@ -221,13 +221,13 @@ function codegen_function_declaration(list func_decl; string body_ir) returns st
 end_function
 
 -- Generate LLVM IR for function call
--- Input: func_call - [func_name, args]
+-- Input: func_call - [func_name; args]
 --        register_num - current register number for result
--- Output: list [ir_code, next_register]
+-- Output: list [ir_code; next_register]
 --         ir_code - LLVM IR for the call
 --         next_register - updated register number
 --
--- STATELESS: Takes state, returns new state
+-- STATELESS: Takes state; returns new state
 function codegen_function_call(list func_call; numeric register_num) returns list
     string func_name = func_call[0]
     list args = func_call[1]
@@ -250,11 +250,11 @@ function codegen_function_call(list func_call; numeric register_num) returns lis
         end_if
     end_while
     
-    -- For now, assume arguments are simple values
+    -- For now; assume arguments are simple values
     -- Proper expression codegen would be integrated later
     
     -- 2. Generate call instruction
-    -- call i64 @func_name(i64 %arg1, i64 %arg2)
+    -- call i64 @func_name(i64 %arg1; i64 %arg2)
     
     string result_reg = "%" + string(current_reg)
     current_reg = current_reg + 1
@@ -266,7 +266,7 @@ function codegen_function_call(list func_call; numeric register_num) returns lis
         list arg = args[i]
         
         if i > 0 then
-            ir = ir + ", "
+            ir = ir + "; "
         end_if
         
         -- Simple value for now (would be expression result register)
@@ -286,7 +286,7 @@ end_function
 --        return_type - expected return type
 -- Output: string - LLVM IR code
 --
--- STATELESS: Pure function, no side effects
+-- STATELESS: Pure function; no side effects
 function codegen_return_statement(list return_stmt; numeric return_type) returns string
     list return_value = return_stmt[0]
     
@@ -297,7 +297,7 @@ function codegen_return_statement(list return_stmt; numeric return_type) returns
     
     -- Check if void return
     if return_type != 3 then  -- Not void
-        -- For now, assume simple value
+        -- For now; assume simple value
         string value = return_value[1]
         ir = ir + " " + value
     end_if
@@ -312,16 +312,16 @@ end_function
 -- Input: param_name - parameter name
 --        param_type - parameter type
 --        register_num - current register number
--- Output: list [ir_code, next_register]
+-- Output: list [ir_code; next_register]
 --
--- STATELESS: Takes state, returns new state
+-- STATELESS: Takes state; returns new state
 function codegen_param_load(string param_name; numeric param_type; numeric register_num) returns list
     string llvm_type = param_type_to_llvm(param_type)
     
     string result_reg = "%" + string(register_num)
     numeric next_reg = register_num + 1
     
-    string ir = "  " + result_reg + " = load " + llvm_type + ", "
+    string ir = "  " + result_reg + " = load " + llvm_type + "; "
     ir = ir + llvm_type + "* %" + param_name + ".addr\n"
     
     return (ir; next_reg;)
@@ -346,7 +346,7 @@ function string(numeric n) returns string
     if n == 9 then return "9" end_if
     if n == 10 then return "10" end_if
     
-    -- For larger numbers, would need proper conversion
+    -- For larger numbers; would need proper conversion
     -- This is a temporary helper
     return "N"
 end_function

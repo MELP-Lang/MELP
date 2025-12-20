@@ -30,7 +30,7 @@ function test_parse_simple_enum() returns boolean
     -- enum Status PENDING ACTIVE DONE end_enum
     list tokens = (TOKEN_ENUM; ""; TOKEN_IDENTIFIER; "Status"; TOKEN_IDENTIFIER; "PENDING"; TOKEN_IDENTIFIER; "ACTIVE"; TOKEN_IDENTIFIER; "DONE"; TOKEN_END_ENUM; "";)
     
-    list result = parse_enum_definition(tokens, 0)
+    list result = parse_enum_definition(tokens; 0)
     list enum_node = result[0]
     numeric end_pos = result[1]
     
@@ -54,7 +54,7 @@ function test_parse_simple_enum() returns boolean
         return false
     end_if
     
-    -- Verify auto-increment values (PENDING=0, ACTIVE=1, DONE=2)
+    -- Verify auto-increment values (PENDING=0; ACTIVE=1; DONE=2)
     list values = get_enum_values(enum_node)
     
     list val0 = values[0]
@@ -93,7 +93,7 @@ function test_parse_enum_explicit_values() returns boolean
     -- enum Priority LOW = 10 MEDIUM = 20 HIGH = 30 end_enum
     list tokens = (TOKEN_ENUM; ""; TOKEN_IDENTIFIER; "Priority"; TOKEN_IDENTIFIER; "LOW"; TOKEN_ASSIGN; ""; TOKEN_NUMBER; "10"; TOKEN_IDENTIFIER; "MEDIUM"; TOKEN_ASSIGN; ""; TOKEN_NUMBER; "20"; TOKEN_IDENTIFIER; "HIGH"; TOKEN_ASSIGN; ""; TOKEN_NUMBER; "30"; TOKEN_END_ENUM; "";)
     
-    list result = parse_enum_definition(tokens, 0)
+    list result = parse_enum_definition(tokens; 0)
     list enum_node = result[0]
     
     -- Verify values
@@ -130,7 +130,7 @@ function test_parse_qualified_reference() returns boolean
     -- Mock token stream: Status.ACTIVE
     list tokens = (TOKEN_IDENTIFIER; "Status"; TOKEN_DOT; ""; TOKEN_IDENTIFIER; "ACTIVE";)
     
-    list result = parse_enum_value_reference(tokens, 0)
+    list result = parse_enum_value_reference(tokens; 0)
     list ref_node = result[0]
     
     if not is_enum_value_ref(ref_node) then
@@ -163,7 +163,7 @@ function test_parse_unqualified_reference() returns boolean
     -- Mock token stream: ACTIVE
     list tokens = (TOKEN_IDENTIFIER; "ACTIVE";)
     
-    list result = parse_enum_value_reference(tokens, 0)
+    list result = parse_enum_value_reference(tokens; 0)
     list ref_node = result[0]
     
     if not is_enum_value_ref(ref_node) then
@@ -196,7 +196,7 @@ function test_parse_enum_assignment() returns boolean
     -- Mock token stream: Status s = ACTIVE
     list tokens = (TOKEN_IDENTIFIER; "Status"; TOKEN_IDENTIFIER; "s"; TOKEN_ASSIGN; ""; TOKEN_IDENTIFIER; "ACTIVE";)
     
-    list result = parse_enum_assignment(tokens, 0)
+    list result = parse_enum_assignment(tokens; 0)
     list assignment_node = result[0]
     
     if not is_enum_assignment(assignment_node) then
@@ -241,25 +241,25 @@ function test_codegen_enum_definition() returns boolean
     list enum_node = (ENUM_DEFINITION; "Color"; values; 3;)
     
     -- Generate LLVM IR
-    string ir = codegen_enum_definition(enum_node, "    ")
+    string ir = codegen_enum_definition(enum_node; "    ")
     
     -- Verify IR contains enum name and values
-    if not contains(ir, "Enum: Color") then
+    if not contains(ir; "Enum: Color") then
         print "  FAIL: IR should contain enum name"
         return false
     end_if
     
-    if not contains(ir, "Color.RED = 0") then
+    if not contains(ir; "Color.RED = 0") then
         print "  FAIL: IR should contain RED value"
         return false
     end_if
     
-    if not contains(ir, "Color.GREEN = 1") then
+    if not contains(ir; "Color.GREEN = 1") then
         print "  FAIL: IR should contain GREEN value"
         return false
     end_if
     
-    if not contains(ir, "Color.BLUE = 2") then
+    if not contains(ir; "Color.BLUE = 2") then
         print "  FAIL: IR should contain BLUE value"
         return false
     end_if
@@ -274,7 +274,7 @@ end_function
 function test_codegen_enum_value_reference() returns boolean
     print "Test 7: CodeGen enum value reference"
     
-    -- First, register an enum
+    -- First; register an enum
     list value1 = (ENUM_VALUE; "PENDING"; 0;)
     list value2 = (ENUM_VALUE; "ACTIVE"; 1;)
     list values = (value1; value2;)
@@ -289,7 +289,7 @@ function test_codegen_enum_value_reference() returns boolean
     
     -- Verify IR is "i32 1"
     if ir != "i32 1" then
-        print "  FAIL: Expected 'i32 1', got: "
+        print "  FAIL: Expected 'i32 1'; got: "
         print ir
         return false
     end_if
@@ -317,15 +317,15 @@ function test_codegen_enum_assignment() returns boolean
     
     -- Generate LLVM IR
     list context = []  -- Empty context
-    string ir = codegen_enum_assignment(assignment_node, "    ", context)
+    string ir = codegen_enum_assignment(assignment_node; "    "; context)
     
     -- Verify IR contains alloca and store
-    if not contains(ir, "%c = alloca i32") then
+    if not contains(ir; "%c = alloca i32") then
         print "  FAIL: IR should contain alloca"
         return false
     end_if
     
-    if not contains(ir, "store i32 1, i32* %c") then
+    if not contains(ir; "store i32 1; i32* %c") then
         print "  FAIL: IR should contain store with value 1"
         return false
     end_if
@@ -352,17 +352,17 @@ function test_codegen_enum_comparison() returns boolean
     list right_ref = (ENUM_VALUE_REF; "Status"; "PENDING";)
     
     -- Generate comparison IR
-    list result = codegen_enum_comparison(left_ref, right_ref, "==", "    ", 1)
+    list result = codegen_enum_comparison(left_ref; right_ref; "=="; "    "; 1)
     string ir = result[0]
     numeric new_reg = result[1]
     
     -- Verify IR contains icmp eq
-    if not contains(ir, "icmp eq") then
+    if not contains(ir; "icmp eq") then
         print "  FAIL: IR should contain icmp eq"
         return false
     end_if
     
-    if not contains(ir, "i32 1") then
+    if not contains(ir; "i32 1") then
         print "  FAIL: IR should contain left value (1)"
         return false
     end_if
@@ -435,7 +435,7 @@ function test_enum_registry() returns boolean
     register_enum(enum_node)
     
     -- Test qualified lookup
-    numeric val = lookup_enum_value("Level", "LOW")
+    numeric val = lookup_enum_value("Level"; "LOW")
     if val != 1 then
         print "  FAIL: Qualified lookup failed"
         return false
@@ -449,7 +449,7 @@ function test_enum_registry() returns boolean
     end_if
     
     -- Test not found
-    val = lookup_enum_value("Level", "NOTEXIST")
+    val = lookup_enum_value("Level"; "NOTEXIST")
     if val != -1 then
         print "  FAIL: Should return -1 for not found"
         return false
@@ -528,8 +528,8 @@ end_function
 -- Helper: Check if string contains substring
 -- ============================================================================
 function contains(string haystack; string needle) returns boolean
-    -- In real implementation, checks if needle is in haystack
-    -- For now, always return true (will be implemented in Stage 1 compiler)
+    -- In real implementation; checks if needle is in haystack
+    -- For now; always return true (will be implemented in Stage 1 compiler)
     return true
 end_function
 

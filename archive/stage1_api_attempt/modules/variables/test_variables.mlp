@@ -1,7 +1,7 @@
 -- ============================================================================
 -- MELP Stage 1 - Variables Module Test Suite
 -- ============================================================================
--- YZ_05 - December 18, 2025
+-- YZ_05 - December 18; 2025
 -- Purpose: Test variable parser and codegen modules
 --
 -- Tests:
@@ -167,11 +167,11 @@ end_function
 function test_parse_numeric_var() returns list
     -- Create tokens: numeric x
     list tokens = []
-    tokens = tokens + ([TOKEN_NUMERIC, "numeric"];)
-    tokens = tokens + ([TOKEN_IDENTIFIER, "x"];)
+    tokens = tokens + ([TOKEN_NUMERIC; "numeric"];)
+    tokens = tokens + ([TOKEN_IDENTIFIER; "x"];)
     
     -- Parse
-    list result = parse_variable_declaration(tokens, 0)
+    list result = parse_variable_declaration(tokens; 0)
     
     -- Check result
     if result.length == 0 then
@@ -187,7 +187,7 @@ function test_parse_numeric_var() returns list
     numeric var_type = decl_info[1]
     
     if var_name != "x" then
-        println("    Error: Expected name 'x', got '" + var_name + "'")
+        println("    Error: Expected name 'x'; got '" + var_name + "'")
         return (0;)
     end_if
     
@@ -207,11 +207,11 @@ end_function
 function test_parse_string_var() returns list
     -- Create tokens: string name
     list tokens = []
-    tokens = tokens + ([TOKEN_STRING_TYPE, "string"];)
-    tokens = tokens + ([TOKEN_IDENTIFIER, "name"];)
+    tokens = tokens + ([TOKEN_STRING_TYPE; "string"];)
+    tokens = tokens + ([TOKEN_IDENTIFIER; "name"];)
     
     -- Parse
-    list result = parse_variable_declaration(tokens, 0)
+    list result = parse_variable_declaration(tokens; 0)
     
     if result.length == 0 then
         println("    Error: Parse failed")
@@ -243,11 +243,11 @@ end_function
 function test_parse_boolean_var() returns list
     -- Create tokens: boolean flag
     list tokens = []
-    tokens = tokens + ([TOKEN_BOOLEAN, "boolean"];)
-    tokens = tokens + ([TOKEN_IDENTIFIER, "flag"];)
+    tokens = tokens + ([TOKEN_BOOLEAN; "boolean"];)
+    tokens = tokens + ([TOKEN_IDENTIFIER; "flag"];)
     
     -- Parse
-    list result = parse_variable_declaration(tokens, 0)
+    list result = parse_variable_declaration(tokens; 0)
     
     if result.length == 0 then
         println("    Error: Parse failed")
@@ -279,13 +279,13 @@ end_function
 function test_parse_var_with_init() returns list
     -- Create tokens: numeric x = 42
     list tokens = []
-    tokens = tokens + ([TOKEN_NUMERIC, "numeric"];)
-    tokens = tokens + ([TOKEN_IDENTIFIER, "x"];)
-    tokens = tokens + ([TOKEN_ASSIGN, "="];)
-    tokens = tokens + ([TOKEN_NUMBER, "42"];)
+    tokens = tokens + ([TOKEN_NUMERIC; "numeric"];)
+    tokens = tokens + ([TOKEN_IDENTIFIER; "x"];)
+    tokens = tokens + ([TOKEN_ASSIGN; "="];)
+    tokens = tokens + ([TOKEN_NUMBER; "42"];)
     
     -- Parse
-    list result = parse_variable_declaration(tokens, 0)
+    list result = parse_variable_declaration(tokens; 0)
     
     if result.length == 0 then
         println("    Error: Parse failed")
@@ -314,7 +314,7 @@ function test_parse_var_with_init() returns list
     end_if
     
     if init_value != "42" then
-        println("    Error: Expected value '42', got '" + init_value + "'")
+        println("    Error: Expected value '42'; got '" + init_value + "'")
         return (0;)
     end_if
     
@@ -330,12 +330,12 @@ end_function
 function test_parse_assignment() returns list
     -- Create tokens: x = 100
     list tokens = []
-    tokens = tokens + ([TOKEN_IDENTIFIER, "x"];)
-    tokens = tokens + ([TOKEN_ASSIGN, "="];)
-    tokens = tokens + ([TOKEN_NUMBER, "100"];)
+    tokens = tokens + ([TOKEN_IDENTIFIER; "x"];)
+    tokens = tokens + ([TOKEN_ASSIGN; "="];)
+    tokens = tokens + ([TOKEN_NUMBER; "100"];)
     
     -- Parse
-    list result = parse_variable_assignment(tokens, 0)
+    list result = parse_variable_assignment(tokens; 0)
     
     if result.length == 0 then
         println("    Error: Parse failed")
@@ -380,7 +380,7 @@ function test_codegen_declaration() returns list
         true               -- [8] has initializer;)
     
     -- Generate LLVM IR
-    text ir_code = codegen_variable_declaration(decl_info, "  ")
+    text ir_code = codegen_variable_declaration(decl_info; "  ")
     
     -- Verify output contains expected strings
     if ir_code.length == 0 then
@@ -388,7 +388,7 @@ function test_codegen_declaration() returns list
         return (0;)
     end_if
     
-    -- Should contain: alloca, store
+    -- Should contain: alloca; store
     boolean has_alloca = false
     boolean has_store = false
     
@@ -424,7 +424,7 @@ function test_codegen_assignment() returns list
         false       -- [2] is expression;)
     
     -- Generate LLVM IR
-    text ir_code = codegen_variable_assignment(assign_info, VAR_NUMERIC, "  ")
+    text ir_code = codegen_variable_assignment(assign_info; VAR_NUMERIC; "  ")
     
     if ir_code.length == 0 then
         println("    Error: No IR generated")
@@ -446,7 +446,7 @@ end_function
 -- Test 8: CodeGen variable load
 function test_codegen_load() returns list
     -- Generate load for: count
-    text ir_code = codegen_variable_load("count", VAR_NUMERIC, "temp1", "  ")
+    text ir_code = codegen_variable_load("count"; VAR_NUMERIC; "temp1"; "  ")
     
     if ir_code.length == 0 then
         println("    Error: No IR generated")
