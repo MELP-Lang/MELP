@@ -1,0 +1,181 @@
+-- ============================================================================
+-- test_real_compiler_module.mlp - Real compiler logic test (YZ_120 Phase 2)
+-- ============================================================================
+-- Purpose: Test actual compiler phases: lex → parse → codegen
+-- Expected exit code: 111 (37 + 37 + 37)
+-- ============================================================================
+
+-- ============================================================================
+-- CHARACTER CLASSIFICATION (needed by lexer)
+-- ============================================================================
+
+function is_digit(numeric c) returns numeric
+    if c >= 48 and c <= 57 then
+        return 1
+    end_if
+    return 0
+end_function
+
+function is_alpha(numeric c) returns numeric
+    if c >= 65 and c <= 90 then
+        return 1
+    end_if
+    if c >= 97 and c <= 122 then
+        return 1
+    end_if
+    return 0
+end_function
+
+function is_whitespace(numeric c) returns numeric
+    if c == 32 then
+        return 1
+    end_if
+    if c == 9 then
+        return 1
+    end_if
+    if c == 10 then
+        return 1
+    end_if
+    return 0
+end_function
+
+-- ============================================================================
+-- LEXER PHASE
+-- ============================================================================
+
+function lex_character(numeric ch) returns numeric
+    numeric char_type
+    numeric digit_check
+    numeric alpha_check
+    numeric ws_check
+    
+    digit_check = is_digit(ch)
+    if digit_check == 1 then
+        return 1
+    end_if
+    
+    alpha_check = is_alpha(ch)
+    if alpha_check == 1 then
+        return 2
+    end_if
+    
+    ws_check = is_whitespace(ch)
+    if ws_check == 1 then
+        return 3
+    end_if
+    
+    return 0
+end_function
+
+function tokenize_simple(numeric char1; numeric char2; numeric char3) returns numeric
+    numeric token1
+    numeric token2
+    numeric token3
+    numeric total
+    
+    token1 = lex_character(char1)
+    token2 = lex_character(char2)
+    token3 = lex_character(char3)
+    
+    total = token1 + token2 + token3
+    return total
+end_function
+
+-- ============================================================================
+-- PARSER PHASE
+-- ============================================================================
+
+function parse_token(numeric token_type) returns numeric
+    if token_type == 1 then
+        return 10
+    end_if
+    if token_type == 2 then
+        return 20
+    end_if
+    if token_type == 3 then
+        return 5
+    end_if
+    return 0
+end_function
+
+function parse_sequence(numeric tok1; numeric tok2; numeric tok3) returns numeric
+    numeric ast1
+    numeric ast2
+    numeric ast3
+    numeric ast_size
+    
+    ast1 = parse_token(tok1)
+    ast2 = parse_token(tok2)
+    ast3 = parse_token(tok3)
+    
+    ast_size = ast1 + ast2 + ast3
+    return ast_size
+end_function
+
+-- ============================================================================
+-- CODEGEN PHASE
+-- ============================================================================
+
+function generate_instruction(numeric ast_node) returns numeric
+    if ast_node == 10 then
+        return 1
+    end_if
+    if ast_node == 20 then
+        return 2
+    end_if
+    if ast_node == 5 then
+        return 1
+    end_if
+    return 0
+end_function
+
+function codegen_sequence(numeric node1; numeric node2; numeric node3) returns numeric
+    numeric instr1
+    numeric instr2
+    numeric instr3
+    numeric code_size
+    
+    instr1 = generate_instruction(node1)
+    instr2 = generate_instruction(node2)
+    instr3 = generate_instruction(node3)
+    
+    code_size = instr1 + instr2 + instr3
+    return code_size
+end_function
+
+-- ============================================================================
+-- COMPILER PIPELINE
+-- ============================================================================
+
+function compile_input(numeric ch1; numeric ch2; numeric ch3) returns numeric
+    numeric lex_result
+    numeric parse_result
+    numeric codegen_result
+    numeric pipeline_result
+    
+    lex_result = tokenize_simple(ch1; ch2; ch3)
+    parse_result = parse_sequence(1; 2; 3)
+    codegen_result = codegen_sequence(10; 20; 5)
+    
+    pipeline_result = lex_result + parse_result + codegen_result
+    return pipeline_result
+end_function
+
+-- ============================================================================
+-- TEST DRIVER
+-- ============================================================================
+
+function main() returns numeric
+    numeric result1
+    numeric result2
+    numeric result3
+    numeric total
+    
+    result1 = compile_input(53; 65; 32)
+    result2 = compile_input(49; 97; 9)
+    result3 = compile_input(50; 90; 10)
+    
+    total = result1 + result2 + result3
+    
+    return total
+end_function

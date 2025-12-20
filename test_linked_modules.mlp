@@ -1,0 +1,279 @@
+-- ============================================================================
+-- test_linked_modules.mlp - Test for module linking strategy (YZ_120)
+-- ============================================================================
+-- Purpose: Demonstrate multiple modules combined into one file
+-- Strategy: Manual combination of char_utils + string_utils + main
+-- Expected exit code: 150
+-- ============================================================================
+
+-- ============================================================================
+-- MODULE 1: CHAR_UTILS (11 functions)
+-- ============================================================================
+
+function is_digit(numeric c) returns numeric
+    if c >= 48 and c <= 57 then
+        return 1
+    end_if
+    return 0
+end_function
+
+function is_alpha(numeric c) returns numeric
+    if c >= 65 and c <= 90 then
+        return 1
+    end_if
+    if c >= 97 and c <= 122 then
+        return 1
+    end_if
+    return 0
+end_function
+
+function is_alnum(numeric c) returns numeric
+    numeric check_alpha
+    numeric check_digit
+    
+    check_alpha = is_alpha(c)
+    if check_alpha == 1 then
+        return 1
+    end_if
+    
+    check_digit = is_digit(c)
+    if check_digit == 1 then
+        return 1
+    end_if
+    return 0
+end_function
+
+function is_space(numeric c) returns numeric
+    if c == 32 then
+        return 1
+    end_if
+    if c == 9 then
+        return 1
+    end_if
+    if c == 10 then
+        return 1
+    end_if
+    if c == 13 then
+        return 1
+    end_if
+    return 0
+end_function
+
+function is_upper(numeric c) returns numeric
+    if c >= 65 and c <= 90 then
+        return 1
+    end_if
+    return 0
+end_function
+
+function is_lower(numeric c) returns numeric
+    if c >= 97 and c <= 122 then
+        return 1
+    end_if
+    return 0
+end_function
+
+function to_upper(numeric c) returns numeric
+    numeric check
+    check = is_lower(c)
+    if check == 1 then
+        return c - 32
+    end_if
+    return c
+end_function
+
+function to_lower(numeric c) returns numeric
+    numeric check
+    check = is_upper(c)
+    if check == 1 then
+        return c + 32
+    end_if
+    return c
+end_function
+
+function is_identifier_start(numeric c) returns numeric
+    numeric check
+    check = is_alpha(c)
+    if check == 1 then
+        return 1
+    end_if
+    if c == 95 then
+        return 1
+    end_if
+    return 0
+end_function
+
+function is_identifier_char(numeric c) returns numeric
+    numeric check
+    check = is_alnum(c)
+    if check == 1 then
+        return 1
+    end_if
+    if c == 95 then
+        return 1
+    end_if
+    return 0
+end_function
+
+function is_ascii(numeric c) returns numeric
+    if c >= 0 and c < 128 then
+        return 1
+    end_if
+    return 0
+end_function
+
+-- ============================================================================
+-- MODULE 2: STRING_UTILS (using char_utils)
+-- ============================================================================
+
+function count_digits_in_range(numeric start; numeric end_val) returns numeric
+    numeric count
+    numeric i
+    numeric check
+    count = 0
+    i = start
+    
+    if end_val > start then
+        check = is_digit(i)
+        if check == 1 then
+            count = count + 1
+        end_if
+        i = i + 1
+        
+        if i < end_val then
+            check = is_digit(i)
+            if check == 1 then
+                count = count + 1
+            end_if
+        end_if
+    end_if
+    
+    return count
+end_function
+
+function count_alpha_in_range(numeric start; numeric end_val) returns numeric
+    numeric count
+    numeric i
+    numeric check
+    count = 0
+    i = start
+    
+    if end_val > start then
+        check = is_alpha(i)
+        if check == 1 then
+            count = count + 1
+        end_if
+        i = i + 1
+        
+        if i < end_val then
+            check = is_alpha(i)
+            if check == 1 then
+                count = count + 1
+            end_if
+        end_if
+    end_if
+    
+    return count
+end_function
+
+-- ============================================================================
+-- MODULE 3: TEST DRIVER
+-- ============================================================================
+
+function test_char_classification() returns numeric
+    numeric score
+    numeric check
+    score = 0
+    
+    check = is_digit(53)
+    if check == 1 then
+        score = score + 10
+    end_if
+    
+    check = is_alpha(65)
+    if check == 1 then
+        score = score + 10
+    end_if
+    
+    check = is_alnum(97)
+    if check == 1 then
+        score = score + 10
+    end_if
+    
+    check = is_space(32)
+    if check == 1 then
+        score = score + 10
+    end_if
+    
+    check = is_upper(90)
+    if check == 1 then
+        score = score + 10
+    end_if
+    
+    return score
+end_function
+
+function test_char_conversion() returns numeric
+    numeric score
+    numeric result
+    score = 0
+    
+    result = to_upper(97)
+    if result == 65 then
+        score = score + 15
+    end_if
+    
+    result = to_lower(90)
+    if result == 122 then
+        score = score + 15
+    end_if
+    
+    return score
+end_function
+
+function test_identifier_validation() returns numeric
+    numeric score
+    numeric check
+    score = 0
+    
+    check = is_identifier_start(95)
+    if check == 1 then
+        score = score + 10
+    end_if
+    
+    check = is_identifier_char(48)
+    if check == 1 then
+        score = score + 10
+    end_if
+    
+    return score
+end_function
+
+function test_string_utils() returns numeric
+    numeric score
+    numeric result
+    score = 0
+    
+    result = count_digits_in_range(48; 58)
+    if result > 0 then
+        score = score + 20
+    end_if
+    
+    result = count_alpha_in_range(65; 75)
+    if result > 0 then
+        score = score + 20
+    end_if
+    
+    return score
+end_function
+
+function main() returns numeric
+    numeric total
+    
+    total = test_char_classification()
+    total = total + test_char_conversion()
+    total = total + test_identifier_validation()
+    total = total + test_string_utils()
+    
+    return total
+end_function
