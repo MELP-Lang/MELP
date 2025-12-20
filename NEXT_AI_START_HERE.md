@@ -1,48 +1,83 @@
 # NEXT AI START HERE - YZ Görev Dosyası
 
-**Son Güncelleme:** 20 Aralık 2025 (YZ_ÜA_02)  
-**Mevcut YZ:** YZ_112 🎯 (Tuple Parser Desteği)  
+**Son Güncelleme:** 20 Aralık 2025 (YZ_ÜA_03)  
+**Mevcut YZ:** YZ_113 🎯 (Bootstrap Test)  
 **Dal:** `stage1_list_literal_fix_YZ_106`  
-**Durum:** Stage 0 %99+ | Stage 1 tuple syntax düzeltme bekliyor
+**Durum:** Stage 0 %100 ✅ | Bootstrap Test Başlıyor 🚀
 
 ---
 
-## 🎯 YZ_112: Tuple Return in Expression - PARSER FIX
+## 🎯 YZ_113: Stage 1 Bootstrap Test
 
-### Problem
-`return <a; b>` syntax'ı çalışmıyor. Parser tuple literal'i tanıyor ama return statement'da kullanınca hata veriyor.
+### Hedef
+Stage 1 modüllerini Stage 0 compiler ile derleyip çalıştırmak.
 
-### Test Case
-```pmpl
-function main() as numeric
-    return <10; 20>
-end_function
-```
-**Hata:** `Error: Unexpected token in arithmetic expression`
+### Arka Plan
+- Stage 0 artık **%100 tamamlandı** (YZ_112 tuple fix dahil)
+- Stage 1 modülleri `archive/stage1_api_attempt/modules/` içinde
+- 202 yerde `return (value; pos;)` list return kullanılıyor
+- Tuple kullanımı YOK - list yeterli
 
-### Analiz (YZ_ÜA_02 tarafından)
-1. `arithmetic_parser.c` satır 1609: Tuple literal `<x; y>` parsing VAR ✅
-2. `statement_parser.c` satır 579: Return expression parsing VAR ✅
-3. **Sorun:** `arithmetic_parse_expression_stateless()` çağrısı TOKEN_LANGLE'ı tanımıyor olabilir
+### Yapılacaklar
 
-### Kontrol Edilecek Dosyalar
-- `compiler/stage0/modules/arithmetic/arithmetic_parser.c` - `parse_primary_stateless()` (satır ~1609)
-- `compiler/stage0/modules/statement/statement_parser.c` - Return parsing (satır ~579)
+1. **Basit Modül Testi**
+   ```bash
+   cd compiler/stage0/modules/functions
+   # En basit Stage 1 modülünü seç ve derle
+   ./functions_compiler [modül.mlp] [output.s]
+   ```
+
+2. **Import Chain Testi**
+   - Modüller arası import'u test et
+   - Tree shaking çalışıyor mu kontrol et
+
+3. **Multi-file Compile**
+   - Birden fazla modülü birleştir
+   - Entegrasyon testi
+
+### Test Edilecek Modüller (Öncelik Sırası)
+
+| # | Modül | Neden |
+|---|-------|-------|
+| 1 | `char_utils.mlp` | En basit, bağımsız |
+| 2 | `token.mlp` | Struct kullanıyor |
+| 3 | `lexer_api.mlp` | Import chain |
+| 4 | `operators_parser.mlp` | Karmaşık logic |
 
 ### Başarı Kriteri
-```bash
-cat > /tmp/test.mlp << 'EOF'
-function main() as numeric
-    return <10; 20>
-end_function
-EOF
-./functions_compiler /tmp/test.mlp /tmp/test.s
-# Hata olmamalı, tuple derlenmeli
-```
+- En az 3 modül bağımsız derlenebilmeli
+- Assembly üretilmeli ve çalıştırılabilmeli
+- Exit code doğru olmalı
 
-### İlgili Belgeler
-- `logs/STAGE1_MODULE_ANALYSIS.md` - Stage 1 modül sorunları
-- `pmlp_kesin_sozdizimi.md` - Tuple syntax: `<elem1; elem2>`
+### ⚠️ ZORUNLU OKUMA
+
+1. `MELP_Mimarisi.md` - "Ölü şablon" prensibi
+2. `pmlp_kesin_sozdizimi.md` - PMPL syntax
+3. `docs_tr/language/STO.md` - Heap/pointer davranışı
+
+---
+
+## ✅ YZ_112: Tuple Parser Fix - TAMAMLANDI!
+
+**Tarih:** 20 Aralık 2025
+
+### Çözülen Sorun
+- `return <10; 20>` syntax'ı çalışmıyordu
+- Lexer `<` karakterini `TOKEN_LESS` olarak algılıyordu
+- Parser sadece `TOKEN_LANGLE`'ı tuple başlangıcı olarak kabul ediyordu
+
+### Çözüm
+- `arithmetic_parser.c` (satır 1609): TOKEN_LESS'i de tuple başlangıcı olarak kabul et
+- `variable_parser.c` (satır 158): Aynı fix
+
+### Test Sonuçları
+- ✅ Tuple return: `return <10; 20>` derlendi
+- ✅ Tuple assignment: `tuple coords = <10; 20>` derlendi  
+- ✅ Tuple access: `coords<0> + coords<1> = 30` çalıştı
+- ✅ Empty tuple: `<>` parse ediliyor
+
+### 📝 Gelecek Optimizasyon (Ayrı YZ)
+Tuple'lar şu anda heap'te tutuluyor (`sto_tuple_alloc()`). İdeal durumda küçük tuple'lar (≤4 eleman) stack'te tutulmalı (immutable + fixed size). Bu bir STO optimizasyon fırsatı.
 
 ---
 
@@ -55,6 +90,7 @@ EOF
 | YZ_108 | Import Warning → Fatal | Skip + Continue | ✅ |
 | YZ_109 | Struct/Enum in Comparison | Member access | ✅ |
 | YZ_110 | List Index Access | Dereference | ✅ |
+| YZ_112 | Tuple Return Syntax | TOKEN_LESS fix | ✅ |
 
 ### Bootstrap Test
 - ✅ `bootstrap_minimal.mlp` derlendi
@@ -63,31 +99,55 @@ EOF
 ### Proje Durumu
 
 ```
-Stage 0: %99+ TAMAMLANDI! 🎉
-Stage 1: %88 (~14/16 modül) - Tuple fix sonrası %95+ olacak
+Stage 0: %100 TAMAMLANDI! 🎉🎉🎉
+Stage 1: %88 (~14/16 modül)
 Import:  Tree Shaking aktif ✅
-Bug'lar: 3/3 ÇÖZÜLDÜ ✅
+Bug'lar: 4/4 ÇÖZÜLDÜ ✅
 ```
 
 ---
 
 ## 📖 ZORUNLU OKUMA LİSTESİ (TÜM YZ'LER İÇİN!)
 
-**Görev başlamadan ÖNCE bu belgeleri oku:**
+**⛔ GÖREV BAŞLAMADAN ÖNCE BU BELGELERİ OKU! ⛔**
 
 | # | Belge | İçerik | Neden Önemli |
 |---|-------|--------|--------------|
-| 1 | `pmlp_kesin_sozdizimi.md` | PMPL syntax kuralları | `;` ayırıcı, `end_if` tek token |
-| 2 | `MELP_Mimarisi.md` | Modül felsefesi, stateless | "Ölü şablon" prensibi |
-| 3 | `docs_tr/language/STO.md` | Smart Type Optimization | **Heap/stack, pointer davranışı** |
+| 1 | `MELP_Mimarisi.md` | **Modül felsefesi, stateless** | "Ölü şablon" prensibi, CORE kurallar |
+| 2 | `pmlp_kesin_sozdizimi.md` | PMPL syntax kuralları | `;` ayırıcı, `end_if` tek token |
+| 3 | `docs_tr/language/STO.md` | **Smart Type Optimization** | **HEAP/STACK, POINTER DAVRANIŞI** |
 | 4 | `BILINEN_SORUNLAR.md` | Mevcut bug'lar ve çözümler | Tekrar çalışma önlenir |
 
-### ⚠️ STO.md ÖZELLİKLE ÖNEMLİ!
+### 🚨 STO.md ÖZELLİKLE KRİTİK! 🚨
 
-**Kritik bilgi:** List'ler heap'te saklanıyor ve pointer olarak tutuluyor!
-- `sto_list_get(list, index)` → **pointer** döner (değer DEĞİL!)
-- Dereference gerekli: `movq (%rax), %r8`
-- Bu bilgi olmadan list/array işlemleri YANLIŞ olur!
+**YZ_110'da öğrenilen acı ders:**
+
+List'ler/Array'ler/Tuple'lar HEAP'te saklanıyor ve POINTER olarak tutuluyor!
+
+```
+❌ YANLIŞ DÜŞÜNCE:
+   call sto_list_get
+   movq %rax, %r8      ← YANLIŞ! rax pointer, value değil!
+
+✅ DOĞRU DÜŞÜNCE:
+   call sto_list_get
+   movq (%rax), %r8    ← DOĞRU! pointer'ı dereference et!
+```
+
+**Bu bilgiyi bilmeyen YZ → Exit code YANLIŞ → Saatlerce debug**
+
+### 🏛️ MELP FELSEFESİ (AKLINDA TUT!)
+
+```
+Modüler + LLVM + STO + Stateless + (Struct + Functions)
+
+❌ Monolitik kod = YASAK
+❌ Global state = YASAK  
+❌ Class/OOP = YASAK
+❌ IEEE 754 float = YASAK
+✅ Her modül = parser + codegen çifti
+✅ Import = Ölü şablon kopyalama (API DEĞİL!)
+```
 
 ---
 

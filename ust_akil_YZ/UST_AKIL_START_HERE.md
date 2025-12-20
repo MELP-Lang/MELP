@@ -1,68 +1,90 @@
-# 🧠 NEXT ÜST AKIL START HERE - SEN YZ_ÜA_03'SÜN!
+# 🧠 NEXT ÜST AKIL START HERE - SEN YZ_ÜA_05'SİN!
 
-**👤 SENİN ROLÜN:** YZ_ÜA_03 - Üst Akıl (Mimari Gözetim)  
+**👤 SENİN ROLÜN:** YZ_ÜA_05 - Üst Akıl (Mimari Gözetim)  
 **📅 Tarih:** 20 Aralık 2025  
 **🌿 Dal:** `stage1_list_literal_fix_YZ_106`  
-**📊 Durum:** 🎉 Stage 0 %99 COMPLETE! Tuple parser fix bekliyor
+**📊 Durum:** 🎉🎉🎉 Stage 0 %100 COMPLETE! Bootstrap Test Başlıyor 🚀
 
 ---
 
-## 👋 MERHABA YZ_ÜA_03!
+## 👋 MERHABA YZ_ÜA_05!
 
 **Kullanıcıya ilk mesajın şöyle olmalı:**
 
 ```
-Merhaba! Ben YZ_ÜA_03'üm - Üst Akıl.
+Merhaba! Ben YZ_ÜA_05'im - Üst Akıl.
 
-📊 YZ_ÜA_02 Raporu:
-✅ Stage 0: %99+ tamamlandı (3 bug çözüldü)
+📊 YZ_ÜA_04 Raporu:
+✅ Stage 0: %100 TAMAMLANDI! (4 bug çözüldü)
+✅ YZ_112: Tuple parser fix BAŞARILI
 ✅ Bootstrap Test: Exit 230 başarılı
-✅ Stage 1: %88 (~30+ modül derleniyor)
-⏳ YZ_112: Tuple parser fix bekliyor
+✅ Stage 1: %88 (~14/16 modül)
 
-🎯 Aktif Görev: YZ_112 - Tuple Return Syntax
-Problem: `return <a; b>` çalışmıyor
-Dosyalar: arithmetic_parser.c, statement_parser.c
+🎯 Aktif Görev: YZ_113 - Bootstrap Test
+Hedef: Stage 1 modüllerini Stage 0 ile derle
 
 Devam mı, yoksa önce analiz mi yapalım?
 ```
 
 ---
 
-## 📊 YZ_ÜA_02 RAPORU (20 Aralık 2025)
+## 📊 YZ_ÜA_04 RAPORU (20 Aralık 2025)
 
-### 🎉 BÜYÜK MİLESTONE TAMAMLANDI!
+### 🎉 BÜYÜK MİLESTONE!
 
-**Stage 0 Bug Fix Serisi - TÜM BUG'LAR ÇÖZÜLDÜ!**
+**Stage 0 artık %100 TAMAMLANDI!**
 
 | YZ | Bug | Çözüm | Durum |
 |----|-----|-------|-------|
 | YZ_108 | Import Warning → Fatal | Skip + Continue (Tree Shaking) | ✅ |
 | YZ_109 | Struct/Enum in Comparison | comparison_codegen.c member access | ✅ |
 | YZ_110 | List Index Access | arithmetic_codegen.c + dereference | ✅ |
+| YZ_112 | Tuple Return Syntax | TOKEN_LESS → tuple başlangıcı | ✅ |
 
-**Bootstrap Test BAŞARILI!**
-```bash
-# bootstrap_minimal.mlp: add(10;20) + multiply(10;20)
-# Exit code: 230 = 30 + 200 ✅
+### ✅ YZ_112 Detayları
+
+**Sorun:** `return <10; 20>` çalışmıyordu
+**Neden:** Lexer `<` karakterini `TOKEN_LESS` olarak algılıyordu
+**Çözüm:** Parser'da `TOKEN_LESS`'i de tuple başlangıcı olarak kabul et
+
+**Değişen Dosyalar:**
+- `arithmetic_parser.c` (satır 1609)
+- `variable_parser.c` (satır 158)
+
+**Test Sonuçları:**
+- ✅ Tuple return: `return <10; 20>` derlendi
+- ✅ Tuple assignment: `tuple coords = <10; 20>` derlendi
+- ✅ Tuple access: `coords<0> + coords<1> = 30` çalıştı
+
+### 📝 Gelecek Optimizasyon Fırsatı
+
+Tuple'lar şu anda heap'te tutuluyor (`sto_tuple_alloc()`). İdeal durumda küçük tuple'lar (≤4 eleman) stack'te tutulmalı. Bu STO optimizasyon görevi olarak ileride yapılabilir.
+
+### 🏛️ MELP CORE FELSEFESİ (UNUTMA!)
+
+```
+Modüler + LLVM + STO + Stateless + (Struct + Functions)
+
+Bu 5 sütundan TAVİZ YOK!
 ```
 
-### 📊 Proje Durumu
+### 🚨 STO DERSİ (YZ_110'dan)
 
 ```
-Stage 0: %99+ TAMAMLANDI! 🎉
-Stage 1: %88 (~30+ modül derleniyor)
-Import:  Tree Shaking aktif ✅
-Bug'lar: 3/3 ÇÖZÜLDÜ ✅
+❌ YANLIŞ:
+   call sto_list_get
+   movq %rax, %r8      ← pointer'ı value sanmak!
+
+✅ DOĞRU:
+   call sto_list_get  
+   movq (%rax), %r8    ← dereference şart!
 ```
+
+**Bu bilgiyi bilmeyen YZ → saatlerce debug**
 
 ---
 
-## 🎯 YZ_112: Tuple Return Parser Fix
-
-### Problem
-```pmpl
-function main() as numeric
+## 🎯 YZ_113: Bootstrap Test
     return <10; 20>
 end_function
 ```

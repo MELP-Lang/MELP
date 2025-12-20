@@ -155,6 +155,7 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
         tok->type == TOKEN_STRING ||
         tok->type == TOKEN_LPAREN ||  // YZ_19: list literal (1;2;) or parenthesized expression
         tok->type == TOKEN_LANGLE ||  // YZ_20: tuple literal <1,2>
+        tok->type == TOKEN_LESS ||    // YZ_112: tuple literal with whitespace before < (e.g., "= <1;2>")
         tok->type == TOKEN_NOT ||     // YZ_18: Handle NOT operator
         tok->type == TOKEN_MINUS) {   // YZ_41: Handle unary minus (negative numbers)
         

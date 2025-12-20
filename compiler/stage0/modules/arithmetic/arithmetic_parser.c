@@ -799,22 +799,22 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current, Fu
         // YZ_36: Solution: Check if identifier is a known function (builtin or user-defined)
         int is_known_func = function_is_known(identifier);
         
-        // YZ_27: For TOKEN_LPAREN with unknown identifier, peek ahead to distinguish:
-        //   - List access: mylist(0) - single expression, no comma
-        //   - Function call: parse_literal(tokens, pos) - has comma (multiple params)
-        //   - Function call: unknown_func() - empty parens
-        // 
-        // LIMITATION: Lexer only supports 1-token pushback, so we can't lookahead 2 tokens
-        // SOLUTION: Use naming heuristic for common patterns
-        // YZ_30: Enhanced heuristics - more function patterns
+        // YZ_110: For TOKEN_LPAREN with unknown identifier, check if it's a list variable
+        //   - List access: mylist(0) - identifier is a list variable
+        //   - Function call: parse_literal(tokens, pos) - identifier is not a list
+        // Solution: Check if identifier is a list variable in the current function context
         int is_list_access_syntax = 0;
         if (*current && (*current)->type == TOKEN_LPAREN && !is_known_func) {
-            // Not a known function - use heuristic to distinguish
-            // Common function name prefixes/patterns
-            int looks_like_function = 0;
+            // YZ_110: First check if this is a list variable
+            if (func && function_is_list(func, identifier)) {
+                // It's a list variable - treat as list access
+                is_list_access_syntax = 1;
+            } else {
+                // Not a list variable - use heuristic for function call detection
+                int looks_like_function = 0;
             
-            // Prefix-based patterns
-            if (strncmp(identifier, "parse_", 6) == 0 ||
+                // Prefix-based patterns
+                if (strncmp(identifier, "parse_", 6) == 0 ||
                 strncmp(identifier, "get_", 4) == 0 ||
                 strncmp(identifier, "create_", 7) == 0 ||
                 strncmp(identifier, "is_", 3) == 0 ||
@@ -867,12 +867,12 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current, Fu
                 strncmp(identifier, "scan_", 5) == 0 ||
                 strncmp(identifier, "tokenize_", 9) == 0 ||
                 strncmp(identifier, "lex_", 4) == 0) {
-                looks_like_function = 1;
-            }
+                    looks_like_function = 1;
+                }
             
-            // YZ_30: Exact match for common short function names
-            // These are typical math/utility functions
-            if (!looks_like_function) {
+                // YZ_30: Exact match for common short function names
+                // These are typical math/utility functions
+                if (!looks_like_function) {
                 if (strcmp(identifier, "add") == 0 ||
                     strcmp(identifier, "sub") == 0 ||
                     strcmp(identifier, "mul") == 0 ||
@@ -976,35 +976,36 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current, Fu
                     strcmp(identifier, "check") == 0 ||
                     strcmp(identifier, "verify") == 0 ||
                     strcmp(identifier, "validate") == 0) {
+                        looks_like_function = 1;
+                    }
+                }
+            
+                // YZ_31: Add test_ prefix pattern for test functions
+                if (!looks_like_function) {
+                    if (strncmp(identifier, "test", 4) == 0) {
+                        // test, test1, test2, test_something, etc.
+                        looks_like_function = 1;
+                    }
+                }
+            
+                // YZ_31: If still not recognized, peek ahead to check for comma
+                // Multiple args (comma) = definitely a function call
+                // YZ_37: Simplified decision - ANY identifier followed by '(' is a function call
+                // List access should use list[i] syntax instead of list(i)
+                // This avoids the need for complex peek-ahead logic
+                if (!looks_like_function) {
+                    // Since we're at TOKEN_LPAREN, and identifier is not a known function,
+                    // we make a simple decision: treat it as function call (forward reference)
+                    // This is safer than treating it as list access
                     looks_like_function = 1;
                 }
-            }
             
-            // YZ_31: Add test_ prefix pattern for test functions
-            if (!looks_like_function) {
-                if (strncmp(identifier, "test", 4) == 0) {
-                    // test, test1, test2, test_something, etc.
-                    looks_like_function = 1;
+                // Decision: list access only if does NOT look like function
+                if (!looks_like_function) {
+                    is_list_access_syntax = 1;
                 }
+                // Otherwise: treat as function call (forward reference)
             }
-            
-            // YZ_31: If still not recognized, peek ahead to check for comma
-            // Multiple args (comma) = definitely a function call
-            // YZ_37: Simplified decision - ANY identifier followed by '(' is a function call
-            // List access should use list[i] syntax instead of list(i)
-            // This avoids the need for complex peek-ahead logic
-            if (!looks_like_function) {
-                // Since we're at TOKEN_LPAREN, and identifier is not a known function,
-                // we make a simple decision: treat it as function call (forward reference)
-                // This is safer than treating it as list access
-                looks_like_function = 1;
-            }
-            
-            // Decision: list access only if does NOT look like function
-            if (!looks_like_function) {
-                is_list_access_syntax = 1;
-            }
-            // Otherwise: treat as function call (forward reference)
         }
         
         // YZ_23/YZ_27: Check for array/list/tuple access
@@ -1605,7 +1606,9 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current, Fu
     }
     
     // Tuple literal: <x, y, z>
-    if ((*current)->type == TOKEN_LANGLE) {
+    // YZ_112: Also accept TOKEN_LESS (when whitespace before <)
+    // Context: "return <10; 20>" has whitespace after 'return', so lexer emits TOKEN_LESS
+    if ((*current)->type == TOKEN_LANGLE || (*current)->type == TOKEN_LESS) {
         advance_stateless(lexer, current);  // Skip '<'
         
         // Check for empty tuple: <>

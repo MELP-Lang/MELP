@@ -1,11 +1,11 @@
 # MELP Stage 0 Parser - Görev Listesi
 
-**Son Güncelleme:** 20 Aralık 2025 (YZ_ÜA_02)  
+**Son Güncelleme:** 20 Aralık 2025 (YZ_ÜA_03)  
 **Branch:** `stage1_list_literal_fix_YZ_106`  
-**Parser Durumu:** %99 tamamlandı 🎉🎉🎉  
+**Parser Durumu:** %100 tamamlandı 🎉🎉🎉  
 **Stage 1:** %88 (~14/16 modül) 🚀  
 **Import:** Tree Shaking aktif ✅  
-**All Bugs:** ÇÖZÜLDÜ! (YZ_108, YZ_109, YZ_110) ✅✅✅
+**All Bugs:** ÇÖZÜLDÜ! (YZ_108, YZ_109, YZ_110, YZ_112) ✅✅✅✅
 
 ---
 
@@ -27,6 +27,8 @@
 | **Enum initialization** | ✅ | `Color c = Color.Red` (YZ_101) |
 | **Array declaration** | ✅ | `numeric[5] arr` (YZ_99) |
 | Array access | ✅ | `arr[0] = 10`, `return arr[0]` |
+| **List literal + return** | ✅ | `return (10; 20;)` |
+| **Tuple literal + return** | ✅ | `return <10; 20>` (YZ_112) |
 | String operations | ✅ | `length(name)`, string literal |
 | Variable declaration | ✅ | `numeric x = 5`, `string s = "hi"` |
 | Print/println | ✅ | `print("hello")` |
@@ -37,48 +39,35 @@
 | ~~**#1: List index**~~ | ~~`mylist(0)` fonksiyon çağrısı sanılıyor~~ | ~~YZ_110~~ | ✅ **ÇÖZÜLDÜ** |
 | ~~**#2: Struct field**~~ | ~~`return pt.x` codegen eksik~~ | ~~YZ_109~~ | ✅ **ÇÖZÜLDÜ** |
 | ~~**#3: Enum variable**~~ | ~~`return c` variable okuyamıyor~~ | ~~YZ_109~~ | ✅ **ÇÖZÜLDÜ** |
+| ~~**#4: Tuple return**~~ | ~~`return <10; 20>` çalışmıyor~~ | ~~YZ_112~~ | ✅ **ÇÖZÜLDÜ** |
 
 ---
 
 ## 🎯 AKTİF YZ GÖREVLERİ
 
-### ✅ YZ_109: Variable Lookup Fix (Bug #2 + #3) - TAMAMLANDI!
-**Tamamlanma:** 20 Aralık 2025  
-**Dosya:** `compiler/stage0/modules/comparison/comparison_codegen.c`
+### 🚀 YZ_113: Bootstrap Test - AKTİF
+**Başlangıç:** 20 Aralık 2025  
+**Hedef:** Stage 1 modüllerini Stage 0 ile derle
 
-**Keşif:**
-- Bug #2 (Struct field): `arithmetic_codegen.c` zaten çalışıyordu ✅
-- Bug #3 (Enum variable): Zaten çalışıyordu ✅
-- **Gerçek Sorun:** `comparison_codegen.c` struct member access desteklemiyordu
-
-**Fix:**
-- Header: `#include "../struct/struct.h"` eklendi
-- `load_value()` fonksiyonuna struct member access logic eklendi
-- `struct_lookup_instance()` ile instance bulma
-- Member offset hesaplama + pointer/value handling
-
-**Test Sonuçları:**
-- ✅ Struct field return: Exit 10
-- ✅ Struct field in if: Exit 42
-- ✅ Enum variable: Exit 2
-- ✅ Comprehensive: Exit 18
-
-**Sonraki:** YZ_110 (Bug #1: List index access)
+**Yapılacaklar:**
+1. En basit Stage 1 modülünü seç ve derle
+2. Import chain testi
+3. Multi-file compile testi
 
 ---
 
-### ✅ YZ_108: Import Warning → Skip Fix - TAMAMLANDI!
+### ✅ YZ_112: Tuple Parser Fix - TAMAMLANDI!
 **Tamamlanma:** 20 Aralık 2025  
-**Dosya:** `compiler/stage0/modules/import/import.c`
+**Dosyalar:** `arithmetic_parser.c`, `variable_parser.c`
 
-**Değişiklik:**
-- Parse hatası → Fatal error → Modül iptal ❌
-- Parse hatası → Warning + Skip → Döngü devam ✅
+**Çözüm:**
+- Lexer `<` karakterini `TOKEN_LESS` olarak algılıyordu
+- Parser'da `TOKEN_LESS`'i de tuple başlangıcı olarak kabul et
 
-**Sonuç:**
-- Stage 1: %75 → %88 (12/16 → 14+/16)
-- Import chain çalışıyor
-- Rust-Style Tree Shaking aktif
+**Test Sonuçları:**
+- ✅ Tuple return: `return <10; 20>` derlendi
+- ✅ Tuple assignment: `tuple coords = <10; 20>` derlendi
+- ✅ Tuple access: `coords<0> + coords<1> = 30` çalıştı
 
 ---
 
