@@ -108,13 +108,13 @@ function parse_enum_definition(list tokens, numeric pos) returns list
         end_if
         
         -- Create enum value node
-        list value_node = [ENUM_VALUE, value_name, value]
+        list value_node = (ENUM_VALUE; value_name; value;)
         values_list = append(values_list, value_node)
         value_count = value_count + 1
     end_while
     
     -- Create enum definition node
-    list enum_node = [ENUM_DEFINITION, enum_name, values_list, value_count]
+    list enum_node = (ENUM_DEFINITION; enum_name; values_list; value_count;)
     
     return [enum_node, current_pos]
 end_function
@@ -144,12 +144,12 @@ function parse_enum_value_reference(list tokens, numeric pos) returns list
         current_pos = current_pos + 2
         
         -- Create qualified reference node
-        list ref_node = [ENUM_VALUE_REF, first_name, value_name]
+        list ref_node = (ENUM_VALUE_REF; first_name; value_name;)
         return [ref_node, current_pos]
     else
         -- Unqualified reference (just ACTIVE)
         -- Create unqualified reference node (enum_type = empty)
-        list ref_node = [ENUM_VALUE_REF, "", first_name]
+        list ref_node = (ENUM_VALUE_REF; ""; first_name;)
         return [ref_node, current_pos]
     end_if
 end_function
@@ -193,7 +193,7 @@ function parse_enum_assignment(list tokens, numeric pos) returns list
     current_pos = value_result[1]
     
     -- Create assignment node
-    list assignment_node = [ENUM_ASSIGNMENT, enum_type, var_name, value_expr]
+    list assignment_node = (ENUM_ASSIGNMENT; enum_type; var_name; value_expr;)
     
     return [assignment_node, current_pos]
 end_function

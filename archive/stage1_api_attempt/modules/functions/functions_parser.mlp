@@ -116,9 +116,9 @@ end_function
 function parse_function_declaration(list tokens; numeric pos) returns list
     -- Result structure
     string func_name = ""
-    list params = []
+    list params = ()
     numeric return_type = FUNC_RETURN_VOID
-    list body = []
+    list body = ()
     numeric current_pos = pos
     
     -- 1. Expect 'function' keyword
@@ -127,7 +127,7 @@ function parse_function_declaration(list tokens; numeric pos) returns list
     
     if token_type != TOKEN_FUNCTION then
         -- Error: Expected 'function' keyword
-        return [0, current_pos]  -- 0 = parse error
+        return (0; current_pos;)  -- 0 = parse error
     end_if
     
     current_pos = current_pos + 1
@@ -138,7 +138,7 @@ function parse_function_declaration(list tokens; numeric pos) returns list
     
     if token_type != TOKEN_IDENTIFIER then
         -- Error: Expected function name
-        return [0, current_pos]
+        return (0; current_pos;)
     end_if
     
     func_name = current_token[1]
@@ -150,7 +150,7 @@ function parse_function_declaration(list tokens; numeric pos) returns list
     
     if token_type != TOKEN_LPAREN then
         -- Error: Expected '('
-        return [0, current_pos]
+        return (0; current_pos;)
     end_if
     
     current_pos = current_pos + 1
@@ -178,15 +178,15 @@ function parse_function_declaration(list tokens; numeric pos) returns list
             token_type_check = current_token[0]
             if token_type_check != TOKEN_IDENTIFIER then
                 -- Error: Expected parameter name
-                return [0, current_pos]
+                return (0; current_pos;)
             end_if
             
             param_name = current_token[1]
             current_pos = current_pos + 1
             
             -- Add parameter to list
-            list param = [param_type, param_name]
-            params = params + [param]
+            list param = (param_type; param_name;)
+            params = params + (param;)
             
             -- Check for comma (more parameters) or ')' (end)
             current_token = tokens[current_pos]
@@ -201,7 +201,7 @@ function parse_function_declaration(list tokens; numeric pos) returns list
                     parsing_params = 0
                 else
                     -- Error: Expected ',' or ')'
-                    return [0, current_pos]
+                    return (0; current_pos;)
                 end_if
             end_if
         end_while
@@ -213,7 +213,7 @@ function parse_function_declaration(list tokens; numeric pos) returns list
     token_type_paren = current_token[0]
     if token_type_paren != TOKEN_RPAREN then
         -- Error: Expected ')'
-        return [0, current_pos]
+        return (0; current_pos;)
     end_if
     
     current_pos = current_pos + 1
@@ -259,14 +259,14 @@ function parse_function_declaration(list tokens; numeric pos) returns list
         
         -- Safety: EOF check
         if token_type == TOKEN_EOF then
-            return [0, current_pos]  -- Error: Unexpected EOF
+            return (0; current_pos;)  -- Error: Unexpected EOF
         end_if
     end_while
     
     -- Build function declaration result
-    list func_decl = [func_name, params, return_type, body_start, current_pos - 2]
+    list func_decl = (func_name; params; return_type; body_start; current_pos - 2;)
     
-    return [func_decl, current_pos]
+    return (func_decl; current_pos;)
 end_function
 
 -- Parse function call
@@ -281,7 +281,7 @@ end_function
 --
 -- STATELESS: Takes tokens + position, returns result + new position
 function parse_function_call(list tokens; numeric pos; string func_name) returns list
-    list args = []
+    list args = ()
     numeric current_pos = pos
     
     -- 1. Expect '('
@@ -290,7 +290,7 @@ function parse_function_call(list tokens; numeric pos; string func_name) returns
     
     if token_type != TOKEN_LPAREN then
         -- Error: Expected '('
-        return [0, current_pos]
+        return (0; current_pos;)
     end_if
     
     current_pos = current_pos + 1
@@ -307,7 +307,7 @@ function parse_function_call(list tokens; numeric pos; string func_name) returns
             -- For now, we'll just store the token as argument
             -- Proper expression parsing would be done by expression parser
             list arg = tokens[current_pos]
-            args = args + [arg]
+            args = args + (arg;)
             current_pos = current_pos + 1
             
             -- Check for comma (more args) or ')' (end)
@@ -335,15 +335,15 @@ function parse_function_call(list tokens; numeric pos; string func_name) returns
     final_token_type = current_token[0]
     if final_token_type != TOKEN_RPAREN then
         -- Error: Expected ')'
-        return [0, current_pos]
+        return (0; current_pos;)
     end_if
     
     current_pos = current_pos + 1
     
     -- Build function call result
-    list func_call = [func_name, args]
+    list func_call = (func_name; args;)
     
-    return [func_call, current_pos]
+    return (func_call; current_pos;)
 end_function
 
 -- Parse return statement
@@ -365,7 +365,7 @@ function parse_return_statement(list tokens; numeric pos) returns list
     
     if token_type != TOKEN_RETURN then
         -- Error: Expected 'return'
-        return [0, current_pos]
+        return (0; current_pos;)
     end_if
     
     current_pos = current_pos + 1
@@ -376,7 +376,7 @@ function parse_return_statement(list tokens; numeric pos) returns list
     current_token = tokens[current_pos]
     token_type = current_token[0]
     
-    list return_value = [0]  -- Default: void return
+    list return_value = (0;)  -- Default: void return
     
     -- Check if there's a value
     if token_type != TOKEN_EOF and token_type != TOKEN_END then
@@ -385,9 +385,9 @@ function parse_return_statement(list tokens; numeric pos) returns list
     end_if
     
     -- Build return statement result
-    list return_stmt = [return_value]
+    list return_stmt = (return_value;)
     
-    return [return_stmt, current_pos]
+    return (return_stmt; current_pos;)
 end_function
 
 -- ============================================================================

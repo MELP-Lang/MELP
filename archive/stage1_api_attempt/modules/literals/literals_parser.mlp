@@ -133,7 +133,7 @@ function parse_string_literal(list tokens, numeric pos) returns list
     -- Create literal node
     -- token_value already contains the string content (without quotes)
     -- Original text includes quotes (for display/debug purposes)
-    list literal = [LIT_STRING, token_value, token_value]
+    list literal = (LIT_STRING; token_value; token_value;)
     
     return [literal, pos + 1]
 end_function

@@ -173,7 +173,7 @@ function parse_if_statement(list tokens, numeric pos) returns list
         ctrl_type = CTRL_IF_ELSE
     end_if
     
-    list if_stmt = [ctrl_type, condition, has_else, then_body, else_body]
+    list if_stmt = (ctrl_type; condition; has_else; then_body; else_body;)
     
     return [if_stmt, current_pos]
 end_function
@@ -241,7 +241,7 @@ function parse_while_statement(list tokens, numeric pos) returns list
     current_pos = current_pos + 1  -- Move past 'end_while'
     
     -- Build while statement structure
-    list while_stmt = [condition, body]
+    list while_stmt = (condition; body;)
     
     return [while_stmt, current_pos]
 end_function
@@ -354,7 +354,7 @@ function parse_for_statement(list tokens, numeric pos) returns list
     
     -- Build for statement structure (no label for now)
     string label = ""
-    list for_stmt = [iterator, start_expr, end_expr, label, body]
+    list for_stmt = (iterator; start_expr; end_expr; label; body;)
     
     return [for_stmt, current_pos]
 end_function

@@ -46,11 +46,7 @@ function test_arithmetic_addition()
     print_test_header("Arithmetic Addition: 5 + 3")
     
     -- Create tokens: 5 + 3
-    list tokens = [
-        make_token(T_NUMBER, "5"),
-        make_token(T_PLUS, "+"),
-        make_token(T_NUMBER, "3")
-    ]
+    list tokens = (make_token(T_NUMBER, "5"); make_token(T_PLUS, "+"); make_token(T_NUMBER, "3");)
     
     -- Parse expression
     list result = parse_operator_expression(tokens, 0)
@@ -105,13 +101,7 @@ function test_arithmetic_precedence()
     
     -- Create tokens: 2 + 3 * 4
     -- Expected: 2 + (3 * 4) due to precedence
-    list tokens = [
-        make_token(T_NUMBER, "2"),
-        make_token(T_PLUS, "+"),
-        make_token(T_NUMBER, "3"),
-        make_token(T_STAR, "*"),
-        make_token(T_NUMBER, "4")
-    ]
+    list tokens = (make_token(T_NUMBER, "2"); make_token(T_PLUS, "+"); make_token(T_NUMBER, "3"); make_token(T_STAR, "*"); make_token(T_NUMBER, "4");)
     
     -- Parse expression
     list result = parse_operator_expression(tokens, 0)
@@ -172,11 +162,7 @@ function test_comparison_expression()
     print_test_header("Comparison: x < 10")
     
     -- Create tokens: x < 10
-    list tokens = [
-        make_token(T_IDENTIFIER, "x"),
-        make_token(T_LT, "<"),
-        make_token(T_NUMBER, "10")
-    ]
+    list tokens = (make_token(T_IDENTIFIER, "x"); make_token(T_LT, "<"); make_token(T_NUMBER, "10");)
     
     -- Parse expression
     list result = parse_operator_expression(tokens, 0)
@@ -230,11 +216,7 @@ function test_logical_and()
     print_test_header("Logical AND: true and false")
     
     -- Create tokens: true and false
-    list tokens = [
-        make_token(T_TRUE, "true"),
-        make_token(T_AND, "and"),
-        make_token(T_FALSE, "false")
-    ]
+    list tokens = (make_token(T_TRUE, "true"); make_token(T_AND, "and"); make_token(T_FALSE, "false");)
     
     -- Parse expression
     list result = parse_operator_expression(tokens, 0)
@@ -280,10 +262,7 @@ function test_unary_not()
     print_test_header("Unary NOT: not true")
     
     -- Create tokens: not true
-    list tokens = [
-        make_token(T_NOT, "not"),
-        make_token(T_TRUE, "true")
-    ]
+    list tokens = (make_token(T_NOT, "not"); make_token(T_TRUE, "true");)
     
     -- Parse expression
     list result = parse_operator_expression(tokens, 0)
@@ -329,15 +308,7 @@ function test_parenthesized_expression()
     
     -- Create tokens: ( 5 + 3 ) * 2
     -- Expected: (5 + 3) * 2
-    list tokens = [
-        make_token(T_LPAREN, "("),
-        make_token(T_NUMBER, "5"),
-        make_token(T_PLUS, "+"),
-        make_token(T_NUMBER, "3"),
-        make_token(T_RPAREN, ")"),
-        make_token(T_STAR, "*"),
-        make_token(T_NUMBER, "2")
-    ]
+    list tokens = (make_token(T_LPAREN, "("); make_token(T_NUMBER, "5"); make_token(T_PLUS, "+"); make_token(T_NUMBER, "3"); make_token(T_RPAREN, ")"); make_token(T_STAR, "*"); make_token(T_NUMBER, "2");)
     
     -- Parse expression
     list result = parse_operator_expression(tokens, 0)
@@ -386,17 +357,7 @@ function test_complex_expression()
     print_test_header("Complex: x + 5 > 10 and y < 20")
     
     -- Create tokens: x + 5 > 10 and y < 20
-    list tokens = [
-        make_token(T_IDENTIFIER, "x"),
-        make_token(T_PLUS, "+"),
-        make_token(T_NUMBER, "5"),
-        make_token(T_GT, ">"),
-        make_token(T_NUMBER, "10"),
-        make_token(T_AND, "and"),
-        make_token(T_IDENTIFIER, "y"),
-        make_token(T_LT, "<"),
-        make_token(T_NUMBER, "20")
-    ]
+    list tokens = (make_token(T_IDENTIFIER, "x"); make_token(T_PLUS, "+"); make_token(T_NUMBER, "5"); make_token(T_GT, ">"); make_token(T_NUMBER, "10"); make_token(T_AND, "and"); make_token(T_IDENTIFIER, "y"); make_token(T_LT, "<"); make_token(T_NUMBER, "20");)
     
     -- Parse expression
     list result = parse_operator_expression(tokens, 0)

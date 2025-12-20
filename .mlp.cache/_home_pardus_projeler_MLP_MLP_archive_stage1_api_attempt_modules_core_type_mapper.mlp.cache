@@ -1,0 +1,18 @@
+{
+  "version": "1.0",
+  "module_path": "/home/pardus/projeler/MLP/MLP/archive/stage1_api_attempt/modules/core/type_mapper.mlp",
+  "source_mtime": 1766189699,
+  "object_mtime": 0,
+  "object_path": null,
+  "assembly_path": "type_mapper.s",
+  "functions": [
+    "type_name_to_kind",
+    "type_kind_to_name",
+    "types_compatible",
+    "is_primitive_type",
+    "is_composite_type",
+    "is_callable_type"
+  ],
+  "dependencies": [
+  ]
+}

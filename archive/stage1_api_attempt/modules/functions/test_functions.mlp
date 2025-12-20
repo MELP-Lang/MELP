@@ -142,19 +142,19 @@ function test_parse_simple_function() returns list
     list tokens = []
     
     -- function main() returns numeric return 0 end function
-    list tok1 = [TOKEN_FUNCTION, "function", 1, 1]
-    list tok2 = [TOKEN_IDENTIFIER, "main", 1, 10]
-    list tok3 = [TOKEN_LPAREN, "(", 1, 14]
-    list tok4 = [TOKEN_RPAREN, ")", 1, 15]
-    list tok5 = [TOKEN_RETURNS, "returns", 1, 17]
-    list tok6 = [TOKEN_NUMERIC, "numeric", 1, 25]
-    list tok7 = [TOKEN_RETURN, "return", 2, 5]
-    list tok8 = [TOKEN_NUMBER, "0", 2, 12]
-    list tok9 = [TOKEN_END, "end", 3, 1]
-    list tok10 = [TOKEN_FUNCTION, "function", 3, 5]
-    list tok11 = [TOKEN_EOF, "", 4, 1]
+    list tok1 = (TOKEN_FUNCTION; "function"; 1; 1;)
+    list tok2 = (TOKEN_IDENTIFIER; "main"; 1; 10;)
+    list tok3 = (TOKEN_LPAREN; "("; 1; 14;)
+    list tok4 = (TOKEN_RPAREN; ")"; 1; 15;)
+    list tok5 = (TOKEN_RETURNS; "returns"; 1; 17;)
+    list tok6 = (TOKEN_NUMERIC; "numeric"; 1; 25;)
+    list tok7 = (TOKEN_RETURN; "return"; 2; 5;)
+    list tok8 = (TOKEN_NUMBER; "0"; 2; 12;)
+    list tok9 = (TOKEN_END; "end"; 3; 1;)
+    list tok10 = (TOKEN_FUNCTION; "function"; 3; 5;)
+    list tok11 = (TOKEN_EOF; ""; 4; 1;)
     
-    tokens = [tok1, tok2, tok3, tok4, tok5, tok6, tok7, tok8, tok9, tok10, tok11]
+    tokens = (tok1; tok2; tok3; tok4; tok5; tok6; tok7; tok8; tok9; tok10; tok11;)
     
     -- Parse
     list result = parse_function_declaration(tokens; 0)
@@ -196,25 +196,24 @@ function test_parse_function_with_params() returns list
     list tokens = []
     
     -- function add ( numeric a , numeric b ) returns numeric ...
-    list tok1 = [TOKEN_FUNCTION, "function", 1, 1]
-    list tok2 = [TOKEN_IDENTIFIER, "add", 1, 10]
-    list tok3 = [TOKEN_LPAREN, "(", 1, 13]
-    list tok4 = [TOKEN_NUMERIC, "numeric", 1, 14]
-    list tok5 = [TOKEN_IDENTIFIER, "a", 1, 22]
-    list tok6 = [TOKEN_COMMA, ",", 1, 23]
-    list tok7 = [TOKEN_NUMERIC, "numeric", 1, 25]
-    list tok8 = [TOKEN_IDENTIFIER, "b", 1, 33]
-    list tok9 = [TOKEN_RPAREN, ")", 1, 34]
-    list tok10 = [TOKEN_RETURNS, "returns", 1, 36]
-    list tok11 = [TOKEN_NUMERIC, "numeric", 1, 44]
-    list tok12 = [TOKEN_RETURN, "return", 2, 5]
-    list tok13 = [TOKEN_IDENTIFIER, "a", 2, 12]
-    list tok14 = [TOKEN_END, "end", 3, 1]
-    list tok15 = [TOKEN_FUNCTION, "function", 3, 5]
-    list tok16 = [TOKEN_EOF, "", 4, 1]
+    list tok1 = (TOKEN_FUNCTION; "function"; 1; 1;)
+    list tok2 = (TOKEN_IDENTIFIER; "add"; 1; 10;)
+    list tok3 = (TOKEN_LPAREN; "("; 1; 13;)
+    list tok4 = (TOKEN_NUMERIC; "numeric"; 1; 14;)
+    list tok5 = (TOKEN_IDENTIFIER; "a"; 1; 22;)
+    list tok6 = (TOKEN_COMMA; ","; 1; 23;)
+    list tok7 = (TOKEN_NUMERIC; "numeric"; 1; 25;)
+    list tok8 = (TOKEN_IDENTIFIER; "b"; 1; 33;)
+    list tok9 = (TOKEN_RPAREN; ")"; 1; 34;)
+    list tok10 = (TOKEN_RETURNS; "returns"; 1; 36;)
+    list tok11 = (TOKEN_NUMERIC; "numeric"; 1; 44;)
+    list tok12 = (TOKEN_RETURN; "return"; 2; 5;)
+    list tok13 = (TOKEN_IDENTIFIER; "a"; 2; 12;)
+    list tok14 = (TOKEN_END; "end"; 3; 1;)
+    list tok15 = (TOKEN_FUNCTION; "function"; 3; 5;)
+    list tok16 = (TOKEN_EOF; ""; 4; 1;)
     
-    tokens = [tok1, tok2, tok3, tok4, tok5, tok6, tok7, tok8, tok9, tok10, 
-              tok11, tok12, tok13, tok14, tok15, tok16]
+    tokens = (tok1; tok2; tok3; tok4; tok5; tok6; tok7; tok8; tok9; tok10; tok11; tok12; tok13; tok14; tok15; tok16;)
     
     -- Parse
     list result = parse_function_declaration(tokens; 0)
@@ -270,15 +269,15 @@ function test_parse_function_call() returns list
     list tokens = []
     
     -- add ( 1 , 2 )
-    list tok1 = [TOKEN_IDENTIFIER, "add", 1, 1]
-    list tok2 = [TOKEN_LPAREN, "(", 1, 4]
-    list tok3 = [TOKEN_NUMBER, "1", 1, 5]
-    list tok4 = [TOKEN_COMMA, ",", 1, 6]
-    list tok5 = [TOKEN_NUMBER, "2", 1, 8]
-    list tok6 = [TOKEN_RPAREN, ")", 1, 9]
-    list tok7 = [TOKEN_EOF, "", 1, 10]
+    list tok1 = (TOKEN_IDENTIFIER; "add"; 1; 1;)
+    list tok2 = (TOKEN_LPAREN; "("; 1; 4;)
+    list tok3 = (TOKEN_NUMBER; "1"; 1; 5;)
+    list tok4 = (TOKEN_COMMA; ","; 1; 6;)
+    list tok5 = (TOKEN_NUMBER; "2"; 1; 8;)
+    list tok6 = (TOKEN_RPAREN; ")"; 1; 9;)
+    list tok7 = (TOKEN_EOF; ""; 1; 10;)
     
-    tokens = [tok1, tok2, tok3, tok4, tok5, tok6, tok7]
+    tokens = (tok1; tok2; tok3; tok4; tok5; tok6; tok7;)
     
     -- Parse (starting from LPAREN, func_name already parsed)
     list result = parse_function_call(tokens; 1; "add")
@@ -319,11 +318,11 @@ function test_parse_return_statement() returns list
     list tokens = []
     
     -- return 42
-    list tok1 = [TOKEN_RETURN, "return", 1, 1]
-    list tok2 = [TOKEN_NUMBER, "42", 1, 8]
-    list tok3 = [TOKEN_EOF, "", 1, 10]
+    list tok1 = (TOKEN_RETURN; "return"; 1; 1;)
+    list tok2 = (TOKEN_NUMBER; "42"; 1; 8;)
+    list tok3 = (TOKEN_EOF; ""; 1; 10;)
     
-    tokens = [tok1, tok2, tok3]
+    tokens = (tok1; tok2; tok3;)
     
     -- Parse
     list result = parse_return_statement(tokens; 0)
@@ -360,9 +359,9 @@ function test_codegen_function_prologue() returns list
     string func_name = "add"
     
     -- Parameters: (numeric a, numeric b)
-    list param1 = [0, "a"]  -- FUNC_PARAM_NUMERIC=0
-    list param2 = [0, "b"]
-    list params = [param1, param2]
+    list param1 = (0; "a";)  -- FUNC_PARAM_NUMERIC=0
+    list param2 = (0; "b";)
+    list params = (param1; param2;)
     
     numeric return_type = 0  -- FUNC_RETURN_NUMERIC
     
@@ -391,11 +390,11 @@ function test_codegen_function_call() returns list
     -- Create function call
     string func_name = "add"
     
-    list arg1 = [TOKEN_NUMBER, "1"]
-    list arg2 = [TOKEN_NUMBER, "2"]
-    list args = [arg1, arg2]
+    list arg1 = (TOKEN_NUMBER; "1";)
+    list arg2 = (TOKEN_NUMBER; "2";)
+    list args = (arg1; arg2;)
     
-    list func_call = [func_name, args]
+    list func_call = (func_name; args;)
     
     -- Generate call
     numeric register_num = 1

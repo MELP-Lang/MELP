@@ -62,13 +62,13 @@ function register_enum(list enum_node, list enum_registry) returns list
         string value_name = get_enum_value_name(value_node)
         numeric value_num = get_enum_value_numeric(value_node)
         
-        list entry = [value_name, value_num]
+        list entry = (value_name; value_num;)
         values_map = append(values_map, entry)
         i = i + 1
     end_while
     
     -- Add to registry
-    list registry_entry = [enum_name, values_map]
+    list registry_entry = (enum_name; values_map;)
     list updated_registry = append(enum_registry, registry_entry)
     
     return [true, updated_registry]

@@ -113,7 +113,7 @@ function type_kind_to_name(numeric kind) returns string
 end_function
 
 -- Check if two type kinds are compatible for assignment
-function types_compatible(numeric lhs_kind, numeric rhs_kind) returns numeric
+function types_compatible(numeric lhs_kind; numeric rhs_kind) returns numeric
     -- Exact match
     if lhs_kind == rhs_kind then
         return 1

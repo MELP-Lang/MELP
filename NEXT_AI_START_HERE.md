@@ -730,3 +730,32 @@ echo "Return: $?"
 ---
 
 *YZ_32 tarafından güncellendi - 19 Aralık 2025*
+
+---
+
+## 🎯 YZ_107 GÖREVİ: Manuel Gözden Geçirme ve Stage 1 Bootstrap Testleri
+
+### Amaç
+Otomatik list literal dönüşümünden sonra Stage 1 modüllerini manuel olarak gözden geçir, syntax hatalarını düzelt ve Stage 1 bootstrap testlerini başlat.
+
+### Adımlar
+1. Dönüştürülen dosyaları (özellikle `functions/`, `variables/`, `core/`) tek tek gözden geçir
+2. Array/list API uyumsuzluklarını ve küçük syntax hatalarını düzelt
+3. Her dosyadan sonra Stage 0 ile derleme testi yap:
+   ```bash
+   ./compiler/stage0/modules/functions/functions_compiler <dosya> temp/test.s
+   ```
+4. Hataları ve yapılan düzeltmeleri `temp/YZ_107_report.md` dosyasında raporla
+5. Tüm modüller derlenip test edildikten sonra Stage 1 bootstrap testini başlat
+
+### Dikkat!
+- Backuplar `.backup` olarak mevcut, gerekirse karşılaştır
+- String ve yorum içindeki list/array syntaxına dokunma
+- Her değişiklikten sonra test et
+
+### Başarı Kriteri
+- Tüm Stage 1 modülleri Stage 0 ile derlenebilmeli
+- Bootstrap testleri başarılı olmalı
+- Rapor dosyası oluşturulmalı (`temp/YZ_107_report.md`)
+
+---

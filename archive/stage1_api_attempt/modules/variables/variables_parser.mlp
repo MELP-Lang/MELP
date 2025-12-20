@@ -278,17 +278,15 @@ function parse_variable_declaration(list tokens, numeric pos) returns list
     end_if
     
     -- Build declaration info
-    list decl_info = [
-        var_name,          -- [0]: name
-        actual_type,       -- [1]: type
-        init_value,        -- [2]: initial value
-        storage_loc,       -- [3]: storage location
-        is_pointer,        -- [4]: is pointer
-        is_array,          -- [5]: is array
-        array_size,        -- [6]: array size
-        base_type,         -- [7]: base type
-        has_initializer    -- [8]: has initializer
-    ]
+    list decl_info = (var_name; -- [0]: name
+        actual_type; -- [1]: type
+        init_value; -- [2]: initial value
+        storage_loc; -- [3]: storage location
+        is_pointer; -- [4]: is pointer
+        is_array; -- [5]: is array
+        array_size; -- [6]: array size
+        base_type; -- [7]: base type
+        has_initializer    -- [8]: has initializer;)
     
     return [decl_info, current_pos]
 end_function
@@ -384,11 +382,9 @@ function parse_variable_assignment(list tokens, numeric pos) returns list
     end_if
     
     -- Build assignment info
-    list assign_info = [
-        var_name,       -- [0]: variable name
-        value_str,      -- [1]: value
-        is_expression   -- [2]: is expression
-    ]
+    list assign_info = (var_name; -- [0]: variable name
+        value_str; -- [1]: value
+        is_expression   -- [2]: is expression;)
     
     return [assign_info, current_pos]
 end_function

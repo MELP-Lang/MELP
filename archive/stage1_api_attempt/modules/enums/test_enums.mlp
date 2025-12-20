@@ -28,14 +28,7 @@ function test_parse_simple_enum() returns boolean
     
     -- Mock token stream:
     -- enum Status PENDING ACTIVE DONE end_enum
-    list tokens = [
-        TOKEN_ENUM, "",
-        TOKEN_IDENTIFIER, "Status",
-        TOKEN_IDENTIFIER, "PENDING",
-        TOKEN_IDENTIFIER, "ACTIVE",
-        TOKEN_IDENTIFIER, "DONE",
-        TOKEN_END_ENUM, ""
-    ]
+    list tokens = (TOKEN_ENUM; ""; TOKEN_IDENTIFIER; "Status"; TOKEN_IDENTIFIER; "PENDING"; TOKEN_IDENTIFIER; "ACTIVE"; TOKEN_IDENTIFIER; "DONE"; TOKEN_END_ENUM; "";)
     
     list result = parse_enum_definition(tokens, 0)
     list enum_node = result[0]
@@ -98,20 +91,7 @@ function test_parse_enum_explicit_values() returns boolean
     
     -- Mock token stream:
     -- enum Priority LOW = 10 MEDIUM = 20 HIGH = 30 end_enum
-    list tokens = [
-        TOKEN_ENUM, "",
-        TOKEN_IDENTIFIER, "Priority",
-        TOKEN_IDENTIFIER, "LOW",
-        TOKEN_ASSIGN, "",
-        TOKEN_NUMBER, "10",
-        TOKEN_IDENTIFIER, "MEDIUM",
-        TOKEN_ASSIGN, "",
-        TOKEN_NUMBER, "20",
-        TOKEN_IDENTIFIER, "HIGH",
-        TOKEN_ASSIGN, "",
-        TOKEN_NUMBER, "30",
-        TOKEN_END_ENUM, ""
-    ]
+    list tokens = (TOKEN_ENUM; ""; TOKEN_IDENTIFIER; "Priority"; TOKEN_IDENTIFIER; "LOW"; TOKEN_ASSIGN; ""; TOKEN_NUMBER; "10"; TOKEN_IDENTIFIER; "MEDIUM"; TOKEN_ASSIGN; ""; TOKEN_NUMBER; "20"; TOKEN_IDENTIFIER; "HIGH"; TOKEN_ASSIGN; ""; TOKEN_NUMBER; "30"; TOKEN_END_ENUM; "";)
     
     list result = parse_enum_definition(tokens, 0)
     list enum_node = result[0]
@@ -148,11 +128,7 @@ function test_parse_qualified_reference() returns boolean
     print "Test 3: Parse qualified enum value reference"
     
     -- Mock token stream: Status.ACTIVE
-    list tokens = [
-        TOKEN_IDENTIFIER, "Status",
-        TOKEN_DOT, "",
-        TOKEN_IDENTIFIER, "ACTIVE"
-    ]
+    list tokens = (TOKEN_IDENTIFIER; "Status"; TOKEN_DOT; ""; TOKEN_IDENTIFIER; "ACTIVE";)
     
     list result = parse_enum_value_reference(tokens, 0)
     list ref_node = result[0]
@@ -185,9 +161,7 @@ function test_parse_unqualified_reference() returns boolean
     print "Test 4: Parse unqualified enum value reference"
     
     -- Mock token stream: ACTIVE
-    list tokens = [
-        TOKEN_IDENTIFIER, "ACTIVE"
-    ]
+    list tokens = (TOKEN_IDENTIFIER; "ACTIVE";)
     
     list result = parse_enum_value_reference(tokens, 0)
     list ref_node = result[0]
@@ -220,12 +194,7 @@ function test_parse_enum_assignment() returns boolean
     print "Test 5: Parse enum assignment"
     
     -- Mock token stream: Status s = ACTIVE
-    list tokens = [
-        TOKEN_IDENTIFIER, "Status",
-        TOKEN_IDENTIFIER, "s",
-        TOKEN_ASSIGN, "",
-        TOKEN_IDENTIFIER, "ACTIVE"
-    ]
+    list tokens = (TOKEN_IDENTIFIER; "Status"; TOKEN_IDENTIFIER; "s"; TOKEN_ASSIGN; ""; TOKEN_IDENTIFIER; "ACTIVE";)
     
     list result = parse_enum_assignment(tokens, 0)
     list assignment_node = result[0]
@@ -265,11 +234,11 @@ function test_codegen_enum_definition() returns boolean
     print "Test 6: CodeGen enum definition"
     
     -- Create enum node
-    list value1 = [ENUM_VALUE, "RED", 0]
-    list value2 = [ENUM_VALUE, "GREEN", 1]
-    list value3 = [ENUM_VALUE, "BLUE", 2]
-    list values = [value1, value2, value3]
-    list enum_node = [ENUM_DEFINITION, "Color", values, 3]
+    list value1 = (ENUM_VALUE; "RED"; 0;)
+    list value2 = (ENUM_VALUE; "GREEN"; 1;)
+    list value3 = (ENUM_VALUE; "BLUE"; 2;)
+    list values = (value1; value2; value3;)
+    list enum_node = (ENUM_DEFINITION; "Color"; values; 3;)
     
     -- Generate LLVM IR
     string ir = codegen_enum_definition(enum_node, "    ")
@@ -306,14 +275,14 @@ function test_codegen_enum_value_reference() returns boolean
     print "Test 7: CodeGen enum value reference"
     
     -- First, register an enum
-    list value1 = [ENUM_VALUE, "PENDING", 0]
-    list value2 = [ENUM_VALUE, "ACTIVE", 1]
-    list values = [value1, value2]
-    list enum_node = [ENUM_DEFINITION, "Status", values, 2]
+    list value1 = (ENUM_VALUE; "PENDING"; 0;)
+    list value2 = (ENUM_VALUE; "ACTIVE"; 1;)
+    list values = (value1; value2;)
+    list enum_node = (ENUM_DEFINITION; "Status"; values; 2;)
     register_enum(enum_node)
     
     -- Create reference node: Status.ACTIVE
-    list ref_node = [ENUM_VALUE_REF, "Status", "ACTIVE"]
+    list ref_node = (ENUM_VALUE_REF; "Status"; "ACTIVE";)
     
     -- Generate LLVM IR
     string ir = codegen_enum_value_reference(ref_node)
@@ -336,15 +305,15 @@ function test_codegen_enum_assignment() returns boolean
     print "Test 8: CodeGen enum assignment"
     
     -- Register enum first
-    list value1 = [ENUM_VALUE, "RED", 0]
-    list value2 = [ENUM_VALUE, "GREEN", 1]
-    list values = [value1, value2]
-    list enum_node = [ENUM_DEFINITION, "Color", values, 2]
+    list value1 = (ENUM_VALUE; "RED"; 0;)
+    list value2 = (ENUM_VALUE; "GREEN"; 1;)
+    list values = (value1; value2;)
+    list enum_node = (ENUM_DEFINITION; "Color"; values; 2;)
     register_enum(enum_node)
     
     -- Create assignment: Color c = GREEN
-    list ref_node = [ENUM_VALUE_REF, "Color", "GREEN"]
-    list assignment_node = [ENUM_ASSIGNMENT, "Color", "c", ref_node]
+    list ref_node = (ENUM_VALUE_REF; "Color"; "GREEN";)
+    list assignment_node = (ENUM_ASSIGNMENT; "Color"; "c"; ref_node;)
     
     -- Generate LLVM IR
     list context = []  -- Empty context
@@ -372,15 +341,15 @@ function test_codegen_enum_comparison() returns boolean
     print "Test 9: CodeGen enum comparison"
     
     -- Register enum
-    list value1 = [ENUM_VALUE, "PENDING", 0]
-    list value2 = [ENUM_VALUE, "ACTIVE", 1]
-    list values = [value1, value2]
-    list enum_node = [ENUM_DEFINITION, "Status", values, 2]
+    list value1 = (ENUM_VALUE; "PENDING"; 0;)
+    list value2 = (ENUM_VALUE; "ACTIVE"; 1;)
+    list values = (value1; value2;)
+    list enum_node = (ENUM_DEFINITION; "Status"; values; 2;)
     register_enum(enum_node)
     
     -- Create comparison: Status.ACTIVE == Status.PENDING
-    list left_ref = [ENUM_VALUE_REF, "Status", "ACTIVE"]
-    list right_ref = [ENUM_VALUE_REF, "Status", "PENDING"]
+    list left_ref = (ENUM_VALUE_REF; "Status"; "ACTIVE";)
+    list right_ref = (ENUM_VALUE_REF; "Status"; "PENDING";)
     
     -- Generate comparison IR
     list result = codegen_enum_comparison(left_ref, right_ref, "==", "    ", 1)
@@ -414,25 +383,25 @@ function test_helper_functions() returns boolean
     print "Test 10: Helper functions"
     
     -- Test node type checking
-    list enum_node = [ENUM_DEFINITION, "Test", [], 0]
+    list enum_node = (ENUM_DEFINITION; "Test"; []; 0;)
     if not is_enum_definition(enum_node) then
         print "  FAIL: is_enum_definition failed"
         return false
     end_if
     
-    list value_node = [ENUM_VALUE, "VAL", 5]
+    list value_node = (ENUM_VALUE; "VAL"; 5;)
     if not is_enum_value(value_node) then
         print "  FAIL: is_enum_value failed"
         return false
     end_if
     
-    list ref_node = [ENUM_VALUE_REF, "Type", "VAL"]
+    list ref_node = (ENUM_VALUE_REF; "Type"; "VAL";)
     if not is_enum_value_ref(ref_node) then
         print "  FAIL: is_enum_value_ref failed"
         return false
     end_if
     
-    list assign_node = [ENUM_ASSIGNMENT, "Type", "var", ref_node]
+    list assign_node = (ENUM_ASSIGNMENT; "Type"; "var"; ref_node;)
     if not is_enum_assignment(assign_node) then
         print "  FAIL: is_enum_assignment failed"
         return false
@@ -459,10 +428,10 @@ function test_enum_registry() returns boolean
     g_enum_registry = []
     
     -- Register enum
-    list value1 = [ENUM_VALUE, "LOW", 1]
-    list value2 = [ENUM_VALUE, "HIGH", 10]
-    list values = [value1, value2]
-    list enum_node = [ENUM_DEFINITION, "Level", values, 2]
+    list value1 = (ENUM_VALUE; "LOW"; 1;)
+    list value2 = (ENUM_VALUE; "HIGH"; 10;)
+    list values = (value1; value2;)
+    list enum_node = (ENUM_DEFINITION; "Level"; values; 2;)
     register_enum(enum_node)
     
     -- Test qualified lookup

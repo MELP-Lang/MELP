@@ -85,7 +85,7 @@ function parse_array_literal(list tokens, numeric pos) returns list
     next_token_type = next_token[0]
     if next_token_type == TOKEN_RBRACKET then
         -- Empty array
-        list array_node = [ARRAY_LITERAL, elements, 0]
+        list array_node = (ARRAY_LITERAL; elements; 0;)
         return [array_node, current_pos + 1]
     end_if
     
@@ -126,7 +126,7 @@ function parse_array_literal(list tokens, numeric pos) returns list
     end_while
     
     -- Create array node
-    list array_node = [ARRAY_LITERAL, elements, element_count]
+    list array_node = (ARRAY_LITERAL; elements; element_count;)
     
     return [array_node, current_pos]
 end_function
@@ -223,7 +223,7 @@ function parse_array_index(list tokens, numeric pos) returns list
     end_if
     
     -- Create index node
-    list index_node = [ARRAY_INDEX, array_name, index_expr]
+    list index_node = (ARRAY_INDEX; array_name; index_expr;)
     
     return [index_node, index_pos + 1]
 end_function
@@ -289,7 +289,7 @@ function parse_array_length(list tokens, numeric pos) returns list
     end_if
     
     -- Create length node
-    list length_node = [ARRAY_LENGTH, array_name]
+    list length_node = (ARRAY_LENGTH; array_name;)
     
     return [length_node, current_pos + 1]
 end_function
@@ -351,7 +351,7 @@ function parse_array_declaration(list tokens, numeric pos) returns list
     end_if
     
     -- Create declaration node
-    list declaration_node = [ARRAY_DECLARATION, var_name, array_literal]
+    list declaration_node = (ARRAY_DECLARATION; var_name; array_literal;)
     
     return [declaration_node, new_pos]
 end_function

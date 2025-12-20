@@ -312,29 +312,29 @@ function parse_primary(list tokens, numeric pos) returns list
     
     -- Number literal
     if token_type == T_NUMBER then
-        list expr = [EXPR_LITERAL, token_value, 0, 0, 0]
+        list expr = (EXPR_LITERAL; token_value; 0; 0; 0;)
         return [expr, pos + 1]
     end_if
     
     -- String literal
     if token_type == T_STRING then
-        list expr = [EXPR_LITERAL, token_value, 0, 0, 0]
+        list expr = (EXPR_LITERAL; token_value; 0; 0; 0;)
         return [expr, pos + 1]
     end_if
     
     -- Boolean literal
     if token_type == T_TRUE then
-        list expr = [EXPR_LITERAL, "true", 0, 0, 0]
+        list expr = (EXPR_LITERAL; "true"; 0; 0; 0;)
         return [expr, pos + 1]
     end_if
     if token_type == T_FALSE then
-        list expr = [EXPR_LITERAL, "false", 0, 0, 0]
+        list expr = (EXPR_LITERAL; "false"; 0; 0; 0;)
         return [expr, pos + 1]
     end_if
     
     -- Variable
     if token_type == T_IDENTIFIER then
-        list expr = [EXPR_VARIABLE, token_value, 0, 0, 0]
+        list expr = (EXPR_VARIABLE; token_value; 0; 0; 0;)
         return [expr, pos + 1]
     end_if
     
@@ -363,7 +363,7 @@ function parse_primary(list tokens, numeric pos) returns list
         list operand = result[0]
         numeric new_pos = result[1]
         
-        list expr = [EXPR_UNARY, "not", operand, 0, OP_NOT]
+        list expr = (EXPR_UNARY; "not"; operand; 0; OP_NOT;)
         return [expr, new_pos]
     end_if
     
@@ -373,7 +373,7 @@ function parse_primary(list tokens, numeric pos) returns list
         list operand = result[0]
         numeric new_pos = result[1]
         
-        list expr = [EXPR_UNARY, "-", operand, 0, OP_SUB]
+        list expr = (EXPR_UNARY; "-"; operand; 0; OP_SUB;)
         return [expr, new_pos]
     end_if
     
@@ -432,7 +432,7 @@ function parse_expression(list tokens, numeric pos, numeric min_prec) returns li
                 
                 -- Create binary expression node
                 string op_name = get_operator_name(op)
-                list binary_expr = [EXPR_BINARY, op_name, left, right, op]
+                list binary_expr = (EXPR_BINARY; op_name; left; right; op;)
                 left = binary_expr
             end_if
         end_if
