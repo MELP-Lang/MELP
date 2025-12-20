@@ -25,7 +25,7 @@
 ## 🎯 YZ_121: Const Bug Fix
 
 ### Hedef
-Const değerlerin immediate value olarak derlenmesi sorununun çözülmesi.
+Const değerlerin immediate value olarak derlenmesi (tek fonksiyon değişikliği).
 
 ### Arka Plan (YZ_120 Sonuçları)
 **Full Module Compilation BAŞARILI! 🎉**
@@ -35,16 +35,7 @@ Const değerlerin immediate value olarak derlenmesi sorununun çözülmesi.
 | 1 | Module Linking | 18 | 80 | ✅ |
 | 2 | Compiler Pipeline | 11 | 135 | ✅ |
 
-**Oluşturulan Araçlar:**
-- ✅ `link_modules.sh` - Module combiner script
-- ✅ `BOOTSTRAP_PROOF.md` - Bootstrap kanıt belgesi
-
-**Başarılar:**
-- 18 fonksiyonlu modül kombine edildi ve derlendi
-- Real compiler pipeline (Lex→Parse→Codegen) çalışıyor
-- Module integration stratejisi doğrulandı
-
-### Mevcut Sorun (YZ_CONST_REPORT.md)
+### Mevcut Sorun
 
 ```assembly
 # Şu an:
@@ -55,38 +46,62 @@ const numeric MY_CONST = 88
 → movq $88, %r8      # DOĞRU - immediate value
 ```
 
-### 📋 YAPILACAKLAR
+### 📋 YAPILACAKLAR (Tek Fonksiyon!)
 
-#### Faz 1: Const Bug Lokalizasyonu
+#### Adım 1: Dosyayı Bul
 ```bash
-# Stage 0 functions codegen'de const handling bul
 cd compiler/stage0/modules/functions
-grep -n "const" functions_codegen.c
+# Hedef dosya: arithmetic_codegen.c
 ```
 
-#### Faz 2: Const Table İmplementasyonu
-- Const değerleri symbol table'da sakla
-- Compile-time'da resolve et
-- Immediate value olarak emit et
+#### Adım 2: generate_load() Fonksiyonunu Düzelt
 
-#### Faz 3: Verification
+**Lokasyon:** `compiler/stage0/modules/functions/arithmetic_codegen.c`
+
+**Değişiklik:** `generate_load()` fonksiyonunda const check ekle:
+
+```c
+// Önce const olup olmadığını kontrol et
+if (var->is_const) {
+    // Const ise immediate value kullan
+    fprintf(out, "    movq $%ld, %%r8  # Load const %s\n", 
+            var->const_value, var->name);
+    return;
+}
+
+// Değilse mevcut stack-based load
+fprintf(out, "    movq %d(%%rbp), %%r8  # Load %s\n", 
+        var->offset, var->name);
+```
+
+**Not:** `LocalVariable` struct'ında `is_const` ve `const_value` alanları zaten mevcut (functions.c'de kontrol et).
+
+#### Adım 3: Test
 ```bash
-# Test file
 cat > test_const_fix.mlp << 'EOF'
 const numeric ANSWER = 42
+
 function main() returns numeric
     return ANSWER
 end_function
 EOF
 
 ./compile_mlp.sh test_const_fix.mlp /tmp/test_const
-/tmp/test_const  # Should return 42
+/tmp/test_const
+echo $?  # Should be 42
+```
+
+#### Adım 4: Assembly Kontrolü
+```bash
+cat /tmp/test_const_fix.s | grep -A 2 "Load ANSWER"
+# Beklenen: movq $42, %r8
 ```
 
 ### Başarı Kriterleri
-- [ ] Const değerler immediate value olarak derlenmeli
+- [ ] `generate_load()` const check içermeli
 - [ ] test_const_fix.mlp exit code 42 vermeli
-- [ ] Tüm önceki testler hâlâ çalışmalı
+- [ ] Assembly'de `movq $42, %r8` görülmeli
+- [ ] Önceki testler çalışmalı (regression test)
 
 ---
 
