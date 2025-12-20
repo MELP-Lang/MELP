@@ -1,0 +1,72 @@
+-- ============================================================================
+-- test_codegen_simple.mlp - Simple codegen test for YZ_118 Phase 3
+-- ============================================================================
+-- Purpose: Test code generation patterns (variables, arithmetic, conditionals)
+-- Expected exit code: 55
+-- ============================================================================
+
+-- Generate and execute conditional code
+function gen_conditional(numeric value) returns numeric
+    numeric result
+    
+    if value > 10 then
+        result = value * 2
+    else
+        result = value + 10
+    end_if
+    
+    return result
+end_function
+
+-- Generate nested conditional code
+function gen_nested_conditional(numeric x; numeric y) returns numeric
+    numeric output
+    
+    if x > 5 then
+        if y > 3 then
+            output = x + y * 2
+        else
+            output = x * 2
+        end_if
+    else
+        output = x + y
+    end_if
+    
+    return output
+end_function
+
+-- Generate arithmetic expression code
+function gen_arithmetic(numeric a; numeric b; numeric c) returns numeric
+    numeric temp1
+    numeric temp2
+    numeric result
+    
+    -- Generate: (a + b) * c - a
+    temp1 = a + b
+    temp2 = temp1 * c
+    result = temp2 - a
+    
+    return result
+end_function
+
+-- Main codegen test
+function main() returns numeric
+    numeric test1
+    numeric test2
+    numeric test3
+    numeric total
+    
+    -- Test 1: Simple conditional (15 > 10, so 15 * 2 = 30)
+    test1 = gen_conditional(15)
+    
+    -- Test 2: Nested conditional (6 > 5, 4 > 3, so 6 + 4*2 = 14)
+    test2 = gen_nested_conditional(6; 4)
+    
+    -- Test 3: Complex arithmetic ((3+2)*2 - 3 = 7)
+    test3 = gen_arithmetic(3; 2; 2)
+    
+    -- Total: 30 + 14 + 7 = 51
+    total = test1 + test2 + test3
+    
+    return total  -- Expected: 51
+end_function

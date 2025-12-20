@@ -1,0 +1,51 @@
+-- ============================================================================
+-- test_operators_simple.mlp - Simple operator test for YZ_118 Phase 2
+-- ============================================================================
+-- Purpose: Test operator precedence and evaluation
+-- Expected exit code: 42 (2 + 3 * 8)
+-- ============================================================================
+
+-- Evaluate simple binary expression with precedence
+function eval_expression() returns numeric
+    numeric left
+    numeric right
+    numeric mul_result
+    numeric final_result
+    
+    -- Expression: 2 + 3 * 8
+    left = 2
+    right = 3
+    
+    -- Multiply first (precedence)
+    mul_result = right * 8
+    
+    -- Then add
+    final_result = left + mul_result
+    
+    return final_result
+end_function
+
+-- Check operator precedence
+function check_precedence(numeric a; numeric b; numeric c) returns numeric
+    numeric result
+    
+    -- a + b * c should evaluate as a + (b * c)
+    result = a + b * c
+    
+    return result
+end_function
+
+-- Main test driver
+function main() returns numeric
+    numeric test1
+    numeric test2
+    
+    -- Test 1: Manual precedence
+    test1 = eval_expression()  -- Expected: 26 (2 + 24)
+    
+    -- Test 2: Expression precedence
+    test2 = check_precedence(2; 4; 4)  -- Expected: 18 (2 + 16)
+    
+    -- Return combined result
+    return test1 + test2  -- Expected: 44 (26 + 18)
+end_function
