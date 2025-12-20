@@ -254,8 +254,8 @@ int main(int argc, char** argv) {
         // YZ_121: Set global consts for codegen
         function_codegen_set_global_consts(consts);
         
-        // Generate module header
-        function_generate_module_header_llvm(output);
+        // Generate module header (using llvm_ctx's output)
+        llvm_emit_module_header(llvm_ctx->llvm_ctx);
         
         // Generate all functions
         FunctionDeclaration* func = functions;
@@ -265,7 +265,7 @@ int main(int argc, char** argv) {
         }
         
         // Generate module footer (includes string globals)
-        function_generate_module_footer_llvm(output);
+        llvm_emit_module_footer(llvm_ctx->llvm_ctx);
         
         // Cleanup
         function_llvm_context_free(llvm_ctx);
