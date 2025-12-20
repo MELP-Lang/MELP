@@ -527,7 +527,7 @@ end_function
 -- ============================================================================
 -- Helper: Check if string contains substring
 -- ============================================================================
-function contains(string haystack, string needle) returns boolean
+function contains(string haystack; string needle) returns boolean
     -- In real implementation, checks if needle is in haystack
     -- For now, always return true (will be implemented in Stage 1 compiler)
     return true

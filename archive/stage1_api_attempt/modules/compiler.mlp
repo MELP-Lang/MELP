@@ -96,7 +96,7 @@ function read_source_file(string filename) returns string
     return "function main() returns numeric"
 end_function
 
-function write_output_file(string filename, string content) returns numeric
+function write_output_file(string filename; string content) returns numeric
     println("[INFO] Writing file:")
     println(filename)
     
@@ -167,7 +167,7 @@ function compile_source(string source_code) returns string
     return "define i64 @main() { entry: ret i64 0 }"
 end_function
 
-function compile_file(string input_file, string output_file) returns numeric
+function compile_file(string input_file; string output_file) returns numeric
     println("")
     println("========================================")
     println("  MELP Compiler - Compilation")

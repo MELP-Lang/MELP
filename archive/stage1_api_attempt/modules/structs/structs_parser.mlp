@@ -86,13 +86,13 @@ const numeric STRUCT_MEMBER_ASSIGN = 5   -- Member assignment (person.name = "Jo
 --   struct_node = result[0]
 --   next_pos = result[1]
 -- ----------------------------------------------------------------------------
-function parse_struct_definition(list tokens, numeric pos) returns list
+function parse_struct_definition(list tokens; numeric pos) returns list
     -- Expect: struct
     token = tokens[pos]
     numeric temp_token_0_1 = 0
     temp_token_0_1 = token[0]
     if temp_token_0_1 != TOKEN_STRUCT then
-        return [0, pos]  -- Not a struct definition
+        return (0; pos;)  -- Not a struct definition
     end_if
     pos = pos + 1
     
@@ -101,7 +101,7 @@ function parse_struct_definition(list tokens, numeric pos) returns list
     numeric temp_token_0_2 = 0
     temp_token_0_2 = token[0]
     if temp_token_0_2 != TOKEN_IDENTIFIER then
-        return [0, pos]  -- Error: expected struct name
+        return (0; pos;)  -- Error: expected struct name
     end_if
     struct_name = token[1]
     pos = pos + 1
@@ -119,7 +119,7 @@ function parse_struct_definition(list tokens, numeric pos) returns list
         temp_token_0_3 = token[0]
         if temp_token_0_3 == TOKEN_END_STRUCT then
             pos = pos + 1
-            break
+            exit
         end_if
         
         -- Parse member: type name
@@ -128,7 +128,7 @@ function parse_struct_definition(list tokens, numeric pos) returns list
         pos = result[1]
         
         if member_node == 0 then
-            return [0, pos]  -- Error parsing member
+            return (0; pos;)  -- Error parsing member
         end_if
         
         member_list[member_count] = member_node
@@ -138,7 +138,7 @@ function parse_struct_definition(list tokens, numeric pos) returns list
     -- Create struct definition node
     list struct_node = (STRUCT_DEFINITION; struct_name; member_list; member_count;)
     
-    return [struct_node, pos]
+    return (struct_node; pos;)
 end_function
 
 -- ----------------------------------------------------------------------------
@@ -161,7 +161,7 @@ end_function
 --   - member_node: [STRUCT_MEMBER, member_name, member_type]
 --   - new_position: Position after parsing
 -- ----------------------------------------------------------------------------
-function parse_struct_member(list tokens, numeric pos) returns list
+function parse_struct_member(list tokens; numeric pos) returns list
     -- Expect: type (numeric, string, boolean, list, or struct type)
     token = tokens[pos]
     
@@ -187,7 +187,7 @@ function parse_struct_member(list tokens, numeric pos) returns list
         member_type = token[1]
         pos = pos + 1
     else
-        return [0, pos]  -- Error: invalid type
+        return (0; pos;)  -- Error: invalid type
     end_if
     
     -- Expect: member name (identifier)
@@ -195,7 +195,7 @@ function parse_struct_member(list tokens, numeric pos) returns list
     numeric temp_token_0_5 = 0
     temp_token_0_5 = token[0]
     if temp_token_0_5 != TOKEN_IDENTIFIER then
-        return [0, pos]  -- Error: expected member name
+        return (0; pos;)  -- Error: expected member name
     end_if
     member_name = token[1]
     pos = pos + 1
@@ -203,7 +203,7 @@ function parse_struct_member(list tokens, numeric pos) returns list
     -- Create member node
     list member_node = (STRUCT_MEMBER; member_name; member_type;)
     
-    return [member_node, pos]
+    return (member_node; pos;)
 end_function
 
 -- ----------------------------------------------------------------------------
@@ -226,13 +226,13 @@ end_function
 --
 -- Note: This is called when we detect "StructType identifier =" pattern
 -- ----------------------------------------------------------------------------
-function parse_struct_instantiation(list tokens, numeric pos) returns list
+function parse_struct_instantiation(list tokens; numeric pos) returns list
     -- Expect: struct type (identifier)
     token = tokens[pos]
     numeric temp_token_0_6 = 0
     temp_token_0_6 = token[0]
     if temp_token_0_6 != TOKEN_IDENTIFIER then
-        return [0, pos]  -- Not a struct instantiation
+        return (0; pos;)  -- Not a struct instantiation
     end_if
     struct_type = token[1]
     pos = pos + 1
@@ -242,7 +242,7 @@ function parse_struct_instantiation(list tokens, numeric pos) returns list
     numeric temp_token_0_7 = 0
     temp_token_0_7 = token[0]
     if temp_token_0_7 != TOKEN_IDENTIFIER then
-        return [0, pos]  -- Error: expected instance name
+        return (0; pos;)  -- Error: expected instance name
     end_if
     instance_name = token[1]
     pos = pos + 1
@@ -252,7 +252,7 @@ function parse_struct_instantiation(list tokens, numeric pos) returns list
     numeric temp_token_0_8 = 0
     temp_token_0_8 = token[0]
     if temp_token_0_8 != TOKEN_ASSIGN then
-        return [0, pos]  -- Error: expected =
+        return (0; pos;)  -- Error: expected =
     end_if
     pos = pos + 1
     
@@ -261,7 +261,7 @@ function parse_struct_instantiation(list tokens, numeric pos) returns list
     numeric temp_token_0_9 = 0
     temp_token_0_9 = token[0]
     if temp_token_0_9 != TOKEN_LBRACE then
-        return [0, pos]  -- Error: expected {
+        return (0; pos;)  -- Error: expected {
     end_if
     pos = pos + 1
     
@@ -278,7 +278,7 @@ function parse_struct_instantiation(list tokens, numeric pos) returns list
         temp_token_0_10 = token[0]
         if temp_token_0_10 == TOKEN_RBRACE then
             pos = pos + 1
-            break
+            exit
         end_if
         
         -- Parse: member_name = value
@@ -286,7 +286,7 @@ function parse_struct_instantiation(list tokens, numeric pos) returns list
         numeric temp_token_0_11 = 0
         temp_token_0_11 = token[0]
         if temp_token_0_11 != TOKEN_IDENTIFIER then
-            return [0, pos]  -- Error: expected member name
+            return (0; pos;)  -- Error: expected member name
         end_if
         member_name = token[1]
         pos = pos + 1
@@ -296,7 +296,7 @@ function parse_struct_instantiation(list tokens, numeric pos) returns list
         numeric temp_token_0_12 = 0
         temp_token_0_12 = token[0]
         if temp_token_0_12 != TOKEN_ASSIGN then
-            return [0, pos]  -- Error: expected =
+            return (0; pos;)  -- Error: expected =
         end_if
         pos = pos + 1
         
@@ -322,7 +322,7 @@ function parse_struct_instantiation(list tokens, numeric pos) returns list
     -- Create instantiation node
     list instance_node = (STRUCT_INSTANTIATION; struct_type; instance_name; initializer_list;)
     
-    return [instance_node, pos]
+    return (instance_node; pos;)
 end_function
 
 -- ----------------------------------------------------------------------------
@@ -346,13 +346,13 @@ end_function
 --
 -- Note: For now, single-level access. Nested access in TIER 1.
 -- ----------------------------------------------------------------------------
-function parse_member_access(list tokens, numeric pos) returns list
+function parse_member_access(list tokens; numeric pos) returns list
     -- Expect: instance name (identifier)
     token = tokens[pos]
     numeric temp_token_0_14 = 0
     temp_token_0_14 = token[0]
     if temp_token_0_14 != TOKEN_IDENTIFIER then
-        return [0, pos]  -- Not a member access
+        return (0; pos;)  -- Not a member access
     end_if
     instance_name = token[1]
     pos = pos + 1
@@ -362,7 +362,7 @@ function parse_member_access(list tokens, numeric pos) returns list
     numeric temp_token_0_15 = 0
     temp_token_0_15 = token[0]
     if temp_token_0_15 != TOKEN_DOT then
-        return [0, pos]  -- Not a member access
+        return (0; pos;)  -- Not a member access
     end_if
     pos = pos + 1
     
@@ -371,7 +371,7 @@ function parse_member_access(list tokens, numeric pos) returns list
     numeric temp_token_0_16 = 0
     temp_token_0_16 = token[0]
     if temp_token_0_16 != TOKEN_IDENTIFIER then
-        return [0, pos]  -- Error: expected member name
+        return (0; pos;)  -- Error: expected member name
     end_if
     member_name = token[1]
     pos = pos + 1
@@ -379,7 +379,7 @@ function parse_member_access(list tokens, numeric pos) returns list
     -- Create member access node
     list access_node = (STRUCT_MEMBER_ACCESS; instance_name; member_name;)
     
-    return [access_node, pos]
+    return (access_node; pos;)
 end_function
 
 -- ----------------------------------------------------------------------------
@@ -401,14 +401,14 @@ end_function
 --   - assign_node: [STRUCT_MEMBER_ASSIGN, instance_name, member_name, value_expr]
 --   - new_position: Position after parsing
 -- ----------------------------------------------------------------------------
-function parse_member_assignment(list tokens, numeric pos) returns list
+function parse_member_assignment(list tokens; numeric pos) returns list
     -- Parse member access first
     result = parse_member_access(tokens, pos)
     access_node = result[0]
     pos = result[1]
     
     if access_node == 0 then
-        return [0, pos]  -- Not a member assignment
+        return (0; pos;)  -- Not a member assignment
     end_if
     
     instance_name = access_node[1]
@@ -419,7 +419,7 @@ function parse_member_assignment(list tokens, numeric pos) returns list
     numeric temp_token_0_17 = 0
     temp_token_0_17 = token[0]
     if temp_token_0_17 != TOKEN_ASSIGN then
-        return [0, pos]  -- Not an assignment
+        return (0; pos;)  -- Not an assignment
     end_if
     pos = pos + 1
     
@@ -432,7 +432,7 @@ function parse_member_assignment(list tokens, numeric pos) returns list
     -- Create assignment node
     list assign_node = (STRUCT_MEMBER_ASSIGN; instance_name; member_name; value_expr;)
     
-    return [assign_node, pos]
+    return (assign_node; pos;)
 end_function
 
 -- ============================================================================

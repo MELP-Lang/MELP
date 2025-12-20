@@ -63,13 +63,13 @@ const numeric ARRAY_ASSIGNMENT = 5      -- Array element assignment: arr[i] = va
 --   Input: tokens starting with '[', '42', ',', '43', ']'
 --   Output: [[ARRAY_LITERAL, [lit1, lit2], 2], new_pos]
 -- ----------------------------------------------------------------------------
-function parse_array_literal(list tokens, numeric pos) returns list
+function parse_array_literal(list tokens; numeric pos) returns list
     -- Check if current token is '['
     list token = tokens[pos]
     numeric token_type = token[0]
     
     if token_type != TOKEN_LBRACKET then
-        return [[], pos]  -- Not an array literal
+        return ([;), pos]  -- Not an array literal
     end_if
     
     -- Move past '['
@@ -86,12 +86,12 @@ function parse_array_literal(list tokens, numeric pos) returns list
     if next_token_type == TOKEN_RBRACKET then
         -- Empty array
         list array_node = (ARRAY_LITERAL; elements; 0;)
-        return [array_node, current_pos + 1]
+        return (array_node; current_pos + 1;)
     end_if
     
     -- Parse elements
     numeric parsing = 1
-    while parsing == 1 do
+    while parsing == 1
         -- Parse element (literal for now, TIER 1: expressions)
         list element_result = parse_array_element(tokens, current_pos)
         list element = element_result[0]
@@ -99,7 +99,7 @@ function parse_array_literal(list tokens, numeric pos) returns list
         
         if element == [] then
             -- Failed to parse element - syntax error
-            return [[], pos]
+            return ([;), pos]
         end_if
         
         -- Add element to list
@@ -121,14 +121,14 @@ function parse_array_literal(list tokens, numeric pos) returns list
             current_pos = current_pos + 1
         else
             -- Syntax error: expected ',' or ']'
-            return [[], pos]
+            return ([;), pos]
         end_if
     end_while
     
     -- Create array node
     list array_node = (ARRAY_LITERAL; elements; element_count;)
     
-    return [array_node, current_pos]
+    return (array_node; current_pos;)
 end_function
 
 -- ----------------------------------------------------------------------------
@@ -144,14 +144,14 @@ end_function
 -- Note: Currently only supports literals (integers, strings, booleans)
 -- TIER 1: Add support for expressions, variables, nested arrays
 -- ----------------------------------------------------------------------------
-function parse_array_element(list tokens, numeric pos) returns list
+function parse_array_element(list tokens; numeric pos) returns list
     -- Try to parse as literal
     list literal_result = parse_literal(tokens, pos)
     list literal = literal_result[0]
     numeric new_pos = literal_result[1]
     
     if literal != [] then
-        return [literal, new_pos]
+        return (literal; new_pos;)
     end_if
     
     -- TIER 1: Try to parse as identifier
@@ -159,7 +159,7 @@ function parse_array_element(list tokens, numeric pos) returns list
     -- TIER 1: Try to parse as nested array
     
     -- Failed to parse element
-    return [[], pos]
+    return ([;), pos]
 end_function
 
 -- ----------------------------------------------------------------------------
@@ -179,13 +179,13 @@ end_function
 --   Input: tokens: [IDENTIFIER "arr", LBRACKET, NUMBER "0", RBRACKET]
 --   Output: [[ARRAY_INDEX, "arr", [LIT_INTEGER, "0", "0"]], new_pos]
 -- ----------------------------------------------------------------------------
-function parse_array_index(list tokens, numeric pos) returns list
+function parse_array_index(list tokens; numeric pos) returns list
     -- Check if current token is identifier
     list token = tokens[pos]
     numeric token_type = token[0]
     
     if token_type != TOKEN_IDENTIFIER then
-        return [[], pos]  -- Not an identifier
+        return ([;), pos]  -- Not an identifier
     end_if
     
     string array_name = token[1]
@@ -197,7 +197,7 @@ function parse_array_index(list tokens, numeric pos) returns list
     numeric bracket_type = 0
     bracket_type = bracket_token[0]
     if bracket_type != TOKEN_LBRACKET then
-        return [[], pos]  -- Not array indexing
+        return ([;), pos]  -- Not array indexing
     end_if
     
     -- Move past '['
@@ -211,7 +211,7 @@ function parse_array_index(list tokens, numeric pos) returns list
     if index_expr == [] then
         -- TIER 1: Try to parse as variable or expression
         -- For now, fail
-        return [[], pos]
+        return ([;), pos]
     end_if
     
     -- Check for closing ']'
@@ -219,13 +219,13 @@ function parse_array_index(list tokens, numeric pos) returns list
     numeric close_bracket_type = 0
     close_bracket_type = close_bracket[0]
     if close_bracket_type != TOKEN_RBRACKET then
-        return [[], pos]  -- Syntax error
+        return ([;), pos]  -- Syntax error
     end_if
     
     -- Create index node
     list index_node = (ARRAY_INDEX; array_name; index_expr;)
     
-    return [index_node, index_pos + 1]
+    return (index_node; index_pos + 1;)
 end_function
 
 -- ----------------------------------------------------------------------------
@@ -245,18 +245,18 @@ end_function
 --   Input: tokens: [IDENTIFIER "len", LPAREN, IDENTIFIER "arr", RPAREN]
 --   Output: [[ARRAY_LENGTH, "arr"], new_pos]
 -- ----------------------------------------------------------------------------
-function parse_array_length(list tokens, numeric pos) returns list
+function parse_array_length(list tokens; numeric pos) returns list
     -- Check if current token is 'len' identifier
     list token = tokens[pos]
     numeric token_type = token[0]
     string token_value = token[1]
     
     if token_type != TOKEN_IDENTIFIER then
-        return [[], pos]
+        return ([;), pos]
     end_if
     
     if token_value != "len" then
-        return [[], pos]  -- Not a len() call
+        return ([;), pos]  -- Not a len() call
     end_if
     
     -- Check for '('
@@ -265,7 +265,7 @@ function parse_array_length(list tokens, numeric pos) returns list
     numeric lparen_type = 0
     lparen_type = lparen[0]
     if lparen_type != TOKEN_LPAREN then
-        return [[], pos]  -- Syntax error
+        return ([;), pos]  -- Syntax error
     end_if
     
     -- Get array identifier
@@ -274,7 +274,7 @@ function parse_array_length(list tokens, numeric pos) returns list
     numeric array_token_type = 0
     array_token_type = array_token[0]
     if array_token_type != TOKEN_IDENTIFIER then
-        return [[], pos]  -- Syntax error
+        return ([;), pos]  -- Syntax error
     end_if
     
     string array_name = array_token[1]
@@ -285,13 +285,13 @@ function parse_array_length(list tokens, numeric pos) returns list
     numeric rparen_type = 0
     rparen_type = rparen[0]
     if rparen_type != TOKEN_RPAREN then
-        return [[], pos]  -- Syntax error
+        return ([;), pos]  -- Syntax error
     end_if
     
     -- Create length node
     list length_node = (ARRAY_LENGTH; array_name;)
     
-    return [length_node, current_pos + 1]
+    return (length_node; current_pos + 1;)
 end_function
 
 -- ----------------------------------------------------------------------------
@@ -311,13 +311,13 @@ end_function
 --   Input: tokens: [LIST, IDENTIFIER "arr", ASSIGN, LBRACKET, ...]
 --   Output: [[ARRAY_DECLARATION, "arr", array_literal], new_pos]
 -- ----------------------------------------------------------------------------
-function parse_array_declaration(list tokens, numeric pos) returns list
+function parse_array_declaration(list tokens; numeric pos) returns list
     -- Check if current token is 'list'
     list token = tokens[pos]
     numeric token_type = token[0]
     
     if token_type != TOKEN_LIST then
-        return [[], pos]  -- Not array declaration
+        return ([;), pos]  -- Not array declaration
     end_if
     
     -- Get identifier
@@ -326,7 +326,7 @@ function parse_array_declaration(list tokens, numeric pos) returns list
     numeric id_token_type = 0
     id_token_type = id_token[0]
     if id_token_type != TOKEN_IDENTIFIER then
-        return [[], pos]  -- Syntax error
+        return ([;), pos]  -- Syntax error
     end_if
     
     string var_name = id_token[1]
@@ -337,7 +337,7 @@ function parse_array_declaration(list tokens, numeric pos) returns list
     numeric assign_token_type = 0
     assign_token_type = assign_token[0]
     if assign_token_type != TOKEN_ASSIGN then
-        return [[], pos]  -- Syntax error
+        return ([;), pos]  -- Syntax error
     end_if
     
     -- Parse array literal
@@ -347,13 +347,13 @@ function parse_array_declaration(list tokens, numeric pos) returns list
     numeric new_pos = array_result[1]
     
     if array_literal == [] then
-        return [[], pos]  -- Failed to parse array literal
+        return ([;), pos]  -- Failed to parse array literal
     end_if
     
     -- Create declaration node
     list declaration_node = (ARRAY_DECLARATION; var_name; array_literal;)
     
-    return [declaration_node, new_pos]
+    return (declaration_node; new_pos;)
 end_function
 
 -- ============================================================================
@@ -399,7 +399,7 @@ function get_array_elements(list array_node) returns list
     numeric node_type = array_node[0]
     
     if node_type != ARRAY_LITERAL then
-        return []  -- Not an array literal
+        return (;)  -- Not an array literal
     end_if
     
     return array_node[1]  -- element_list

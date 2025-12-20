@@ -176,7 +176,7 @@ function test_parse_numeric_var() returns list
     -- Check result
     if result.length == 0 then
         println("    Error: Parse failed")
-        return [0]
+        return (0;)
     end_if
     
     list decl_info = result[0]
@@ -188,18 +188,18 @@ function test_parse_numeric_var() returns list
     
     if var_name != "x" then
         println("    Error: Expected name 'x', got '" + var_name + "'")
-        return [0]
+        return (0;)
     end_if
     
     if var_type != VAR_NUMERIC then
         println("    Error: Expected VAR_NUMERIC type")
-        return [0]
+        return (0;)
     end_if
     
     println("    Name: " + var_name)
     println("    Type: " + get_var_type_name(var_type))
     
-    return [1]
+    return (1;)
 end_function
 
 -- Test 2: Parse string variable declaration
@@ -215,7 +215,7 @@ function test_parse_string_var() returns list
     
     if result.length == 0 then
         println("    Error: Parse failed")
-        return [0]
+        return (0;)
     end_if
     
     list decl_info = result[0]
@@ -224,18 +224,18 @@ function test_parse_string_var() returns list
     
     if var_name != "name" then
         println("    Error: Expected name 'name'")
-        return [0]
+        return (0;)
     end_if
     
     if var_type != VAR_STRING then
         println("    Error: Expected VAR_STRING type")
-        return [0]
+        return (0;)
     end_if
     
     println("    Name: " + var_name)
     println("    Type: " + get_var_type_name(var_type))
     
-    return [1]
+    return (1;)
 end_function
 
 -- Test 3: Parse boolean variable declaration
@@ -251,7 +251,7 @@ function test_parse_boolean_var() returns list
     
     if result.length == 0 then
         println("    Error: Parse failed")
-        return [0]
+        return (0;)
     end_if
     
     list decl_info = result[0]
@@ -260,18 +260,18 @@ function test_parse_boolean_var() returns list
     
     if var_name != "flag" then
         println("    Error: Expected name 'flag'")
-        return [0]
+        return (0;)
     end_if
     
     if var_type != VAR_BOOLEAN then
         println("    Error: Expected VAR_BOOLEAN type")
-        return [0]
+        return (0;)
     end_if
     
     println("    Name: " + var_name)
     println("    Type: " + get_var_type_name(var_type))
     
-    return [1]
+    return (1;)
 end_function
 
 -- Test 4: Parse variable with initializer
@@ -289,7 +289,7 @@ function test_parse_var_with_init() returns list
     
     if result.length == 0 then
         println("    Error: Parse failed")
-        return [0]
+        return (0;)
     end_if
     
     list decl_info = result[0]
@@ -300,29 +300,29 @@ function test_parse_var_with_init() returns list
     
     if var_name != "x" then
         println("    Error: Expected name 'x'")
-        return [0]
+        return (0;)
     end_if
     
     if var_type != VAR_NUMERIC then
         println("    Error: Expected VAR_NUMERIC type")
-        return [0]
+        return (0;)
     end_if
     
     if not has_init then
         println("    Error: Expected initializer")
-        return [0]
+        return (0;)
     end_if
     
     if init_value != "42" then
         println("    Error: Expected value '42', got '" + init_value + "'")
-        return [0]
+        return (0;)
     end_if
     
     println("    Name: " + var_name)
     println("    Type: " + get_var_type_name(var_type))
     println("    Value: " + init_value)
     
-    return [1]
+    return (1;)
 end_function
 
 -- Test 5: Parse variable assignment
@@ -339,7 +339,7 @@ function test_parse_assignment() returns list
     
     if result.length == 0 then
         println("    Error: Parse failed")
-        return [0]
+        return (0;)
     end_if
     
     list assign_info = result[0]
@@ -348,18 +348,18 @@ function test_parse_assignment() returns list
     
     if var_name != "x" then
         println("    Error: Expected name 'x'")
-        return [0]
+        return (0;)
     end_if
     
     if value != "100" then
         println("    Error: Expected value '100'")
-        return [0]
+        return (0;)
     end_if
     
     println("    Name: " + var_name)
     println("    Value: " + value)
     
-    return [1]
+    return (1;)
 end_function
 
 -- ============================================================================
@@ -385,7 +385,7 @@ function test_codegen_declaration() returns list
     -- Verify output contains expected strings
     if ir_code.length == 0 then
         println("    Error: No IR generated")
-        return [0]
+        return (0;)
     end_if
     
     -- Should contain: alloca, store
@@ -402,18 +402,18 @@ function test_codegen_declaration() returns list
     
     if not has_alloca then
         println("    Error: Missing 'alloca' instruction")
-        return [0]
+        return (0;)
     end_if
     
     if not has_store then
         println("    Error: Missing 'store' instruction")
-        return [0]
+        return (0;)
     end_if
     
     println("    Generated LLVM IR:")
     println(ir_code)
     
-    return [1]
+    return (1;)
 end_function
 
 -- Test 7: CodeGen variable assignment
@@ -428,19 +428,19 @@ function test_codegen_assignment() returns list
     
     if ir_code.length == 0 then
         println("    Error: No IR generated")
-        return [0]
+        return (0;)
     end_if
     
     -- Should contain: store
     if not ir_code.contains("store") then
         println("    Error: Missing 'store' instruction")
-        return [0]
+        return (0;)
     end_if
     
     println("    Generated LLVM IR:")
     println(ir_code)
     
-    return [1]
+    return (1;)
 end_function
 
 -- Test 8: CodeGen variable load
@@ -450,19 +450,19 @@ function test_codegen_load() returns list
     
     if ir_code.length == 0 then
         println("    Error: No IR generated")
-        return [0]
+        return (0;)
     end_if
     
     -- Should contain: load
     if not ir_code.contains("load") then
         println("    Error: Missing 'load' instruction")
-        return [0]
+        return (0;)
     end_if
     
     println("    Generated LLVM IR:")
     println(ir_code)
     
-    return [1]
+    return (1;)
 end_function
 
 -- ============================================================================

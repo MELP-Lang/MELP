@@ -19,7 +19,7 @@ numeric test_count = 0
 numeric test_passed = 0
 numeric test_failed = 0
 
-function assert_equal(string test_name, string expected, string actual) returns numeric
+function assert_equal(string test_name; string expected; string actual) returns numeric
     test_count = test_count + 1
     
     if expected == actual then
@@ -43,7 +43,7 @@ function assert_equal(string test_name, string expected, string actual) returns 
     return 0
 end_function
 
-function assert_not_empty(string test_name, list result) returns numeric
+function assert_not_empty(string test_name; list result) returns numeric
     test_count = test_count + 1
     
     if result[0] != [] then

@@ -21,7 +21,7 @@ numeric test_passed = 0
 numeric test_failed = 0
 
 -- Print test result
-function test_result(string test_name, numeric passed) returns numeric
+function test_result(string test_name; numeric passed) returns numeric
     test_count = test_count + 1
     
     if passed == 1
@@ -38,7 +38,7 @@ function test_result(string test_name, numeric passed) returns numeric
 end_function
 
 -- Assert equal
-function assert_equal(string name, numeric actual, numeric expected) returns numeric
+function assert_equal(string name; numeric actual; numeric expected) returns numeric
     if actual == expected
         return test_result(name, 1)
     end_if
@@ -49,7 +49,7 @@ function assert_equal(string name, numeric actual, numeric expected) returns num
 end_function
 
 -- Assert not empty
-function assert_not_empty(string name, list value) returns numeric
+function assert_not_empty(string name; list value) returns numeric
     if value != []
         return test_result(name, 1)
     end_if

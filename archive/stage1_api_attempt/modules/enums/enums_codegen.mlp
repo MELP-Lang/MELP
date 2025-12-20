@@ -46,9 +46,9 @@ const string LLVM_ENUM_TYPE = "i32"      -- Enums are 32-bit integers
 -- Register enum definition in compile-time registry
 -- STATELESS: Takes registry as parameter, returns updated registry
 -- Returns: [success_flag, updated_registry]
-function register_enum(list enum_node, list enum_registry) returns list
+function register_enum(list enum_node; list enum_registry) returns list
     if not is_enum_definition(enum_node) then
-        return [false, enum_registry]
+        return (false; enum_registry;)
     end_if
     
     string enum_name = get_enum_name(enum_node)
@@ -71,13 +71,13 @@ function register_enum(list enum_node, list enum_registry) returns list
     list registry_entry = (enum_name; values_map;)
     list updated_registry = append(enum_registry, registry_entry)
     
-    return [true, updated_registry]
+    return (true; updated_registry;)
 end_function
 
 -- Lookup enum value by qualified name (Status.ACTIVE)
 -- STATELESS: Takes registry as parameter
 -- Returns numeric value, or -1 if not found
-function lookup_enum_value(list enum_registry, string enum_name, string value_name) returns numeric
+function lookup_enum_value(list enum_registry; string enum_name; string value_name) returns numeric
     numeric i = 0
     while i < len(enum_registry)
         list entry = enum_registry[i]
@@ -107,7 +107,7 @@ end_function
 -- Lookup unqualified enum value (ACTIVE)
 -- STATELESS: Takes registry as parameter
 -- Searches all registered enums
-function lookup_enum_value_unqualified(list enum_registry, string value_name) returns numeric
+function lookup_enum_value_unqualified(list enum_registry; string value_name) returns numeric
     numeric i = 0
     while i < len(enum_registry)
         list entry = enum_registry[i]
@@ -137,9 +137,9 @@ end_function
 -- Generate LLVM IR comment for enum definition
 -- Enums are compile-time only, no runtime code needed
 -- STATELESS: Takes enum_registry as parameter, returns [code, updated_registry]
-function codegen_enum_definition(list enum_node, list enum_registry, string indent) returns list
+function codegen_enum_definition(list enum_node; list enum_registry; string indent) returns list
     if not is_enum_definition(enum_node) then
-        return ["", enum_registry]
+        return (""; enum_registry;)
     end_if
     
     -- Register enum first (get updated registry)
@@ -148,7 +148,7 @@ function codegen_enum_definition(list enum_node, list enum_registry, string inde
     list updated_registry = register_result[1]
     
     if not success then
-        return ["", enum_registry]
+        return (""; enum_registry;)
     end_if
     
     string enum_name = get_enum_name(enum_node)
@@ -180,13 +180,13 @@ function codegen_enum_definition(list enum_node, list enum_registry, string inde
         i = i + 1
     end_while
     
-    return [result, updated_registry]
+    return (result; updated_registry;)
 end_function
 
 -- Generate LLVM IR for enum value reference
 -- STATELESS: Takes enum_registry as parameter
 -- Returns: LLVM IR value (e.g., "i32 1")
-function codegen_enum_value_reference(list ref_node, list enum_registry) returns string
+function codegen_enum_value_reference(list ref_node; list enum_registry) returns string
     if not is_enum_value_ref(ref_node) then
         return "i32 0"  -- Default
     end_if
@@ -217,7 +217,7 @@ end_function
 -- Generate LLVM IR for enum variable assignment
 -- STATELESS: Takes enum_registry as parameter
 -- Returns: LLVM IR string
-function codegen_enum_assignment(list assignment_node, list enum_registry, string indent, list context) returns string
+function codegen_enum_assignment(list assignment_node; list enum_registry; string indent; list context) returns string
     if not is_enum_assignment(assignment_node) then
         return ""
     end_if
@@ -252,7 +252,7 @@ end_function
 -- Generate LLVM IR for enum comparison
 -- STATELESS: Takes enum_registry as parameter
 -- Returns: [code, new_reg_counter]
-function codegen_enum_comparison(list left_ref, list right_ref, list enum_registry, string op, string indent, numeric reg_counter) returns list
+function codegen_enum_comparison(list left_ref; list right_ref; list enum_registry; string op; string indent; numeric reg_counter) returns list
     -- Load left value (pass registry)
     string left_ir = codegen_enum_value_reference(left_ref, enum_registry)
     
@@ -298,7 +298,7 @@ function codegen_enum_comparison(list left_ref, list right_ref, list enum_regist
     
     numeric new_reg = reg_counter + 1
     
-    return [result, new_reg]
+    return (result; new_reg;)
 end_function
 
 -- ============================================================================
@@ -322,19 +322,19 @@ function to_string(numeric n) returns string
 end_function
 
 -- Concatenate strings
-function concat(string a, string b) returns string
+function concat(string a; string b) returns string
     -- In real implementation, concatenates strings
     return a
 end_function
 
 -- Get substring
-function substring(string s, numeric start, numeric end_pos) returns string
+function substring(string s; numeric start; numeric end_pos) returns string
     -- In real implementation, extracts substring
     return ""
 end_function
 
 -- Helper to append to list
-function append(list lst, list item) returns list
+function append(list lst; list item) returns list
     list result = lst
     -- In real implementation, this would append item to result
     return result

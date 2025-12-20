@@ -52,7 +52,7 @@ const numeric LIT_CHAR = 6           -- Character literal ('a') - TIER 1
 --   Input: tokens[pos] = [TOKEN_NUMBER, "42"]
 --   Output: [[LIT_INTEGER, 42, "42"], pos+1]
 -- ----------------------------------------------------------------------------
-function parse_integer_literal(list tokens, numeric pos) returns list
+function parse_integer_literal(list tokens; numeric pos) returns list
     -- Check bounds
     numeric token_count = 0  -- Will be set by len(tokens) when available
     -- TIER 1: Add proper bounds checking
@@ -64,7 +64,7 @@ function parse_integer_literal(list tokens, numeric pos) returns list
     
     -- Check if it's a number token
     if token_type != TOKEN_NUMBER then
-        return [[], pos]  -- Not a number literal
+        return ([;), pos]  -- Not a number literal
     end_if
     
     -- Check if it contains a decimal point (would be float)
@@ -79,7 +79,7 @@ function parse_integer_literal(list tokens, numeric pos) returns list
     -- Create literal node
     list literal = [LIT_INTEGER, token_value, token_value]
     
-    return [literal, pos + 1]
+    return (literal; pos + 1;)
 end_function
 
 -- ----------------------------------------------------------------------------
@@ -96,10 +96,10 @@ end_function
 --   Input: tokens[pos] = [TOKEN_NUMBER, "3.14"]
 --   Output: [[LIT_FLOAT, 3.14, "3.14"], pos+1]
 -- ----------------------------------------------------------------------------
-function parse_float_literal(list tokens, numeric pos) returns list
+function parse_float_literal(list tokens; numeric pos) returns list
     -- TIER 1: Implement float literal parsing
     -- For now, return empty (not implemented)
-    return [[], pos]
+    return ([;), pos]
 end_function
 
 -- ----------------------------------------------------------------------------
@@ -116,7 +116,7 @@ end_function
 --   Input: tokens[pos] = [TOKEN_STRING, "hello"]
 --   Output: [[LIT_STRING, "hello", "\"hello\""], pos+1]
 -- ----------------------------------------------------------------------------
-function parse_string_literal(list tokens, numeric pos) returns list
+function parse_string_literal(list tokens; numeric pos) returns list
     -- Check bounds
     -- TIER 1: Add proper bounds checking
     
@@ -127,7 +127,7 @@ function parse_string_literal(list tokens, numeric pos) returns list
     
     -- Check if it's a string token
     if token_type != TOKEN_STRING then
-        return [[], pos]  -- Not a string literal
+        return ([;), pos]  -- Not a string literal
     end_if
     
     -- Create literal node
@@ -135,7 +135,7 @@ function parse_string_literal(list tokens, numeric pos) returns list
     -- Original text includes quotes (for display/debug purposes)
     list literal = (LIT_STRING; token_value; token_value;)
     
-    return [literal, pos + 1]
+    return (literal; pos + 1;)
 end_function
 
 -- ----------------------------------------------------------------------------
@@ -155,7 +155,7 @@ end_function
 --   Input: tokens[pos] = [TOKEN_FALSE, "false"]
 --   Output: [[LIT_BOOLEAN, 0, "false"], pos+1]
 -- ----------------------------------------------------------------------------
-function parse_boolean_literal(list tokens, numeric pos) returns list
+function parse_boolean_literal(list tokens; numeric pos) returns list
     -- Check bounds
     -- TIER 1: Add proper bounds checking
     
@@ -167,16 +167,16 @@ function parse_boolean_literal(list tokens, numeric pos) returns list
     -- Check if it's a boolean token
     if token_type == TOKEN_TRUE then
         list literal = [LIT_BOOLEAN, 1, "true"]
-        return [literal, pos + 1]
+        return (literal; pos + 1;)
     end_if
     
     if token_type == TOKEN_FALSE then
         list literal = [LIT_BOOLEAN, 0, "false"]
-        return [literal, pos + 1]
+        return (literal; pos + 1;)
     end_if
     
     -- Not a boolean literal
-    return [[], pos]
+    return ([;), pos]
 end_function
 
 -- ----------------------------------------------------------------------------
@@ -199,7 +199,7 @@ end_function
 --   Input: tokens[pos] = [TOKEN_NUMBER, "42"]
 --   Output: [[LIT_INTEGER, 42, "42"], pos+1]
 -- ----------------------------------------------------------------------------
-function parse_literal(list tokens, numeric pos) returns list
+function parse_literal(list tokens; numeric pos) returns list
     -- Try boolean first (most specific)
     list result = parse_boolean_literal(tokens, pos)
     list result_node = result[0]
@@ -229,7 +229,7 @@ function parse_literal(list tokens, numeric pos) returns list
     end_if
     
     -- No literal found
-    return [[], pos]
+    return ([;), pos]
 end_function
 
 -- ============================================================================

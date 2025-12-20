@@ -24,7 +24,7 @@ function print_test_header(string test_name)
 end_function
 
 -- Print test result
-function print_test_result(boolean passed, string message)
+function print_test_result(boolean passed; string message)
     if passed
         println("[✓] PASS: " + message)
     end_if
@@ -34,8 +34,8 @@ function print_test_result(boolean passed, string message)
 end_function
 
 -- Create token helper
-function make_token(numeric token_type, string value) returns list
-    return [token_type, value]
+function make_token(numeric token_type; string value) returns list
+    return (token_type; value;)
 end_function
 
 -- ============================================================================

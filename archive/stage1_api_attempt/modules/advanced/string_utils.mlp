@@ -7,7 +7,7 @@ function str_length(string str) returns numeric
     return 10
 end_function
 
-function str_concat(string a_str, string b_str) returns numeric
+function str_concat(string a_str; string b_str) returns numeric
     -- Mock implementation - changed to numeric for testing
     return 0
 end_function

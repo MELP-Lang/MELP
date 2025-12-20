@@ -123,13 +123,13 @@ end_function
 --
 -- Returns empty list [] if parsing fails
 --
-function parse_variable_declaration(list tokens, numeric pos) returns list
+function parse_variable_declaration(list tokens; numeric pos) returns list
     -- Get tokens length once (Stage 0 doesn't support .length in IF)
     numeric tokens_len = tokens.length
     
     -- Check bounds
     if pos >= tokens_len then
-        return []
+        return (;)
     end_if
     
     -- Get type token
@@ -139,7 +139,7 @@ function parse_variable_declaration(list tokens, numeric pos) returns list
     -- Check if type keyword
     numeric base_type = token_to_var_type(token_type)
     if base_type == -1 then
-        return []  -- Not a variable declaration
+        return (;)  -- Not a variable declaration
     end_if
     
     numeric current_pos = pos + 1  -- Move past type token
@@ -151,7 +151,7 @@ function parse_variable_declaration(list tokens, numeric pos) returns list
     numeric actual_type = base_type
     
     if current_pos >= tokens_len then
-        return []  -- Unexpected end
+        return (;)  -- Unexpected end
     end_if
     
     list next_token = tokens[current_pos]
@@ -164,7 +164,7 @@ function parse_variable_declaration(list tokens, numeric pos) returns list
         current_pos = current_pos + 1
         
         if current_pos >= tokens_len then
-            return []
+            return (;)
         end_if
         
         next_token = tokens[current_pos]
@@ -177,7 +177,7 @@ function parse_variable_declaration(list tokens, numeric pos) returns list
         current_pos = current_pos + 1
         
         if current_pos >= tokens_len then
-            return []
+            return (;)
         end_if
         
         next_token = tokens[current_pos]
@@ -190,7 +190,7 @@ function parse_variable_declaration(list tokens, numeric pos) returns list
             current_pos = current_pos + 1
             
             if current_pos >= tokens_len then
-                return []
+                return (;)
             end_if
             
             next_token = tokens[current_pos]
@@ -199,13 +199,13 @@ function parse_variable_declaration(list tokens, numeric pos) returns list
         
         -- Expect ']'
         if next_type != TOKEN_RBRACKET then
-            return []  -- Expected ']'
+            return (;)  -- Expected ']'
         end_if
         
         current_pos = current_pos + 1
         
         if current_pos >= tokens_len then
-            return []
+            return (;)
         end_if
         
         next_token = tokens[current_pos]
@@ -214,7 +214,7 @@ function parse_variable_declaration(list tokens, numeric pos) returns list
     
     -- Expect identifier
     if next_type != TOKEN_IDENTIFIER then
-        return []  -- Expected identifier
+        return (;)  -- Expected identifier
     end_if
     
     string var_name = next_token[1]
@@ -235,7 +235,7 @@ function parse_variable_declaration(list tokens, numeric pos) returns list
             current_pos = current_pos + 1
             
             if current_pos >= tokens_len then
-                return []  -- Expected value after '='
+                return (;)  -- Expected value after '='
             end_if
             
             list value_token = tokens[current_pos]
@@ -278,17 +278,9 @@ function parse_variable_declaration(list tokens, numeric pos) returns list
     end_if
     
     -- Build declaration info
-    list decl_info = (var_name; -- [0]: name
-        actual_type; -- [1]: type
-        init_value; -- [2]: initial value
-        storage_loc; -- [3]: storage location
-        is_pointer; -- [4]: is pointer
-        is_array; -- [5]: is array
-        array_size; -- [6]: array size
-        base_type; -- [7]: base type
-        has_initializer    -- [8]: has initializer;)
+    list decl_info = (var_name; actual_type; init_value; storage_loc; is_pointer; is_array; array_size; base_type; has_initializer;)
     
-    return [decl_info, current_pos]
+    return (decl_info; current_pos;)
 end_function
 
 -- ============================================================================
@@ -311,13 +303,13 @@ end_function
 --
 -- Returns empty list [] if parsing fails
 --
-function parse_variable_assignment(list tokens, numeric pos) returns list
+function parse_variable_assignment(list tokens; numeric pos) returns list
     -- Get tokens length once (Stage 0 doesn't support .length in IF)
     numeric tokens_len = tokens.length
     
     -- Check bounds
     if pos >= tokens_len then
-        return []
+        return (;)
     end_if
     
     -- Get identifier token
@@ -325,7 +317,7 @@ function parse_variable_assignment(list tokens, numeric pos) returns list
     numeric token_type = id_token[0]
     
     if token_type != TOKEN_IDENTIFIER then
-        return []  -- Not an assignment
+        return (;)  -- Not an assignment
     end_if
     
     string var_name = id_token[1]
@@ -333,21 +325,21 @@ function parse_variable_assignment(list tokens, numeric pos) returns list
     
     -- Expect '='
     if current_pos >= tokens_len then
-        return []
+        return (;)
     end_if
     
     list assign_token = tokens[current_pos]
     numeric assign_type = assign_token[0]
     
     if assign_type != TOKEN_ASSIGN then
-        return []  -- Not an assignment
+        return (;)  -- Not an assignment
     end_if
     
     current_pos = current_pos + 1
     
     -- Parse value
     if current_pos >= tokens_len then
-        return []  -- Expected value
+        return (;)  -- Expected value
     end_if
     
     list value_token = tokens[current_pos]
@@ -382,11 +374,9 @@ function parse_variable_assignment(list tokens, numeric pos) returns list
     end_if
     
     -- Build assignment info
-    list assign_info = (var_name; -- [0]: variable name
-        value_str; -- [1]: value
-        is_expression   -- [2]: is expression;)
+    list assign_info = (var_name; value_str; is_expression;)
     
-    return [assign_info, current_pos]
+    return (assign_info; current_pos;)
 end_function
 
 -- ============================================================================

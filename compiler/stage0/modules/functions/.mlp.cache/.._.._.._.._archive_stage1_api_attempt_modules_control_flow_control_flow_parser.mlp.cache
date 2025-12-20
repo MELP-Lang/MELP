@@ -1,0 +1,35 @@
+{
+  "version": "1.0",
+  "module_path": "../../../../archive/stage1_api_attempt/modules/control_flow/control_flow_parser.mlp",
+  "source_mtime": 1766191996,
+  "object_mtime": 0,
+  "object_path": null,
+  "assembly_path": "control_flow_parser.s",
+  "functions": [
+    "token_to_operator",
+    "get_precedence",
+    "get_operator_name",
+    "is_operator",
+    "is_unary_operator",
+    "is_binary_operator",
+    "parse_primary",
+    "parse_expression",
+    "parse_operator_expression",
+    "get_expr_type",
+    "get_expr_value",
+    "get_expr_left",
+    "get_expr_right",
+    "get_expr_operator",
+    "parse_if_statement",
+    "parse_while_statement",
+    "parse_for_statement",
+    "parse_control_flow_statement",
+    "get_control_flow_type_name",
+    "is_control_flow_keyword",
+    "is_control_flow_statement"
+  ],
+  "dependencies": [
+    "/home/pardus/projeler/MLP/MLP/archive/stage1_api_attempt/modules/core/token_types.mlp",
+    "/home/pardus/projeler/MLP/MLP/archive/stage1_api_attempt/modules/operators/operators_parser.mlp"
+  ]
+}

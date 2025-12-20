@@ -25,7 +25,7 @@ import "../operators/operators_codegen.mlp"
 -- Input: if_stmt (list), result_var (string), indent (string)
 -- Returns: string (LLVM IR code)
 -- Note: Stateless - no global state
-function codegen_if_statement(list if_stmt, string result_var, string indent) returns string
+function codegen_if_statement(list if_stmt; string result_var; string indent) returns string
     -- if_stmt structure: [ctrl_type, condition, has_else, then_body, else_body]
     numeric ctrl_type = if_stmt[0]
     list condition = if_stmt[1]
@@ -106,7 +106,7 @@ end_function
 -- Generate LLVM IR for while statement
 -- Input: while_stmt (list), result_var (string), indent (string)
 -- Returns: string (LLVM IR code)
-function codegen_while_statement(list while_stmt, string result_var, string indent) returns string
+function codegen_while_statement(list while_stmt; string result_var; string indent) returns string
     -- while_stmt structure: [condition, body]
     list condition = while_stmt[0]
     list body = while_stmt[1]
@@ -154,7 +154,7 @@ end_function
 -- Generate LLVM IR for for statement
 -- Input: for_stmt (list), result_var (string), indent (string)
 -- Returns: string (LLVM IR code)
-function codegen_for_statement(list for_stmt, string result_var, string indent) returns string
+function codegen_for_statement(list for_stmt; string result_var; string indent) returns string
     -- for_stmt structure: [iterator, start_expr, end_expr, label, body]
     string iterator = for_stmt[0]
     list start_expr = for_stmt[1]
@@ -227,7 +227,7 @@ end_function
 -- Generate LLVM IR for break statement
 -- Input: loop_id (numeric), indent (string)
 -- Returns: string (LLVM IR code)
-function codegen_break_statement(numeric loop_id, string indent) returns string
+function codegen_break_statement(numeric loop_id; string indent) returns string
     string code = indent + "; Break statement\n"
     code = code + indent + "br label %loop_end_"
     -- Convert loop_id to string (simplified - would use helper)
@@ -238,7 +238,7 @@ end_function
 -- Generate LLVM IR for continue statement
 -- Input: loop_id (numeric), indent (string)
 -- Returns: string (LLVM IR code)
-function codegen_continue_statement(numeric loop_id, string indent) returns string
+function codegen_continue_statement(numeric loop_id; string indent) returns string
     string code = indent + "; Continue statement\n"
     code = code + indent + "br label %while_start_"
     -- Convert loop_id to string (simplified)
@@ -253,7 +253,7 @@ end_function
 -- Generate code for control flow statement (dispatcher)
 -- Input: stmt (list), stmt_type (numeric), result_var (string)
 -- Returns: string (LLVM IR code)
-function codegen_control_flow_statement(list stmt, numeric stmt_type, string result_var) returns string
+function codegen_control_flow_statement(list stmt; numeric stmt_type; string result_var) returns string
     string indent = "    "
     
     if stmt_type == STMT_IF
@@ -293,7 +293,7 @@ end_function
 -- Generate label name
 -- Input: prefix (string), id (numeric)
 -- Returns: string (label name)
-function generate_label_name(string prefix, numeric id) returns string
+function generate_label_name(string prefix; numeric id) returns string
     -- Simplified: would convert id to string
     return prefix + "_1"
 end_function

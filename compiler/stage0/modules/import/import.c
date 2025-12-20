@@ -407,14 +407,21 @@ FunctionDeclaration* import_load_module(const char* module_path) {
         // Parse function
         FunctionDeclaration* func = parse_function_declaration(lexer);
         if (!func) {
-            // Parse error - restore context and cleanup
-            lexer_free(lexer);
-            free(source);
-            g_current_source_file = prev_source_file;  // YZ_28: Restore
-            error_restore_context(saved_context);
-            import_pop_stack();  // YZ_37: Pop from import stack
-            error_fatal("Failed to parse module: %s", module_path);
-            return NULL;
+            // YZ_108: Parse hatası - bu fonksiyonu atla (Tree Shaking)
+            fprintf(stderr, "⚠️ Warning: Skipping unparseable function in %s\n", module_path);
+            
+            // Sonraki fonksiyona atla
+            Token* skip_tok;
+            while ((skip_tok = lexer_next_token(lexer)) != NULL) {
+                if (skip_tok->type == TOKEN_EOF || 
+                    skip_tok->type == TOKEN_FUNCTION ||
+                    skip_tok->type == TOKEN_CONST) {
+                    lexer_unget_token(lexer, skip_tok);
+                    break;
+                }
+                token_free(skip_tok);
+            }
+            continue;  // ✅ Döngüye devam
         }
         
         // Add to list

@@ -43,7 +43,7 @@ const numeric INITIAL_STRING_COUNTER = 0
 --   Input: [LIT_INTEGER, "42", "42"], "", ""
 --   Output: "42"  (just the value, no assignment)
 -- ----------------------------------------------------------------------------
-function codegen_integer_literal(list literal, string result_var, string indent) returns string
+function codegen_integer_literal(list literal; string result_var; string indent) returns string
     string value = literal[1]
     string original_text = literal[2]
     
@@ -80,7 +80,7 @@ end_function
 --   Input: [LIT_FLOAT, "3.14", "3.14"], "f", "  "
 --   Output: "  %f = fadd double 0.0, 3.14  ; float literal 3.14\n"
 -- ----------------------------------------------------------------------------
-function codegen_float_literal(list literal, string result_var, string indent) returns string
+function codegen_float_literal(list literal; string result_var; string indent) returns string
     -- TIER 1: Implement float literal codegen
     -- For now, return empty string
     return ""
@@ -110,7 +110,7 @@ end_function
 --   2. Use getelementptr to get pointer to first element
 --   3. String type is i8* (pointer to character array)
 -- ----------------------------------------------------------------------------
-function codegen_string_literal(list literal, string result_var, string indent, numeric string_id) returns list
+function codegen_string_literal(list literal; string result_var; string indent; numeric string_id) returns list
     string value = literal[1]
     string original_text = literal[2]
     
@@ -159,7 +159,7 @@ function codegen_string_literal(list literal, string result_var, string indent, 
     llvm_code = llvm_code + "\n"
     
     -- Return both code and global declaration
-    return [llvm_code, global_decl]
+    return (llvm_code; global_decl;)
 end_function
 
 -- ----------------------------------------------------------------------------
@@ -183,7 +183,7 @@ end_function
 --   - true = 1
 --   - false = 0
 -- ----------------------------------------------------------------------------
-function codegen_boolean_literal(list literal, string result_var, string indent) returns string
+function codegen_boolean_literal(list literal; string result_var; string indent) returns string
     numeric value = literal[1]  -- 0 or 1
     string original_text = literal[2]
     
@@ -238,17 +238,17 @@ end_function
 --   Input: [LIT_STRING, "hi", "\"hi\""], "s", "  ", 1
 --   Output: [code, global]
 -- ----------------------------------------------------------------------------
-function codegen_literal(list literal, string result_var, string indent, numeric string_id) returns list
+function codegen_literal(list literal; string result_var; string indent; numeric string_id) returns list
     numeric lit_type = literal[0]
     
     if lit_type == LIT_INTEGER then
         string code = codegen_integer_literal(literal, result_var, indent)
-        return [code, ""]  -- No global declaration for integers
+        return (code; "";)  -- No global declaration for integers
     end_if
     
     if lit_type == LIT_FLOAT then
         string code = codegen_float_literal(literal, result_var, indent)
-        return [code, ""]  -- TIER 1
+        return (code; "";)  -- TIER 1
     end_if
     
     if lit_type == LIT_STRING then
@@ -257,11 +257,11 @@ function codegen_literal(list literal, string result_var, string indent, numeric
     
     if lit_type == LIT_BOOLEAN then
         string code = codegen_boolean_literal(literal, result_var, indent)
-        return [code, ""]  -- No global declaration for booleans
+        return (code; "";)  -- No global declaration for booleans
     end_if
     
     -- Unknown literal type
-    return ["", ""]
+    return (""; "";)
 end_function
 
 -- ============================================================================
@@ -369,16 +369,16 @@ end_function
 --   - Comparison operations
 --   - Boolean operations
 -- ----------------------------------------------------------------------------
-function optimize_literal_expression(list literals, string operator) returns list
+function optimize_literal_expression(list literals; string operator) returns list
     -- TIER 1: Implement constant folding
     -- For now, no optimization
-    return []  -- Empty = no optimization
+    return (;)  -- Empty = no optimization
 end_function
 
 -- ----------------------------------------------------------------------------
 -- fold_integer_operation - Fold integer arithmetic at compile time
 -- ----------------------------------------------------------------------------
-function fold_integer_operation(numeric left, numeric right, string op) returns numeric
+function fold_integer_operation(numeric left; numeric right; string op) returns numeric
     -- TIER 1: Implement constant folding
     return 0
 end_function

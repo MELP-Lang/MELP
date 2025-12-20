@@ -86,7 +86,7 @@ end_function
 -- Output:
 --   text - Generated LLVM IR code
 --
-function codegen_variable_declaration(list decl_info, text indent) returns text
+function codegen_variable_declaration(list decl_info; text indent) returns text
     text var_name = decl_info[0]
     numeric var_type = decl_info[1]
     text init_value = decl_info[2]
@@ -169,7 +169,7 @@ end_function
 -- Output:
 --   text - Generated LLVM IR code for initialization
 --
-function codegen_variable_initialization(text var_name, numeric var_type, text init_value, text indent) returns text
+function codegen_variable_initialization(text var_name; numeric var_type; text init_value; text indent) returns text
     text result = ""
     
     result = result + indent + "; Initialize " + var_name + "\n"
@@ -237,7 +237,7 @@ end_function
 -- Output:
 --   text - Generated LLVM IR code
 --
-function codegen_variable_assignment(list assign_info, numeric var_type, text indent) returns text
+function codegen_variable_assignment(list assign_info; numeric var_type; text indent) returns text
     text var_name = assign_info[0]
     text value_str = assign_info[1]
     boolean is_expr = assign_info[2]
@@ -309,7 +309,7 @@ end_function
 -- Output:
 --   text - Generated LLVM IR code
 --
-function codegen_variable_load(text var_name, numeric var_type, text result_reg, text indent) returns text
+function codegen_variable_load(text var_name; numeric var_type; text result_reg; text indent) returns text
     text result = ""
     
     result = result + indent + "; Load " + var_name + "\n"
@@ -344,14 +344,14 @@ function codegen_complete_variable(list decl_info) returns text
 end_function
 
 -- Generate simple variable assignment (non-expression)
-function codegen_simple_assignment(text var_name, numeric var_type, text value) returns text
+function codegen_simple_assignment(text var_name; numeric var_type; text value) returns text
     list assign_info = (var_name; value; false;)
     text indent = "  "
     return codegen_variable_assignment(assign_info, var_type, indent)
 end_function
 
 -- Generate variable load operation
-function codegen_simple_load(text var_name, numeric var_type, text result_reg) returns text
+function codegen_simple_load(text var_name; numeric var_type; text result_reg) returns text
     text indent = "  "
     return codegen_variable_load(var_name, var_type, result_reg, indent)
 end_function

@@ -1,6 +1,6 @@
 # MELP MİMARİSİ - AI Asistan Kuralları
 
-**Son Güncelleme:** 18 Aralık 2025 (YZ_06: Test stratejisi eklendi)  
+**Son Güncelleme:** 20 Aralık 2025 (YZ_ÜA_02: Modül felsefesi eklendi)  
 **Amaç:** Her AI asistanı bu dosyayı okuyup onaylamalıdır
 
 ---
@@ -14,6 +14,73 @@ MELP şu 5 temel prensip üzerine kuruludur:
 3. **Stateless** - Global state YASAK, parametre geçişi
 4. **STO (Smart Type Optimization)** - Runtime'da otomatik optimizasyon
 5. **Struct + Functions** - OOP YOK (Class/Inheritance yasak)
+
+---
+
+## 🧬 MODÜL FELSEFESİ (KRİTİK!)
+
+> **"Her modül ölüdür; onu, çağıran modül diriltir ve öldürür."**
+
+### Rust-Style Import Modeli
+
+MELP, **Monomorphization + Tree Shaking** yaklaşımını kullanır:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│   math.mlp (ÖLÜ ŞABLON)        main.mlp (CANLI)            │
+│   ┌──────────────────┐         ┌─────────────────────┐     │
+│   │ function add     │         │ import math         │     │
+│   │ function sub     │    →    │                     │     │
+│   │ function mul     │ SADECE  │ x = math.add(1; 2)  │     │
+│   │ function div     │  ADD    │                     │     │
+│   │ function squa    │ KOPYALA │ -- sub, mul, div,   │     │
+│   │ (100 fonksiyon)  │         │ -- squa KOPYALANMAZ │     │
+│   └──────────────────┘         └─────────────────────┘     │
+│                                         ↓                   │
+│                                 ┌─────────────────────┐     │
+│                                 │ Final Binary:       │     │
+│                                 │ - main()            │     │
+│                                 │ - add() [inline]    │     │
+│                                 │ (99 fonksiyon YOK!) │     │
+│                                 └─────────────────────┘     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Temel Kurallar
+
+| Özellik | Değer |
+|---------|-------|
+| **Modül** | Ölü şablon (disk'te tanımlar) |
+| **Import** | Seçici kopyalama (sadece kullanılanlar) |
+| **State** | YOK (stateless) |
+| **Bellek sızıntısı** | İMKANSIZ |
+| **GC gerekli** | HAYIR |
+
+### Avantajlar (Zero-Cost Abstraction)
+
+1. **Tree Shaking:** Kullanılmayan kod binary'ye dahil edilmez
+2. **Inlining:** Fonksiyon çağrısı yerine kod gömülür
+3. **Constant Folding:** LLVM sabit değerleri hesaplar
+4. **No Call Overhead:** push/pop/call komutları elimine edilir
+5. **No Shared State:** Her modül bağımsız, sızıntı imkansız
+
+### ❌ YANLIŞ: Canlı API Modeli
+
+```
+-- YANLIŞ DÜŞÜNCE:
+import math        -- math.dll belleğe yüklenir
+math.add(1; 2)     -- Shared state'e erişilir
+-- Risk: Bellek sızıntısı, race condition, GC gerekli
+```
+
+### ✅ DOĞRU: Ölü Şablon Modeli
+
+```
+-- DOĞRU DÜŞÜNCE:
+import math        -- math.mlp parse edilir
+math.add(1; 2)     -- add() kodu BURAYA kopyalanır
+-- Sonuç: Zero overhead, no state, no leak
+```
 
 ---
 

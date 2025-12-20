@@ -1,7 +1,7 @@
 -- MELP Stage 1 - Minimal Bootstrap Test v2
 -- Test with explicit return value output
 
-function add(numeric a, numeric b) returns numeric
+function add(numeric a; numeric b) returns numeric
     return a + b
 end_function
 
