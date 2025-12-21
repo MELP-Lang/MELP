@@ -1,0 +1,15 @@
+-- Test 01: Simple lambda expression
+-- YZ_208: Lambda/Anonymous Functions
+
+function main() returns numeric
+    -- Lambda: double a number
+    lambda<numeric, numeric> doubler = lambda (numeric x) returns numeric
+        return x * 2
+    end_lambda
+    
+    -- Call lambda
+    numeric result = doubler(21)
+    
+    -- Should return 42
+    return result
+end_function

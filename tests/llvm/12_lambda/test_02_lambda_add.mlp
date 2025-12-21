@@ -1,0 +1,15 @@
+-- Test 02: Lambda with two parameters
+-- YZ_208: Lambda/Anonymous Functions
+
+function main() returns numeric
+    -- Lambda: add two numbers
+    lambda<numeric, numeric, numeric> adder = lambda (numeric a, numeric b) returns numeric
+        return a + b
+    end_lambda
+    
+    -- Call lambda
+    numeric result = adder(10, 32)
+    
+    -- Should return 42
+    return result
+end_function

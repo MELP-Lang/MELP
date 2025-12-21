@@ -1,0 +1,22 @@
+-- Test 04: Closure (capture outer variable)
+-- YZ_208: Lambda/Anonymous Functions
+
+function make_adder(numeric n) returns lambda<numeric, numeric>
+    -- Lambda captures 'n' from outer scope
+    lambda<numeric, numeric> adder = lambda (numeric x) returns numeric
+        return x + n  -- 'n' is captured
+    end_lambda
+    
+    return adder
+end_function
+
+function main() returns numeric
+    -- Create adder that adds 10
+    lambda<numeric, numeric> add10 = make_adder(10)
+    
+    -- Call closure
+    numeric result = add10(32)
+    
+    -- Should return 42 (32 + 10)
+    return result
+end_function

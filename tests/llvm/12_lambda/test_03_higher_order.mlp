@@ -1,0 +1,39 @@
+-- Test 03: Higher-order function (map)
+-- YZ_208: Lambda/Anonymous Functions
+
+-- Map function: apply lambda to each element
+function map(list items, lambda<numeric, numeric> fn) returns list
+    list result = ()
+    numeric i = 0
+    while i < length(items) do
+        numeric value = items(i)
+        numeric transformed = fn(value)
+        append(result, transformed)
+        i = i + 1
+    end_while
+    return result
+end_function
+
+function main() returns numeric
+    -- Create a list
+    list numbers = (1; 2; 3; 4; 5;)
+    
+    -- Lambda: multiply by 2
+    lambda<numeric, numeric> doubler = lambda (numeric x) returns numeric
+        return x * 2
+    end_lambda
+    
+    -- Map the lambda
+    list doubled = map(numbers, doubler)
+    
+    -- Result should be (2; 4; 6; 8; 10;)
+    -- Return sum: 2 + 4 + 6 + 8 + 10 = 30
+    numeric sum = 0
+    numeric i = 0
+    while i < length(doubled) do
+        sum = sum + doubled(i)
+        i = i + 1
+    end_while
+    
+    return sum
+end_function
