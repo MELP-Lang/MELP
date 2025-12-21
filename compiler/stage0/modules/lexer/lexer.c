@@ -128,6 +128,7 @@ static Token* read_identifier(Lexer* lexer) {
     else if (strcmp(value, "boolean") == 0) type = TOKEN_BOOLEAN;
     else if (strcmp(value, "Array") == 0) type = TOKEN_ARRAY;         // YZ_74: Array type keyword
     else if (strcmp(value, "list") == 0) type = TOKEN_LIST;
+    else if (strcmp(value, "map") == 0) type = TOKEN_MAP;             // YZ_201: Map type keyword
     else if (strcmp(value, "tuple") == 0) type = TOKEN_TUPLE;
     else if (strcmp(value, "true") == 0) type = TOKEN_TRUE;
     else if (strcmp(value, "false") == 0) type = TOKEN_FALSE;
@@ -213,6 +214,8 @@ static Token* read_identifier(Lexer* lexer) {
     else if (strcmp(value, "println") == 0) type = TOKEN_PRINTLN;  // YZ_48
     // YZ_200: List operations are treated as built-in functions (identifiers, not keywords)
     // append(), prepend(), length(), clear() - these are function calls, not special keywords
+    // YZ_201: Map operations are also built-in functions (identifiers, not keywords)
+    // insert(), get(), remove(), has_key() - these are function calls, not special keywords
     
     Token* token = make_token(type, value, lexer->line);
     free(value);

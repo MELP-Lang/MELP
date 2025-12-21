@@ -7,6 +7,7 @@ typedef enum {
     TOKEN_BOOLEAN,
     TOKEN_ARRAY,           // Array keyword (type declaration) - YZ_74
     TOKEN_LIST,            // list keyword (type declaration)
+    TOKEN_MAP,             // map keyword (type declaration) - YZ_201
     TOKEN_TUPLE,           // tuple keyword (type declaration)
     TOKEN_IDENTIFIER,
     TOKEN_ASSIGN,
@@ -111,6 +112,11 @@ typedef enum {
     TOKEN_PREPEND,         // prepend(list; value)
     TOKEN_LENGTH,          // length(list)
     TOKEN_CLEAR,           // clear(list)
+    // Map operation keywords (YZ_201)
+    TOKEN_INSERT,          // insert(map; key; value)
+    TOKEN_GET,             // get(map; key)
+    TOKEN_REMOVE,          // remove(map; key)
+    TOKEN_HAS_KEY,         // has_key(map; key)
     // Delimiters
     TOKEN_LPAREN,          // (
     TOKEN_RPAREN,          // )
