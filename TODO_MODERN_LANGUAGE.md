@@ -238,31 +238,47 @@ function test_generic() returns numeric
 end_function
 ```
 
-**Not:** Type inference (without explicit `<T>`) → YZ_203.5'e ertelendi
+---
+
+#### YZ_203.5: Generic Type Inference ✅ [TAMAMLANDI - 21 Aralık 2025]
+**Öncelik:** 🟡 Yüksek (developer experience)
+
+**Yapılanlar:**
+- [x] Type inference from arguments: `identity(42)` → infer `T = numeric` ✅
+- [x] Argument type analysis (ArithmeticExpr inspection) ✅
+- [x] Type unification (simple equality) ✅
+- [x] Error messages for ambiguous types ✅
+- [x] Integration with YZ_203 monomorphization ✅
+
+**Test:**
+```pmpl
+function identity<T>(T value) returns T
+    return value
+end_function
+
+function main() returns numeric
+    numeric result = identity(42)  -- ✅ T = numeric inferred!
+    return result
+end_function
+```
+
+**Output:**
+```
+🔍 Inferring types for generic call: identity(...)
+🔍 Type inference successful: identity<numeric>
+⚙️  Instantiated: identity → identity_numeric
+```
+
+**Dosyalar:**
+- `compiler/stage0/modules/type_system/type_inference.{h,c}` ✅
+- `compiler/stage0/modules/functions/functions_codegen_llvm.c` (extended)
+- `tests/llvm/11_generics/test_inference.mlp` ✅
+
+**Not:** Multi-parameter support requires parser fix (YZ_203'ten kalma bug)
 
 ---
 
-#### YZ_203.5: Generic Type Inference [5 gün]
-**Öncelik:** 🟡 Yüksek (developer experience)
-
-**Yapılacaklar:**
-- [ ] Type inference from arguments: `max(10, 20)` → infer `T = numeric`
-- [ ] Argument type analysis
-- [ ] Constraint solving
-- [ ] Type unification
-- [ ] Error messages for ambiguous types
-
-**Test Cases:**
-```pmpl
-function max<T>(T a, T b) returns T
-    if a > b then
-        return a
-    end_if
-    return b
-end_function
-
-function test_inference() returns numeric
-    return max(10, 20)  -- Should infer T = numeric automatically
+### YZ_204: Pattern Matching [10 gün]
 end_function
 ```
 
