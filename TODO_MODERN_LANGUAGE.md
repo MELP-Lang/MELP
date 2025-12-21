@@ -94,26 +94,30 @@ end_function
 **Çıktı:** List type çalışıyor, Stage 1 modüller derlenebiliyor
 
 ---
-
-#### YZ_201: Map/Dictionary Type [5 gün]
+#### YZ_201: Map/Dictionary Type [5 gün] ✅ TAMAMLANDI
 **Öncelik:** 🟡 Yüksek (stdlib için gerekli)
 
 **Yapılacaklar:**
-- [ ] Map type definition (hash table)
-- [ ] Map operations: insert, get, remove, has_key
-- [ ] Map literals: `{"key": value}`
-- [ ] Map iteration: `for key, value in map`
-- [ ] Type safety: key/value type constraints
-- [ ] LLVM IR codegen
-- [ ] Collision handling: chaining
+- [x] Map type definition (hash table)
+- [x] Map operations: insert, get, remove, has_key, length
+- [x] Map literals: `{"key": value}`
+- [ ] Map iteration: `for key, value in map` (future)
+- [x] Type safety: key/value type constraints
+- [x] LLVM IR codegen
+- [x] Collision handling: chaining
 
 **Test Cases:**
 ```pmpl
-function test_map() returns string
-    map person = {"name": "Alice", "age": "30", "city": "NYC"}
-    return person["name"]  -- Should return "Alice"
+function test_map() returns numeric
+    map person = {"name": "Alice"; "age": 30;}
+    insert(person; "city"; "NYC")
+    numeric age = get(person; "age")  -- Returns 30
+    numeric has_name = has_key(person; "name")  -- Returns 1
+    return age
 end_function
 ```
+
+**Tamamlanma:** 21 Aralık 2025 (YZ_201)
 
 ---
 

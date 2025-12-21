@@ -1,31 +1,32 @@
 # 🚀 MELP PROJECT - START HERE!
 
-**Last Session:** YZ_200 (List Type Implementation) ✅ TAMAMLANDI  
+**Last Session:** YZ_201 (Map/Dictionary Type Implementation) ✅ TAMAMLANDI  
 **Date:** 21 Aralık 2025  
 **Agent:** GitHub Copilot (Claude Sonnet 4.5)  
-**Status:** 🟢 **YZ_201 HAZIR** - Map/Dictionary Implementation
+**Status:** 🟢 **YZ_202 HAZIR** - Set Type Implementation
 
 **⚠️ Project Status:**
-- **Stage 0:** ✅ TAMAMLANDI (C Compiler) - **List () syntax fully working! ✅**
+- **Stage 0:** ✅ TAMAMLANDI (C Compiler) - **List () & Map {} syntax fully working! ✅**
 - **Stage 1:** ✅ **BLOKER KALDIRILDI** - Modüller derlenebilir durumda!
 - **LLVM Faz 1:** ✅ TAMAMLANDI (YZ_00-04, Production Ready!)
 - **YZ_200:** ✅ **TAMAMLANDI** - List operations (append, indexing, length) working!
-- **YZ_201:** 🟡 **BAŞLIYOR** - Map/Dictionary Type Implementation
+- **YZ_201:** ✅ **TAMAMLANDI** - Map/Dictionary Type (insert, get, has_key, length) working!
+- **YZ_202:** 🟡 **BAŞLIYOR** - Set Type Implementation
 
 ---
 
-## 🚨 MEVCUT GÖREV: SEN YZ_201'SİN!
+## 🚨 MEVCUT GÖREV: SEN YZ_202'SİN!
 
-**Adın:** YZ_201  
-**Görevin:** Map/Dictionary Type Implementation  
-**Kaynak:** `TODO_MODERN_LANGUAGE.md` Line 97-118  
-**Branch:** `list-operations_YZ_201` ✅ (oluşturuldu)  
+**Adın:** YZ_202  
+**Görevin:** Set Type Implementation  
+**Kaynak:** `TODO_MODERN_LANGUAGE.md` Line 119-140  
+**Branch:** `set-type_YZ_202` (oluşturacaksın)  
 **Öncelik:** 🟡 Yüksek (stdlib için gerekli)
 
 ### 📚 ÖNCE MUTLAKA OKU (ZORUNLU):
 1. **`YZ_PROTOKOL.md`** ← YZ çalışma protokolü (5 adım)
-2. **`TODO_MODERN_LANGUAGE.md`** Line 97-118 ← Görev detayları
-3. **`LLVM_YZ/YZ_200_TAMAMLANDI.md`** ← Önceki YZ'nin başarı raporu
+2. **`TODO_MODERN_LANGUAGE.md`** Line 119-140 ← Görev detayları
+3. **`LLVM_YZ/YZ_201_TAMAMLANDI.md`** ← Önceki YZ'nin başarı raporu
 4. **`melp_modulleri.md`** ← 66 modül listesi (referans için)
 
 ### ✅ YZ_200'ün Bıraktığı Miras:
