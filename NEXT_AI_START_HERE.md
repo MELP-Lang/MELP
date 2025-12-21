@@ -1,76 +1,138 @@
 # 🚀 MELP PROJECT - START HERE!
 
-**Last Session:** YZ_ÜA_05 (Modern Language Planning)  
+**Last Session:** YZ_ÜA_07 (Coordinator - TODO_MODERN_LANGUAGE.md Planning)  
 **Date:** 21 Aralık 2025  
 **Agent:** GitHub Copilot (Claude Sonnet 4.5)  
-**Status:** 🚨 **KRİTİK BLOKER - YZ_06 ACİL!**
+**Status:** 🚨 **KRİTİK BLOKER - YZ_06 DEVREDİLDİ!**
 
 **⚠️ Project Status:**
 - **Stage 0:** ✅ TAMAMLANDI (C Compiler) - **ANCAK list syntax yok! ❌**
 - **Stage 1:** 🚨 **ENGELLENMIŞ** - 66 modül derlenemiyor (0 functions)
 - **LLVM Faz 1:** ✅ TAMAMLANDI (YZ_00-04, Production Ready!)
-- **LLVM Faz 2-4:** ⏳ OPSIYONEL (YZ_06 sonrası)
+- **TODO Hedefi:** 📋 TODO_MODERN_LANGUAGE.md (25 görev, 19 hafta)
 
 **⚠️ YZ Directory Structure:**
 - `stage_0_YZ/` - Stage 0 sessions (YZ_01 - YZ_97) ✅ ARCHIVED
 - `stage_1_YZ/` - Stage 1 sessions (YZ_01 - YZ_24) ✅ ARCHIVED
-- `LLVM_YZ/` - LLVM backend sessions (YZ_00 - YZ_04) ✅ FAZ 1 TAMAMLANDI
-- `ust_akil_YZ/` - Üst Akıl devir belgeleri (YZ_ÜA_01 - YZ_ÜA_05) ✅
+- `LLVM_YZ/` - LLVM backend sessions (YZ_00 - YZ_06) 🔄 DEVAM EDİYOR
+- `ust_akil_YZ/` - Üst Akıl devir belgeleri (YZ_ÜA_01 - YZ_ÜA_07) ✅
 
 ---
 
-## 🚨 ACİL GÖREV: YZ_06 - Stage 0 List Syntax Support
+## 🚨 ACİL GÖREV: YZ_07 - Stage 0 List Syntax Support (DEVAM)
 
 **⚠️ KRİTİK DURUM:**
 - 66 Stage 1 modül derlenemiyor (0 functions compiled)
 - Neden: Stage 0 parser `()` list literal syntax'ını desteklemiyor
 - Etki: 580+ satır, 25 dosya, **tüm Stage 1 bootstrap engellenmiş!**
 - Öncelik: 🔴🔴🔴 **EN YÜKSEK - BLOKER**
+- **YZ_06 başladı ama tamamlanmadı!** (YZ_ÜA_07 devralıyor)
 
 **📋 Görev Detayları:**
-- **Dosya:** `temp/YZ_06_GOREV_OZET.md` (150+ satır görev brifingi)
-- **TODO:** `TODO_MODERN_LANGUAGE.md` - Faz 0 bölümü
+- **Brief:** `LLVM_YZ/YZ_06_GOREV.md` (166 satır, detaylı brief hazır!)
+- **Analiz:** `temp/YZ_06_GOREV_OZET.md` (158 satır, etki analizi)
+- **TODO:** `TODO_MODERN_LANGUAGE.md` - Faz 0 (YZ_06 sonrası 25 görev!)
+- **Branch:** `stage0-list-syntax_YZ_06` ✅
 - **Süre:** 1 hafta (21-28 Aralık 2025)
 - **Başarı Kriteri:**
   ```bash
   ./functions_compiler modules/lexer_mlp/token.mlp temp/test.ll
-  # Şu an: 0 functions compiled ❌
-  # Hedef: 6 functions compiled ✅
-  ```
+  # Şu an: 0 functions ❌ (parser error: Expected ')' after parameters)
+**🔧 Yapılacaklar (Sırayla):**
+1. **Lexer:** `compiler/stage0/modules/lexer/lexer.c`
+   - `(` `)` tokenization + list literal detection
+   - `;` parametre ayırıcı tokenization
+   - Trailing `;` desteği
 
-**🔧 Yapılacaklar:**
-1. Stage 0 Lexer: `(` ve `)` tokenization + list literal detection
-2. Stage 0 Parser: `(elem1; elem2; elem3;)` syntax parsing + `;` parametre ayırıcı
-3. Stage 0 Codegen: List allocation + initialization
-4. Test: 66 Stage 1 modülün hepsi derlenebilmeli
+2. **Parser:** `compiler/stage0/modules/functions/functions_parser.c`
+   - List literal parsing: `(elem1; elem2; elem3;)`
+   - Boş list: `()`
+   - Return statement'da list literal
+   - Function parameters'da `;` ayırıcı
 
-**📚 Referanslar:**
-- `pmlp_kesin_sozdizimi.md` - Line 170, 640-642 (list syntax)
-- `kurallar_kitabı.md` - Line 857-898 (collection types)
-- `temp/MODÜL_ANALIZ_KARŞILAŞTIRMA.md` - Modül analizi
+3. **Codegen:** `compiler/stage0/modules/array/` veya yeni `modules/list/`
+   - List allocation (LLVM IR)
+   - Element initialization
+## 🤖 YZ_07 HIZLI BAŞLANGIÇ (İLK 10 DAKİKA!)
 
-**⚠️ ÖNEMLİ:** YZ_06 tamamlanmadan Stage 1 bootstrap devam edemez!
+**🎯 SEN YZ_07'SİN! Görevin: YZ_06'yı tamamlamak (Stage 0 List Syntax)**
 
----
+### Adım 1: Durumu Anla (2 dakika)
 
-## 🤖 YZ HIZLI BAŞLANGIÇ (İLK OKUYACAĞIN!)
+```bash
+# Mevcut durum ne?
+./compiler/stage0/modules/functions/functions_compiler \
+  modules/lexer_mlp/token.mlp temp/test.ll --backend=llvm
+# Sonuç: 0 functions ❌ (parser error)
+```
 
-**📋 DETAYLI CHECKLIST İÇİN:** `YZ_CHECKLIST.md` dosyasını oku!
+### Adım 2: Brief'i Oku (5 dakika)
 
-### YZ_06 için Özel Başlangıç (5 dakika):
+1. **`LLVM_YZ/YZ_06_GOREV.md`** ← Ana görev brifingi (166 satır)
+2. **`temp/YZ_06_GOREV_OZET.md`** ← Detaylı analiz (158 satır)
+3. **`TODO_MODERN_LANGUAGE.md`** Faz 0 ← Bu görev neden kritik?
 
-1. **Bu dosyayı oku** → Kritik durumu anla
-2. **Görev detaylarını oku:**
-   - `temp/YZ_06_GOREV_OZET.md` → Tam görev açıklaması
-   - `TODO_MODERN_LANGUAGE.md` Faz 0 → Genel bakış
-3. **Syntax referanslarını oku:**
-   - `pmlp_kesin_sozdizimi.md` line 170, 640-642
-   - `kurallar_kitabı.md` line 857-898
-4. **Test et:**
+### Adım 3: Syntax Öğren (3 dakika)
+
+- **`pmlp_kesin_sozdizimi.md`** line 640-642 → List syntax kuralları
+- **`kurallar_kitabı.md`** line 857-898 → Collection types
+### YZ_08+ için Başlangıç (YZ_07 tamamlandıktan sonra):
+
+**İlk kontrol:**
+```bash
+# YZ_07 tamamlandı mı?
+./functions_compiler modules/lexer_mlp/token.mlp temp/test.ll
+# Hedef: 6 functions ✅
+```
+
+**Eğer ✅ tamamlandıysa:**
+1. **`TODO_MODERN_LANGUAGE.md`** → YZ_200 (List Type Full Implementation)
+2. **`LLVM_YZ/YZ_07_TAMAMLANDI.md`** → Önceki raporu oku
+3. **`ust_akil_YZ/YZ_ÜA_07.md`** → Koordinatör notları
+## 📋 Session Tamamlama Checklist (YZ_07 İçin!)
+
+**YZ_07 bittiğinde yapılacaklar (15 dakika):**
+
+1. **Başarı kriterini test et:**
    ```bash
-   ./compiler/stage0/modules/functions/functions_compiler \
-     modules/lexer_mlp/token.mlp temp/test.ll --backend=llvm
-   # Sonuç: 0 functions ❌
+   ./functions_compiler modules/lexer_mlp/token.mlp temp/test.ll
+   # Beklenen: 6 functions ✅
+   
+   # Tüm Stage 1 modülleri test et
+   for file in modules/**/*.mlp; do
+     ./functions_compiler "$file" temp/test.ll || echo "FAIL: $file"
+   done
+4. **Bu dosyayı güncelle (NEXT_AI_START_HERE.md):**
+   - Last Session → YZ_07
+   - Status → ✅ BLOKER ÇÖZÜLDÜ! YZ_200 HAZIR
+   - Project Status → Stage 1 derleniyor ✅
+
+5. **Git commit & push:**
+   ```bash
+   git add compiler/stage0/ \
+           LLVM_YZ/YZ_07_TAMAMLANDI.md \
+           TODO_MODERN_LANGUAGE.md \
+           NEXT_AI_START_HERE.md
+   
+   git commit -m "YZ_07: Stage 0 List Syntax Support - BLOKER ÇÖZÜLDÜ!
+
+   ✅ Completed:
+   - Lexer: List literal tokenization
+   - Parser: List syntax parsing
+   - Codegen: List allocation & init
+   
+   📊 Metrics:
+   - 66 Stage 1 modules compile successfully
+   - 580+ lines fixed
+   - token.mlp: 6 functions ✅
+   
+   Status: CRITICAL BLOCKER RESOLVED ✅
+   Next: YZ_200 (List Type Full Implementation)"
+   
+   git push origin stage0-list-syntax_YZ_06
+   ```
+
+6. **KULLANICIYA SOR:** "YZ_07 tamamlandı! Stage 1 bloker çözüldü 🎉 Sırada YZ_200 (List Operations). Devam edelim mi?"
    ```
 5. **Stage 0 kodunu incele:**
    - `compiler/stage0/modules/lexer/lexer.c` → Tokenization
@@ -335,17 +397,25 @@ end_function' > temp/test_list.mlp
 // List literal detection: 
 //   - '(' sonrası identifier veya literal geliyorsa list
 //   - ';' ayırıcı olarak kullan
-```
+**⚠️ SON UYARI:** YZ_07 en yüksek öncelikli görev! Stage 1 bootstrap tamamen buna bağlı!
 
-**2. Parser Changes (functions_parser.c):**
-```c
-// parse_list_literal() fonksiyonu ekle
-// - '(' bekle
-// - Element parse et
-// - ';' bekle
-// - ')' görülene kadar tekrarla
-// - Trailing ';' zorunlu
-```
+**🎯 HEDEF:** 66 Stage 1 modül derlenebilir hale gelsin → Bootstrap devam etsin → TODO_MODERN_LANGUAGE.md başlasın!
+
+**🚀 BAŞARININ ANAHTARI:** 
+- List syntax `()` (parantez, köşeli parantez DEĞİL!)
+- Parametre ayırıcı `;` (noktalı virgül, virgül DEĞİL!)
+- Trailing semicolon zorunlu: `(1; 2; 3;)`
+
+**📊 İlerleme Takibi:**
+- Lexer → Parser → Codegen → Test
+- Her aşamada `token.mlp` test et (0 → 2 → 4 → 6 functions)
+
+---
+
+**Last Updated:** 21 Aralık 2025, 15:45 (YZ_ÜA_07)  
+**Current Session:** YZ_07 (Stage 0 List Syntax Support - DEVAM)  
+**Next Session:** YZ_08 veya YZ_200 (YZ_07 tamamlandıktan sonra)  
+**Priority:** 🔴🔴🔴 CRITICAL BLOCKER
 
 **3. Codegen Changes:**
 ```c
