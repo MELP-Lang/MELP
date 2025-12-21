@@ -109,10 +109,38 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
     
     ArithmeticExpr* arith = (ArithmeticExpr*)expr;
     
-    // YZ_07: Handle collection literals (list, array, tuple) FIRST
+    // YZ_200: Handle collection literals (list, array, tuple)
     if (arith->is_collection && arith->collection) {
-        // For now, return empty list (0 pointer)
-        // TODO: Proper collection allocation and initialization
+        Collection* coll = arith->collection;
+        
+        if (coll->type == COLL_LIST) {
+            // Generate list allocation and initialization
+            // 1. Call melp_list_create(element_size)
+            LLVMValue* element_size = llvm_const_i64(sizeof(int64_t));  // For now, numeric only
+            LLVMValue* list_ptr = llvm_emit_call(ctx->llvm_ctx, "melp_list_create", &element_size, 1);
+            list_ptr->type = LLVM_TYPE_I8_PTR;  // Fix: melp_list_create returns i8*
+            
+            // 2. For each element, call melp_list_append(list, &element)
+            List* list = &coll->data.list;
+            for (int i = 0; i < list->length; i++) {
+                // Generate element value
+                ArithmeticExpr* elem_expr = (ArithmeticExpr*)list->elements[i];
+                LLVMValue* elem_val = generate_expression_llvm(ctx, elem_expr);
+                
+                // Allocate temporary for element (on stack)
+                LLVMValue* elem_ptr = llvm_emit_alloca(ctx->llvm_ctx, "list_elem_tmp");
+                llvm_emit_store(ctx->llvm_ctx, elem_val, elem_ptr);
+                
+                // Call melp_list_append(list_ptr, elem_ptr)
+                LLVMValue* args[2] = {list_ptr, elem_ptr};
+                llvm_emit_call(ctx->llvm_ctx, "melp_list_append", args, 2);
+            }
+            
+            // 3. Return list pointer
+            return list_ptr;
+        }
+        
+        // Other collection types: return 0 for now
         return llvm_const_i64(0);
     }
     
@@ -381,6 +409,36 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
         case STMT_VARIABLE_DECL: {
             VariableDeclaration* decl = (VariableDeclaration*)stmt->data;
             
+            // YZ_200: Handle list variables
+            if (decl->type == VAR_LIST) {
+                // List variable: list numbers = (1; 2; 3;)
+                // Allocate i8* pointer on stack for list pointer
+                char var_ptr_name[256];
+                snprintf(var_ptr_name, sizeof(var_ptr_name), "%%%s", decl->name);
+                fprintf(ctx->llvm_ctx->output, "  %s = alloca i8*, align 8\n", var_ptr_name);
+                
+                // Generate initializer expression (list literal)
+                if (decl->init_expr) {
+                    LLVMValue* list_ptr = generate_expression_llvm(ctx, decl->init_expr);
+                    
+                    // Store list pointer to variable
+                    fprintf(ctx->llvm_ctx->output, "  store i8* ");
+                    if (list_ptr->is_constant) {
+                        fprintf(ctx->llvm_ctx->output, "null");  // NULL list
+                    } else {
+                        fprintf(ctx->llvm_ctx->output, "%s", list_ptr->name);
+                    }
+                    fprintf(ctx->llvm_ctx->output, ", i8** %s, align 8\n", var_ptr_name);
+                    
+                    llvm_value_free(list_ptr);
+                } else {
+                    // No initializer - store NULL
+                    fprintf(ctx->llvm_ctx->output, "  store i8* null, i8** %s, align 8\n", var_ptr_name);
+                }
+                
+                return NULL;
+            }
+            
             // YZ_62: Phase 17 - Handle string variables
             if (decl->type == VAR_STRING && decl->value) {
                 // String variable: string x = "hello"
@@ -562,8 +620,9 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
         case STMT_RETURN: {
             ReturnStatement* ret = (ReturnStatement*)stmt->data;
             
-            // YZ_23: Get return type from function declaration
-            int return_type = (ctx->current_func->return_type == FUNC_RETURN_TEXT) ? 1 : 0;
+            // YZ_200: Get return type from function declaration (TEXT/LIST -> i8*, others -> i64)
+            int return_type = (ctx->current_func->return_type == FUNC_RETURN_TEXT || 
+                              ctx->current_func->return_type == FUNC_RETURN_LIST) ? 1 : 0;
             
             if (ret->return_value) {
                 LLVMValue* ret_val = generate_expression_llvm(ctx, ret->return_value);
@@ -815,8 +874,8 @@ void function_generate_declaration_llvm(FunctionLLVMContext* ctx, FunctionDeclar
     }
     
     // Emit function start
-    // YZ_23: Map return type (FUNC_RETURN_TEXT=1 -> i8*, others -> i64)
-    int return_type = (func->return_type == FUNC_RETURN_TEXT) ? 1 : 0;
+    // YZ_200: Map return type (TEXT/LIST -> i8*, others -> i64)
+    int return_type = (func->return_type == FUNC_RETURN_TEXT || func->return_type == FUNC_RETURN_LIST) ? 1 : 0;
     llvm_emit_function_start(ctx->llvm_ctx, func->name, param_names, param_types, param_count, return_type);
     llvm_emit_function_entry(ctx->llvm_ctx);
     

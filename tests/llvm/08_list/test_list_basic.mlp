@@ -1,0 +1,16 @@
+-- YZ_200 Test: Basic List Creation
+-- Test list literal allocation and return
+
+function test_empty_list() returns list
+    list numbers = ()
+    return numbers
+end_function
+
+function test_list_with_elements() returns list
+    list numbers = (1; 2; 3;)
+    return numbers
+end_function
+
+function main() returns numeric
+    return 0
+end_function

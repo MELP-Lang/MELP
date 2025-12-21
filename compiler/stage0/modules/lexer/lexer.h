@@ -106,6 +106,11 @@ typedef enum {
     // I/O keywords
     TOKEN_PRINT,
     TOKEN_PRINTLN,         // println builtin (YZ_47)
+    // List operation keywords (YZ_200)
+    TOKEN_APPEND,          // append(list; value)
+    TOKEN_PREPEND,         // prepend(list; value)
+    TOKEN_LENGTH,          // length(list)
+    TOKEN_CLEAR,           // clear(list)
     // Delimiters
     TOKEN_LPAREN,          // (
     TOKEN_RPAREN,          // )

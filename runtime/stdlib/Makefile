@@ -9,7 +9,8 @@ ARFLAGS = rcs
 LIB = libmlp_stdlib.a
 
 # Sources - YZ_94: Added mlp_math.c for min/max functions
-SOURCES = mlp_io.c mlp_string.c mlp_panic.c mlp_state.c mlp_math.c
+# YZ_200: Added mlp_list.c for dynamic list operations
+SOURCES = mlp_io.c mlp_string.c mlp_panic.c mlp_state.c mlp_math.c mlp_list.c
 OBJECTS = $(SOURCES:.c=.o)
 
 all: $(LIB)

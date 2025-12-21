@@ -1,43 +1,49 @@
 # 🚀 MELP PROJECT - START HERE!
 
-**Last Session:** YZ_07 (Stage 0 List Syntax Support - TAMAMLANDI!)  
+**Last Session:** YZ_200 (List Type Implementation - Progress)  
 **Date:** 21 Aralık 2025  
 **Agent:** GitHub Copilot (Claude Sonnet 4.5)  
-**Status:** ✅ **BLOKER ÇÖZÜLDÜ - YZ_200 HAZIR!**
+**Status:** 🟡 **İLERLİYOR** (%80 Tamamlandı)
 
 **⚠️ Project Status:**
 - **Stage 0:** ✅ TAMAMLANDI (C Compiler) - **List syntax () desteği eklendi! ✅**
 - **Stage 1:** ✅ **BLOKER KALDIRILDI** - Modüller derlenebilir durumda!
 - **LLVM Faz 1:** ✅ TAMAMLANDI (YZ_00-04, Production Ready!)
-- **TODO Hedefi:** 📋 TODO_MODERN_LANGUAGE.md (25 görev, 19 hafta)
+- **YZ_200:** 🟡 **İLERLİYOR** - List runtime tamamlandı, codegen %80
 
 **⚠️ YZ Directory Structure:**
 - `stage_0_YZ/` - Stage 0 sessions (YZ_01 - YZ_97) ✅ ARCHIVED
 - `stage_1_YZ/` - Stage 1 sessions (YZ_01 - YZ_24) ✅ ARCHIVED
-- `LLVM_YZ/` - LLVM backend sessions (YZ_00 - YZ_06) 🔄 DEVAM EDİYOR
+- `LLVM_YZ/` - LLVM backend sessions (YZ_00 - YZ_07) ✅ + YZ_200 🔄 DEVAM EDİYOR
 - `ust_akil_YZ/` - Üst Akıl devir belgeleri (YZ_ÜA_01 - YZ_ÜA_07) ✅
 
 ---
 
-## 🚨 ACİL GÖREV: YZ_07 - Stage 0 List Syntax Support (DEVAM)
+## 🚨 MEVCUT GÖREV: YZ_200 - List Type Full Implementation (DEVAM)
 
-**⚠️ KRİTİK DURUM:**
-- 66 Stage 1 modül derlenemiyor (0 functions compiled)
-- Neden: Stage 0 parser `()` list literal syntax'ını desteklemiyor
-- Etki: 580+ satır, 25 dosya, **tüm Stage 1 bootstrap engellenmiş!**
-- Öncelik: 🔴🔴🔴 **EN YÜKSEK - BLOKER**
-- **YZ_06 başladı ama tamamlanmadı!** (YZ_ÜA_07 devralıyor)
+**⚠️ DURUM:**
+- ✅ Runtime library tamamlandı (mlp_list.h/c) - 7/7 tests passing
+- ✅ Lexer keywords eklendi (append, prepend, length, clear)
+- ✅ LLVM runtime declarations eklendi
+- ✅ List literal codegen çalışıyor: `list x = (1; 2; 3;)`
+- ⚠️ Variable load type mismatch (i64 yerine i8* olmalı)
+- ❌ List operations henüz tamamlanmadı
 
 **📋 Görev Detayları:**
-- **Brief:** `LLVM_YZ/YZ_06_GOREV.md` (166 satır, detaylı brief hazır!)
-- **Analiz:** `temp/YZ_06_GOREV_OZET.md` (158 satır, etki analizi)
-- **TODO:** `TODO_MODERN_LANGUAGE.md` - Faz 0 (YZ_06 sonrası 25 görev!)
-- **Branch:** `stage0-list-syntax_YZ_06` ✅
-- **Süre:** 1 hafta (21-28 Aralık 2025)
+- **Brief:** `LLVM_YZ/YZ_200_GOREV.md` (561 satır, detaylı plan)
+- **İlerleme:** `LLVM_YZ/YZ_200_ILERLEME.md` (332 satır, progress raporu)
+- **Branch:** `list-operations_YZ_200` (oluşturulacak)
+- **Süre:** 3-5 gün (1 gün geçti)
 - **Başarı Kriteri:**
   ```bash
-  ./functions_compiler modules/lexer_mlp/token.mlp temp/test.ll
-  # Şu an: 0 functions ❌ (parser error: Expected ')' after parameters)
+  # List literal allocation çalışıyor ✅
+  list numbers = (1; 2; 3;)
+  
+  # Henüz yapılacak:
+  append(numbers; 4)
+  numeric len = length(numbers)
+  numeric first = numbers[0]
+  ```
 **🔧 Yapılacaklar (Sırayla):**
 1. **Lexer:** `compiler/stage0/modules/lexer/lexer.c`
    - `(` `)` tokenization + list literal detection

@@ -31,7 +31,8 @@ typedef enum {
     STMT_EXIT_SWITCH,       // YZ_90: exit switch
     STMT_CONTINUE,          // YZ_90: continue (current loop)
     STMT_CONTINUE_FOR,      // YZ_90: continue for
-    STMT_CONTINUE_WHILE     // YZ_90: continue while
+    STMT_CONTINUE_WHILE,    // YZ_90: continue while
+    STMT_LIST_OPERATION     // YZ_200: list operations (append, prepend, etc.)
 } StatementType;
 
 // Statement structure (simplified)

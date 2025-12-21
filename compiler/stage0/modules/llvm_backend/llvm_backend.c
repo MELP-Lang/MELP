@@ -351,9 +351,16 @@ LLVMValue* llvm_emit_call(LLVMContext* ctx, const char* func_name,
     LLVMValue* result = malloc(sizeof(LLVMValue));
     result->name = llvm_new_temp(ctx);
     result->is_constant = 0;
-    result->type = LLVM_TYPE_I64;  // YZ_64: Return type always i64 for now
     
-    fprintf(ctx->output, "    %s = call i64 @%s(", result->name, func_name);
+    // YZ_200: Determine return type based on function name
+    int returns_pointer = (strncmp(func_name, "melp_list", 9) == 0 && 
+                          (strcmp(func_name, "melp_list_create") == 0 ||
+                           strcmp(func_name, "melp_list_get") == 0));
+    
+    result->type = returns_pointer ? LLVM_TYPE_I8_PTR : LLVM_TYPE_I64;
+    const char* return_type_str = returns_pointer ? "i8*" : "i64";
+    
+    fprintf(ctx->output, "    %s = call %s @%s(", result->name, return_type_str, func_name);
     
     for (int i = 0; i < arg_count; i++) {
         if (i > 0) fprintf(ctx->output, ", ");
@@ -500,6 +507,20 @@ void llvm_emit_printf_support(LLVMContext* ctx) {
     fprintf(ctx->output, "declare void @mlp_println_numeric(i8*, i8)\n");
     fprintf(ctx->output, "; void mlp_println_string(const char* str)\n");
     fprintf(ctx->output, "declare void @mlp_println_string(i8*)\n\n");
+    
+    fprintf(ctx->output, "; MLP Standard Library - List Functions (YZ_200)\n");
+    fprintf(ctx->output, "; MelpList* melp_list_create(size_t element_size)\n");
+    fprintf(ctx->output, "declare i8* @melp_list_create(i64)\n");
+    fprintf(ctx->output, "; int melp_list_append(MelpList* list, void* element)\n");
+    fprintf(ctx->output, "declare i32 @melp_list_append(i8*, i8*)\n");
+    fprintf(ctx->output, "; int melp_list_prepend(MelpList* list, void* element)\n");
+    fprintf(ctx->output, "declare i32 @melp_list_prepend(i8*, i8*)\n");
+    fprintf(ctx->output, "; size_t melp_list_length(MelpList* list)\n");
+    fprintf(ctx->output, "declare i64 @melp_list_length(i8*)\n");
+    fprintf(ctx->output, "; void* melp_list_get(MelpList* list, size_t index)\n");
+    fprintf(ctx->output, "declare i8* @melp_list_get(i8*, i64)\n");
+    fprintf(ctx->output, "; int melp_list_set(MelpList* list, size_t index, void* element)\n");
+    fprintf(ctx->output, "declare i32 @melp_list_set(i8*, i64, i8*)\n\n");
 }
 
 LLVMValue* llvm_emit_println(LLVMContext* ctx, LLVMValue* value) {
