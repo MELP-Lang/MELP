@@ -112,6 +112,20 @@
 
 ## 🎯 YZ_201 GÖREVE BAŞLAMA REHBERİ
 
+**⚠️ ÖNEMLİ:** YZ Çalışma Protokolünü okumayı unutma!  
+📜 **`YZ_PROTOKOL.md`** - 5 adımlık zorunlu protokol (350+ satır rehber)
+
+### Adım 0: Protokolü Oku (3 dakika) ⭐
+```bash
+cat YZ_PROTOKOL.md | less
+```
+**İçerik:**
+- 5 adımlık zorunlu protokol
+- Template'ler (rapor, commit, bildirim)
+- Test stratejileri
+- Başarı kriterleri
+- YZ_200 örnek akışı
+
 ### Adım 1: Branş Oluştur (1 dakika)
 ```bash
 cd /home/pardus/projeler/MLP/MLP
@@ -140,10 +154,14 @@ Başlıyorum!
 ```
 
 ### Adım 5: Rapor Yaz
-`LLVM_YZ/YZ_201_TAMAMLANDI.md` oluştur (yukardaki template kullan)
+`LLVM_YZ/YZ_201_TAMAMLANDI.md` oluştur  
+📄 Template: `YZ_PROTOKOL.md` veya `LLVM_YZ/YZ_200_TAMAMLANDI.md` (örnek)
 
 ### Adım 6: NEXT_AI Güncelle
-Bu dosyayı (NEXT_AI_START_HERE.md) güncelle → YZ_202'ye hazırla
+Bu dosyayı (NEXT_AI_START_HERE.md) güncelle → YZ_202'ye hazırla  
+📜 Nasıl yapılır: `YZ_PROTOKOL.md` Adım 5 (Sonraki YZ İçin Hazırlık)
+
+**⚠️ Unutma:** Her adımın detayı `YZ_PROTOKOL.md` içinde!
 
 ---
 
@@ -215,24 +233,29 @@ boolean has = has_key(data; "y")  # Should return true
 
 ## 📚 KAYNAKLAR
 
+### 🔴 ZORUNLU (İlk oku!)
+- **`YZ_PROTOKOL.md`** ⭐ - YZ Çalışma Protokolü (350+ satır kapsamlı rehber)
+- **`NEXT_AI_START_HERE.md`** - Bu dosya (Görev tespiti)
+- **`TODO_MODERN_LANGUAGE.md`** - Görev detayları (YZ_200-220)
+
 ### Proje Dokümantasyonu
 - **Architecture:** `ARCHITECTURE.md` (1400+ satır)
 - **MELP Reference:** `MELP_REFERENCE.md` (eksiksiz syntax guide)
 - **PMPL Syntax:** `pmlp_kesin_sozdizimi.md` (Türkçe, detaylı)
-- **Module List:** `melp_modulleri.md` ✅ YENİ! (66 modül, checkbox'lı)
-- **TODO:** `TODO_MODERN_LANGUAGE.md` (YZ_200-220 görev listesi)
+- **Module List:** `melp_modulleri.md` (66 modül, checkbox'lı)
 
 ### YZ İlerleme Takibi
-- **LLVM_YZ/YZ_200_GOREV.md** - YZ_200 detaylı plan ✅
-- **LLVM_YZ/YZ_200_ILERLEME.md** - Progress raporu ✅
-- **LLVM_YZ/FAZ_1_TAMAMLANDI.md** - Faz 1 özeti ✅
+- **`LLVM_YZ/YZ_200_TAMAMLANDI.md`** ⭐ - Rapor örneği (template)
+- **LLVM_YZ/YZ_200_GOREV.md** - YZ_200 detaylı plan
+- **LLVM_YZ/YZ_200_ILERLEME.md** - Progress raporu
+- **LLVM_YZ/FAZ_1_TAMAMLANDI.md** - Faz 1 özeti
 
 ### Kritik Dosyalar (YZ_200 ile ilgili)
-- `runtime/stdlib/mlp_list.h` - List API (165 lines) ✅
-- `runtime/stdlib/mlp_list.c` - List implementation (329 lines) ✅
-- `compiler/stage0/modules/functions/functions_codegen_llvm.c` - List codegen ✅
-- `compiler/stage0/modules/llvm_backend/llvm_backend.c` - Runtime declarations ✅
-- `tests/llvm/08_list/test_list_operations.mlp` - Full test ✅
+- `runtime/stdlib/mlp_list.h` - List API (165 lines)
+- `runtime/stdlib/mlp_list.c` - List implementation (329 lines)
+- `compiler/stage0/modules/functions/functions_codegen_llvm.c` - List codegen
+- `compiler/stage0/modules/llvm_backend/llvm_backend.c` - Runtime declarations
+- `tests/llvm/08_list/test_list_operations.mlp` - Full test
 
 ---
 
