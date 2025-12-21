@@ -1,0 +1,19 @@
+-- Test 4: Nested Try-Catch
+-- Tests nested exception handling
+
+function test_nested() returns numeric
+    try
+        try
+            throw exception("inner error")
+        catch e as CustomException
+            return 1
+        end_try
+        return 2  -- Not reached
+    catch e as Exception
+        return 3  -- Caught by outer
+    end_try
+end_function
+
+function main() returns numeric
+    return test_nested()  -- Should return 3
+end_function

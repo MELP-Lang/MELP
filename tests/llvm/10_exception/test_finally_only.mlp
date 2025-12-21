@@ -1,0 +1,19 @@
+-- Test 7: Finally Without Catch
+-- Tests try-finally without catch clause
+
+function test_finally_only() returns numeric
+    numeric result = 0
+    
+    try
+        result = 10
+        return result
+    finally
+        result = result + 5  -- Runs before return
+    end_try
+    
+    -- Return value: 10 (finally can't change return value)
+end_function
+
+function main() returns numeric
+    return test_finally_only()  -- Should return 10
+end_function

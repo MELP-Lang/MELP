@@ -1,0 +1,18 @@
+-- Test 5: Exception Rethrow
+-- Tests rethrowing caught exceptions
+
+function test_rethrow() returns numeric
+    try
+        try
+            throw exception("error")
+        catch e as Exception
+            throw e  -- Rethrow same exception
+        end_try
+    catch e as Exception
+        return 1
+    end_try
+end_function
+
+function main() returns numeric
+    return test_rethrow()  -- Should return 1
+end_function

@@ -1,0 +1,23 @@
+-- Test 6: Exception Propagation
+-- Tests exception propagation through call stack
+
+function inner() returns numeric
+    throw exception("from inner")
+    return 0
+end_function
+
+function middle() returns numeric
+    return inner()  -- Exception propagates
+end_function
+
+function outer() returns numeric
+    try
+        return middle()  -- Exception propagates
+    catch e as Exception
+        return -1
+    end_try
+end_function
+
+function main() returns numeric
+    return outer()  -- Should return -1
+end_function

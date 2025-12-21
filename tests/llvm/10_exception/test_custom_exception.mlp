@@ -1,0 +1,26 @@
+-- Test 8: Custom Exception
+-- Tests custom exception types with inheritance
+
+exception CustomException extends Exception
+    numeric error_code
+end_exception
+
+function create_error() returns CustomException
+    CustomException e = CustomException("Error", 404)
+    return e
+end_function
+
+function test_custom_exception() returns numeric
+    try
+        CustomException e = create_error()
+        throw e
+    catch e as CustomException
+        return e.error_code  -- Should return 404
+    catch e as Exception
+        return -1
+    end_try
+end_function
+
+function main() returns numeric
+    return test_custom_exception()  -- Should return 404
+end_function
