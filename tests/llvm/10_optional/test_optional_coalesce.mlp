@@ -1,0 +1,8 @@
+// YZ_202: Optional Type - Null Coalescing Test
+// Test: ?? operator (value ?? default)
+
+function test_coalesce() returns numeric
+    numeric? x = null
+    numeric result = x ?? 100
+    return result  -- Should return 100
+end_function

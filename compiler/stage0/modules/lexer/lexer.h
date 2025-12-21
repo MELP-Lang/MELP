@@ -15,6 +15,7 @@ typedef enum {
     TOKEN_STRING,          // "string literal"
     TOKEN_TRUE,
     TOKEN_FALSE,
+    TOKEN_NULL,            // null (YZ_202)
     // Arithmetic operators
     TOKEN_PLUS,
     TOKEN_MINUS,

@@ -1,0 +1,12 @@
+// YZ_202: Optional Type - Get or Default Test
+// Test: Get value or return default
+
+function test_get_or() returns numeric
+    numeric? empty = null
+    numeric? filled = 55
+    
+    numeric a = empty ?? 10  -- Should return 10
+    numeric b = filled ?? 99  -- Should return 55
+    
+    return a + b  -- Should return 65
+end_function

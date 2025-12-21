@@ -132,6 +132,7 @@ static Token* read_identifier(Lexer* lexer) {
     else if (strcmp(value, "tuple") == 0) type = TOKEN_TUPLE;
     else if (strcmp(value, "true") == 0) type = TOKEN_TRUE;
     else if (strcmp(value, "false") == 0) type = TOKEN_FALSE;
+    else if (strcmp(value, "null") == 0) type = TOKEN_NULL;  // YZ_202
     
     // ⭐ PMPL Block Terminators (underscore keywords - RF_YZ_2)
     else if (strcmp(value, "end_if") == 0) type = TOKEN_END_IF;

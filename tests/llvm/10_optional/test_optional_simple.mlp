@@ -1,0 +1,10 @@
+// YZ_202: Optional Type Test
+// Test: Create optional numeric and get value
+
+function test_optional() returns numeric
+    -- Create optional with value
+    numeric? x = 42
+    
+    -- Get value (should return 42)
+    return x
+end_function
