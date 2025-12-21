@@ -67,6 +67,10 @@ typedef struct FunctionCallExpr {
     char* function_name;           // Name of function being called
     ArithmeticExpr** arguments;    // Array of argument expressions
     int arg_count;                 // Number of arguments
+    
+    // YZ_203: Generic type arguments
+    char** type_arguments;         // e.g., ["numeric", "string"]
+    int type_arg_count;            // Number of type arguments
 } FunctionCallExpr;
 
 // Free arithmetic expression

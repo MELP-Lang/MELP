@@ -28,6 +28,13 @@ void arithmetic_expr_free(ArithmeticExpr* expr) {
             }
             free(expr->func_call->arguments);
         }
+        // YZ_203: Free type arguments
+        if (expr->func_call->type_arguments) {
+            for (int i = 0; i < expr->func_call->type_arg_count; i++) {
+                free(expr->func_call->type_arguments[i]);
+            }
+            free(expr->func_call->type_arguments);
+        }
         free(expr->func_call);
     }
     

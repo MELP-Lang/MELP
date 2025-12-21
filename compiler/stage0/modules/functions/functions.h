@@ -80,6 +80,10 @@ typedef struct {
     char* function_name;
     struct Expression** arguments;  // Array of expressions
     int arg_count;
+    
+    // YZ_203: Generic type arguments for instantiation
+    char** type_arguments;      // e.g., ["numeric", "string"]
+    int type_arg_count;         // Number of type arguments
 } FunctionCall;
 
 typedef struct {
@@ -97,6 +101,9 @@ void function_free(FunctionDeclaration* func);
 FunctionCall* function_call_create(const char* name);
 void function_call_add_arg(FunctionCall* call, struct Expression* arg);
 void function_call_free(FunctionCall* call);
+
+// YZ_203: Generic function call support
+void function_call_add_type_arg(FunctionCall* call, const char* type_name);
 
 // Return statement
 ReturnStatement* return_statement_create(struct Expression* value);

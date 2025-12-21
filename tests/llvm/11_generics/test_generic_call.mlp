@@ -1,0 +1,12 @@
+-- YZ_203: Generic call test - Explicit type instantiation
+-- Test: identity<numeric>(42) should return 42
+
+function identity<T>(T value) returns T
+    return value
+end_function
+
+function main() returns numeric
+    -- Explicit type instantiation
+    numeric result = identity<numeric>(42)
+    return result
+end_function

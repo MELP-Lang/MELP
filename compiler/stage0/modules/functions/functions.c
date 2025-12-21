@@ -118,6 +118,11 @@ FunctionCall* function_call_create(const char* name) {
     call->function_name = strdup(name);
     call->arguments = NULL;
     call->arg_count = 0;
+    
+    // YZ_203: Initialize generic type arguments
+    call->type_arguments = NULL;
+    call->type_arg_count = 0;
+    
     return call;
 }
 
@@ -133,9 +138,27 @@ void function_call_free(FunctionCall* call) {
     
     free(call->function_name);
     
+    // YZ_203: Free generic type arguments
+    if (call->type_arguments) {
+        for (int i = 0; i < call->type_arg_count; i++) {
+            free(call->type_arguments[i]);
+        }
+        free(call->type_arguments);
+    }
+    
     // Note: arguments freed elsewhere in AST cleanup
     free(call->arguments);
     free(call);
+}
+
+// YZ_203: Add type argument to generic function call
+void function_call_add_type_arg(FunctionCall* call, const char* type_name) {
+    if (!call || !type_name) return;
+    
+    call->type_arguments = realloc(call->type_arguments,
+                                   sizeof(char*) * (call->type_arg_count + 1));
+    call->type_arguments[call->type_arg_count] = strdup(type_name);
+    call->type_arg_count++;
 }
 
 ReturnStatement* return_statement_create(struct Expression* value) {

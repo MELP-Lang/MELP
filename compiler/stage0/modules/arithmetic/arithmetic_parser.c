@@ -187,6 +187,70 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
         char* identifier = strdup(parser->current_token->value);
         advance(parser);
         
+        // YZ_203: Check for generic type arguments <T1, T2, ...>
+        char** type_arguments = NULL;
+        int type_arg_count = 0;
+        int type_arg_capacity = 4;
+        
+        if (parser->current_token && 
+            (parser->current_token->type == TOKEN_LESS || 
+             parser->current_token->type == TOKEN_LANGLE)) {
+            advance(parser);  // consume '<'
+            
+            type_arguments = malloc(sizeof(char*) * type_arg_capacity);
+            
+            // Parse first type
+            if (!parser->current_token || parser->current_token->type != TOKEN_IDENTIFIER) {
+                fprintf(stderr, "Error: Expected type name in generic instantiation\n");
+                free(identifier);
+                free(type_arguments);
+                free(expr);
+                return NULL;
+            }
+            
+            type_arguments[type_arg_count++] = strdup(parser->current_token->value);
+            advance(parser);
+            
+            // Parse remaining types
+            while (parser->current_token && parser->current_token->type == TOKEN_COMMA) {
+                advance(parser);  // consume ','
+                
+                if (type_arg_count >= type_arg_capacity) {
+                    type_arg_capacity *= 2;
+                    type_arguments = realloc(type_arguments, sizeof(char*) * type_arg_capacity);
+                }
+                
+                if (!parser->current_token || parser->current_token->type != TOKEN_IDENTIFIER) {
+                    fprintf(stderr, "Error: Expected type name after comma\n");
+                    for (int i = 0; i < type_arg_count; i++) {
+                        free(type_arguments[i]);
+                    }
+                    free(type_arguments);
+                    free(identifier);
+                    free(expr);
+                    return NULL;
+                }
+                
+                type_arguments[type_arg_count++] = strdup(parser->current_token->value);
+                advance(parser);
+            }
+            
+            // Consume '>'
+            if (!parser->current_token || 
+                (parser->current_token->type != TOKEN_GREATER && 
+                 parser->current_token->type != TOKEN_RANGLE)) {
+                fprintf(stderr, "Error: Expected '>' after generic type arguments\n");
+                for (int i = 0; i < type_arg_count; i++) {
+                    free(type_arguments[i]);
+                }
+                free(type_arguments);
+                free(identifier);
+                free(expr);
+                return NULL;
+            }
+            advance(parser);  // consume '>'
+        }
+        
         // Phase 3.5: Check for function call
         if (parser->current_token && parser->current_token->type == TOKEN_LPAREN) {
             // It's a function call: identifier(args...)
@@ -203,6 +267,10 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
                 // Parse first argument
                 ArithmeticExpr* arg = arithmetic_parse_expression(parser);
                 if (!arg) {
+                    for (int i = 0; i < type_arg_count; i++) {
+                        free(type_arguments[i]);
+                    }
+                    free(type_arguments);
                     free(identifier);
                     free(arguments);
                     free(expr);
@@ -226,6 +294,10 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
                         for (int i = 0; i < arg_count; i++) {
                             arithmetic_expr_free(arguments[i]);
                         }
+                        for (int i = 0; i < type_arg_count; i++) {
+                            free(type_arguments[i]);
+                        }
+                        free(type_arguments);
                         free(identifier);
                         free(arguments);
                         free(expr);
@@ -240,6 +312,10 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
                 for (int i = 0; i < arg_count; i++) {
                     arithmetic_expr_free(arguments[i]);
                 }
+                for (int i = 0; i < type_arg_count; i++) {
+                    free(type_arguments[i]);
+                }
+                free(type_arguments);
                 free(identifier);
                 free(arguments);
                 free(expr);
@@ -252,6 +328,8 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
             func_call->function_name = identifier;
             func_call->arguments = arguments;
             func_call->arg_count = arg_count;
+            func_call->type_arguments = type_arguments;
+            func_call->type_arg_count = type_arg_count;
             
             expr->is_literal = 0;
             expr->value = NULL;
@@ -796,6 +874,70 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current, Fu
         char* identifier = strdup((*current)->value);
         advance_stateless(lexer, current);
         
+        // YZ_203: Check for generic type arguments <T1, T2, ...>
+        char** type_arguments = NULL;
+        int type_arg_count = 0;
+        int type_arg_capacity = 4;
+        
+        if (*current && 
+            ((*current)->type == TOKEN_LESS || 
+             (*current)->type == TOKEN_LANGLE)) {
+            advance_stateless(lexer, current);  // consume '<'
+            
+            type_arguments = malloc(sizeof(char*) * type_arg_capacity);
+            
+            // Parse first type
+            if (!*current || (*current)->type != TOKEN_IDENTIFIER) {
+                fprintf(stderr, "Error: Expected type name in generic instantiation\n");
+                free(identifier);
+                free(type_arguments);
+                free(expr);
+                return NULL;
+            }
+            
+            type_arguments[type_arg_count++] = strdup((*current)->value);
+            advance_stateless(lexer, current);
+            
+            // Parse remaining types
+            while (*current && (*current)->type == TOKEN_COMMA) {
+                advance_stateless(lexer, current);  // consume ','
+                
+                if (type_arg_count >= type_arg_capacity) {
+                    type_arg_capacity *= 2;
+                    type_arguments = realloc(type_arguments, sizeof(char*) * type_arg_capacity);
+                }
+                
+                if (!*current || (*current)->type != TOKEN_IDENTIFIER) {
+                    fprintf(stderr, "Error: Expected type name after comma\n");
+                    for (int i = 0; i < type_arg_count; i++) {
+                        free(type_arguments[i]);
+                    }
+                    free(type_arguments);
+                    free(identifier);
+                    free(expr);
+                    return NULL;
+                }
+                
+                type_arguments[type_arg_count++] = strdup((*current)->value);
+                advance_stateless(lexer, current);
+            }
+            
+            // Consume '>'
+            if (!*current || 
+                ((*current)->type != TOKEN_GREATER && 
+                 (*current)->type != TOKEN_RANGLE)) {
+                fprintf(stderr, "Error: Expected '>' after generic type arguments\n");
+                for (int i = 0; i < type_arg_count; i++) {
+                    free(type_arguments[i]);
+                }
+                free(type_arguments);
+                free(identifier);
+                free(expr);
+                return NULL;
+            }
+            advance_stateless(lexer, current);  // consume '>'
+        }
+        
         // YZ_29: Check for unqualified enum value FIRST (e.g., T_FUNCTION)
         // This handles: numeric tok = T_FUNCTION
         int64_t unqualified_enum = enum_lookup_value_unqualified(identifier);
@@ -1309,6 +1451,10 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current, Fu
                 // Parse first argument
                 ArithmeticExpr* arg = parse_bitwise_stateless(lexer, current, func);
                 if (!arg) {
+                    for (int i = 0; i < type_arg_count; i++) {
+                        free(type_arguments[i]);
+                    }
+                    free(type_arguments);
                     free(identifier);
                     free(arguments);
                     free(expr);
@@ -1332,6 +1478,10 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current, Fu
                         for (int i = 0; i < arg_count; i++) {
                             arithmetic_expr_free(arguments[i]);
                         }
+                        for (int i = 0; i < type_arg_count; i++) {
+                            free(type_arguments[i]);
+                        }
+                        free(type_arguments);
                         free(identifier);
                         free(arguments);
                         free(expr);
@@ -1346,6 +1496,10 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current, Fu
                 for (int i = 0; i < arg_count; i++) {
                     arithmetic_expr_free(arguments[i]);
                 }
+                for (int i = 0; i < type_arg_count; i++) {
+                    free(type_arguments[i]);
+                }
+                free(type_arguments);
                 free(identifier);
                 free(arguments);
                 free(expr);
@@ -1358,6 +1512,8 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current, Fu
             func_call->function_name = identifier;
             func_call->arguments = arguments;
             func_call->arg_count = arg_count;
+            func_call->type_arguments = type_arguments;
+            func_call->type_arg_count = type_arg_count;
             
             expr->is_literal = 0;
             expr->value = NULL;
