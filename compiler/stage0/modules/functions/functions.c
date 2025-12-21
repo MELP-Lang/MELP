@@ -12,6 +12,12 @@ FunctionDeclaration* function_create(const char* name, FunctionReturnType return
     func->param_count = 0;
     func->local_var_count = 0;
     func->local_vars = NULL;  // Initialize local variable table
+    
+    // YZ_203: Initialize generic type parameters
+    func->type_params = NULL;
+    func->type_param_count = 0;
+    func->is_generic_template = 0;
+    
     func->next = NULL;  // Initialize linked list pointer
     return func;
 }
@@ -84,6 +90,14 @@ void function_free(FunctionDeclaration* func) {
     
     free(func->name);
     free(func->return_struct_type);  // YZ_84: Free struct return type
+    
+    // YZ_203: Free generic type parameters
+    if (func->type_params) {
+        for (int i = 0; i < func->type_param_count; i++) {
+            free(func->type_params[i]);
+        }
+        free(func->type_params);
+    }
     
     FunctionParam* param = func->params;
     while (param) {
@@ -567,6 +581,55 @@ int function_is_known(const char* name) {
     }
     
     return 0;
+}
+
+// YZ_203: Generic type parameter management
+void function_add_type_param(FunctionDeclaration* func, const char* type_name) {
+    if (!func || !type_name) return;
+    
+    // Allocate or reallocate type_params array
+    func->type_params = realloc(func->type_params, 
+                                sizeof(char*) * (func->type_param_count + 1));
+    func->type_params[func->type_param_count] = strdup(type_name);
+    func->type_param_count++;
+    func->is_generic_template = 1;
+}
+
+// YZ_203: Check if a type name is a generic parameter of this function
+int function_is_type_param(FunctionDeclaration* func, const char* type_name) {
+    if (!func || !type_name || !func->type_params) return 0;
+    
+    for (int i = 0; i < func->type_param_count; i++) {
+        if (strcmp(func->type_params[i], type_name) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// YZ_203: Generate mangled name for generic instantiation
+// Example: max<numeric> → max_numeric, max<numeric, string> → max_numeric_string
+char* function_mangle_name(const char* func_name, char** concrete_types, int type_count) {
+    if (!func_name || !concrete_types || type_count == 0) {
+        return strdup(func_name);  // No mangling needed
+    }
+    
+    // Calculate required buffer size
+    size_t total_len = strlen(func_name);
+    for (int i = 0; i < type_count; i++) {
+        total_len += 1 + strlen(concrete_types[i]);  // "_" + type_name
+    }
+    
+    // Build mangled name
+    char* mangled = malloc(total_len + 1);
+    strcpy(mangled, func_name);
+    
+    for (int i = 0; i < type_count; i++) {
+        strcat(mangled, "_");
+        strcat(mangled, concrete_types[i]);
+    }
+    
+    return mangled;
 }
 
 void function_clear_registry(void) {

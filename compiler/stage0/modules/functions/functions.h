@@ -67,6 +67,12 @@ typedef struct FunctionDeclaration {
     int param_count;
     int local_var_count;       // For stack frame calculation
     LocalVariable* local_vars; // Local variable table for codegen
+    
+    // YZ_203: Generic type parameters
+    char** type_params;        // Generic type parameters (e.g., ["T", "U"])
+    int type_param_count;      // Number of type parameters
+    int is_generic_template;   // 1 if this is a generic template (not yet instantiated)
+    
     struct FunctionDeclaration* next;  // Linked list of functions
 } FunctionDeclaration;
 
@@ -121,5 +127,10 @@ int function_is_builtin(const char* name);
 int function_is_known(const char* name);
 void function_register_name(const char* name);
 void function_clear_registry(void);
+
+// YZ_203: Generic type parameter management
+void function_add_type_param(FunctionDeclaration* func, const char* type_name);
+int function_is_type_param(FunctionDeclaration* func, const char* type_name);
+char* function_mangle_name(const char* func_name, char** concrete_types, int type_count);
 
 #endif
