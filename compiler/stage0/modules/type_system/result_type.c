@@ -221,6 +221,29 @@ void result_type_free(ResultType* rt) {
     free(rt);
 }
 
+void result_match_free(ResultMatch* match) {
+    if (!match) {
+        return;
+    }
+    
+    // Free result expression
+    if (match->result_expr) {
+        expression_free((Expression*)match->result_expr);
+    }
+    
+    // Free binding names
+    if (match->has_ok_case && match->ok_case.binding_name) {
+        free(match->ok_case.binding_name);
+    }
+    if (match->has_error_case && match->error_case.binding_name) {
+        free(match->error_case.binding_name);
+    }
+    
+    // Note: Don't free body statements here - they're managed by statement system
+    
+    free(match);
+}
+
 // Parse ok() constructor
 // Example: return ok(42)
 void* parse_ok_constructor(Token** tokens, int* index, Type* result_type) {
@@ -347,10 +370,148 @@ void* parse_error_constructor(Token** tokens, int* index, Type* result_type) {
     return err_expr;
 }
 
-void* parse_result_match(Token** tokens, int* index) {
-    // TODO: Phase 3 - match expression
-    error_parser(tokens[*index]->line, "match expression not yet implemented");
-    return NULL;
+ResultMatch* parse_result_match(Token** tokens, int* index) {
+    if (!tokens || !index) {
+        return NULL;
+    }
+
+    Token* current = tokens[*index];
+
+    // Expect: match
+    if (current->type != TOKEN_IDENTIFIER || strcmp(current->value, "match") != 0) {
+        error_parser(current->line, "Expected 'match' keyword");
+        return NULL;
+    }
+    (*index)++;
+
+    // Parse result expression (variable or function call that returns result)
+    current = tokens[*index];
+    void* result_expr = NULL;
+    
+    if (current->type == TOKEN_IDENTIFIER) {
+        // For now, just create a variable expression
+        Expression* var_expr = expression_create(EXPR_VARIABLE);
+        var_expr->data.var_name = strdup(current->value);
+        result_expr = var_expr;
+        (*index)++;
+    } else {
+        error_parser(current->line, "Expected result expression in match");
+        return NULL;
+    }
+
+    // Create match structure
+    ResultMatch* match = (ResultMatch*)malloc(sizeof(ResultMatch));
+    if (!match) {
+        return NULL;
+    }
+    memset(match, 0, sizeof(ResultMatch));
+    match->result_expr = result_expr;
+
+    // Parse cases (ok and error)
+    // We expect at least one case
+    bool parsing_cases = true;
+    
+    while (parsing_cases) {
+        current = tokens[*index];
+
+        // Check for end_match
+        if (current->type == TOKEN_IDENTIFIER && strcmp(current->value, "end_match") == 0) {
+            (*index)++;
+            parsing_cases = false;
+            break;
+        }
+
+        // Expect: case
+        if (current->type != TOKEN_IDENTIFIER || strcmp(current->value, "case") != 0) {
+            error_parser(current->line, "Expected 'case' or 'end_match'");
+            free(match);
+            return NULL;
+        }
+        (*index)++;
+
+        // Expect: ok or error
+        current = tokens[*index];
+        if (current->type != TOKEN_IDENTIFIER) {
+            error_parser(current->line, "Expected 'ok' or 'error' after 'case'");
+            free(match);
+            return NULL;
+        }
+
+        bool is_ok_case = (strcmp(current->value, "ok") == 0);
+        bool is_error_case = (strcmp(current->value, "error") == 0);
+
+        if (!is_ok_case && !is_error_case) {
+            error_parser(current->line, "Expected 'ok' or 'error' in match case");
+            free(match);
+            return NULL;
+        }
+        (*index)++;
+
+        // Expect: (
+        current = tokens[*index];
+        if (current->type != TOKEN_LPAREN) {
+            error_parser(current->line, "Expected '(' after ok/error");
+            free(match);
+            return NULL;
+        }
+        (*index)++;
+
+        // Parse binding name (e.g., "value" in "ok(value)")
+        current = tokens[*index];
+        if (current->type != TOKEN_IDENTIFIER) {
+            error_parser(current->line, "Expected binding variable name");
+            free(match);
+            return NULL;
+        }
+        char* binding_name = strdup(current->value);
+        (*index)++;
+
+        // Expect: )
+        current = tokens[*index];
+        if (current->type != TOKEN_RPAREN) {
+            error_parser(current->line, "Expected ')' after binding name");
+            free(binding_name);
+            free(match);
+            return NULL;
+        }
+        (*index)++;
+
+        // Expect: : (colon)
+        current = tokens[*index];
+        if (current->type != TOKEN_COLON) {
+            error_parser(current->line, "Expected ':' after case pattern");
+            free(binding_name);
+            free(match);
+            return NULL;
+        }
+        (*index)++;
+
+        // Parse case body (single statement for now)
+        // TODO: Parse full statement block
+        // For now, just skip until we hit "case" or "end_match"
+        // This is a placeholder - we need proper statement parsing integration
+        
+        if (is_ok_case) {
+            match->has_ok_case = true;
+            match->ok_case.variant = RESULT_OK;
+            match->ok_case.binding_name = binding_name;
+            match->ok_case.body = NULL;  // TODO: Parse statement
+        } else {
+            match->has_error_case = true;
+            match->error_case.variant = RESULT_ERROR;
+            match->error_case.binding_name = binding_name;
+            match->error_case.body = NULL;  // TODO: Parse statement
+        }
+    }
+
+    // Validate: must have at least one case
+    if (!match->has_ok_case && !match->has_error_case) {
+        error_parser(tokens[*index - 1]->line, "Match must have at least one case");
+        free(match);
+        return NULL;
+    }
+
+    return match;
 }
 
 void* parse_result_propagation(Token** tokens, int* index) {

@@ -48,6 +48,25 @@ typedef struct ResultValue {
     } data;
 } ResultValue;
 
+// Forward declare Statement for match body
+typedef struct Statement Statement;
+
+// Result match case
+typedef struct ResultMatchCase {
+    ResultVariant variant;      // RESULT_OK or RESULT_ERROR
+    char* binding_name;         // Variable name to bind (e.g., "value" in "case ok(value)")
+    Statement* body;            // Statement to execute
+} ResultMatchCase;
+
+// Result match expression
+typedef struct ResultMatch {
+    void* result_expr;          // Expression* that evaluates to result<T, E>
+    ResultMatchCase ok_case;    // ok(value) case
+    ResultMatchCase error_case; // error(msg) case
+    bool has_ok_case;           // Was ok case provided?
+    bool has_error_case;        // Was error case provided?
+} ResultMatch;
+
 // Parse result type declaration
 // Example: result<numeric, string>
 ResultType* parse_result_type(Token** tokens, int* index);
@@ -74,7 +93,7 @@ void* parse_error_constructor(Token** tokens, int* index, Type* result_type);
 
 // Parse match expression for Result
 // Example: match result case ok(value): ... case error(msg): ... end_match
-void* parse_result_match(Token** tokens, int* index);
+ResultMatch* parse_result_match(Token** tokens, int* index);
 
 // Parse ? operator (error propagation)
 // Example: numeric x = try_divide(10, 2)?
@@ -87,5 +106,6 @@ bool result_type_check_error(Type* result_type, Type* error_type);
 // Utility
 char* result_type_to_string(ResultType* rt);
 void result_type_free(ResultType* rt);
+void result_match_free(ResultMatch* match);
 
 #endif
