@@ -169,11 +169,17 @@ x; y; z = true; "Ali"; 5,6;        -- x=true (boolean); y="Ali" (string); z=5.6 
 
 ### 5. Koleksiyon Tipleri
 
-| Tip | Token | Syntax | Açıklama |
-|-----|-------|--------|----------|
-| Array | TOKEN_ARRAY | `[]` | Homojen, mutable |
-| List | TOKEN_LIST | `()` | Heterojen, mutable |
-| Tuple | TOKEN_TUPLE | `<>` | Heterojen, immutable |
+| Tip | Token | Syntax | Literal Örnek | Açıklama |
+|-----|-------|--------|---------------|----------|
+| Array | TOKEN_ARRAY | `[]` | `numeric[] arr = [1; 2; 3]` | Homojen (tek tip), mutable, tip bildirimli |
+| List | TOKEN_LIST | `()` | `list data = (1; "x"; true;)` | Heterojen (çoklu tip), mutable, tip yok |
+| Tuple | TOKEN_TUPLE | `<>` | `tuple<> pos = <10; 20>` | Heterojen, immutable |
+
+**⚠️ KRİTİK FARKLAR:**
+- **Array:** Tip bildirimi ZORUNLU (`numeric[]`), sadece o tip
+- **List:** Tip bildirimi YOK (`list`), her tip olabilir
+- **Parametre ayırıcı:** HER YERDE `;` (noktalı virgül)
+- **Trailing semicolon:** List'te ZORUNLU: `(1; 2; 3;)`
 
 ### 6. Mantıksal Operatörler
 
@@ -649,13 +655,21 @@ debug if a == b then c = d
 ### Array/List/Tuple Kullanımı
 
 ```pmpl
--- Array: [] - Homojen, mutable
+-- Array: [] - Homojen, mutable, tip bildirimli
 numeric[] numbers = [1; 2; 3; 4; 5]
 numbers[0] = 100
 
 -- List: () - Heterojen, mutable (trailing ; zorunlu)
-person() = ("Ali"; 25; true;)
-person(0) = "Veli"
+list person = ("Ali"; 25; true;)  -- ✅ Farklı tipler: string, numeric, boolean
+person[0] = "Veli"
+
+-- List literal (return)
+function get_data() returns list
+    return (1; "test"; 3,14;)  -- ✅ Trailing ; zorunlu
+end_function
+
+-- Boş list
+list empty = ()  -- ✅ Boş list
 
 -- Tuple: <> - Heterojen, immutable
 coord<> = <10; 20; "point">
