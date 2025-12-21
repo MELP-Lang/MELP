@@ -3,8 +3,8 @@
 #include <string.h>
 #include "functions_codegen.h"
 #include "functions.h"
-#include "../arithmetic/arithmetic_parser.h"
-#include "../arithmetic/arithmetic_codegen.h"
+#include "../array/arithmetic/arithmetic_parser.h"
+#include "../array/arithmetic/arithmetic_codegen.h"
 #include "../statement/statement_codegen.h"  // ✅ Statement codegen import!
 #include "../variable/variable.h"  // ✅ VariableDeclaration type
 #include "../control_flow/control_flow.h"  // ✅ IfStatement, WhileStatement, ForStatement

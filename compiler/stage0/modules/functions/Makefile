@@ -44,7 +44,7 @@ COMMENTS_SOURCES = \
 	$(COMMENTS_DIR)/comments_parser.c
 
 # Arithmetic modülü (Modül #3)
-ARITHMETIC_DIR = ../arithmetic
+ARITHMETIC_DIR = ../array/arithmetic
 ARITHMETIC_SOURCES = \
 	$(ARITHMETIC_DIR)/arithmetic.c \
 	$(ARITHMETIC_DIR)/arithmetic_parser.c \
@@ -145,6 +145,13 @@ LAMBDA_SOURCES = \
 	$(LAMBDA_DIR)/lambda_parser.c \
 	$(LAMBDA_DIR)/lambda_codegen.c
 
+# Expression modülü (Unified expression parser)
+EXPRESSION_DIR = ../expression
+EXPRESSION_SOURCES = \
+	$(EXPRESSION_DIR)/expression.c \
+	$(EXPRESSION_DIR)/expression_parser.c \
+	$(EXPRESSION_DIR)/expression_codegen.c
+
 # Parser Core modülü (Parser structure)
 PARSER_CORE_DIR = ../parser_core
 PARSER_CORE_SOURCES = \
@@ -190,6 +197,7 @@ SOURCES = \
 	$(ENUM_SOURCES) \
 	$(TYPE_SYSTEM_SOURCES) \
 	$(LAMBDA_SOURCES) \
+	$(EXPRESSION_SOURCES) \
 	$(PARSER_CORE_SOURCES) \
 	$(CODEGEN_CONTEXT_SOURCES) \
 	$(ERROR_SOURCES) \

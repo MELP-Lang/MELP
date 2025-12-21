@@ -3,7 +3,7 @@
 
 #include "../functions/functions.h"
 #include "../functions/functions_generic.h"
-#include "../arithmetic/arithmetic.h"
+#include "../array/arithmetic/arithmetic.h"
 #include "../expression/expression.h"  // For Expression type
 
 // YZ_203.5: Generic Type Inference

@@ -2,9 +2,9 @@
 #define ARITHMETIC_H
 
 #include <stdbool.h>
-#include "../lexer/lexer.h"
-#include "../codegen_context/sto_types.h"
-#include "../array/array.h"  // YZ_14: For IndexAccess struct
+#include "../../lexer/lexer.h"
+#include "../../codegen_context/sto_types.h"
+#include "../array.h"  // YZ_14: For IndexAccess struct
 
 // Arithmetic operation types
 typedef enum {

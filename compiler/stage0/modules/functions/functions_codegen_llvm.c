@@ -6,7 +6,7 @@
 #include "functions_codegen_llvm.h"
 #include "../type_system/type_inference.h"
 #include "functions_generic.h"  // YZ_203: Generic template support
-#include "../arithmetic/arithmetic_parser.h"
+#include "../array/arithmetic/arithmetic_parser.h"
 #include "../variable/variable.h"
 #include "../statement/statement.h"  // YZ_58: Statement types
 #include "../comparison/comparison.h"  // YZ_58: Comparison expressions

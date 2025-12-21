@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../lexer/lexer.h"
-#include "../error/error.h"
+#include "../../error/error.h"
 #include "arithmetic.h"
 #include "arithmetic_parser.h"
 #include "arithmetic_codegen.h"

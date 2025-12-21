@@ -1,5 +1,5 @@
 #include "variable_codegen.h"
-#include "../arithmetic/arithmetic.h"     // ✅ For ArithmeticExpr struct
+#include "../array/arithmetic/arithmetic.h"     // ✅ For ArithmeticExpr struct
 #include "../array/array_codegen.h"       // ✅ For collection codegen
 #include <stdlib.h>
 #include <string.h>

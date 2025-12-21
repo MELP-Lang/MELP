@@ -1,7 +1,7 @@
 #ifndef STRING_INTERPOLATION_H
 #define STRING_INTERPOLATION_H
 
-#include "../lexer/lexer.h"
+#include "../../lexer/lexer.h"
 
 // Forward declaration
 typedef struct ArithmeticExpr ArithmeticExpr;

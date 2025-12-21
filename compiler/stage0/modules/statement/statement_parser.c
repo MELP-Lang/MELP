@@ -5,8 +5,8 @@
 #include "../print/print_parser.h"                 // ✅ Print parsing
 #include "../print/print.h"                        // ✅ YZ_61: PrintStatement struct
 #include "../variable/variable_parser.h"           // ✅ Variable declarations
-#include "../arithmetic/arithmetic_parser.h"       // ✅ Expressions
-#include "../arithmetic/arithmetic.h"              // ✅ ArithmeticExpr
+#include "../array/arithmetic/arithmetic_parser.h"       // ✅ Expressions
+#include "../array/arithmetic/arithmetic.h"              // ✅ ArithmeticExpr
 #include "../functions/functions.h"                // ✅ ReturnStatement
 #include "../functions/functions_parser.h"         // ✅ YZ_26: Function parsing
 #include "../lexer/lexer.h"                        // ✅ Token operations

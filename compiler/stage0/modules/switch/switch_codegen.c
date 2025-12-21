@@ -1,6 +1,6 @@
 #include "switch_codegen.h"
-#include "../arithmetic/arithmetic.h"
-#include "../arithmetic/arithmetic_codegen.h"
+#include "../array/arithmetic/arithmetic.h"
+#include "../array/arithmetic/arithmetic_codegen.h"
 #include "../statement/statement.h"
 #include "../statement/statement_codegen.h"
 #include <stdio.h>

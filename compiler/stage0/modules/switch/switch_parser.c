@@ -2,7 +2,7 @@
 #include "../parser_core/parser_core.h"
 #include "../statement/statement.h"
 #include "../statement/statement_parser.h"
-#include "../arithmetic/arithmetic_parser.h"
+#include "../array/arithmetic/arithmetic_parser.h"
 #include "../error/error.h"
 #include <stdio.h>
 #include <stdlib.h>

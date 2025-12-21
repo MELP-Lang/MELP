@@ -1,5 +1,5 @@
 #include "print_parser.h"
-#include "../arithmetic/arithmetic_parser.h"  // ✅ For expression parsing
+#include "../array/arithmetic/arithmetic_parser.h"  // ✅ For expression parsing
 #include "../lexer/lexer.h"
 #include <stdio.h>
 #include <stdlib.h>

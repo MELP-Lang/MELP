@@ -1,12 +1,12 @@
 #include "arithmetic_parser.h"
 #include "arithmetic_optimize.h"  // YZ_32: Constant folding
 #include "string_interpolation.h"  // YZ_90: String interpolation
-#include "../codegen_context/codegen_context.h"
-#include "../array/array_parser.h"  // YZ_14: For array index access
-#include "../functions/functions.h"  // YZ_36: For function_is_known()
-#include "../struct/struct.h"  // YZ_82: For member access
-#include "../enum/enum.h"  // YZ_96: For enum value access
-#include "../import/namespace_resolver.h"  // YZ_204: Qualified name resolution
+#include "../../codegen_context/codegen_context.h"
+#include "../array_parser.h"  // YZ_14: For array index access
+#include "../../functions/functions.h"  // YZ_36: For function_is_known()
+#include "../../struct/struct.h"  // YZ_82: For member access
+#include "../../enum/enum.h"  // YZ_96: For enum value access
+#include "../../import/namespace_resolver.h"  // YZ_204: Qualified name resolution
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

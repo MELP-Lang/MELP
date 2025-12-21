@@ -1,5 +1,5 @@
 #include "array_codegen.h"
-#include "../arithmetic/arithmetic_codegen.h"
+#include "arithmetic/arithmetic_codegen.h"
 #include <stdio.h>
 #include <string.h>
 

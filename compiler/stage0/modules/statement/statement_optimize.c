@@ -1,7 +1,7 @@
 #include "statement_optimize.h"
 #include "../control_flow/control_flow.h"
 #include "../comparison/comparison.h"
-#include "../arithmetic/arithmetic.h"
+#include "../array/arithmetic/arithmetic.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -1,8 +1,8 @@
 #include "arithmetic.h"
-#include "../codegen_context/codegen_context.h"
-#include "../array/array.h"  // YZ_14: For IndexAccess
-#include "../array/array_parser.h"  // YZ_17: For collection_free
-#include "../struct/struct.h"  // YZ_86: For MethodCall
+#include "../../codegen_context/codegen_context.h"
+#include "../array.h"  // YZ_14: For IndexAccess
+#include "../array_parser.h"  // YZ_17: For collection_free
+#include "../../struct/struct.h"  // YZ_86: For MethodCall
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>

@@ -1,8 +1,8 @@
 #include "print_codegen.h"
 #include "print.h"
 #include "../functions/functions.h"            // ✅ For FunctionDeclaration
-#include "../arithmetic/arithmetic.h"          // ✅ For ArithmeticExpr
-#include "../arithmetic/arithmetic_codegen.h"  // ✅ For expression codegen
+#include "../array/arithmetic/arithmetic.h"          // ✅ For ArithmeticExpr
+#include "../array/arithmetic/arithmetic_codegen.h"  // ✅ For expression codegen
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>

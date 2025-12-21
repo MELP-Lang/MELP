@@ -1,5 +1,5 @@
 #include "struct_parser.h"
-#include "../arithmetic/arithmetic_parser.h"
+#include "../array/arithmetic/arithmetic_parser.h"
 #include "../statement/statement_parser.h"  // YZ_88: For method body parsing
 #include <stdlib.h>
 #include <stdio.h>

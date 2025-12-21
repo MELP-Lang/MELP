@@ -5,8 +5,8 @@
 #include "../print/print_codegen.h"                 // ✅ Print codegen
 #include "../variable/variable_codegen.h"           // ✅ Variable codegen
 #include "../variable/variable.h"                   // ✅ VariableDeclaration, VariableAssignment
-#include "../arithmetic/arithmetic_codegen.h"       // ✅ Expression codegen
-#include "../arithmetic/arithmetic.h"               // ✅ ArithmeticExpr
+#include "../array/arithmetic/arithmetic_codegen.h"       // ✅ Expression codegen
+#include "../array/arithmetic/arithmetic.h"               // ✅ ArithmeticExpr
 #include "../functions/functions.h"                 // ✅ ReturnStatement, FunctionDeclaration
 #include "../array/array.h"                         // ✅ YZ_15: IndexAccess, ArrayAssignment
 #include "../struct/struct_codegen.h"               // ✅ YZ_81: Struct codegen

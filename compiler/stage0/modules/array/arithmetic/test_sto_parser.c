@@ -1,6 +1,6 @@
 #include "arithmetic_parser.h"
 #include "arithmetic.h"
-#include "../codegen_context/codegen_context.h"
+#include "../../codegen_context/codegen_context.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

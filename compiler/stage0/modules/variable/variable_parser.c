@@ -1,7 +1,7 @@
 #include "variable_parser.h"
 #include "../codegen_context/codegen_context.h"
-#include "../arithmetic/arithmetic_parser.h"  // ✅ For expression parsing
-#include "../arithmetic/arithmetic.h"         // ✅ ArithmeticExpr
+#include "../array/arithmetic/arithmetic_parser.h"  // ✅ For expression parsing
+#include "../array/arithmetic/arithmetic.h"         // ✅ ArithmeticExpr
 #include "../array/array_parser.h"            // ✅ For array literal parsing
 #include "../array/array.h"                   // ✅ For Collection types
 #include <stdlib.h>

@@ -2,8 +2,8 @@
 #define ARITHMETIC_PARSER_H
 
 #include "arithmetic.h"
-#include "../lexer/lexer.h"
-#include "../functions/functions.h"  // YZ_102: For FunctionDeclaration context
+#include "../../lexer/lexer.h"
+#include "../../functions/functions.h"  // YZ_102: For FunctionDeclaration context
 
 // ✅ STATELESS API (Recommended)
 // Parse arithmetic expression - stateless template

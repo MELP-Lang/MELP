@@ -4,8 +4,8 @@
 #include "../lexer/lexer.h"
 #include "arithmetic_parser.h"
 #include "arithmetic_codegen.h"
-#include "../variable/variable.h"
-#include "../variable/variable_parser.h"
+#include "../../variable/variable.h"
+#include "../../variable/variable_parser.h"
 
 // List of parsed assignments
 typedef struct AssignmentNode {

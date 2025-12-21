@@ -1,8 +1,8 @@
 #include "string_interpolation.h"
 #include "arithmetic.h"
 #include "arithmetic_parser.h"
-#include "../lexer/lexer.h"
-#include "../error/error.h"
+#include "../../lexer/lexer.h"
+#include "../../error/error.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

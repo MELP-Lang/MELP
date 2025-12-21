@@ -1,9 +1,9 @@
 #include "arithmetic_codegen.h"
-#include "../../../../runtime/sto/runtime_sto.h"
-#include "../functions/functions.h"  // For FunctionDeclaration type
-#include "../array/array_codegen.h"  // YZ_14: For array access codegen
-#include "../struct/struct.h"  // YZ_82: For member access
-#include "../enum/enum.h"  // YZ_35: For enum value access
+#include "../../../../../runtime/sto/runtime_sto.h"
+#include "../../functions/functions.h"  // For FunctionDeclaration type
+#include "../array_codegen.h"  // YZ_14: For array access codegen
+#include "../../struct/struct.h"  // YZ_82: For member access
+#include "../../enum/enum.h"  // YZ_35: For enum value access
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
