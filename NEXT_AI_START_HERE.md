@@ -3,7 +3,7 @@
 **Last Session:** YZ_203.5 (Generic Type Inference) ✅ TAMAMLANDI  
 **Date:** 21 Aralık 2025  
 **Agent:** GitHub Copilot (Claude Sonnet 4.5)  
-**Status:** 🟢 **YZ_204 HAZIR** - Pattern Matching
+**Status:** 🟢 **YZ_204 HAZIR** - Module Import/Export
 
 **⚠️ Project Status:**
 - **Stage 0:** ✅ TAMAMLANDI (C Compiler) - **List (), Map {}, Optional ?, Generic <T> working! ✅**
@@ -14,7 +14,7 @@
 - **YZ_202:** ✅ **TAMAMLANDI** - Optional Type (?, ??, null)
 - **YZ_203:** ✅ **TAMAMLANDI** - Generic Types (Explicit `<T>`)
 - **YZ_203.5:** ✅ **TAMAMLANDI** - Generic Type Inference
-- **YZ_204:** 🟡 **BAŞLIYOR** - Pattern Matching
+- **YZ_204:** 🟡 **BAŞLIYOR** - Module Import/Export
 
 ---
 
@@ -62,61 +62,80 @@ end_function
 ## 🚨 MEVCUT GÖREV: SEN YZ_204'SÜN!
 
 **Adın:** YZ_204  
-**Görevin:** Pattern Matching  
-**Kaynak:** `TODO_MODERN_LANGUAGE.md` Line 260-290  
-**Branch:** `pattern-matching_YZ_204` (oluşturacaksın)  
-**Öncelik:** 🟠 Orta (modern dil özelliği)
+**Görevin:** Module Import/Export (Code Organization)  
+**Kaynak:** `TODO_MODERN_LANGUAGE.md` Line 297-336  
+**Branch:** `module-system_YZ_204` (oluşturacaksın)  
+**Öncelik:** 🔴 KRİTİK (code organization için gerekli)
+
+⚠️ **MEVCUT MODÜL VAR MI?** `melp_modulleri.md` kontrol et: `import/` modülü zaten var!
 
 ### 📚 ÖNCE MUTLAKA OKU (ZORUNLU):
 1. **`MELP_VISION.md`** ← MELP felsefesi (Kod = Düzyazı, STO, Modüler)
 2. **`ARCHITECTURE.md`** ← 26 modül sistemi
-3. **`melp_modulleri.md`** ← Mevcut modüller (baştan yazma!)
+3. **`melp_modulleri.md`** ← **ÖNEMLİ:** import/ modülü var mı kontrol et!
 4. **`YZ_PROTOKOL.md`** ← Detaylı çalışma kuralları
-5. **`TODO_MODERN_LANGUAGE.md`** Line 232-260 ← Görev detayları
-6. **`LLVM_YZ/YZ_203_TAMAMLANDI.md`** ← YZ_203'ün başarısı (monomorphization working!)
+5. **`TODO_MODERN_LANGUAGE.md`** Line 297-336 ← Görev detayları
+6. **`LLVM_YZ/YZ_203.5_TAMAMLANDI.md`** ← YZ_203.5'in başarısı
 
-### ✅ YZ_203'ün Bıraktığı Miras:
-- ✅ Generic function parsing: `function identity<T>(T x)` ✅
-- ✅ Generic call parsing: `identity<numeric>(42)` ✅
-- ✅ Template registry system (GenericRegistry, GenericTemplate) ✅
-- ✅ Monomorphization engine (generic_instantiate, generic_specialize_function) ✅
-- ✅ LLVM IR codegen (specialized functions with mangled names) ✅
-- ✅ Instance deduplication (is_emitted flag) ✅
-- ✅ Test: `identity<numeric>(42)` fully working! ✅
+### ✅ YZ_203.5'in Bıraktığı Miras:
+- ✅ Generic Types + Type Inference working ✅
+- ✅ Monomorphization engine production-ready ✅
+- ✅ Type system: `type_inference.{h,c}` (300 satır)
+- ✅ Developer experience: `identity(42)` otomatik tip çıkarımı ✅
 
-**Dosyalar (mevcut):**
-- `compiler/stage0/modules/functions/functions_generic.{h,c}` (303 satır)
-- `compiler/stage0/modules/functions/functions.h` (type_params)
-- `compiler/stage0/modules/arithmetic/arithmetic.h` (type_arguments)
+### 🎯 SENIN GÖREVİN (YZ_204):
 
-### 🎯 SENIN GÖREVİN (YZ_203.5):
-
-**Şu çalışıyor (YZ_203 yaptı):**
-```pmpl
-identity<numeric>(42)  -- ✅ Explicit type working!
-```
-
-**Sen yapacaksın (Type Inference):**
-```pmpl
-identity(42)  -- ⚠️ Infer T = numeric automatically!
-```
-
-**Yapılacaklar:**
-- [ ] Type inference from arguments: `max(10, 20)` → infer `T = numeric`
-- [ ] Argument type analysis (inspect actual argument types)
-- [ ] Type unification (match template params to argument types)
-- [ ] Constraint solving (ensure type consistency)
-- [ ] Error messages for ambiguous types
-- [ ] Integration with existing monomorphization engine
+**Ne yapacaksın:**
+- [ ] Module declaration: `module math`
+- [ ] Export syntax: `export function add()`
+- [ ] Import syntax: `import math`, `import math.add`
+- [ ] Namespace resolution: `math.add(10, 20)`
+- [ ] Circular dependency detection
+- [ ] Module search paths
+- [ ] Precompiled module cache
 
 **Test Case (TODO'dan):**
 ```pmpl
-function max<T>(T a, T b) returns T
-    if a > b then
-        return a
-    end_if
-    return b
+-- math.mlp
+module math
+
+export function add(numeric a, numeric b) returns numeric
+    return a + b
 end_function
+
+-- main.mlp
+import math
+
+function main() returns numeric
+    return math.add(10, 20)  -- Should return 30
+end_function
+```
+
+**⚠️ ÖNCE KONTROL ET:**
+```bash
+ls -la compiler/stage0/modules/import/
+# Import modülü var mı? Varsa baştan yazma, entegre et!
+```
+
+**Dosyalar:**
+- `compiler/stage0/modules/import/` (zaten var mı kontrol et!)
+- `compiler/stage0/modules/module/` (yeni modül gerekebilir - SOR!)
+- `tests/modules/test_import.mlp`
+
+**Süre Tahmini:** 1 hafta
+
+**⚠️ MELP Prensipleri:**
+- ✅ Mevcut `import/` modülünü kontrol et (baştan yazma!)
+- 🚨 Yeni modül gerekirse: **KULLANICIYA SOR!**
+- ✅ Keyword syntax: `import`, `export`, `module` (MELP-style)
+- ✅ Namespace: `math.add()` (nokta notation)
+
+**🆕 YENİ ÇALIŞMA ŞEKLİ (YZ_204'ten itibaren):**
+- ✅ Kendi hızında çalış (günlük hedef yok)
+- ✅ TODO'daki tüm maddeleri tamamla
+- ⚠️ Yorulunca söyle ("Ara verelim")
+- ✅ Kritik kararlarda sor (yukarıdaki liste)
+- ✅ Bitince rapor yaz: `LLVM_YZ/YZ_204_TAMAMLANDI.md`
 
 function test_inference() returns numeric
     return max(10, 20)  -- Should infer T = numeric, return 20
