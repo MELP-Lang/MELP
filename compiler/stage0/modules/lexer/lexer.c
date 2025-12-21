@@ -233,38 +233,10 @@ static Token* read_identifier(Lexer* lexer) {
     else if (strcmp(value, "borrow") == 0) type = TOKEN_BORROW;
     else if (strcmp(value, "mut") == 0) type = TOKEN_MUT;
     
-    // Collections Library keywords (YZ_213)
-    // List extensions
-    else if (strcmp(value, "insert_at") == 0) type = TOKEN_INSERT_AT;
-    else if (strcmp(value, "find_in_list") == 0) type = TOKEN_FIND_IN_LIST;
-    else if (strcmp(value, "sort_list") == 0) type = TOKEN_SORT_LIST;
-    // Map extensions
-    else if (strcmp(value, "map_keys") == 0) type = TOKEN_MAP_KEYS;
-    else if (strcmp(value, "map_values") == 0) type = TOKEN_MAP_VALUES;
-    else if (strcmp(value, "clear_map") == 0) type = TOKEN_CLEAR_MAP;
-    // Set operations
-    else if (strcmp(value, "create_set") == 0) type = TOKEN_CREATE_SET;
-    else if (strcmp(value, "add_to_set") == 0) type = TOKEN_ADD_TO_SET;
-    else if (strcmp(value, "set_contains") == 0) type = TOKEN_SET_CONTAINS;
-    else if (strcmp(value, "remove_from_set") == 0) type = TOKEN_REMOVE_FROM_SET;
-    else if (strcmp(value, "set_union") == 0) type = TOKEN_SET_UNION;
-    else if (strcmp(value, "set_intersection") == 0) type = TOKEN_SET_INTERSECTION;
-    else if (strcmp(value, "set_difference") == 0) type = TOKEN_SET_DIFFERENCE;
-    else if (strcmp(value, "set_size") == 0) type = TOKEN_SET_SIZE;
-    // Queue operations
-    else if (strcmp(value, "create_queue") == 0) type = TOKEN_CREATE_QUEUE;
-    else if (strcmp(value, "enqueue") == 0) type = TOKEN_ENQUEUE;
-    else if (strcmp(value, "dequeue") == 0) type = TOKEN_DEQUEUE;
-    else if (strcmp(value, "queue_peek") == 0) type = TOKEN_QUEUE_PEEK;
-    else if (strcmp(value, "queue_size") == 0) type = TOKEN_QUEUE_SIZE;
-    else if (strcmp(value, "queue_is_empty") == 0) type = TOKEN_QUEUE_IS_EMPTY;
-    // Stack operations
-    else if (strcmp(value, "create_stack") == 0) type = TOKEN_CREATE_STACK;
-    else if (strcmp(value, "push") == 0) type = TOKEN_PUSH;
-    else if (strcmp(value, "pop") == 0) type = TOKEN_POP;
-    else if (strcmp(value, "stack_peek") == 0) type = TOKEN_STACK_PEEK;
-    else if (strcmp(value, "stack_size") == 0) type = TOKEN_STACK_SIZE;
-    else if (strcmp(value, "stack_is_empty") == 0) type = TOKEN_STACK_IS_EMPTY;
+    // YZ_213: Collections Library functions are treated as regular identifiers
+    // (not keywords) to work with the expression parser. They are mapped to
+    // runtime functions in the codegen phase (functions_codegen_llvm.c).
+    // No special keywords: create_set, enqueue, push, etc. are just function calls.
     
     Token* token = make_token(type, value, lexer->line);
     free(value);

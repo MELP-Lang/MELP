@@ -1,0 +1,6 @@
+-- Test add_to_set without storing pointer in variable
+
+function main() returns numeric
+    add_to_set(create_set(); 10)
+    return 0
+end_function

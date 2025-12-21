@@ -391,25 +391,59 @@ LLVMValue* llvm_emit_call(LLVMContext* ctx, const char* func_name,
     result->is_constant = 0;
     
     // YZ_200: Determine return type based on function name
+    // YZ_213: Add Collections Library return types
     int returns_pointer = (strncmp(func_name, "melp_list", 9) == 0 && 
                           (strcmp(func_name, "melp_list_create") == 0 ||
-                           strcmp(func_name, "melp_list_get") == 0)) ||
+                           strcmp(func_name, "melp_list_get") == 0 ||
+                           strcmp(func_name, "melp_map_keys") == 0 ||
+                           strcmp(func_name, "melp_map_values") == 0)) ||
                           (strncmp(func_name, "melp_map", 8) == 0 &&
                           (strcmp(func_name, "melp_map_create") == 0 ||
                            strcmp(func_name, "melp_map_get") == 0)) ||
+                          // YZ_213: Collection create functions return pointer
+                          strcmp(func_name, "melp_set_create") == 0 ||
+                          strcmp(func_name, "melp_set_union") == 0 ||
+                          strcmp(func_name, "melp_set_intersection") == 0 ||
+                          strcmp(func_name, "melp_set_difference") == 0 ||
+                          strcmp(func_name, "melp_queue_create") == 0 ||
+                          strcmp(func_name, "melp_queue_dequeue") == 0 ||
+                          strcmp(func_name, "melp_queue_peek") == 0 ||
+                          strcmp(func_name, "melp_stack_create") == 0 ||
+                          strcmp(func_name, "melp_stack_pop") == 0 ||
+                          strcmp(func_name, "melp_stack_peek") == 0 ||
                           strcmp(func_name, "malloc") == 0;  // malloc returns i8*
     
     int returns_i32 = (strcmp(func_name, "melp_list_append") == 0 ||
                        strcmp(func_name, "melp_list_prepend") == 0 ||
                        strcmp(func_name, "melp_list_set") == 0 ||
+                       strcmp(func_name, "melp_list_insert_at") == 0 ||
                        strcmp(func_name, "melp_map_insert") == 0 ||
                        strcmp(func_name, "melp_map_remove") == 0 ||
-                       strcmp(func_name, "melp_map_has_key") == 0);
+                       strcmp(func_name, "melp_map_has_key") == 0 ||
+                       // YZ_213: Collection query functions return i32 (boolean)
+                       strcmp(func_name, "melp_set_contains") == 0 ||
+                       strcmp(func_name, "melp_queue_is_empty") == 0 ||
+                       strcmp(func_name, "melp_stack_is_empty") == 0);
+    
+    // YZ_213: void return type functions
+    int returns_void = (strcmp(func_name, "melp_set_add") == 0 ||
+                        strcmp(func_name, "melp_set_remove") == 0 ||
+                        strcmp(func_name, "melp_queue_enqueue") == 0 ||
+                        strcmp(func_name, "melp_stack_push") == 0 ||
+                        strcmp(func_name, "melp_list_sort") == 0 ||
+                        strcmp(func_name, "melp_map_clear") == 0);
     
     result->type = returns_pointer ? LLVM_TYPE_I8_PTR : LLVM_TYPE_I64;
-    const char* return_type_str = returns_pointer ? "i8*" : (returns_i32 ? "i32" : "i64");
+    const char* return_type_str = returns_pointer ? "i8*" : 
+                                   (returns_void ? "void" :
+                                   (returns_i32 ? "i32" : "i64"));
     
-    fprintf(ctx->output, "    %s = call %s @%s(", result->name, return_type_str, func_name);
+    // YZ_213: For void functions, don't assign to result
+    if (returns_void) {
+        fprintf(ctx->output, "    call void @%s(", func_name);
+    } else {
+        fprintf(ctx->output, "    %s = call %s @%s(", result->name, return_type_str, func_name);
+    }
     
     for (int i = 0; i < arg_count; i++) {
         if (i > 0) fprintf(ctx->output, ", ");
@@ -599,7 +633,67 @@ void llvm_emit_printf_support(LLVMContext* ctx) {
     fprintf(ctx->output, "; int melp_map_has_key(MelpMap* map, const char* key)\n");
     fprintf(ctx->output, "declare i32 @melp_map_has_key(i8*, i8*)\n");
     fprintf(ctx->output, "; size_t melp_map_length(MelpMap* map)\n");
-    fprintf(ctx->output, "declare i64 @melp_map_length(i8*)\n\n");
+    fprintf(ctx->output, "declare i64 @melp_map_length(i8*)\n");
+    fprintf(ctx->output, "; void melp_map_clear(MelpMap* map)\n");
+    fprintf(ctx->output, "declare void @melp_map_clear(i8*)\n");
+    fprintf(ctx->output, "; List* melp_map_keys(MelpMap* map)\n");
+    fprintf(ctx->output, "declare i8* @melp_map_keys(i8*)\n");
+    fprintf(ctx->output, "; List* melp_map_values(MelpMap* map)\n");
+    fprintf(ctx->output, "declare i8* @melp_map_values(i8*)\n\n");
+    
+    fprintf(ctx->output, "; MLP Collections Library - Set Functions (YZ_213)\n");
+    fprintf(ctx->output, "; Set* melp_set_create()\n");
+    fprintf(ctx->output, "declare i8* @melp_set_create()\n");
+    fprintf(ctx->output, "; void melp_set_add(Set* set, void* item)\n");
+    fprintf(ctx->output, "declare void @melp_set_add(i8*, i8*)\n");
+    fprintf(ctx->output, "; int melp_set_contains(Set* set, void* item)\n");
+    fprintf(ctx->output, "declare i32 @melp_set_contains(i8*, i8*)\n");
+    fprintf(ctx->output, "; void melp_set_remove(Set* set, void* item)\n");
+    fprintf(ctx->output, "declare void @melp_set_remove(i8*, i8*)\n");
+    fprintf(ctx->output, "; size_t melp_set_size(Set* set)\n");
+    fprintf(ctx->output, "declare i64 @melp_set_size(i8*)\n");
+    fprintf(ctx->output, "; Set* melp_set_union(Set* a, Set* b)\n");
+    fprintf(ctx->output, "declare i8* @melp_set_union(i8*, i8*)\n");
+    fprintf(ctx->output, "; Set* melp_set_intersection(Set* a, Set* b)\n");
+    fprintf(ctx->output, "declare i8* @melp_set_intersection(i8*, i8*)\n");
+    fprintf(ctx->output, "; Set* melp_set_difference(Set* a, Set* b)\n");
+    fprintf(ctx->output, "declare i8* @melp_set_difference(i8*, i8*)\n\n");
+    
+    fprintf(ctx->output, "; MLP Collections Library - Queue Functions (YZ_213)\n");
+    fprintf(ctx->output, "; Queue* melp_queue_create()\n");
+    fprintf(ctx->output, "declare i8* @melp_queue_create()\n");
+    fprintf(ctx->output, "; void melp_queue_enqueue(Queue* queue, void* item)\n");
+    fprintf(ctx->output, "declare void @melp_queue_enqueue(i8*, i8*)\n");
+    fprintf(ctx->output, "; void* melp_queue_dequeue(Queue* queue)\n");
+    fprintf(ctx->output, "declare i8* @melp_queue_dequeue(i8*)\n");
+    fprintf(ctx->output, "; void* melp_queue_peek(Queue* queue)\n");
+    fprintf(ctx->output, "declare i8* @melp_queue_peek(i8*)\n");
+    fprintf(ctx->output, "; size_t melp_queue_size(Queue* queue)\n");
+    fprintf(ctx->output, "declare i64 @melp_queue_size(i8*)\n");
+    fprintf(ctx->output, "; int melp_queue_is_empty(Queue* queue)\n");
+    fprintf(ctx->output, "declare i32 @melp_queue_is_empty(i8*)\n\n");
+    
+    fprintf(ctx->output, "; MLP Collections Library - Stack Functions (YZ_213)\n");
+    fprintf(ctx->output, "; Stack* melp_stack_create()\n");
+    fprintf(ctx->output, "declare i8* @melp_stack_create()\n");
+    fprintf(ctx->output, "; void melp_stack_push(Stack* stack, void* item)\n");
+    fprintf(ctx->output, "declare void @melp_stack_push(i8*, i8*)\n");
+    fprintf(ctx->output, "; void* melp_stack_pop(Stack* stack)\n");
+    fprintf(ctx->output, "declare i8* @melp_stack_pop(i8*)\n");
+    fprintf(ctx->output, "; void* melp_stack_peek(Stack* stack)\n");
+    fprintf(ctx->output, "declare i8* @melp_stack_peek(i8*)\n");
+    fprintf(ctx->output, "; size_t melp_stack_size(Stack* stack)\n");
+    fprintf(ctx->output, "declare i64 @melp_stack_size(i8*)\n");
+    fprintf(ctx->output, "; int melp_stack_is_empty(Stack* stack)\n");
+    fprintf(ctx->output, "declare i32 @melp_stack_is_empty(i8*)\n\n");
+    
+    fprintf(ctx->output, "; MLP Collections Library - List Extensions (YZ_213)\n");
+    fprintf(ctx->output, "; int melp_list_insert_at(MelpList* list, size_t index, void* element)\n");
+    fprintf(ctx->output, "declare i32 @melp_list_insert_at(i8*, i64, i8*)\n");
+    fprintf(ctx->output, "; int melp_list_find(MelpList* list, void* element)\n");
+    fprintf(ctx->output, "declare i64 @melp_list_find(i8*, i8*)\n");
+    fprintf(ctx->output, "; void melp_list_sort(MelpList* list)\n");
+    fprintf(ctx->output, "declare void @melp_list_sort(i8*)\n\n");
 }
 
 LLVMValue* llvm_emit_println(LLVMContext* ctx, LLVMValue* value) {

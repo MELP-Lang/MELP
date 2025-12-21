@@ -1,0 +1,7 @@
+-- Simple test for create_set() call
+
+function main() returns numeric
+    numeric ptr
+    ptr = create_set()
+    return 0
+end_function

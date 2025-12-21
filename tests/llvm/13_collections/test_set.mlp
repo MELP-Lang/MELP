@@ -1,0 +1,33 @@
+-- YZ_213: Test Set operations
+-- Expected output: 2 (set size after adding duplicates)
+
+function test_set() returns numeric
+    -- Create set (returns pointer as numeric)
+    numeric set_ptr
+    set_ptr = create_set()
+    
+    -- Add elements
+    add_to_set(set_ptr; 10)
+    add_to_set(set_ptr; 20)
+    add_to_set(set_ptr; 10)  -- Duplicate, should be ignored
+    
+    -- Check contains
+    numeric has_10
+    has_10 = set_contains(set_ptr; 10)  -- Should be 1
+    
+    numeric has_99
+    has_99 = set_contains(set_ptr; 99)  -- Should be 0
+    
+    -- Size check
+    numeric size
+    size = set_size(set_ptr)  -- Should be 2
+    
+    return size
+end_function
+
+function main() returns numeric
+    numeric result
+    result = test_set()
+    println(result)
+    return result
+end_function

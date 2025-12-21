@@ -1,0 +1,26 @@
+-- YZ_213: Test Stack (LIFO) operations
+-- Expected output: 50 (30 + 20)
+
+function test_stack() returns numeric
+    numeric stack_ptr
+    stack_ptr = create_stack()
+    
+    push(stack_ptr; 10)
+    push(stack_ptr; 20)
+    push(stack_ptr; 30)
+    
+    numeric top
+    top = pop(stack_ptr)    -- Should be 30 (LIFO)
+    
+    numeric next
+    next = pop(stack_ptr)   -- Should be 20
+    
+    return top + next  -- Returns 50
+end_function
+
+function main() returns numeric
+    numeric result
+    result = test_stack()
+    println(result)
+    return result
+end_function

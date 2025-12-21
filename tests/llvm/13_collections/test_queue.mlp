@@ -1,0 +1,26 @@
+-- YZ_213: Test Queue (FIFO) operations
+-- Expected output: 300 (100 + 200)
+
+function test_queue() returns numeric
+    numeric queue_ptr
+    queue_ptr = create_queue()
+    
+    enqueue(queue_ptr; 100)
+    enqueue(queue_ptr; 200)
+    enqueue(queue_ptr; 300)
+    
+    numeric first
+    first = dequeue(queue_ptr)   -- Should be 100 (FIFO)
+    
+    numeric second
+    second = dequeue(queue_ptr)  -- Should be 200
+    
+    return first + second  -- Returns 300
+end_function
+
+function main() returns numeric
+    numeric result
+    result = test_queue()
+    println(result)
+    return result
+end_function

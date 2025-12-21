@@ -595,9 +595,13 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
         
         // YZ_200: Map built-in list functions to runtime functions
         // YZ_201: Map built-in map functions to runtime functions
+        // YZ_213: Map Collections Library functions to runtime functions
         const char* runtime_name = actual_function_name;
         int is_list_append = 0;
         int is_map_insert = 0;
+        int is_set_add = 0;
+        int is_queue_enqueue = 0;
+        int is_stack_push = 0;
         
         if (strcmp(actual_function_name, "append") == 0) {
             runtime_name = "melp_list_append";
@@ -622,6 +626,71 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
         } else if (strcmp(actual_function_name, "has_key") == 0) {
             runtime_name = "melp_map_has_key";
         }
+        // YZ_213: List extensions
+        else if (strcmp(actual_function_name, "insert_at") == 0) {
+            runtime_name = "melp_list_insert_at";
+        } else if (strcmp(actual_function_name, "find_in_list") == 0) {
+            runtime_name = "melp_list_find";
+        } else if (strcmp(actual_function_name, "sort_list") == 0) {
+            runtime_name = "melp_list_sort";
+        }
+        // YZ_213: Map extensions
+        else if (strcmp(actual_function_name, "map_keys") == 0) {
+            runtime_name = "melp_map_keys";
+        } else if (strcmp(actual_function_name, "map_values") == 0) {
+            runtime_name = "melp_map_values";
+        } else if (strcmp(actual_function_name, "clear_map") == 0) {
+            runtime_name = "melp_map_clear";
+        }
+        // YZ_213: Set operations
+        else if (strcmp(actual_function_name, "create_set") == 0) {
+            runtime_name = "melp_set_create";
+        } else if (strcmp(actual_function_name, "add_to_set") == 0) {
+            runtime_name = "melp_set_add";
+            is_set_add = 1;  // Needs i64->i8* conversion for item
+        } else if (strcmp(actual_function_name, "set_contains") == 0) {
+            runtime_name = "melp_set_contains";
+        } else if (strcmp(actual_function_name, "remove_from_set") == 0) {
+            runtime_name = "melp_set_remove";
+        } else if (strcmp(actual_function_name, "set_union") == 0) {
+            runtime_name = "melp_set_union";
+        } else if (strcmp(actual_function_name, "set_intersection") == 0) {
+            runtime_name = "melp_set_intersection";
+        } else if (strcmp(actual_function_name, "set_difference") == 0) {
+            runtime_name = "melp_set_difference";
+        } else if (strcmp(actual_function_name, "set_size") == 0) {
+            runtime_name = "melp_set_size";
+        }
+        // YZ_213: Queue operations
+        else if (strcmp(actual_function_name, "create_queue") == 0) {
+            runtime_name = "melp_queue_create";
+        } else if (strcmp(actual_function_name, "enqueue") == 0) {
+            runtime_name = "melp_queue_enqueue";
+            is_queue_enqueue = 1;  // Needs i64->i8* conversion for item
+        } else if (strcmp(actual_function_name, "dequeue") == 0) {
+            runtime_name = "melp_queue_dequeue";
+        } else if (strcmp(actual_function_name, "queue_peek") == 0) {
+            runtime_name = "melp_queue_peek";
+        } else if (strcmp(actual_function_name, "queue_size") == 0) {
+            runtime_name = "melp_queue_size";
+        } else if (strcmp(actual_function_name, "queue_is_empty") == 0) {
+            runtime_name = "melp_queue_is_empty";
+        }
+        // YZ_213: Stack operations
+        else if (strcmp(actual_function_name, "create_stack") == 0) {
+            runtime_name = "melp_stack_create";
+        } else if (strcmp(actual_function_name, "push") == 0) {
+            runtime_name = "melp_stack_push";
+            is_stack_push = 1;  // Needs i64->i8* conversion for item
+        } else if (strcmp(actual_function_name, "pop") == 0) {
+            runtime_name = "melp_stack_pop";
+        } else if (strcmp(actual_function_name, "stack_peek") == 0) {
+            runtime_name = "melp_stack_peek";
+        } else if (strcmp(actual_function_name, "stack_size") == 0) {
+            runtime_name = "melp_stack_size";
+        } else if (strcmp(actual_function_name, "stack_is_empty") == 0) {
+            runtime_name = "melp_stack_is_empty";
+        }
         
         // Generate arguments
         LLVMValue** args = malloc(sizeof(LLVMValue*) * call->arg_count);
@@ -645,6 +714,78 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
                     fprintf(ctx->llvm_ctx->output, ", i64* %s, align 8\n", elem_var);
                     
                     // Cast to i8* for runtime call
+                    LLVMValue* ptr_val = malloc(sizeof(LLVMValue));
+                    ptr_val->name = llvm_new_temp(ctx->llvm_ctx);
+                    ptr_val->is_constant = 0;
+                    ptr_val->type = LLVM_TYPE_I8_PTR;
+                    fprintf(ctx->llvm_ctx->output, "    %s = bitcast i64* %s to i8*\n",
+                            ptr_val->name, elem_var);
+                    llvm_value_free(args[i]);
+                    args[i] = ptr_val;
+                }
+            }
+            
+            // YZ_213: For set add_to_set, convert second argument (item) to pointer
+            if (is_set_add && i == 1) {
+                if (args[i]->type == LLVM_TYPE_I64) {
+                    char* elem_var = llvm_new_temp(ctx->llvm_ctx);
+                    fprintf(ctx->llvm_ctx->output, "    %s = alloca i64, align 8\n", elem_var);
+                    fprintf(ctx->llvm_ctx->output, "    store i64 ");
+                    if (args[i]->is_constant) {
+                        fprintf(ctx->llvm_ctx->output, "%ld", args[i]->const_value);
+                    } else {
+                        fprintf(ctx->llvm_ctx->output, "%s", args[i]->name);
+                    }
+                    fprintf(ctx->llvm_ctx->output, ", i64* %s, align 8\n", elem_var);
+                    
+                    LLVMValue* ptr_val = malloc(sizeof(LLVMValue));
+                    ptr_val->name = llvm_new_temp(ctx->llvm_ctx);
+                    ptr_val->is_constant = 0;
+                    ptr_val->type = LLVM_TYPE_I8_PTR;
+                    fprintf(ctx->llvm_ctx->output, "    %s = bitcast i64* %s to i8*\n",
+                            ptr_val->name, elem_var);
+                    llvm_value_free(args[i]);
+                    args[i] = ptr_val;
+                }
+            }
+            
+            // YZ_213: For queue enqueue, convert second argument (item) to pointer
+            if (is_queue_enqueue && i == 1) {
+                if (args[i]->type == LLVM_TYPE_I64) {
+                    char* elem_var = llvm_new_temp(ctx->llvm_ctx);
+                    fprintf(ctx->llvm_ctx->output, "    %s = alloca i64, align 8\n", elem_var);
+                    fprintf(ctx->llvm_ctx->output, "    store i64 ");
+                    if (args[i]->is_constant) {
+                        fprintf(ctx->llvm_ctx->output, "%ld", args[i]->const_value);
+                    } else {
+                        fprintf(ctx->llvm_ctx->output, "%s", args[i]->name);
+                    }
+                    fprintf(ctx->llvm_ctx->output, ", i64* %s, align 8\n", elem_var);
+                    
+                    LLVMValue* ptr_val = malloc(sizeof(LLVMValue));
+                    ptr_val->name = llvm_new_temp(ctx->llvm_ctx);
+                    ptr_val->is_constant = 0;
+                    ptr_val->type = LLVM_TYPE_I8_PTR;
+                    fprintf(ctx->llvm_ctx->output, "    %s = bitcast i64* %s to i8*\n",
+                            ptr_val->name, elem_var);
+                    llvm_value_free(args[i]);
+                    args[i] = ptr_val;
+                }
+            }
+            
+            // YZ_213: For stack push, convert second argument (item) to pointer
+            if (is_stack_push && i == 1) {
+                if (args[i]->type == LLVM_TYPE_I64) {
+                    char* elem_var = llvm_new_temp(ctx->llvm_ctx);
+                    fprintf(ctx->llvm_ctx->output, "    %s = alloca i64, align 8\n", elem_var);
+                    fprintf(ctx->llvm_ctx->output, "    store i64 ");
+                    if (args[i]->is_constant) {
+                        fprintf(ctx->llvm_ctx->output, "%ld", args[i]->const_value);
+                    } else {
+                        fprintf(ctx->llvm_ctx->output, "%s", args[i]->name);
+                    }
+                    fprintf(ctx->llvm_ctx->output, ", i64* %s, align 8\n", elem_var);
+                    
                     LLVMValue* ptr_val = malloc(sizeof(LLVMValue));
                     ptr_val->name = llvm_new_temp(ctx->llvm_ctx);
                     ptr_val->is_constant = 0;

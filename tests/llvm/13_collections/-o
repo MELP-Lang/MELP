@@ -1,0 +1,122 @@
+; MELP Program - Generated LLVM IR
+; Compiler: MELP Stage 0 with LLVM Backend
+; Date: 13 Aralık 2025
+
+; Type definitions
+%sto_value = type { i8, i64 }
+
+; MLP Standard Library - I/O Functions
+; void mlp_println_numeric(void* value, uint8_t sto_type)
+declare void @mlp_println_numeric(i8*, i8)
+; void mlp_println_string(const char* str)
+declare void @mlp_println_string(i8*)
+
+; C Standard Library - Memory Allocation
+; void* malloc(size_t size)
+declare i8* @malloc(i64)
+
+; MLP Standard Library - Memory Management (YZ_210)
+; void* rc_malloc(size_t size)
+declare i8* @rc_malloc(i64)
+; void rc_retain(void* ptr)
+declare void @rc_retain(i8*)
+; void rc_release(void* ptr)
+declare void @rc_release(i8*)
+; size_t rc_get_count(void* ptr)
+declare i64 @rc_get_count(i8*)
+; void rc_set_destructor(void* ptr, void (*destructor)(void*))
+declare void @rc_set_destructor(i8*, i8*)
+
+; MLP Standard Library - List Functions (YZ_200)
+; MelpList* melp_list_create(size_t element_size)
+declare i8* @melp_list_create(i64)
+; int melp_list_append(MelpList* list, void* element)
+declare i32 @melp_list_append(i8*, i8*)
+; int melp_list_prepend(MelpList* list, void* element)
+declare i32 @melp_list_prepend(i8*, i8*)
+; size_t melp_list_length(MelpList* list)
+declare i64 @melp_list_length(i8*)
+; void* melp_list_get(MelpList* list, size_t index)
+declare i8* @melp_list_get(i8*, i64)
+; int melp_list_set(MelpList* list, size_t index, void* element)
+declare i32 @melp_list_set(i8*, i64, i8*)
+
+; MLP Standard Library - Map Functions (YZ_201)
+; MelpMap* melp_map_create(size_t value_size)
+declare i8* @melp_map_create(i64)
+; int melp_map_insert(MelpMap* map, const char* key, const void* value)
+declare i32 @melp_map_insert(i8*, i8*, i8*)
+; void* melp_map_get(MelpMap* map, const char* key)
+declare i8* @melp_map_get(i8*, i8*)
+; int melp_map_remove(MelpMap* map, const char* key)
+declare i32 @melp_map_remove(i8*, i8*)
+; int melp_map_has_key(MelpMap* map, const char* key)
+declare i32 @melp_map_has_key(i8*, i8*)
+; size_t melp_map_length(MelpMap* map)
+declare i64 @melp_map_length(i8*)
+; void melp_map_clear(MelpMap* map)
+declare void @melp_map_clear(i8*)
+; List* melp_map_keys(MelpMap* map)
+declare i8* @melp_map_keys(i8*)
+; List* melp_map_values(MelpMap* map)
+declare i8* @melp_map_values(i8*)
+
+; MLP Collections Library - Set Functions (YZ_213)
+; Set* melp_set_create()
+declare i8* @melp_set_create()
+; void melp_set_add(Set* set, void* item)
+declare void @melp_set_add(i8*, i8*)
+; int melp_set_contains(Set* set, void* item)
+declare i32 @melp_set_contains(i8*, i8*)
+; void melp_set_remove(Set* set, void* item)
+declare void @melp_set_remove(i8*, i8*)
+; size_t melp_set_size(Set* set)
+declare i64 @melp_set_size(i8*)
+; Set* melp_set_union(Set* a, Set* b)
+declare i8* @melp_set_union(i8*, i8*)
+; Set* melp_set_intersection(Set* a, Set* b)
+declare i8* @melp_set_intersection(i8*, i8*)
+; Set* melp_set_difference(Set* a, Set* b)
+declare i8* @melp_set_difference(i8*, i8*)
+
+; MLP Collections Library - Queue Functions (YZ_213)
+; Queue* melp_queue_create()
+declare i8* @melp_queue_create()
+; void melp_queue_enqueue(Queue* queue, void* item)
+declare void @melp_queue_enqueue(i8*, i8*)
+; void* melp_queue_dequeue(Queue* queue)
+declare i8* @melp_queue_dequeue(i8*)
+; void* melp_queue_peek(Queue* queue)
+declare i8* @melp_queue_peek(i8*)
+; size_t melp_queue_size(Queue* queue)
+declare i64 @melp_queue_size(i8*)
+; int melp_queue_is_empty(Queue* queue)
+declare i32 @melp_queue_is_empty(i8*)
+
+; MLP Collections Library - Stack Functions (YZ_213)
+; Stack* melp_stack_create()
+declare i8* @melp_stack_create()
+; void melp_stack_push(Stack* stack, void* item)
+declare void @melp_stack_push(i8*, i8*)
+; void* melp_stack_pop(Stack* stack)
+declare i8* @melp_stack_pop(i8*)
+; void* melp_stack_peek(Stack* stack)
+declare i8* @melp_stack_peek(i8*)
+; size_t melp_stack_size(Stack* stack)
+declare i64 @melp_stack_size(i8*)
+; int melp_stack_is_empty(Stack* stack)
+declare i32 @melp_stack_is_empty(i8*)
+
+; MLP Collections Library - List Extensions (YZ_213)
+; int melp_list_insert_at(MelpList* list, size_t index, void* element)
+declare i32 @melp_list_insert_at(i8*, i64, i8*)
+; int melp_list_find(MelpList* list, void* element)
+declare i64 @melp_list_find(i8*, i8*)
+; void melp_list_sort(MelpList* list)
+declare void @melp_list_sort(i8*)
+
+
+; Function: test_set
+define i64 @test_set() {
+entry:
+}
