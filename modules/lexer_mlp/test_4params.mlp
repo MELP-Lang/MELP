@@ -1,4 +1,4 @@
-function test4(numeric a, numeric b, numeric c, numeric d) returns numeric
+function test4(numeric a; numeric b; numeric c; numeric d) returns numeric
     return a + b + c + d
 end function
 

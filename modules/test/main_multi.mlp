@@ -6,7 +6,7 @@ function square(numeric x) returns numeric
     return 0  -- stub
 end_function
 
-function sum_of_squares(numeric a, numeric b) returns numeric
+function sum_of_squares(numeric a; numeric b) returns numeric
     return 0  -- stub
 end_function
 

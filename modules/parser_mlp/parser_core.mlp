@@ -42,12 +42,12 @@ function main() returns numeric
     
     -- Test 1: Simple function with expression
     println("Test 1: Parse function with arithmetic expression")
-    println("Code: function add(numeric a, numeric b) returns numeric")
+    println("Code: function add(numeric a; numeric b) returns numeric")
     println("        return a + b")
     println("      end function")
     println("")
     
-    -- Tokens for: function add(numeric a, numeric b) returns numeric
+    -- Tokens for: function add(numeric a; numeric b) returns numeric
     --                return a + b
     --              end function
     list tok1 = [T_FUNCTION, "function", 1, 1]

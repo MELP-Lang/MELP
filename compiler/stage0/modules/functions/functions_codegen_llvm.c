@@ -109,10 +109,22 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
     
     ArithmeticExpr* arith = (ArithmeticExpr*)expr;
     
+    // YZ_07: Handle collection literals (list, array, tuple) FIRST
+    if (arith->is_collection && arith->collection) {
+        // For now, return empty list (0 pointer)
+        // TODO: Proper collection allocation and initialization
+        return llvm_const_i64(0);
+    }
+    
     // Handle literals
     if (arith->is_literal) {
+        // YZ_07: If value is NULL, return 0 (likely collection or uninitialized)
+        if (!arith->value) {
+            return llvm_const_i64(0);
+        }
+        
         // YZ_64: Handle string literals
-        if (arith->is_string && arith->value) {
+        if (arith->is_string) {
             // Register string global and get global name
             char* global_name = llvm_emit_string_global(ctx->llvm_ctx, arith->value);
             

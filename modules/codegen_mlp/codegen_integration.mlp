@@ -30,7 +30,7 @@
 
 -- Dispatch expression codegen based on expression type
 -- Types: LITERAL, VARIABLE, BINARY_OP, UNARY_OP, CALL, INDEX
-function codegen_expression(expr_type, result_reg, data1, data2, data3) returns numeric
+function codegen_expression(expr_type; result_reg; data1; data2; data3) returns numeric
     -- expr_type values:
     -- 1 = LITERAL (numeric, string, boolean)
     -- 2 = VARIABLE (load from variable)
@@ -111,7 +111,7 @@ end_function
 
 -- Dispatch statement codegen based on statement type
 -- Types: VAR_DECL, ASSIGN, PRINT, RETURN, IF, WHILE, FOR
-function codegen_statement(stmt_type, data1, data2, data3, data4) returns numeric
+function codegen_statement(stmt_type; data1; data2; data3; data4) returns numeric
     -- stmt_type values:
     -- 1 = VAR_DECL (variable declaration)
     -- 2 = ASSIGN (assignment)
@@ -202,7 +202,7 @@ end_function
 -- ============================================================================
 
 -- Generate complete function with body
-function codegen_complete_function(func_name, param_name, has_param) returns numeric
+function codegen_complete_function(func_name; param_name; has_param) returns numeric
     -- Function header
     if has_param == 1 then
         println("define i64 @" + func_name + "(i64 %" + param_name + ") {")

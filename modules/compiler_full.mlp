@@ -12,14 +12,14 @@
 -- PART 1: COMPILATION PIPELINE (from compiler_integration.mlp)
 -- ============================================================================
 
-function report_error(string phase, string message) returns numeric
+function report_error(string phase; string message) returns numeric
     println("[ERROR] Compilation error occurred")
     println(phase)
     println(message)
     return 1
 end_function
 
-function report_warning(string phase, string message) returns numeric
+function report_warning(string phase; string message) returns numeric
     println("[WARNING] Compilation warning")
     println(phase)
     println(message)
@@ -198,7 +198,7 @@ function read_source_file(string filename) returns string
     return "function main() returns numeric return 0 end_function"
 end_function
 
-function write_output_file(string filename, string content) returns numeric
+function write_output_file(string filename; string content) returns numeric
     println("[INFO] Writing file:")
     println(filename)
     println("")
@@ -237,7 +237,7 @@ end_function
 -- MAIN COMPILATION DRIVER
 -- ============================================================================
 
-function compile_file(string input_file, string output_file) returns numeric
+function compile_file(string input_file; string output_file) returns numeric
     println("")
     println("========================================")
     println("  MELP Compiler - Compilation")

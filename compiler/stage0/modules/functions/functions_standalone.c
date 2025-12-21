@@ -27,6 +27,9 @@ typedef enum {
     BACKEND_LLVM
 } BackendType;
 
+// Global backend selection (YZ_07: expose for array_codegen.c)
+BackendType backend = BACKEND_LLVM;
+
 // Read entire file into string
 static char* read_file(const char* path) {
     FILE* f = fopen(path, "r");
@@ -50,7 +53,6 @@ static char* read_file(const char* path) {
 }
 
 int main(int argc, char** argv) {
-    BackendType backend = BACKEND_LLVM;  // Default: LLVM (YZ_04)
     const char* input_file = NULL;
     const char* output_file = NULL;
     

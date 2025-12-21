@@ -25,7 +25,7 @@
 --
 -- Output:
 --   %arr = alloca [10 x i64]
-function codegen_array_alloc(array_name, element_type, size) returns numeric
+function codegen_array_alloc(array_name; element_type; size) returns numeric
     -- Build array type: [size x element_type]
     string array_type = "[" + str(size) + " x " + element_type + "]"
     
@@ -41,7 +41,7 @@ end_function
 --
 -- Note: For simplicity, this version uses fixed size
 -- Real implementation would call malloc
-function codegen_array_alloc_dynamic(array_name, element_type, size_reg) returns numeric
+function codegen_array_alloc_dynamic(array_name; element_type; size_reg) returns numeric
     -- For now, use fixed size approach
     -- TODO: Implement dynamic allocation with malloc
     println("  %" + array_name + " = alloca [100 x " + element_type + "]  ; dynamic size not yet supported")
@@ -59,7 +59,7 @@ end_function
 --
 -- Output:
 --   %1 = getelementptr [10 x i64], [10 x i64]* %arr, i64 0, i64 5
-function codegen_array_index_ptr(result_reg, array_name, array_size, element_type, index) returns numeric
+function codegen_array_index_ptr(result_reg; array_name; array_size; element_type; index) returns numeric
     -- Build array type
     string array_type = "[" + str(array_size) + " x " + element_type + "]"
     
@@ -77,7 +77,7 @@ end_function
 --
 -- Output:
 --   %1 = getelementptr [10 x i64], [10 x i64]* %arr, i64 0, i64 %i_val
-function codegen_array_index_ptr_var(result_reg, array_name, array_size, element_type, index_reg) returns numeric
+function codegen_array_index_ptr_var(result_reg; array_name; array_size; element_type; index_reg) returns numeric
     -- Build array type
     string array_type = "[" + str(array_size) + " x " + element_type + "]"
     
@@ -98,7 +98,7 @@ end_function
 -- Output:
 --   %1 = getelementptr [10 x i64], [10 x i64]* %arr, i64 0, i64 5
 --   %2 = load i64, i64* %1
-function codegen_array_load_const(result_reg, ptr_reg, array_name, array_size, element_type, index) returns numeric
+function codegen_array_load_const(result_reg; ptr_reg; array_name; array_size; element_type; index) returns numeric
     -- First, get element pointer
     codegen_array_index_ptr(ptr_reg, array_name, array_size, element_type, index)
     
@@ -115,7 +115,7 @@ end_function
 -- Output:
 --   %1 = getelementptr [10 x i64], [10 x i64]* %arr, i64 0, i64 %i_val
 --   %2 = load i64, i64* %1
-function codegen_array_load_var(result_reg, ptr_reg, array_name, array_size, element_type, index_reg) returns numeric
+function codegen_array_load_var(result_reg; ptr_reg; array_name; array_size; element_type; index_reg) returns numeric
     -- First, get element pointer
     codegen_array_index_ptr_var(ptr_reg, array_name, array_size, element_type, index_reg)
     
@@ -136,7 +136,7 @@ end_function
 -- Output:
 --   %1 = getelementptr [10 x i64], [10 x i64]* %arr, i64 0, i64 5
 --   store i64 42, i64* %1
-function codegen_array_store_const(ptr_reg, array_name, array_size, element_type, index, value) returns numeric
+function codegen_array_store_const(ptr_reg; array_name; array_size; element_type; index; value) returns numeric
     -- First, get element pointer
     codegen_array_index_ptr(ptr_reg, array_name, array_size, element_type, index)
     
@@ -153,7 +153,7 @@ end_function
 -- Output:
 --   %1 = getelementptr [10 x i64], [10 x i64]* %arr, i64 0, i64 %i_val
 --   store i64 %value, i64* %1
-function codegen_array_store_var(ptr_reg, array_name, array_size, element_type, index_reg, value_reg) returns numeric
+function codegen_array_store_var(ptr_reg; array_name; array_size; element_type; index_reg; value_reg) returns numeric
     -- First, get element pointer
     codegen_array_index_ptr_var(ptr_reg, array_name, array_size, element_type, index_reg)
     
@@ -173,7 +173,7 @@ end_function
 --
 -- Output:
 --   %matrix = alloca [3 x [4 x i64]]
-function codegen_array_2d_alloc(array_name, element_type, rows, cols) returns numeric
+function codegen_array_2d_alloc(array_name; element_type; rows; cols) returns numeric
     -- Simplified version - print type directly without complex concat
     println("  %" + array_name + " = alloca [3 x [4 x i64]]  ; 2D array")
     
@@ -187,7 +187,7 @@ end_function
 -- Output:
 --   %1 = getelementptr [3 x [4 x i64]], [3 x [4 x i64]]* %matrix, i64 0, i64 1
 --   %2 = getelementptr [4 x i64], [4 x i64]* %1, i64 0, i64 2
-function codegen_array_2d_index_ptr(res_reg1, res_reg2, array_name, rows, cols, element_type, row_idx, col_idx) returns numeric
+function codegen_array_2d_index_ptr(res_reg1; res_reg2; array_name; rows; cols; element_type; row_idx; col_idx) returns numeric
     -- Simplified version - hardcoded for demo
     println("  " + res_reg1 + " = getelementptr [3 x [4 x i64]], [3 x [4 x i64]]* %" + array_name + ", i64 0, i64 " + row_idx)
     println("  " + res_reg2 + " = getelementptr [4 x i64], [4 x i64]* " + res_reg1 + ", i64 0, i64 " + col_idx)
@@ -202,7 +202,7 @@ end_function
 -- Output:
 --   (GEP instructions from above)
 --   %3 = load i64, i64* %2
-function codegen_array_2d_load(result_reg, ptr_reg1, ptr_reg2, array_name, rows, cols, element_type, row_idx, col_idx) returns numeric
+function codegen_array_2d_load(result_reg; ptr_reg1; ptr_reg2; array_name; rows; cols; element_type; row_idx; col_idx) returns numeric
     -- First, get element pointer
     codegen_array_2d_index_ptr(ptr_reg1, ptr_reg2, array_name, rows, cols, element_type, row_idx, col_idx)
     
@@ -219,7 +219,7 @@ end_function
 -- Output:
 --   (GEP instructions)
 --   store i64 42, i64* %2
-function codegen_array_2d_store(ptr_reg1, ptr_reg2, array_name, rows, cols, element_type, row_idx, col_idx, value) returns numeric
+function codegen_array_2d_store(ptr_reg1; ptr_reg2; array_name; rows; cols; element_type; row_idx; col_idx; value) returns numeric
     -- First, get element pointer
     codegen_array_2d_index_ptr(ptr_reg1, ptr_reg2, array_name, rows, cols, element_type, row_idx, col_idx)
     
@@ -245,7 +245,7 @@ end_function
 --   store i64 20, i64* %2
 --   %3 = getelementptr [3 x i64], [3 x i64]* %arr, i64 0, i64 2
 --   store i64 30, i64* %3
-function codegen_array_init_values(array_name, element_type, size, val1, val2, val3) returns numeric
+function codegen_array_init_values(array_name; element_type; size; val1; val2; val3) returns numeric
     -- First, allocate the array
     codegen_array_alloc(array_name, element_type, size)
     
@@ -270,7 +270,7 @@ end_function
 --   %arr = alloca [10 x i64]
 --   %1 = bitcast [10 x i64]* %arr to i8*
 --   call void @llvm.memset.p0i8.i64(i8* %1, i8 0, i64 80, i1 false)
-function codegen_array_zero_init(array_name, element_type, size) returns numeric
+function codegen_array_zero_init(array_name; element_type; size) returns numeric
     -- Allocate array
     codegen_array_alloc(array_name, element_type, size)
     

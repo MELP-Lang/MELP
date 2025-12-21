@@ -59,7 +59,7 @@ function is_pointer_type(string melp_type) returns numeric
 end_function
 
 -- Get LLVM comparison operator for type
-function get_cmp_op(string melp_type, string op) returns string
+function get_cmp_op(string melp_type; string op) returns string
     -- For numeric types
     if melp_type == "numeric" then
         if op == "==" then

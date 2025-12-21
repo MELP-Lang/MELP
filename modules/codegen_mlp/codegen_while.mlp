@@ -48,7 +48,7 @@
 --   br label %while_header_0
 -- while_end_0:
 --   ; continue
-function codegen_while_simple(cond_result, loop_id) returns numeric
+function codegen_while_simple(cond_result; loop_id) returns numeric
     -- Generate unconditional branch to loop header
     println("  br label %while_header_" + loop_id)
     println("")
@@ -86,7 +86,7 @@ end_function
 --   while count < 10 do
 --       count = count + 1
 --   end_while
-function codegen_while_counter(var_name, limit, loop_id) returns numeric
+function codegen_while_counter(var_name; limit; loop_id) returns numeric
     -- Generate unconditional branch to loop header
     println("  br label %while_header_" + loop_id)
     println("")
@@ -131,7 +131,7 @@ end_function
 --       end_while
 --       i = i + 1
 --   end_while
-function codegen_while_nested(outer_var, outer_limit, inner_var, inner_limit, outer_id, inner_id) returns numeric
+function codegen_while_nested(outer_var; outer_limit; inner_var; inner_limit; outer_id; inner_id) returns numeric
     -- Outer loop header
     println("  br label %while_header_" + outer_id)
     println("")
@@ -190,7 +190,7 @@ end_function
 -- Generate IR for loop condition evaluation
 -- This is a placeholder that shows the expected interface
 -- Real implementation would call codegen_comparison functions
-function codegen_loop_condition(var_name, op, limit_val, cond_id) returns string
+function codegen_loop_condition(var_name; op; limit_val; cond_id) returns string
     -- For now, return a fixed condition result register
     -- In real implementation, this would:
     -- 1. Load the variable

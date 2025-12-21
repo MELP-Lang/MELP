@@ -209,14 +209,14 @@ function main() returns numeric
     -- Test 3: Function with multiple parameters
     -- ========================================================================
     println("Test 3: Function with multiple parameters")
-    println("Code: function add(numeric a, numeric b) returns numeric")
+    println("Code: function add(numeric a; numeric b) returns numeric")
     println("        numeric result = 0")
     println("        result = a + b")
     println("        return result")
     println("      end function")
     println("")
     
-    -- Tokens: function add ( numeric a , numeric b ) returns numeric ...
+    -- Tokens: function add ( numeric a ; numeric b ) returns numeric ...
     list tok3_1 = [T_FUNCTION, "function", 1, 1]
     list tok3_2 = [T_ID, "add", 1, 10]
     list tok3_3 = [T_LPAREN, "(", 1, 13]
@@ -351,7 +351,7 @@ function main() returns numeric
     -- Test 4: Function with control flow
     -- ========================================================================
     println("Test 4: Function with control flow (if-else)")
-    println("Code: function max(numeric a, numeric b) returns numeric")
+    println("Code: function max(numeric a; numeric b) returns numeric")
     println("        if a > b then")
     println("          return a")
     println("        else")
@@ -361,7 +361,7 @@ function main() returns numeric
     println("      end function")
     println("")
     
-    -- Tokens: function max ( numeric a , numeric b ) returns numeric ...
+    -- Tokens: function max ( numeric a ; numeric b ) returns numeric ...
     list tok4_1 = [T_FUNCTION, "function", 1, 1]
     list tok4_2 = [T_ID, "max", 1, 10]
     list tok4_3 = [T_LPAREN, "(", 1, 13]

@@ -188,7 +188,7 @@ function main() returns numeric
     -- Test 4: Function with Parameters
     -- ========================================================================
     println("Test 4: Function Declaration")
-    println("Code: function add(numeric a, numeric b) returns numeric")
+    println("Code: function add(numeric a; numeric b) returns numeric")
     println("        return a + b")
     println("      end function")
     println("")

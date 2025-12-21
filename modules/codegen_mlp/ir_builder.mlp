@@ -15,7 +15,7 @@ function emit_module_header() returns numeric
 end_function
 
 -- Emit function start
-function emit_function_start(string func_name, string return_type) returns numeric
+function emit_function_start(string func_name; string return_type) returns numeric
     string func_line = "define " + return_type + " @" + func_name + "() {"
     println(func_line)
     return 1
@@ -41,63 +41,63 @@ function emit_instr(string instruction) returns numeric
 end_function
 
 -- Emit alloca instruction
-function emit_alloca_instr(string var_name, string var_type) returns numeric
+function emit_alloca_instr(string var_name; string var_type) returns numeric
     string instr = "%" + var_name + " = alloca " + var_type
     emit_instr(instr)
     return 1
 end_function
 
 -- Emit store instruction  
-function emit_store_instr(string value, string value_type, string ptr_name) returns numeric
+function emit_store_instr(string value; string value_type; string ptr_name) returns numeric
     string instr = "store " + value_type + " " + value + ", " + value_type + "* %" + ptr_name
     emit_instr(instr)
     return 1
 end_function
 
 -- Emit load instruction
-function emit_load_instr(string result, string var_type, string ptr_name) returns numeric
+function emit_load_instr(string result; string var_type; string ptr_name) returns numeric
     string instr = "%" + result + " = load " + var_type + ", " + var_type + "* %" + ptr_name
     emit_instr(instr)
     return 1
 end_function
 
 -- Emit add instruction
-function emit_add_instr(string result, string left, string right) returns numeric
+function emit_add_instr(string result; string left; string right) returns numeric
     string instr = "%" + result + " = add i64 " + left + ", " + right
     emit_instr(instr)
     return 1
 end_function
 
 -- Emit sub instruction
-function emit_sub_instr(string result, string left, string right) returns numeric
+function emit_sub_instr(string result; string left; string right) returns numeric
     string instr = "%" + result + " = sub i64 " + left + ", " + right
     emit_instr(instr)
     return 1
 end_function
 
 -- Emit mul instruction
-function emit_mul_instr(string result, string left, string right) returns numeric
+function emit_mul_instr(string result; string left; string right) returns numeric
     string instr = "%" + result + " = mul i64 " + left + ", " + right
     emit_instr(instr)
     return 1
 end_function
 
 -- Emit div instruction
-function emit_div_instr(string result, string left, string right) returns numeric
+function emit_div_instr(string result; string left; string right) returns numeric
     string instr = "%" + result + " = sdiv i64 " + left + ", " + right
     emit_instr(instr)
     return 1
 end_function
 
 -- Emit comparison instruction
-function emit_cmp_instr(string result, string condition, string left, string right) returns numeric
+function emit_cmp_instr(string result; string condition; string left; string right) returns numeric
     string instr = "%" + result + " = icmp " + condition + " i64 " + left + ", " + right
     emit_instr(instr)
     return 1
 end_function
 
 -- Emit return instruction
-function emit_ret_instr(string return_type, string value) returns numeric
+function emit_ret_instr(string return_type; string value) returns numeric
     string instr = "ret " + return_type + " " + value
     emit_instr(instr)
     return 1
@@ -111,7 +111,7 @@ function emit_br_instr(string label) returns numeric
 end_function
 
 -- Emit conditional branch
-function emit_br_cond_instr(string condition, string true_label, string false_label) returns numeric
+function emit_br_cond_instr(string condition; string true_label; string false_label) returns numeric
     string instr = "br i1 %" + condition + ", label %" + true_label + ", label %" + false_label
     emit_instr(instr)
     return 1
@@ -123,7 +123,7 @@ function gen_temp_name(numeric counter) returns string
 end_function
 
 -- Generate label name
-function gen_label_name(string base, numeric counter) returns string
+function gen_label_name(string base; numeric counter) returns string
     return base + str(counter)
 end_function
 

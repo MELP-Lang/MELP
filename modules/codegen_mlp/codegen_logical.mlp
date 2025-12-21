@@ -22,7 +22,7 @@
 -- Generate IR for logical AND (simple version without short-circuit)
 -- Input: left_val, right_val (i1 boolean values)
 -- Output: Result register (i1 boolean)
-function codegen_and_simple(left_val, right_val) returns string
+function codegen_and_simple(left_val; right_val) returns string
     string result_reg = "%and"
     -- and i1 left_val, right_val
     string instr = "  " + result_reg + " = and i1 " + left_val + ", " + right_val
@@ -33,7 +33,7 @@ end_function
 -- Generate IR for logical OR (simple version without short-circuit)
 -- Input: left_val, right_val (i1 boolean values)
 -- Output: Result register (i1 boolean)
-function codegen_or_simple(left_val, right_val) returns string
+function codegen_or_simple(left_val; right_val) returns string
     string result_reg = "%or"
     -- or i1 left_val, right_val
     string instr = "  " + result_reg + " = or i1 " + left_val + ", " + right_val
@@ -59,7 +59,7 @@ end_function
 -- Logical AND with i64 operands (MELP uses numeric for boolean)
 -- Input: left_val, right_val (i64 values, 0=false, non-zero=true)
 -- Output: Result register (i64, 0 or 1)
-function codegen_and_i64(left_val, right_val) returns string
+function codegen_and_i64(left_val; right_val) returns string
     -- Convert both to i1
     string left_bool = "%left_bool"
     string instr1 = "  " + left_bool + " = icmp ne i64 " + left_val + ", 0"
@@ -83,7 +83,7 @@ end_function
 -- Logical OR with i64 operands
 -- Input: left_val, right_val (i64 values, 0=false, non-zero=true)
 -- Output: Result register (i64, 0 or 1)
-function codegen_or_i64(left_val, right_val) returns string
+function codegen_or_i64(left_val; right_val) returns string
     -- Convert both to i1
     string left_bool = "%left_bool"
     string instr1 = "  " + left_bool + " = icmp ne i64 " + left_val + ", 0"
@@ -135,7 +135,7 @@ end_function
 --   - right_val: LLVM IR value (right operand, i64) - unused for NOT
 --   - use_i64: 1 = use i64 operations, 0 = use i1 operations
 -- Output: Result register
-function codegen_logical(operator, left_val, right_val, use_i64) returns string
+function codegen_logical(operator; left_val; right_val; use_i64) returns string
     string result = ""
     
     if use_i64 == 1 then

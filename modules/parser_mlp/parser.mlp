@@ -140,7 +140,7 @@ function parser_error(string message) returns numeric
     return 0
 end_function
 
-function unexpected_token_error(numeric expected, numeric got) returns numeric
+function unexpected_token_error(numeric expected; numeric got) returns numeric
     print("Unexpected token: expected type ")
     print(str(expected))
     print(", got ")
@@ -775,7 +775,7 @@ function main() returns numeric
     println("")
     
     -- Create test tokens for a simple program
-    -- Program: function add(numeric a, numeric b) returns numeric
+    -- Program: function add(numeric a; numeric b) returns numeric
     --            return a + b
     --          end function
     

@@ -30,7 +30,7 @@
 --   entry:
 --     ret i64 0
 --   }
-function codegen_func_no_params(func_name, return_type) returns numeric
+function codegen_func_no_params(func_name; return_type) returns numeric
     -- Function signature
     println("define " + return_type + " @" + func_name + "() {")
     
@@ -66,7 +66,7 @@ end_function
 --     %3 = mul i64 %1, %2
 --     ret i64 %3
 --   }
-function codegen_func_one_param(func_name, return_type, param_type, param_name) returns numeric
+function codegen_func_one_param(func_name; return_type; param_type; param_name) returns numeric
     -- Function signature with parameter
     println("define " + return_type + " @" + func_name + "(" + param_type + " %" + param_name + ") {")
     
@@ -92,7 +92,7 @@ end_function
 
 -- Generate IR for function declaration (two parameters)
 -- Example:
---   function add(numeric a, numeric b) returns numeric
+--   function add(numeric a; numeric b) returns numeric
 --     return a + b
 --   end_function
 --
@@ -108,7 +108,7 @@ end_function
 --     %3 = add i64 %1, %2
 --     ret i64 %3
 --   }
-function codegen_func_two_params(func_name, ret_type, p1_type, p1_name, p2_type, p2_name) returns numeric
+function codegen_func_two_params(func_name; ret_type; p1_type; p1_name; p2_type; p2_name) returns numeric
     -- Function signature with two parameters
     string params = p1_type + " %" + p1_name + ", " + p2_type + " %" + p2_name
     println("define " + ret_type + " @" + func_name + "(" + params + ") {")
@@ -139,10 +139,10 @@ end_function
 
 -- Generate IR for function declaration (three parameters)
 -- Example:
---   function sum3(numeric a, numeric b, numeric c) returns numeric
+--   function sum3(numeric a; numeric b; numeric c) returns numeric
 --     return a + b + c
 --   end_function
-function codegen_func_three_params(func_name, ret_type, p1_type, p1_name, p2_type, p2_name, p3_type, p3_name) returns numeric
+function codegen_func_three_params(func_name; ret_type; p1_type; p1_name; p2_type; p2_name; p3_type; p3_name) returns numeric
     -- Function signature with three parameters
     string params = p1_type + " %" + p1_name + ", " + p2_type + " %" + p2_name + ", " + p3_type + " %" + p3_name
     println("define " + ret_type + " @" + func_name + "(" + params + ") {")
@@ -182,7 +182,7 @@ end_function
 -- Generate IR for return statement (literal value)
 -- Example: return 42
 -- Output: ret i64 42
-function codegen_return_literal(return_type, value) returns numeric
+function codegen_return_literal(return_type; value) returns numeric
     println("  ret " + return_type + " " + value)
     return 1
 end_function
@@ -192,7 +192,7 @@ end_function
 -- Output: 
 --   %1 = load i64, i64* %x
 --   ret i64 %1
-function codegen_return_var(return_type, var_name, temp_counter) returns numeric
+function codegen_return_var(return_type; var_name; temp_counter) returns numeric
     -- Load the variable value
     string temp_name = "%tmp" + str(temp_counter)
     println("  " + temp_name + " = load " + return_type + ", " + return_type + "* %" + var_name)
@@ -206,7 +206,7 @@ end_function
 -- Generate IR for return statement (expression result)
 -- Example: return x + y
 -- Output: ret i64 %3  (where %3 is the expression result)
-function codegen_return_expr(return_type, expr_result) returns numeric
+function codegen_return_expr(return_type; expr_result) returns numeric
     println("  ret " + return_type + " " + expr_result)
     return 1
 end_function
@@ -218,7 +218,7 @@ end_function
 -- Generate IR for function call (no arguments)
 -- Example: result = foo()
 -- Output: %1 = call i64 @foo()
-function codegen_call_no_args(result_reg, return_type, func_name) returns numeric
+function codegen_call_no_args(result_reg; return_type; func_name) returns numeric
     println("  " + result_reg + " = call " + return_type + " @" + func_name + "()")
     return 1
 end_function
@@ -226,7 +226,7 @@ end_function
 -- Generate IR for function call (one argument)
 -- Example: result = square(5)
 -- Output: %1 = call i64 @square(i64 5)
-function codegen_call_one_arg(result_reg, return_type, func_name, arg_type, arg_value) returns numeric
+function codegen_call_one_arg(result_reg; return_type; func_name; arg_type; arg_value) returns numeric
     println("  " + result_reg + " = call " + return_type + " @" + func_name + "(" + arg_type + " " + arg_value + ")")
     return 1
 end_function
@@ -237,7 +237,7 @@ end_function
 --   %1 = load i64, i64* %x
 --   %2 = load i64, i64* %y
 --   %3 = call i64 @add(i64 %1, i64 %2)
-function codegen_call_two_args(result_reg, ret_type, func_name, a1_type, a1_val, a2_type, a2_val) returns numeric
+function codegen_call_two_args(result_reg; ret_type; func_name; a1_type; a1_val; a2_type; a2_val) returns numeric
     string args = a1_type + " " + a1_val + ", " + a2_type + " " + a2_val
     println("  " + result_reg + " = call " + ret_type + " @" + func_name + "(" + args + ")")
     return 1
@@ -245,7 +245,7 @@ end_function
 
 -- Generate IR for function call (three arguments)
 -- Example: result = sum3(a, b, c)
-function codegen_call_three_args(res_reg, ret_type, func_name, a1_type, a1_val, a2_type, a2_val, a3_type, a3_val) returns numeric
+function codegen_call_three_args(res_reg; ret_type; func_name; a1_type; a1_val; a2_type; a2_val; a3_type; a3_val) returns numeric
     string args = a1_type + " " + a1_val + ", " + a2_type + " " + a2_val + ", " + a3_type + " " + a3_val
     println("  " + res_reg + " = call " + ret_type + " @" + func_name + "(" + args + ")")
     return 1
@@ -266,7 +266,7 @@ end_function
 -- Generate IR for void function call with arguments
 -- Example: print_number(42)
 -- Output: call void @print_number(i64 42)
-function codegen_call_void_one_arg(func_name, arg_type, arg_value) returns numeric
+function codegen_call_void_one_arg(func_name; arg_type; arg_value) returns numeric
     println("  call void @" + func_name + "(" + arg_type + " " + arg_value + ")")
     return 1
 end_function
@@ -277,12 +277,12 @@ end_function
 
 -- Generate parameter list string for multiple parameters
 -- Used internally for complex function signatures
-function build_param_list(p1_type, p1_name, p2_type, p2_name) returns string
+function build_param_list(p1_type; p1_name; p2_type; p2_name) returns string
     return p1_type + " %" + p1_name + ", " + p2_type + " %" + p2_name
 end_function
 
 -- Generate argument list string for function calls
-function build_arg_list(a1_type, a1_val, a2_type, a2_val) returns string
+function build_arg_list(a1_type; a1_val; a2_type; a2_val) returns string
     return a1_type + " " + a1_val + ", " + a2_type + " " + a2_val
 end_function
 
@@ -303,7 +303,7 @@ end_function
 
 -- Generate complete function with parameter and arithmetic
 -- Example: function double(numeric x) returns numeric return x * 2 end_function
-function codegen_complete_func_arithmetic(func_name, param_name) returns numeric
+function codegen_complete_func_arithmetic(func_name; param_name) returns numeric
     println("define i64 @" + func_name + "(i64 %" + param_name + ") {")
     println("entry:")
     println("  %" + param_name + ".addr = alloca i64")
@@ -352,7 +352,7 @@ function main() returns numeric
     -- Test 3: Function declaration (two parameters)
     -- ========================================================================
     println("Test 3: Function declaration (two parameters)")
-    println("Code: function add(numeric a, numeric b) returns numeric ... end_function")
+    println("Code: function add(numeric a; numeric b) returns numeric ... end_function")
     println("")
     
     codegen_func_two_params("add", "i64", "i64", "a", "i64", "b")
@@ -364,7 +364,7 @@ function main() returns numeric
     -- Test 4: Function declaration (three parameters)
     -- ========================================================================
     println("Test 4: Function declaration (three parameters)")
-    println("Code: function sum3(numeric a, numeric b, numeric c) returns numeric")
+    println("Code: function sum3(numeric a; numeric b; numeric c) returns numeric")
     println("")
     
     codegen_func_three_params("sum3", "i64", "i64", "a", "i64", "b", "i64", "c")

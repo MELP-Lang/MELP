@@ -1,8 +1,8 @@
 -- Token STUB - Stage 0 Compatible
 -- YZ_21: 17 December 2025
 
-function create_token(numeric token_type, string token_value, numeric line_num, numeric col_num) returns list
-    list token = []
+function create_token(numeric token_type; string token_value; numeric line_num; numeric col_num) returns list
+    list token = ()
     return token
 end_function
 

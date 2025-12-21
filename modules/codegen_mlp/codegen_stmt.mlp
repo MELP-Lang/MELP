@@ -1,39 +1,39 @@
 -- Codegen Statement STUB - Stage 0 Compatible
 -- YZ_21: 17 December 2025
 
-function codegen_var_decl_stmt(string var_name, string var_type, string init_value) returns numeric
+function codegen_var_decl_stmt(string var_name; string var_type; string init_value) returns numeric
     return 0
 end_function
 
-function codegen_var_decl_no_init(string var_name, string var_type) returns numeric
+function codegen_var_decl_no_init(string var_name; string var_type) returns numeric
     return 0
 end_function
 
-function codegen_string_var_decl(string var_name, string str_label) returns numeric
+function codegen_string_var_decl(string var_name; string str_label) returns numeric
     return 0
 end_function
 
-function codegen_bool_var_decl(string var_name, numeric bool_value) returns numeric
+function codegen_bool_var_decl(string var_name; numeric bool_value) returns numeric
     return 0
 end_function
 
-function codegen_assignment(string var_name, string value_reg) returns numeric
+function codegen_assignment(string var_name; string value_reg) returns numeric
     return 0
 end_function
 
-function codegen_expr_assignment(string var_name, string value_reg) returns numeric
+function codegen_expr_assignment(string var_name; string value_reg) returns numeric
     return 0
 end_function
 
-function codegen_string_assignment(string var_name, string str_ptr_reg) returns numeric
+function codegen_string_assignment(string var_name; string str_ptr_reg) returns numeric
     return 0
 end_function
 
-function codegen_bool_assignment(string var_name, numeric bool_reg) returns numeric
+function codegen_bool_assignment(string var_name; numeric bool_reg) returns numeric
     return 0
 end_function
 
-function codegen_add_assign(string var_name, string value_reg, numeric temp_counter) returns numeric
+function codegen_add_assign(string var_name; string value_reg; numeric temp_counter) returns numeric
     return 0
 end_function
 

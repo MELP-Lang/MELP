@@ -74,7 +74,7 @@
 --   br label %for_header_0
 -- for_end_0:
 --   ; continue
-function codegen_for_to(var_name, start_val, end_val, loop_id) returns numeric
+function codegen_for_to(var_name; start_val; end_val; loop_id) returns numeric
     -- Variable initialization
     println("  %" + var_name + " = alloca i64")
     println("  store i64 " + start_val + ", i64* %" + var_name)
@@ -141,7 +141,7 @@ end_function
 --   br label %for_header_1
 -- for_end_1:
 --   ; continue
-function codegen_for_downto(var_name, start_val, end_val, loop_id) returns numeric
+function codegen_for_downto(var_name; start_val; end_val; loop_id) returns numeric
     -- Variable initialization
     println("  %" + var_name + " = alloca i64")
     println("  store i64 " + start_val + ", i64* %" + var_name)
@@ -194,7 +194,7 @@ end_function
 --           println(i * j)
 --       end_for
 --   end_for
-function codegen_for_nested_to(outer_var, outer_start, outer_end, 
+function codegen_for_nested_to(outer_var; outer_start; outer_end; 
                                 inner_var, inner_start, inner_end,
                                 outer_id, inner_id) returns numeric
     -- Outer loop initialization
@@ -264,7 +264,7 @@ end_function
 --           println(i + j)
 --       end_for
 --   end_for
-function codegen_for_mixed_nested(outer_var, outer_start, outer_end,
+function codegen_for_mixed_nested(outer_var; outer_start; outer_end,
                                    inner_var, inner_start, inner_end,
                                    outer_id, inner_id) returns numeric
     -- Outer loop (for-to)
@@ -327,7 +327,7 @@ end_function
 --       numeric x = count * 2
 --       println(x)
 --   end_for
-function codegen_for_with_body(var_name, start_val, end_val, loop_id) returns numeric
+function codegen_for_with_body(var_name; start_val; end_val; loop_id) returns numeric
     -- Variable initialization
     println("  %" + var_name + " = alloca i64")
     println("  store i64 " + start_val + ", i64* %" + var_name)

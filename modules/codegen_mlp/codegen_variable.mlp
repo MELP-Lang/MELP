@@ -1,31 +1,31 @@
 -- Codegen Variable STUB - Stage 0 Compatible
 -- YZ_21: 17 December 2025
 
-function codegen_variable_decl(string var_name, string var_type) returns string
+function codegen_variable_decl(string var_name; string var_type) returns string
     return ""
 end_function
 
-function codegen_variable_decl_init(string var_name, string var_type, string init_value) returns string
+function codegen_variable_decl_init(string var_name; string var_type; string init_value) returns string
     return ""
 end_function
 
-function codegen_variable_store(string var_name, string var_type, string value) returns string
+function codegen_variable_store(string var_name; string var_type; string value) returns string
     return ""
 end_function
 
-function codegen_variable_load(string var_name, string var_type) returns string
+function codegen_variable_load(string var_name; string var_type) returns string
     return ""
 end_function
 
-function codegen_variable_ref(string var_name, string var_type, string context) returns string
+function codegen_variable_ref(string var_name; string var_type; string context) returns string
     return ""
 end_function
 
-function codegen_assignment(string var_name, string var_type, string expr_value) returns string
+function codegen_assignment(string var_name; string var_type; string expr_value) returns string
     return ""
 end_function
 
-function codegen_compound_assignment(string var_name, string var_type, string operator, string expr_value) returns string
+function codegen_compound_assignment(string var_name; string var_type; string operator; string expr_value) returns string
     return ""
 end_function
 
