@@ -770,23 +770,26 @@ flags &= 0xFF;
 Modern dillerde standart (JavaScript, Python, Rust). Collection manipulation'ı kolaylaştırır.
 
 **Yapılacaklar:**
-- [ ] Spread operator: `...` (variadic expansion)
-- [ ] Array spread: `[...arr1, 4, 5]`
-- [ ] List spread: `(...list1; 6; 7;)`
-- [ ] Function call spread: `func(...args)`
-- [ ] Destructuring assignment: `(x; y; z) = tuple`
+- [ ] **Spread (keyword-based):** `spread items` ✅ MELP-style
+- [ ] **Spread (symbolic):** `...items` ⚠️ Alternative (less readable)
+- [ ] Array spread: `[spread arr1; 4; 5;]`
+- [ ] List spread: `(spread list1; 6; 7;)`
+- [ ] Function call spread: `func(spread args)`
+- [ ] **Destructuring (keyword-based):** `extract a, b, c from tuple;` ✅ MELP-style
+- [ ] Destructuring (alternative): `(x; y; z) = tuple`
 - [ ] Array destructuring: `[a; b; ...rest] = array`
 - [ ] Struct destructuring: `{name; age} = person`
 
-**Syntax:**
+**Syntax (MELP-Friendly):**
 ```pmpl
--- Spread operator (array)
+-- Spread operator (keyword-based, okunabilir)
 numeric[] arr1 = [1; 2; 3;];
-numeric[] arr2 = [...arr1; 4; 5;];  -- [1; 2; 3; 4; 5]
+numeric[] arr2 = [spread arr1; 4; 5;];  -- ✅ MELP-style keyword
+-- numeric[] arr2 = [...arr1; 4; 5;];  -- ⚠️ Symbolic alternative
 
--- Spread operator (list)
+-- List spread (keyword)
 list data1 = (1; 2; 3;);
-list data2 = (...data1; 4; 5;);     -- (1; 2; 3; 4; 5)
+list data2 = (spread data1; 4; 5;);     -- ✅ Keyword (preferred)
 
 -- Function call spread
 function sum(numeric a; numeric b; numeric c) returns numeric
@@ -794,19 +797,24 @@ function sum(numeric a; numeric b; numeric c) returns numeric
 end_function
 
 numeric[] values = [10; 20; 30;];
-numeric total = sum(...values);      -- sum(10; 20; 30)
+numeric total = sum(spread values);      -- ✅ Keyword
+-- numeric total = sum(...values);       -- ⚠️ Symbolic
 
--- Destructuring (tuple)
+-- Destructuring (keyword-based, düzyazı gibi)
 tuple<numeric; string; boolean> user = <25; "Alice"; true;>;
-(numeric age; string name; boolean active) = user;
--- age = 25, name = "Alice", active = true
+extract age, name, active from user;     -- ✅ MELP-style (recommended)
+-- (numeric age; string name; boolean active) = user;  -- ⚠️ Alternative
 
--- Destructuring with rest
+print(age);    -- 25
+print(name);   -- "Alice"
+print(active); -- true
+
+-- Destructuring with rest (keyword)
 numeric[] numbers = [1; 2; 3; 4; 5;];
-[numeric first; numeric second; ...numeric[] rest] = numbers;
--- first = 1, second = 2, rest = [3; 4; 5]
+extract first, second, rest from numbers;  -- ✅ Keyword
+-- [numeric first; numeric second; ...numeric[] rest] = numbers;  -- ⚠️ Symbolic
 
--- Struct destructuring
+-- Struct destructuring (keyword)
 struct Person
     string name;
     numeric age;
@@ -818,16 +826,24 @@ p.name = "Bob";
 p.age = 30;
 p.city = "NYC";
 
-{string name; numeric age} = p;  -- name = "Bob", age = 30
+extract name, age from p;  -- ✅ MELP-style (recommended)
+-- {string name; numeric age} = p;  -- ⚠️ Alternative
 ```
 
+**⚠️ MELP Prensibi:**
+- `spread items` → ✅ **Tercih edilen** (keyword, okunabilir, düzyazı gibi)
+- `...items` → ⚠️ **Opsiyonel** (symbolic, daha az okunabilir)
+- `extract a, b, c from tuple` → ✅ **MELP-style** (düzyazı gibi)
+- `(a; b; c) = tuple` → ⚠️ **Opsiyonel** (symbolic)
+
 **Dosyalar:**
-- `compiler/stage0/modules/lexer/lexer.c` - `...` token
+- `compiler/stage0/modules/lexer/lexer.c` - `spread`, `extract`, `from` keywords
 - `compiler/stage0/modules/arithmetic/arithmetic_parser.c` - Spread parsing
 - `compiler/stage0/modules/statement/statement_parser.c` - Destructuring
 - Runtime: Array/list expansion utilities
+- `pmlp_kesin_sozdizimi.md` - Syntax (keyword-based priority)
 
-**Referans:** JavaScript spread/destructuring, Python unpacking
+**Referans:** JavaScript spread (but keyword-adapted for MELP readability)
 
 ---
 
