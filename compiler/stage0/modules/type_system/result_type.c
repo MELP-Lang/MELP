@@ -221,29 +221,6 @@ void result_type_free(ResultType* rt) {
     free(rt);
 }
 
-void result_match_free(ResultMatch* match) {
-    if (!match) {
-        return;
-    }
-    
-    // Free result expression
-    if (match->result_expr) {
-        expression_free((Expression*)match->result_expr);
-    }
-    
-    // Free binding names
-    if (match->has_ok_case && match->ok_case.binding_name) {
-        free(match->ok_case.binding_name);
-    }
-    if (match->has_error_case && match->error_case.binding_name) {
-        free(match->error_case.binding_name);
-    }
-    
-    // Note: Don't free body statements here - they're managed by statement system
-    
-    free(match);
-}
-
 // Parse ok() constructor
 // Example: return ok(42)
 void* parse_ok_constructor(Token** tokens, int* index, Type* result_type) {
@@ -514,8 +491,71 @@ ResultMatch* parse_result_match(Token** tokens, int* index) {
     return match;
 }
 
-void* parse_result_propagation(Token** tokens, int* index) {
-    // TODO: Phase 4 - ? operator
-    error_parser(tokens[*index]->line, "? operator not yet implemented");
-    return NULL;
+// Parse ? operator (error propagation)
+// Called AFTER the result expression has been parsed
+// Example: divide(10, 2)?
+//          ^^^^^^^^^^^^^ already parsed, passed as result_expr
+//                       ^ we parse this
+ResultPropagation* parse_result_propagation(Token** tokens, int* index, void* result_expr) {
+    if (!tokens || !index || !result_expr) {
+        return NULL;
+    }
+
+    Token* current = tokens[*index];
+
+    // Expect: ?
+    if (current->type != TOKEN_QUESTION) {
+        error_parser(current->line, "Expected '?' for result propagation");
+        return NULL;
+    }
+    (*index)++;
+
+    // Create propagation structure
+    ResultPropagation* prop = (ResultPropagation*)malloc(sizeof(ResultPropagation));
+    if (!prop) {
+        return NULL;
+    }
+
+    prop->result_expr = result_expr;
+    prop->result_type = NULL;  // Will be filled by type checker
+
+    return prop;
+}
+
+void result_match_free(ResultMatch* match) {
+    if (!match) {
+        return;
+    }
+    
+    // Free result expression
+    if (match->result_expr) {
+        expression_free((Expression*)match->result_expr);
+    }
+    
+    // Free binding names
+    if (match->has_ok_case && match->ok_case.binding_name) {
+        free(match->ok_case.binding_name);
+    }
+    if (match->has_error_case && match->error_case.binding_name) {
+        free(match->error_case.binding_name);
+    }
+    
+    // Note: Don't free body statements here - they're managed by statement system
+    
+    free(match);
+}
+
+void result_propagation_free(ResultPropagation* prop) {
+    if (!prop) {
+        return;
+    }
+    
+    // Free result expression
+    if (prop->result_expr) {
+        expression_free((Expression*)prop->result_expr);
+    }
+    
+    // Note: Don't free result_type - it's managed by type system
+    
+    free(prop);
 }

@@ -67,6 +67,13 @@ typedef struct ResultMatch {
     bool has_error_case;        // Was error case provided?
 } ResultMatch;
 
+// Result propagation expression (? operator)
+// Example: numeric x = divide(10, 2)?
+typedef struct ResultPropagation {
+    void* result_expr;          // Expression* that evaluates to result<T, E>
+    Type* result_type;          // Type of the result<T, E>
+} ResultPropagation;
+
 // Parse result type declaration
 // Example: result<numeric, string>
 ResultType* parse_result_type(Token** tokens, int* index);
@@ -97,15 +104,16 @@ ResultMatch* parse_result_match(Token** tokens, int* index);
 
 // Parse ? operator (error propagation)
 // Example: numeric x = try_divide(10, 2)?
-void* parse_result_propagation(Token** tokens, int* index);
+// Note: This is called AFTER the result expression has been parsed
+ResultPropagation* parse_result_propagation(Token** tokens, int* index, void* result_expr);
 
 // Type checking
 bool result_type_check_ok(Type* result_type, Type* value_type);
 bool result_type_check_error(Type* result_type, Type* error_type);
-
 // Utility
 char* result_type_to_string(ResultType* rt);
 void result_type_free(ResultType* rt);
 void result_match_free(ResultMatch* match);
+void result_propagation_free(ResultPropagation* prop);
 
 #endif
