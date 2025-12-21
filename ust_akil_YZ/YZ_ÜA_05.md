@@ -14,7 +14,7 @@
 2. ✅ Modern dil özellikleri için TODO oluştur
 3. ✅ 66 Stage 1 modülü analiz et ve kullan
 4. ✅ Stage 1 syntax problemini tespit et ve çöz
-5. ✅ YZ_199 görevini oluştur ve görevlendir
+5. ✅ YZ_06 görevini oluştur ve görevlendir
 
 **Durum:** ✅ BAŞARILI - Kritik bloker tespit edildi ve çözüm planı hazırlandı
 
@@ -37,7 +37,7 @@
 ### 2. TODO_MODERN_LANGUAGE.md Oluşturuldu
 
 **İçerik:**
-- **Faz 0:** YZ_199 - Stage 0 List Syntax Support (BLOKER)
+- **Faz 0:** YZ_06 - Stage 0 List Syntax Support (BLOKER)
 - **Faz 1:** YZ_200-203 - List ve Array özellikleri (4 hafta)
 - **Faz 2:** YZ_204-208 - Module System (5 hafta)
 - **Faz 3:** YZ_209-215 - Error Handling (7 hafta)
@@ -46,7 +46,7 @@
 **Toplam:** 25 YZ görevi, 19 hafta (28 Aralık - 28 Nisan 2026)
 
 **Öncelik Matrisi:**
-- 🔴🔴🔴: YZ_199 (BLOKER - 1 hafta)
+- 🔴🔴🔴: YZ_06 (BLOKER - 1 hafta)
 - 🔴🔴: YZ_200, 204, 209, 216 (8 hafta)
 - 🔴: YZ_201-203, 205-208, 210-215, 217-224 (10 hafta)
 
@@ -101,12 +101,12 @@
 - 25 dosya
 - **TÜM Stage 1 bootstrap engellenmiş!**
 
-### 5. Çözüm: YZ_199 Görevi Oluşturuldu
+### 5. Çözüm: YZ_06 Görevi Oluşturuldu
 
 **Görev:** Stage 0 List Syntax Support
 
 **Dosyalar:**
-- `temp/YZ_199_GOREV_OZET.md` (150+ satır detaylı görev brifingi)
+- `temp/YZ_06_GOREV_OZET.md` (150+ satır detaylı görev brifingi)
 - `TODO_MODERN_LANGUAGE.md` Faz 0 bölümü
 
 **Yapılacaklar:**
@@ -144,7 +144,7 @@
 **Stage 1 (Self-hosting):**
 - ⚠️ **ENGELLENMIŞ:** 66 modül var ama derlenemiyor
 - Neden: Stage 0'da list syntax yok
-- Çözüm: YZ_199 tamamlanınca devam edecek
+- Çözüm: YZ_06 tamamlanınca devam edecek
 
 **LLVM Backend (Faz 1):**
 - ✅ YZ_00: LLVM IR alt yapı
@@ -155,12 +155,12 @@
 
 ### 🚨 Kritik Bloker
 
-**YZ_199: Stage 0 List Syntax Support (1 hafta)**
+**YZ_06: Stage 0 List Syntax Support (1 hafta)**
 - Öncelik: 🔴🔴🔴 EN YÜKSEK
 - Etki: 66 modül, 580+ satır
 - Süre: 21-28 Aralık 2025
 
-### ⏳ Bekleyen Fazlar (YZ_199 sonrası)
+### ⏳ Bekleyen Fazlar (YZ_06 sonrası)
 
 **Modern Language Features (19 hafta):**
 - Faz 1: List operations (YZ_200-203) - 4 hafta
@@ -180,12 +180,12 @@
 ### Yeni Dosyalar
 
 1. **TODO_MODERN_LANGUAGE.md**
-   - 25 YZ görevi (YZ_199-224)
+   - 25 YZ görevi (YZ_06-224)
    - 5 faz, 19 hafta timeline
    - Öncelik matrisi
    - Detaylı açıklamalar
 
-2. **temp/YZ_199_GOREV_OZET.md**
+2. **temp/YZ_06_GOREV_OZET.md**
    - 150+ satır görev brifingi
    - Problem tanımı
    - Etki analizi (580+ satır)
@@ -213,8 +213,8 @@
 
 3. **NEXT_AI_START_HERE.md**
    - Last Session: YZ_ÜA_05
-   - Status: KRİTİK BLOKER - YZ_199 ACİL!
-   - YZ_199 görev detayları
+   - Status: KRİTİK BLOKER - YZ_06 ACİL!
+   - YZ_06 görev detayları
    - Test komutları
    - Referans belgeler
 
@@ -254,7 +254,7 @@
 ### 3. TODO ve Görevlendirme Süreci
 
 **Ne İyi Gitti:**
-- Detaylı görev brifingi hazırlandı (YZ_199_GOREV_OZET.md)
+- Detaylı görev brifingi hazırlandı (YZ_06_GOREV_OZET.md)
 - Öncelik matrisi oluşturuldu
 - Timeline belirlendi
 - NEXT_AI_START_HERE.md güncellendi
@@ -335,21 +335,21 @@ end_function' > temp/test.mlp
 
 ## 🚀 Sonraki Adımlar
 
-### Acil (YZ_199)
+### Acil (YZ_06)
 
-1. **YZ_199 Görevlendirmesi (ŞİMDİ!):**
+1. **YZ_06 Görevlendirmesi (ŞİMDİ!):**
    - Görevli YZ agent'a ata
-   - `temp/YZ_199_GOREV_OZET.md` brifingi ver
+   - `temp/YZ_06_GOREV_OZET.md` brifingi ver
    - `TODO_MODERN_LANGUAGE.md` Faz 0'ı göster
    - Başarı kriterlerini vurgula
 
-2. **YZ_199 Implementation (1 hafta):**
+2. **YZ_06 Implementation (1 hafta):**
    - Stage 0 Lexer: List literal tokenization
    - Stage 0 Parser: `(elem1; elem2;)` syntax
    - Stage 0 Codegen: List allocation
    - Test: 66 modül derlenmeli
 
-### YZ_199 Sonrası
+### YZ_06 Sonrası
 
 3. **Stage 1 Bootstrap:**
    - 66 modül derlenebilir olacak
@@ -372,7 +372,7 @@ end_function' > temp/test.mlp
 ## 📊 Metrikleri
 
 **Dosya Değişiklikleri:**
-- Yeni dosyalar: 3 (TODO_MODERN_LANGUAGE.md, YZ_199_GOREV_OZET.md, MODÜL_ANALIZ_KARŞILAŞTIRMA.md)
+- Yeni dosyalar: 3 (TODO_MODERN_LANGUAGE.md, YZ_06_GOREV_OZET.md, MODÜL_ANALIZ_KARŞILAŞTIRMA.md)
 - Güncellenen dosyalar: 3 (TODO_LLVM_SUMMARY.md, LLVM_YZ/TODO.md, NEXT_AI_START_HERE.md)
 - Toplam satır: ~1200 satır
 
@@ -382,7 +382,7 @@ end_function' > temp/test.mlp
 - 25 dosya etkileniyor
 
 **TODO:**
-- 25 yeni YZ görevi eklendi (YZ_199-224)
+- 25 yeni YZ görevi eklendi (YZ_06-224)
 - 19 hafta timeline
 - 5 faz
 
@@ -394,7 +394,7 @@ end_function' > temp/test.mlp
 
 ## 🎯 Başarı Kriterleri
 
-### YZ_199 için
+### YZ_06 için
 
 ✅ **Stage 0 Lexer:**
 - `(` ve `)` tokenization
@@ -420,15 +420,15 @@ end_function' > temp/test.mlp
 ✅ **TODO güncel:**
 - LLVM Faz 1 tamamlandı işareti
 - Modern language TODO oluşturuldu
-- YZ_199 bloker olarak işaretlendi
+- YZ_06 bloker olarak işaretlendi
 
 ✅ **Dokümantasyon:**
-- YZ_199 detaylı brief hazır
+- YZ_06 detaylı brief hazır
 - NEXT_AI_START_HERE.md güncel
 - Modül analizi tamamlandı
 
 ✅ **Görevlendirme:**
-- YZ_199 görevi oluşturuldu
+- YZ_06 görevi oluşturuldu
 - Öncelik belirlendi (🔴🔴🔴)
 - Timeline planlandı (1 hafta)
 
@@ -436,9 +436,9 @@ end_function' > temp/test.mlp
 
 ## 💡 Tavsiyeler (Sonraki YZ'ye)
 
-### YZ_199 için Özel
+### YZ_06 için Özel
 
-1. **İlk 5 dakika:** `temp/YZ_199_GOREV_OZET.md` oku
+1. **İlk 5 dakika:** `temp/YZ_06_GOREV_OZET.md` oku
 2. **İlk test:** `./functions_compiler modules/lexer_mlp/token.mlp temp/test.ll`
 3. **Syntax referans:** `pmlp_kesin_sozdizimi.md` line 170, 640-642
 4. **Stage 0 kod:** `compiler/stage0/modules/` incelenecek
@@ -458,15 +458,15 @@ end_function' > temp/test.mlp
 
 **Devredilen Durum:**
 - ✅ TODO dosyaları güncel
-- ✅ YZ_199 görevi hazır ve görevlendirildi
+- ✅ YZ_06 görevi hazır ve görevlendirildi
 - ✅ 66 Stage 1 modül analiz edildi
 - ✅ Kritik bloker tespit edildi ve çözüm planlandı
 - ✅ Timeline ve öncelik belirlendi
 - ✅ NEXT_AI_START_HERE.md güncel
 
 **Sonraki YZ için:**
-- 🎯 YZ_199: Stage 0 List Syntax Support (1 hafta)
-- 📋 Brief: `temp/YZ_199_GOREV_OZET.md`
+- 🎯 YZ_06: Stage 0 List Syntax Support (1 hafta)
+- 📋 Brief: `temp/YZ_06_GOREV_OZET.md`
 - 📚 TODO: `TODO_MODERN_LANGUAGE.md` Faz 0
 - 🔴🔴🔴 Öncelik: EN YÜKSEK - BLOKER
 
@@ -486,7 +486,7 @@ end_function' > temp/test.mlp
 2. ✅ Modern language TODO oluşturuldu (25 görev, 19 hafta)
 3. ✅ 66 Stage 1 modül lokalize ve analiz edildi
 4. ✅ Kritik bloker tespit edildi (Stage 0 list syntax yok)
-5. ✅ YZ_199 detaylı brief hazırlandı
+5. ✅ YZ_06 detaylı brief hazırlandı
 6. ✅ Öncelik ve timeline belirlendi
 7. ✅ NEXT_AI_START_HERE.md görevlendirme için güncellendi
 
@@ -496,11 +496,11 @@ end_function' > temp/test.mlp
 - Öncelik matrisi net
 - Sonraki YZ için hazır
 
-**Sonuç:** Üst Akıl görevi başarıyla tamamlandı. YZ_199 acil olarak atanmalı!
+**Sonuç:** Üst Akıl görevi başarıyla tamamlandı. YZ_06 acil olarak atanmalı!
 
 ---
 
 **Rapor Tarihi:** 21 Aralık 2025, 14:35  
-**Sonraki Session:** YZ_199 (Stage 0 List Syntax Support)  
+**Sonraki Session:** YZ_06 (Stage 0 List Syntax Support)  
 **Öncelik:** 🔴🔴🔴 CRITICAL BLOCKER  
 **Süre:** 1 hafta (21-28 Aralık 2025)

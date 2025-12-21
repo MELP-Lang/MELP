@@ -508,7 +508,7 @@ end_function
 
 | Phase | YZ | Görev | Öncelik | Süre | Neden Zorunlu? |
 |-------|-----|-------|---------|------|----------------|
-| 0 | YZ_199 | **Stage 0 List Syntax** | 🔴🔴🔴 **BLOKER** | 1 hafta | Stage 1 modüller derlenemiyor! |
+| 0 | YZ_06 | **Stage 0 List Syntax** | 🔴🔴🔴 **BLOKER** | 1 hafta | Stage 1 modüller derlenemiyor! |
 | 1 | YZ_200 | List Type | 🔴 KRİTİK | 1 hafta | Stage 1 operations |
 | 2 | YZ_204 | Module System | 🔴 KRİTİK | 1 hafta | Code organization |
 | 1 | YZ_201 | Map Type | 🟡 Yüksek | 5 gün | Stdlib gerekli |
@@ -541,7 +541,7 @@ end_function
 
 ### 🚨 FAZ 0: STAGE 1 BLOKER (1 hafta) - ACİL!
 
-**YZ_199: Stage 0 List Syntax Support** [1 hafta] 🔴🔴🔴
+**YZ_06: Stage 0 List Syntax Support** [1 hafta] 🔴🔴🔴
 - **Kök Neden:** Stage 0 parser `()` list syntax desteklemiyor
 - **Etki:** 66 Stage 1 modül derlenemiyor (0 function compiled)
 - **Çözüm:** Stage 0'a list literal parsing ekle
@@ -554,7 +554,7 @@ end_function
 
 ### 🔥 FAZ 1: KRİTİK BLOKER'LAR (4 hafta)
 
-**⚠️ YZ_199: Stage 0 List Syntax Support (BLOKER!)** [1 hafta] 🔴🔴🔴
+**⚠️ YZ_06: Stage 0 List Syntax Support (BLOKER!)** [1 hafta] 🔴🔴🔴
 - **En Yüksek Öncelik** - Stage 1 modüller derlenemiyor!
 - **Sorun:** Stage 1 modüller `returns list` + `()` syntax kullanıyor
 - **Problem:** Stage 0 parser `()` list literal syntax'ını desteklemiyor
@@ -590,7 +590,7 @@ end_function
 ---
 
 1. **YZ_200: List Type Full Implementation** [1 hafta] 🔴
-   - YZ_199'dan sonra başlanır
+   - YZ_06'dan sonra başlanır
    - List operations: append, prepend, length, find
    - Dynamic resizing
    - Memory management (STO integration)

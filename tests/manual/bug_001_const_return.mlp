@@ -1,0 +1,4 @@
+function main() as int {
+    const x = 88
+    return(x)
+}

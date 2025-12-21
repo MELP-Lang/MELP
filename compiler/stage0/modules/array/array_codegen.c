@@ -3,8 +3,17 @@
 #include <stdio.h>
 #include <string.h>
 
+// Backend type (from functions_standalone.c)
+typedef enum {
+    BACKEND_ASSEMBLY,
+    BACKEND_LLVM
+} BackendType;
+
+extern BackendType backend;  // Global backend selection
+
 // Static counter for array labels
 static int array_label_counter = 0;
+static int llvm_array_counter = 0;  // For LLVM temporary variables
 
 // Generate code for Collection literal (main entry point)
 void codegen_collection(FILE* output, Collection* coll, FunctionDeclaration* func) {
@@ -27,46 +36,88 @@ void codegen_collection(FILE* output, Collection* coll, FunctionDeclaration* fun
 void codegen_array_literal(FILE* output, Array* arr, FunctionDeclaration* func) {
     if (!arr) return;
     
-    fprintf(output, "    # Array literal: %d elements, type=%d\n", arr->length, arr->element_type);
-    
-    // Label for this array
-    int arr_id = array_label_counter++;
-    
-    // Allocate on heap using STO
-    fprintf(output, "    # Allocate array on heap\n");
-    fprintf(output, "    movq $%d, %%rdi  # Number of elements\n", arr->length);
-    fprintf(output, "    movq $8, %%rsi   # Element size (8 bytes)\n");
-    fprintf(output, "    call sto_array_alloc  # Returns pointer in rax\n");
-    fprintf(output, "    movq %%rax, %%rbx  # Save array pointer in rbx\n");
-    
-    // Initialize elements
-    if (arr->length > 0 && arr->elements) {
-        fprintf(output, "    # Initialize array elements\n");
-        for (int i = 0; i < arr->length; i++) {
-            ArithmeticExpr* elem = (ArithmeticExpr*)arr->elements[i];
-            if (elem) {
-                // Generate code for element expression
-                fprintf(output, "    # Element %d\n", i);
-                
-                // Save array pointer on stack
-                fprintf(output, "    pushq %%rbx\n");
-                
-                arithmetic_generate_code(output, elem, func);  // Result in r8 or xmm0
-                
-                // Move result to rax
-                fprintf(output, "    movq %%r8, %%rax  # Move result to rax\n");
-                
-                // Restore array pointer
-                fprintf(output, "    popq %%rbx\n");
-                
-                // Store in array
-                fprintf(output, "    movq %%rax, %d(%%rbx)  # Store element at index %d\n", i * 8, i);
+    if (backend == BACKEND_LLVM) {
+        // LLVM IR Implementation
+        fprintf(output, "    ; Array literal: %d elements, type=%d\n", arr->length, arr->element_type);
+        
+        int arr_id = llvm_array_counter++;
+        
+        // Calculate array size in bytes
+        fprintf(output, "    %%arr_size_%d = mul i64 %d, 8\n", arr_id, arr->length);
+        
+        // Allocate memory for array
+        fprintf(output, "    %%arr_ptr_%d = call i8* @malloc(i64 %%arr_size_%d)\n", arr_id, arr_id);
+        fprintf(output, "    %%arr_%d = bitcast i8* %%arr_ptr_%d to i64*\n", arr_id, arr_id);
+        
+        // Initialize elements
+        if (arr->length > 0 && arr->elements) {
+            fprintf(output, "    ; Initialize array elements\n");
+            for (int i = 0; i < arr->length; i++) {
+                ArithmeticExpr* elem = (ArithmeticExpr*)arr->elements[i];
+                if (elem) {
+                    fprintf(output, "    ; Element %d\n", i);
+                    
+                    // TODO: Generate LLVM IR for element expression
+                    // For now, assuming constant numeric values
+                    // arithmetic_generate_code_llvm(output, elem, func);
+                    
+                    // Get pointer to array element
+                    fprintf(output, "    %%elem_ptr_%d_%d = getelementptr i64, i64* %%arr_%d, i32 %d\n", 
+                            arr_id, i, arr_id, i);
+                    
+                    // Store value (temporary: assuming constant)
+                    // TODO: Get actual value from element expression
+                    fprintf(output, "    store i64 0, i64* %%elem_ptr_%d_%d\n", arr_id, i);
+                }
             }
         }
+        
+        // Store array pointer for return (temporary solution)
+        fprintf(output, "    %%array_result_%d = bitcast i64* %%arr_%d to i64\n", arr_id, arr_id);
+        
+    } else {
+        // Assembly Implementation (existing code)
+        fprintf(output, "    # Array literal: %d elements, type=%d\n", arr->length, arr->element_type);
+        
+        // Label for this array
+        int arr_id = array_label_counter++;
+        
+        // Allocate on heap using STO
+        fprintf(output, "    # Allocate array on heap\n");
+        fprintf(output, "    movq $%d, %%rdi  # Number of elements\n", arr->length);
+        fprintf(output, "    movq $8, %%rsi   # Element size (8 bytes)\n");
+        fprintf(output, "    call sto_array_alloc  # Returns pointer in rax\n");
+        fprintf(output, "    movq %%rax, %%rbx  # Save array pointer in rbx\n");
+        
+        // Initialize elements
+        if (arr->length > 0 && arr->elements) {
+            fprintf(output, "    # Initialize array elements\n");
+            for (int i = 0; i < arr->length; i++) {
+                ArithmeticExpr* elem = (ArithmeticExpr*)arr->elements[i];
+                if (elem) {
+                    // Generate code for element expression
+                    fprintf(output, "    # Element %d\n", i);
+                    
+                    // Save array pointer on stack
+                    fprintf(output, "    pushq %%rbx\n");
+                    
+                    arithmetic_generate_code(output, elem, func);  // Result in r8 or xmm0
+                    
+                    // Move result to rax
+                    fprintf(output, "    movq %%r8, %%rax  # Move result to rax\n");
+                    
+                    // Restore array pointer
+                    fprintf(output, "    popq %%rbx\n");
+                    
+                    // Store in array
+                    fprintf(output, "    movq %%rax, %d(%%rbx)  # Store element at index %d\n", i * 8, i);
+                }
+            }
+        }
+        
+        // Final array pointer in rax
+        fprintf(output, "    movq %%rbx, %%rax  # Array pointer result\n");
     }
-    
-    // Final array pointer in rax
-    fprintf(output, "    movq %%rbx, %%rax  # Array pointer result\n");
 }
 
 // Generate list literal: (1; "text"; 3.14;)

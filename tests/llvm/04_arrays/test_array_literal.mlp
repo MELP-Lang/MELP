@@ -1,0 +1,7 @@
+-- Test: Array literal basic
+-- Expected: Compile successfully
+
+function main() returns numeric
+    array arr = [1, 2, 3]
+    return 42
+end_function

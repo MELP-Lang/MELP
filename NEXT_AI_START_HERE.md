@@ -3,13 +3,13 @@
 **Last Session:** YZ_ÜA_05 (Modern Language Planning)  
 **Date:** 21 Aralık 2025  
 **Agent:** GitHub Copilot (Claude Sonnet 4.5)  
-**Status:** 🚨 **KRİTİK BLOKER - YZ_199 ACİL!**
+**Status:** 🚨 **KRİTİK BLOKER - YZ_06 ACİL!**
 
 **⚠️ Project Status:**
 - **Stage 0:** ✅ TAMAMLANDI (C Compiler) - **ANCAK list syntax yok! ❌**
 - **Stage 1:** 🚨 **ENGELLENMIŞ** - 66 modül derlenemiyor (0 functions)
 - **LLVM Faz 1:** ✅ TAMAMLANDI (YZ_00-04, Production Ready!)
-- **LLVM Faz 2-4:** ⏳ OPSIYONEL (YZ_199 sonrası)
+- **LLVM Faz 2-4:** ⏳ OPSIYONEL (YZ_06 sonrası)
 
 **⚠️ YZ Directory Structure:**
 - `stage_0_YZ/` - Stage 0 sessions (YZ_01 - YZ_97) ✅ ARCHIVED
@@ -19,7 +19,7 @@
 
 ---
 
-## 🚨 ACİL GÖREV: YZ_199 - Stage 0 List Syntax Support
+## 🚨 ACİL GÖREV: YZ_06 - Stage 0 List Syntax Support
 
 **⚠️ KRİTİK DURUM:**
 - 66 Stage 1 modül derlenemiyor (0 functions compiled)
@@ -28,7 +28,7 @@
 - Öncelik: 🔴🔴🔴 **EN YÜKSEK - BLOKER**
 
 **📋 Görev Detayları:**
-- **Dosya:** `temp/YZ_199_GOREV_OZET.md` (150+ satır görev brifingi)
+- **Dosya:** `temp/YZ_06_GOREV_OZET.md` (150+ satır görev brifingi)
 - **TODO:** `TODO_MODERN_LANGUAGE.md` - Faz 0 bölümü
 - **Süre:** 1 hafta (21-28 Aralık 2025)
 - **Başarı Kriteri:**
@@ -49,7 +49,7 @@
 - `kurallar_kitabı.md` - Line 857-898 (collection types)
 - `temp/MODÜL_ANALIZ_KARŞILAŞTIRMA.md` - Modül analizi
 
-**⚠️ ÖNEMLİ:** YZ_199 tamamlanmadan Stage 1 bootstrap devam edemez!
+**⚠️ ÖNEMLİ:** YZ_06 tamamlanmadan Stage 1 bootstrap devam edemez!
 
 ---
 
@@ -57,11 +57,11 @@
 
 **📋 DETAYLI CHECKLIST İÇİN:** `YZ_CHECKLIST.md` dosyasını oku!
 
-### YZ_199 için Özel Başlangıç (5 dakika):
+### YZ_06 için Özel Başlangıç (5 dakika):
 
 1. **Bu dosyayı oku** → Kritik durumu anla
 2. **Görev detaylarını oku:**
-   - `temp/YZ_199_GOREV_OZET.md` → Tam görev açıklaması
+   - `temp/YZ_06_GOREV_OZET.md` → Tam görev açıklaması
    - `TODO_MODERN_LANGUAGE.md` Faz 0 → Genel bakış
 3. **Syntax referanslarını oku:**
    - `pmlp_kesin_sozdizimi.md` line 170, 640-642
@@ -76,7 +76,7 @@
    - `compiler/stage0/modules/lexer/lexer.c` → Tokenization
    - `compiler/stage0/modules/functions/functions_parser.c` → Parsing
 
-### Normal YZ için Başlangıç (YZ_199 sonrası):
+### Normal YZ için Başlangıç (YZ_06 sonrası):
 
 1. **Bu dosyayı oku** → Mevcut durum nedir?
 2. **TODO dosyalarını oku:**
@@ -94,11 +94,11 @@
 **Session bittiğinde yapılacaklar (15 dakika):**
 
 1. **YZ raporu yaz:**
-   - YZ_199 için: `LLVM_YZ/YZ_199_GOREV.md` + `LLVM_YZ/YZ_199_TAMAMLANDI.md`
+   - YZ_06 için: `LLVM_YZ/YZ_06_GOREV.md` + `LLVM_YZ/YZ_06_TAMAMLANDI.md`
    - Diğer görevler: `LLVM_YZ/YZ_XX_TAMAMLANDI.md`
 
 2. **TODO dosyalarını güncelle:**
-   - `TODO_MODERN_LANGUAGE.md` → YZ_199'u [x] işaretle
+   - `TODO_MODERN_LANGUAGE.md` → YZ_06'u [x] işaretle
    - `TODO_LLVM_SUMMARY.md` → Özet güncelle (gerekirse)
    - `LLVM_YZ/TODO.md` → İlerleme %'sini güncelle (gerekirse)
 
@@ -131,8 +131,8 @@
 - Görev adı kısa ve açıklayıcı (kebab-case)
 - Sonunda mutlaka `_YZ_XX` eki (XX = session numarası)
 
-**Örnekler (YZ_199 ve sonrası):**
-- `stage0-list-syntax_YZ_199` (ACİL!)
+**Örnekler (YZ_06 ve sonrası):**
+- `stage0-list-syntax_YZ_06` (ACİL!)
 - `llvm-array-support_YZ_05`
 - `llvm-foreach-loop_YZ_06`
 - `module-system_YZ_204`
@@ -140,17 +140,17 @@
 **Git Commands:**
 ```bash
 # 1. Yeni dal oluştur
-git checkout -b stage0-list-syntax_YZ_199
+git checkout -b stage0-list-syntax_YZ_06
 
 # 2. Değişiklikleri ekle
 git add compiler/stage0/modules/lexer/lexer.c \
         compiler/stage0/modules/functions/functions_parser.c \
-        LLVM_YZ/YZ_199_*.md \
+        LLVM_YZ/YZ_06_*.md \
         TODO_MODERN_LANGUAGE.md \
         NEXT_AI_START_HERE.md
 
 # 3. Commit et
-git commit -m "YZ_199: Stage 0 List Syntax Support
+git commit -m "YZ_06: Stage 0 List Syntax Support
 
 ✅ Completed Tasks:
 - List literal tokenization
@@ -165,7 +165,7 @@ git commit -m "YZ_199: Stage 0 List Syntax Support
 Status: BLOCKER RESOLVED ✅"
 
 # 4. Push et
-git push origin stage0-list-syntax_YZ_199
+git push origin stage0-list-syntax_YZ_06
 ```
 
 **⚠️ ÖNEMLİ:** Session bittiğinde mutlaka TODO + NEXT_AI_START_HERE + YZ raporu + GIT COMMIT yapılmalı!
@@ -179,7 +179,7 @@ git push origin stage0-list-syntax_YZ_199
 
 **Hızlı Kural:** Örnekler için `end if`, modüller için `end_if`. Kararsızsan → `kurallar_kitabı.md` oku!
 
-**⚠️ YZ_199 İçin Önemli:**
+**⚠️ YZ_06 İçin Önemli:**
 - List syntax: `(elem1; elem2; elem3;)` - Parantez + noktalı virgül
 - Array syntax: `[elem1; elem2; elem3]` - Köşeli parantez
 - Parametre ayırıcı: `;` (noktalı virgül, virgül DEĞİL!)
@@ -195,12 +195,12 @@ git push origin stage0-list-syntax_YZ_199
 - ✅ Basic syntax (functions, variables, if/while)
 - ✅ LLVM backend integration
 - ✅ Struct support
-- ⚠️ **EKSIK:** List literal syntax `()` - YZ_199 ile eklenecek
+- ⚠️ **EKSIK:** List literal syntax `()` - YZ_06 ile eklenecek
 
 **Stage 1 (Self-hosting):**
 - ⚠️ **ENGELLENMIŞ:** 66 modül var ama derlenemiyor
 - Neden: Stage 0'da list syntax yok
-- Çözüm: YZ_199 tamamlanınca bootstrap devam edecek
+- Çözüm: YZ_06 tamamlanınca bootstrap devam edecek
 
 **LLVM Backend (Faz 1):**
 - ✅ YZ_00: LLVM IR alt yapı kurulumu
@@ -211,13 +211,13 @@ git push origin stage0-list-syntax_YZ_199
 
 ### 🚨 Critical Blocker
 
-**YZ_199: Stage 0 List Syntax Support (1 hafta)**
+**YZ_06: Stage 0 List Syntax Support (1 hafta)**
 - **Öncelik:** 🔴🔴🔴 EN YÜKSEK
 - **Süre:** 21-28 Aralık 2025
 - **Etki:** 66 Stage 1 modül, 580+ satır
-- **Detay:** `temp/YZ_199_GOREV_OZET.md`
+- **Detay:** `temp/YZ_06_GOREV_OZET.md`
 
-### ⏳ Pending Phases (YZ_199 sonrası)
+### ⏳ Pending Phases (YZ_06 sonrası)
 
 **Modern Language Features (19 hafta):**
 - Faz 1: List operations (YZ_200-203) - 4 hafta
@@ -234,10 +234,10 @@ git push origin stage0-list-syntax_YZ_199
 
 ## 📚 Key Documents
 
-### YZ_199 İçin Gerekli Belgeler:
+### YZ_06 İçin Gerekli Belgeler:
 
 **1. Görev Belgeleri:**
-- `temp/YZ_199_GOREV_OZET.md` - Detaylı görev brifingi
+- `temp/YZ_06_GOREV_OZET.md` - Detaylı görev brifingi
 - `TODO_MODERN_LANGUAGE.md` - Faz 0 açıklaması
 
 **2. Syntax Referansları:**
@@ -280,7 +280,7 @@ git push origin stage0-list-syntax_YZ_199
 
 ---
 
-## 🎯 Success Criteria (YZ_199)
+## 🎯 Success Criteria (YZ_06)
 
 **Test 1: Token Module (minimal test)**
 ```bash
@@ -327,7 +327,7 @@ end_function' > temp/test_list.mlp
 
 ---
 
-## 💡 YZ_199 Implementation Tips
+## 💡 YZ_06 Implementation Tips
 
 **1. Lexer Changes (lexer.c):**
 ```c
@@ -362,7 +362,7 @@ end_function' > temp/test_list.mlp
 
 ---
 
-## 🚀 Next Steps After YZ_199
+## 🚀 Next Steps After YZ_06
 
 1. **Stage 1 Bootstrap:**
    - 66 modül derlenecek
@@ -392,12 +392,12 @@ end_function' > temp/test_list.mlp
 **Kritik Dosyalar:**
 - Syntax: `pmlp_kesin_sozdizimi.md`, `kurallar_kitabı.md`
 - TODO: `TODO_MODERN_LANGUAGE.md`
-- Test: `temp/YZ_199_GOREV_OZET.md`
+- Test: `temp/YZ_06_GOREV_OZET.md`
 - Stage 0: `compiler/stage0/modules/`
 
 ---
 
-**⚠️ SON UYARI:** YZ_199 en yüksek öncelikli görev! Stage 1 bootstrap tamamen buna bağlı. 1 hafta içinde tamamlanmalı!
+**⚠️ SON UYARI:** YZ_06 en yüksek öncelikli görev! Stage 1 bootstrap tamamen buna bağlı. 1 hafta içinde tamamlanmalı!
 
 **🎯 HEDEF:** 66 Stage 1 modül derlenebilir hale gelsin → Bootstrap devam etsin → Modern dil features eklensin!
 
@@ -406,5 +406,5 @@ end_function' > temp/test_list.mlp
 ---
 
 **Last Updated:** 21 Aralık 2025, 14:30 (YZ_ÜA_05)  
-**Next Session:** YZ_199 (Stage 0 List Syntax Support)  
+**Next Session:** YZ_06 (Stage 0 List Syntax Support)  
 **Priority:** 🔴🔴🔴 CRITICAL BLOCKER
