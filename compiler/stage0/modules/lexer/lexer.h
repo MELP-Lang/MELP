@@ -104,6 +104,9 @@ typedef enum {
     TOKEN_REF,             // ref (reference parameter)
     TOKEN_OUT,             // out (output parameter)
     TOKEN_OPTIONAL,        // optional (optional parameter)
+    // Null safety operators (YZ_202)
+    TOKEN_QUESTION,        // ? (nullable type, safe navigation)
+    TOKEN_DOUBLE_QUESTION, // ?? (null coalescing)
     // I/O keywords
     TOKEN_PRINT,
     TOKEN_PRINTLN,         // println builtin (YZ_47)

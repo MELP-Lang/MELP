@@ -305,6 +305,17 @@ Token* lexer_next_token(Lexer* lexer) {
         return make_token_ws(TOKEN_POWER, "**", lexer->line, had_whitespace);
     }
     
+    // YZ_202: Null safety operators (check ?? before ?)
+    if (c == '?' && lexer->source[lexer->pos + 1] == '?') {
+        lexer->pos += 2;
+        return make_token_ws(TOKEN_DOUBLE_QUESTION, "??", lexer->line, had_whitespace);
+    }
+    
+    if (c == '?') {
+        lexer->pos++;
+        return make_token_ws(TOKEN_QUESTION, "?", lexer->line, had_whitespace);
+    }
+    
     // Single-character operators
     if (c == '=') {
         lexer->pos++;
