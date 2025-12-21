@@ -1,9 +1,9 @@
 # 🚀 MELP PROJECT - START HERE!
 
-**Last Session:** YZ_210 (Memory Management & RC GC) - ✅ **TAMAMLANDI**  
+**Current Session:** YZ_212 (Standard Library - Collections) - 🔄 **BAŞLANIYOR**  
 **Date:** 22 Aralık 2025  
 **Agent:** GitHub Copilot (Claude Sonnet 4.5)  
-**Status:** 🎉 **YZ_210 COMPLETE!** - Reference Counting GC ready for use!
+**Status:** 🚀 **YZ_212 READY TO START!** - Collections Library (List, Map, Set, Queue, Stack)
 
 **⚠️ Project Status:**
 - **Stage 0:** ✅ TAMAMLANDI (C Compiler) - **List (), Map {}, Optional ?, Generic <T>, Lambda λ, Function Pointers &, Memory RC GC ✅**
@@ -21,6 +21,8 @@
 - **YZ_208:** ✅ **TAMAMLANDI** - Lambda/Anonymous Functions λ
 - **YZ_209:** 🟡 **PHASE 1 TAMAMLANDI** - Function Pointers & (Core module ready)
 - **YZ_210:** ✅ **TAMAMLANDI** - Memory Management & RC GC 🛡️
+- **YZ_211:** 🟡 **WIP (70%)** - Move Semantics (Parser issue, later)
+- **YZ_212:** 🔄 **BAŞLANIYOR** - Standard Library Collections 📚
 
 ---
 
