@@ -3,7 +3,7 @@
 **Last Session:** YZ_202 (Optional Type - Null Safety) ✅ TAMAMLANDI  
 **Date:** 21 Aralık 2025  
 **Agent:** GitHub Copilot (Claude Sonnet 4.5)  
-**Status:** 🟢 **YZ_203 HAZIR** - Set Type Implementation
+**Status:** 🟢 **YZ_203 HAZIR** - Generic Types
 
 **⚠️ Project Status:**
 - **Stage 0:** ✅ TAMAMLANDI (C Compiler) - **List () & Map {} syntax fully working! ✅**
@@ -18,14 +18,14 @@
 ## 🚨 MEVCUT GÖREV: SEN YZ_203'SÜN!
 
 **Adın:** YZ_203  
-**Görevin:** Set Type Implementation (Unique Collection)  
-**Kaynak:** `TODO_MODERN_LANGUAGE.md` Line 155-176  
-**Branch:** `set-type_YZ_203` (oluşturacaksın)  
-**Öncelik:** 🟡 Orta (stdlib için gerekli)
+**Görevin:** Generic Types (Type Parameters)  
+**Kaynak:** `TODO_MODERN_LANGUAGE.md` Line 216-242  
+**Branch:** `generic-types_YZ_203` (oluşturacaksın)  
+**Öncelik:** 🟡 Yüksek (modern dil standardı)
 
 ### 📚 ÖNCE MUTLAKA OKU (ZORUNLU):
 1. **`YZ_PROTOKOL.md`** ← YZ çalışma protokolü (5 adım)
-2. **`TODO_MODERN_LANGUAGE.md`** Line 155-176 ← Görev detayları
+2. **`TODO_MODERN_LANGUAGE.md`** Line 216-242 ← Görev detayları
 3. **`LLVM_YZ/YZ_202_TAMAMLANDI.md`** ← Önceki YZ'nin başarı raporu
 4. **`melp_modulleri.md`** ← 66 modül listesi (referans için)
 
@@ -41,29 +41,40 @@
 ### 🎯 SENIN GÖREVİN (YZ_203):
 
 **Ne yapacaksın:**
-- [ ] Set type definition (hash-based, unique elements)
-- [ ] Set operations: add, remove, contains, union, intersection
-- [ ] Set literals: `{1, 2, 3}` - **DİKKAT:** Map'ten farklı (no key:value)
-- [ ] Set iteration: `for item in set`
-- [ ] Type safety: element type constraints
-- [ ] LLVM IR codegen
-- [ ] Runtime entegrasyonu
+- [ ] Generic function syntax: `function max<T>(T a, T b) returns T`
+- [ ] Generic struct syntax: `struct Box<T>`
+- [ ] Type parameter constraints: `<T: Comparable>`
+- [ ] Monomorphization (compile-time specialization)
+- [ ] LLVM IR codegen per instance
+- [ ] Type inference: `max(10, 20)` → infer T = numeric
 
 **Test Case (TODO'dan):**
 ```pmpl
-function test_set() returns numeric
-    set numbers = {1, 2, 3, 2, 1}  -- Duplicates removed
-    return length(numbers)  -- Should return 3
+function max<T>(T a, T b) returns T
+    if a > b then
+        return a
+    end_if
+    return b
+end_function
+
+function test_generic() returns numeric
+    return max<numeric>(10, 20)  -- Should return 20
+end_function
+
+-- Type inference
+function test_inference() returns numeric
+    return max(10, 20)  -- T inferred as numeric
 end_function
 ```
 
 **Dosyalar (tahmini):**
-- `runtime/stdlib/mlp_set.h` (yeni)
-- `runtime/stdlib/mlp_set.c` (yeni - hash set implementation)
-- `compiler/stage0/modules/functions/functions_codegen_llvm.c` (set codegen)
-- `tests/llvm/11_set/test_*.mlp` (test dosyaları)
+- `compiler/stage0/modules/type_system/generic_types.h` (yeni)
+- `compiler/stage0/modules/type_system/generic_types.c` (yeni)
+- `compiler/stage0/modules/parser_core/generic_parser.c` (parsing)
+- `compiler/stage0/modules/functions/functions_codegen_llvm.c` (monomorphization)
+- `tests/llvm/11_generics/test_*.mlp` (test dosyaları)
 
-**Süre Tahmini:** 4 gün (List/Map pattern'ini takip et)
+**Süre Tahmini:** 2 hafta (karmaşık özellik - type system değişiklikleri)
 
 ---
 
