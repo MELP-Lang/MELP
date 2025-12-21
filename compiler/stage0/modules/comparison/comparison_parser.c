@@ -150,15 +150,15 @@ ComparisonExpr* comparison_parse_expression_stateless(Lexer* lexer, Token* first
         expr->left_value = strdup(first_token->value);
         expr->left_is_literal = 1;
         expr->is_string = 1;
-    } else if (first_token->type == TOKEN_LBRACKET) {  // YZ_26: Empty list literal support []
-        // Check if next token is ']' for empty list
+    } else if (first_token->type == TOKEN_LBRACKET) {  // YZ_26: Empty array literal support [] (arrays use [], lists use ())
+        // Check if next token is ']' for empty array
         Token* next = lexer_next_token(lexer);
         if (next && next->type == TOKEN_RBRACKET) {
             expr->left_value = strdup("[]");
             expr->left_is_literal = 1;
             token_free(next);
         } else {
-            // Not empty list, unget token and fail
+            // Not empty array, unget token and fail
             if (next) lexer_unget_token(lexer, next);
             free(expr);
             return NULL;
@@ -292,8 +292,8 @@ ComparisonExpr* comparison_parse_expression_stateless(Lexer* lexer, Token* first
         expr->right_value = strdup(right_tok->value);
         expr->right_is_literal = 1;
         expr->is_string = 1;
-    } else if (right_tok->type == TOKEN_LBRACKET) {  // YZ_26: Empty list literal support []
-        // Check if next token is ']' for empty list
+    } else if (right_tok->type == TOKEN_LBRACKET) {  // YZ_26: Empty array literal support [] (arrays use [], lists use ())
+        // Check if next token is ']' for empty array
         Token* next = lexer_next_token(lexer);
         if (next && next->type == TOKEN_RBRACKET) {
             expr->right_value = strdup("[]");
@@ -302,7 +302,7 @@ ComparisonExpr* comparison_parse_expression_stateless(Lexer* lexer, Token* first
             token_free(right_tok);
             right_tok = NULL;
         } else {
-            // Not empty list, unget token and fail
+            // Not empty array, unget token and fail
             if (next) lexer_unget_token(lexer, next);
             token_free(right_tok);
             free(expr->left_value);

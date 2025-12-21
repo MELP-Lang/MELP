@@ -9,11 +9,22 @@
 #include "functions.h"
 #include "../llvm_backend/llvm_backend.h"
 
+// Variable type tracking entry (YZ_200)
+typedef struct {
+    char* name;           // Variable name
+    int is_pointer;       // 0 = i64, 1 = i8* (string/list)
+} VarTypeEntry;
+
 // Context for LLVM code generation
 typedef struct {
     LLVMContext* llvm_ctx;
     FunctionDeclaration* current_func;
     int globals_emitted;  // YZ_61: Flag to emit globals only once
+    
+    // YZ_200: Variable type tracking
+    VarTypeEntry* var_types;  // Array of variable types
+    int var_type_count;       // Number of tracked variables
+    int var_type_capacity;    // Allocated capacity
 } FunctionLLVMContext;
 
 // Initialize LLVM codegen context

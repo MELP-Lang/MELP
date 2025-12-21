@@ -171,15 +171,23 @@ x; y; z = true; "Ali"; 5,6;        -- x=true (boolean); y="Ali" (string); z=5.6 
 
 | Tip | Token | Syntax | Literal Örnek | Açıklama |
 |-----|-------|--------|---------------|----------|
-| Array | TOKEN_ARRAY | `[]` | `numeric[] arr = [1; 2; 3]` | Homojen (tek tip), mutable, tip bildirimli |
+| Array | TOKEN_ARRAY | `[]` | `numeric[] arr = [1; 2; 3;]` | Homojen (tek tip), mutable, tip bildirimli |
 | List | TOKEN_LIST | `()` | `list data = (1; "x"; true;)` | Heterojen (çoklu tip), mutable, tip yok |
-| Tuple | TOKEN_TUPLE | `<>` | `tuple<> pos = <10; 20>` | Heterojen, immutable |
+| Tuple | TOKEN_TUPLE | `<>` | `tuple<> pos = <10; 20;>` | Heterojen, immutable |
 
-**⚠️ KRİTİK FARKLAR:**
+**⚠️ KRİTİK KURALLAR:**
+- **Ayırıcı:** HER YERDE `;` (noktalı virgül) - Array, List, Tuple HEPSI!
+- **Trailing semicolon:** ZORUNLU - `[3; 5; 0;]`, `(3; 5; 0;)`, `<3; 5; 0;>`
+- **Virgül (`,`):** SADECE ondalık sayılarda: `3,14` (Türk formatı)
 - **Array:** Tip bildirimi ZORUNLU (`numeric[]`), sadece o tip
 - **List:** Tip bildirimi YOK (`list`), her tip olabilir
-- **Parametre ayırıcı:** HER YERDE `;` (noktalı virgül)
-- **Trailing semicolon:** List'te ZORUNLU: `(1; 2; 3;)`
+
+**Örnekler:**
+```pmpl
+numeric[] arr = [3; 5; 0;]        -- Array
+list data = (3; 5; 0;)            -- List
+tuple<> pos = <3; 5; 0;>          -- Tuple
+```
 
 ### 6. Mantıksal Operatörler
 
@@ -656,28 +664,38 @@ debug if a == b then c = d
 
 ```pmpl
 -- Array: [] - Homojen, mutable, tip bildirimli
-numeric[] numbers = [1; 2; 3; 4; 5]
+numeric[] numbers = [1; 2; 3; 4; 5;]  -- ✅ Trailing ; zorunlu!
 numbers[0] = 100
 
--- List: () - Heterojen, mutable (trailing ; zorunlu)
+-- List: () - Heterojen, mutable
 list person = ("Ali"; 25; true;)  -- ✅ Farklı tipler: string, numeric, boolean
 person[0] = "Veli"
+
+-- Tuple: <> - Heterojen, immutable
+tuple<> coords = <10; 20; 30;>  -- ✅ Trailing ; zorunlu!
+-- coords[0] = 99  -- ❌ HATA! Immutable
 
 -- List literal (return)
 function get_data() returns list
     return (1; "test"; 3,14;)  -- ✅ Trailing ; zorunlu
 end_function
 
--- Boş list
-list empty = ()  -- ✅ Boş list
+-- Boş koleksiyonlar
+numeric[] empty_arr = []           -- ✅ Boş array
+list empty_list = ()               -- ✅ Boş list
+tuple<> empty_tuple = <>           -- ✅ Boş tuple
 
--- Tuple: <> - Heterojen, immutable
-coord<> = <10; 20; "point">
--- coord<0> = 99  -- HATA! Immutable
+-- ⚠️ KRİTİK: Ayırıcı HER YERDE ;
+numeric[] a = [3; 5; 0;]           -- ✅ DOĞRU
+list b = (3; 5; 0;)                -- ✅ DOĞRU
+tuple<> c = <3; 5; 0;>             -- ✅ DOĞRU
+
+numeric[] wrong = [3, 5, 0]        -- ❌ YANLIŞ! Virgül kullanılmış
+```
 
 -- Fonksiyondan tuple döndürme
-function minmax(numeric[] arr) as <numeric; numeric>
-    return <min(arr); max(arr)>
+function minmax(numeric[] arr) returns tuple<>
+    return <min(arr); max(arr);>  -- ✅ Trailing ; zorunlu
 end_function
 ```
 

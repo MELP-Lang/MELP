@@ -1,0 +1,7 @@
+-- YZ_200 Test: Simplified List Test
+-- Just test list creation
+
+function main() returns numeric
+    list numbers = ()
+    return 0
+end_function

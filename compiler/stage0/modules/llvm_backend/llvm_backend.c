@@ -355,10 +355,15 @@ LLVMValue* llvm_emit_call(LLVMContext* ctx, const char* func_name,
     // YZ_200: Determine return type based on function name
     int returns_pointer = (strncmp(func_name, "melp_list", 9) == 0 && 
                           (strcmp(func_name, "melp_list_create") == 0 ||
-                           strcmp(func_name, "melp_list_get") == 0));
+                           strcmp(func_name, "melp_list_get") == 0)) ||
+                          strcmp(func_name, "malloc") == 0;  // malloc returns i8*
+    
+    int returns_i32 = (strcmp(func_name, "melp_list_append") == 0 ||
+                       strcmp(func_name, "melp_list_prepend") == 0 ||
+                       strcmp(func_name, "melp_list_set") == 0);
     
     result->type = returns_pointer ? LLVM_TYPE_I8_PTR : LLVM_TYPE_I64;
-    const char* return_type_str = returns_pointer ? "i8*" : "i64";
+    const char* return_type_str = returns_pointer ? "i8*" : (returns_i32 ? "i32" : "i64");
     
     fprintf(ctx->output, "    %s = call %s @%s(", result->name, return_type_str, func_name);
     
@@ -507,6 +512,10 @@ void llvm_emit_printf_support(LLVMContext* ctx) {
     fprintf(ctx->output, "declare void @mlp_println_numeric(i8*, i8)\n");
     fprintf(ctx->output, "; void mlp_println_string(const char* str)\n");
     fprintf(ctx->output, "declare void @mlp_println_string(i8*)\n\n");
+    
+    fprintf(ctx->output, "; C Standard Library - Memory Allocation\n");
+    fprintf(ctx->output, "; void* malloc(size_t size)\n");
+    fprintf(ctx->output, "declare i8* @malloc(i64)\n\n");
     
     fprintf(ctx->output, "; MLP Standard Library - List Functions (YZ_200)\n");
     fprintf(ctx->output, "; MelpList* melp_list_create(size_t element_size)\n");

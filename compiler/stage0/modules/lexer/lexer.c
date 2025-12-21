@@ -211,11 +211,8 @@ static Token* read_identifier(Lexer* lexer) {
     // I/O keywords
     else if (strcmp(value, "print") == 0) type = TOKEN_PRINT;
     else if (strcmp(value, "println") == 0) type = TOKEN_PRINTLN;  // YZ_48
-    // List operations (YZ_200)
-    else if (strcmp(value, "append") == 0) type = TOKEN_APPEND;
-    else if (strcmp(value, "prepend") == 0) type = TOKEN_PREPEND;
-    else if (strcmp(value, "length") == 0) type = TOKEN_LENGTH;
-    else if (strcmp(value, "clear") == 0) type = TOKEN_CLEAR;
+    // YZ_200: List operations are treated as built-in functions (identifiers, not keywords)
+    // append(), prepend(), length(), clear() - these are function calls, not special keywords
     
     Token* token = make_token(type, value, lexer->line);
     free(value);

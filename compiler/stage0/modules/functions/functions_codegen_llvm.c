@@ -13,18 +13,60 @@
 #include <stdlib.h>
 #include <string.h>
 
+// YZ_200: Variable type tracking helpers
+static void register_variable_type(FunctionLLVMContext* ctx, const char* name, int is_pointer) {
+    // Grow array if needed
+    if (ctx->var_type_count >= ctx->var_type_capacity) {
+        ctx->var_type_capacity = ctx->var_type_capacity == 0 ? 16 : ctx->var_type_capacity * 2;
+        ctx->var_types = realloc(ctx->var_types, sizeof(VarTypeEntry) * ctx->var_type_capacity);
+    }
+    
+    // Add entry
+    ctx->var_types[ctx->var_type_count].name = strdup(name);
+    ctx->var_types[ctx->var_type_count].is_pointer = is_pointer;
+    ctx->var_type_count++;
+}
+
+static int lookup_variable_type(FunctionLLVMContext* ctx, const char* name) {
+    for (int i = 0; i < ctx->var_type_count; i++) {
+        if (strcmp(ctx->var_types[i].name, name) == 0) {
+            return ctx->var_types[i].is_pointer;
+        }
+    }
+    return 0;  // Default: i64 (not pointer)
+}
+
+static void clear_variable_types(FunctionLLVMContext* ctx) {
+    for (int i = 0; i < ctx->var_type_count; i++) {
+        free(ctx->var_types[i].name);
+    }
+    ctx->var_type_count = 0;
+}
+
 // Initialize LLVM codegen context
 FunctionLLVMContext* function_llvm_context_create(FILE* output) {
     FunctionLLVMContext* ctx = malloc(sizeof(FunctionLLVMContext));
     ctx->llvm_ctx = llvm_context_create(output);
     ctx->current_func = NULL;
     ctx->globals_emitted = 0;  // YZ_61: Initialize flag
+    
+    // YZ_200: Initialize variable type tracking
+    ctx->var_types = NULL;
+    ctx->var_type_count = 0;
+    ctx->var_type_capacity = 0;
+    
     return ctx;
 }
 
 // Free LLVM codegen context
 void function_llvm_context_free(FunctionLLVMContext* ctx) {
     if (ctx) {
+        // YZ_200: Free variable type tracking
+        clear_variable_types(ctx);
+        if (ctx->var_types) {
+            free(ctx->var_types);
+        }
+        
         llvm_context_free(ctx->llvm_ctx);
         free(ctx);
     }
@@ -59,9 +101,22 @@ static void scan_statement_for_variables(FunctionDeclaration* func, Statement* s
     if (stmt->type == STMT_VARIABLE_DECL) {
         VariableDeclaration* decl = (VariableDeclaration*)stmt->data;
         if (decl && decl->name) {
-            // Register with type flag (1=numeric, 0=string)
-            int is_numeric = (decl->type != VAR_STRING) ? 1 : 0;
+            // YZ_200: Register with type flag (1=numeric, 0=string/list)
+            // Also set is_list flag for list variables
+            int is_numeric = (decl->type != VAR_STRING && decl->type != VAR_LIST) ? 1 : 0;
             function_register_local_var_with_type(func, decl->name, is_numeric);
+            
+            // YZ_200: Mark list variables
+            if (decl->type == VAR_LIST) {
+                LocalVariable* var = func->local_vars;
+                while (var) {
+                    if (strcmp(var->name, decl->name) == 0) {
+                        var->is_list = 1;
+                        break;
+                    }
+                    var = var->next;
+                }
+            }
         }
     }
     
@@ -127,13 +182,30 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
                 ArithmeticExpr* elem_expr = (ArithmeticExpr*)list->elements[i];
                 LLVMValue* elem_val = generate_expression_llvm(ctx, elem_expr);
                 
-                // Allocate temporary for element (on stack)
-                LLVMValue* elem_ptr = llvm_emit_alloca(ctx->llvm_ctx, "list_elem_tmp");
-                llvm_emit_store(ctx->llvm_ctx, elem_val, elem_ptr);
+                // YZ_200: Allocate memory for element (runtime expects void**)
+                // malloc(8) for i64 element
+                LLVMValue* size_arg = llvm_const_i64(8);
+                LLVMValue* elem_mem = llvm_emit_call(ctx->llvm_ctx, "malloc", &size_arg, 1);
+                elem_mem->type = LLVM_TYPE_I8_PTR;
                 
-                // Call melp_list_append(list_ptr, elem_ptr)
-                LLVMValue* args[2] = {list_ptr, elem_ptr};
+                // Bitcast i8* to i64* and store value
+                char* cast_temp = llvm_new_temp(ctx->llvm_ctx);
+                fprintf(ctx->llvm_ctx->output, "    %s = bitcast i8* %s to i64*\n",
+                        cast_temp, elem_mem->name);
+                
+                fprintf(ctx->llvm_ctx->output, "    store i64 ");
+                if (elem_val->is_constant) {
+                    fprintf(ctx->llvm_ctx->output, "%ld", elem_val->const_value);
+                } else {
+                    fprintf(ctx->llvm_ctx->output, "%s", elem_val->name);
+                }
+                fprintf(ctx->llvm_ctx->output, ", i64* %s\n", cast_temp);
+                
+                // Call melp_list_append(list_ptr, elem_mem) with i8* pointer
+                LLVMValue* args[2] = {list_ptr, elem_mem};
                 llvm_emit_call(ctx->llvm_ctx, "melp_list_append", args, 2);
+                
+                llvm_value_free(elem_val);
             }
             
             // 3. Return list pointer
@@ -201,33 +273,22 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
             val->type = (param_type == FUNC_PARAM_TEXT || param_type == FUNC_PARAM_LIST) ? LLVM_TYPE_I8_PTR : LLVM_TYPE_I64;
             return val;
         } else {
-            // YZ_65: Local variable - check if string or numeric
-            // Look up variable type from local_vars registry
-            int is_string_var = 0;
-            LocalVariable* local = ctx->current_func->local_vars;
+            // YZ_200: Local variable - use type table for correct load
+            int is_pointer = lookup_variable_type(ctx, arith->value);
             
-            while (local) {
-                if (strcmp(local->name, arith->value) == 0) {
-                    is_string_var = !local->is_numeric;  // is_numeric=0 means string
-                    break;
-                }
-                local = local->next;
-            }
-            
-            if (is_string_var || arith->is_string) {
-                // String variable: load i8* from i8**
-                // Note: String variables are stored with _ptr suffix
+            if (is_pointer) {
+                // Pointer variable (string/list): load i8* from i8**
                 LLVMValue* loaded = malloc(sizeof(LLVMValue));
                 loaded->name = llvm_new_temp(ctx->llvm_ctx);
                 loaded->is_constant = 0;
                 loaded->type = LLVM_TYPE_I8_PTR;
                 
-                fprintf(ctx->llvm_ctx->output, "    %s = load i8*, i8** %%%s_ptr, align 8\n",
+                fprintf(ctx->llvm_ctx->output, "    %s = load i8*, i8** %%%s, align 8\n",
                         loaded->name, arith->value);
                 
                 return loaded;
             } else {
-                // Numeric variable - need to load from stack
+                // Numeric variable - load i64 from i64*
                 LLVMValue* var_ptr = llvm_reg(arith->value);
                 LLVMValue* loaded = llvm_emit_load(ctx->llvm_ctx, var_ptr);
                 llvm_value_free(var_ptr);
@@ -236,9 +297,111 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
         }
     }
     
+    // YZ_200: Handle array/list indexing: arr[i], list(i)
+    if (arith->is_array_access && arith->array_access) {
+        IndexAccess* access = arith->array_access;
+        
+        // Load collection pointer from variable
+        // Check if it's a list (i8*) or array
+        int is_pointer = lookup_variable_type(ctx, access->collection_name);
+        
+        if (is_pointer) {
+            // List indexing: call melp_list_get(list, index)
+            // 1. Load list pointer
+            LLVMValue* list_ptr = malloc(sizeof(LLVMValue));
+            list_ptr->name = llvm_new_temp(ctx->llvm_ctx);
+            list_ptr->is_constant = 0;
+            list_ptr->type = LLVM_TYPE_I8_PTR;
+            fprintf(ctx->llvm_ctx->output, "    %s = load i8*, i8** %%%s, align 8\n",
+                    list_ptr->name, access->collection_name);
+            
+            // 2. Generate index expression (handle different index types)
+            LLVMValue* index_val = NULL;
+            if (access->index_type == 0) {
+                // Constant index
+                index_val = llvm_const_i64(access->index.const_index);
+            } else if (access->index_type == 1) {
+                // Variable index
+                LLVMValue* var_ptr = llvm_reg(access->index.var_index);
+                index_val = llvm_emit_load(ctx->llvm_ctx, var_ptr);
+                llvm_value_free(var_ptr);
+            } else {
+                // Expression index
+                index_val = generate_expression_llvm(ctx, (ArithmeticExpr*)access->index.expr_index);
+            }
+            
+            // 3. Call melp_list_get(list, index) -> returns i8* (pointer to data)
+            LLVMValue* args[2] = {list_ptr, index_val};
+            LLVMValue* elem_ptr = llvm_emit_call(ctx->llvm_ctx, "melp_list_get", args, 2);
+            elem_ptr->type = LLVM_TYPE_I8_PTR;
+            
+            // 4. Bitcast i8* to i64* and load value
+            char* cast_temp = llvm_new_temp(ctx->llvm_ctx);
+            fprintf(ctx->llvm_ctx->output, "    %s = bitcast i8* %s to i64*\n",
+                    cast_temp, elem_ptr->name);
+            
+            // 5. Load i64 value
+            LLVMValue* result = malloc(sizeof(LLVMValue));
+            result->name = llvm_new_temp(ctx->llvm_ctx);
+            result->is_constant = 0;
+            result->type = LLVM_TYPE_I64;
+            fprintf(ctx->llvm_ctx->output, "    %s = load i64, i64* %s\n",
+                    result->name, cast_temp);
+            
+            llvm_value_free(list_ptr);
+            llvm_value_free(index_val);
+            llvm_value_free(elem_ptr);
+            return result;
+        } else {
+            // Array indexing: legacy assembly code (not implemented in LLVM yet)
+            // TODO: Implement array indexing in LLVM
+            return llvm_const_i64(0);
+        }
+    }
+    
     // Handle function calls
     if (arith->is_function_call && arith->func_call) {
         FunctionCallExpr* call = arith->func_call;
+        
+        // YZ_200: Check if this is actually a list indexing operation
+        // If function name matches a list variable, treat as list access
+        int is_pointer = lookup_variable_type(ctx, call->function_name);
+        if (is_pointer && call->arg_count == 1) {
+            // This is list indexing: list_var(index)
+            // 1. Load list pointer
+            LLVMValue* list_ptr = malloc(sizeof(LLVMValue));
+            list_ptr->name = llvm_new_temp(ctx->llvm_ctx);
+            list_ptr->is_constant = 0;
+            list_ptr->type = LLVM_TYPE_I8_PTR;
+            fprintf(ctx->llvm_ctx->output, "    %s = load i8*, i8** %%%s, align 8\n",
+                    list_ptr->name, call->function_name);
+            
+            // 2. Generate index expression
+            LLVMValue* index_val = generate_expression_llvm(ctx, call->arguments[0]);
+            
+            // 3. Call melp_list_get(list, index) -> returns i8* (void*)
+            LLVMValue* args[2] = {list_ptr, index_val};
+            LLVMValue* elem_ptr = llvm_emit_call(ctx->llvm_ctx, "melp_list_get", args, 2);
+            elem_ptr->type = LLVM_TYPE_I8_PTR;
+            
+            // 4. Bitcast i8* to i64* and load value
+            char* cast_temp = llvm_new_temp(ctx->llvm_ctx);
+            fprintf(ctx->llvm_ctx->output, "    %s = bitcast i8* %s to i64*\n",
+                    cast_temp, elem_ptr->name);
+            
+            // 5. Load i64 value from pointer
+            LLVMValue* result = malloc(sizeof(LLVMValue));
+            result->name = llvm_new_temp(ctx->llvm_ctx);
+            result->is_constant = 0;
+            result->type = LLVM_TYPE_I64;
+            fprintf(ctx->llvm_ctx->output, "    %s = load i64, i64* %s\n",
+                    result->name, cast_temp);
+            
+            llvm_value_free(list_ptr);
+            llvm_value_free(index_val);
+            llvm_value_free(elem_ptr);
+            return result;
+        }
         
         // Special case: println
         if (strcmp(call->function_name, "println") == 0 && call->arg_count == 1) {
@@ -248,13 +411,42 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
             return result;
         }
         
-        // General function call
+        // YZ_200: Map built-in list functions to runtime functions
+        const char* runtime_name = call->function_name;
+        int is_list_append = 0;
+        if (strcmp(call->function_name, "append") == 0) {
+            runtime_name = "melp_list_append";
+            is_list_append = 1;
+        } else if (strcmp(call->function_name, "prepend") == 0) {
+            runtime_name = "melp_list_prepend";
+            is_list_append = 1;  // prepend also needs i64->i8* conversion
+        } else if (strcmp(call->function_name, "length") == 0) {
+            runtime_name = "melp_list_length";
+        } else if (strcmp(call->function_name, "clear") == 0) {
+            runtime_name = "melp_list_clear";
+        }
+        
+        // Generate arguments
         LLVMValue** args = malloc(sizeof(LLVMValue*) * call->arg_count);
         for (int i = 0; i < call->arg_count; i++) {
             args[i] = generate_expression_llvm(ctx, call->arguments[i]);
+            
+            // YZ_200: For append/prepend, convert second argument (element) from i64 to i8*
+            if (is_list_append && i == 1 && args[i]->type == LLVM_TYPE_I64) {
+                LLVMValue* ptr_val = malloc(sizeof(LLVMValue));
+                ptr_val->name = llvm_new_temp(ctx->llvm_ctx);
+                ptr_val->is_constant = 0;
+                ptr_val->type = LLVM_TYPE_I8_PTR;
+                fprintf(ctx->llvm_ctx->output, "    %s = inttoptr i64 %s%s to i8*\n",
+                        ptr_val->name,
+                        args[i]->is_constant ? "" : "%",
+                        args[i]->is_constant ? "0" : args[i]->name);
+                llvm_value_free(args[i]);
+                args[i] = ptr_val;
+            }
         }
         
-        LLVMValue* result = llvm_emit_call(ctx->llvm_ctx, call->function_name, args, call->arg_count);
+        LLVMValue* result = llvm_emit_call(ctx->llvm_ctx, runtime_name, args, call->arg_count);
         
         // Free args
         for (int i = 0; i < call->arg_count; i++) {
@@ -411,6 +603,9 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
             
             // YZ_200: Handle list variables
             if (decl->type == VAR_LIST) {
+                // Register variable type
+                register_variable_type(ctx, decl->name, 1);  // 1 = pointer (i8*)
+                
                 // List variable: list numbers = (1; 2; 3;)
                 // Allocate i8* pointer on stack for list pointer
                 char var_ptr_name[256];
@@ -441,6 +636,9 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
             
             // YZ_62: Phase 17 - Handle string variables
             if (decl->type == VAR_STRING && decl->value) {
+                // Register variable type
+                register_variable_type(ctx, decl->name, 1);  // 1 = pointer (i8*)
+                
                 // String variable: string x = "hello"
                 // Allocate i8* pointer on stack using variable name + _ptr suffix
                 char var_ptr_name[256];
@@ -465,6 +663,9 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
             }
             
             // Numeric/boolean variables
+            // Register variable type
+            register_variable_type(ctx, decl->name, 0);  // 0 = not pointer (i64)
+            
             // Allocate variable
             LLVMValue* var_ptr = llvm_emit_alloca(ctx->llvm_ctx, decl->name);
             

@@ -988,10 +988,10 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current, Fu
                     }
                 }
             
-                // YZ_31: If still not recognized, peek ahead to check for comma
-                // Multiple args (comma) = definitely a function call
+                // YZ_31: If still not recognized, peek ahead to check for semicolon
+                // Multiple args (semicolon) = definitely a function call
                 // YZ_37: Simplified decision - ANY identifier followed by '(' is a function call
-                // List access should use list[i] syntax instead of list(i)
+                // YZ_200: List access uses list(i) syntax, arrays use arr[i]
                 // This avoids the need for complex peek-ahead logic
                 if (!looks_like_function) {
                     // Since we're at TOKEN_LPAREN, and identifier is not a known function,

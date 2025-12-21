@@ -1,0 +1,35 @@
+-- YZ_200 Test: Complete List Operations
+-- Tests: creation, append, indexing, length
+
+function test_list_append() returns numeric
+    list numbers = ()
+    append(numbers; 10)
+    append(numbers; 20)
+    append(numbers; 30)
+    return length(numbers)  -- Should return 3
+end_function
+
+function test_list_indexing() returns numeric
+    list numbers = (1; 2; 3; 4; 5;)
+    numeric sum = 0
+    sum = sum + numbers(0)  -- 1
+    sum = sum + numbers(2)  -- 3
+    sum = sum + numbers(4)  -- 5
+    return sum  -- Should return 9
+end_function
+
+function test_list_with_variables() returns numeric
+    list data = (100; 200;)
+    numeric x = 1
+    numeric result = data(x)  -- data(1) = 200
+    return result
+end_function
+
+function main() returns numeric
+    numeric result1 = test_list_append()
+    numeric result2 = test_list_indexing()
+    numeric result3 = test_list_with_variables()
+    
+    -- Sum results: 3 + 9 + 200 = 212
+    return result1 + result2 + result3
+end_function

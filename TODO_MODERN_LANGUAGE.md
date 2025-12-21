@@ -48,7 +48,7 @@ Kritik raporda tespit edildi:
 - [ ] List type definition (dynamic array)
 - [ ] List operations: append, prepend, get, set, length
 - [ ] List literals: `(1; 2; 3;)` ← **DOĞRU SYNTAX!**
-- [ ] List indexing: `list[0]`
+- [ ] List indexing: `list(0)` ← **Parantez ile!**
 - [ ] List iteration: `for item in list`
 - [ ] LLVM IR codegen
 - [ ] Type safety: heterojen list desteği
@@ -66,7 +66,7 @@ function test_list() returns numeric
     list numbers = (1; 2; 3; 4; 5;)  -- ✅ List syntax: () + ; ayırıcı
     numeric sum = 0
     for i = 0 to length(numbers) - 1 do
-        sum = sum + numbers[i]
+        sum = sum + numbers(i)
     end_for
     return sum  -- Should return 15
 end_function
