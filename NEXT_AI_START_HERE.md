@@ -1,9 +1,9 @@
 # 🚀 MELP PROJECT - START HERE!
 
-**Current Session:** YZ_213 (Collections Parser Integration) - 📋 **HAZIR**  
+**Current Session:** YZ_213 (Collections Parser Integration) - 🚀 **READY TO START!**  
 **Date:** 22 Aralık 2025  
 **Agent:** GitHub Copilot (Claude Sonnet 4.5)  
-**Status:** 🚀 **YZ_213 READY!** - Parser integration for Collections Library
+**Status:** 🚀 **YZ_213 READY TO START!** - Parser integration for Collections Library
 
 **⚠️ Project Status:**
 - **Stage 0:** ✅ TAMAMLANDI (C Compiler) - **List (), Map {}, Optional ?, Generic <T>, Lambda λ, Function Pointers &, Memory RC GC ✅**
@@ -23,7 +23,7 @@
 - **YZ_210:** ✅ **TAMAMLANDI** - Memory Management & RC GC 🛡️
 - **YZ_211:** 🟡 **WIP (70%)** - Move Semantics (Parser issue, deferred)
 - **YZ_212:** ✅ **TAMAMLANDI** - Standard Library Collections (Runtime) 📚
-- **YZ_213:** 📋 **BAŞLATILDI** - Collections Parser Integration 🔧
+- **YZ_213:** 🚀 **READY TO START** - Collections Parser Integration 🔧
 
 ---
 
@@ -87,9 +87,9 @@ string data2 = data              -- Auto rc_retain()
 
 ---
 
-## 📋 YZ_213 BAŞLATILDI! (22 Aralık 2025)
+## 🚀 YZ_213 READY TO START! (22 Aralık 2025)
 
-**Collections Parser Integration - ONGOING**
+**Collections Parser Integration - READY**
 - 🎯 Goal: Add MELP syntax support for Collections Library
 - 📝 Task File: LLVM_YZ/YZ_213_GOREV.md
 - ⏱️ Estimate: 3-4 days
@@ -113,15 +113,15 @@ string data2 = data              -- Auto rc_retain()
 **Expected MELP Syntax:**
 ```pmpl
 function test_collections() returns numeric
-    Set numbers = create_set()
+    set numbers = create_set()
     add_to_set(numbers, 10)
     add_to_set(numbers, 20)
     
-    Queue tasks = create_queue()
+    queue tasks = create_queue()
     enqueue(tasks, 100)
     numeric first = dequeue(tasks)
     
-    Stack history = create_stack()
+    stack history = create_stack()
     push(history, 30)
     numeric top = pop(history)
     
@@ -178,7 +178,7 @@ void* top = melp_stack_peek(s);        // View top
 **Module Location:** `runtime/stdlib/mlp_{list,map,set,queue,stack}_ext.{c,h}`  
 **Tests:** `tests/test_{list,map,set,queue_stack}_ext.c`  
 **Report:** `LLVM_YZ/YZ_212_ILERLEME.md`  
-**Branch:** `stdlib-collections_YZ_212`
+**Branch:** `stdlib-collections_YZ_212` (✅ pushed, ready to merge)
 
 **Implementation Details:**
 - List wrapping approach (Üst Akıl decision)
@@ -285,7 +285,7 @@ list keys = keys(person)       -- Get keys
 list vals = values(person)     -- Get values
 clear(person)                  -- Clear all
 
--- Set operations
+-- Set operations (lowercase type names)
 set numbers = create_set()
 add_to_set(numbers, 1)
 add_to_set(numbers, 2)
@@ -299,14 +299,14 @@ add_to_set(evens, 4)
 set all = union_sets(numbers, evens)
 set common = intersection_sets(numbers, evens)
 
--- Queue operations
+-- Queue operations (lowercase type names)
 queue tasks = create_queue()
 enqueue(tasks, "task1")
 enqueue(tasks, "task2")
 string task = dequeue(tasks)
 string next = peek_queue(tasks)
 
--- Stack operations
+-- Stack operations (lowercase type names)
 stack history = create_stack()
 push(history, "page1")
 push(history, "page2")
