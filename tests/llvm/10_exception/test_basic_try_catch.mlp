@@ -1,0 +1,23 @@
+-- Test 1: Basic Try-Catch
+-- Tests basic exception throwing and catching
+
+function divide(numeric a, numeric b) returns numeric
+    if b == 0 then
+        throw exception("Division by zero")
+    end_if
+    return a / b
+end_function
+
+function test_basic_try_catch() returns numeric
+    try
+        numeric result = divide(10, 0)
+        return result
+    catch e as Exception
+        return -1
+    end_try
+end_function
+
+function main() returns numeric
+    numeric result = test_basic_try_catch()
+    return result  -- Should return -1 (exception caught)
+end_function

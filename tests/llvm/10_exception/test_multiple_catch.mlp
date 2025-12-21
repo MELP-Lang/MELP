@@ -1,0 +1,24 @@
+-- Test 2: Multiple Catch Clauses
+-- Tests multiple catch clauses with different exception types
+
+exception DivisionException extends Exception
+end_exception
+
+exception CustomException extends Exception
+end_exception
+
+function test_multiple_catch() returns numeric
+    try
+        throw CustomException("test error")
+    catch e as DivisionException
+        return 1
+    catch e as CustomException
+        return 2
+    catch e as Exception
+        return 3
+    end_try
+end_function
+
+function main() returns numeric
+    return test_multiple_catch()  -- Should return 2 (CustomException caught)
+end_function

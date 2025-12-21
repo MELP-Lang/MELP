@@ -53,6 +53,13 @@ typedef enum {
     TOKEN_IN,              // for each item in collection
     TOKEN_EXIT,            // exit, exit for, exit while, exit if, exit function
     
+    // Exception handling keywords (YZ_207)
+    TOKEN_TRY,             // try
+    TOKEN_CATCH,           // catch
+    TOKEN_FINALLY,         // finally
+    TOKEN_THROW,           // throw
+    TOKEN_EXCEPTION,       // exception (type definition)
+    
     // ⭐ PMPL Block Terminators (underscore keywords)
     TOKEN_END_IF,          // end_if
     TOKEN_END_WHILE,       // end_while
@@ -64,6 +71,7 @@ typedef enum {
     TOKEN_END_MATCH,       // end_match
     TOKEN_END_OPERATOR,    // end_operator
     TOKEN_END_TRY,         // end_try
+    TOKEN_END_EXCEPTION,   // end_exception
     
     // ⭐ PMPL Control Flow
     TOKEN_ELSE_IF,         // else_if

@@ -185,6 +185,15 @@ static Token* read_identifier(Lexer* lexer) {
     else if (strcmp(value, "each") == 0) type = TOKEN_EACH;       // YZ_28: for each
     else if (strcmp(value, "in") == 0) type = TOKEN_IN;           // YZ_28: for each item in
     else if (strcmp(value, "exit") == 0) type = TOKEN_EXIT;       // YZ_28: exit, exit for, exit while, exit if
+    
+    // Exception handling keywords (YZ_207)
+    else if (strcmp(value, "try") == 0) type = TOKEN_TRY;
+    else if (strcmp(value, "catch") == 0) type = TOKEN_CATCH;
+    else if (strcmp(value, "finally") == 0) type = TOKEN_FINALLY;
+    else if (strcmp(value, "throw") == 0) type = TOKEN_THROW;
+    else if (strcmp(value, "exception") == 0) type = TOKEN_EXCEPTION;
+    else if (strcmp(value, "end_exception") == 0) type = TOKEN_END_EXCEPTION;
+    
     // Function keywords
     else if (strcmp(value, "function") == 0) type = TOKEN_FUNCTION;
     else if (strcmp(value, "return") == 0) type = TOKEN_RETURN;

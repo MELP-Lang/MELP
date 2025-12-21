@@ -1,0 +1,21 @@
+-- Test 3: Finally Block
+-- Tests that finally block always executes
+
+function test_finally() returns numeric
+    numeric result = 0
+    
+    try
+        result = 10
+        throw exception("error")
+    catch e as Exception
+        result = 20
+    finally
+        result = result + 5  -- Always runs
+    end_try
+    
+    return result  -- Should return 25 (20 + 5)
+end_function
+
+function main() returns numeric
+    return test_finally()
+end_function
