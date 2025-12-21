@@ -121,10 +121,16 @@ end_function
 
 ---
 
-#### YZ_202: Optional Type (Null Safety) [3 gün]
+#### YZ_202: Optional Type (Null Safety) [3 gün - ENTEGRASYON]
 **Öncelik:** 🟡 Yüksek (type safety için kritik)
 
-**Yapılacaklar:**
+⚠️ **STAGE 0'DA FRAMEWORK VAR:** `compiler/stage0/modules/null_safety/` (7 dosya)
+- ⚠️ Null checking framework yazılmış, entegrasyon gerekli
+- ⚠️ Önce mevcut kodu kontrol et, sonra entegre et!
+
+**Yapılacaklar (ENTEGRASYON + TAMAMLAMA):**
+- [ ] Mevcut null_safety modülünü incele
+- [ ] Makefile'a ekle (null_safety.o vb.)
 - [ ] Optional type: `optional numeric`, `optional string`
 - [ ] None/null representation
 - [ ] Safe unwrapping: `if value is not none then`
@@ -132,7 +138,7 @@ end_function
 - [ ] Default value operator: `value ?? default`
 - [ ] **Nullable collections:** `list?`, `array?`, `map?`
 - [ ] **Empty vs null distinction:** `()` vs `null`
-- [ ] LLVM IR codegen
+- [ ] Test et: `tests/null_safety/test_optional.mlp`
 
 **Test Cases:**
 ```pmpl
@@ -334,15 +340,21 @@ end_function
 
 ### 🟣 PHASE 4: FIRST-CLASS FUNCTIONS (Zorunlu) [2 hafta]
 
-#### YZ_208: Lambda/Anonymous Functions [1 hafta]
+#### YZ_208: Lambda/Anonymous Functions [3 gün - ENTEGRASYON]
 **Öncelik:** 🟡 Yüksek (functional programming)
 
-**Yapılacaklar:**
-- [ ] Lambda syntax: `lambda (numeric x) returns numeric { return x * 2 }`
-- [ ] Closure capture: variables from outer scope
-- [ ] Function type: `function<numeric, numeric>`
-- [ ] Higher-order functions: map, filter, reduce
-- [ ] LLVM IR codegen (function pointers + environment)
+⚠️ **STAGE 0'DA YAZILMIŞ:** `compiler/stage0/modules/lambda/` (7 dosya)
+- ✅ lambda.h/c - Lambda struct ve API
+- ✅ lambda_parser.h/c - Lambda parsing
+- ✅ lambda_codegen.h/c - LLVM codegen
+- ✅ lambda_standalone.c - Standalone test
+
+**Yapılacaklar (ENTEGRASYON ONLY):**
+- [ ] Makefile'a ekle (lambda.o, lambda_parser.o, lambda_codegen.o)
+- [ ] `functions_compiler`'a link et
+- [ ] Test et: `tests/lambda/test_lambda.mlp`
+- [ ] Closure capture: variables from outer scope (varsa kontrol et)
+- [ ] Higher-order functions: map, filter, reduce (runtime'a ekle)
 
 **Test Cases:**
 ```pmpl
@@ -376,17 +388,23 @@ end_function
 
 ### 🔵 PHASE 5: MEMORY MANAGEMENT (Önemli) [3 hafta]
 
-#### YZ_210: Reference Counting GC [2 hafta]
+#### YZ_210: Reference Counting GC [1 hafta - ENTEGRASYON + GC]
 **Öncelik:** 🟡 Yüksek (memory safety)
 
+⚠️ **STAGE 0'DA YAZILMIŞ:** `compiler/stage0/modules/memory/` (7 dosya)
+- ✅ memory.h/c - malloc/free/copy/move (yazılmış)
+- ✅ memory_parser.h/c - Memory operations parsing
+- ✅ memory_codegen.h/c - LLVM codegen
+
 **Yapılacaklar:**
-- [ ] Reference counting: increment/decrement
+- [ ] Mevcut memory modülünü entegre et (Makefile + link)
+- [ ] Test et: `tests/memory/test_malloc.mlp`
+- [ ] **GC EKLE:** Reference counting (increment/decrement)
 - [ ] Automatic cleanup: destructor calls
 - [ ] Cycle detection: weak references
-- [ ] LLVM IR integration
 - [ ] STO upgrade: ref counting support
 
-**Alternatif:** Arena allocator (daha basit, performanslı)
+**Not:** Manuel memory zaten var, sadece GC eklenecek!
 
 ---
 
@@ -501,15 +519,28 @@ end_function
 
 ---
 
-#### YZ_219: Async/Await (Alternatif) [2 hafta]
+#### YZ_219: Async/Await [5 gün - ENTEGRASYON]
 **Öncelik:** 🟢 Düşük (modern async)
 
-**Yapılacaklar:**
-- [ ] Async function: `async function fetch()`
-- [ ] Await keyword: `result = await fetch()`
-- [ ] Future/Promise type
-- [ ] Event loop integration
-- [ ] LLVM coroutine support
+⚠️ **STAGE 0'DA YAZILMIŞ:** `compiler/stage0/modules/async/` (7 dosya)
+- ✅ async.h/c - Future/Promise + async runtime (227 satır!)
+- ✅ async_parser.h/c - async/await syntax parsing
+- ✅ async_codegen.h/c - LLVM coroutine codegen
+- ✅ async_standalone.c - Standalone test
+
+**Mevcut Özellikler (Yazılmış):**
+- ✅ Future/Promise types
+- ✅ async function, async block, async closure
+- ✅ await keyword (.await modern syntax)
+- ✅ await_all, await_any, await_race
+- ✅ Event loop + executor (single-thread, thread-pool, work-stealing)
+
+**Yapılacaklar (ENTEGRASYON ONLY):**
+- [ ] Makefile'a ekle (async.o, async_parser.o, async_codegen.o)
+- [ ] `functions_compiler`'a link et
+- [ ] Runtime'a event loop ekle
+- [ ] Test et: `tests/async/test_async.mlp`
+- [ ] LLVM coroutine support kontrol et (zaten yazılmış olabilir)
 
 ---
 
