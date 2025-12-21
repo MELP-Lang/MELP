@@ -137,6 +137,8 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
                     base_type = VAR_LIST;
                 } else if (expr->collection->type == COLL_TUPLE) {
                     base_type = VAR_TUPLE;
+                } else if (expr->collection->type == COLL_MAP) {
+                    base_type = VAR_MAP;  // YZ_201
                 } else {
                     base_type = VAR_ARRAY;
                 }

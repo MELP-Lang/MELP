@@ -7,7 +7,8 @@
 typedef enum {
     COLL_ARRAY,      // [] - Homogeneous, mutable, stack/heap
     COLL_LIST,       // () - Heterogeneous, mutable, heap
-    COLL_TUPLE       // <> - Heterogeneous, immutable, stack
+    COLL_TUPLE,      // <> - Heterogeneous, immutable, stack
+    COLL_MAP         // {} - Key-value pairs, mutable, heap (YZ_201)
 } CollectionType;
 
 // Array: Fixed/dynamic size, homogeneous elements
@@ -34,6 +35,15 @@ typedef struct {
     VarType* element_types;  // Type of each element
 } Tuple;
 
+// Map: Key-value pairs, dynamic size (heap only) - YZ_201
+typedef struct {
+    int capacity;            // Allocated capacity
+    int length;              // Current number of key-value pairs
+    char** keys;             // Array of string keys
+    void** values;           // Array of value pointers (mixed types)
+    VarType* value_types;    // Type of each value
+} Map;
+
 // Generic collection wrapper
 typedef struct {
     CollectionType type;
@@ -41,6 +51,7 @@ typedef struct {
         Array array;
         List list;
         Tuple tuple;
+        Map map;             // YZ_201: Map literal
     } data;
 } Collection;
 

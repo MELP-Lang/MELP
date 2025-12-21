@@ -31,6 +31,15 @@ void collection_free(Collection* coll) {
         }
         free(coll->data.tuple.elements);
         free(coll->data.tuple.element_types);
+    } else if (coll->type == COLL_MAP) {
+        // YZ_201: Free map keys and values
+        for (int i = 0; i < coll->data.map.length; i++) {
+            free(coll->data.map.keys[i]);
+            free(coll->data.map.values[i]);
+        }
+        free(coll->data.map.keys);
+        free(coll->data.map.values);
+        free(coll->data.map.value_types);
     }
     
     free(coll);
@@ -468,4 +477,163 @@ IndexAccess* array_parse_index_access(Lexer* lexer, const char* base_name, Token
     token_free(tok);  // Free closing bracket/paren/angle
     
     return access;
+}
+
+// Parse map literal: {"key": value; "key2": value2;}
+// Key-value pairs, semicolon-separated, trailing semicolon OPTIONAL
+// lbrace_token: BORROWED (must be '{')
+// YZ_201: Map literal implementation
+Collection* array_parse_map_literal(Lexer* lexer, Token* lbrace_token) {
+    if (!lbrace_token || lbrace_token->type != TOKEN_LBRACE) {
+        error_parser(lbrace_token ? lbrace_token->line : 0,
+                    "Expected '{' to start map");
+        return NULL;
+    }
+    // lbrace_token is borrowed - don't free!
+    
+    // Parse key-value pairs
+    int capacity = 4;
+    int length = 0;
+    char** keys = malloc(sizeof(char*) * capacity);
+    ArithmeticExpr** values = malloc(sizeof(ArithmeticExpr*) * capacity);
+    VarType* types = malloc(sizeof(VarType) * capacity);
+    
+    // Check for empty map: {}
+    Token* tok = lexer_next_token(lexer);  // OWNED
+    if (tok && tok->type == TOKEN_RBRACE) {
+        token_free(tok);
+        
+        // Create empty map collection
+        Collection* coll = malloc(sizeof(Collection));
+        coll->type = COLL_MAP;
+        coll->data.map.capacity = capacity;
+        coll->data.map.length = 0;
+        coll->data.map.keys = keys;
+        coll->data.map.values = (void**)values;
+        coll->data.map.value_types = types;
+        return coll;
+    }
+    
+    // Parse key-value pairs until we hit '}'
+    while (tok && tok->type != TOKEN_RBRACE) {
+        // Check capacity
+        if (length >= capacity) {
+            capacity *= 2;
+            keys = realloc(keys, sizeof(char*) * capacity);
+            values = realloc(values, sizeof(ArithmeticExpr*) * capacity);
+            types = realloc(types, sizeof(VarType) * capacity);
+        }
+        
+        // Parse key (must be string literal)
+        if (tok->type != TOKEN_STRING) {
+            error_parser(tok->line, "Map key must be a string literal");
+            token_free(tok);
+            for (int i = 0; i < length; i++) {
+                free(keys[i]);
+                arithmetic_expr_free(values[i]);
+            }
+            free(keys);
+            free(values);
+            free(types);
+            return NULL;
+        }
+        
+        // Store key (copy string value)
+        keys[length] = strdup(tok->value);
+        token_free(tok);
+        
+        // Expect ':' after key
+        tok = lexer_next_token(lexer);  // OWNED
+        if (!tok || tok->type != TOKEN_COLON) {
+            error_parser(tok ? tok->line : 0, "Expected ':' after map key");
+            if (tok) token_free(tok);
+            for (int i = 0; i <= length; i++) {
+                free(keys[i]);
+                if (i < length) arithmetic_expr_free(values[i]);
+            }
+            free(keys);
+            free(values);
+            free(types);
+            return NULL;
+        }
+        token_free(tok);
+        
+        // Parse value expression
+        tok = lexer_next_token(lexer);  // OWNED
+        ArithmeticExpr* value_expr = arithmetic_parse_expression_stateless(lexer, tok, NULL);
+        if (!value_expr) {
+            error_parser(tok->line, "Failed to parse map value");
+            token_free(tok);
+            for (int i = 0; i <= length; i++) {
+                free(keys[i]);
+                if (i < length) arithmetic_expr_free(values[i]);
+            }
+            free(keys);
+            free(values);
+            free(types);
+            return NULL;
+        }
+        values[length] = value_expr;
+        types[length] = VAR_NUMERIC;  // Default, should be inferred
+        length++;
+        
+        // Expect ';' or '}' after value
+        tok = lexer_next_token(lexer);  // OWNED
+        if (!tok) {
+            error_parser(0, "Unexpected EOF in map literal");
+            for (int i = 0; i < length; i++) {
+                free(keys[i]);
+                arithmetic_expr_free(values[i]);
+            }
+            free(keys);
+            free(values);
+            free(types);
+            return NULL;
+        }
+        
+        if (tok->type == TOKEN_SEMICOLON) {
+            token_free(tok);
+            tok = lexer_next_token(lexer);  // OWNED - next key or '}'
+        } else if (tok->type == TOKEN_RBRACE) {
+            // End of map, break loop (tok will be freed below)
+            break;
+        } else {
+            error_parser(tok->line, "Expected ';' or '}' after map value");
+            token_free(tok);
+            for (int i = 0; i < length; i++) {
+                free(keys[i]);
+                arithmetic_expr_free(values[i]);
+            }
+            free(keys);
+            free(values);
+            free(types);
+            return NULL;
+        }
+    }
+    
+    // Expect closing '}'
+    if (!tok || tok->type != TOKEN_RBRACE) {
+        error_parser(tok ? tok->line : 0, "Expected '}' to close map literal");
+        if (tok) token_free(tok);
+        for (int i = 0; i < length; i++) {
+            free(keys[i]);
+            arithmetic_expr_free(values[i]);
+        }
+        free(keys);
+        free(values);
+        free(types);
+        return NULL;
+    }
+    token_free(tok);
+    
+    // Create map collection
+    Collection* coll = malloc(sizeof(Collection));
+    coll->type = COLL_MAP;
+    coll->data.map.capacity = capacity;
+    coll->data.map.length = length;
+    coll->data.map.keys = keys;
+    coll->data.map.values = (void**)values;
+    coll->data.map.value_types = types;
+    
+    return coll;
 }

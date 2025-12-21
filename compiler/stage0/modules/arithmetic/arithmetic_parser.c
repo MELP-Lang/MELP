@@ -1729,6 +1729,41 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current, Fu
         return expr;
     }
     
+    // Map literal: {"key": value; "key2": value2;}
+    // YZ_201: Map literal support
+    if ((*current)->type == TOKEN_LBRACE) {
+        Token* lbrace = *current;
+        
+        // Use array_parse_map_literal to parse the full map
+        Collection* map_coll = array_parse_map_literal(lexer, lbrace);
+        if (!map_coll) {
+            fprintf(stderr, "Error: Failed to parse map literal\n");
+            free(expr);
+            return NULL;
+        }
+        
+        // Advance current to the token after '}'
+        advance_stateless(lexer, current);
+        
+        expr->is_literal = 1;
+        expr->is_collection = 1;
+        expr->collection = map_coll;
+        expr->is_float = 0;
+        expr->is_string = 0;
+        expr->is_boolean = 0;
+        
+        STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
+        sto_info->type = INTERNAL_TYPE_MAP;  // Will need to add this
+        sto_info->is_constant = false;
+        sto_info->needs_promotion = false;
+        sto_info->mem_location = MEM_HEAP;
+        expr->sto_info = sto_info;
+        expr->sto_analyzed = true;
+        expr->needs_overflow_check = false;
+        
+        return expr;
+    }
+    
     fprintf(stderr, "Error: Unexpected token in arithmetic expression\n");
     free(expr);
     return NULL;

@@ -21,6 +21,10 @@ Collection* array_parse_list_literal(Lexer* lexer, Token* lparen_token);
 // Token: less_token must be '<' (BORROWED)
 Collection* array_parse_tuple_literal(Lexer* lexer, Token* less_token);
 
+// Map: {"key": value; "key2": value2;} - Key-value pairs, semicolon separated
+// Token: lbrace_token must be '{' (BORROWED)
+Collection* array_parse_map_literal(Lexer* lexer, Token* lbrace_token);
+
 // Parse index access and return IndexAccess struct
 // base_name: identifier name
 // index_token: '[' for array, '(' for list, or '<' for tuple (BORROWED)

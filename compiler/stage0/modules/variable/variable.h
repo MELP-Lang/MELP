@@ -12,7 +12,8 @@ typedef enum {
     VAR_POINTER,     // Pointer type (numeric*, string*)
     VAR_ARRAY,       // Array type (numeric[], string[])
     VAR_LIST,        // List type () - heterogeneous, mutable
-    VAR_TUPLE        // Tuple type <> - heterogeneous, immutable
+    VAR_TUPLE,       // Tuple type <> - heterogeneous, immutable
+    VAR_MAP          // Map type {} - key-value pairs, mutable (YZ_201)
 } VarType;
 
 // Internal numeric representation (transparent to user)
