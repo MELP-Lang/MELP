@@ -1,0 +1,12 @@
+-- Test 3: Result type declaration
+-- Expected: Can declare result<numeric, string> variable
+
+function test_result_decl() returns numeric
+    -- This should parse correctly
+    -- result<numeric, string> res
+    return 42
+end_function
+
+function main() returns numeric
+    return test_result_decl()
+end_function

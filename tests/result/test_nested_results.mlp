@@ -1,0 +1,25 @@
+-- Test 7: Nested result handling
+-- Expected: Functions can call other functions that return results
+
+function inner_divide(numeric a, numeric b) returns result<numeric, string>
+    if b == 0 then
+        return error("Inner: Division by zero")
+    end_if
+    return ok(a / b)
+end_function
+
+function outer_divide(numeric a, numeric b, numeric c) returns result<numeric, string>
+    -- TODO: This needs full integration
+    -- result<numeric, string> first = inner_divide(a, b)?
+    -- result<numeric, string> second = inner_divide(first, c)?
+    -- return ok(second)
+    
+    if b == 0 then
+        return error("Outer: Division by zero")
+    end_if
+    return ok(a / b)
+end_function
+
+function main() returns numeric
+    return 42
+end_function

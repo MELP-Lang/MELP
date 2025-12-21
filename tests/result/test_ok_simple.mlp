@@ -1,0 +1,10 @@
+-- Test 1: Simple ok constructor
+-- Expected: ok(42) creates result with variant=0, value=42
+
+function test_ok_simple() returns result<numeric, string>
+    return ok(42)
+end_function
+
+function main() returns numeric
+    return 42
+end_function

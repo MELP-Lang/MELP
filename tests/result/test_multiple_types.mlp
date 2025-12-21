@@ -1,0 +1,15 @@
+-- Test 6: Multiple result types
+-- Expected: result<numeric, numeric> and result<string, numeric>
+
+function test_numeric_error() returns result<numeric, numeric>
+    return error(404)
+end_function
+
+-- TODO: String value type
+-- function test_string_ok() returns result<string, numeric>
+--     return ok("success")
+-- end_function
+
+function main() returns numeric
+    return 42
+end_function

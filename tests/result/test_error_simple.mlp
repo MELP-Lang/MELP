@@ -1,0 +1,10 @@
+-- Test 2: Simple error constructor
+-- Expected: error("msg") creates result with variant=1
+
+function test_error_simple() returns result<numeric, string>
+    return error("Division by zero")
+end_function
+
+function main() returns numeric
+    return 0
+end_function

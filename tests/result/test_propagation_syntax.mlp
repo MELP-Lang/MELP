@@ -1,0 +1,19 @@
+-- Test 5: ? operator syntax
+-- Expected: divide(10, 2)? should parse
+
+function divide(numeric a, numeric b) returns result<numeric, string>
+    if b == 0 then
+        return error("Division by zero")
+    end_if
+    return ok(a / b)
+end_function
+
+-- TODO: This will fail until ? is fully integrated
+-- function test_propagation() returns result<numeric, string>
+--     numeric x = divide(10, 2)?
+--     return ok(x + 10)
+-- end_function
+
+function main() returns numeric
+    return 42
+end_function

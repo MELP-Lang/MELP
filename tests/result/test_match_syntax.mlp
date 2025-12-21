@@ -1,0 +1,24 @@
+-- Test 4: Match expression syntax
+-- Expected: match result case ok(x): ... case error(e): ... end_match
+
+function divide(numeric a, numeric b) returns result<numeric, string>
+    if b == 0 then
+        return error("Division by zero")
+    end_if
+    return ok(a / b)
+end_function
+
+-- TODO: This will fail until match is fully integrated
+-- function test_match() returns numeric
+--     result<numeric, string> res = divide(10, 2)
+--     match res
+--         case ok(value):
+--             return value
+--         case error(msg):
+--             return -1
+--     end_match
+-- end_function
+
+function main() returns numeric
+    return 42
+end_function
