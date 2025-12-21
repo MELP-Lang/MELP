@@ -1,0 +1,67 @@
+-- Reference Counting Memory Example (YZ_210)
+-- Shows manual RC usage with malloc, retain, release
+
+-- Example 1: Basic RC allocation
+function test_basic_rc() returns numeric
+    -- Allocate string with RC (ref_count = 1)
+    -- NOTE: This is conceptual - actual implementation needs C integration
+    -- For now, just demonstrate the concept
+    
+    print("RC Memory Management Example")
+    print("============================")
+    
+    -- TODO: When RC is integrated into MELP:
+    -- string data = rc_malloc(100)
+    -- data = "Hello, Reference Counting!"
+    -- 
+    -- -- Share reference (ref_count = 2)
+    -- string data2 = data
+    -- rc_retain(data2)
+    -- 
+    -- -- Release first reference (ref_count = 1)
+    -- rc_release(data)
+    -- 
+    -- -- Release second reference (ref_count = 0, auto-free!)
+    -- rc_release(data2)
+    
+    print("RC functions available:")
+    print("- rc_malloc(size): Allocate with ref_count=1")
+    print("- rc_retain(ptr): Increment reference count")
+    print("- rc_release(ptr): Decrement, auto-free if 0")
+    print("- rc_get_count(ptr): Query current count")
+    
+    return 0
+end
+
+-- Example 2: Struct with RC
+-- struct Person
+--     string name
+--     numeric age
+-- end_struct
+--
+-- function create_person(string n, numeric a) returns Person*
+--     Person* p = rc_malloc(sizeof(Person))
+--     p.name = n
+--     p.age = a
+--     return p  -- ref_count = 1
+-- end
+--
+-- function share_person(Person* p) returns Person*
+--     rc_retain(p)  -- ref_count = 2
+--     return p
+-- end
+--
+-- function main() returns numeric
+--     Person* alice = create_person("Alice", 30)  -- ref_count = 1
+--     Person* shared = share_person(alice)        -- ref_count = 2
+--     
+--     rc_release(alice)   -- ref_count = 1
+--     rc_release(shared)  -- ref_count = 0 -> AUTO FREE!
+--     
+--     return 0
+-- end
+
+function main() returns numeric
+    numeric result = test_basic_rc()
+    return result
+end
