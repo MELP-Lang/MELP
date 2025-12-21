@@ -1,0 +1,10 @@
+-- YZ_211: Move Semantics Test
+-- Test move keyword lexing
+
+function test_move_basic() returns numeric
+    numeric x = 10
+    numeric y = move x  -- Move x to y
+    -- x should be invalid here
+    print(y)
+    return 0
+end

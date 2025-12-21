@@ -70,6 +70,37 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
     expr->sto_analyzed = false;
     expr->needs_overflow_check = false;
     
+    // YZ_211: Move expression (move x)
+    if (parser->current_token->type == TOKEN_MOVE) {
+        advance(parser);  // consume 'move'
+        
+        // Next token must be identifier
+        if (!parser->current_token || parser->current_token->type != TOKEN_IDENTIFIER) {
+            fprintf(stderr, "Error: Expected identifier after 'move'\n");
+            free(expr);
+            return NULL;
+        }
+        
+        expr->is_move = 1;
+        expr->moved_var = strdup(parser->current_token->value);
+        expr->is_literal = 0;
+        expr->value = NULL;
+        
+        // STO analysis: move transfers ownership, same type as source
+        // For now, treat as pointer transfer (no deep analysis yet)
+        STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
+        sto_info->type = INTERNAL_TYPE_POINTER;  // Move is always pointer-like
+        sto_info->is_constant = false;
+        sto_info->needs_promotion = false;
+        sto_info->mem_location = MEM_REGISTER;
+        expr->sto_info = sto_info;
+        expr->sto_analyzed = true;
+        expr->needs_overflow_check = false;
+        
+        advance(parser);
+        return expr;
+    }
+    
     // Boolean literal (true/false)
     if (parser->current_token->type == TOKEN_TRUE || parser->current_token->type == TOKEN_FALSE) {
         expr->is_literal = 1;

@@ -228,6 +228,10 @@ static Token* read_identifier(Lexer* lexer) {
     // append(), prepend(), length(), clear() - these are function calls, not special keywords
     // YZ_201: Map operations are also built-in functions (identifiers, not keywords)
     // insert(), get(), remove(), has_key() - these are function calls, not special keywords
+    // Ownership keywords (YZ_211)
+    else if (strcmp(value, "move") == 0) type = TOKEN_MOVE;
+    else if (strcmp(value, "borrow") == 0) type = TOKEN_BORROW;
+    else if (strcmp(value, "mut") == 0) type = TOKEN_MUT;
     
     Token* token = make_token(type, value, lexer->line);
     free(value);

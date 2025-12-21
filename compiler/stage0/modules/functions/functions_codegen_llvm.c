@@ -323,6 +323,21 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
         return llvm_const_i64(value);
     }
     
+    // YZ_211: Handle move expressions
+    if (arith->is_move) {
+        // Move semantics: Transfer ownership without copy
+        // For now, treat as simple variable load (actual move semantics TODO)
+        fprintf(ctx->llvm_ctx->output, "    ; YZ_211: Move semantics (ownership transfer)\n");
+        fprintf(ctx->llvm_ctx->output, "    ; TODO: Mark source variable '%s' as moved/invalidated\n", arith->moved_var);
+        
+        // Load the variable value
+        LLVMValue* var_ptr = llvm_reg(arith->moved_var);
+        LLVMValue* result = llvm_emit_load(ctx->llvm_ctx, var_ptr);
+        llvm_value_free(var_ptr);
+        
+        return result;
+    }
+    
     // Handle variables
     if (!arith->is_literal && !arith->is_function_call && arith->value) {
         // Check if this is a parameter (no need to load, already in register)

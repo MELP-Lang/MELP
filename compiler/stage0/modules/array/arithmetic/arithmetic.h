@@ -56,6 +56,10 @@ typedef struct ArithmeticExpr {
     int is_method_call;           // 1 if this is method call (p.method())
     void* method_call;            // MethodCall* (if is_method_call)
     
+    // ========== YZ_211: Move Semantics ==========
+    int is_move;                  // 1 if this is a move expression (move x)
+    char* moved_var;              // Variable being moved (if is_move)
+    
     // ========== Phase 2.3: STO Type Propagation ==========
     STOTypeInfo* sto_info;        // STO analysis result (heap allocated)
     bool sto_analyzed;            // Has STO analysis been performed?

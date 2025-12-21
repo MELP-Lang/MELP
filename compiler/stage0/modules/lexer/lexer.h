@@ -130,6 +130,10 @@ typedef enum {
     TOKEN_GET,             // get(map; key)
     TOKEN_REMOVE,          // remove(map; key)
     TOKEN_HAS_KEY,         // has_key(map; key)
+    // Ownership keywords (YZ_211)
+    TOKEN_MOVE,            // move (ownership transfer)
+    TOKEN_BORROW,          // borrow (temporary access)
+    TOKEN_MUT,             // mut (mutable borrow)
     // Delimiters
     TOKEN_LPAREN,          // (
     TOKEN_RPAREN,          // )
