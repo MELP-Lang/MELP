@@ -59,6 +59,10 @@ typedef struct {
     // ========== YZ_CONST: Const Support ==========
     bool is_const;                       // 1 if constant (immutable)
     
+    // ========== YZ_202: Nullable Support ==========
+    bool is_nullable;                    // 1 if nullable type (numeric?, string?)
+    bool is_null;                        // 1 if currently null (runtime state)
+    
     // ========== Phase 2: STO Integration ==========
     STOTypeInfo* sto_info;               // Full STO analysis result (heap allocated)
     bool sto_analyzed;                   // Has STO analysis been performed?

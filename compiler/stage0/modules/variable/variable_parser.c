@@ -170,6 +170,8 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
         decl->storage = STORAGE_BSS;
         decl->has_decimal_point = 0;
         decl->is_const = is_const;
+        decl->is_nullable = false;  // YZ_202: Type inference doesn't support nullable yet
+        decl->is_null = false;  // YZ_202: Initially not null
         decl->next = NULL;
         
         // Phase 2: Initialize STO fields
@@ -197,6 +199,15 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
     if (is_const) token_free(actual_type_token);  // YZ_CONST: Free if we owned it
     tok = lexer_next_token(lexer);
     if (!tok) return NULL;
+    
+    // YZ_202: Check for nullable type (?)
+    bool is_nullable = false;
+    if (tok->type == TOKEN_QUESTION) {
+        is_nullable = true;
+        token_free(tok);
+        tok = lexer_next_token(lexer);  // consume '?'
+        if (!tok) return NULL;
+    }
     
     // Check for pointer (*) or array ([])
     int is_pointer = 0;
@@ -258,6 +269,8 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
     decl->storage = STORAGE_BSS;
     decl->has_decimal_point = 0;
     decl->is_const = is_const;  // YZ_CONST: Set const flag
+    decl->is_nullable = is_nullable;  // YZ_202: Set nullable flag
+    decl->is_null = false;  // YZ_202: Initially not null
     decl->next = NULL;  // YZ_121: Initialize next pointer
     
     // Phase 2: Initialize STO fields
