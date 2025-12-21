@@ -123,17 +123,48 @@ end_function
 
 **Her YZ Agent'ı (YZ_XX) bu kuralları takip eder:**
 
+### ⚠️ BAŞLAMADAN ÖNCE OKU (ZORUNLU!)
+1. **`MELP_VISION.md`** ← MELP felsefesi (Kod = Düzyazı, STO, Modüler)
+2. **`ARCHITECTURE.md`** ← 26 modül sistemi
+3. **`melp_modulleri.md`** ← Mevcut modüller (baştan yazma!)
+4. **`YZ_PROTOKOL.md`** ← Detaylı çalışma kuralları
+5. **`TODO_MODERN_LANGUAGE.md`** ← Görev detayları
+
+### 🛡️ MELP MİMARİ KURALLARI (İHLAL ETME!)
+
+**Kritik Prensipler:**
+- ✅ **Modüler Yapı:** 26 bağımsız modül, merkezi dosya YOK
+- ✅ **MELP Felsefesi:** Kod = Düzyazı (`end_if` not `}`)
+- ✅ **Keyword > Symbol:** `spread items` not `...`
+- ✅ **STO Korunmalı:** `numeric` = compiler seçer (int64/double/BigDecimal)
+- ✅ **Mevcut Kodu Kontrol Et:** `melp_modulleri.md` bak, baştan yazma!
+
+**KULLANICI ONAYI GEREKTİREN DURUMLAR:**
+- 🔴 Yeni modül oluşturma
+- 🔴 Mevcut modülü yeniden yazma
+- 🔴 Lexer'a yeni token (syntax değişikliği)
+- 🔴 Type system değişiklikleri
+- 🔴 Symbol vs keyword kararları
+- 🔴 Merkezi resolver/manager dosyası
+
+**Şüphen varsa sor:** "Bu karar MELP mimarisini etkiler mi?"
+
 ### 1️⃣ Görev Tespit
+- ✅ **Önce yukarıdaki ZORUNLU OKUMA listesini oku!**
 - ✅ `NEXT_AI_START_HERE.md` oku → Sıradaki görev senin görevin!
 - ✅ Adın: **YZ_XX** (örnek: YZ_201, YZ_202...)
 - ✅ Görev: `TODO_MODERN_LANGUAGE.md` içindeki sıradaki işaretlenmemiş görev
+- ✅ `melp_modulleri.md` kontrol et → Modül var mı?
 - ✅ Kullanıcıyı bilgilendir: "Ben YZ_XX'im, görevim [görev açıklaması]"
 
-### 2️⃣ Çalışma Süreci
-- ✅ **Branş oluştur:** `TODO_gorevi_YZ_XX` (örnek: `TODO_gorevi_YZ_201`)
-- ✅ Görevini tamamla (kod yaz, test et, debug et)
-- ✅ Her anlamlı ilerlemeyi **bu branch'e commit et**
-- ✅ İş bitince: `LLVM_YZ/YZ_XX_TAMAMLANDI.md` raporu yaz
+### 2️⃣ Çalışma Şekli (YZ_204'ten itibaren YENİ!)
+- ✅ **Branş oluştur:** `TODO_gorevi_YZ_XX`
+- ✅ **Kendi hızında çalış** (günlük hedef yok)
+- ✅ **TODO'daki tüm maddeleri tamamla**
+- ✅ Her anlamlı ilerlemeyi commit et
+- ⚠️ **Yorulursan veya takılırsan: SÖYLEMELİSİN!** ("Ara verelim" de)
+- ✅ Kritik kararlarda kullanıcıya sor (yukarıdaki liste)
+- ✅ Bitince: `LLVM_YZ/YZ_XX_TAMAMLANDI.md` yaz
 
 ### 3️⃣ Görev Tamamlama
 - ✅ **TODO güncelle:** `TODO_MODERN_LANGUAGE.md` içinde görevini `- [x]` olarak işaretle

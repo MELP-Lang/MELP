@@ -20,13 +20,68 @@ Görevin: Map/Dictionary Type Implementation
 
 ---
 
+## ⚠️ MELP MİMARİ KURALLARI (İHLAL ETME!)
+
+**Her YZ bu kuralları takip etmelidir:**
+
+### 🏗️ 1. Modüler Yapı Korunmalı
+- ✅ **26 bağımsız modül** var (lexer, parser, functions, vb.)
+- ❌ **Merkezi/monolitik dosya oluşturma!**
+- ✅ Her özellik **kendi modülünde**
+- ✅ Yeni modül gerekirse: **KULLANICIYA SOR!**
+
+### 📖 2. MELP Felsefesi: Kod = Düzyazı
+- ✅ Keyword > Symbol (`end_if` not `}`, `spread items` not `...`)
+- ✅ Okunabilir syntax (kod prose gibi okunmalı)
+- ✅ İngilizce kelimeler tercih edilir
+- ⚠️ Yeni syntax eklerken: **MELP_VISION.md kontrol et!**
+
+### 🔧 3. STO (Smart Type Optimization) Korunmalı
+- ✅ `numeric` = compiler seçer (int64/double/BigDecimal)
+- ✅ User low-level tip seçmez
+- ❌ `int`, `float`, `double` gibi tipler ekleme!
+- ✅ Type system değişiklikleri: **KULLANICIYA SOR!**
+
+### 🔄 4. Mevcut Kodu Kontrol Et (Baştan Yazma!)
+- ✅ **İlk iş:** `melp_modulleri.md` oku
+- ✅ Modül zaten var mı? (async, lambda, memory, null_safety yazılmış!)
+- ✅ Varsa: **Entegre et**, baştan yazma!
+- ⚠️ Büyük değişiklik: **KULLANICIYA SOR!**
+
+### 🚨 5. Kritik Kararlar İçin Onay İste
+
+**KULLANICI ONAYI GEREKTİREN DURUMLAR:**
+- 🔴 Yeni modül oluşturma
+- 🔴 Mevcut modülü yeniden yazma
+- 🔴 Lexer'a yeni token eklerken (syntax değişikliği)
+- 🔴 Type system değişiklikleri
+- 🔴 Symbol vs keyword kararları
+- 🔴 Merkezi resolver/manager dosyası oluşturma
+
+**Şüphen varsa sor:** "Bu karar MELP mimarisini etkiler mi?"
+
+---
+
+## 📚 ZORUNLU OKUMA LİSTESİ (BAŞLAMADAN ÖNCE!)
+
+**Her YZ başlamadan önce okumalı:**
+1. **`MELP_VISION.md`** ← MELP felsefesi ve prensipler
+2. **`ARCHITECTURE.md`** ← 26 modül sistemi
+3. **`melp_modulleri.md`** ← Mevcut modüller (baştan yazma!)
+4. **`YZ_PROTOKOL.md`** ← Bu dosya
+5. **`TODO_MODERN_LANGUAGE.md`** ← Görev detayları
+
+---
+
 ## 📜 ZORUNLU PROTOKOL (5 ADIM)
 
 ### 1️⃣ GÖREV TESPİT VE BİLGİLENDİRME
 
 **Ne yapacaksın:**
+- ✅ **Önce ZORUNLU OKUMA LİSTESİNİ oku** (yukarıda)
 - ✅ `NEXT_AI_START_HERE.md` oku → Adını ve görevini öğren
 - ✅ `TODO_MODERN_LANGUAGE.md` oku → Görevin detaylarını öğren
+- ✅ `melp_modulleri.md` kontrol et → Modül var mı?
 - ✅ **Kullanıcıyı bilgilendir:**
 
 ```
