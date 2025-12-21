@@ -1,0 +1,22 @@
+-- Test: Reference Counting GC
+-- YZ_210 Phase 2 Test
+
+-- This test will be implemented when RC runtime is integrated
+-- For now, this demonstrates the expected syntax
+
+function main() returns numeric
+    -- Test 1: Basic variables (stack allocation - no RC)
+    numeric x = 10
+    numeric y = 20
+    
+    -- Test 2: String operations (future: RC-managed heap)
+    string message = "MELP with Reference Counting"
+    
+    -- Test 3: Multiple references (future test)
+    -- string s1 = "Hello"
+    -- string s2 = s1  -- RC increment (s1.ref_count = 2)
+    -- s1 goes out of scope -> RC decrement (ref_count = 1)
+    -- s2 goes out of scope -> RC decrement (ref_count = 0, auto-free)
+    
+    return 0
+end

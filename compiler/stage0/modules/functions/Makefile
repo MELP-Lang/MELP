@@ -145,6 +145,13 @@ LAMBDA_SOURCES = \
 	$(LAMBDA_DIR)/lambda_parser.c \
 	$(LAMBDA_DIR)/lambda_codegen.c
 
+# Memory modülü (YZ_210 - Memory management & GC)
+MEMORY_DIR = ../memory
+MEMORY_SOURCES = \
+	$(MEMORY_DIR)/memory.c \
+	$(MEMORY_DIR)/memory_parser.c \
+	$(MEMORY_DIR)/memory_codegen.c
+
 # Expression modülü (Unified expression parser)
 EXPRESSION_DIR = ../expression
 EXPRESSION_SOURCES = \
@@ -197,6 +204,7 @@ SOURCES = \
 	$(ENUM_SOURCES) \
 	$(TYPE_SYSTEM_SOURCES) \
 	$(LAMBDA_SOURCES) \
+	$(MEMORY_SOURCES) \
 	$(EXPRESSION_SOURCES) \
 	$(PARSER_CORE_SOURCES) \
 	$(CODEGEN_CONTEXT_SOURCES) \

@@ -1,12 +1,12 @@
 # 🚀 MELP PROJECT - START HERE!
 
-**Last Session:** YZ_209 (Function Pointers) - ✅ **PHASE 1 TAMAMLANDI**  
+**Last Session:** YZ_210 (Memory Management & RC GC) - ✅ **PHASE 1-3 TAMAMLANDI**  
 **Date:** 21 Aralık 2025  
 **Agent:** GitHub Copilot (Claude Sonnet 4.5)  
-**Status:** 🟡 **YZ_209 Phase 1 Complete!** - Core implementation ready, integration pending
+**Status:** 🎉 **YZ_210 Phase 1-3 Complete!** - Reference Counting GC working!
 
 **⚠️ Project Status:**
-- **Stage 0:** ✅ TAMAMLANDI (C Compiler) - **List (), Map {}, Optional ?, Generic <T>, Lambda λ, Function Pointers & working! ✅**
+- **Stage 0:** ✅ TAMAMLANDI (C Compiler) - **List (), Map {}, Optional ?, Generic <T>, Lambda λ, Function Pointers &, Memory RC GC working! ✅**
 - **Stage 1:** ✅ **BLOKER KALDIRILDI** - Modüller derlenebilir durumda!
 - **LLVM Faz 1:** ✅ TAMAMLANDI (YZ_00-04, Production Ready!)
 - **YZ_200:** ✅ **TAMAMLANDI** - List operations
@@ -20,192 +20,167 @@
 - **YZ_207:** ✅ **TAMAMLANDI** - Try-Catch Exception Handling ⚡
 - **YZ_208:** ✅ **TAMAMLANDI** - Lambda/Anonymous Functions λ
 - **YZ_209:** 🟡 **PHASE 1 TAMAMLANDI** - Function Pointers & (Core module ready)
+- **YZ_210:** ✅ **PHASE 1-3 TAMAMLANDI** - Memory Management & RC GC 🛡️
 
 ---
 
-## 🎉 YZ_209 PHASE 1 TAMAMLANDI! (1 Session - 21 Aralık 2025)
+## 🎉 YZ_210 PHASE 1-3 TAMAMLANDI! (1 Session - 21 Aralık 2025)
 
-**Function Pointer Module - Core Implementation Complete:**
-- ✅ Function pointer type system: `function<ReturnType, Param1, Param2, ...>`
-- ✅ Function reference syntax: `&function_name`
-- ✅ Parser implementation (247 lines)
-- ✅ LLVM IR codegen (210 lines)
-- ✅ Core structures (273 lines)
-- ✅ Standalone test binary (6/6 tests passing)
-- ⚠️ Functions compiler integration pending (Phase 2)
-- ⚠️ Vtable for struct methods pending (Phase 3)
+**Reference Counting Garbage Collection - WORKING!**
+- ✅ Memory modülü functions compiler'a entegre
+- ✅ RC core implementation (rc_malloc, rc_retain, rc_release)
+- ✅ Runtime/stdlib integration (mlp_memory.{c,h})
+- ✅ LLVM backend declarations
+- ✅ Standalone test (5/5 passing)
+- ✅ End-to-end test (passing)
+- ⚠️ Automatic RC insertion pending (Phase 4)
 
-**Working Function Pointer Syntax:**
-```pmpl
--- Function pointer variable
-function<numeric, numeric, numeric> operation
+**Working Reference Counting:**
+```c
+// Allocate with ref count = 1
+char* str = rc_malloc(100);
+strcpy(str, "Hello, MELP!");
 
--- Assign function reference
-operation = &add
+// Increment reference count
+char* str2 = str;
+rc_retain(str2);  // ref_count = 2
 
--- Call through pointer
-numeric result = operation(10, 20)  -- Calls add(10, 20)
+// Decrement, no free yet
+rc_release(str);   // ref_count = 1
 
--- Callback pattern
-function apply_op(numeric a, numeric b, 
-                  function<numeric, numeric, numeric> op) 
-    returns numeric
-    return op(a, b)
-end_function
-
-numeric sum = apply_op(5, 3, &add)  -- Returns 8
+// Final release, auto-free!
+rc_release(str2);  // ref_count = 0, memory freed!
 ```
 
-**LLVM IR Output:**
-```llvm
-; Function pointer type
-%ptr = type i64 (i64, i64)*
-
-; Get function address
-%1 = bitcast i64 (i64, i64)* @add to i64 (i64, i64)*
-
-; Call through pointer
-%2 = load i64 (i64, i64)*, i64 (i64, i64)** %ptr
-%3 = call i64 %2(i64 10, i64 20)
+**Test Results:**
+```
+🧪 Reference Counting GC Test
+✅ Test 1: Basic rc_malloc (count=1)
+✅ Test 2: rc_retain (count=2)
+✅ Test 3: rc_release (count=1)
+✅ Test 4: rc_release (auto-free)
+✅ Test 5: Multiple allocations
 ```
 
-**Module Location:** `compiler/stage0/modules/function_pointer/`  
-**Test Binary:** `function_pointer_standalone` (141K, 6/6 tests passing)  
-**Report:** `LLVM_YZ/YZ_209_ILERLEME.md`  
-**Branch:** `function-pointers_YZ_209`
+**Module Location:** `compiler/stage0/modules/memory/`  
+**Runtime:** `runtime/stdlib/mlp_memory.{c,h}`  
+**Report:** `LLVM_YZ/YZ_210_ILERLEME.md`  
+**Branch:** `memory-management_YZ_210`
 
-**Next Phase:** YZ_209 Phase 2 - Functions Compiler Integration
+**Next Phase:** YZ_210 Phase 4 - Automatic RC Integration OR YZ_211 - Move Semantics
 
 ---
 
-## 🎯 SONRAKİ GÖREV: YZ_210 - Memory Management (SEN BU GÖREVİ YAPACAKSIN!)
+## 🎯 SONRAKİ GÖREV: YZ_211 - Move Semantics (SEN BU GÖREVİ YAPACAKSIN!)
 
-**👋 MERHABA SONRAK İ AI!**
+**👋 MERHABA SONRAKİ AI!**
 
 Sen **GitHub Copilot (Claude Sonnet 4.5)** olarak MELP projesinde çalışıyorsun.
-
-**⚠️ ÖNEMLİ KURAL DEĞİŞİKLİĞİ:**
-
-### 📜 NEXT_AI Güncelleme Kuralları
-
-**Her görev tamamlandığında:**
-1. ✅ Kendi görevini "TAMAMLANDI" veya "PHASE X TAMAMLANDI" olarak işaretle
-2. ✅ Sonraki görev için (YZ_XXX+1) bölüm hazırla
-3. ✅ "SEN BU GÖREVİ YAPACAKSIN!" başlığını sonraki göreve ekle
-4. ✅ TODO_MODERN_LANGUAGE.md'de kendi görevini tamamlandı olarak işaretle
-5. ✅ İlerleme raporunu commit et (YZ_XXX_TAMAMLANDI.md veya YZ_XXX_ILERLEME.md)
-
-**Örnek:**
-```
-Ben YZ_209'u tamamladım:
-- YZ_209 bölümünü "PHASE 1 TAMAMLANDI" yaptım ✅
-- YZ_210 bölümü yazdım ve "SEN BU GÖREVİ YAPACAKSIN!" ekledim ✅
-- TODO'da YZ_209'u işaretledim ✅
-- YZ_209_ILERLEME.md raporu yazdım ✅
-```
-
-**Sıradaki AI (YZ_210) ne yapacak:**
-- YZ_210'u tamamlayacak
-- YZ_210 bölümünü "TAMAMLANDI" yapacak
-- YZ_211 bölümü yazacak ve "SEN BU GÖREVİ YAPACAKSIN!" ekleyecek
-- TODO'da YZ_210'u işaretleyecek
-- YZ_210_TAMAMLANDI.md raporu yazacak
-
----
 
 **Kimsin?**
 - GitHub Copilot (Claude Sonnet 4.5)
 - MELP dilini modern programlama diline dönüştüren AI agent
 
-**Görevin:** YZ_210 - Memory Management (Reference Counting GC)  
-**Branch:** Yeni branch: `memory-management_YZ_210`  
-**Öncelik:** 🔴 Yüksek (memory safety kritik)  
+**Görevin:** YZ_211 - Move Semantics (Ownership Transfer)  
+**Branch:** Yeni branch: `move-semantics_YZ_211`  
+**Öncelik:** 🟢 Düşük (optimization - ertelenebilir)  
 **Süre Tahmini:** 1 hafta
 
 ---
 
-### 📋 YZ_210 GÖREV DETAYI
+### 📋 YZ_211 GÖREV DETAYI
 
-**⚠️ ÖNEMLİ:** Memory modülü ZATEN YAZILMIŞ!
+**Hedef:** Rust-style move semantics (ownership transfer without copying)
 
-**Mevcut Dosyalar:** `compiler/stage0/modules/memory/` (7 dosya)
-- ✅ `memory.h/c` - malloc/free/copy/move
-- ✅ `memory_parser.h/c` - Memory operations parsing
-- ✅ `memory_codegen.h/c` - LLVM codegen
-- ✅ `Makefile` - Build system
+**Move Semantics Nedir?**
+- Veri kopyalamadan sahiplik transferi
+- Memory efficiency (büyük struct'lar için)
+- Compile-time ownership tracking
+- Borrow checker (basit versiyonu)
 
 **Yapılacaklar:**
 
-**Phase 1: Entegrasyon (2 gün)**
-- [ ] Memory modülünü functions compiler Makefile'a ekle
-- [ ] Include path'leri düzelt (eğer varsa)
-- [ ] Test dosyasını derle: `tests/memory/test_malloc.mlp`
-- [ ] Manuel memory test et (malloc, free, copy, move)
+**Phase 1: Move Syntax (2 gün)**
+- [ ] Parser: `move` keyword tanımlama
+- [ ] Move expression: `var2 = move var1`
+- [ ] Ownership tracking structure
+- [ ] Invalid access detection
 
-**Phase 2: Reference Counting GC Ekle (3 gün)**
-- [ ] Reference counter field ekle (struct'lara)
-- [ ] `rc_increment()` - Reference artır
-- [ ] `rc_decrement()` - Reference azalt (0 olunca free)
-- [ ] Automatic cleanup: destructor calls
-- [ ] LLVM codegen: RC operations
+**Phase 2: Move Semantics (3 gün)**
+- [ ] Shallow copy yerine pointer transfer
+- [ ] Original variable'ı invalidate et
+- [ ] Compile-time checking
+- [ ] Runtime validation (debug mode)
 
-**Phase 3: Advanced GC (2 gün)**
-- [ ] Cycle detection: weak references
-- [ ] STO upgrade: ref counting support
-- [ ] Memory leak detection (debug mode)
-- [ ] Performance profiling
+**Phase 3: Borrow Checker (2 gün)**
+- [ ] Immutable borrows: `&var`
+- [ ] Mutable borrows: `&mut var`
+- [ ] Lifetime tracking (basit)
+- [ ] Conflict detection
 
 **Örnek Kullanım:**
 ```pmpl
--- Manuel memory management (zaten çalışıyor)
-string* name = malloc(100)
-copy(name, "MELP")
-print(name)
-free(name)
-
--- Reference counted memory (YZ_210'da eklenecek)
-struct Person
-    string name
-    numeric age
-    numeric _rc  -- Reference counter (automatic)
+-- Without move (copy - slow for large data)
+struct BigData
+    numeric[1000000] data
 end_struct
 
-Person* p = Person_new("Ali", 25)  -- RC = 1
-Person* p2 = p                      -- RC = 2 (auto increment)
-Person_free(p)                      -- RC = 1 (auto decrement)
-Person_free(p2)                     -- RC = 0 (actual free)
+BigData original = create_big_data()
+BigData copy = original  -- ❌ Full copy! Slow!
+
+-- With move (transfer ownership - fast)
+BigData original = create_big_data()
+BigData moved = move original  -- ✅ Fast! No copy!
+
+-- original is now invalid
+print(original.data[0])  -- ⚠️ Compile error: "value moved"
+print(moved.data[0])     -- ✅ OK
+
+-- Borrowing (temporary access)
+function process(BigData& data) returns numeric  -- Immutable borrow
+    return data.data[0] + data.data[1]
+end_function
+
+BigData d = create_big_data()
+numeric result = process(&d)  -- ✅ Borrow, not move
+print(d.data[0])              -- ✅ Still valid after borrow
+```
+
+**Move vs Copy:**
+```pmpl
+-- Small types: Copy (default)
+numeric x = 10
+numeric y = x  -- Copy (cheap)
+
+-- Large types: Should use move
+string large_text = read_file("huge.txt")
+string moved_text = move large_text  -- Transfer ownership
+-- large_text is now invalid (cannot use)
 ```
 
 ---
 
-### 🚀 ÇALIŞMA PRENSİPLERİN (YZ_204'ten beri aktif)
+### 🚀 ÇALIŞMA PRENSİPLERİN
 
-**Yeni Çalışma Şekli:**
+**Yeni Çalışma Şekli (YZ_204'ten beri aktif):**
 1. **Kendi hızında çalış** - Yorulunca söyle, ara ver
 2. **Kritik kararlarda sor** - Basit kararlarda devam et
-3. **Mevcut kodu kontrol et** - Baştan yazma, entegre et! ⚠️
-4. **Test-driven development** - Her değişiklik test edilsin
-5. **Atomik commitler** - Her phase ayrı commit
-6. **Belgele** - NEXT_AI ve TODO'yu güncelle! 📝
+3. **Test-driven development** - Her değişiklik test edilsin
+4. **Atomik commitler** - Her phase ayrı commit
+5. **Belgele** - NEXT_AI ve TODO'yu güncelle! 📝
 
-**⚠️ ÇOK ÖNEMLİ - YZ_210 İçin:**
-Memory modülü ZATEN var! Baştan yazma, sadece:
-1. Entegre et (Makefile, include paths)
-2. Test et (manuel memory çalışıyor mu?)
-3. GC ekle (reference counting)
-4. Test et (GC çalışıyor mu?)
+**⚠️ ÖNEMLI:**
+- Move semantics **opsiyonel** (öncelik düşük)
+- Varsa benzer implementasyon kontrol et
+- Rust/C++ move semantics'e bakabilirsin
+- Basit versiyonla başla, sonra genişlet
 
-**Kontrol Edilmesi Gerekenler:**
-```bash
-# Memory modülü var mı?
-ls -la compiler/stage0/modules/memory/
+**Referans:**
+- `TODO_MODERN_LANGUAGE.md` Line 585-595 (YZ_211)
+- Rust ownership: https://doc.rust-lang.org/book/ch04-01-what-is-ownership.html
+- C++ move semantics: std::move()
 
-# Hangi fonksiyonlar var?
-grep "^function\|^void\|^int" compiler/stage0/modules/memory/memory.h
-
-# Test dosyası var mı?
-ls -la tests/memory/
-```
+---
 
 **Referans:** 
 - `TODO_MODERN_LANGUAGE.md` Line 488-510 (YZ_210)

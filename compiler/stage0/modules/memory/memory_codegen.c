@@ -129,3 +129,51 @@ void codegen_memset_call(FILE* out, const char* var_name, int value, size_t size
     fprintf(out, "    mov rdx, %zu    ; Boyut\n", size);
     fprintf(out, "    call memset\n");
 }
+
+// =============================================================================
+// REFERENCE COUNTING CODEGEN (YZ_210)
+// =============================================================================
+
+// Generate LLVM declarations for RC functions
+void codegen_rc_declarations(FILE* out) {
+    fprintf(out, "\n");
+    fprintf(out, "; Reference Counting Runtime Functions (YZ_210)\n");
+    fprintf(out, "declare i8* @rc_malloc(i64)\n");
+    fprintf(out, "declare void @rc_retain(i8*)\n");
+    fprintf(out, "declare void @rc_release(i8*)\n");
+    fprintf(out, "declare i64 @rc_get_count(i8*)\n");
+    fprintf(out, "declare void @rc_set_destructor(i8*, i8*)\n");
+    fprintf(out, "\n");
+}
+
+// Generate RC malloc call
+// Example: %ptr = call i8* @rc_malloc(i64 100)
+void codegen_rc_malloc(FILE* out, const char* var_name, size_t size) {
+    fprintf(out, "    ; RC malloc: %s (%zu bytes, ref_count=1)\n", var_name, size);
+    fprintf(out, "    %%tmp_%s_ptr = call i8* @rc_malloc(i64 %zu)\n", var_name, size);
+    fprintf(out, "    store i8* %%tmp_%s_ptr, i8** %%%s_ptr, align 8\n", var_name, var_name);
+}
+
+// Generate RC retain call (increment ref count)
+// Example: call void @rc_retain(i8* %ptr)
+void codegen_rc_retain(FILE* out, const char* var_name) {
+    fprintf(out, "    ; RC retain: %s (ref_count++)\n", var_name);
+    fprintf(out, "    %%tmp_%s_load = load i8*, i8** %%%s_ptr, align 8\n", var_name, var_name);
+    fprintf(out, "    call void @rc_retain(i8* %%tmp_%s_load)\n", var_name);
+}
+
+// Generate RC release call (decrement ref count, auto-free if 0)
+// Example: call void @rc_release(i8* %ptr)
+void codegen_rc_release(FILE* out, const char* var_name) {
+    fprintf(out, "    ; RC release: %s (ref_count--, auto-free if 0)\n", var_name);
+    fprintf(out, "    %%tmp_%s_load = load i8*, i8** %%%s_ptr, align 8\n", var_name, var_name);
+    fprintf(out, "    call void @rc_release(i8* %%tmp_%s_load)\n", var_name);
+}
+
+// Generate RC get_count call
+// Example: %count = call i64 @rc_get_count(i8* %ptr)
+void codegen_rc_get_count(FILE* out, const char* result_var, const char* ptr_var) {
+    fprintf(out, "    ; RC get_count: %s\n", ptr_var);
+    fprintf(out, "    %%tmp_%s_load = load i8*, i8** %%%s_ptr, align 8\n", ptr_var, ptr_var);
+    fprintf(out, "    %%%s = call i64 @rc_get_count(i8* %%tmp_%s_load)\n", result_var, ptr_var);
+}

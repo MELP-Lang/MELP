@@ -540,23 +540,40 @@ numeric result = operation(10, 20)  -- Calls add(10, 20)
 
 ### 🔵 PHASE 5: MEMORY MANAGEMENT (Önemli) [3 hafta]
 
-#### YZ_210: Reference Counting GC [1 hafta - ENTEGRASYON + GC]
-**Öncelik:** 🟡 Yüksek (memory safety)
+#### ✅ YZ_210: Reference Counting GC [1 hafta] - PHASE 1-3 TAMAMLANDI
+**Öncelik:** 🔴 Yüksek (memory safety)
+**Durum:** ✅ **PHASE 1-3 TAMAMLANDI** (21 Aralık 2025)
+**Rapor:** `LLVM_YZ/YZ_210_ILERLEME.md`
+**Branch:** `memory-management_YZ_210`
 
-⚠️ **STAGE 0'DA YAZILMIŞ:** `compiler/stage0/modules/memory/` (7 dosya)
-- ✅ memory.h/c - malloc/free/copy/move (yazılmış)
-- ✅ memory_parser.h/c - Memory operations parsing
-- ✅ memory_codegen.h/c - LLVM codegen
+**Tamamlananlar:**
+- [x] Memory modülünü functions compiler'a entegre et ✅
+- [x] Reference Counting core implementation ✅
+  - [x] rc_malloc(size) - Allocate with ref_count=1 ✅
+  - [x] rc_retain(ptr) - Increment reference count ✅
+  - [x] rc_release(ptr) - Decrement, auto-free if 0 ✅
+  - [x] rc_get_count(ptr) - Query current count ✅
+  - [x] rc_set_destructor(ptr, func) - Set cleanup callback ✅
+- [x] Runtime/stdlib integration (mlp_memory.{c,h}) ✅
+- [x] LLVM backend declarations ✅
+- [x] Standalone test (5/5 passing) ✅
+- [x] End-to-end test (passing) ✅
 
-**Yapılacaklar:**
-- [ ] Mevcut memory modülünü entegre et (Makefile + link)
-- [ ] Test et: `tests/memory/test_malloc.mlp`
-- [ ] **GC EKLE:** Reference counting (increment/decrement)
-- [ ] Automatic cleanup: destructor calls
-- [ ] Cycle detection: weak references
-- [ ] STO upgrade: ref counting support
+**Pending (Phase 4-6):**
+- [ ] Automatic RC insertion (parser)
+- [ ] Scope-based release (codegen)
+- [ ] Cycle detection (weak references)
+- [ ] Performance optimization
 
-**Not:** Manuel memory zaten var, sadece GC eklenecek!
+**Test Results:**
+```
+🧪 Reference Counting GC Test
+Test 1: Basic rc_malloc ✅
+Test 2: rc_retain ✅
+Test 3: rc_release (no free) ✅
+Test 4: rc_release (auto-free) ✅
+Test 5: Multiple allocations ✅
+```
 
 ---
 

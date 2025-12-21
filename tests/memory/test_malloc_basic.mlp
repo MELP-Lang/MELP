@@ -1,0 +1,16 @@
+-- Test: Basic Memory Allocation
+-- YZ_210 Phase 1 Test
+
+function main() returns numeric
+    -- Test 1: Simple numeric variable
+    numeric x = 10
+    numeric y = 20
+    numeric z = x + y
+    
+    -- Test 2: String variable (uses malloc internally)
+    string name = "MELP"
+    
+    print(name)
+    
+    return 0
+end

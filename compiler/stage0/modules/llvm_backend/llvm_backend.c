@@ -561,6 +561,18 @@ void llvm_emit_printf_support(LLVMContext* ctx) {
     fprintf(ctx->output, "; void* malloc(size_t size)\n");
     fprintf(ctx->output, "declare i8* @malloc(i64)\n\n");
     
+    fprintf(ctx->output, "; MLP Standard Library - Memory Management (YZ_210)\n");
+    fprintf(ctx->output, "; void* rc_malloc(size_t size)\n");
+    fprintf(ctx->output, "declare i8* @rc_malloc(i64)\n");
+    fprintf(ctx->output, "; void rc_retain(void* ptr)\n");
+    fprintf(ctx->output, "declare void @rc_retain(i8*)\n");
+    fprintf(ctx->output, "; void rc_release(void* ptr)\n");
+    fprintf(ctx->output, "declare void @rc_release(i8*)\n");
+    fprintf(ctx->output, "; size_t rc_get_count(void* ptr)\n");
+    fprintf(ctx->output, "declare i64 @rc_get_count(i8*)\n");
+    fprintf(ctx->output, "; void rc_set_destructor(void* ptr, void (*destructor)(void*))\n");
+    fprintf(ctx->output, "declare void @rc_set_destructor(i8*, i8*)\n\n");
+    
     fprintf(ctx->output, "; MLP Standard Library - List Functions (YZ_200)\n");
     fprintf(ctx->output, "; MelpList* melp_list_create(size_t element_size)\n");
     fprintf(ctx->output, "declare i8* @melp_list_create(i64)\n");

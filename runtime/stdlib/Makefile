@@ -12,7 +12,8 @@ LIB = libmlp_stdlib.a
 # YZ_200: Added mlp_list.c for dynamic list operations
 # YZ_201: Added mlp_map.c for hash table operations
 # YZ_202: Added mlp_optional.c for nullable type support
-SOURCES = mlp_io.c mlp_string.c mlp_panic.c mlp_state.c mlp_math.c mlp_list.c mlp_map.c mlp_optional.c
+# YZ_210: Added mlp_memory.c for reference counting GC
+SOURCES = mlp_io.c mlp_string.c mlp_panic.c mlp_state.c mlp_math.c mlp_list.c mlp_map.c mlp_optional.c mlp_memory.c
 OBJECTS = $(SOURCES:.c=.o)
 
 all: $(LIB)
