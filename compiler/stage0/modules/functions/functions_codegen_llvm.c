@@ -478,6 +478,16 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
                 ctx->current_func = instance->specialized_func;
                 function_generate_declaration_llvm(ctx, instance->specialized_func);
                 ctx->current_func = saved_func;
+                
+                // Mark as emitted
+                instance->is_emitted = 1;
+            } else if (!instance->is_emitted) {
+                // Instance exists but not yet emitted - emit it now
+                FunctionDeclaration* saved_func = ctx->current_func;
+                ctx->current_func = instance->specialized_func;
+                function_generate_declaration_llvm(ctx, instance->specialized_func);
+                ctx->current_func = saved_func;
+                instance->is_emitted = 1;
             }
             
             // 5. Use mangled name for the call
