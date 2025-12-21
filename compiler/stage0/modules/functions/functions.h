@@ -54,6 +54,7 @@ typedef struct LocalVariable {
     int list_length;   // YZ_22: List element count
     int is_const;      // YZ_121: 1=const, 0=mutable
     int64_t const_value;  // YZ_121: Compile-time value if is_const=1
+    int is_nullable;   // YZ_202: 1=nullable (numeric?, string?), 0=non-nullable
     struct LocalVariable* next;
 } LocalVariable;
 

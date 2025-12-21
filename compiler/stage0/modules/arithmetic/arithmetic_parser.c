@@ -132,6 +132,29 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
         return expr;
     }
     
+    // YZ_202: Null literal
+    if (parser->current_token->type == TOKEN_NULL) {
+        expr->is_literal = 1;
+        expr->value = strdup("null");
+        expr->is_float = 0;
+        expr->is_string = 0;
+        expr->is_boolean = 0;
+        expr->is_null = 1;  // New flag for null
+        
+        // STO analysis: null = pointer (i8*)
+        STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
+        sto_info->type = INTERNAL_TYPE_POINTER;
+        sto_info->is_constant = true;
+        sto_info->needs_promotion = false;
+        sto_info->mem_location = MEM_REGISTER;
+        expr->sto_info = sto_info;
+        expr->sto_analyzed = true;
+        expr->needs_overflow_check = false;
+        
+        advance(parser);
+        return expr;
+    }
+    
     // YZ_21: Boolean literals (true/false)
     if (parser->current_token->type == TOKEN_TRUE || parser->current_token->type == TOKEN_FALSE) {
         expr->is_literal = 1;

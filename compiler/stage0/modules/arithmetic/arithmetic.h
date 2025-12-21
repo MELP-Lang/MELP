@@ -34,6 +34,7 @@ typedef struct ArithmeticExpr {
     int is_float;                 // 1 if floating point number
     int is_string;                // 1 if string literal/variable
     int is_boolean;               // 1 if boolean literal/variable (true/false)
+    int is_null;                  // 1 if null literal (YZ_202)
     
     // ========== Phase 3.5: Function Calls ==========
     int is_function_call;         // 1 if this is a function call

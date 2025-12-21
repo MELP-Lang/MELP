@@ -117,6 +117,18 @@ static void scan_statement_for_variables(FunctionDeclaration* func, Statement* s
                     var = var->next;
                 }
             }
+            
+            // YZ_202: Mark nullable variables
+            if (decl->is_nullable) {
+                LocalVariable* var = func->local_vars;
+                while (var) {
+                    if (strcmp(var->name, decl->name) == 0) {
+                        var->is_nullable = 1;
+                        break;
+                    }
+                    var = var->next;
+                }
+            }
         }
     }
     
@@ -293,6 +305,11 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
         }
         if (strcmp(arith->value, "false") == 0) {
             return llvm_const_i64(0);
+        }
+        
+        // YZ_202: Handle null literal
+        if (strcmp(arith->value, "null") == 0) {
+            return "null";  // Will be converted to appropriate type (i8* null, MelpOptional* null)
         }
         
         // Parse numeric literal
