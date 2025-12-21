@@ -6,8 +6,11 @@ SOURCES = type_system_standalone.c \
           type_system_parser.c \
           type_system_codegen.c \
           type_inference.c \
+          result_type.c \
           ../comments/comments.c \
-          ../../lexer.c
+          ../lexer/lexer.c \
+          ../error/error.c \
+          ../expression/expression.c
 
 OBJECTS = $(SOURCES:.c=.o)
 TARGET = type_system_standalone

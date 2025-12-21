@@ -1,0 +1,14 @@
+-- Test: Result type basic declaration
+-- YZ_206 Phase 1
+
+function divide(numeric a, numeric b) returns result<numeric, string>
+    if b == 0 then
+        return error("Division by zero")
+    end_if
+    return ok(a / b)
+end_function
+
+function main() returns numeric
+    result<numeric, string> res = divide(10, 2)
+    return 42
+end_function

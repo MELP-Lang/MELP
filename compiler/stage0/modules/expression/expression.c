@@ -35,6 +35,12 @@ void expression_free(Expression* expr) {
             }
             free(expr->data.call.args);
             break;
+        case EXPR_RESULT_OK:
+        case EXPR_RESULT_ERROR:
+            // Free the inner value expression
+            expression_free(expr->data.result_constructor.value);
+            // Note: result_type is managed by type system, don't free here
+            break;
         default:
             break;
     }

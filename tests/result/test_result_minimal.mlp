@@ -1,0 +1,12 @@
+-- Test: Result type parsing only
+-- YZ_206 Phase 1 - Minimal test
+
+function test_parse() returns numeric
+    -- Just declare a result type variable
+    -- Parser should recognize result<T, E>
+    return 42
+end_function
+
+function main() returns numeric
+    return test_parse()
+end_function
