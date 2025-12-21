@@ -1,0 +1,6 @@
+package {
+    name = "app_with_deps",
+    version = "2.0.0",
+    author = "Developer",
+    dependencies = ["stdlib:1.0", "math:1.5"]
+}

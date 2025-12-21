@@ -424,7 +424,7 @@ end_function
 **Test Cases:**
 ```pmpl
 function map(list items, function<numeric, numeric> fn) returns list
-    list result = []
+    list result = ()
     for item in items do
         append(result, fn(item))
     end_for
@@ -432,9 +432,9 @@ function map(list items, function<numeric, numeric> fn) returns list
 end_function
 
 function test_lambda() returns list
-    list numbers = [1, 2, 3, 4, 5]
+    list numbers = (1; 2; 3; 4; 5;)
     return map(numbers, lambda (numeric x) { return x * 2 })
-    -- Should return [2, 4, 6, 8, 10]
+    -- Should return (2; 4; 6; 8; 10;)
 end_function
 ```
 

@@ -1,0 +1,6 @@
+package {
+    name = "test_project",
+    version = "1.0.0",
+    author = "Test Developer",
+    entry = "main.mlp"
+}
