@@ -134,6 +134,40 @@ typedef enum {
     TOKEN_MOVE,            // move (ownership transfer)
     TOKEN_BORROW,          // borrow (temporary access)
     TOKEN_MUT,             // mut (mutable borrow)
+    
+    // Collections Library keywords (YZ_213)
+    // List extensions
+    TOKEN_INSERT_AT,       // insert_at(list; index; value)
+    TOKEN_FIND_IN_LIST,    // find_in_list(list; value)
+    TOKEN_SORT_LIST,       // sort_list(list)
+    // Map extensions
+    TOKEN_MAP_KEYS,        // map_keys(map) -> list
+    TOKEN_MAP_VALUES,      // map_values(map) -> list
+    TOKEN_CLEAR_MAP,       // clear_map(map)
+    // Set operations
+    TOKEN_CREATE_SET,      // create_set() -> Set
+    TOKEN_ADD_TO_SET,      // add_to_set(set; value)
+    TOKEN_SET_CONTAINS,    // set_contains(set; value) -> bool
+    TOKEN_REMOVE_FROM_SET, // remove_from_set(set; value)
+    TOKEN_SET_UNION,       // set_union(set1; set2) -> Set
+    TOKEN_SET_INTERSECTION,// set_intersection(set1; set2) -> Set
+    TOKEN_SET_DIFFERENCE,  // set_difference(set1; set2) -> Set
+    TOKEN_SET_SIZE,        // set_size(set) -> numeric
+    // Queue operations
+    TOKEN_CREATE_QUEUE,    // create_queue() -> Queue
+    TOKEN_ENQUEUE,         // enqueue(queue; value)
+    TOKEN_DEQUEUE,         // dequeue(queue) -> value
+    TOKEN_QUEUE_PEEK,      // queue_peek(queue) -> value
+    TOKEN_QUEUE_SIZE,      // queue_size(queue) -> numeric
+    TOKEN_QUEUE_IS_EMPTY,  // queue_is_empty(queue) -> bool
+    // Stack operations
+    TOKEN_CREATE_STACK,    // create_stack() -> Stack
+    TOKEN_PUSH,            // push(stack; value)
+    TOKEN_POP,             // pop(stack) -> value
+    TOKEN_STACK_PEEK,      // stack_peek(stack) -> value
+    TOKEN_STACK_SIZE,      // stack_size(stack) -> numeric
+    TOKEN_STACK_IS_EMPTY,  // stack_is_empty(stack) -> bool
+    
     // Delimiters
     TOKEN_LPAREN,          // (
     TOKEN_RPAREN,          // )
