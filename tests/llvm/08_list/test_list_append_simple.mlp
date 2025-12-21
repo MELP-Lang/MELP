@@ -1,0 +1,8 @@
+-- YZ_200 Test: List with append
+-- Test append operation
+
+function main() returns numeric
+    list numbers = ()
+    append(numbers; 10)
+    return length(numbers)  -- Should return 1
+end_function

@@ -431,18 +431,32 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
         for (int i = 0; i < call->arg_count; i++) {
             args[i] = generate_expression_llvm(ctx, call->arguments[i]);
             
-            // YZ_200: For append/prepend, convert second argument (element) from i64 to i8*
-            if (is_list_append && i == 1 && args[i]->type == LLVM_TYPE_I64) {
-                LLVMValue* ptr_val = malloc(sizeof(LLVMValue));
-                ptr_val->name = llvm_new_temp(ctx->llvm_ctx);
-                ptr_val->is_constant = 0;
-                ptr_val->type = LLVM_TYPE_I8_PTR;
-                fprintf(ctx->llvm_ctx->output, "    %s = inttoptr i64 %s%s to i8*\n",
-                        ptr_val->name,
-                        args[i]->is_constant ? "" : "%",
-                        args[i]->is_constant ? "0" : args[i]->name);
-                llvm_value_free(args[i]);
-                args[i] = ptr_val;
+            // YZ_200: For append/prepend, convert second argument (element) to pointer
+            // Runtime expects void* pointing to element data
+            if (is_list_append && i == 1) {
+                if (args[i]->type == LLVM_TYPE_I64) {
+                    // Allocate stack space for element with unique name
+                    char* elem_var = llvm_new_temp(ctx->llvm_ctx);
+                    fprintf(ctx->llvm_ctx->output, "    %s = alloca i64, align 8\n", elem_var);
+                    // Store value
+                    fprintf(ctx->llvm_ctx->output, "    store i64 ");
+                    if (args[i]->is_constant) {
+                        fprintf(ctx->llvm_ctx->output, "%ld", args[i]->const_value);
+                    } else {
+                        fprintf(ctx->llvm_ctx->output, "%s", args[i]->name);
+                    }
+                    fprintf(ctx->llvm_ctx->output, ", i64* %s, align 8\n", elem_var);
+                    
+                    // Cast to i8* for runtime call
+                    LLVMValue* ptr_val = malloc(sizeof(LLVMValue));
+                    ptr_val->name = llvm_new_temp(ctx->llvm_ctx);
+                    ptr_val->is_constant = 0;
+                    ptr_val->type = LLVM_TYPE_I8_PTR;
+                    fprintf(ctx->llvm_ctx->output, "    %s = bitcast i64* %s to i8*\n",
+                            ptr_val->name, elem_var);
+                    llvm_value_free(args[i]);
+                    args[i] = ptr_val;
+                }
             }
         }
         
