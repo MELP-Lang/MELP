@@ -1,0 +1,14 @@
+-- YZ_203.5: Generic Type Inference - Max Test
+-- Test: max(10, 20) should infer T = numeric
+
+function max<T>(T a, T b) returns T
+    if a > b then
+        return a
+    end_if
+    return b
+end_function
+
+function main() returns numeric
+    numeric result = max(10, 20)
+    return result
+end_function

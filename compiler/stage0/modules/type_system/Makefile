@@ -5,6 +5,7 @@ SOURCES = type_system_standalone.c \
           type_system.c \
           type_system_parser.c \
           type_system_codegen.c \
+          type_inference.c \
           ../comments/comments.c \
           ../../lexer.c
 

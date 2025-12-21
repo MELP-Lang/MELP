@@ -27,7 +27,8 @@ FUNCTIONS_SOURCES = \
 	functions.c \
 	functions_parser.c \
 	functions_codegen.c \
-	functions_codegen_llvm.c
+	functions_codegen_llvm.c \
+	functions_generic.c
 
 # Variable modülü (Modül #1)
 VARIABLE_DIR = ../variable
@@ -129,6 +130,11 @@ ENUM_SOURCES = \
 	$(ENUM_DIR)/enum_parser.c \
 	$(ENUM_DIR)/enum_codegen.c
 
+# Type System modülü (YZ_203.5 - Generic type inference)
+TYPE_SYSTEM_DIR = ../type_system
+TYPE_SYSTEM_SOURCES = \
+	$(TYPE_SYSTEM_DIR)/type_inference.c
+
 # Parser Core modülü (Parser structure)
 PARSER_CORE_DIR = ../parser_core
 PARSER_CORE_SOURCES = \
@@ -172,6 +178,7 @@ SOURCES = \
 	$(IMPORT_SOURCES) \
 	$(STRUCT_SOURCES) \
 	$(ENUM_SOURCES) \
+	$(TYPE_SYSTEM_SOURCES) \
 	$(PARSER_CORE_SOURCES) \
 	$(CODEGEN_CONTEXT_SOURCES) \
 	$(ERROR_SOURCES) \

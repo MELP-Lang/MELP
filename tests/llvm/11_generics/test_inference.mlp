@@ -1,0 +1,13 @@
+-- YZ_203.5: Generic Type Inference Test
+-- Test: Call generic functions WITHOUT explicit type arguments
+
+-- Generic identity function
+function identity<T>(T value) returns T
+    return value
+end_function
+
+function main() returns numeric
+    -- Test 1: Infer type from numeric literal
+    numeric result = identity(42)
+    return result
+end_function

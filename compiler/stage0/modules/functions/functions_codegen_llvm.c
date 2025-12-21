@@ -1,8 +1,10 @@
 // LLVM IR Code Generator for Functions
 // Wrapper around llvm_backend module for functions compiler
 // YZ_58 - Phase 13.5 Part 3-5
+// YZ_203.5 - Generic Type Inference
 
 #include "functions_codegen_llvm.h"
+#include "../type_system/type_inference.h"
 #include "functions_generic.h"  // YZ_203: Generic template support
 #include "../arithmetic/arithmetic_parser.h"
 #include "../variable/variable.h"
@@ -434,6 +436,40 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
     // Handle function calls
     if (arith->is_function_call && arith->func_call) {
         FunctionCallExpr* call = arith->func_call;
+        
+        // YZ_203.5: Handle generic function calls WITHOUT explicit type arguments
+        // Check if this might be a generic function call (no type args provided)
+        if (call->type_arg_count == 0 && ctx->generic_registry) {
+            // Try to find a generic template with this name
+            GenericTemplate* template = generic_find_template(
+                ctx->generic_registry,
+                call->function_name
+            );
+            
+            if (template) {
+                // This is a generic call without explicit types → infer them!
+                printf("🔍 Inferring types for generic call: %s(...)\n", call->function_name);
+                
+                // Perform type inference directly from ArithmeticExpr arguments
+                int inferred_count = 0;
+                char** inferred_types = type_inference_infer_from_args(
+                    template,
+                    call->arguments,
+                    call->arg_count,
+                    &inferred_count
+                );
+                
+                if (inferred_types && inferred_count > 0) {
+                    // Success! Use inferred types for instantiation
+                    call->type_arguments = inferred_types;
+                    call->type_arg_count = inferred_count;
+                    // Continue to YZ_203's instantiation code below
+                } else {
+                    fprintf(stderr, "Error: Type inference failed for '%s'\n", call->function_name);
+                    return llvm_const_i64(0);
+                }
+            }
+        }
         
         // YZ_203: Handle generic function instantiation
         const char* actual_function_name = call->function_name;

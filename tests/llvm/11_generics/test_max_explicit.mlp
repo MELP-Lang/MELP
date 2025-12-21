@@ -1,0 +1,13 @@
+-- Test explicit max call first
+
+function max<T>(T a, T b) returns T
+    if a > b then
+        return a
+    end_if
+    return b
+end_function
+
+function main() returns numeric
+    numeric result = max<numeric>(10, 20)
+    return result
+end_function
