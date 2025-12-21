@@ -3,6 +3,7 @@
 // YZ_58 - Phase 13.5 Part 3-5
 
 #include "functions_codegen_llvm.h"
+#include "functions_generic.h"  // YZ_203: Generic template support
 #include "../arithmetic/arithmetic_parser.h"
 #include "../variable/variable.h"
 #include "../statement/statement.h"  // YZ_58: Statement types
@@ -44,7 +45,7 @@ static void clear_variable_types(FunctionLLVMContext* ctx) {
 }
 
 // Initialize LLVM codegen context
-FunctionLLVMContext* function_llvm_context_create(FILE* output) {
+FunctionLLVMContext* function_llvm_context_create(FILE* output, GenericRegistry* registry) {
     FunctionLLVMContext* ctx = malloc(sizeof(FunctionLLVMContext));
     ctx->llvm_ctx = llvm_context_create(output);
     ctx->current_func = NULL;
@@ -54,6 +55,9 @@ FunctionLLVMContext* function_llvm_context_create(FILE* output) {
     ctx->var_types = NULL;
     ctx->var_type_count = 0;
     ctx->var_type_capacity = 0;
+    
+    // YZ_203: Store generic registry reference
+    ctx->generic_registry = registry;
     
     return ctx;
 }
@@ -431,9 +435,58 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
     if (arith->is_function_call && arith->func_call) {
         FunctionCallExpr* call = arith->func_call;
         
+        // YZ_203: Handle generic function instantiation
+        const char* actual_function_name = call->function_name;
+        if (call->type_arg_count > 0 && ctx->generic_registry) {
+            // This is a generic function call with explicit type arguments
+            // 1. Find template in registry
+            GenericTemplate* template = generic_find_template(
+                ctx->generic_registry, 
+                call->function_name
+            );
+            
+            if (!template) {
+                fprintf(stderr, "Error: Generic template '%s' not found\n", 
+                        call->function_name);
+                return llvm_const_i64(0);
+            }
+            
+            // 2. Check if this specialization already exists
+            GenericInstance* instance = generic_find_instance(
+                template, 
+                call->type_arguments, 
+                call->type_arg_count
+            );
+            
+            if (!instance) {
+                // 3. Create new specialization (monomorphization)
+                instance = generic_instantiate(
+                    ctx->generic_registry,
+                    call->function_name,
+                    call->type_arguments, 
+                    call->type_arg_count
+                );
+                
+                if (!instance) {
+                    fprintf(stderr, "Error: Failed to instantiate generic function '%s'\n",
+                            call->function_name);
+                    return llvm_const_i64(0);
+                }
+                
+                // 4. Generate LLVM IR for specialized function
+                FunctionDeclaration* saved_func = ctx->current_func;
+                ctx->current_func = instance->specialized_func;
+                function_generate_declaration_llvm(ctx, instance->specialized_func);
+                ctx->current_func = saved_func;
+            }
+            
+            // 5. Use mangled name for the call
+            actual_function_name = instance->mangled_name;
+        }
+        
         // YZ_200: Check if this is actually a list indexing operation
         // If function name matches a list variable, treat as list access
-        int is_pointer = lookup_variable_type(ctx, call->function_name);
+        int is_pointer = lookup_variable_type(ctx, actual_function_name);
         if (is_pointer && call->arg_count == 1) {
             // This is list indexing: list_var(index)
             // 1. Load list pointer
@@ -472,7 +525,7 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
         }
         
         // Special case: println
-        if (strcmp(call->function_name, "println") == 0 && call->arg_count == 1) {
+        if (strcmp(actual_function_name, "println") == 0 && call->arg_count == 1) {
             LLVMValue* arg = generate_expression_llvm(ctx, call->arguments[0]);
             LLVMValue* result = llvm_emit_println(ctx->llvm_ctx, arg);
             // Don't free arg - println returns it
@@ -481,31 +534,31 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
         
         // YZ_200: Map built-in list functions to runtime functions
         // YZ_201: Map built-in map functions to runtime functions
-        const char* runtime_name = call->function_name;
+        const char* runtime_name = actual_function_name;
         int is_list_append = 0;
         int is_map_insert = 0;
         
-        if (strcmp(call->function_name, "append") == 0) {
+        if (strcmp(actual_function_name, "append") == 0) {
             runtime_name = "melp_list_append";
             is_list_append = 1;
-        } else if (strcmp(call->function_name, "prepend") == 0) {
+        } else if (strcmp(actual_function_name, "prepend") == 0) {
             runtime_name = "melp_list_prepend";
             is_list_append = 1;  // prepend also needs i64->i8* conversion
-        } else if (strcmp(call->function_name, "length") == 0) {
+        } else if (strcmp(actual_function_name, "length") == 0) {
             // Check if first arg is map or list (both have length())
             // For now, assume melp_map_length if name suggests map
             // Better: check variable type from var_types
             runtime_name = "melp_list_length";  // Default to list, will handle map below
-        } else if (strcmp(call->function_name, "clear") == 0) {
+        } else if (strcmp(actual_function_name, "clear") == 0) {
             runtime_name = "melp_list_clear";
-        } else if (strcmp(call->function_name, "insert") == 0) {
+        } else if (strcmp(actual_function_name, "insert") == 0) {
             runtime_name = "melp_map_insert";
             is_map_insert = 1;
-        } else if (strcmp(call->function_name, "get") == 0) {
+        } else if (strcmp(actual_function_name, "get") == 0) {
             runtime_name = "melp_map_get";
-        } else if (strcmp(call->function_name, "remove") == 0) {
+        } else if (strcmp(actual_function_name, "remove") == 0) {
             runtime_name = "melp_map_remove";
-        } else if (strcmp(call->function_name, "has_key") == 0) {
+        } else if (strcmp(actual_function_name, "has_key") == 0) {
             runtime_name = "melp_map_has_key";
         }
         

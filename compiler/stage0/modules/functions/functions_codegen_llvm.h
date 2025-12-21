@@ -9,6 +9,9 @@
 #include "functions.h"
 #include "../llvm_backend/llvm_backend.h"
 
+// Forward declarations
+typedef struct GenericRegistry GenericRegistry;  // YZ_203
+
 // Variable type tracking entry (YZ_200)
 typedef struct {
     char* name;           // Variable name
@@ -25,10 +28,13 @@ typedef struct {
     VarTypeEntry* var_types;  // Array of variable types
     int var_type_count;       // Number of tracked variables
     int var_type_capacity;    // Allocated capacity
+    
+    // YZ_203: Generic template registry
+    GenericRegistry* generic_registry;
 } FunctionLLVMContext;
 
 // Initialize LLVM codegen context
-FunctionLLVMContext* function_llvm_context_create(FILE* output);
+FunctionLLVMContext* function_llvm_context_create(FILE* output, GenericRegistry* registry);
 
 // Free LLVM codegen context
 void function_llvm_context_free(FunctionLLVMContext* ctx);

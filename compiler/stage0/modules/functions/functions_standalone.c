@@ -259,7 +259,7 @@ int main(int argc, char** argv) {
     // Generate code based on backend selection
     if (backend == BACKEND_LLVM) {
         // LLVM IR generation
-        FunctionLLVMContext* llvm_ctx = function_llvm_context_create(output);
+        FunctionLLVMContext* llvm_ctx = function_llvm_context_create(output, generic_registry);
         if (!llvm_ctx) {
             fprintf(stderr, "Error: Failed to create LLVM context\n");
             fclose(output);

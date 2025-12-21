@@ -5,6 +5,9 @@
 
 // YZ_203: Generic Type System
 
+// Forward declaration for cross-reference
+typedef struct GenericRegistry GenericRegistry;
+
 // Generic function instantiation (specialized version)
 typedef struct GenericInstance {
     char* mangled_name;                    // "max_numeric", "identity_string"
@@ -24,10 +27,10 @@ typedef struct GenericTemplate {
 } GenericTemplate;
 
 // Global template registry
-typedef struct {
+struct GenericRegistry {
     GenericTemplate* templates;            // List of all generic templates
     int template_count;
-} GenericRegistry;
+};
 
 // Registry management
 GenericRegistry* generic_registry_create();
