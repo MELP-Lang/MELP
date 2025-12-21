@@ -504,6 +504,118 @@ end_function
 
 ---
 
+### 🟣 PHASE 11: SYNTAX IMPROVEMENTS (Ergonomi) [2 hafta]
+
+#### YZ_225: Line Continuation Support (VB.NET Stili) [3 gün]
+**Öncelik:** 🟡 Orta (developer experience)
+
+**Yapılacaklar:**
+- [ ] `_` (underscore) line continuation character
+- [ ] Uzun string literalleri bölme desteği
+- [ ] Fonksiyon parametrelerini çok satıra bölme
+- [ ] Uzun expression'ları bölme
+- [ ] Lexer: `_` + newline → ignore
+- [ ] Parser: Multi-line string support
+
+**Test Cases:**
+```pmpl
+-- Uzun string bölme
+string message = "Bu çok uzun bir mesaj " _
+                 "ve birden fazla satıra " _
+                 "bölünmüş durumda"
+
+-- Fonksiyon parametreleri
+result = calculate_something( _
+    param1; _
+    param2; _
+    param3 _
+)
+
+-- Uzun expression
+numeric total = first_value + _
+                second_value + _
+                third_value
+```
+
+**Dosyalar:**
+- `compiler/stage0/modules/lexer/lexer.c` - Line continuation handling
+- `compiler/stage0/modules/parser/string_parser.c` - Multi-line strings
+- `tests/syntax/test_line_continuation.mlp`
+
+**Referans:** VB.NET line continuation syntax
+
+---
+
+#### YZ_226: Comment Syntax Standardization [2 gün]
+**Öncelik:** 🟡 Orta (documentation)
+
+**Yapılacaklar:**
+- [ ] Tek satır yorum: `--` (mevcut) ✅
+- [ ] Çok satırlı yorum: `---` ... `---` (düzelt)
+- [ ] Dokümantasyon yorumu: `---/` ... `/---`
+- [ ] Nested comment support (opsiyonel)
+- [ ] Comment preservation in AST (for formatter)
+
+**Syntax Önerisi:**
+```pmpl
+-- Tek satır yorum (mevcut) ✅
+
+---
+Çok satırlı yorum
+Birden fazla satır
+---
+
+---/
+Dokümantasyon yorumu (Help, IDE için)
+@param x: İlk parametre
+@return: Sonuç değeri
+/---
+
+function calculate(numeric x) as numeric
+    return x * 2
+end_function
+```
+
+**Dosyalar:**
+- `pmlp_kesin_sozdizimi.md` - Syntax düzeltmesi
+- `compiler/stage0/modules/lexer/lexer.c` - Comment parsing
+- `tests/syntax/test_comments.mlp`
+
+**⚠️ NOT:** 
+- Çok satırlı: `---` ... `---` (simetrik)
+- Dokümantasyon: `---/` ... `/---` (slash direction shows type)
+
+---
+
+#### YZ_227: Inline Control Flow [3 gün]
+**Öncelik:** 🟢 Düşük (syntax sugar)
+
+**Yapılacaklar:**
+- [ ] Tek satır if (end_if olmadan): `if condition then statement`
+- [ ] Ternary operator: `x = condition ? true_value : false_value`
+- [ ] Inline while: `while condition : statement : end_while`
+- [ ] Elvis operator: `x = value ?? default_value`
+
+**Test Cases:**
+```pmpl
+-- Tek satır if
+if x > 10 then print(x)
+
+-- Ternary
+result = (x > 0) ? "positive" : "negative"
+
+-- Elvis (null coalescing)
+name = user.name ?? "Anonymous"
+```
+
+**Dosyalar:**
+- `compiler/stage0/modules/parser/control_flow_parser.c`
+- `tests/syntax/test_inline_control.mlp`
+
+**⚠️ NOT:** Bu özellik opsiyonel, syntax sugar
+
+---
+
 ## 📊 PRİORİTY MATRİSİ
 
 | Phase | YZ | Görev | Öncelik | Süre | Neden Zorunlu? |
@@ -534,6 +646,9 @@ end_function
 | 8 | YZ_219 | Async/Await | 🟢 Düşük | 2 hafta | Modern async |
 | 10 | YZ_223 | LLVM Optimization | 🟢 Düşük | 1 hafta | Performance |
 | 10 | YZ_224 | LTO | 🟢 Düşük | 1 hafta | Advanced opt |
+| 11 | YZ_225 | Line Continuation | 🟡 Orta | 3 gün | Developer experience |
+| 11 | YZ_226 | Comment Syntax | 🟡 Orta | 2 gün | Documentation |
+| 11 | YZ_227 | Inline Control Flow | 🟢 Düşük | 3 gün | Syntax sugar |
 
 ---
 
@@ -659,18 +774,40 @@ end_function
 
 ---
 
+### 🎨 ALTINCI DALGA (Ergonomi) - SYNTAX IMPROVEMENTS
+
+18. **YZ_225: Line Continuation** [3 gün] 🟡
+    - VB.NET tarzı `_` ile satır bölme
+    - Uzun string literalleri
+    - Developer experience iyileştirmesi
+
+19. **YZ_226: Comment Syntax** [2 gün] 🟡
+    - Dokümantasyon yorumları: `---/` ... `/---`
+    - Çok satırlı: `---` ... `---`
+    - IDE tooling desteği
+
+20. **YZ_227: Inline Control Flow** [3 gün] 🟢
+    - Tek satır if (opsiyonel)
+    - Ternary operator
+    - Syntax sugar
+
+**Çıktı:** Daha ergonomik, okunabilir syntax!
+
+---
+
 ## 📈 İLERLEME TAHMİNİ
 
 | Dalga | Süre | Bitiş Tarihi | İlerleme |
 |-------|------|--------------|----------|
-| Faz 0 (BLOKER!) | 1 hafta | 28 Aralık 2025 | → %0 (acil!) |
+| Faz 0 (BLOKER!) | 1 hafta | 28 Aralık 2025 | ✅ %5 (YZ_07 tamamlandı!) |
 | Faz 1 (Kritik) | 4 hafta | 25 Ocak 2026 | → %40 |
 | Faz 2 (Temel) | 4 hafta | 22 Şubat 2026 | → %65 |
 | Faz 3 (Ecosystem) | 4 hafta | 22 Mart 2026 | → %85 |
 | Faz 4 (Gelişmiş) | 6 hafta | 3 Mayıs 2026 | → %100 |
 | Faz 5 (Advanced) | 6 hafta | 14 Haziran 2026 | → %120 |
+| Faz 6 (Syntax) | 1 hafta | 21 Haziran 2026 | → %125 |
 
-**UYARI:** Faz 0 tamamlanmadan Faz 1'e geçilemez!
+**✅ GÜNCELLEME:** Faz 0 (YZ_07) tamamlandı! Stage 1 bloker çözüldü!
 
 **Minimum Viable Language:** Faz 0 + Faz 1 + Faz 2 (9 hafta) → %65  
 **Production Ready:** Faz 0-3 (13 hafta) → %85  
@@ -761,26 +898,28 @@ end_function
 - Stdlib olmadan pratik değil
 
 **Yeni Strateji:**
-1. YZ_200 (List) ile Stage 1 bloker'ı çöz → 1 hafta
-2. YZ_204 (Module) ile code organization sağla → 1 hafta
-3. Diğer zorunlu özellikleri ekle → 10 hafta
-4. LLVM optional features'a dön → İhtiyaç olursa
+1. ✅ YZ_06/07 (List Syntax) → BLOKER ÇÖZÜLDÜ! (21 Aralık 2025)
+2. YZ_200 (List Operations) ile Stage 1 operations → 1 hafta
+3. YZ_204 (Module) ile code organization sağla → 1 hafta
+4. Diğer zorunlu özellikleri ekle → 10 hafta
+5. YZ_225-227 (Syntax Improvements) → 1 hafta
+6. LLVM optional features'a dön → İhtiyaç olursa
 
 ---
 
 ## 🎯 SONUÇ
 
-**Hedef:** %100 Eksiksiz Modern Dil  
-**Yol Haritası:** 25 Phase, 18 hafta (Dalga 1-4)  
-**İlk Kilometre Taşı:** YZ_200 (List Type) → Stage 1 bloker çözülür  
+**Hedef:** %125 Eksiksiz Modern Dil (+ Syntax Ergonomi)
+**Yol Haritası:** 27 Phase (YZ_200-227), 20 hafta (Dalga 1-6)
+**✅ Tamamlanan:** YZ_06/07 (List Syntax) → Stage 1 bloker çözüldü!
+**Sonraki:** YZ_200 (List Type Operations) 🚀
 **MVP:** 8 hafta (Dalga 1-2) → %65 feature complete  
 **Production:** 12 hafta (Dalga 1-3) → %85 ready  
 **Full:** 18 hafta (Dalga 1-4) → %100 modern language
-
-**Başlangıç:** YZ_200 (List Type Implementation) 🚀
+**Polished:** 20 hafta (Dalga 1-6) → %125 ergonomic syntax
 
 ---
 
-**Son Güncelleme:** 21 Aralık 2025  
-**Hazırlayan:** GitHub Copilot (Claude Sonnet 4.5)  
-**Durum:** 📋 Plan Hazır, Execution Bekleniyor
+**Son Güncelleme:** 21 Aralık 2025, 22:30  
+**Hazırlayan:** YZ_ÜA_07 (Coordinator) + YZ_07 (Implementation)  
+**Durum:** ✅ Faz 0 Tamamlandı, YZ_200 Hazır!

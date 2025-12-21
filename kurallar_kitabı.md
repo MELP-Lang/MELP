@@ -586,17 +586,27 @@ mov [rbp-56], rax      ; heap pointer
 PMPL'de yorum satırları:
 
 ```pmpl
--- Bu tek satır yorum
+-- Tek satır yorum
 
 ---
-Bu çoklu satır yorum
+Çok satırlı yorum
 Birden fazla satır yazabilirsin
 ---
+
+---/
+Dokümantasyon yorumu (Help, IDE için)
+@param x: İlk parametre
+@return: Hesaplanan sonuç
+/---
 
 numeric x = 10  -- Satır sonu yorumu
 ```
 
-**NOT:** Kullanıcı kodda `//` veya `#` kullanabilir ama normalize edici bunu `--`'ye çevirir.
+**NOT:** 
+- Tek satır: `--` (iki tire)
+- Çok satırlı: `---` ... `---` (üç tire, simetrik)
+- Dokümantasyon: `---/` ... `/---` (slash yönü tip belirtir)
+- Kullanıcı kodda `//` veya `#` kullanabilir ama normalize edici bunu `--`'ye çevirir.
 
 ### PMPL Temel Syntax (Compiler'ın Gördüğü)
 

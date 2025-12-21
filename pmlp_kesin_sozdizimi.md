@@ -265,10 +265,20 @@ x; y; z = true; "Ali"; 5,6;        -- x=true (boolean); y="Ali" (string); z=5.6 
 Birden fazla satır
 ---
 
+---/
+Dokümantasyon yorumu (Help, IDE tooling için)
+@param x: İlk parametre
+@return: Hesaplanan sonuç
+/---
+
 numeric x = 10  -- Satır sonu yorumu
 ```
 
-**ÖNEMLİ:** `//` ve `#` KULLANILMAZ!
+**⚠️ NOT:** 
+- Tek satır: `--` (iki tire)
+- Çok satırlı: `---` ... `---` (üç tire, simetrik)
+- Dokümantasyon: `---/` ... `/---` (slash yönü tip belirtir)
+- `//` ve `#` KULLANILMAZ!
 
 ---
 
