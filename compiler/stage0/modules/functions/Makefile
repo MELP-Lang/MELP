@@ -138,6 +138,13 @@ TYPE_SYSTEM_DIR = ../type_system
 TYPE_SYSTEM_SOURCES = \
 	$(TYPE_SYSTEM_DIR)/type_inference.c
 
+# Lambda modülü (YZ_208 - Lambda/Anonymous functions)
+LAMBDA_DIR = ../lambda
+LAMBDA_SOURCES = \
+	$(LAMBDA_DIR)/lambda.c \
+	$(LAMBDA_DIR)/lambda_parser.c \
+	$(LAMBDA_DIR)/lambda_codegen.c
+
 # Parser Core modülü (Parser structure)
 PARSER_CORE_DIR = ../parser_core
 PARSER_CORE_SOURCES = \
@@ -182,6 +189,7 @@ SOURCES = \
 	$(STRUCT_SOURCES) \
 	$(ENUM_SOURCES) \
 	$(TYPE_SYSTEM_SOURCES) \
+	$(LAMBDA_SOURCES) \
 	$(PARSER_CORE_SOURCES) \
 	$(CODEGEN_CONTEXT_SOURCES) \
 	$(ERROR_SOURCES) \

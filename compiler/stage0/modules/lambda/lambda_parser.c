@@ -1,5 +1,5 @@
 #include "lambda_parser.h"
-#include "../../parser.h"
+#include "../parser_core/parser_core.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
