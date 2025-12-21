@@ -75,8 +75,80 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
     char* func_name = strdup(tok->value);
     token_free(tok);
     
-    // Left paren
+    // YZ_203: Check for generic type parameters: function name<T, U>
+    // Lookahead: Is next token '<' ?
+    // Note: Lexer may return TOKEN_LESS or TOKEN_LANGLE depending on whitespace
     tok = lexer_next_token(lexer);
+    
+    if (tok && (tok->type == TOKEN_LESS || tok->type == TOKEN_LANGLE)) {
+        // Generic function detected!
+        token_free(tok);
+        
+        // Create function first (we'll add type params to it)
+        FunctionDeclaration* func = function_create(func_name, FUNC_RETURN_VOID);
+        
+        // Parse type parameters: <T, U, V>
+        while (1) {
+            tok = lexer_next_token(lexer);
+            
+            // Type parameter must be uppercase identifier by convention
+            if (!tok || tok->type != TOKEN_IDENTIFIER) {
+                error_parser(tok ? tok->line : 0, "Expected type parameter name after '<'");
+                if (tok) token_free(tok);
+                function_free(func);
+                free(func_name);
+                return NULL;
+            }
+            
+            // Validation: Type parameters should be uppercase (T, U, V, etc.)
+            // For now, just accept any identifier
+            function_add_type_param(func, tok->value);
+            token_free(tok);
+            
+            // Next: ',' for more params or '>' to end
+            tok = lexer_next_token(lexer);
+            if (!tok) {
+                error_parser(0, "Unexpected EOF in generic type parameters");
+                function_free(func);
+                free(func_name);
+                return NULL;
+            }
+            
+            if (tok->type == TOKEN_GREATER) {
+                // End of type parameters
+                token_free(tok);
+                break;
+            } else if (tok->type == TOKEN_COMMA) {
+                // More type parameters
+                token_free(tok);
+                continue;
+            } else {
+                error_parser(tok->line, "Expected ',' or '>' in generic type parameters");
+                token_free(tok);
+                function_free(func);
+                free(func_name);
+                return NULL;
+            }
+        }
+        
+        // Now expect '(' for parameters
+        tok = lexer_next_token(lexer);
+        if (!tok || tok->type != TOKEN_LPAREN) {
+            error_parser(tok ? tok->line : 0, "Expected '(' after generic type parameters");
+            if (tok) token_free(tok);
+            function_free(func);
+            free(func_name);
+            return NULL;
+        }
+        token_free(tok);
+        
+        free(func_name);
+        
+        // Continue to parameter parsing (moved below as shared code)
+        goto parse_parameters;
+    }
+    
+    // Non-generic function: Token already read (should be '(')
     if (!tok || tok->type != TOKEN_LPAREN) {
         error_parser(tok ? tok->line : 0, "Expected '(' after function name");
         free(func_name);
@@ -89,6 +161,7 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
     FunctionDeclaration* func = function_create(func_name, FUNC_RETURN_VOID);
     free(func_name);
     
+parse_parameters:
     // Parse parameters
     tok = lexer_next_token(lexer);
     if (tok->type != TOKEN_RPAREN) {
@@ -123,11 +196,26 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
                     token_free(tok);
                     tok = lexer_next_token(lexer);
                 } else if (tok->type == TOKEN_IDENTIFIER) {
-                    // Could be struct type
-                    StructDef* struct_def = struct_lookup_definition(tok->value);
-                    if (struct_def) {
+                    // YZ_203: Check if it's a generic type parameter first
+                    if (function_is_type_param(func, tok->value)) {
+                        // It's a generic type parameter! Store as struct for now
+                        // (will be replaced during monomorphization)
                         param_type = FUNC_PARAM_STRUCT;
-                        struct_type_name = strdup(tok->value);
+                        struct_type_name = strdup(tok->value);  // Store "T", "U", etc.
+                    }
+                    // Could be struct type
+                    else {
+                        StructDef* struct_def = struct_lookup_definition(tok->value);
+                        if (struct_def) {
+                            param_type = FUNC_PARAM_STRUCT;
+                            struct_type_name = strdup(tok->value);
+                        } else {
+                            error_parser(tok->line, "Unknown type '%s'", tok->value);
+                            free(first_token);
+                            token_free(tok);
+                            function_free(func);
+                            return NULL;
+                        }
                     }
                     token_free(tok);
                     tok = lexer_next_token(lexer);
@@ -139,17 +227,17 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
                     return NULL;
                 }
             } else {
-                // OLD SYNTAX: Could be struct type OR parameter name
-                StructDef* struct_def = struct_lookup_definition(first_token);
-                if (struct_def) {
-                    // It's a struct type! (old syntax: Point p)
+                // OLD SYNTAX: Could be struct type, generic type, OR parameter name
+                // YZ_203: Check if it's a generic type parameter first
+                if (function_is_type_param(func, first_token)) {
+                    // It's a generic type! (e.g., "T value")
                     param_type = FUNC_PARAM_STRUCT;
                     struct_type_name = strdup(first_token);
                     free(first_token);
                     
                     // Get parameter name
                     if (tok->type != TOKEN_IDENTIFIER) {
-                        error_parser(tok->line, "Expected parameter name after struct type");
+                        error_parser(tok->line, "Expected parameter name after generic type");
                         token_free(tok);
                         function_free(func);
                         return NULL;
@@ -157,11 +245,32 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
                     param_name = strdup(tok->value);
                     token_free(tok);
                     tok = lexer_next_token(lexer);
-                } else {
-                    // Not a struct, must be parameter name with default numeric type
-                    param_name = first_token;
-                    param_type = FUNC_PARAM_NUMERIC;
-                    // tok already points to next token
+                } 
+                // Check if it's a struct type
+                else {
+                    StructDef* struct_def = struct_lookup_definition(first_token);
+                    if (struct_def) {
+                        // It's a struct type! (old syntax: Point p)
+                        param_type = FUNC_PARAM_STRUCT;
+                        struct_type_name = strdup(first_token);
+                        free(first_token);
+                        
+                        // Get parameter name
+                        if (tok->type != TOKEN_IDENTIFIER) {
+                            error_parser(tok->line, "Expected parameter name after struct type");
+                            token_free(tok);
+                            function_free(func);
+                            return NULL;
+                        }
+                        param_name = strdup(tok->value);
+                        token_free(tok);
+                        tok = lexer_next_token(lexer);
+                    } else {
+                        // Not a struct or generic, must be parameter name with default numeric type
+                        param_name = first_token;
+                        param_type = FUNC_PARAM_NUMERIC;
+                        // tok already points to next token
+                    }
                 }
             }
         }
@@ -360,8 +469,14 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
         token_free(tok);
         tok = lexer_next_token(lexer);
         
+        // YZ_203: Check if return type is a generic type parameter
+        if (tok->type == TOKEN_IDENTIFIER && function_is_type_param(func, tok->value)) {
+            // It's a generic type! Store as struct return type (will be replaced during monomorphization)
+            func->return_type = FUNC_RETURN_STRUCT;
+            func->return_struct_type = strdup(tok->value);  // Store "T", "U", etc.
+        }
         // YZ_84: Check if return type is a struct
-        if (tok->type == TOKEN_IDENTIFIER) {
+        else if (tok->type == TOKEN_IDENTIFIER) {
             StructDef* struct_def = struct_lookup_definition(tok->value);
             if (struct_def) {
                 // Returning a struct
@@ -369,6 +484,7 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
                 func->return_struct_type = strdup(tok->value);
             } else {
                 // Unknown type, default to void
+                error_parser(tok->line, "Unknown return type '%s'", tok->value);
                 func->return_type = FUNC_RETURN_VOID;
             }
         } else {

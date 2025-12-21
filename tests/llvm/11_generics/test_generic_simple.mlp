@@ -1,0 +1,11 @@
+-- YZ_203: Generic function test - Simple identity function
+-- Test: Generic type parameter parsing
+
+function identity<T>(T value) returns T
+    return value
+end_function
+
+function main() returns numeric
+    -- For now, just test parsing (no instantiation yet)
+    return 42
+end_function
