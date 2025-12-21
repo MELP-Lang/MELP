@@ -1,0 +1,6 @@
+-- Package A depends on Package B
+package {
+    name = "package_a",
+    version = "1.0.0",
+    dependencies = ["package_b:1.0"]
+}

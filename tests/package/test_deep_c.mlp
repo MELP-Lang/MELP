@@ -1,0 +1,5 @@
+-- Deep dependency C (leaf node)
+package {
+    name = "deep_c",
+    version = "1.0.0"
+}

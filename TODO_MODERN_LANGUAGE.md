@@ -1279,6 +1279,19 @@ name = user.name ?? "Anonymous"
 
 ---
 
-**Son Güncelleme:** 21 Aralık 2025, 22:30  
-**Hazırlayan:** YZ_ÜA_07 (Coordinator) + YZ_07 (Implementation)  
-**Durum:** ✅ Faz 0 Tamamlandı, YZ_200 Hazır!
+
+---
+
+## 🔔 Syntax Update: Trailing Semicolon Optional (Proposal)
+
+**Kural Değişikliği:**
+- Artık array, list ve tuple literal'lerinde sondaki noktalı virgül (;) zorunlu değildir.
+- Hem `(1; 2; 3;)` hem `(1; 2; 3)` geçerli.
+- Hem `[1; 2; 3;]` hem `[1; 2; 3]` geçerli.
+- Hem `<1; 2; 3;>` hem `<1; 2; 3>` geçerli.
+
+**Amaç:** Kod ergonomisi ve modern dil uyumu.
+
+**Not:** Parser ve dokümantasyon güncellenmeli. Testler iki biçimi de kapsamalı.
+
+---

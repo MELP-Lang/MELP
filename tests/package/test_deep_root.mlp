@@ -1,0 +1,6 @@
+-- Package with deep dependency chain
+package {
+    name = "deep_root",
+    version = "1.0.0",
+    dependencies = ["deep_a:1.0"]
+}

@@ -1,0 +1,6 @@
+-- Deep dependency B
+package {
+    name = "deep_b",
+    version = "1.0.0",
+    dependencies = ["deep_c:1.0"]
+}
