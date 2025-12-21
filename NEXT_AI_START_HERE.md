@@ -1,9 +1,9 @@
 # 🚀 MELP PROJECT - START HERE!
 
-**Last Session:** YZ_206 (Result Type Pattern) - ✅ **TAMAMLANDI**  
+**Current Session:** YZ_207 (Try-Catch Exception Handling) - 🔄 **BAŞLANIYOR**  
 **Date:** 21 Aralık 2025  
 **Agent:** GitHub Copilot (Claude Sonnet 4.5)  
-**Status:** 🎉 **YZ_206 COMPLETE!** - Result Type Infrastructure Ready
+**Status:** 🚀 **YZ_207 READY TO START!** - Exception Handling (Optional Feature)
 
 **⚠️ Project Status:**
 - **Stage 0:** ✅ TAMAMLANDI (C Compiler) - **List (), Map {}, Optional ?, Generic <T> working! ✅**
@@ -17,6 +17,48 @@
 - **YZ_204:** ✅ **TAMAMLANDI** - Module Import/Export System 🚀
 - **YZ_205:** ✅ **TAMAMLANDI** - Package Structure System 📦
 - **YZ_206:** ✅ **TAMAMLANDI** - Result Type Pattern 🎯
+- **YZ_207:** 🔄 **BAŞLANIYOR** - Try-Catch Exception Handling (Optional) ⚡
+
+---
+
+## 🎯 YZ_207: Try-Catch Exception Handling (Optional)
+
+**Durum:** 🔄 **BAŞLANIYOR**  
+**Öncelik:** 🟢 Düşük (Result pattern zaten var, opsiyonel)  
+**Süre:** 5 gün  
+**Görev Dosyası:** `LLVM_YZ/YZ_207_GOREV.md`
+
+**Amaç:** Imperative exception handling (alternative to Result pattern)
+
+**Özellikler:**
+- Try-catch-finally syntax
+- Exception types (base + built-in)
+- Throw statement
+- Stack unwinding
+- LLVM exception handling (invoke/landingpad)
+
+**Not:** Result pattern (YZ_206) zero-cost error handling sağlar. Try-catch runtime overhead içerir ama bazı geliştiriciler tarafından tercih edilebilir. İkisi birlikte çalışabilir.
+
+**Working Example (Target):**
+```pmpl
+function divide(numeric a, numeric b) returns numeric
+    if b == 0 then
+        throw DivisionByZeroException("Division by zero")
+    end_if
+    return a / b
+end_function
+
+function test_try_catch() returns numeric
+    try
+        return divide(10, 0)
+    catch e as DivisionByZeroException
+        print("Error: " + e.message)
+        return -1
+    finally
+        print("Cleanup")
+    end_try
+end_function
+```
 
 ---
 
@@ -1167,12 +1209,13 @@ end_function' > temp/test_list.mlp
 
 **⚠️ SON UYARI:** YZ_06 en yüksek öncelikli görev! Stage 1 bootstrap tamamen buna bağlı. 1 hafta içinde tamamlanmalı!
 
-**🎯 HEDEF:** 66 Stage 1 modül derlenebilir hale gelsin → Bootstrap devam etsin → Modern dil features eklensin!
+**🎯 HEDEF:** Exception handling alternatif yöntemi (Result pattern'e ek)
 
-**🚀 BAŞARININ ANAHTARI:** List syntax `()` + noktalı virgül `;` + trailing semicolon!
+**🚀 BAŞARININ ANAHTARI:** Try-catch-finally syntax + LLVM exception handling!
 
 ---
 
-**Last Updated:** 21 Aralık 2025, 14:30 (YZ_ÜA_05)  
-**Next Session:** YZ_06 (Stage 0 List Syntax Support)  
-**Priority:** 🔴🔴🔴 CRITICAL BLOCKER
+**Last Updated:** 21 Aralık 2025  
+**Current Task:** YZ_207 Ready (Try-Catch Exception Handling)  
+**Next Agent:** Read `LLVM_YZ/YZ_207_GOREV.md` to start!  
+**Recommendation:** YZ_207 optional (Result pattern sufficient). Consider YZ_208 (Lambda) instead.
