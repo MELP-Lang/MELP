@@ -14,35 +14,35 @@ x86-64 assembly yerine LLVM IR üretimi ile:
 - ✅ LLVM optimizasyonları
 - ✅ Modern toolchain entegrasyonu
 
-**Mevcut Durum:** LLVM backend %90 hazır, sadece entegrasyon gerekli
+**Mevcut Durum:** ✅ LLVM backend production ready! Faz 1 tamamlandı.
 
 ---
 
-## 📊 Faz 1: CLI + Tests (1 gün) 🔴 CRITICAL
+## ✅ Faz 1: CLI + Tests (1 gün) - TAMAMLANDI!
 
-### LLVM_YZ_01: CLI Entegrasyonu [⏳ Atandı]
-**Effort:** 2 saat  
-**Öncelik:** 🔴 Yüksek
+### LLVM_YZ_01: CLI Entegrasyonu [✅ Tamamlandı]
+**Effort:** 1 saat (gerçekleşen)  
+**Öncelik:** 🔴 Yüksek  
+**Tamamlanma:** 20 Aralık 2025
 
-**📋 DİREKTİF:** `LLVM_YZ/YZ_01_DIREKTIF.md` ← **Buraya bak!**
+**📋 RAPOR:** `LLVM_YZ/YZ_01.md` + `YZ_01_FIX.md`
 
 **Görev:**
-- [ ] `--backend=llvm` flag'ini CLI'ya ekle
-- [ ] Backend enum (ASSEMBLY/LLVM)
-- [ ] Help mesajını güncelle
-- [ ] 5 test geçir
+- [x] `--backend=llvm` flag'ini CLI'ya ekle
+- [x] Backend enum (ASSEMBLY/LLVM)
+- [x] Help mesajını güncelle
+- [x] 5 test geçir
+- [x] Context bug fix
 
 **Dosyalar:**
-- `compiler/stage0/modules/functions/functions_standalone.c` (+60 satır)
+- `compiler/stage0/modules/functions/functions_standalone.c` (+62 satır)
 
-**Test:**
-- [ ] Return (42)
-- [ ] Arithmetic (30)
-- [ ] Variable (88)
-- [ ] Function call (15)
-- [ ] If statement (99)
+**Sonuç:**
+- ✅ CLI entegrasyonu başarılı
+- ✅ 5/5 test geçti
+- ✅ Bug fix yapıldı (2 satır kritik fix)
 
-**Beklenen Süre:** 2 saat
+**Gerçekleşen Süre:** 1 saat
 
 ---
 
@@ -132,38 +132,33 @@ tests/llvm/
 
 ---
 
-## 📊 Faz 2: Feature Parity (1.5 gün) 🟡 MEDIUM
+## 📊 Faz 2: Feature Parity (1.5 gün) 🟡 OPSIYONEL
+
+**Not:** Core functionality tamam! Bu özellikler ihtiyaç oldukça eklenebilir.
 
 ### LLVM_YZ_05: Array Support [⏳ Bekliyor]
 **Effort:** 4 saat  
-**Öncelik:** 🟡 Orta
+**Öncelik:** 🟡 Orta  
+**Atanacak:** YZ_05
+
+**📋 GÖREV DOSYASI:** `LLVM_YZ/YZ_05_GOREV.md` (oluşturulacak)
 
 **Görev:**
+- [ ] `array_codegen.c` assembly → LLVM IR migration
 - [ ] Array declaration LLVM IR
-- [ ] Array indexing (read)
-- [ ] Array indexing (write)
+- [ ] Array indexing (read/write)
 - [ ] Array bounds checking
+- [ ] Runtime integration (`mlp_array_*` functions)
+
+**Mevcut Kod:**
+- ✅ `compiler/stage0/modules/array/array_parser.c` (hazır)
+- ✅ `compiler/stage0/modules/array/array_codegen.c` (assembly)
+- ⚠️ Runtime: Minimal (genişletilebilir)
 
 **Test:**
 ```mlp
-var arr = [1, 2, 3]
-return arr[1]  # Should return 2
-```
-
-### LLVM_YZ_05: Array Support [⏳ Bekliyor]
-**Effort:** 4 saat  
-**Öncelik:** 🟡 Orta
-
-**Görev:**
-- [ ] Array declaration LLVM IR
-- [ ] Array indexing (read)
-- [ ] Array indexing (write)
-- [ ] Array bounds checking
-
-**Test:**
-```mlp
-var arr = [1, 2, 3]
-return arr[1]  # Should return 2
+array arr = [1, 2, 3]
+return arr[1]  -- Should return 2
 ```
 
 **Beklenen Süre:** 4 saat
@@ -172,36 +167,26 @@ return arr[1]  # Should return 2
 
 ### LLVM_YZ_06: For-Each Loop [⏳ Bekliyor]
 **Effort:** 3 saat  
-**Öncelik:** 🟡 Orta
+**Öncelik:** 🟡 Orta  
+**Atanacak:** YZ_06
+
+**📋 GÖREV DOSYASI:** `LLVM_YZ/YZ_06_GOREV.md` (oluşturulacak)
 
 **Görev:**
 - [ ] For-each loop LLVM IR generation
 - [ ] Iterator support
 - [ ] Collection traversal
+- [ ] Integration with array module
+
+**Mevcut Kod:**
+- ✅ `compiler/stage0/modules/for_loop/` (for loops hazır)
+- ⚠️ For-each: Parser var, codegen minimal
 
 **Test:**
 ```mlp
-for each item in [1, 2, 3]
-    println(item)
-end for
-```
-
-**Not:** YZ_00 raporunda "not supported" olarak işaretlendi
-
-### LLVM_YZ_06: For-Each Loop [⏳ Bekliyor]
-**Effort:** 3 saat  
-**Öncelik:** 🟡 Orta
-
-**Görev:**
-- [ ] For-each loop LLVM IR generation
-- [ ] Iterator support
-- [ ] Collection traversal
-
-**Test:**
-```mlp
-for each item in [1, 2, 3]
-    println(item)
-end for
+for each item in [1, 2, 3] do
+    print(item)
+end_for
 ```
 
 **Not:** YZ_00 raporunda "not supported" olarak işaretlendi
@@ -212,50 +197,66 @@ end for
 
 ### LLVM_YZ_07: Switch/Case [⏳ Bekliyor]
 **Effort:** 5 saat  
-**Öncelik:** 🟡 Orta
+**Öncelik:** 🟡 Orta  
+**Atanacak:** YZ_07
+
+**📋 GÖREV DOSYASI:** `LLVM_YZ/YZ_07_GOREV.md` (oluşturulacak)
 
 **Görev:**
-- [ ] Switch statement LLVM IR
+- [ ] `switch_codegen.c` assembly → LLVM IR migration
+- [ ] Switch statement LLVM IR (llvm switch instruction)
 - [ ] Case handling
 - [ ] Default case
 - [ ] Fall-through semantics
 
+**Mevcut Kod:**
+- ✅ `compiler/stage0/modules/switch/switch_parser.c` (hazır)
+- ✅ `compiler/stage0/modules/switch/switch_codegen.c` (assembly)
+
 **Test:**
 ```mlp
 switch x
-    case 1:
+    case 1 then
         return 10
-    case 2:
+    case 2 then
         return 20
-    default:
+    default then
         return 0
-end switch
+end_switch
 ```
 
 **Beklenen Süre:** 5 saat
 
 ---
 
-## 📊 Faz 3: Data Structures (2.5 gün) 🟢 LOW
+## 📊 Faz 3: Data Structures (2.5 gün) 🟢 OPSIYONEL
 
-### LLVM_YZ_07: Struct Support [⏳ Bekliyor]
+### LLVM_YZ_08: Struct Support [⏳ Bekliyor]
+**Atanacak:** YZ_08
 **Effort:** 8 saat  
 **Öncelik:** 🟢 Düşük
 
+**📋 GÖREV DOSYASI:** `LLVM_YZ/YZ_08_GOREV.md` (oluşturulacak)
+
 **Görev:**
-- [ ] Struct definition LLVM IR
-- [ ] Struct field access
+- [ ] `struct_codegen.c` assembly → LLVM IR migration
+- [ ] Struct definition LLVM IR (llvm struct type)
+- [ ] Struct field access (getelementptr)
 - [ ] Struct initialization
 - [ ] Struct methods
 
+**Mevcut Kod:**
+- ✅ `compiler/stage0/modules/struct/struct_parser.c` (hazır)
+- ✅ `compiler/stage0/modules/struct/struct_codegen.c` (assembly)
+
 **Test:**
 ```mlp
-struct Point {
-    x as int
-    y as int
-}
+struct Point
+    numeric x
+    numeric y
+end_struct
 
-var p = Point { x: 10, y: 20 }
+Point p = Point(10, 20)
 return p.x
 ```
 
@@ -263,72 +264,114 @@ return p.x
 
 ---
 
-### LLVM_YZ_08: Collection Types [⏳ Bekliyor]
+### LLVM_YZ_09: Collection Types [⏳ Bekliyor]
+**Atanacak:** YZ_09
 **Effort:** 12 saat  
 **Öncelik:** 🟢 Düşük
 
+**📋 GÖREV DOSYASI:** `LLVM_YZ/YZ_09_GOREV.md` (oluşturulacak)
+
 **Görev:**
-- [ ] List LLVM IR
-- [ ] Tuple LLVM IR
-- [ ] Map LLVM IR
-- [ ] Set LLVM IR
+- [ ] List LLVM IR (dynamic arrays)
+- [ ] Tuple LLVM IR (immutable collections)
+- [ ] Map LLVM IR (hash table)
+- [ ] Set LLVM IR (unique values)
+- [ ] Runtime library integration
+
+**Mevcut Kod:**
+- ⚠️ Parser: Array modülünde kısmi destek
+- ❌ Runtime: Henüz yok (oluşturulacak)
 
 **Beklenen Süre:** 1.5 gün
 
 ---
 
-## 📊 Faz 4: Advanced Features (3.5 gün) 🟢 LOW
+## 📊 Faz 4: Advanced Features (3.5 gün) 🟢 OPSIYONEL
 
-### LLVM_YZ_09: Enum Support [⏳ Bekliyor]
+### LLVM_YZ_10: Enum Support [⏳ Bekliyor]
+**Atanacak:** YZ_10
 **Effort:** 6 saat  
 **Öncelik:** 🟢 Düşük
 
+**📋 GÖREV DOSYASI:** `LLVM_YZ/YZ_10_GOREV.md` (oluşturulacak)
+
 **Görev:**
-- [ ] Enum definition
+- [ ] `enum_codegen.c` assembly → LLVM IR migration
+- [ ] Enum definition (as LLVM constants)
 - [ ] Enum value access
 - [ ] Enum in switch/case
+
+**Mevcut Kod:**
+- ✅ `compiler/stage0/modules/enum/enum_parser.c` (hazır)
+- ⚠️ `compiler/stage0/modules/enum/enum_codegen.c` (minimal)
 
 **Beklenen Süre:** 6 saat
 
 ---
 
-### LLVM_YZ_10: String Operations [⏳ Bekliyor]
+### LLVM_YZ_11: String Operations [⏳ Bekliyor]
+**Atanacak:** YZ_11
 **Effort:** 8 saat  
 **Öncelik:** 🟢 Düşük
 
+**📋 GÖREV DOSYASI:** `LLVM_YZ/YZ_11_GOREV.md` (oluşturulacak)
+
 **Görev:**
-- [ ] String concatenation
-- [ ] String comparison
+- [ ] String concat LLVM IR (mlp_string_concat call)
+- [ ] String comparison LLVM IR
 - [ ] String indexing
-- [ ] String methods
+- [ ] String methods (substring, split, etc.)
+- [ ] Runtime library (`mlp_string.*`) entegrasyonu
+
+**Mevcut Kod:**
+- ✅ `runtime/stdlib/mlp_string.c/h` (hazır, geniş API)
+- ✅ `compiler/stage0/modules/string_operations/` (parser hazır)
+- ⚠️ LLVM IR codegen: Kısmi
 
 **Beklenen Süre:** 1 gün
 
 ---
 
-### LLVM_YZ_11: Optimization Pass [⏳ Bekliyor]
+### LLVM_YZ_12: Optimization Pass [⏳ Bekliyor]
+**Atanacak:** YZ_12
 **Effort:** 12 saat  
 **Öncelik:** 🟢 Düşük
 
+**📋 GÖREV DOSYASI:** `LLVM_YZ/YZ_12_GOREV.md` (oluşturulacak)
+
 **Görev:**
-- [ ] LLVM optimization flags
-- [ ] Dead code elimination
+- [ ] LLVM optimization flags (-O1, -O2, -O3)
+- [ ] Dead code elimination (DCE pass)
 - [ ] Constant folding
-- [ ] Inline functions
+- [ ] Inline functions (inline pass)
+- [ ] LLVM pass manager integration
+
+**Mevcut Kod:**
+- ✅ `compiler/stage0/modules/optimization_pass/` (var ama minimal)
+- ⚠️ LLVM pass integration: Yok
 
 **Beklenen Süre:** 1.5 gün
 
 ---
 
-### LLVM_YZ_12: Documentation [⏳ Bekliyor]
+### LLVM_YZ_13: Documentation [⏳ Bekliyor]
+**Atanacak:** YZ_13
 **Effort:** 4 saat  
 **Öncelik:** 🟢 Düşük
+
+**📋 GÖREV DOSYASI:** `LLVM_YZ/YZ_13_GOREV.md` (oluşturulacak)
 
 **Görev:**
 - [ ] LLVM backend kullanım kılavuzu
 - [ ] API dokümantasyonu
 - [ ] Migration guide (assembly → LLVM)
-- [ ] Troubleshooting
+- [ ] Best practices
+- [ ] Troubleshooting guide
+
+**Dosyalar:**
+- [ ] `docs/LLVM_BACKEND_GUIDE.md`
+- [ ] `docs/LLVM_MIGRATION.md`
+- [ ] `docs/LLVM_API.md`
 
 **Beklenen Süre:** 4 saat
 
@@ -338,41 +381,49 @@ return p.x
 
 | Faz | Görevler | Tamamlanan | Kalan | Süre |
 |-----|----------|------------|-------|------|
-| **Faz 1** | 3 | 0 | 3 | 1 gün |
+| **Analiz** | 1 | 1 ✅ | 0 | - |
+| **Faz 1** | 4 | 4 ✅ | 0 | 5 saat (tamamlandı) |
 | **Faz 2** | 3 | 0 | 3 | 1.5 gün |
 | **Faz 3** | 2 | 0 | 2 | 2.5 gün |
 | **Faz 4** | 4 | 0 | 4 | 3.5 gün |
-| **TOPLAM** | **12** | **0** | **12** | **8.5 gün** |
+| **TOPLAM** | **14** | **5** | **9** | **~8 gün** |
 
-**Tamamlanma:** %0
+**Tamamlanma:** %36 (5/14 görev)
 
 ---
 
 ## 🎯 Milestone'lar
 
-### Milestone 1: LLVM Backend Aktif (1 gün) 🔴
+### ✅ Milestone 1: LLVM Backend Aktif (1 gün) - TAMAMLANDI!
 - [x] YZ_00: Analiz ✅
-- [ ] YZ_01: CLI entegrasyonu
-- [ ] YZ_02: Test suite
-- [ ] YZ_03: Regression tests
+- [x] YZ_01: CLI entegrasyonu ✅
+- [x] YZ_02: Test suite ✅
+- [x] YZ_03: Regression tests ✅
+- [x] YZ_04: Default backend switch ✅
 
-**Hedef:** LLVM backend kullanıma hazır
-
----
-
-### Milestone 2: Assembly Parity (2.5 gün) 🟡
-- [ ] YZ_04: Arrays
-- [ ] YZ_05: For-each
-- [ ] YZ_06: Switch/case
-
-**Hedef:** Assembly backend ile aynı özelliklere sahip
+**Hedef:** LLVM backend kullanıma hazır ✅  
+**Süre:** 5 saat (hedef: 8 saat) - %37 daha hızlı!  
+**Sonuç:** Production ready, 0 regression
 
 ---
 
-### Milestone 3: Full Coverage (8.5 gün) 🟢
-- [ ] YZ_07-12: Tüm advanced features
+### Milestone 2: Assembly Parity (1.5 gün) 🟡 OPSIYONEL
+- [ ] YZ_05: Arrays
+- [ ] YZ_06: For-each
+- [ ] YZ_07: Switch/case
 
-**Hedef:** %100 feature coverage
+**Hedef:** Assembly backend ile aynı özelliklere sahip  
+**Not:** Core functionality tamam, bu opsiyonel
+
+---
+
+### Milestone 3: Full Coverage (6 gün) 🟢 OPSIYONEL
+- [ ] YZ_08: Structs
+- [ ] YZ_09: Collections
+- [ ] YZ_10-13: Advanced features
+
+**Hedef:** %100 feature coverage  
+**Not:** İhtiyaç oldukça eklenebilir
 
 ---
 
