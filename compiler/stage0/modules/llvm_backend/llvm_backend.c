@@ -356,11 +356,17 @@ LLVMValue* llvm_emit_call(LLVMContext* ctx, const char* func_name,
     int returns_pointer = (strncmp(func_name, "melp_list", 9) == 0 && 
                           (strcmp(func_name, "melp_list_create") == 0 ||
                            strcmp(func_name, "melp_list_get") == 0)) ||
+                          (strncmp(func_name, "melp_map", 8) == 0 &&
+                          (strcmp(func_name, "melp_map_create") == 0 ||
+                           strcmp(func_name, "melp_map_get") == 0)) ||
                           strcmp(func_name, "malloc") == 0;  // malloc returns i8*
     
     int returns_i32 = (strcmp(func_name, "melp_list_append") == 0 ||
                        strcmp(func_name, "melp_list_prepend") == 0 ||
-                       strcmp(func_name, "melp_list_set") == 0);
+                       strcmp(func_name, "melp_list_set") == 0 ||
+                       strcmp(func_name, "melp_map_insert") == 0 ||
+                       strcmp(func_name, "melp_map_remove") == 0 ||
+                       strcmp(func_name, "melp_map_has_key") == 0);
     
     result->type = returns_pointer ? LLVM_TYPE_I8_PTR : LLVM_TYPE_I64;
     const char* return_type_str = returns_pointer ? "i8*" : (returns_i32 ? "i32" : "i64");
@@ -530,6 +536,20 @@ void llvm_emit_printf_support(LLVMContext* ctx) {
     fprintf(ctx->output, "declare i8* @melp_list_get(i8*, i64)\n");
     fprintf(ctx->output, "; int melp_list_set(MelpList* list, size_t index, void* element)\n");
     fprintf(ctx->output, "declare i32 @melp_list_set(i8*, i64, i8*)\n\n");
+    
+    fprintf(ctx->output, "; MLP Standard Library - Map Functions (YZ_201)\n");
+    fprintf(ctx->output, "; MelpMap* melp_map_create(size_t value_size)\n");
+    fprintf(ctx->output, "declare i8* @melp_map_create(i64)\n");
+    fprintf(ctx->output, "; int melp_map_insert(MelpMap* map, const char* key, const void* value)\n");
+    fprintf(ctx->output, "declare i32 @melp_map_insert(i8*, i8*, i8*)\n");
+    fprintf(ctx->output, "; void* melp_map_get(MelpMap* map, const char* key)\n");
+    fprintf(ctx->output, "declare i8* @melp_map_get(i8*, i8*)\n");
+    fprintf(ctx->output, "; int melp_map_remove(MelpMap* map, const char* key)\n");
+    fprintf(ctx->output, "declare i32 @melp_map_remove(i8*, i8*)\n");
+    fprintf(ctx->output, "; int melp_map_has_key(MelpMap* map, const char* key)\n");
+    fprintf(ctx->output, "declare i32 @melp_map_has_key(i8*, i8*)\n");
+    fprintf(ctx->output, "; size_t melp_map_length(MelpMap* map)\n");
+    fprintf(ctx->output, "declare i64 @melp_map_length(i8*)\n\n");
 }
 
 LLVMValue* llvm_emit_println(LLVMContext* ctx, LLVMValue* value) {

@@ -212,6 +212,57 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
             return list_ptr;
         }
         
+        if (coll->type == COLL_MAP) {
+            // YZ_201: Generate map allocation and initialization
+            // 1. Call melp_map_create(value_size)
+            LLVMValue* value_size = llvm_const_i64(sizeof(int64_t));  // For now, numeric values only
+            LLVMValue* map_ptr = llvm_emit_call(ctx->llvm_ctx, "melp_map_create", &value_size, 1);
+            map_ptr->type = LLVM_TYPE_I8_PTR;  // melp_map_create returns i8*
+            
+            // 2. For each key-value pair, call melp_map_insert(map, key, &value)
+            Map* map = &coll->data.map;
+            for (int i = 0; i < map->length; i++) {
+                // Generate key string pointer
+                char* key_str = map->keys[i];
+                char* key_global = llvm_emit_string_global(ctx->llvm_ctx, key_str);
+                size_t key_len = strlen(key_str) + 1;
+                LLVMValue* key_ptr = llvm_emit_string_ptr(ctx->llvm_ctx, key_global, key_len);
+                free(key_global);
+                
+                // Generate value expression
+                ArithmeticExpr* val_expr = (ArithmeticExpr*)map->values[i];
+                LLVMValue* val = generate_expression_llvm(ctx, val_expr);
+                
+                // Allocate memory for value (runtime expects void*)
+                LLVMValue* size_arg = llvm_const_i64(8);  // i64 = 8 bytes
+                LLVMValue* val_mem = llvm_emit_call(ctx->llvm_ctx, "malloc", &size_arg, 1);
+                val_mem->type = LLVM_TYPE_I8_PTR;
+                
+                // Bitcast i8* to i64* and store value
+                char* cast_temp = llvm_new_temp(ctx->llvm_ctx);
+                fprintf(ctx->llvm_ctx->output, "    %s = bitcast i8* %s to i64*\n",
+                        cast_temp, val_mem->name);
+                
+                fprintf(ctx->llvm_ctx->output, "    store i64 ");
+                if (val->is_constant) {
+                    fprintf(ctx->llvm_ctx->output, "%ld", val->const_value);
+                } else {
+                    fprintf(ctx->llvm_ctx->output, "%s", val->name);
+                }
+                fprintf(ctx->llvm_ctx->output, ", i64* %s\n", cast_temp);
+                
+                // Call melp_map_insert(map_ptr, key_ptr, val_mem)
+                LLVMValue* args[3] = {map_ptr, key_ptr, val_mem};
+                llvm_emit_call(ctx->llvm_ctx, "melp_map_insert", args, 3);
+                
+                llvm_value_free(val);
+                llvm_value_free(key_ptr);
+            }
+            
+            // 3. Return map pointer
+            return map_ptr;
+        }
+        
         // Other collection types: return 0 for now
         return llvm_const_i64(0);
     }
@@ -640,6 +691,39 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
                     fprintf(ctx->llvm_ctx->output, ", i8** %s, align 8\n", var_ptr_name);
                     
                     llvm_value_free(list_ptr);
+                } else {
+                    // No initializer - store NULL
+                    fprintf(ctx->llvm_ctx->output, "  store i8* null, i8** %s, align 8\n", var_ptr_name);
+                }
+                
+                return NULL;
+            }
+            
+            // YZ_201: Handle map variables
+            if (decl->type == VAR_MAP) {
+                // Register variable type
+                register_variable_type(ctx, decl->name, 1);  // 1 = pointer (i8*)
+                
+                // Map variable: map person = {"name": "Alice"; "age": "30";}
+                // Allocate i8* pointer on stack for map pointer
+                char var_ptr_name[256];
+                snprintf(var_ptr_name, sizeof(var_ptr_name), "%%%s", decl->name);
+                fprintf(ctx->llvm_ctx->output, "  %s = alloca i8*, align 8\n", var_ptr_name);
+                
+                // Generate initializer expression (map literal)
+                if (decl->init_expr) {
+                    LLVMValue* map_ptr = generate_expression_llvm(ctx, decl->init_expr);
+                    
+                    // Store map pointer to variable
+                    fprintf(ctx->llvm_ctx->output, "  store i8* ");
+                    if (map_ptr->is_constant) {
+                        fprintf(ctx->llvm_ctx->output, "null");  // NULL map
+                    } else {
+                        fprintf(ctx->llvm_ctx->output, "%s", map_ptr->name);
+                    }
+                    fprintf(ctx->llvm_ctx->output, ", i8** %s, align 8\n", var_ptr_name);
+                    
+                    llvm_value_free(map_ptr);
                 } else {
                     // No initializer - store NULL
                     fprintf(ctx->llvm_ctx->output, "  store i8* null, i8** %s, align 8\n", var_ptr_name);
