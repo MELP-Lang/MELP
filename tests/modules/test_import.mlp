@@ -1,0 +1,9 @@
+-- test_import.mlp - Test importing and using modules
+-- YZ_204: Module Import/Export Test
+
+import math
+
+function main() returns numeric
+    numeric result = math.add(10, 20)
+    return result
+end_function

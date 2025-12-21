@@ -1,0 +1,17 @@
+-- math.mlp - Test module with exports
+-- YZ_204: Module Import/Export Test
+
+module math
+
+export function add(numeric a, numeric b) returns numeric
+    return a + b
+end_function
+
+export function subtract(numeric a, numeric b) returns numeric
+    return a - b
+end_function
+
+-- Not exported - internal helper
+function internal_helper(numeric x) returns numeric
+    return x * 2
+end_function

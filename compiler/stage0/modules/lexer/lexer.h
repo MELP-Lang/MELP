@@ -100,6 +100,7 @@ typedef enum {
     // Module keywords
     TOKEN_IMPORT,          // import module_name
     TOKEN_MODULE,          // module keyword
+    TOKEN_EXPORT,          // export (YZ_204)
     // Const keyword
     TOKEN_CONST,           // const (constant declaration)
     TOKEN_REF,             // ref (reference parameter)

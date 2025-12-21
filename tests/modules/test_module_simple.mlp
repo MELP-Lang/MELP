@@ -1,0 +1,12 @@
+-- test_module_simple.mlp - Simple module declaration test
+-- YZ_204: Module Import/Export Test
+
+module simple_test
+
+export function hello() returns numeric
+    return 42
+end_function
+
+function main() returns numeric
+    return hello()
+end_function

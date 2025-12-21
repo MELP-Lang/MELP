@@ -8,6 +8,9 @@
 #include "../lexer/lexer.h"
 #include "../import/import.h"
 #include "../import/import_parser.h"
+#include "../import/module_declaration.h"  // YZ_204: Module system
+#include "../import/export_tracker.h"      // YZ_204: Export tracking
+#include "../import/namespace_resolver.h"  // YZ_204: Namespace resolution
 #include "../struct/struct.h"
 #include "../struct/struct_parser.h"
 #include "../struct/struct_codegen.h"
@@ -121,12 +124,41 @@ int main(int argc, char** argv) {
     // YZ_203: Generic template registry
     GenericRegistry* generic_registry = generic_registry_create();
     
+    // YZ_204: Initialize export registry
+    export_registry_init();
+    
+    // YZ_204: Track if export keyword was seen
+    int expecting_export = 0;
+    
     while (1) {
         // Peek next token to check type
         Token* tok = lexer_next_token(lexer);
         if (!tok || tok->type == TOKEN_EOF) {
             if (tok) token_free(tok);
             break;
+        }
+        
+        // YZ_204: Handle module declaration at top level
+        if (tok->type == TOKEN_MODULE) {
+            ModuleDeclaration* module_decl = module_declaration_parse(lexer, tok);
+            token_free(tok);
+            
+            if (module_decl) {
+                printf("📦 Module: %s\n", module_decl->module_name);
+            }
+            continue;
+        }
+        
+        // YZ_204: Handle export keyword
+        if (tok->type == TOKEN_EXPORT) {
+            int consumed = export_parse_keyword(lexer, tok);
+            token_free(tok);
+            
+            if (consumed) {
+                expecting_export = 1;  // Next declaration should be exported
+                printf("📤 Export: next declaration\n");
+            }
+            continue;
         }
         
         // YZ_30: Handle import statements at top level
@@ -227,6 +259,12 @@ int main(int argc, char** argv) {
         // Parse function declaration
         FunctionDeclaration* func = parse_function_declaration(lexer);
         if (!func) break;
+        
+        // YZ_204: If export was expected, add to export registry
+        if (expecting_export) {
+            export_add_symbol(func->name, EXPORT_FUNCTION, func);
+            expecting_export = 0;  // Reset flag
+        }
         
         // YZ_203: Skip generic templates - they're instantiated on demand
         if (func->is_generic_template) {
@@ -333,6 +371,9 @@ int main(int argc, char** argv) {
     
     // Cleanup generic registry
     generic_registry_destroy(generic_registry);
+    
+    // YZ_204: Cleanup export registry
+    export_registry_free();
     
     // Report summary
     int func_count = 0, struct_count = 0, enum_count = 0;

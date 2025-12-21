@@ -1,0 +1,8 @@
+-- test_no_export_params.mlp - NO export with parameters
+-- YZ_204: Module Import/Export Test
+
+module test
+
+function add(numeric a, numeric b) returns numeric
+    return a + b
+end_function

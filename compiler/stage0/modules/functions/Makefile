@@ -114,7 +114,10 @@ IMPORT_SOURCES = \
 	$(IMPORT_DIR)/import.c \
 	$(IMPORT_DIR)/import_parser.c \
 	$(IMPORT_DIR)/import_cache.c \
-	$(IMPORT_DIR)/import_cache_persist.c
+	$(IMPORT_DIR)/import_cache_persist.c \
+	$(IMPORT_DIR)/module_declaration.c \
+	$(IMPORT_DIR)/export_tracker.c \
+	$(IMPORT_DIR)/namespace_resolver.c
 
 # Struct modülü (YZ_81 - Struct definitions)
 STRUCT_DIR = ../struct

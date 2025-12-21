@@ -192,6 +192,8 @@ static Token* read_identifier(Lexer* lexer) {
     else if (strcmp(value, "as") == 0) type = TOKEN_AS;  // YZ_31: as numeric (alternative to returns)
     // Module keywords
     else if (strcmp(value, "import") == 0) type = TOKEN_IMPORT;
+    else if (strcmp(value, "module") == 0) type = TOKEN_MODULE;
+    else if (strcmp(value, "export") == 0) type = TOKEN_EXPORT;
     // Const keyword
     else if (strcmp(value, "const") == 0) type = TOKEN_CONST;
     else if (strcmp(value, "ref") == 0) type = TOKEN_REF;  // YZ_31: reference parameter
