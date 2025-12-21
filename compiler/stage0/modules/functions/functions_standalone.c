@@ -20,6 +20,7 @@
 #include "functions_parser.h"
 #include "functions_codegen.h"
 #include "functions_codegen_llvm.h"
+#include "functions_generic.h"  // YZ_203: Generic type system
 
 // Backend type selection
 typedef enum {
@@ -116,6 +117,9 @@ int main(int argc, char** argv) {
     EnumDefinition* last_enum = NULL;
     VariableDeclaration* consts = NULL;  // YZ_121: Global const list
     VariableDeclaration* last_const = NULL;
+    
+    // YZ_203: Generic template registry
+    GenericRegistry* generic_registry = generic_registry_create();
     
     while (1) {
         // Peek next token to check type
@@ -228,9 +232,9 @@ int main(int argc, char** argv) {
         if (func->is_generic_template) {
             printf("📋 Generic template: %s<%d type params>\n", 
                    func->name, func->type_param_count);
-            // TODO: Store in template registry for later instantiation
-            function_free(func);
-            continue;
+            // Store in template registry
+            generic_register_template(generic_registry, func);
+            continue;  // Don't add to functions list, don't free (registry owns it)
         }
         
         if (!functions) {
@@ -326,6 +330,9 @@ int main(int argc, char** argv) {
     
     // Close output
     fclose(output);
+    
+    // Cleanup generic registry
+    generic_registry_destroy(generic_registry);
     
     // Report summary
     int func_count = 0, struct_count = 0, enum_count = 0;
