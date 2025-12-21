@@ -1,0 +1,9 @@
+-- test_import_simple.mlp - Simple import test (no qualified calls yet)
+-- YZ_204: Module Import/Export Test
+
+import math_simple
+
+function main() returns numeric
+    -- Just test that import doesn't crash
+    return 42
+end_function

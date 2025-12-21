@@ -1,0 +1,5 @@
+function test_dot() returns numeric
+    numeric x = 42
+    -- This should fail: x.double(10)
+    return x
+end_function

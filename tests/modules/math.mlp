@@ -3,11 +3,11 @@
 
 module math
 
-export function add(numeric a, numeric b) returns numeric
+export function add(numeric a; numeric b) returns numeric
     return a + b
 end_function
 
-export function subtract(numeric a, numeric b) returns numeric
+export function subtract(numeric a; numeric b) returns numeric
     return a - b
 end_function
 

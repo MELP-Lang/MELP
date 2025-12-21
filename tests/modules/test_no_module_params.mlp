@@ -1,9 +1,9 @@
 -- test_no_module_params.mlp - NO module with parameters
 
-function add(numeric a, numeric b) returns numeric
+function add(numeric a; numeric b) returns numeric
     return a + b
 end_function
 
 function main() returns numeric
-    return add(5, 10)
+    return add(5; 10)
 end_function

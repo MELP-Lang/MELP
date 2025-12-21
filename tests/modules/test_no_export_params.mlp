@@ -3,6 +3,6 @@
 
 module test
 
-function add(numeric a, numeric b) returns numeric
+function add(numeric a; numeric b) returns numeric
     return a + b
 end_function

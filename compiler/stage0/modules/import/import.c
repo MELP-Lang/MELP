@@ -2,6 +2,8 @@
 #include "import_parser.h"
 #include "import_cache.h"  // YZ_42: Module caching
 #include "import_cache_persist.h"  // YZ_43: Persistent cache
+#include "module_declaration.h"  // YZ_204: Module system
+#include "export_tracker.h"      // YZ_204: Export tracking
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -336,6 +338,9 @@ FunctionDeclaration* import_load_module(const char* module_path) {
     FunctionDeclaration* functions = NULL;
     FunctionDeclaration* last_func = NULL;
     
+    // YZ_204: Track export state
+    int expecting_export = 0;
+    
     while (1) {
         Token* tok = lexer_next_token(lexer);
         if (!tok || tok->type == TOKEN_EOF) {
@@ -401,6 +406,31 @@ FunctionDeclaration* import_load_module(const char* module_path) {
             continue;
         }
         
+        // YZ_204: Handle module declaration
+        if (tok->type == TOKEN_MODULE) {
+            // Parse and set module declaration for this import
+            ModuleDeclaration* module_decl = module_declaration_parse(lexer, tok);
+            token_free(tok);
+            
+            if (module_decl) {
+                printf("   📦 Module in import: %s\n", module_decl->module_name);
+                // Module context is now set for export tracking
+            }
+            continue;
+        }
+        
+        // YZ_204: Handle export keyword
+        if (tok->type == TOKEN_EXPORT) {
+            // Export keyword in imported module
+            int consumed = export_parse_keyword(lexer, tok);
+            token_free(tok);
+            
+            if (consumed) {
+                expecting_export = 1;  // Next declaration should be exported
+            }
+            continue;
+        }
+        
         // Put token back for function parser
         lexer_unget_token(lexer, tok);
         
@@ -421,7 +451,14 @@ FunctionDeclaration* import_load_module(const char* module_path) {
                 }
                 token_free(skip_tok);
             }
+            expecting_export = 0;  // Reset export flag
             continue;  // ✅ Döngüye devam
+        }
+        
+        // YZ_204: If export was expected, add to export registry
+        if (expecting_export) {
+            export_add_symbol(func->name, EXPORT_FUNCTION, func);
+            expecting_export = 0;  // Reset flag
         }
         
         // Add to list

@@ -1,0 +1,5 @@
+import math_simple
+
+function main() returns numeric
+    return math_simple.double(21)
+end_function

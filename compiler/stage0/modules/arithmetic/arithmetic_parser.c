@@ -6,6 +6,7 @@
 #include "../functions/functions.h"  // YZ_36: For function_is_known()
 #include "../struct/struct.h"  // YZ_82: For member access
 #include "../enum/enum.h"  // YZ_96: For enum value access
+#include "../import/namespace_resolver.h"  // YZ_204: Qualified name resolution
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -323,13 +324,32 @@ ArithmeticExpr* arithmetic_parse_primary(ArithmeticParser* parser) {
             }
             advance(parser);  // consume ')'
             
+            // YZ_204: Check if identifier is qualified (module.function)
+            char* resolved_name = identifier;
+            if (qualified_name_is_qualified(identifier)) {
+                // Resolve qualified name: math.add → math_add
+                char* mangled = namespace_resolve_function(identifier);
+                if (mangled) {
+                    resolved_name = mangled;
+                    printf("🔗 Resolved: %s → %s\n", identifier, mangled);
+                } else {
+                    fprintf(stderr, "Error: Cannot resolve qualified name: %s\n", identifier);
+                    // Continue anyway with original name
+                }
+            }
+            
             // Create function call expression
             FunctionCallExpr* func_call = malloc(sizeof(FunctionCallExpr));
-            func_call->function_name = identifier;
+            func_call->function_name = resolved_name;  // Use resolved name
             func_call->arguments = arguments;
             func_call->arg_count = arg_count;
             func_call->type_arguments = type_arguments;
             func_call->type_arg_count = type_arg_count;
+            
+            // Free original identifier if it was replaced
+            if (resolved_name != identifier) {
+                free(identifier);
+            }
             
             expr->is_literal = 0;
             expr->value = NULL;
@@ -1254,6 +1274,32 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current, Fu
             if (*current && (*current)->type == TOKEN_LPAREN) {
                 advance_stateless(lexer, current);  // consume '('
                 
+                // YZ_204: Check if this is a qualified function call (module.function)
+                // If identifier is not a known variable, treat as qualified name
+                int is_qualified_call = 0;
+                char* qualified_name = NULL;
+                
+                // Simple heuristic: If identifier doesn't look like a variable, it's qualified
+                // (Real implementation would check if identifier is in scope)
+                if (!function_get_var_offset(func, identifier)) {
+                    // Not a local variable - likely a module name
+                    is_qualified_call = 1;
+                    // Build qualified name: module.function
+                    size_t len = strlen(identifier) + strlen(member_or_method) + 2;
+                    qualified_name = malloc(len);
+                    snprintf(qualified_name, len, "%s.%s", identifier, member_or_method);
+                    
+                    // Resolve qualified name
+                    char* mangled = namespace_resolve_function(qualified_name);
+                    if (mangled) {
+                        printf("🔗 Resolved: %s → %s\n", qualified_name, mangled);
+                        free(qualified_name);
+                        qualified_name = mangled;
+                    } else {
+                        printf("⚠️  Cannot resolve: %s (using as-is)\n", qualified_name);
+                    }
+                }
+                
                 // Parse method arguments
                 ArithmeticExpr** arguments = NULL;
                 int arg_count = 0;
@@ -1313,7 +1359,28 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current, Fu
                 
                 advance_stateless(lexer, current);  // consume ')'
                 
-                // Create method call structure
+                // YZ_204: If this is a qualified call, create function call instead of method call
+                if (is_qualified_call) {
+                    // Create function call with qualified/mangled name
+                    FunctionCallExpr* func_call = malloc(sizeof(FunctionCallExpr));
+                    func_call->function_name = qualified_name;  // Use resolved name
+                    func_call->arguments = arguments;
+                    func_call->arg_count = arg_count;
+                    func_call->type_arguments = NULL;
+                    func_call->type_arg_count = 0;
+                    
+                    free(member_or_method);
+                    free(identifier);
+                    
+                    expr->is_literal = 0;
+                    expr->value = NULL;
+                    expr->is_function_call = 1;
+                    expr->is_method_call = 0;
+                    expr->func_call = func_call;
+                    return expr;
+                }
+                
+                // Create method call structure (original code)
                 MethodCall* method_call = method_call_create(identifier, member_or_method);
                 for (int i = 0; i < arg_count; i++) {
                     // Note: This is a bit hacky - we're storing ArithmeticExpr* as Expression*
