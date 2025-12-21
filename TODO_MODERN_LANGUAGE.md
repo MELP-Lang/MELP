@@ -6,6 +6,50 @@
 
 ---
 
+## 📜 ÇALIŞMA KURALLARI (YZ_204'ten beri)
+
+### ⚠️ Her AI Agent'ın Sorumlulukları
+
+**Görev Tamamlandığında MUTLAKA:**
+1. ✅ Bu dosyada (TODO_MODERN_LANGUAGE.md) kendi görevini tamamlandı işaretle
+   - `[ ]` → `[x]` değiştir
+   - Durum ekle: `✅ TAMAMLANDI` veya `🟡 PHASE X TAMAMLANDI`
+   - Tarih ekle: `(21 Aralık 2025)`
+   
+2. ✅ NEXT_AI_START_HERE.md'yi güncelle:
+   - Kendi görevini "TAMAMLANDI" olarak işaretle
+   - Sonraki görev (YZ_XXX+1) bölümü yaz
+   - "SEN BU GÖREVİ YAPACAKSIN!" başlığını sonraki göreve ekle
+   
+3. ✅ İlerleme raporu yaz:
+   - `LLVM_YZ/YZ_XXX_TAMAMLANDI.md` (tam tamamlanırsa)
+   - `LLVM_YZ/YZ_XXX_ILERLEME.md` (phase bazlı tamamlanırsa)
+   
+4. ✅ Git commit ve branch:
+   - Commit message: `YZ_XXX Phase Y: Açıklama`
+   - Branch'inde kal (merge yapma!)
+
+**Örnek İş Akışı:**
+```
+Ben YZ_209'u tamamladım:
+✅ TODO_MODERN_LANGUAGE.md'de YZ_209'u işaretledim (satır 467)
+✅ NEXT_AI_START_HERE.md'ye YZ_209 tamamlama bölümü yazdım
+✅ NEXT_AI_START_HERE.md'ye YZ_210 görev bölümü yazdım
+✅ YZ_209_ILERLEME.md raporu yazdım
+✅ Git commit yaptım: "YZ_209 Phase 1: Function pointer core module"
+✅ Branch'imde kaldım: function-pointers_YZ_209
+```
+
+**Sıradaki AI (YZ_210) ne yapacak:**
+- YZ_210 görevini tamamlayacak
+- TODO'da YZ_210'u işaretleyecek
+- NEXT_AI'da YZ_210'u tamamlandı yapacak
+- NEXT_AI'da YZ_211 bölümü yazacak
+- YZ_210_TAMAMLANDI.md raporu yazacak
+- Git commit yapacak
+
+---
+
 ## 🎯 DURUM ANALİZİ
 
 ### ✅ Mevcut Başarılar (Stage 0 - %100)
@@ -464,14 +508,33 @@ end_function
 
 ---
 
-#### YZ_209: Function Pointers [3 gün]
+#### ✅ YZ_209: Function Pointers [3 gün] - PHASE 1 TAMAMLANDI
 **Öncelik:** 🟡 Orta (callback pattern)
+**Durum:** ✅ **PHASE 1 TAMAMLANDI** (21 Aralık 2025)
+**Rapor:** `LLVM_YZ/YZ_209_ILERLEME.md`
+**Branch:** `function-pointers_YZ_209`
 
-**Yapılacaklar:**
-- [ ] Function pointer type
-- [ ] Function reference: `&function_name`
-- [ ] Function call through pointer
-- [ ] Vtable for methods
+**Tamamlananlar (Phase 1):**
+- [x] Function pointer type: `function<ReturnType, Param1, Param2, ...>` ✅
+- [x] Function reference: `&function_name` ✅
+- [x] Function call through pointer: `ptr(args)` ✅
+- [x] LLVM IR codegen (bitcast, indirect call) ✅
+- [x] Parser implementation (247 lines) ✅
+- [x] Core module (273 lines) ✅
+- [x] Standalone test binary (6/6 tests passing) ✅
+
+**Pending (Phase 2-3):**
+- [ ] Functions compiler integration
+- [ ] Vtable for struct methods
+
+**Test Case:**
+```pmpl
+function<numeric, numeric, numeric> operation
+operation = &add
+numeric result = operation(10, 20)  -- Calls add(10, 20)
+```
+
+**Module:** `compiler/stage0/modules/function_pointer/`
 
 ---
 

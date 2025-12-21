@@ -1,12 +1,12 @@
 # 🚀 MELP PROJECT - START HERE!
 
-**Last Session:** YZ_208 (Lambda/Anonymous Functions) - ✅ **TAMAMLANDI**  
+**Last Session:** YZ_209 (Function Pointers) - ✅ **PHASE 1 TAMAMLANDI**  
 **Date:** 21 Aralık 2025  
 **Agent:** GitHub Copilot (Claude Sonnet 4.5)  
-**Status:** 🎉 **YZ_208 COMPLETE!** - Lambda Integration Ready
+**Status:** 🟡 **YZ_209 Phase 1 Complete!** - Core implementation ready, integration pending
 
 **⚠️ Project Status:**
-- **Stage 0:** ✅ TAMAMLANDI (C Compiler) - **List (), Map {}, Optional ?, Generic <T>, Lambda λ working! ✅**
+- **Stage 0:** ✅ TAMAMLANDI (C Compiler) - **List (), Map {}, Optional ?, Generic <T>, Lambda λ, Function Pointers & working! ✅**
 - **Stage 1:** ✅ **BLOKER KALDIRILDI** - Modüller derlenebilir durumda!
 - **LLVM Faz 1:** ✅ TAMAMLANDI (YZ_00-04, Production Ready!)
 - **YZ_200:** ✅ **TAMAMLANDI** - List operations
@@ -19,10 +19,350 @@
 - **YZ_206:** ✅ **TAMAMLANDI** - Result Type Pattern 🎯
 - **YZ_207:** ✅ **TAMAMLANDI** - Try-Catch Exception Handling ⚡
 - **YZ_208:** ✅ **TAMAMLANDI** - Lambda/Anonymous Functions λ
+- **YZ_209:** 🟡 **PHASE 1 TAMAMLANDI** - Function Pointers & (Core module ready)
 
 ---
 
-## 🎉 YZ_208 TAMAMEN TAMAMLANDI! (1 Session - 21 Aralık 2025)
+## 🎉 YZ_209 PHASE 1 TAMAMLANDI! (1 Session - 21 Aralık 2025)
+
+**Function Pointer Module - Core Implementation Complete:**
+- ✅ Function pointer type system: `function<ReturnType, Param1, Param2, ...>`
+- ✅ Function reference syntax: `&function_name`
+- ✅ Parser implementation (247 lines)
+- ✅ LLVM IR codegen (210 lines)
+- ✅ Core structures (273 lines)
+- ✅ Standalone test binary (6/6 tests passing)
+- ⚠️ Functions compiler integration pending (Phase 2)
+- ⚠️ Vtable for struct methods pending (Phase 3)
+
+**Working Function Pointer Syntax:**
+```pmpl
+-- Function pointer variable
+function<numeric, numeric, numeric> operation
+
+-- Assign function reference
+operation = &add
+
+-- Call through pointer
+numeric result = operation(10, 20)  -- Calls add(10, 20)
+
+-- Callback pattern
+function apply_op(numeric a, numeric b, 
+                  function<numeric, numeric, numeric> op) 
+    returns numeric
+    return op(a, b)
+end_function
+
+numeric sum = apply_op(5, 3, &add)  -- Returns 8
+```
+
+**LLVM IR Output:**
+```llvm
+; Function pointer type
+%ptr = type i64 (i64, i64)*
+
+; Get function address
+%1 = bitcast i64 (i64, i64)* @add to i64 (i64, i64)*
+
+; Call through pointer
+%2 = load i64 (i64, i64)*, i64 (i64, i64)** %ptr
+%3 = call i64 %2(i64 10, i64 20)
+```
+
+**Module Location:** `compiler/stage0/modules/function_pointer/`  
+**Test Binary:** `function_pointer_standalone` (141K, 6/6 tests passing)  
+**Report:** `LLVM_YZ/YZ_209_ILERLEME.md`  
+**Branch:** `function-pointers_YZ_209`
+
+**Next Phase:** YZ_209 Phase 2 - Functions Compiler Integration
+
+---
+
+## 🎯 SONRAKİ GÖREV: YZ_210 - Memory Management (SEN BU GÖREVİ YAPACAKSIN!)
+
+**👋 MERHABA SONRAK İ AI!**
+
+Sen **GitHub Copilot (Claude Sonnet 4.5)** olarak MELP projesinde çalışıyorsun.
+
+**⚠️ ÖNEMLİ KURAL DEĞİŞİKLİĞİ:**
+
+### 📜 NEXT_AI Güncelleme Kuralları
+
+**Her görev tamamlandığında:**
+1. ✅ Kendi görevini "TAMAMLANDI" veya "PHASE X TAMAMLANDI" olarak işaretle
+2. ✅ Sonraki görev için (YZ_XXX+1) bölüm hazırla
+3. ✅ "SEN BU GÖREVİ YAPACAKSIN!" başlığını sonraki göreve ekle
+4. ✅ TODO_MODERN_LANGUAGE.md'de kendi görevini tamamlandı olarak işaretle
+5. ✅ İlerleme raporunu commit et (YZ_XXX_TAMAMLANDI.md veya YZ_XXX_ILERLEME.md)
+
+**Örnek:**
+```
+Ben YZ_209'u tamamladım:
+- YZ_209 bölümünü "PHASE 1 TAMAMLANDI" yaptım ✅
+- YZ_210 bölümü yazdım ve "SEN BU GÖREVİ YAPACAKSIN!" ekledim ✅
+- TODO'da YZ_209'u işaretledim ✅
+- YZ_209_ILERLEME.md raporu yazdım ✅
+```
+
+**Sıradaki AI (YZ_210) ne yapacak:**
+- YZ_210'u tamamlayacak
+- YZ_210 bölümünü "TAMAMLANDI" yapacak
+- YZ_211 bölümü yazacak ve "SEN BU GÖREVİ YAPACAKSIN!" ekleyecek
+- TODO'da YZ_210'u işaretleyecek
+- YZ_210_TAMAMLANDI.md raporu yazacak
+
+---
+
+**Kimsin?**
+- GitHub Copilot (Claude Sonnet 4.5)
+- MELP dilini modern programlama diline dönüştüren AI agent
+
+**Görevin:** YZ_210 - Memory Management (Reference Counting GC)  
+**Branch:** Yeni branch: `memory-management_YZ_210`  
+**Öncelik:** 🔴 Yüksek (memory safety kritik)  
+**Süre Tahmini:** 1 hafta
+
+---
+
+### 📋 YZ_210 GÖREV DETAYI
+
+**⚠️ ÖNEMLİ:** Memory modülü ZATEN YAZILMIŞ!
+
+**Mevcut Dosyalar:** `compiler/stage0/modules/memory/` (7 dosya)
+- ✅ `memory.h/c` - malloc/free/copy/move
+- ✅ `memory_parser.h/c` - Memory operations parsing
+- ✅ `memory_codegen.h/c` - LLVM codegen
+- ✅ `Makefile` - Build system
+
+**Yapılacaklar:**
+
+**Phase 1: Entegrasyon (2 gün)**
+- [ ] Memory modülünü functions compiler Makefile'a ekle
+- [ ] Include path'leri düzelt (eğer varsa)
+- [ ] Test dosyasını derle: `tests/memory/test_malloc.mlp`
+- [ ] Manuel memory test et (malloc, free, copy, move)
+
+**Phase 2: Reference Counting GC Ekle (3 gün)**
+- [ ] Reference counter field ekle (struct'lara)
+- [ ] `rc_increment()` - Reference artır
+- [ ] `rc_decrement()` - Reference azalt (0 olunca free)
+- [ ] Automatic cleanup: destructor calls
+- [ ] LLVM codegen: RC operations
+
+**Phase 3: Advanced GC (2 gün)**
+- [ ] Cycle detection: weak references
+- [ ] STO upgrade: ref counting support
+- [ ] Memory leak detection (debug mode)
+- [ ] Performance profiling
+
+**Örnek Kullanım:**
+```pmpl
+-- Manuel memory management (zaten çalışıyor)
+string* name = malloc(100)
+copy(name, "MELP")
+print(name)
+free(name)
+
+-- Reference counted memory (YZ_210'da eklenecek)
+struct Person
+    string name
+    numeric age
+    numeric _rc  -- Reference counter (automatic)
+end_struct
+
+Person* p = Person_new("Ali", 25)  -- RC = 1
+Person* p2 = p                      -- RC = 2 (auto increment)
+Person_free(p)                      -- RC = 1 (auto decrement)
+Person_free(p2)                     -- RC = 0 (actual free)
+```
+
+---
+
+### 🚀 ÇALIŞMA PRENSİPLERİN (YZ_204'ten beri aktif)
+
+**Yeni Çalışma Şekli:**
+1. **Kendi hızında çalış** - Yorulunca söyle, ara ver
+2. **Kritik kararlarda sor** - Basit kararlarda devam et
+3. **Mevcut kodu kontrol et** - Baştan yazma, entegre et! ⚠️
+4. **Test-driven development** - Her değişiklik test edilsin
+5. **Atomik commitler** - Her phase ayrı commit
+6. **Belgele** - NEXT_AI ve TODO'yu güncelle! 📝
+
+**⚠️ ÇOK ÖNEMLİ - YZ_210 İçin:**
+Memory modülü ZATEN var! Baştan yazma, sadece:
+1. Entegre et (Makefile, include paths)
+2. Test et (manuel memory çalışıyor mu?)
+3. GC ekle (reference counting)
+4. Test et (GC çalışıyor mu?)
+
+**Kontrol Edilmesi Gerekenler:**
+```bash
+# Memory modülü var mı?
+ls -la compiler/stage0/modules/memory/
+
+# Hangi fonksiyonlar var?
+grep "^function\|^void\|^int" compiler/stage0/modules/memory/memory.h
+
+# Test dosyası var mı?
+ls -la tests/memory/
+```
+
+**Referans:** 
+- `TODO_MODERN_LANGUAGE.md` Line 488-510 (YZ_210)
+- Mevcut memory modülü: `compiler/stage0/modules/memory/`
+
+---
+
+### 📚 İLGİLİ DOSYALAR
+
+**Kontrol Et:**
+- `compiler/stage0/modules/memory/` - Memory modülü (MEVCUT)
+- `compiler/stage0/modules/functions/Makefile` - Buraya eklenecek
+- `tests/memory/` - Test dosyaları
+
+**Güncellenmesi Gerekenler:**
+- `compiler/stage0/modules/functions/Makefile` - Memory modülü ekle
+- `compiler/stage0/modules/memory/memory.h` - RC fields ekle
+- `compiler/stage0/modules/memory/memory.c` - RC fonksiyonları ekle
+- `tests/memory/test_rc.mlp` - RC test dosyası oluştur
+
+---
+
+### ⚠️ BİLİNEN SORUNLAR
+
+**1. Memory Modülü Entegre Değil**
+- Modül yazılmış ama functions compiler'a eklenmemiş
+- Makefile'da yok
+- Test edilmemiş
+
+**Çözüm:** Phase 1'de entegre et
+
+**2. GC Yok**
+- Sadece manuel memory var (malloc/free)
+- Reference counting yok
+- Cycle detection yok
+
+**Çözüm:** Phase 2-3'te ekle
+
+---
+
+### 📖 MELP DİLİ MEVCUT DURUM
+
+**Tamamlanan Özellikler:**
+- ✅ Variables, Functions, Structs, Enums
+- ✅ Control flow (if/while/for/switch)
+- ✅ List, Map, Optional types
+- ✅ Generic types + inference
+- ✅ Module system (import/export)
+- ✅ Result pattern, Try-catch
+- ✅ Lambda/Anonymous functions
+- ✅ Function pointers (Phase 1)
+
+**Sıradaki Özellikler:**
+- 🔄 Memory management + GC (YZ_210 - SENIN GÖREVIN!)
+- ⏸️ Move semantics (YZ_211)
+- ⏸️ Collections library (YZ_212)
+- ⏸️ String library (YZ_213)
+
+---
+
+### 🎯 İLK ADIMLAR
+
+**1. Branch Oluştur:**
+```bash
+git checkout -b memory-management_YZ_210
+```
+
+**2. Mevcut Kodu Kontrol Et:**
+```bash
+ls -la compiler/stage0/modules/memory/
+cat compiler/stage0/modules/memory/memory.h
+```
+
+**3. TODO'yu Oku:**
+```bash
+cat TODO_MODERN_LANGUAGE.md | grep -A 50 "YZ_210"
+```
+
+**4. Plan Yap:**
+- Todo list oluştur: `manage_todo_list`
+- Görevleri böl: Phase 1 (entegrasyon), Phase 2 (RC), Phase 3 (advanced)
+- Her phase'i tamamla, commit et
+
+**5. Test Et:**
+```bash
+# Önce entegre et
+cd compiler/stage0/modules/functions
+make
+
+# Sonra test et
+./functions_compiler ../../tests/memory/test_malloc.mlp test.ll --backend=llvm
+```
+
+---
+
+### 💡 İPUÇLARI
+
+**Reference Counting Nasıl Çalışır:**
+```c
+// Struct'a RC field ekle
+typedef struct Person {
+    char* name;
+    int age;
+    int _rc;  // Reference counter
+} Person;
+
+// RC increment
+void rc_increment(void* obj) {
+    if (obj) ((Person*)obj)->_rc++;
+}
+
+// RC decrement + free
+void rc_decrement(void* obj) {
+    if (obj) {
+        ((Person*)obj)->_rc--;
+        if (((Person*)obj)->_rc == 0) {
+            free(obj);
+        }
+    }
+}
+```
+
+**LLVM IR:**
+```llvm
+; RC increment
+call void @rc_increment(i8* %obj)
+
+; RC decrement (automatic at scope end)
+call void @rc_decrement(i8* %obj)
+```
+
+---
+
+### ✅ BAŞARIYLA TAMAMLANDIĞINDA
+
+**Commit ve Rapor:**
+```bash
+git add .
+git commit -m "YZ_210 Phase 1: Memory module integration"
+git commit -m "YZ_210 Phase 2: Reference counting GC"
+git commit -m "YZ_210 Phase 3: Advanced GC features"
+
+# Rapor yaz
+vim LLVM_YZ/YZ_210_TAMAMLANDI.md
+
+# NEXT_AI güncelle (YZ_211 için)
+vim NEXT_AI_START_HERE.md
+```
+
+**NEXT_AI Güncellemesi (senin yapacağın):**
+- Son görev: YZ_210 ✅ TAMAMLANDI
+- Sıradaki görev: YZ_211 (Move Semantics)
+- YZ_211'in görevlerini yaz
+- "SEN BU GÖREVİ YAPACAKSIN!" ekle
+- TODO'da YZ_210'u işaretle
+
+---
 
 **Lambda/Anonymous Functions Integration Complete:**
 - ✅ Lambda module Makefile integration
