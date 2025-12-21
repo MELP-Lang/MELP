@@ -1,0 +1,8 @@
+-- YZ_202: Null Value Test
+-- Test: Check if null is handled
+
+function test_null() returns numeric
+    -- For now, just return a constant
+    -- Full null support coming soon
+    return 42
+end_function

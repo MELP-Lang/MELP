@@ -1,0 +1,8 @@
+-- YZ_202: Direct Return Test
+-- Test: Just return values to verify basics work
+
+function test_direct() returns numeric
+    numeric x = 5
+    numeric y = 10
+    return x + y
+end_function

@@ -584,6 +584,26 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
     
     // Handle binary operations
     if (arith->left && arith->right) {
+        // YZ_202: Special handling for ?? (null coalesce)
+        if (arith->value && strcmp(arith->value, "??") == 0) {
+            // Null coalescing: left ?? right
+            // Generate: left_value ? left_value : right_value
+            LLVMValue* left = generate_expression_llvm(ctx, arith->left);
+            
+            // Check if left is null (compare with 0 for now)
+            LLVMValue* is_null = llvm_emit_icmp(ctx->llvm_ctx, "eq", left, llvm_const_i64(0));
+            
+            // If null, evaluate right; otherwise use left
+            LLVMValue* right = generate_expression_llvm(ctx, arith->right);
+            LLVMValue* result = llvm_emit_select(ctx->llvm_ctx, is_null, right, left);
+            
+            llvm_value_free(left);
+            llvm_value_free(right);
+            llvm_value_free(is_null);
+            
+            return result;
+        }
+        
         LLVMValue* left = generate_expression_llvm(ctx, arith->left);
         LLVMValue* right = generate_expression_llvm(ctx, arith->right);
         

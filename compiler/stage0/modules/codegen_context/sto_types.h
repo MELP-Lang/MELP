@@ -25,6 +25,7 @@ typedef enum {
     
     // Other types
     INTERNAL_TYPE_BOOLEAN,
+    INTERNAL_TYPE_POINTER,      // YZ_202: Generic pointer (i8*, for null)
     INTERNAL_TYPE_ARRAY,
     INTERNAL_TYPE_LIST,         // YZ_17: Heterogeneous collection
     INTERNAL_TYPE_TUPLE,        // YZ_17: Immutable pair/triple

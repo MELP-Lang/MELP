@@ -325,6 +325,43 @@ LLVMValue* llvm_emit_icmp(LLVMContext* ctx, const char* op,
     return result;
 }
 
+// YZ_202: Emit select instruction (ternary)
+// %result = select i1 %cond, double %true_val, double %false_val
+LLVMValue* llvm_emit_select(LLVMContext* ctx, LLVMValue* condition,
+                            LLVMValue* true_val, LLVMValue* false_val) {
+    LLVMValue* result = malloc(sizeof(LLVMValue));
+    result->name = llvm_new_temp(ctx);
+    result->is_constant = 0;
+    result->type = LLVM_TYPE_I64;  // Use i64 for now (works for numeric)
+    
+    fprintf(ctx->output, "    %s = select i1 ", result->name);
+    
+    if (condition->is_constant) {
+        fprintf(ctx->output, "%ld", condition->const_value);
+    } else {
+        fprintf(ctx->output, "%s", condition->name);
+    }
+    
+    fprintf(ctx->output, ", ");
+    
+    if (true_val->is_constant) {
+        fprintf(ctx->output, "i64 %ld", true_val->const_value);
+    } else {
+        fprintf(ctx->output, "i64 %s", true_val->name);
+    }
+    
+    fprintf(ctx->output, ", ");
+    
+    if (false_val->is_constant) {
+        fprintf(ctx->output, "i64 %ld", false_val->const_value);
+    } else {
+        fprintf(ctx->output, "i64 %s", false_val->name);
+    }
+    
+    fprintf(ctx->output, "\n");
+    return result;
+}
+
 // ============================================================================
 // Control Flow Emission
 // ============================================================================

@@ -581,6 +581,7 @@ static ArithmeticExpr* parse_power_stateless(Lexer* lexer, Token** current, Func
 static ArithmeticExpr* parse_term_stateless(Lexer* lexer, Token** current, FunctionDeclaration* func);
 static ArithmeticExpr* parse_factor_stateless(Lexer* lexer, Token** current, FunctionDeclaration* func);
 static ArithmeticExpr* parse_bitwise_stateless(Lexer* lexer, Token** current, FunctionDeclaration* func);
+static ArithmeticExpr* parse_coalesce_stateless(Lexer* lexer, Token** current, FunctionDeclaration* func);  // YZ_202
 
 // Helper: Advance to next token (stateless)
 static void advance_stateless(Lexer* lexer, Token** current) {
@@ -1992,6 +1993,44 @@ static ArithmeticExpr* parse_bitwise_stateless(Lexer* lexer, Token** current, Fu
     return left;
 }
 
+// YZ_202: Parse null coalesce (??) - right-associative, low precedence
+static ArithmeticExpr* parse_coalesce_stateless(Lexer* lexer, Token** current, FunctionDeclaration* func) {
+    ArithmeticExpr* left = parse_bitwise_stateless(lexer, current, func);
+    if (!left) return NULL;
+    
+    // Check for ?? operator
+    if (*current && (*current)->type == TOKEN_DOUBLE_QUESTION) {
+        advance_stateless(lexer, current);
+        
+        // Right-associative: parse rest as coalesce
+        ArithmeticExpr* right = parse_coalesce_stateless(lexer, current, func);
+        if (!right) {
+            arithmetic_expr_free(left);
+            return NULL;
+        }
+        
+        // Create special "coalesce" expression node
+        // We'll use ARITH_OR as placeholder (will handle in codegen)
+        ArithmeticExpr* coalesce = malloc(sizeof(ArithmeticExpr));
+        memset(coalesce, 0, sizeof(ArithmeticExpr));
+        coalesce->op = ARITH_OR;  // Placeholder (codegen will detect ??)
+        coalesce->left = left;
+        coalesce->right = right;
+        coalesce->is_literal = 0;
+        coalesce->value = strdup("??");  // Mark as coalesce
+        coalesce->is_float = 0;
+        coalesce->is_boolean = 0;
+        coalesce->is_null = 0;
+        coalesce->sto_info = NULL;
+        coalesce->sto_analyzed = false;
+        coalesce->needs_overflow_check = false;
+        
+        return coalesce;
+    }
+    
+    return left;
+}
+
 // PUBLIC: Parse expression (stateless) - entry point
 // YZ_102: Added func parameter for variable lookup context
 ArithmeticExpr* arithmetic_parse_expression_stateless(Lexer* lexer, Token* first_token, FunctionDeclaration* func) {
@@ -2004,7 +2043,8 @@ ArithmeticExpr* arithmetic_parse_expression_stateless(Lexer* lexer, Token* first
     current->value = first_token->value ? strdup(first_token->value) : NULL;
     current->line = first_token->line;
     
-    ArithmeticExpr* result = parse_bitwise_stateless(lexer, &current, func);
+    // YZ_202: Use coalesce as top-level (handles ?? and calls bitwise)
+    ArithmeticExpr* result = parse_coalesce_stateless(lexer, &current, func);
     
     // ✅ YZ_32: Apply constant folding optimization
     if (result) {

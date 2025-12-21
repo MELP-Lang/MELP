@@ -153,6 +153,12 @@ LLVMValue* llvm_emit_or(LLVMContext* ctx, LLVMValue* left, LLVMValue* right);
 LLVMValue* llvm_emit_icmp(LLVMContext* ctx, const char* op, 
                           LLVMValue* left, LLVMValue* right);
 
+// Emit select instruction (ternary operator)
+// Example: %result = select i1 %cond, double %true_val, double %false_val
+// YZ_202: Used for null coalescing (??)
+LLVMValue* llvm_emit_select(LLVMContext* ctx, LLVMValue* condition,
+                            LLVMValue* true_val, LLVMValue* false_val);
+
 // ============================================================================
 // Control Flow Emission
 // ============================================================================

@@ -1,0 +1,6 @@
+-- YZ_202: Minimal Optional Test
+-- Test: Return 0 (sanity check)
+
+function main() returns numeric
+    return 0
+end_function

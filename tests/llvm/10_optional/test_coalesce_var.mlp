@@ -1,0 +1,8 @@
+-- YZ_202: Coalesce with Variable
+-- Test: x ?? 100 where x could be evaluated at runtime
+
+function test_coalesce_var() returns numeric
+    numeric x = 5
+    numeric result = x ?? 100
+    return result
+end_function

@@ -1,0 +1,7 @@
+-- YZ_202: Simple Coalesce Test
+-- Test: 0 ?? 100 should return 100
+
+function test_coalesce() returns numeric
+    numeric result = 0 ?? 100
+    return result
+end_function
