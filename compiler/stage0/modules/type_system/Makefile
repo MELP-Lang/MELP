@@ -7,6 +7,7 @@ SOURCES = type_system_standalone.c \
           type_system_codegen.c \
           type_inference.c \
           result_type.c \
+          result_type_codegen.c \
           ../comments/comments.c \
           ../lexer/lexer.c \
           ../error/error.c \
