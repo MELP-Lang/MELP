@@ -1,5 +1,0 @@
-function main() returns numeric
-    list numbers = (10; 20; 30;)
-    numeric x = numbers(1)
-    return x
-end_function

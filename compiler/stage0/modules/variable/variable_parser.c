@@ -47,6 +47,8 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
         base_type = VAR_ARRAY;  // YZ_74: Array type keyword
     } else if (actual_type_token->type == TOKEN_LIST) {
         base_type = VAR_LIST;
+    } else if (actual_type_token->type == TOKEN_MAP) {
+        base_type = VAR_MAP;  // YZ_201: Map type keyword
     } else if (actual_type_token->type == TOKEN_TUPLE) {
         base_type = VAR_TUPLE;
     } else if (is_const && actual_type_token->type == TOKEN_IDENTIFIER) {
@@ -297,6 +299,7 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
         tok->type == TOKEN_LPAREN ||  // YZ_19: list literal (1;2;) or parenthesized expression
         tok->type == TOKEN_LANGLE ||  // YZ_20: tuple literal <1,2>
         tok->type == TOKEN_LESS ||    // YZ_112: tuple literal with whitespace before < (e.g., "= <1;2>")
+        tok->type == TOKEN_LBRACE ||  // YZ_201: map literal {"key": value}
         tok->type == TOKEN_NOT ||     // YZ_18: Handle NOT operator
         tok->type == TOKEN_MINUS) {   // YZ_41: Handle unary minus (negative numbers)
         

@@ -1,0 +1,7 @@
+-- YZ_201: Test 1 - Basic Map Creation
+-- Expected: 0 (empty map returns 0)
+
+function main() returns numeric
+    map m = {}
+    return 0
+end_function

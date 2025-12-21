@@ -1742,8 +1742,9 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current, Fu
             return NULL;
         }
         
-        // Advance current to the token after '}'
-        advance_stateless(lexer, current);
+        // array_parse_map_literal consumes all tokens including '}'
+        // Update current to next token
+        *current = lexer_next_token(lexer);  // OWNED
         
         expr->is_literal = 1;
         expr->is_collection = 1;
@@ -1753,7 +1754,7 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current, Fu
         expr->is_boolean = 0;
         
         STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
-        sto_info->type = INTERNAL_TYPE_MAP;  // Will need to add this
+        sto_info->type = INTERNAL_TYPE_MAP;
         sto_info->is_constant = false;
         sto_info->needs_promotion = false;
         sto_info->mem_location = MEM_HEAP;

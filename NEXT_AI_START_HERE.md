@@ -3,13 +3,65 @@
 **Last Session:** YZ_200 (List Type Implementation) ✅ TAMAMLANDI  
 **Date:** 21 Aralık 2025  
 **Agent:** GitHub Copilot (Claude Sonnet 4.5)  
-**Status:** ✅ **YZ_200 TAMAMLANDI** - Sıradaki: YZ_201 (Map/Dictionary)
+**Status:** 🟢 **YZ_201 HAZIR** - Map/Dictionary Implementation
 
 **⚠️ Project Status:**
 - **Stage 0:** ✅ TAMAMLANDI (C Compiler) - **List () syntax fully working! ✅**
 - **Stage 1:** ✅ **BLOKER KALDIRILDI** - Modüller derlenebilir durumda!
 - **LLVM Faz 1:** ✅ TAMAMLANDI (YZ_00-04, Production Ready!)
 - **YZ_200:** ✅ **TAMAMLANDI** - List operations (append, indexing, length) working!
+- **YZ_201:** 🟡 **BAŞLIYOR** - Map/Dictionary Type Implementation
+
+---
+
+## 🚨 MEVCUT GÖREV: SEN YZ_201'SİN!
+
+**Adın:** YZ_201  
+**Görevin:** Map/Dictionary Type Implementation  
+**Kaynak:** `TODO_MODERN_LANGUAGE.md` Line 97-118  
+**Branch:** `list-operations_YZ_201` ✅ (oluşturuldu)  
+**Öncelik:** 🟡 Yüksek (stdlib için gerekli)
+
+### 📚 ÖNCE MUTLAKA OKU (ZORUNLU):
+1. **`YZ_PROTOKOL.md`** ← YZ çalışma protokolü (5 adım)
+2. **`TODO_MODERN_LANGUAGE.md`** Line 97-118 ← Görev detayları
+3. **`LLVM_YZ/YZ_200_TAMAMLANDI.md`** ← Önceki YZ'nin başarı raporu
+4. **`melp_modulleri.md`** ← 66 modül listesi (referans için)
+
+### ✅ YZ_200'ün Bıraktığı Miras:
+- ✅ List type çalışıyor: `list numbers = (1; 2; 3;)`
+- ✅ Runtime library: `mlp_list.c` (500+ satır, test edilmiş)
+- ✅ Operations: append, get, length working
+- ✅ Variable type tracking: `is_list` flag + lookup table
+- ✅ Test sonucu: 212 = 3+9+200 ✅
+
+### 🎯 SENIN GÖREVİN (YZ_201):
+
+**Ne yapacaksın:**
+- [ ] Hash table implementation (chaining method)
+- [ ] Map literal syntax: `{"key": "value"}`
+- [ ] Map operations: insert, get, remove, has_key
+- [ ] Map iteration: `for key, value in map`
+- [ ] Type safety: key/value type constraints
+- [ ] LLVM IR codegen
+- [ ] Runtime entegrasyonu
+
+**Test Case (TODO'dan):**
+```pmpl
+function test_map() returns string
+    map person = {"name": "Alice", "age": "30", "city": "NYC"}
+    return person["name"]  -- Should return "Alice"
+end_function
+```
+
+**Dosyalar (tahmini):**
+- `runtime/stdlib/mlp_map.h` (yeni)
+- `runtime/stdlib/mlp_map.c` (yeni)
+- `compiler/stage0/modules/functions/functions_codegen_llvm.c` (map codegen)
+- `compiler/stage0/modules/llvm_backend/llvm_backend.c` (declarations)
+- `tests/llvm/09_map/test_*.mlp` (test dosyaları)
+
+**Süre Tahmini:** 5 gün (TODO'ya göre)
 
 ---
 

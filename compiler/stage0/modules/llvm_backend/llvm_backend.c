@@ -65,7 +65,8 @@ void llvm_emit_module_header(LLVMContext* ctx) {
 }
 
 void llvm_emit_module_footer(LLVMContext* ctx) {
-    // Nothing needed for now
+    // YZ_201: Emit all string globals at end of module
+    llvm_emit_all_string_globals(ctx);
 }
 
 // ============================================================================

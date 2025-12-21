@@ -1,0 +1,7 @@
+-- YZ_201: Test Debug - Empty map
+-- Expected: compile success
+
+function main() returns numeric
+    numeric x = 5
+    return x
+end_function

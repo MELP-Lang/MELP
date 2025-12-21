@@ -12,6 +12,10 @@
 #include <string.h>
 #include <stdio.h>
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE  // For strdup on some systems
+#endif
+
 // Constants
 #define INITIAL_CAPACITY 16
 #define LOAD_FACTOR 0.75

@@ -126,6 +126,8 @@ end_function
 - [ ] Safe unwrapping: `if value is not none then`
 - [ ] Optional chaining: `obj?.field`
 - [ ] Default value operator: `value ?? default`
+- [ ] **Nullable collections:** `list?`, `array?`, `map?`
+- [ ] **Empty vs null distinction:** `()` vs `null`
 - [ ] LLVM IR codegen
 
 **Test Cases:**
@@ -141,6 +143,52 @@ function test_optional() returns string
     optional string user = find_user(99)
     return user ?? "Unknown"  -- Should return "Unknown"
 end_function
+
+-- Nullable collections
+function get_numbers() returns list?
+    if condition then
+        return (1; 2; 3;)  -- Valid list
+    end_if
+    return null            -- Null list (farklı: boş list () değil!)
+end_function
+
+function test_null_list() returns numeric
+    list? data = get_numbers();
+    
+    -- Null check (ZORUNLU!)
+    if data == null then
+        return 0;
+    end_if
+    
+    -- Boş list check
+    if length(data) == 0 then
+        return -1;
+    end_if
+    
+    return data(0);
+end_function
+
+-- Safe unwrapping
+list? numbers = get_numbers();
+numeric first = numbers?(0) ?? -1;  -- Null-safe indexing
+```
+
+**Null Safety Kuralları:**
+```pmpl
+-- ❌ HATA: Nullable tip, null check olmadan kullanılamaz
+list? data = get_data();
+numeric x = data(0);  -- COMPILE ERROR: data might be null!
+
+-- ✅ DOĞRU: Null check
+if data != null then
+    numeric x = data(0);  -- OK, guaranteed non-null
+end_if
+
+-- ✅ DOĞRU: Safe unwrap with ??
+numeric x = data?(0) ?? -1;  -- OK, returns -1 if null
+
+-- ✅ DOĞRU: Optional chaining
+numeric? x = data?.length();  -- Returns null if data is null
 ```
 
 ---
@@ -606,6 +654,179 @@ end_function
 
 ---
 
+#### YZ_228: Numeric Underscore Separator Support [2 gün]
+**Öncelik:** 🟡 Orta (readability, modern standard)
+
+**Neden Gerekli:**
+Modern dillerde standart (Python, Rust, Swift, C++14, Java 7+). Büyük sayıları okumayı kolaylaştırır.
+
+**Yapılacaklar:**
+- [ ] Lexer: `_` (underscore) numeric literal içinde izin ver
+- [ ] Binlik ayırıcı: `1_000_000` (bir milyon)
+- [ ] Ondalık sayılarda: `3_141_592,653` 
+- [ ] Kombinasyon: Türk format + underscore: `100_443_000,55`
+- [ ] Validation: `_` başta/sonda olamaz (`_123`, `123_` ❌)
+- [ ] Validation: Ardışık `__` olamaz (`1__000` ❌)
+- [ ] Parser: `_` karakterlerini strip et, sayıyı parse et
+
+**Syntax Örnekleri:**
+```pmpl
+-- Mevcut (Türk formatı):
+numeric x = 126.555.852,36;     -- . binlik, , ondalık ✅
+
+-- Yeni (Underscore separator):
+numeric y = 126_555_852,36;     -- _ binlik ayırıcı
+numeric z = 83_614_362;         -- Tam sayı
+numeric pi = 3,141_592_653;     -- Ondalık
+
+-- Kombinasyon (ikisi birden):
+numeric salary = 100_443_000,55;  -- ✅ _ ve , birlikte
+numeric big = 999.999.999,99;     -- ✅ . ve , birlikte (mevcut)
+```
+
+**Validation Kuralları:**
+```pmpl
+-- ✅ Geçerli:
+1_000
+1_000_000
+3,14_15_92
+100_443_000,55
+
+-- ❌ Geçersiz:
+_1000           -- Başta underscore
+1000_           -- Sonda underscore  
+1__000          -- Ardışık underscore
+,_14            -- Ondalık ayırıcıdan hemen sonra
+```
+
+**Dosyalar:**
+- `compiler/stage0/modules/lexer/lexer.c` - `lexer_read_number()` güncelle
+- `tests/syntax/test_numeric_separator.mlp` - Test cases
+- `pmlp_kesin_sozdizimi.md` - Syntax dokümanı güncelle
+
+**Referans:** Python PEP 515, Rust numeric literals
+
+---
+
+#### YZ_229: Compound Assignment & Increment Operators [2 gün]
+**Öncelik:** 🟡 Orta (syntax sugar, modern standard)
+
+**Neden Gerekli:**
+Tüm modern dillerde standart. Kod tekrarını azaltır, okunabilirliği artırır.
+
+**Yapılacaklar:**
+- [ ] Compound assignment: `+=`, `-=`, `*=`, `/=`, `%=`
+- [ ] **Okunabilir increment:** `x += 1` (alternatif: `increment x`, `decrement x`)
+- [ ] Bitwise compound: `&=`, `|=`, `^=`, `<<=`, `>>=`
+- [ ] Power compound: `**=`
+- [ ] Lexer: Yeni operator token'ları
+- [ ] Parser: Assignment expression handling
+- [ ] Codegen: Desugar to `x = x + value`
+
+**Syntax (MELP-Friendly):**
+```pmpl
+-- Compound assignment (evrensel)
+numeric x = 10;
+x += 5;              -- x = x + 5  (15) ✅
+x *= 2;              -- x = x * 2  (30) ✅
+x /= 3;              -- x = x / 3  (10) ✅
+
+-- Increment (iki alternatif)
+x += 1;              -- ✅ Compound assignment (tercih edilen)
+increment x;         -- ⚠️ Opsiyonel keyword (MELP-style)
+
+-- C-style ++ ZORUNLU DEĞİL (daha az okunabilir)
+-- x++;              -- ❌ MELP felsefesine ters (sembolik)
+-- ++x;              -- ❌ MELP felsefesine ters
+
+-- Bitwise compound
+numeric flags = 0;
+flags |= 0x01;       -- ✅ Kısa ve net
+flags &= 0xFF;
+```
+
+**⚠️ MELP Prensibi:**
+- `+=`, `-=`, `*=` → ✅ **Kabul** (evrensel, kısa, net)
+- `++`, `--` → ❌ **Tercihen kullanma** (sembolik, belirsiz: pre vs post?)
+- Alternatif: `x += 1` veya `increment x` (daha okunabilir)
+
+**Dosyalar:**
+- `compiler/stage0/modules/lexer/lexer.c` - Compound operators
+- `compiler/stage0/modules/arithmetic/arithmetic_parser.c`
+- `pmlp_kesin_sozdizimi.md` - Syntax (increment keyword opsiyonel)
+
+**Referans:** Compound assignment evrensel, ++/-- opsiyonel
+
+---
+
+#### YZ_230: Spread & Destructuring [3 gün]
+**Öncelik:** 🟢 Düşük (advanced syntax sugar)
+
+**Neden Gerekli:**
+Modern dillerde standart (JavaScript, Python, Rust). Collection manipulation'ı kolaylaştırır.
+
+**Yapılacaklar:**
+- [ ] Spread operator: `...` (variadic expansion)
+- [ ] Array spread: `[...arr1, 4, 5]`
+- [ ] List spread: `(...list1; 6; 7;)`
+- [ ] Function call spread: `func(...args)`
+- [ ] Destructuring assignment: `(x; y; z) = tuple`
+- [ ] Array destructuring: `[a; b; ...rest] = array`
+- [ ] Struct destructuring: `{name; age} = person`
+
+**Syntax:**
+```pmpl
+-- Spread operator (array)
+numeric[] arr1 = [1; 2; 3;];
+numeric[] arr2 = [...arr1; 4; 5;];  -- [1; 2; 3; 4; 5]
+
+-- Spread operator (list)
+list data1 = (1; 2; 3;);
+list data2 = (...data1; 4; 5;);     -- (1; 2; 3; 4; 5)
+
+-- Function call spread
+function sum(numeric a; numeric b; numeric c) returns numeric
+    return a + b + c;
+end_function
+
+numeric[] values = [10; 20; 30;];
+numeric total = sum(...values);      -- sum(10; 20; 30)
+
+-- Destructuring (tuple)
+tuple<numeric; string; boolean> user = <25; "Alice"; true;>;
+(numeric age; string name; boolean active) = user;
+-- age = 25, name = "Alice", active = true
+
+-- Destructuring with rest
+numeric[] numbers = [1; 2; 3; 4; 5;];
+[numeric first; numeric second; ...numeric[] rest] = numbers;
+-- first = 1, second = 2, rest = [3; 4; 5]
+
+-- Struct destructuring
+struct Person
+    string name;
+    numeric age;
+    string city;
+end_struct
+
+Person p;
+p.name = "Bob";
+p.age = 30;
+p.city = "NYC";
+
+{string name; numeric age} = p;  -- name = "Bob", age = 30
+```
+
+**Dosyalar:**
+- `compiler/stage0/modules/lexer/lexer.c` - `...` token
+- `compiler/stage0/modules/arithmetic/arithmetic_parser.c` - Spread parsing
+- `compiler/stage0/modules/statement/statement_parser.c` - Destructuring
+- Runtime: Array/list expansion utilities
+
+**Referans:** JavaScript spread/destructuring, Python unpacking
+
+---
+
 #### YZ_227: Inline Control Flow [3 gün]
 **Öncelik:** 🟢 Düşük (syntax sugar)
 
@@ -667,7 +888,10 @@ name = user.name ?? "Anonymous"
 | 10 | YZ_224 | LTO | 🟢 Düşük | 1 hafta | Advanced opt |
 | 11 | YZ_225 | Line Continuation | 🟡 Orta | 3 gün | Developer experience |
 | 11 | YZ_226 | Comment Syntax | 🟡 Orta | 2 gün | Documentation |
+| 11 | YZ_228 | Numeric Underscore | 🟡 Orta | 2 gün | Readability |
+| 11 | YZ_229 | Compound Assignment | 🟡 Orta | 2 gün | Syntax sugar |
 | 11 | YZ_227 | Inline Control Flow | 🟢 Düşük | 3 gün | Syntax sugar |
+| 11 | YZ_230 | Spread/Destructuring | 🟢 Düşük | 3 gün | Advanced syntax |
 
 ---
 

@@ -10,7 +10,8 @@ LIB = libmlp_stdlib.a
 
 # Sources - YZ_94: Added mlp_math.c for min/max functions
 # YZ_200: Added mlp_list.c for dynamic list operations
-SOURCES = mlp_io.c mlp_string.c mlp_panic.c mlp_state.c mlp_math.c mlp_list.c
+# YZ_201: Added mlp_map.c for hash table operations
+SOURCES = mlp_io.c mlp_string.c mlp_panic.c mlp_state.c mlp_math.c mlp_list.c mlp_map.c
 OBJECTS = $(SOURCES:.c=.o)
 
 all: $(LIB)

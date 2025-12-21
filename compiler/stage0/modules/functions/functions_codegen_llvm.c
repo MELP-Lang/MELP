@@ -463,8 +463,11 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
         }
         
         // YZ_200: Map built-in list functions to runtime functions
+        // YZ_201: Map built-in map functions to runtime functions
         const char* runtime_name = call->function_name;
         int is_list_append = 0;
+        int is_map_insert = 0;
+        
         if (strcmp(call->function_name, "append") == 0) {
             runtime_name = "melp_list_append";
             is_list_append = 1;
@@ -472,9 +475,21 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
             runtime_name = "melp_list_prepend";
             is_list_append = 1;  // prepend also needs i64->i8* conversion
         } else if (strcmp(call->function_name, "length") == 0) {
-            runtime_name = "melp_list_length";
+            // Check if first arg is map or list (both have length())
+            // For now, assume melp_map_length if name suggests map
+            // Better: check variable type from var_types
+            runtime_name = "melp_list_length";  // Default to list, will handle map below
         } else if (strcmp(call->function_name, "clear") == 0) {
             runtime_name = "melp_list_clear";
+        } else if (strcmp(call->function_name, "insert") == 0) {
+            runtime_name = "melp_map_insert";
+            is_map_insert = 1;
+        } else if (strcmp(call->function_name, "get") == 0) {
+            runtime_name = "melp_map_get";
+        } else if (strcmp(call->function_name, "remove") == 0) {
+            runtime_name = "melp_map_remove";
+        } else if (strcmp(call->function_name, "has_key") == 0) {
+            runtime_name = "melp_map_has_key";
         }
         
         // Generate arguments
@@ -505,6 +520,34 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
                     ptr_val->type = LLVM_TYPE_I8_PTR;
                     fprintf(ctx->llvm_ctx->output, "    %s = bitcast i64* %s to i8*\n",
                             ptr_val->name, elem_var);
+                    llvm_value_free(args[i]);
+                    args[i] = ptr_val;
+                }
+            }
+            
+            // YZ_201: For map insert, convert third argument (value) to pointer
+            // Runtime expects void* pointing to value data
+            if (is_map_insert && i == 2) {
+                if (args[i]->type == LLVM_TYPE_I64) {
+                    // Allocate stack space for value
+                    char* val_var = llvm_new_temp(ctx->llvm_ctx);
+                    fprintf(ctx->llvm_ctx->output, "    %s = alloca i64, align 8\n", val_var);
+                    // Store value
+                    fprintf(ctx->llvm_ctx->output, "    store i64 ");
+                    if (args[i]->is_constant) {
+                        fprintf(ctx->llvm_ctx->output, "%ld", args[i]->const_value);
+                    } else {
+                        fprintf(ctx->llvm_ctx->output, "%s", args[i]->name);
+                    }
+                    fprintf(ctx->llvm_ctx->output, ", i64* %s, align 8\n", val_var);
+                    
+                    // Cast to i8* for runtime call
+                    LLVMValue* ptr_val = malloc(sizeof(LLVMValue));
+                    ptr_val->name = llvm_new_temp(ctx->llvm_ctx);
+                    ptr_val->is_constant = 0;
+                    ptr_val->type = LLVM_TYPE_I8_PTR;
+                    fprintf(ctx->llvm_ctx->output, "    %s = bitcast i64* %s to i8*\n",
+                            ptr_val->name, val_var);
                     llvm_value_free(args[i]);
                     args[i] = ptr_val;
                 }

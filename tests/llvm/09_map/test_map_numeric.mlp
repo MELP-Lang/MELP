@@ -1,0 +1,8 @@
+-- YZ_201: Test 2b - Map with Numeric Values
+-- Expected: 0 (successful creation)
+
+function main() returns numeric
+    -- Map values must be numeric for now (stage0 limitation)
+    map scores = {"math": 95; "science": 87; "english": 92;}
+    return 0
+end_function

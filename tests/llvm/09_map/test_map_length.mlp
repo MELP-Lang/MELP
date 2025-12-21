@@ -1,0 +1,19 @@
+-- YZ_201: Test 3 - Map Length Operation
+-- Expected: 3 (initial 2 keys + 1 inserted)
+
+function main() returns numeric
+    -- Create map with 2 keys
+    map scores = {"math": 95; "science": 87;}
+    
+    -- Test: Get map length (should be 2)
+    numeric len = length(scores)
+    
+    -- Insert new key (length becomes 3)
+    insert(scores; "english"; 92)
+    
+    -- Get length again
+    numeric len2 = length(scores)
+    
+    -- Return len2 (should be 3)
+    return len2
+end_function

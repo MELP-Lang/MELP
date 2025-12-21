@@ -1,0 +1,7 @@
+-- YZ_201: Test 2 - Map with Initial Values
+-- Expected: 0 (successful creation)
+
+function main() returns numeric
+    map person = {"name": "Alice"; "age": "30";}
+    return 0
+end_function
