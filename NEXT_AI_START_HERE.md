@@ -11,6 +11,70 @@
 - **LLVM Faz 1:** ✅ TAMAMLANDI (YZ_00-04, Production Ready!)
 - **YZ_200:** ✅ **TAMAMLANDI** - List operations (append, indexing, length) working!
 
+---
+
+## 📜 YZ ÇALIŞMA PROTOKOLÜ (ZORUNLU!)
+
+**Her YZ Agent'ı (YZ_XX) bu kuralları takip eder:**
+
+### 1️⃣ Görev Tespit
+- ✅ `NEXT_AI_START_HERE.md` oku → Sıradaki görev senin görevin!
+- ✅ Adın: **YZ_XX** (örnek: YZ_201, YZ_202...)
+- ✅ Görev: `TODO_MODERN_LANGUAGE.md` içindeki sıradaki işaretlenmemiş görev
+- ✅ Kullanıcıyı bilgilendir: "Ben YZ_XX'im, görevim [görev açıklaması]"
+
+### 2️⃣ Çalışma Süreci
+- ✅ **Branş oluştur:** `TODO_gorevi_YZ_XX` (örnek: `TODO_gorevi_YZ_201`)
+- ✅ Görevini tamamla (kod yaz, test et, debug et)
+- ✅ Her anlamlı ilerlemeyi **bu branch'e commit et**
+- ✅ İş bitince: `LLVM_YZ/YZ_XX_TAMAMLANDI.md` raporu yaz
+
+### 3️⃣ Görev Tamamlama
+- ✅ **TODO güncelle:** `TODO_MODERN_LANGUAGE.md` içinde görevini `- [x]` olarak işaretle
+- ✅ **LLVM_YZ rapor:** `LLVM_YZ/YZ_XX_TAMAMLANDI.md` dosyası oluştur:
+  ```markdown
+  # YZ_XX: [Görev Adı] ✅ TAMAMLANDI
+  
+  **Tamamlanma Tarihi:** [tarih]
+  **Branch:** TODO_gorevi_YZ_XX
+  **Commit:** [hash] "[mesaj]"
+  
+  ## 📊 Yapılanlar
+  - [x] [İş 1]
+  - [x] [İş 2]
+  
+  ## ✅ Test Sonuçları
+  [test çıktıları]
+  
+  ## 🔧 Değiştirilen Dosyalar
+  - path/to/file1.c
+  - path/to/file2.h
+  
+  ## 🎯 Sonuç
+  [Özet açıklama]
+  ```
+
+### 4️⃣ Sonraki YZ İçin Hazırlık
+- ✅ **NEXT_AI güncelle:** `NEXT_AI_START_HERE.md` içinde:
+  - Tamamlanan görevi ✅ olarak işaretle
+  - Yeni görev (YZ_XX+1) için "SIRASKI GÖREV" bölümünü güncelle
+  - Commit: `TODO_gorevi_YZ_XX` branch'ine
+- ✅ **Kullanıcıyı bilgilendir:** Görevin tamamlandı, sonraki YZ_XX+1 hazır
+
+### 5️⃣ Teslim
+- ✅ Branch: `TODO_gorevi_YZ_XX` (merge etme, sadece commit at!)
+- ✅ Dosyalar: Kod + TODO + NEXT_AI + LLVM_YZ raporu
+- ✅ Kullanıcı onayı: "YZ_XX tamamlandı, sonraki YZ_XX+1 başlayabilir"
+
+---
+
+## 🚨 MEVCUT GÖREV: SEN YZ_201'SİN!
+
+**Adın:** YZ_201  
+**Görevin:** Map/Dictionary Type Implementation  
+**Branch:** `TODO_gorevi_YZ_201` (henüz oluşturulmadı)  
+**Kaynak:** `TODO_MODERN_LANGUAGE.md` Line 97-118
+
 **⚠️ YZ Directory Structure:**
 - `stage_0_YZ/` - Stage 0 sessions (YZ_01 - YZ_97) ✅ ARCHIVED
 - `stage_1_YZ/` - Stage 1 sessions (YZ_01 - YZ_24) ✅ ARCHIVED
@@ -44,7 +108,46 @@
 
 ---
 
-## 🚨 SIRASKI GÖREV: YZ_201 - Map/Dictionary Type
+---
+
+## 🎯 YZ_201 GÖREVE BAŞLAMA REHBERİ
+
+### Adım 1: Branş Oluştur (1 dakika)
+```bash
+cd /home/pardus/projeler/MLP/MLP
+git checkout -b TODO_gorevi_YZ_201
+```
+
+### Adım 2: Kullanıcıyı Bilgilendir (30 saniye)
+```
+Merhaba! Ben YZ_201. Görevim: Map/Dictionary Type Implementation.
+TODO_MODERN_LANGUAGE.md Line 97-118'deki görevi tamamlayacağım.
+Başlıyorum!
+```
+
+### Adım 3: Görevi Tamamla (4-5 gün)
+- [ ] Runtime: `runtime/stdlib/mlp_map.{h,c}`
+- [ ] Lexer: `{}` token support
+- [ ] Parser: Map literal parsing
+- [ ] Codegen: LLVM IR generation
+- [ ] Tests: Full integration test
+
+### Adım 4: Bitince TODO İşaretle
+`TODO_MODERN_LANGUAGE.md` içinde:
+```diff
+- - [ ] **YZ_201** - Map/Dictionary Type (hash table with chaining)
++ - [x] **YZ_201** - Map/Dictionary Type (hash table with chaining) ✅
+```
+
+### Adım 5: Rapor Yaz
+`LLVM_YZ/YZ_201_TAMAMLANDI.md` oluştur (yukardaki template kullan)
+
+### Adım 6: NEXT_AI Güncelle
+Bu dosyayı (NEXT_AI_START_HERE.md) güncelle → YZ_202'ye hazırla
+
+---
+
+## 📋 YZ_201 DETAYLI GÖREV TANIMI
 
 **📍 Konum:** `TODO_MODERN_LANGUAGE.md` - Line 97-118
 
