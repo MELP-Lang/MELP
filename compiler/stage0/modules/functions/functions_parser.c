@@ -75,6 +75,9 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
     char* func_name = strdup(tok->value);
     token_free(tok);
     
+    // YZ_203: Declare func here for both paths
+    FunctionDeclaration* func = NULL;
+    
     // YZ_203: Check for generic type parameters: function name<T, U>
     // Lookahead: Is next token '<' ?
     // Note: Lexer may return TOKEN_LESS or TOKEN_LANGLE depending on whitespace
@@ -84,8 +87,8 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
         // Generic function detected!
         token_free(tok);
         
-        // Create function first (we'll add type params to it)
-        FunctionDeclaration* func = function_create(func_name, FUNC_RETURN_VOID);
+        // Create function (we'll add type params to it)
+        func = function_create(func_name, FUNC_RETURN_VOID);
         
         // Parse type parameters: <T, U, V>
         while (1) {
@@ -158,7 +161,7 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
     token_free(tok);
     
     // Create function with default return type (will be updated if return type specified)
-    FunctionDeclaration* func = function_create(func_name, FUNC_RETURN_VOID);
+    func = function_create(func_name, FUNC_RETURN_VOID);
     free(func_name);
     
 parse_parameters:

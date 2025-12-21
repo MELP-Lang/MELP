@@ -224,6 +224,15 @@ int main(int argc, char** argv) {
         FunctionDeclaration* func = parse_function_declaration(lexer);
         if (!func) break;
         
+        // YZ_203: Skip generic templates - they're instantiated on demand
+        if (func->is_generic_template) {
+            printf("📋 Generic template: %s<%d type params>\n", 
+                   func->name, func->type_param_count);
+            // TODO: Store in template registry for later instantiation
+            function_free(func);
+            continue;
+        }
+        
         if (!functions) {
             functions = func;
         } else {
