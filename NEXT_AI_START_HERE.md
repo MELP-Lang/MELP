@@ -1,52 +1,71 @@
 # 🚀 MELP PROJECT - START HERE!
 
-**Last Session:** YZ_202 (Optional Type - Null Safety) ✅ TAMAMLANDI  
+**Last Session:** YZ_203 (Generic Types - Explicit) ✅ TAMAMLANDI  
 **Date:** 21 Aralık 2025  
 **Agent:** GitHub Copilot (Claude Sonnet 4.5)  
-**Status:** 🟢 **YZ_203 HAZIR** - Generic Types
+**Status:** 🟢 **YZ_203.5 HAZIR** - Generic Type Inference
 
 **⚠️ Project Status:**
-- **Stage 0:** ✅ TAMAMLANDI (C Compiler) - **List () & Map {} syntax fully working! ✅**
+- **Stage 0:** ✅ TAMAMLANDI (C Compiler) - **List (), Map {}, Optional ?, Generic <T> working! ✅**
 - **Stage 1:** ✅ **BLOKER KALDIRILDI** - Modüller derlenebilir durumda!
 - **LLVM Faz 1:** ✅ TAMAMLANDI (YZ_00-04, Production Ready!)
-- **YZ_200:** ✅ **TAMAMLANDI** - List operations (append, indexing, length) working!
-- **YZ_201:** ✅ **TAMAMLANDI** - Map/Dictionary Type (insert, get, has_key, length) working!
-- **YZ_202:** ✅ **TAMAMLANDI** - Optional Type (?, ??, null) working!
+- **YZ_200:** ✅ **TAMAMLANDI** - List operations
+- **YZ_201:** ✅ **TAMAMLANDI** - Map/Dictionary Type
+- **YZ_202:** ✅ **TAMAMLANDI** - Optional Type (?, ??, null)
+- **YZ_203:** ✅ **TAMAMLANDI** - Generic Types (Explicit `<T>`)
+- **YZ_203.5:** 🟡 **BAŞLIYOR** - Generic Type Inference
 
 ---
 
-## 🚨 MEVCUT GÖREV: SEN YZ_203'SÜN!
+## 🚨 MEVCUT GÖREV: SEN YZ_203.5'SİN!
 
-**Adın:** YZ_203  
-**Görevin:** Generic Types (Type Parameters)  
-**Kaynak:** `TODO_MODERN_LANGUAGE.md` Line 216-242  
-**Branch:** `generic-types_YZ_203` (oluşturacaksın)  
-**Öncelik:** 🟡 Yüksek (modern dil standardı)
+**Adın:** YZ_203.5  
+**Görevin:** Generic Type Inference (Without Explicit Types)  
+**Kaynak:** `TODO_MODERN_LANGUAGE.md` Line 232-260  
+**Branch:** `generic-type-inference_YZ_203.5` (oluşturacaksın)  
+**Öncelik:** 🟡 Yüksek (developer experience)
 
 ### 📚 ÖNCE MUTLAKA OKU (ZORUNLU):
-1. **`YZ_PROTOKOL.md`** ← YZ çalışma protokolü (5 adım)
-2. **`TODO_MODERN_LANGUAGE.md`** Line 216-242 ← Görev detayları
-3. **`LLVM_YZ/YZ_202_TAMAMLANDI.md`** ← Önceki YZ'nin başarı raporu
-4. **`melp_modulleri.md`** ← 66 modül listesi (referans için)
+1. **`MELP_VISION.md`** ← MELP felsefesi (Kod = Düzyazı, STO, Modüler)
+2. **`ARCHITECTURE.md`** ← 26 modül sistemi
+3. **`melp_modulleri.md`** ← Mevcut modüller (baştan yazma!)
+4. **`YZ_PROTOKOL.md`** ← Detaylı çalışma kuralları
+5. **`TODO_MODERN_LANGUAGE.md`** Line 232-260 ← Görev detayları
+6. **`LLVM_YZ/YZ_203_TAMAMLANDI.md`** ← YZ_203'ün başarısı (monomorphization working!)
 
-### ✅ YZ_202'nin Bıraktığı Miras:
-- ✅ Optional type core: `?`, `??`, `null` working
-- ✅ Runtime library: `mlp_optional.c` (193 satır, 21 fonksiyon)
-- ✅ Lexer: TOKEN_QUESTION, TOKEN_DOUBLE_QUESTION, TOKEN_NULL
-- ✅ Parser: null literal, ?? operator (right-associative)
-- ✅ LLVM IR: select instruction, icmp eq for null check
-- ✅ Test suite: 8 test dosyası (LLVM IR generation works)
-- ⚠️ **Not:** Nullable variable full codegen (numeric? x) Stage 1'e ertelendi
+### ✅ YZ_203'ün Bıraktığı Miras:
+- ✅ Generic function parsing: `function identity<T>(T x)` ✅
+- ✅ Generic call parsing: `identity<numeric>(42)` ✅
+- ✅ Template registry system (GenericRegistry, GenericTemplate) ✅
+- ✅ Monomorphization engine (generic_instantiate, generic_specialize_function) ✅
+- ✅ LLVM IR codegen (specialized functions with mangled names) ✅
+- ✅ Instance deduplication (is_emitted flag) ✅
+- ✅ Test: `identity<numeric>(42)` fully working! ✅
 
-### 🎯 SENIN GÖREVİN (YZ_203):
+**Dosyalar (mevcut):**
+- `compiler/stage0/modules/functions/functions_generic.{h,c}` (303 satır)
+- `compiler/stage0/modules/functions/functions.h` (type_params)
+- `compiler/stage0/modules/arithmetic/arithmetic.h` (type_arguments)
 
-**Ne yapacaksın:**
-- [ ] Generic function syntax: `function max<T>(T a, T b) returns T`
-- [ ] Generic struct syntax: `struct Box<T>`
-- [ ] Type parameter constraints: `<T: Comparable>`
-- [ ] Monomorphization (compile-time specialization)
-- [ ] LLVM IR codegen per instance
-- [ ] Type inference: `max(10, 20)` → infer T = numeric
+### 🎯 SENIN GÖREVİN (YZ_203.5):
+
+**Şu çalışıyor (YZ_203 yaptı):**
+```pmpl
+identity<numeric>(42)  -- ✅ Explicit type working!
+```
+
+**Sen yapacaksın (Type Inference):**
+```pmpl
+identity(42)  -- ⚠️ Infer T = numeric automatically!
+```
+
+**Yapılacaklar:**
+- [ ] Type inference from arguments: `max(10, 20)` → infer `T = numeric`
+- [ ] Argument type analysis (inspect actual argument types)
+- [ ] Type unification (match template params to argument types)
+- [ ] Constraint solving (ensure type consistency)
+- [ ] Error messages for ambiguous types
+- [ ] Integration with existing monomorphization engine
 
 **Test Case (TODO'dan):**
 ```pmpl
@@ -57,24 +76,32 @@ function max<T>(T a, T b) returns T
     return b
 end_function
 
-function test_generic() returns numeric
-    return max<numeric>(10, 20)  -- Should return 20
-end_function
-
--- Type inference
 function test_inference() returns numeric
-    return max(10, 20)  -- T inferred as numeric
+    return max(10, 20)  -- Should infer T = numeric, return 20
 end_function
 ```
 
-**Dosyalar (tahmini):**
-- `compiler/stage0/modules/type_system/generic_types.h` (yeni)
-- `compiler/stage0/modules/type_system/generic_types.c` (yeni)
-- `compiler/stage0/modules/parser_core/generic_parser.c` (parsing)
-- `compiler/stage0/modules/functions/functions_codegen_llvm.c` (monomorphization)
-- `tests/llvm/11_generics/test_*.mlp` (test dosyaları)
+**Algoritma (genel):**
+1. **Detect generic call without type args:** `identity(42)` (no `<...>`)
+2. **Lookup template:** Find `identity<T>` in registry
+3. **Analyze arguments:** `42` → type is `numeric`
+4. **Infer type params:** `T = numeric`
+5. **Call monomorphization:** `generic_instantiate("identity", "numeric")`
+6. **Emit LLVM IR:** Reuse existing codegen
 
-**Süre Tahmini:** 2 hafta (karmaşık özellik - type system değişiklikleri)
+**Dosyalar:**
+- `compiler/stage0/modules/type_system/type_inference.h` (yeni modül)
+- `compiler/stage0/modules/type_system/type_inference.c` (inference engine)
+- `compiler/stage0/modules/functions/functions_codegen_llvm.c` (extend)
+- `tests/llvm/11_generics/test_inference.mlp`
+
+**Süre Tahmini:** 5 gün (type inference algorithm)
+
+**⚠️ MELP Prensipleri:**
+- ✅ Yeni modül: `type_inference` → type_system içinde OK
+- ✅ Mevcut monomorphization'ı kullan (baştan yazma!)
+- ✅ STO uyumlu (numeric remains generic)
+- ✅ Error messages okunabilir
 
 ---
 

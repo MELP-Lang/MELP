@@ -213,15 +213,44 @@ numeric? x = data?.length();  -- Returns null if data is null
 
 ---
 
-#### YZ_203: Generic Types (Type Parameters) [2 hafta]
-**Öncelik:** 🟡 Yüksek (modern dil standardı)
+#### YZ_203: Generic Types - Explicit Type Parameters [1 hafta]
+**Öncelik:** 🟡 Yüksek (modern dil standardı)  
+**Durum:** ✅ **TAMAMLANDI** (21 Aralık 2025)  
+**Rapor:** `LLVM_YZ/YZ_203_TAMAMLANDI.md`
+
+**Yapılanlar:**
+- [x] Generic function syntax: `function max<T>(T a, T b) returns T` ✅
+- [x] Generic call syntax: `max<numeric>(10, 20)` ✅
+- [x] Template registry system ✅
+- [x] Monomorphization engine ✅
+- [x] LLVM IR codegen per instance ✅
+- [x] Instance deduplication ✅
+- [x] Mangled name generation ✅
+
+**Test Cases:**
+```pmpl
+function identity<T>(T x) returns T
+    return x
+end_function
+
+function test_generic() returns numeric
+    return identity<numeric>(42)  -- ✅ Works!
+end_function
+```
+
+**Not:** Type inference (without explicit `<T>`) → YZ_203.5'e ertelendi
+
+---
+
+#### YZ_203.5: Generic Type Inference [5 gün]
+**Öncelik:** 🟡 Yüksek (developer experience)
 
 **Yapılacaklar:**
-- [ ] Generic function syntax: `function max<T>(T a, T b) returns T`
-- [ ] Generic struct syntax: `struct Box<T>`
-- [ ] Type parameter constraints
-- [ ] Monomorphization (compile-time specialization)
-- [ ] LLVM IR codegen per instance
+- [ ] Type inference from arguments: `max(10, 20)` → infer `T = numeric`
+- [ ] Argument type analysis
+- [ ] Constraint solving
+- [ ] Type unification
+- [ ] Error messages for ambiguous types
 
 **Test Cases:**
 ```pmpl
@@ -232,10 +261,18 @@ function max<T>(T a, T b) returns T
     return b
 end_function
 
-function test_generic() returns numeric
-    return max<numeric>(10, 20)  -- Should return 20
+function test_inference() returns numeric
+    return max(10, 20)  -- Should infer T = numeric automatically
 end_function
 ```
+
+**Dosyalar:**
+- `compiler/stage0/modules/type_system/type_inference.h` (yeni)
+- `compiler/stage0/modules/type_system/type_inference.c` (yeni)
+- `compiler/stage0/modules/functions/functions_generic.c` (extend)
+- `tests/llvm/11_generics/test_inference.mlp`
+
+**Süre Tahmini:** 5 gün (type inference algorithm)
 
 ---
 
