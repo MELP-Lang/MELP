@@ -3,7 +3,7 @@
 **Last Session:** YZ_201 (Map/Dictionary Type Implementation) ✅ TAMAMLANDI  
 **Date:** 21 Aralık 2025  
 **Agent:** GitHub Copilot (Claude Sonnet 4.5)  
-**Status:** 🟢 **YZ_202 HAZIR** - Set Type Implementation
+**Status:** 🟢 **YZ_202 HAZIR** - Optional Type (Null Safety)
 
 **⚠️ Project Status:**
 - **Stage 0:** ✅ TAMAMLANDI (C Compiler) - **List () & Map {} syntax fully working! ✅**
@@ -11,58 +11,92 @@
 - **LLVM Faz 1:** ✅ TAMAMLANDI (YZ_00-04, Production Ready!)
 - **YZ_200:** ✅ **TAMAMLANDI** - List operations (append, indexing, length) working!
 - **YZ_201:** ✅ **TAMAMLANDI** - Map/Dictionary Type (insert, get, has_key, length) working!
-- **YZ_202:** 🟡 **BAŞLIYOR** - Set Type Implementation
+- **YZ_202:** 🟡 **BAŞLIYOR** - Optional Type (Null Safety)
 
 ---
 
 ## 🚨 MEVCUT GÖREV: SEN YZ_202'SİN!
 
 **Adın:** YZ_202  
-**Görevin:** Set Type Implementation  
-**Kaynak:** `TODO_MODERN_LANGUAGE.md` Line 119-140  
-**Branch:** `set-type_YZ_202` (oluşturacaksın)  
-**Öncelik:** 🟡 Yüksek (stdlib için gerekli)
+**Görevin:** Optional Type (Null Safety) - Integration & Completion  
+**Kaynak:** `TODO_MODERN_LANGUAGE.md` Line 124-210  
+**Branch:** `optional-type_YZ_202` (oluşturuldu)  
+**Öncelik:** 🟡 Yüksek (type safety için kritik)
+
+**⚠️ STAGE 0'DA YAZILMIŞ MODÜL VAR!**
+- 📁 `compiler/stage0/modules/null_safety/` (969 satır kod!)
+- ✅ Optional type framework mevcut
+- ✅ Null check, null coalescing, safe navigation yazılmış
+- ⚠️ **Entegrasyon ve test gerekli!**
 
 ### 📚 ÖNCE MUTLAKA OKU (ZORUNLU):
 1. **`YZ_PROTOKOL.md`** ← YZ çalışma protokolü (5 adım)
-2. **`TODO_MODERN_LANGUAGE.md`** Line 119-140 ← Görev detayları
-3. **`LLVM_YZ/YZ_201_TAMAMLANDI.md`** ← Önceki YZ'nin başarı raporu
-4. **`melp_modulleri.md`** ← 66 modül listesi (referans için)
+2. **`TODO_MODERN_LANGUAGE.md`** Line 124-210 ← Görev detayları
+3. **`melp_modulleri.md`** ← **ÖNEMLİ:** Null safety modülü Stage 0'da mevcut!
+4. **`compiler/stage0/modules/null_safety/`** ← Mevcut kod (969 satır)
+5. **`LLVM_YZ/YZ_201_TAMAMLANDI.md`** ← Önceki YZ'nin başarı raporu
 
-### ✅ YZ_200'ün Bıraktığı Miras:
-- ✅ List type çalışıyor: `list numbers = (1; 2; 3;)`
-- ✅ Runtime library: `mlp_list.c` (500+ satır, test edilmiş)
-- ✅ Operations: append, get, length working
-- ✅ Variable type tracking: `is_list` flag + lookup table
-- ✅ Test sonucu: 212 = 3+9+200 ✅
+### ✅ YZ_201'in Bıraktığı Miras:
+- ✅ Map type çalışıyor: `map person = {"name": "Alice"}`
+- ✅ Runtime library: `mlp_map.c` (hash table implementation)
+- ✅ Operations: insert, get, has_key, length working
+- ✅ Test sonucu: All tests passed ✅
 
-### 🎯 SENIN GÖREVİN (YZ_201):
+### 🎯 SENIN GÖREVİN (YZ_202):
+
+**⚠️ ÖNCELİK 1: MEVCUT KODU İNCELE!**
+```bash
+# Mevcut null_safety modülü:
+ls -la compiler/stage0/modules/null_safety/
+# Dosyalar:
+# - null_safety.h/c (Optional type, NullCheck, NullCoalesce, SafeNav)
+# - null_safety_parser.h/c (Parsing)
+# - null_safety_codegen.h/c (LLVM codegen)
+# - null_safety_standalone.c (Test)
+# - Makefile (standalone build)
+```
 
 **Ne yapacaksın:**
-- [ ] Hash table implementation (chaining method)
-- [ ] Map literal syntax: `{"key": "value"}`
-- [ ] Map operations: insert, get, remove, has_key
-- [ ] Map iteration: `for key, value in map`
-- [ ] Type safety: key/value type constraints
-- [ ] LLVM IR codegen
-- [ ] Runtime entegrasyonu
+1. [ ] **İnceleme:** Mevcut kodu oku (`null_safety.h` başla)
+2. [ ] **Test:** Standalone build çalışıyor mu? (`make -C compiler/stage0/modules/null_safety/`)
+3. [ ] **Entegrasyon:** Makefile'a ekle (functions_compiler'a link)
+4. [ ] **Tamamlama:** Eksik özellikleri ekle:
+   - Optional type syntax: `optional numeric`, `numeric?`
+   - Null coalescing: `value ?? default`
+   - Safe navigation: `obj?.field`
+   - Nullable collections: `list?`, `map?`
+5. [ ] **Test:** `tests/null_safety/test_optional.mlp` yaz ve çalıştır
 
 **Test Case (TODO'dan):**
 ```pmpl
-function test_map() returns string
-    map person = {"name": "Alice", "age": "30", "city": "NYC"}
-    return person["name"]  -- Should return "Alice"
+function find_user(numeric id) returns optional string
+    if id == 1 then
+        return "Alice"
+    end_if
+    return none
+end_function
+
+function test_optional() returns string
+    optional string user = find_user(99)
+    return user ?? "Unknown"  -- Should return "Unknown"
+end_function
+
+-- Nullable collections
+function get_numbers() returns list?
+    if condition then
+        return (1; 2; 3;)
+    end_if
+    return null  -- Null list (farklı: boş list () değil!)
 end_function
 ```
 
-**Dosyalar (tahmini):**
-- `runtime/stdlib/mlp_map.h` (yeni)
-- `runtime/stdlib/mlp_map.c` (yeni)
-- `compiler/stage0/modules/functions/functions_codegen_llvm.c` (map codegen)
-- `compiler/stage0/modules/llvm_backend/llvm_backend.c` (declarations)
-- `tests/llvm/09_map/test_*.mlp` (test dosyaları)
+**Dosyalar:**
+- ✅ `compiler/stage0/modules/null_safety/*.{c,h}` (MEVCUT - 969 satır)
+- 🔄 `compiler/stage0/Makefile` (entegrasyon)
+- 🔄 `compiler/stage0/modules/functions/functions_codegen_llvm.c` (optional codegen)
+- 🆕 `tests/null_safety/test_optional.mlp` (test dosyaları)
 
-**Süre Tahmini:** 5 gün (TODO'ya göre)
+**Süre Tahmini:** 3 gün (entegrasyon + tamamlama)
 
 ---
 
