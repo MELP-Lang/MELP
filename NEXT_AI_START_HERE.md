@@ -1,9 +1,9 @@
 # 🚀 MELP PROJECT - START HERE!
 
-**Current Session:** YZ_212 (Standard Library - Collections) - ✅ **TAMAMLANDI!**  
+**Current Session:** YZ_213 (Collections Parser Integration) - 📋 **HAZIR**  
 **Date:** 22 Aralık 2025  
 **Agent:** GitHub Copilot (Claude Sonnet 4.5)  
-**Status:** 🎉 **YZ_212 COMPLETE!** - Collections Library (22/22 tests passing)
+**Status:** 🚀 **YZ_213 READY!** - Parser integration for Collections Library
 
 **⚠️ Project Status:**
 - **Stage 0:** ✅ TAMAMLANDI (C Compiler) - **List (), Map {}, Optional ?, Generic <T>, Lambda λ, Function Pointers &, Memory RC GC ✅**
@@ -21,8 +21,9 @@
 - **YZ_208:** ✅ **TAMAMLANDI** - Lambda/Anonymous Functions λ
 - **YZ_209:** 🟡 **PHASE 1 TAMAMLANDI** - Function Pointers & (Core module ready)
 - **YZ_210:** ✅ **TAMAMLANDI** - Memory Management & RC GC 🛡️
-- **YZ_211:** 🟡 **WIP (70%)** - Move Semantics (Parser issue, later)
-- **YZ_212:** ✅ **TAMAMLANDI** - Standard Library Collections 📚
+- **YZ_211:** 🟡 **WIP (70%)** - Move Semantics (Parser issue, deferred)
+- **YZ_212:** ✅ **TAMAMLANDI** - Standard Library Collections (Runtime) 📚
+- **YZ_213:** 📋 **BAŞLATILDI** - Collections Parser Integration 🔧
 
 ---
 
@@ -82,7 +83,55 @@ string data2 = data              -- Auto rc_retain()
 - `rc_get_count(ptr)` - Query current count
 - `rc_set_destructor(ptr, func)` - Set cleanup callback
 
-**Next:** YZ_211 - Move Semantics (Ownership Transfer) | **YZ_213** - Collections Parser Integration
+**Next:** ➡️ **YZ_213 - Collections Parser Integration** (BAŞLATILDI!)
+
+---
+
+## 📋 YZ_213 BAŞLATILDI! (22 Aralık 2025)
+
+**Collections Parser Integration - ONGOING**
+- 🎯 Goal: Add MELP syntax support for Collections Library
+- 📝 Task File: LLVM_YZ/YZ_213_GOREV.md
+- ⏱️ Estimate: 3-4 days
+- 🔧 Work: Lexer keywords + Parser + LLVM Codegen + Tests
+
+**Phases:**
+1. Phase 1: Lexer Keywords (~25 tokens: create_set, enqueue, push, etc.)
+2. Phase 2: Parser Integration (AST nodes, function call parser)
+3. Phase 3: LLVM Codegen (Runtime function calls)
+4. Phase 4: End-to-End Testing (5 test files)
+
+**Test Target:** 5/5 MELP syntax tests passing
+
+**Keywords to Add:**
+- Set: create_set, add_to_set, set_contains, set_union, set_intersection
+- Queue: create_queue, enqueue, dequeue, queue_peek, queue_size
+- Stack: create_stack, push, pop, stack_peek, stack_size
+- List ext: insert_at, find_in_list, sort_list
+- Map ext: map_keys, map_values, clear_map
+
+**Expected MELP Syntax:**
+```pmpl
+function test_collections() returns numeric
+    Set numbers = create_set()
+    add_to_set(numbers, 10)
+    add_to_set(numbers, 20)
+    
+    Queue tasks = create_queue()
+    enqueue(tasks, 100)
+    numeric first = dequeue(tasks)
+    
+    Stack history = create_stack()
+    push(history, 30)
+    numeric top = pop(history)
+    
+    return set_size(numbers)  -- Returns 2
+end_function
+```
+
+**Branch:** `collections-parser_YZ_213` (to be created)
+
+**Previous:** YZ_212 (Collections Runtime) ✅ | **Next:** YZ_214 (String Library)
 
 ---
 
