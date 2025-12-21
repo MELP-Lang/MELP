@@ -94,17 +94,18 @@ end_function
 **Çıktı:** List type çalışıyor, Stage 1 modüller derlenebiliyor
 
 ---
-#### YZ_201: Map/Dictionary Type [5 gün] ✅ TAMAMLANDI
+#### ✅ YZ_201: Map/Dictionary Type [5 gün] - TAMAMLANDI
 **Öncelik:** 🟡 Yüksek (stdlib için gerekli)
+**Durum:** ✅ **TAMAMLANDI** (21 Aralık 2025)
 
 **Yapılacaklar:**
-- [x] Map type definition (hash table)
-- [x] Map operations: insert, get, remove, has_key, length
-- [x] Map literals: `{"key": value}`
-- [ ] Map iteration: `for key, value in map` (future)
-- [x] Type safety: key/value type constraints
-- [x] LLVM IR codegen
-- [x] Collision handling: chaining
+- [x] Map type definition (hash table) ✅
+- [x] Map operations: insert, get, remove, has_key, length ✅
+- [x] Map literals: `{"key": value}` ✅
+- [ ] Map iteration: `for key, value in map` (future - Stage 1)
+- [x] Type safety: key/value type constraints ✅
+- [x] LLVM IR codegen ✅
+- [x] Collision handling: chaining ✅
 
 **Test Cases:**
 ```pmpl
@@ -121,8 +122,9 @@ end_function
 
 ---
 
-#### YZ_202: Optional Type (Null Safety) ✅ TAMAMLANDI [3 gün - ENTEGRASYON]
+#### ✅ YZ_202: Optional Type (Null Safety) [3 gün - ENTEGRASYON] - TAMAMLANDI
 **Öncelik:** 🟡 Yüksek (type safety için kritik)
+**Durum:** ✅ **TAMAMLANDI** (21 Aralık 2025)
 
 ⚠️ **STAGE 0'DA FRAMEWORK VAR:** `compiler/stage0/modules/null_safety/` (7 dosya)
 - ⚠️ Null checking framework yazılmış, entegrasyon gerekli
@@ -212,10 +214,10 @@ numeric? x = data?.length();  -- Returns null if data is null
 ```
 
 ---
-
-#### YZ_203: Generic Types - Explicit Type Parameters [1 hafta]
+#### ✅ YZ_203: Generic Types - Explicit Type Parameters [1 hafta] - TAMAMLANDI
 **Öncelik:** 🟡 Yüksek (modern dil standardı)  
 **Durum:** ✅ **TAMAMLANDI** (21 Aralık 2025)  
+**Rapor:** `LLVM_YZ/YZ_203_TAMAMLANDI.md`25)  
 **Rapor:** `LLVM_YZ/YZ_203_TAMAMLANDI.md`
 
 **Yapılanlar:**
@@ -240,8 +242,9 @@ end_function
 
 ---
 
-#### YZ_203.5: Generic Type Inference ✅ [TAMAMLANDI - 21 Aralık 2025]
+#### ✅ YZ_203.5: Generic Type Inference [5 gün] - TAMAMLANDI
 **Öncelik:** 🟡 Yüksek (developer experience)
+**Durum:** ✅ **TAMAMLANDI** (21 Aralık 2025)
 
 **Yapılanlar:**
 - [x] Type inference from arguments: `identity(42)` → infer `T = numeric` ✅
@@ -277,8 +280,8 @@ end_function
 **Not:** Multi-parameter support requires parser fix (YZ_203'ten kalma bug)
 
 ---
-
-### YZ_204: Pattern Matching [10 gün]
+#### ✅ YZ_204: Module Import/Export System [1 hafta] - TAMAMLANDI
+end_functionPattern Matching [10 gün]
 end_function
 ```
 
@@ -293,19 +296,20 @@ end_function
 ---
 
 ### 🟡 PHASE 2: MODULE SYSTEM (Zorunlu) [2 hafta]
-
-#### ✅ YZ_204: Module Import/Export [TAMAMLANDI - 21 Aralık 2025]
 **Öncelik:** 🔴 KRİTİK (code organization için gerekli)
+**Durum:** ✅ **TAMAMLANDI** (21 Aralık 2025)
+**Rapor:** `LLVM_YZ/YZ_204_TAMAMLANDI.md`
 
 **Yapılacaklar:**
-- [x] Module declaration: `module math`
-- [x] Export syntax: `export function add()`
-- [x] Import syntax: `import math`
-- [x] Namespace resolution: `math.add()`
-- [x] Name mangling: `math.add → math_add`
-- [x] Export accessibility check
-- [x] Circular dependency detection
-- [x] Module search paths
+- [x] Module declaration: `module math` ✅
+- [x] Export syntax: `export function add()` ✅
+- [x] Import syntax: `import math` ✅
+- [x] Namespace resolution: `math.add()` ✅
+- [x] Name mangling: `math.add → math_add` ✅
+- [x] Export accessibility check ✅
+- [x] Circular dependency detection ✅
+- [x] Module search paths ✅
+- [x] Precompiled module cache ✅
 - [x] Precompiled module cache
 
 **Test Cases:**
@@ -331,16 +335,18 @@ end_function
 - `tests/modules/test_import.mlp`
 
 ---
-
-#### YZ_205: Package Structure [5 gün]
+#### ✅ YZ_205: Package Structure [5 gün] - TAMAMLANDI
 **Öncelik:** 🟡 Orta (proje organizasyonu)
+**Durum:** ✅ **TAMAMLANDI** (21 Aralık 2025)
+**Rapor:** `LLVM_YZ/YZ_205_TAMAMLANDI.md`
 
 **Yapılacaklar:**
-- [ ] Package definition: `package.mlp` manifest
-- [ ] Package metadata: name, version, author
-- [ ] Dependency list: `dependencies = ["stdlib:1.0"]`
-- [ ] Build configuration
-- [ ] Output directory structure
+- [x] Package definition: `package.mlp` manifest ✅
+- [x] Package metadata: name, version, author ✅
+- [x] Dependency list: `dependencies = ["stdlib:1.0"]` ✅
+- [x] Build configuration ✅
+- [x] Output directory structure ✅
+- [x] Package verification ✅ucture
 - [ ] Package verification
 
 **Örnek package.mlp:**
@@ -355,15 +361,17 @@ package {
 ```
 
 ---
-
-### 🟢 PHASE 3: ERROR HANDLING (Zorunlu) [2 hafta]
-
-#### YZ_206: Result Type Pattern [1 hafta]
+#### ✅ YZ_206: Result Type Pattern [1 hafta] - TAMAMLANDI
 **Öncelik:** 🟡 Yüksek (error safety için kritik)
+**Durum:** ✅ **TAMAMLANDI** (21 Aralık 2025)
+**Rapor:** `LLVM_YZ/YZ_206_TAMAMLANDI.md`
 
 **Yapılacaklar:**
-- [ ] Result type: `result<T, E>`
-- [ ] Ok/Error constructors
+- [x] Result type: `result<T, E>` ✅
+- [x] Ok/Error constructors ✅
+- [x] Pattern matching: `match result` ✅
+- [x] Propagation operator: `?` ✅
+- [x] LLVM IR codegen ✅uctors
 - [ ] Pattern matching: `match result`
 - [ ] Propagation operator: `?`
 - [ ] LLVM IR codegen
@@ -385,16 +393,20 @@ function test_result() returns numeric
         case error(msg):
             return -1
     end_match
-end_function
-```
-
----
-
-#### YZ_207: Try-Catch Syntax (Alternative) [5 gün]
+#### ✅ YZ_207: Try-Catch Exception Handling [5 gün] - TAMAMLANDI
 **Öncelik:** 🟢 Düşük (result pattern varsa opsiyonel)
+**Durum:** ✅ **TAMAMLANDI** (21 Aralık 2025)
+**Rapor:** `LLVM_YZ/YZ_207_TAMAMLANDI.md`
 
 **Yapılacaklar:**
-- [ ] Try-catch-finally syntax
+- [x] Try-catch-finally syntax ✅
+- [x] Exception types (6 built-in + custom) ✅
+- [x] Throw statement ✅
+- [x] LLVM exception handling (landingpad/invoke/resume) ✅
+- [x] Runtime support functions ✅
+- [x] 8 comprehensive test files ✅
+
+**Not:** Result pattern (YZ_206) zero-cost alternatif. İkisi birlikte kullanılabilir.
 - [ ] Exception types
 - [ ] Stack unwinding
 - [ ] LLVM exception handling
