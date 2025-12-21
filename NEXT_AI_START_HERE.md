@@ -1,9 +1,9 @@
 # 🚀 MELP PROJECT - START HERE!
 
-**Last Session:** YZ_203.5 (Generic Type Inference) ✅ TAMAMLANDI  
+**Last Session:** YZ_204 (Module Import/Export) - Phase 1 ✅ TAMAMLANDI  
 **Date:** 21 Aralık 2025  
 **Agent:** GitHub Copilot (Claude Sonnet 4.5)  
-**Status:** 🟢 **YZ_204 HAZIR** - Module Import/Export
+**Status:** 🟡 **YZ_204 Phase 2** - Import/Namespace Resolution
 
 **⚠️ Project Status:**
 - **Stage 0:** ✅ TAMAMLANDI (C Compiler) - **List (), Map {}, Optional ?, Generic <T> working! ✅**
@@ -14,90 +14,127 @@
 - **YZ_202:** ✅ **TAMAMLANDI** - Optional Type (?, ??, null)
 - **YZ_203:** ✅ **TAMAMLANDI** - Generic Types (Explicit `<T>`)
 - **YZ_203.5:** ✅ **TAMAMLANDI** - Generic Type Inference
-- **YZ_204:** 🟡 **BAŞLIYOR** - Module Import/Export
+- **YZ_204:** 🟡 **Phase 1 DONE** - Module declaration + Export tracking ✅
 
 ---
 
-## 🎉 YZ_203.5 BAŞARILI! (1 Session - 21 Aralık 2025)
+## 🎉 YZ_204 Phase 1 BAŞARILI! (1 Session - 21 Aralık 2025)
 
 **Yapılan:**
-- ✅ Type inference engine: `identity(42)` → infer `T = numeric`
-- ✅ New module: `type_system/type_inference.{h,c}` (300 lines)
-- ✅ Argument type analysis (`ArithmeticExpr` inspection)
-- ✅ Type unification (simple equality check)
-- ✅ Integration with YZ_203 monomorphization
-- ✅ LLVM IR generation working!
+- ✅ Lexer: TOKEN_EXPORT, TOKEN_MODULE keywords
+- ✅ Module declaration: `module math` works
+- ✅ Export tracking: `export function add()` works
+- ✅ Export registry: Global export tracking system
+- ✅ Namespace resolver: Code written (not integrated yet)
+- ✅ Parser integration: functions_standalone.c
+- ✅ Tests: 8 test files, compilation successful
 
 **Test:**
 ```pmpl
-function identity<T>(T value) returns T
-    return value
+module math
+
+export function double(numeric x) returns numeric
+    return x + x
 end_function
 
-function main() returns numeric
-    numeric result = identity(42)  -- ✅ T inferred as numeric!
-    return result
+export function square(numeric x) returns numeric
+    return x * x
 end_function
 ```
 
 **Output:**
 ```
-🔍 Inferring types for generic call: identity(...)
-🔍 Type inference successful: identity<numeric>
-⚙️  Instantiated: identity → identity_numeric
+📦 Module: math
+✅ Exported: double from module math
+✅ Exported: square from module math
+✅ Compiled successfully
 ```
 
 **Files:**
-- `compiler/stage0/modules/type_system/type_inference.{h,c}` ✅
-- `compiler/stage0/modules/functions/functions_codegen_llvm.c` (extended)
-- `tests/llvm/11_generics/test_inference.mlp` ✅
+- `compiler/stage0/modules/import/module_declaration.{h,c}` ✅
+- `compiler/stage0/modules/import/export_tracker.{h,c}` ✅
+- `compiler/stage0/modules/import/namespace_resolver.{h,c}` ✅
+- `tests/modules/*.mlp` (8 test files) ✅
 
-**Known Limitations:**
-- Single parameter only (parser bug from YZ_203)
-- Literal types only (variable lookup TODO)
-- Simple type unification (no constraints yet)
+**Known Limitation:**
+- 🐛 Multi-parameter bug (YZ_203'ten kalan): `function add(a, b)` fails
+- ⏳ Import-export connection: Not implemented yet
+- ⏳ Namespace resolution: Written but not integrated
+
+**Commit:** `be6763be` (+642 lines, 19 files changed)
 
 ---
 
-## 🚨 MEVCUT GÖREV: SEN YZ_204'SÜN!
+## 🚨 MEVCUT GÖREV: YZ_204 Phase 2
 
-**Adın:** YZ_204  
-**Görevin:** Module Import/Export (Code Organization)  
-**Kaynak:** `TODO_MODERN_LANGUAGE.md` Line 297-336  
-**Branch:** `module-system_YZ_204` (oluşturacaksın)  
-**Öncelik:** 🔴 KRİTİK (code organization için gerekli)
+**Adın:** YZ_204 (devam)  
+**Görevin:** Import/Namespace Resolution + Multi-param fix  
+**Branch:** `module-system_YZ_204` (mevcut)  
+**Öncelik:** 🔴 KRİTİK
 
-⚠️ **MEVCUT MODÜL VAR MI?** `melp_modulleri.md` kontrol et: `import/` modülü zaten var!
+### 🎯 PHASE 2 GÖREVLERİ:
 
-### 📚 ÖNCE MUTLAKA OKU (ZORUNLU):
-1. **`MELP_VISION.md`** ← MELP felsefesi (Kod = Düzyazı, STO, Modüler)
-2. **`ARCHITECTURE.md`** ← 26 modül sistemi
-3. **`melp_modulleri.md`** ← **ÖNEMLİ:** import/ modülü var mı kontrol et!
-4. **`YZ_PROTOKOL.md`** ← Detaylı çalışma kuralları
-5. **`TODO_MODERN_LANGUAGE.md`** Line 297-336 ← Görev detayları
-6. **`LLVM_YZ/YZ_203.5_TAMAMLANDI.md`** ← YZ_203.5'in başarısı
+**1️⃣ Multi-Parameter Parser Fix (P0 - BLOCKER)**
+- [ ] functions_parser.c: Çoklu parametre parsing düzelt
+- [ ] Test: `function add(numeric a, numeric b)`
+- [ ] Regression: Tek parametre hala çalışmalı
 
-### ✅ YZ_203.5'in Bıraktığı Miras:
-- ✅ Generic Types + Type Inference working ✅
-- ✅ Monomorphization engine production-ready ✅
-- ✅ Type system: `type_inference.{h,c}` (300 satır)
-- ✅ Developer experience: `identity(42)` otomatik tip çıkarımı ✅
+**Not:** Bu YZ_203'ten kalan bug, YZ_204'e özgü değil!
 
-### 🎯 SENIN GÖREVİN (YZ_204):
+**2️⃣ Import-Export Connection (P1)**
+- [ ] `import math` → Load math module
+- [ ] Parse exports from math.mlp
+- [ ] Add to import registry with export list
+- [ ] Validate: Only exported symbols accessible
 
-**Ne yapacaksın:**
-- [ ] Module declaration: `module math`
-- [ ] Export syntax: `export function add()`
-- [ ] Import syntax: `import math`, `import math.add`
-- [ ] Namespace resolution: `math.add(10, 20)`
-- [ ] Circular dependency detection
-- [ ] Module search paths
-- [ ] Precompiled module cache
-
-**Test Case (TODO'dan):**
+**Test Case:**
 ```pmpl
 -- math.mlp
 module math
+export function double(numeric x) returns numeric
+    return x + x
+end_function
+
+-- main.mlp
+import math
+function main() returns numeric
+    return math.double(21)  -- Should return 42
+end_function
+```
+
+**3️⃣ Qualified Name Resolution (P1)**
+- [ ] Function call parsing: Detect `math.add()`
+- [ ] QualifiedName extraction: "math.add" → {module, symbol}
+- [ ] Namespace resolution: Check accessibility
+- [ ] LLVM IR: Emit mangled name `@math_add`
+
+**4️⃣ Testing (P1)**
+- [ ] End-to-end: math.mlp + main.mlp → executable
+- [ ] Circular dependency test
+- [ ] Module search paths test
+
+### ⚠️ Already Implemented (Just needs testing):
+- ✅ Circular dependency detection (import.c)
+- ✅ Module search paths (import.c)
+- ✅ Module caching (import_cache.c)
+
+### 📚 ÖNCE OKU:
+1. **`LLVM_YZ/YZ_204_ILERLEME.md`** ← Phase 1 raporu
+2. **`compiler/stage0/modules/import/namespace_resolver.h`** ← API
+3. **`compiler/stage0/modules/functions/functions_parser.c`** ← Multi-param fix
+
+### 🆕 YENİ ÇALIŞMA ŞEKLİ (YZ_204'ten itibaren):
+- ✅ Kendi hızında çalış (günlük hedef yok)
+- ✅ TODO'daki tüm maddeleri tamamla
+- ⚠️ Yorulunca söyle ("Ara verelim")
+- ✅ Kritik kararlarda sor
+- ✅ Bitince rapor yaz: `LLVM_YZ/YZ_204_TAMAMLANDI.md`
+
+---
+
+## 🎉 SON TAMAMLANAN: YZ_203.5 - Generic Type Inference
+
+**✅ DURUM: TAMAMLANDI**
 
 export function add(numeric a, numeric b) returns numeric
     return a + b
