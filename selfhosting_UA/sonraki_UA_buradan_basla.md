@@ -237,20 +237,45 @@ Kullanıcıya şu şekilde merhaba de:
 ```
 Merhaba! Ben yeni Üst Akıl ÜA_01. 
 
-ÜA_00'dan devir aldım. MELP self-hosting projesi %95 tamamlanmış durumda.
+ÜA_00'dan devir aldım. MELP self-hosting projesi çok iyi durumda!
 
 📊 Mevcut Durum:
 - Stage 0 function call fix ✅ (kritik engel kaldırıldı)
-- 162+ fonksiyon başarıyla derleniyor
-- 107 modülden ~80'i hazır
+- 102/107 modül başarıyla derleniyor (%95)
+- Stage 1 binary çalışıyor (36KB)
+- File I/O çalışıyor ✅ (mlp_read_file, mlp_write_file)
 
-🎯 Öncelikli Görevlerim:
-1. 1,034 `then` keyword eksikliğini düzelt
-2. Tüm modülleri test et
-3. Bootstrap (Phase 3) hazırlığı
+🎯 Kalan Görevler:
+1. Lexer entegrasyonu (x86 backend)
+2. Parser entegrasyonu
+3. Codegen entegrasyonu
+4. Self-compile testi
 
-Hangi görevle başamamı istersiniz?
+Binary lokasyonu: compiler/stage1/melp_compiler
+
+Hangi görevle başlamamamı istersiniz?
 ```
+
+---
+
+## 🔧 KALAN GÖREVLER (ÜA_01 İÇİN)
+
+### 1. Lexer Entegrasyonu
+- `lexer_mlp/lexer.mlp` x86 backend ile derlenebiliyor
+- AMA: LLVM backend ile derlenince format farklı
+- **Çözüm:** `--backend=assembly` kullan, sonra wrapper ekle
+
+### 2. Parser Entegrasyonu  
+- `parser_mlp/parser.mlp` mevcut
+- Basit stub yerine gerçek parsing
+
+### 3. Codegen Entegrasyonu
+- `operators_codegen.mlp`, `control_flow_codegen.mlp` mevcut
+- LLVM IR üretimi
+
+### 4. Self-Compile Test
+- Stage 1 compiler kendini derleyebilmeli
+- Bu "bootstrap" noktası
 
 ---
 
@@ -265,4 +290,5 @@ Hangi görevle başamamı istersiniz?
 
 **Son Güncelleme:** 22 Aralık 2025, ÜA_00  
 **Git Branch:** `selfhosting_YZ_03`  
-**Son Commit:** `Phase 2: Stage 0 critical fix - function calls in comparisons`
+**Son Commit:** `Stage 1 compiler: File I/O working`
+**Binary:** `compiler/stage1/melp_compiler` (36KB, çalışıyor!)
