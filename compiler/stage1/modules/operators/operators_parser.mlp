@@ -294,7 +294,7 @@ end_function
 function parse_primary(list tokens; numeric pos) returns list
     -- Safety check
     if pos >= tokens.length
-        return [0, pos]  -- End of tokens
+        return [0; pos]  -- End of tokens
     end_if
     
     list token = tokens[pos]
@@ -303,30 +303,30 @@ function parse_primary(list tokens; numeric pos) returns list
     
     -- Number literal
     if token_type == T_NUMBER
-        list expr = [EXPR_LITERAL, token_value, 0, 0, 0]
-        return [expr, pos + 1]
+        list expr = [EXPR_LITERAL; token_value; 0; 0; 0]
+        return [expr; pos + 1]
     end_if
     
     -- String literal
     if token_type == T_STRING
-        list expr = [EXPR_LITERAL, token_value, 0, 0, 0]
-        return [expr, pos + 1]
+        list expr = [EXPR_LITERAL; token_value; 0; 0; 0]
+        return [expr; pos + 1]
     end_if
     
     -- Boolean literal
     if token_type == T_TRUE
-        list expr = [EXPR_LITERAL, "true", 0, 0, 0]
-        return [expr, pos + 1]
+        list expr = [EXPR_LITERAL; "true"; 0; 0; 0]
+        return [expr; pos + 1]
     end_if
     if token_type == T_FALSE
-        list expr = [EXPR_LITERAL, "false", 0, 0, 0]
-        return [expr, pos + 1]
+        list expr = [EXPR_LITERAL; "false"; 0; 0; 0]
+        return [expr; pos + 1]
     end_if
     
     -- Variable
     if token_type == T_IDENTIFIER
-        list expr = [EXPR_VARIABLE, token_value, 0, 0, 0]
-        return [expr, pos + 1]
+        list expr = [EXPR_VARIABLE; token_value; 0; 0; 0]
+        return [expr; pos + 1]
     end_if
     
     -- Parenthesized expression: ( expr )
@@ -337,15 +337,15 @@ function parse_primary(list tokens; numeric pos) returns list
         
         -- Expect closing parenthesis
         if new_pos >= tokens.length
-            return [0, new_pos]  -- Error: missing )
+            return [0; new_pos]  -- Error: missing )
         end_if
         
         list next_token = tokens[new_pos]
         if next_token[0] != T_RPAREN
-            return [0, new_pos]  -- Error: expected )
+            return [0; new_pos]  -- Error: expected )
         end_if
         
-        return [expr, new_pos + 1]
+        return [expr; new_pos + 1]
     end_if
     
     -- Unary operator (not, !)
@@ -354,8 +354,8 @@ function parse_primary(list tokens; numeric pos) returns list
         list operand = result[0]
         numeric new_pos = result[1]
         
-        list expr = [EXPR_UNARY, "not", operand, 0, OP_NOT]
-        return [expr, new_pos]
+        list expr = [EXPR_UNARY; "not"; operand; 0; OP_NOT]
+        return [expr; new_pos]
     end_if
     
     -- Unary minus
@@ -364,11 +364,11 @@ function parse_primary(list tokens; numeric pos) returns list
         list operand = result[0]
         numeric new_pos = result[1]
         
-        list expr = [EXPR_UNARY, "-", operand, 0, OP_SUB]
-        return [expr, new_pos]
+        list expr = [EXPR_UNARY; "-"; operand; 0; OP_SUB]
+        return [expr; new_pos]
     end_if
     
-    return [0, pos]  -- Unable to parse
+    return [0; pos]  -- Unable to parse
 end_function
 
 -- Parse expression with precedence climbing
@@ -380,15 +380,15 @@ function parse_expression(list tokens; numeric pos; numeric min_prec) returns li
     numeric current_pos = result[1]
     
     if left == 0
-        return [0, current_pos]  -- Error
+        return [0; current_pos]  -- Error
     end_if
     
     -- Climb precedence for binary operators
-    boolean continue_loop = true
+    numeric continue_loop = 1
     while continue_loop do
         -- Check if next token is an operator
         if current_pos >= tokens.length
-            continue_loop = false
+            continue_loop = 0
         end_if
         
         if continue_loop
@@ -398,13 +398,13 @@ function parse_expression(list tokens; numeric pos; numeric min_prec) returns li
             
             -- Not an operator or precedence too low
             if op == 0
-                continue_loop = false
+                continue_loop = 0
             end_if
             
             if continue_loop
                 numeric prec = get_precedence(op)
                 if prec < min_prec
-                    continue_loop = false
+                    continue_loop = 0
                 end_if
             end_if
             
@@ -418,18 +418,18 @@ function parse_expression(list tokens; numeric pos; numeric min_prec) returns li
                 current_pos = right_result[1]
                 
                 if right == 0
-                    return [0, current_pos]  -- Error
+                    return [0; current_pos]  -- Error
                 end_if
                 
                 -- Create binary expression node
                 string op_name = get_operator_name(op)
-                list binary_expr = [EXPR_BINARY, op_name, left, right, op]
+                list binary_expr = [EXPR_BINARY; op_name; left; right; op]
                 left = binary_expr
             end_if
         end_if
     end_while
     
-    return [left, current_pos]
+    return [left; current_pos]
 end_function
 
 -- ============================================================================
