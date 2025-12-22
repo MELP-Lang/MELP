@@ -7,7 +7,7 @@
 -- ============================================================================
 
 -- Check if character is a digit (0-9)
-function is_digit(c: numeric) returns numeric
+function is_digit(numeric c) returns numeric
     if c >= 48 and c <= 57 then  -- ASCII '0' to '9'
         return 1
     end_if
@@ -15,7 +15,7 @@ function is_digit(c: numeric) returns numeric
 end_function
 
 -- Check if character is a letter (a-z, A-Z)
-function is_alpha(c: numeric) returns numeric
+function is_alpha(numeric c) returns numeric
     if (c >= 65 and c <= 90) or (c >= 97 and c <= 122) then  -- ASCII 'A'-'Z' or 'a'-'z'
         return 1
     end_if
@@ -23,7 +23,7 @@ function is_alpha(c: numeric) returns numeric
 end_function
 
 -- Check if character is alphanumeric (letter or digit)
-function is_alnum(c: numeric) returns numeric
+function is_alnum(numeric c) returns numeric
     if is_alpha(c) == 1 or is_digit(c) == 1 then
         return 1
     end_if
@@ -31,7 +31,7 @@ function is_alnum(c: numeric) returns numeric
 end_function
 
 -- Check if character is whitespace (space, tab, newline, carriage return)
-function is_space(c: numeric) returns numeric
+function is_space(numeric c) returns numeric
     if c == 32 or c == 9 or c == 10 or c == 13 then  -- ASCII space, tab, newline, CR
         return 1
     end_if
@@ -39,7 +39,7 @@ function is_space(c: numeric) returns numeric
 end_function
 
 -- Check if character is uppercase letter
-function is_upper(c: numeric) returns numeric
+function is_upper(numeric c) returns numeric
     if c >= 65 and c <= 90 then  -- ASCII 'A'-'Z'
         return 1
     end_if
@@ -47,7 +47,7 @@ function is_upper(c: numeric) returns numeric
 end_function
 
 -- Check if character is lowercase letter
-function is_lower(c: numeric) returns numeric
+function is_lower(numeric c) returns numeric
     if c >= 97 and c <= 122 then  -- ASCII 'a'-'z'
         return 1
     end_if
@@ -55,7 +55,7 @@ function is_lower(c: numeric) returns numeric
 end_function
 
 -- Convert character to uppercase
-function to_upper(c: numeric) returns numeric
+function to_upper(numeric c) returns numeric
     if is_lower(c) == 1 then
         return c - 32  -- Convert lowercase to uppercase
     end_if
@@ -63,7 +63,7 @@ function to_upper(c: numeric) returns numeric
 end_function
 
 -- Convert character to lowercase
-function to_lower(c: numeric) returns numeric
+function to_lower(numeric c) returns numeric
     if is_upper(c) == 1 then
         return c + 32  -- Convert uppercase to lowercase
     end_if
@@ -71,7 +71,7 @@ function to_lower(c: numeric) returns numeric
 end_function
 
 -- Check if character is valid identifier start (letter or underscore)
-function is_identifier_start(c: numeric) returns numeric
+function is_identifier_start(numeric c) returns numeric
     if is_alpha(c) == 1 or c == 95 then  -- ASCII underscore '_'
         return 1
     end_if
@@ -79,7 +79,7 @@ function is_identifier_start(c: numeric) returns numeric
 end_function
 
 -- Check if character is valid identifier continuation (alphanumeric or underscore)
-function is_identifier_char(c: numeric) returns numeric
+function is_identifier_char(numeric c) returns numeric
     if is_alnum(c) == 1 or c == 95 then  -- ASCII underscore '_'
         return 1
     end_if
@@ -87,7 +87,7 @@ function is_identifier_char(c: numeric) returns numeric
 end_function
 
 -- Check if character is ASCII (< 128)
-function is_ascii(c: numeric) returns numeric
+function is_ascii(numeric c) returns numeric
     if c >= 0 and c < 128 then
         return 1
     end_if

@@ -23,7 +23,7 @@ const numeric TYPE_UNKNOWN = 12      -- Not yet inferred
 const numeric TYPE_ERROR = 13        -- Type error
 
 -- Type name to kind mapping
-function type_name_to_kind(type_name: string) returns numeric
+function type_name_to_kind(string type_name) returns numeric
     if type_name == "int" or type_name == "numeric" then
         return TYPE_INT
     end_if
@@ -52,7 +52,7 @@ function type_name_to_kind(type_name: string) returns numeric
 end_function
 
 -- Type kind to name mapping
-function type_kind_to_name(kind: numeric) returns string
+function type_kind_to_name(numeric kind) returns string
     if kind == TYPE_INT then
         return "numeric"
     end_if
@@ -113,7 +113,7 @@ function type_kind_to_name(kind: numeric) returns string
 end_function
 
 -- Check if two type kinds are compatible for assignment
-function types_compatible(lhs_kind: numeric, rhs_kind: numeric) returns numeric
+function types_compatible(numeric lhs_kind; numeric rhs_kind) returns numeric
     -- Exact match
     if lhs_kind == rhs_kind then
         return 1
@@ -134,7 +134,7 @@ function types_compatible(lhs_kind: numeric, rhs_kind: numeric) returns numeric
 end_function
 
 -- Check if type is a primitive (int, float, bool, char, string)
-function is_primitive_type(kind: numeric) returns numeric
+function is_primitive_type(numeric kind) returns numeric
     if kind == TYPE_INT or kind == TYPE_FLOAT or kind == TYPE_BOOL or 
        kind == TYPE_CHAR or kind == TYPE_STRING then
         return 1
@@ -143,7 +143,7 @@ function is_primitive_type(kind: numeric) returns numeric
 end_function
 
 -- Check if type is a composite type (array, struct, enum)
-function is_composite_type(kind: numeric) returns numeric
+function is_composite_type(numeric kind) returns numeric
     if kind == TYPE_ARRAY or kind == TYPE_STRUCT or kind == TYPE_ENUM then
         return 1
     end_if
@@ -151,7 +151,7 @@ function is_composite_type(kind: numeric) returns numeric
 end_function
 
 -- Check if type is a callable (function)
-function is_callable_type(kind: numeric) returns numeric
+function is_callable_type(numeric kind) returns numeric
     if kind == TYPE_FUNCTION then
         return 1
     end_if

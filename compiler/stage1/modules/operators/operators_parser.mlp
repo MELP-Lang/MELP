@@ -291,7 +291,7 @@ end_function
 -- Parse primary expression (literal, variable, parenthesized expression)
 -- Returns: [expr_node, new_position]
 -- expr_node: [node_type, value, left_child, right_child, operator]
-function parse_primary(list tokens, numeric pos) returns list
+function parse_primary(list tokens; numeric pos) returns list
     -- Safety check
     if pos >= tokens.length
         return [0, pos]  -- End of tokens
@@ -373,7 +373,7 @@ end_function
 
 -- Parse expression with precedence climbing
 -- Returns: [expr_node, new_position]
-function parse_expression(list tokens, numeric pos, numeric min_prec) returns list
+function parse_expression(list tokens; numeric pos; numeric min_prec) returns list
     -- Parse left operand (primary)
     list result = parse_primary(tokens, pos)
     list left = result[0]
@@ -438,8 +438,8 @@ end_function
 
 -- Parse operator expression (entry point)
 -- Returns: [expr_node, new_position]
-function parse_operator_expression(list tokens, numeric pos) returns list
-    return parse_expression(tokens, pos, PREC_LOWEST)
+function parse_operator_expression(list tokens; numeric pos) returns list
+    return parse_expression(tokens; pos; PREC_LOWEST)
 end_function
 
 -- Extract expression type

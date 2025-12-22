@@ -20,7 +20,7 @@ import "operators_parser.mlp"
 -- result_reg: Register name for result (e.g., "%1")
 -- indent: Indentation string for formatting
 -- Returns: LLVM IR code as string
-function codegen_arithmetic_binary(list expr, string result_reg, string indent) returns string
+function codegen_logical_unary(list expr; string result_reg; string indent) returns string
     numeric op = get_expr_operator(expr)
     list left = get_expr_left(expr)
     list right = get_expr_right(expr)
@@ -132,7 +132,7 @@ end_function
 -- ============================================================================
 
 -- Generate LLVM IR for logical binary operation (and, or)
-function codegen_logical_binary(list expr, string result_reg, string indent) returns string
+function codegen_logical_binary(list expr; string result_reg; string indent) returns string
     numeric op = get_expr_operator(expr)
     list left = get_expr_left(expr)
     list right = get_expr_right(expr)
@@ -162,7 +162,7 @@ function codegen_logical_binary(list expr, string result_reg, string indent) ret
 end_function
 
 -- Generate LLVM IR for logical unary operation (not)
-function codegen_logical_unary(list expr, string result_reg, string indent) returns string
+function codegen_logical_unary(list expr; string result_reg; string indent) returns string
     numeric op = get_expr_operator(expr)
     list operand = get_expr_left(expr)
     
@@ -184,7 +184,7 @@ end_function
 -- ============================================================================
 
 -- Generate LLVM IR for any expression
-function codegen_expression(list expr, string result_reg, string indent) returns string
+function codegen_expression(list expr; string result_reg; string indent) returns string
     if expr == 0
         return ""
     end_if
@@ -311,7 +311,7 @@ end_function
 -- ============================================================================
 
 -- Convert i1 (boolean) to i64 (numeric)
-function codegen_bool_to_i64(string bool_reg, string i64_reg, string indent) returns string
+function codegen_bool_to_i64(string bool_reg; string i64_reg; string indent) returns string
     string code = ""
     code = code + indent + "; Convert i1 to i64\n"
     code = code + indent + i64_reg + " = zext i1 " + bool_reg + " to i64\n"
@@ -319,7 +319,7 @@ function codegen_bool_to_i64(string bool_reg, string i64_reg, string indent) ret
 end_function
 
 -- Convert i64 to i1 (non-zero = true)
-function codegen_i64_to_bool(string i64_reg, string bool_reg, string indent) returns string
+function codegen_i64_to_bool(string i64_reg; string bool_reg; string indent) returns string
     string code = ""
     code = code + indent + "; Convert i64 to i1 (non-zero check)\n"
     code = code + indent + bool_reg + " = icmp ne i64 " + i64_reg + ", 0\n"
@@ -331,7 +331,7 @@ end_function
 -- ============================================================================
 
 -- Generate string comparison (calls runtime function)
-function codegen_string_compare(string left_reg, string right_reg, string result_reg, string op, string indent) returns string
+function codegen_string_compare(string left_reg; string right_reg; string result_reg; string op; string indent) returns string
     string code = ""
     code = code + indent + "; String comparison: " + op + "\n"
     code = code + indent + "%strcmp_result = call i32 @strcmp(i8* " + left_reg + ", i8* " + right_reg + ")\n"
