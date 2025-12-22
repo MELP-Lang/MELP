@@ -166,7 +166,7 @@ function parse_function_declaration(list tokens; numeric pos) returns list
         string param_name = ""
         numeric parsing_params = 1
         
-        while parsing_params == 1 do
+        while parsing_params == 1
             -- Parameter type
             current_token = tokens[current_pos]
             param_type = token_to_param_type(current_token[0])
@@ -234,7 +234,7 @@ function parse_function_declaration(list tokens; numeric pos) returns list
     
     -- Skip to 'end_function' for now
     numeric found_end = 0
-    while found_end == 0 do
+    while found_end == 0
         current_token = tokens[current_pos]
         token_type = current_token[0]
         
@@ -297,7 +297,7 @@ function parse_function_call(list tokens; numeric pos; string func_name) returns
         -- Parse argument list
         numeric parsing_args = 1
         
-        while parsing_args == 1 do
+        while parsing_args == 1
             -- For now, we'll just store the token as argument
             -- Proper expression parsing would be done by expression parser
             list arg = tokens[current_pos]

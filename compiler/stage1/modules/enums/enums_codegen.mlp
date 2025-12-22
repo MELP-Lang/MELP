@@ -58,7 +58,8 @@ function register_enum(list enum_node; list enum_registry) returns list
     -- Build values map
     list values_map = []
     numeric i = 0
-    while i < len(values_list) do
+    numeric values_list_len = len(values_list)
+    while i < values_list_len
         list value_node = values_list[i]
         string value_name = get_enum_value_name(value_node)
         numeric value_num = get_enum_value_numeric(value_node)
@@ -79,7 +80,8 @@ end_function
 -- Returns numeric value, or -1 if not found
 function lookup_enum_value(string enum_name; string value_name; list enum_registry) returns numeric
     numeric i = 0
-    while i < len(enum_registry) do
+    numeric registry_len = len(enum_registry)
+    while i < registry_len
         list entry = enum_registry[i]
         string entry_name = entry[0]
         
@@ -88,7 +90,8 @@ function lookup_enum_value(string enum_name; string value_name; list enum_regist
             
             -- Search in values map
             numeric j = 0
-            while j < len(values_map) do
+            numeric values_map_len = len(values_map)
+            while j < values_map_len
                 list value_entry = values_map[j]
                 string val_name = value_entry[0]
                 
@@ -108,13 +111,15 @@ end_function
 -- Searches all registered enums
 function lookup_enum_value_unqualified(string value_name; list enum_registry) returns numeric
     numeric i = 0
-    while i < len(enum_registry) do
+    numeric registry_len2 = len(enum_registry)
+    while i < registry_len2
         list entry = enum_registry[i]
         list values_map = entry[1]
         
         -- Search in values map
         numeric j = 0
-        while j < len(values_map) do
+        numeric values_map_len2 = len(values_map)
+        while j < values_map_len2
             list value_entry = values_map[j]
             string val_name = value_entry[0]
             
@@ -156,7 +161,7 @@ function codegen_enum_definition(list enum_node; string indent) returns string
     
     -- Generate value comments
     numeric i = 0
-    while i < value_count do
+    while i < value_count
         list value_node = values_list[i]
         string value_name = get_enum_value_name(value_node)
         numeric value_num = get_enum_value_numeric(value_node)

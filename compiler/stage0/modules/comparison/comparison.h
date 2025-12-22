@@ -30,6 +30,8 @@ typedef struct ComparisonExpr {
     char* right_value;
     int is_float;
     int is_string;  // YZ_07: 1=string comparison, 0=numeric
+    int left_is_func_call;   // Phase 2: 1 if left is function call
+    int right_is_func_call;  // Phase 2: 1 if right is function call
     
     // ✅ Phase 3.2: Logical chaining
     LogicalChainOp chain_op;           // AND/OR to connect to next comparison

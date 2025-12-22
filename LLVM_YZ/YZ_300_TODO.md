@@ -1,8 +1,8 @@
 # YZ_300 TODO: ST3 Self-Hosting Completion
 
-**Tarih:** 22 Aralık 2025  
-**Durum:** %90 HAZIR - Sadece küçük fix'ler kaldı  
-**Tahmini Süre:** 3-5 gün
+**Tarih:** 22 Aralık 2025 (Güncellendi)  
+**Durum:** %95 HAZIR - Stage 0 critical fix TAMAMLANDI  
+**Tahmini Süre:** 1-2 gün
 
 ---
 
@@ -14,10 +14,36 @@
 - [x] Core pipeline doğrulandı: Lexer + Parser + Codegen
 - [x] LLVM IR generation working
 - [x] Test sonuçları dokümante edildi
+- [x] **KRİTİK FIX: Stage 0 function call in comparisons (comparison_parser.c + comparison_codegen.c)**
+  - Artık `if x < func()` ve `while i < len(tokens)` çalışıyor!
+- [x] 52 `while...do` → `while` syntax fix (tüm modüller)
+- [x] token_types.mlp restored from git
+- [x] Ana modüller derleniyor: lexer.mlp(12), compiler.mlp(12), functions_parser.mlp(20), control_flow_codegen.mlp(60), operators_codegen.mlp(25), enums_codegen.mlp(20)
 
 ---
 
 ## 📋 PHASE 1: Critical Fixes (~1 gün)
+
+### ✅ Task 1.0: Stage 0 Function Call Fix - TAMAMLANDI!
+
+**Dosyalar:**
+- `compiler/stage0/modules/comparison/comparison_parser.c`
+- `compiler/stage0/modules/comparison/comparison_codegen.c`
+- `compiler/stage0/modules/comparison/comparison.h`
+
+**Değişiklikler:**
+1. `comparison.h`: `left_is_func_call` ve `right_is_func_call` alanları eklendi
+2. `comparison_parser.c`: `TOKEN_LPAREN` handling eklendi (both left and right side)
+3. `comparison_codegen.c`: `load_value()` function call codegen eklendi
+
+**Test Sonuçları:**
+```
+✅ while i < get_limit() → Exit code: 5
+✅ if x < get_limit() then → Exit code: 42
+✅ while i < len(tokens) → Compiles correctly
+```
+
+---
 
 ### ❌ Task 1.1: Fix ast_nodes.mlp (5-10 dakika)
 

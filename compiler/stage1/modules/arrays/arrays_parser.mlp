@@ -89,7 +89,7 @@ function parse_array_literal(list tokens; numeric pos) returns list
     
     -- Parse elements
     numeric parsing = 1
-    while parsing == 1 do
+    while parsing == 1
         -- Parse element (literal for now, TIER 1: expressions)
         list element_result = parse_array_element(tokens; current_pos)
         list element = element_result[0]

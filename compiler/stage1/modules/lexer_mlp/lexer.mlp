@@ -116,7 +116,7 @@ function skip_whitespace(string source; numeric pos; numeric line; numeric col) 
     string ch = ""
     numeric ch_is_whitespace = 0
     
-    while pos < source_len do
+    while pos < source_len
         ch = substring(source; pos; 1)
         ch_is_whitespace = is_whitespace(ch)
         
@@ -145,7 +145,7 @@ function skip_line_comment(string source; numeric pos; numeric line; numeric col
     numeric source_len = length(source)
     string ch = ""
     
-    while pos < source_len do
+    while pos < source_len
         ch = substring(source; pos; 1)
         if ch == "\n" then
             pos = pos + 1

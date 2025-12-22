@@ -1,6 +1,0 @@
-function test_end_if_underscore() returns boolean
-    if true then
-        return true
-    end_if
-    return false
-end_function

@@ -74,64 +74,64 @@ const numeric PREC_HIGHEST = 12
 -- Get operator type from token
 function token_to_operator(numeric token_type) returns numeric
     -- Arithmetic
-    if token_type == T_PLUS
+    if token_type == T_PLUS then
         return OP_ADD
     end_if
-    if token_type == T_MINUS
+    if token_type == T_MINUS then
         return OP_SUB
     end_if
-    if token_type == T_STAR
+    if token_type == T_STAR then
         return OP_MUL
     end_if
-    if token_type == T_SLASH
+    if token_type == T_SLASH then
         return OP_DIV
     end_if
-    if token_type == T_PERCENT
+    if token_type == T_PERCENT then
         return OP_MOD
     end_if
-    if token_type == T_POWER
+    if token_type == T_POWER then
         return OP_POW
     end_if
     
     -- Comparison
-    if token_type == T_EQ
+    if token_type == T_EQ then
         return OP_EQ
     end_if
-    if token_type == T_NE
+    if token_type == T_NE then
         return OP_NE
     end_if
-    if token_type == T_LT
+    if token_type == T_LT then
         return OP_LT
     end_if
-    if token_type == T_GT
+    if token_type == T_GT then
         return OP_GT
     end_if
-    if token_type == T_LE
+    if token_type == T_LE then
         return OP_LE
     end_if
-    if token_type == T_GE
+    if token_type == T_GE then
         return OP_GE
     end_if
     
     -- Logical
-    if token_type == T_AND
+    if token_type == T_AND then
         return OP_AND
     end_if
-    if token_type == T_OR
+    if token_type == T_OR then
         return OP_OR
     end_if
-    if token_type == T_NOT
+    if token_type == T_NOT then
         return OP_NOT
     end_if
     
     -- Bitwise
-    if token_type == T_AMPERSAND
+    if token_type == T_AMPERSAND then
         return OP_BIT_AND
     end_if
-    if token_type == T_PIPE
+    if token_type == T_PIPE then
         return OP_BIT_OR
     end_if
-    if token_type == T_CARET
+    if token_type == T_CARET then
         return OP_BIT_XOR
     end_if
     
@@ -141,64 +141,64 @@ end_function
 -- Get operator precedence
 function get_precedence(numeric op) returns numeric
     -- Logical
-    if op == OP_OR
+    if op == OP_OR then
         return PREC_OR
     end_if
-    if op == OP_AND
+    if op == OP_AND then
         return PREC_AND
     end_if
-    if op == OP_NOT
+    if op == OP_NOT then
         return PREC_UNARY
     end_if
     
     -- Comparison
-    if op == OP_EQ
+    if op == OP_EQ then
         return PREC_EQUALITY
     end_if
-    if op == OP_NE
+    if op == OP_NE then
         return PREC_EQUALITY
     end_if
-    if op == OP_LT
+    if op == OP_LT then
         return PREC_COMPARISON
     end_if
-    if op == OP_GT
+    if op == OP_GT then
         return PREC_COMPARISON
     end_if
-    if op == OP_LE
+    if op == OP_LE then
         return PREC_COMPARISON
     end_if
-    if op == OP_GE
+    if op == OP_GE then
         return PREC_COMPARISON
     end_if
     
     -- Bitwise
-    if op == OP_BIT_OR
+    if op == OP_BIT_OR then
         return PREC_BIT_OR
     end_if
-    if op == OP_BIT_XOR
+    if op == OP_BIT_XOR then
         return PREC_BIT_XOR
     end_if
-    if op == OP_BIT_AND
+    if op == OP_BIT_AND then
         return PREC_BIT_AND
     end_if
     
     -- Arithmetic
-    if op == OP_ADD
+    if op == OP_ADD then
         return PREC_TERM
     end_if
-    if op == OP_SUB
+    if op == OP_SUB then
         return PREC_TERM
     end_if
-    if op == OP_MUL
+    if op == OP_MUL then
         return PREC_FACTOR
     end_if
-    if op == OP_DIV
+    if op == OP_DIV then
         return PREC_FACTOR
     end_if
-    if op == OP_MOD
+    if op == OP_MOD then
         return PREC_FACTOR
     end_if
-    if op == OP_POW
+    if op == OP_POW then
         return PREC_POWER
     end_if
     
@@ -207,61 +207,61 @@ end_function
 
 -- Get operator name (for debugging/display)
 function get_operator_name(numeric op) returns string
-    if op == OP_ADD
+    if op == OP_ADD then
         return "+"
     end_if
-    if op == OP_SUB
+    if op == OP_SUB then
         return "-"
     end_if
-    if op == OP_MUL
+    if op == OP_MUL then
         return "*"
     end_if
-    if op == OP_DIV
+    if op == OP_DIV then
         return "/"
     end_if
-    if op == OP_MOD
+    if op == OP_MOD then
         return "%"
     end_if
-    if op == OP_POW
+    if op == OP_POW then
         return "**"
     end_if
     
-    if op == OP_EQ
+    if op == OP_EQ then
         return "=="
     end_if
-    if op == OP_NE
+    if op == OP_NE then
         return "!="
     end_if
-    if op == OP_LT
+    if op == OP_LT then
         return "<"
     end_if
-    if op == OP_GT
+    if op == OP_GT then
         return ">"
     end_if
-    if op == OP_LE
+    if op == OP_LE then
         return "<="
     end_if
-    if op == OP_GE
+    if op == OP_GE then
         return ">="
     end_if
     
-    if op == OP_AND
+    if op == OP_AND then
         return "and"
     end_if
-    if op == OP_OR
+    if op == OP_OR then
         return "or"
     end_if
-    if op == OP_NOT
+    if op == OP_NOT then
         return "not"
     end_if
     
-    if op == OP_BIT_AND
+    if op == OP_BIT_AND then
         return "&"
     end_if
-    if op == OP_BIT_OR
+    if op == OP_BIT_OR then
         return "|"
     end_if
-    if op == OP_BIT_XOR
+    if op == OP_BIT_XOR then
         return "^"
     end_if
     
@@ -293,7 +293,7 @@ end_function
 -- expr_node: [node_type, value, left_child, right_child, operator]
 function parse_primary(list tokens; numeric pos) returns list
     -- Safety check
-    if pos >= tokens.length
+    if pos >= len(tokens) then
         return [0; pos]  -- End of tokens
     end_if
     
@@ -302,46 +302,46 @@ function parse_primary(list tokens; numeric pos) returns list
     string token_value = token[1]
     
     -- Number literal
-    if token_type == T_NUMBER
+    if token_type == T_NUMBER then
         list expr = [EXPR_LITERAL; token_value; 0; 0; 0]
         return [expr; pos + 1]
     end_if
     
     -- String literal
-    if token_type == T_STRING
+    if token_type == T_STRING then
         list expr = [EXPR_LITERAL; token_value; 0; 0; 0]
         return [expr; pos + 1]
     end_if
     
     -- Boolean literal
-    if token_type == T_TRUE
+    if token_type == T_TRUE then
         list expr = [EXPR_LITERAL; "true"; 0; 0; 0]
         return [expr; pos + 1]
     end_if
-    if token_type == T_FALSE
+    if token_type == T_FALSE then
         list expr = [EXPR_LITERAL; "false"; 0; 0; 0]
         return [expr; pos + 1]
     end_if
     
     -- Variable
-    if token_type == T_IDENTIFIER
+    if token_type == T_IDENTIFIER then
         list expr = [EXPR_VARIABLE; token_value; 0; 0; 0]
         return [expr; pos + 1]
     end_if
     
     -- Parenthesized expression: ( expr )
-    if token_type == T_LPAREN
+    if token_type == T_LPAREN then
         list result = parse_expression(tokens; pos + 1; PREC_LOWEST)
         list expr = result[0]
         numeric new_pos = result[1]
         
         -- Expect closing parenthesis
-        if new_pos >= len(tokens)
+        if new_pos >= len(tokens) then
             return [0; new_pos]  -- Error: missing )
         end_if
         
         list next_token = tokens[new_pos]
-        if next_token[0] != T_RPAREN
+        if next_token[0] != T_RPAREN then
             return [0; new_pos]  -- Error: expected )
         end_if
         
@@ -349,7 +349,7 @@ function parse_primary(list tokens; numeric pos) returns list
     end_if
     
     -- Unary operator (not, !)
-    if token_type == T_NOT
+    if token_type == T_NOT then
         list result = parse_expression(tokens; pos + 1; PREC_UNARY)
         list operand = result[0]
         numeric new_pos = result[1]
@@ -359,7 +359,7 @@ function parse_primary(list tokens; numeric pos) returns list
     end_if
     
     -- Unary minus
-    if token_type == T_MINUS
+    if token_type == T_MINUS then
         list result = parse_expression(tokens; pos + 1; PREC_UNARY)
         list operand = result[0]
         numeric new_pos = result[1]
@@ -379,36 +379,36 @@ function parse_expression(list tokens; numeric pos; numeric min_prec) returns li
     list left = result[0]
     numeric current_pos = result[1]
     
-    if left == 0
+    if left == 0 then
         return [0; current_pos]  -- Error
     end_if
     
     -- Climb precedence for binary operators
     numeric continue_loop = 1
-    while continue_loop do
+    while continue_loop
         -- Check if next token is an operator
-        if current_pos >= len(tokens)
+        if current_pos >= len(tokens) then
             continue_loop = 0
         end_if
         
-        if continue_loop
+        if continue_loop then
             list token = tokens[current_pos]
             numeric token_type = token[0]
             numeric op = token_to_operator(token_type)
             
             -- Not an operator or precedence too low
-            if op == 0
+            if op == 0 then
                 continue_loop = 0
             end_if
             
-            if continue_loop
+            if continue_loop then
                 numeric prec = get_precedence(op)
-                if prec < min_prec
+                if prec < min_prec then
                     continue_loop = 0
                 end_if
             end_if
             
-            if continue_loop
+            if continue_loop then
                 -- Consume operator
                 current_pos = current_pos + 1
                 
@@ -417,7 +417,7 @@ function parse_expression(list tokens; numeric pos; numeric min_prec) returns li
                 list right = right_result[0]
                 current_pos = right_result[1]
                 
-                if right == 0
+                if right == 0 then
                     return [0; current_pos]  -- Error
                 end_if
                 
@@ -444,7 +444,7 @@ end_function
 
 -- Extract expression type
 function get_expr_type(list expr) returns numeric
-    if expr == 0
+    if expr == 0 then
         return 0
     end_if
     return expr[0]
@@ -452,7 +452,7 @@ end_function
 
 -- Extract expression value
 function get_expr_value(list expr) returns string
-    if expr == 0
+    if expr == 0 then
         return ""
     end_if
     return expr[1]
@@ -460,7 +460,7 @@ end_function
 
 -- Extract left child
 function get_expr_left(list expr) returns list
-    if expr == 0
+    if expr == 0 then
         return 0
     end_if
     return expr[2]
@@ -468,7 +468,7 @@ end_function
 
 -- Extract right child
 function get_expr_right(list expr) returns list
-    if expr == 0
+    if expr == 0 then
         return 0
     end_if
     return expr[3]
@@ -476,7 +476,7 @@ end_function
 
 -- Extract operator
 function get_expr_operator(list expr) returns numeric
-    if expr == 0
+    if expr == 0 then
         return 0
     end_if
     return expr[4]

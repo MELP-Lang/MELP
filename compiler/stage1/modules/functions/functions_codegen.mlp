@@ -127,7 +127,7 @@ function codegen_function_prologue(string func_name; list params; numeric return
     
     -- Build parameter list
     i = 0
-    while i < param_count do
+    while i < param_count
         list param = params[i]
         numeric param_type = param[0]
         string param_name = param[1]
@@ -149,7 +149,7 @@ function codegen_function_prologue(string func_name; list params; numeric return
     
     -- 4. Allocate stack space for parameters (LLVM convention)
     i = 0
-    while i < param_count do
+    while i < param_count
         list param = params[i]
         numeric param_type = param[0]
         string param_name = param[1]
@@ -262,7 +262,7 @@ function codegen_function_call(list func_call; numeric register_num) returns lis
     ir = ir + "  " + result_reg + " = call i64 @" + func_name + "("
     
     i = 0
-    while i < arg_count do
+    while i < arg_count
         list arg = args[i]
         
         if i > 0 then

@@ -15,7 +15,75 @@ static int string_literal_counter = 0;
 
 // Load value into register
 // YZ_11: Enhanced to handle string literals properly (added is_string parameter)
-static void load_value(FILE* output, const char* value, int is_literal, int reg_num, int is_float, int is_string, void* context) {
+// Phase 2: Added is_func_call parameter for function call support in comparisons
+static void load_value(FILE* output, const char* value, int is_literal, int reg_num, int is_float, int is_string, int is_func_call, void* context) {
+    // Phase 2: Handle function call in comparison
+    if (is_func_call) {
+        // Parse function call: "func_name(arg1;arg2)"
+        // Generate call and put result in target register
+        char func_name[256];
+        char* lparen = strchr(value, '(');
+        if (lparen) {
+            size_t name_len = lparen - value;
+            strncpy(func_name, value, name_len);
+            func_name[name_len] = '\0';
+            
+            // Extract arguments between ( and )
+            const char* args_start = lparen + 1;
+            const char* rparen = strrchr(value, ')');
+            
+            // Save current registers if needed
+            fprintf(output, "    # Phase 2: Function call in comparison: %s\n", value);
+            fprintf(output, "    pushq %%r8\n");  // Save r8
+            fprintf(output, "    pushq %%r9\n");  // Save r9
+            
+            // Count and parse arguments
+            int arg_count = 0;
+            if (rparen > args_start) {
+                // Has arguments
+                char args_buf[512];
+                size_t args_len = rparen - args_start;
+                strncpy(args_buf, args_start, args_len);
+                args_buf[args_len] = '\0';
+                
+                // Parse arguments separated by semicolon
+                char* arg = strtok(args_buf, ";");
+                while (arg) {
+                    // Skip whitespace
+                    while (*arg == ' ') arg++;
+                    
+                    // Load argument into appropriate register (rdi, rsi, rdx, rcx, r8, r9)
+                    const char* arg_regs[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
+                    if (arg_count < 6) {
+                        // Check if argument is variable or literal
+                        if (context && !isdigit(arg[0]) && arg[0] != '-' && arg[0] != '"') {
+                            // Variable
+                            FunctionDeclaration* func = (FunctionDeclaration*)context;
+                            int offset = function_get_var_offset(func, arg);
+                            fprintf(output, "    movq %d(%%rbp), %%%s  # Arg %d: %s\n", offset, arg_regs[arg_count], arg_count, arg);
+                        } else {
+                            // Literal
+                            fprintf(output, "    movq $%s, %%%s  # Arg %d (literal)\n", arg, arg_regs[arg_count], arg_count);
+                        }
+                    }
+                    arg_count++;
+                    arg = strtok(NULL, ";");
+                }
+            }
+            
+            // Call the function
+            fprintf(output, "    call %s\n", func_name);
+            
+            // Restore saved registers
+            fprintf(output, "    popq %%r9\n");
+            fprintf(output, "    popq %%r8\n");
+            
+            // Move result (in rax) to target register
+            fprintf(output, "    movq %%rax, %%r%d  # Function result to r%d\n", reg_num + 8, reg_num + 8);
+        }
+        return;
+    }
+    
     if (is_float) {
         if (is_literal) {
             fprintf(output, "    .section .data\n");
@@ -194,10 +262,10 @@ void comparison_generate_code(FILE* output, ComparisonExpr* expr, void* context)
     fprintf(output, "\n    ; Comparison expression\n");
     
     // Load left operand into r8 (or xmm0)
-    load_value(output, expr->left_value, expr->left_is_literal, 0, expr->is_float, expr->is_string, context);
+    load_value(output, expr->left_value, expr->left_is_literal, 0, expr->is_float, expr->is_string, expr->left_is_func_call, context);
     
     // Load right operand into r9 (or xmm1)
-    load_value(output, expr->right_value, expr->right_is_literal, 1, expr->is_float, expr->is_string, context);
+    load_value(output, expr->right_value, expr->right_is_literal, 1, expr->is_float, expr->is_string, expr->right_is_func_call, context);
     
     // YZ_07: Handle string comparison
     if (expr->is_string) {
@@ -276,8 +344,8 @@ void comparison_generate_conditional_jump(FILE* output, ComparisonExpr* expr, co
     fprintf(output, "\n    ; Conditional jump\n");
     
     // Load operands
-    load_value(output, expr->left_value, expr->left_is_literal, 0, expr->is_float, expr->is_string, context);
-    load_value(output, expr->right_value, expr->right_is_literal, 1, expr->is_float, expr->is_string, context);
+    load_value(output, expr->left_value, expr->left_is_literal, 0, expr->is_float, expr->is_string, expr->left_is_func_call, context);
+    load_value(output, expr->right_value, expr->right_is_literal, 1, expr->is_float, expr->is_string, expr->right_is_func_call, context);
     
     // YZ_07: Handle string comparison
     if (expr->is_string) {
@@ -350,8 +418,8 @@ void comparison_generate_code_with_chain(FILE* output, ComparisonExpr* expr, voi
     fprintf(output, "\n    # Comparison with logical chaining\n");
     
     // Load and compare first expression
-    load_value(output, expr->left_value, expr->left_is_literal, 0, expr->is_float, expr->is_string, context);
-    load_value(output, expr->right_value, expr->right_is_literal, 1, expr->is_float, expr->is_string, context);
+    load_value(output, expr->left_value, expr->left_is_literal, 0, expr->is_float, expr->is_string, expr->left_is_func_call, context);
+    load_value(output, expr->right_value, expr->right_is_literal, 1, expr->is_float, expr->is_string, expr->right_is_func_call, context);
     
     // YZ_11: Handle string comparison (same as comparison_generate_code)
     if (expr->is_string) {

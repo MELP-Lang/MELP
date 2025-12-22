@@ -107,7 +107,7 @@ function parse_if_statement(list tokens; numeric pos) returns list
     list then_body = []
     numeric parsing_then = 1
     
-    while parsing_then == 1 do
+    while parsing_then == 1
         current_token = tokens[current_pos]
         token_type = current_token[0]
         
@@ -141,7 +141,7 @@ function parse_if_statement(list tokens; numeric pos) returns list
         -- Parse else body (statements until 'end_if')
         numeric parsing_else = 1
         
-        while parsing_else == 1 do
+        while parsing_else == 1
             current_token = tokens[current_pos]
             token_type = current_token[0]
             
@@ -215,7 +215,7 @@ function parse_while_statement(list tokens; numeric pos) returns list
     list body = []
     numeric parsing_body = 1
     
-    while parsing_body == 1 do
+    while parsing_body == 1
         current_token = tokens[current_pos]
         token_type = current_token[0]
         
@@ -327,7 +327,7 @@ function parse_for_statement(list tokens; numeric pos) returns list
     list body = []
     numeric parsing_body = 1
     
-    while parsing_body == 1 do
+    while parsing_body == 1
         current_token = tokens[current_pos]
         token_type = current_token[0]
         

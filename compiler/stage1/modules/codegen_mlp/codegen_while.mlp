@@ -33,7 +33,7 @@
 -- Generate IR for simple while loop
 -- Example:
 --   numeric i = 0
---   while i < 5 do
+--   while i < 5
 --       i = i + 1
 --   end_while
 --
@@ -83,7 +83,7 @@ end_function
 --
 -- Example:
 --   numeric count = 0
---   while count < 10 do
+--   while count < 10
 --       count = count + 1
 --   end_while
 function codegen_while_counter(var_name; limit; loop_id) returns numeric
@@ -124,9 +124,9 @@ end_function
 -- Generate IR for nested while loops
 -- Example:
 --   numeric i = 0
---   while i < 3 do
+--   while i < 3
 --       numeric j = 0
---       while j < 2 do
+--       while j < 2
 --           j = j + 1
 --       end_while
 --       i = i + 1

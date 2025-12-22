@@ -76,7 +76,7 @@ function scan_number(string source; numeric pos; numeric line; numeric col) retu
     boolean next_is_digit = 0
     numeric next_pos = 0
     
-    while pos < source_len do
+    while pos < source_len
         ch = substring(source, pos, 1)
         ch_is_digit = is_digit(ch)
         
@@ -137,7 +137,7 @@ function scan_string(string source; numeric pos; numeric line; numeric col) retu
     col = col + 1
     numeric quote_ascii = 34
     
-    while pos < source_len do
+    while pos < source_len
         ch = substring(source, pos, 1)
         numeric ch_code = char_code(ch)
         

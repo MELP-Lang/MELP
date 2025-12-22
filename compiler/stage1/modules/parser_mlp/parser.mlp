@@ -354,7 +354,7 @@ function state_parse_expression_prec(list parser_state; numeric min_prec) return
     list current_state = left_result[1]
     
     numeric should_continue = 1
-    while should_continue == 1 do
+    while should_continue == 1
         list tok = state_current_token(current_state)
         numeric len = length(tok)
         
@@ -537,7 +537,7 @@ function state_parse_if_statement(list parser_state) returns list
     -- Parse then block
     list current_state = state3
     numeric should_continue = 1
-    while should_continue == 1 do
+    while should_continue == 1
         list tok = state_current_token(current_state)
         numeric len = length(tok)
         
@@ -564,7 +564,7 @@ function state_parse_if_statement(list parser_state) returns list
         res_str = res_str + "else\n"
         
         should_continue = 1
-        while should_continue == 1 do
+        while should_continue == 1
             list tok = state_current_token(current_state)
             numeric len = length(tok)
             
@@ -613,7 +613,7 @@ function state_parse_while_loop(list parser_state) returns list
     -- Parse loop body
     list current_state = state3
     numeric should_continue = 1
-    while should_continue == 1 do
+    while should_continue == 1
         list tok = state_current_token(current_state)
         numeric len = length(tok)
         
@@ -746,7 +746,7 @@ function state_parse_function(list parser_state) returns list
     list current_state = state3
     
     numeric should_continue = 1
-    while should_continue == 1 do
+    while should_continue == 1
         list tok = state_current_token(current_state)
         numeric len = length(tok)
         
@@ -807,7 +807,7 @@ function state_parse_function(list parser_state) returns list
     
     -- Parse function body
     numeric should_continue = 1
-    while should_continue == 1 do
+    while should_continue == 1
         list tok = state_current_token(current_state)
         numeric len = length(tok)
         
@@ -861,7 +861,7 @@ function state_parse_struct(list parser_state) returns list
     -- Parse fields
     list current_state = state2
     numeric should_continue = 1
-    while should_continue == 1 do
+    while should_continue == 1
         list tok = state_current_token(current_state)
         numeric len = length(tok)
         
@@ -924,7 +924,7 @@ function state_parse_enum(list parser_state) returns list
     -- Parse enum values
     list current_state = state2
     numeric should_continue = 1
-    while should_continue == 1 do
+    while should_continue == 1
         list tok = state_current_token(current_state)
         numeric len = length(tok)
         
@@ -974,7 +974,7 @@ function state_parse_program(list parser_state) returns list
     list current_state = parser_state
     
     numeric should_continue = 1
-    while should_continue == 1 do
+    while should_continue == 1
         list tok = state_current_token(current_state)
         numeric len = length(tok)
         

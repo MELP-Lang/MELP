@@ -72,7 +72,7 @@ function codegen_struct_definition(list struct_node, string indent, list context
     numeric type_idx = 0
     
     numeric i = 0
-    while i < member_count do
+    while i < member_count
         member = members[i]
         member_type = get_member_type(member)
         
@@ -92,7 +92,7 @@ function codegen_struct_definition(list struct_node, string indent, list context
     
     -- Add member types
     i = 0
-    while i < type_idx do
+    while i < type_idx
         if i > 0 then
             code = code + ", "
         end_if
@@ -176,7 +176,7 @@ function codegen_struct_instantiation(list instance_node, string indent, list co
     -- For now, assume member order matches initializer order
     
     numeric init_idx = 0
-    while init_idx < len(initializers) do
+    while init_idx < len(initializers)
         initializer = initializers[init_idx]
         member_name = initializer[0]
         member_value = initializer[1]
@@ -408,7 +408,7 @@ function get_struct_llvm_type(string struct_name, list member_types, numeric mem
     type_str = type_str + " = type { "
     
     numeric i = 0
-    while i < member_count do
+    while i < member_count
         if i > 0 then
             type_str = type_str + ", "
         end_if
@@ -470,7 +470,7 @@ function get_member_index(list struct_node, string member_name) returns numeric
     member_count = get_struct_member_count(struct_node)
     
     numeric i = 0
-    while i < member_count do
+    while i < member_count
         member = members[i]
         name = get_member_name(member)
         

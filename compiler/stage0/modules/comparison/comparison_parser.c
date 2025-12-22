@@ -214,6 +214,43 @@ ComparisonExpr* comparison_parse_expression_stateless(Lexer* lexer, Token* first
             token_free(lookahead);
             token_free(index_tok);
             token_free(rbracket);
+        } else if (lookahead && lookahead->type == TOKEN_LPAREN) {
+            // YZ_UA: Function call detected in comparison: identifier(args)
+            // Parse function arguments and build call string
+            char func_call[1024];
+            snprintf(func_call, sizeof(func_call), "%s(", first_token->value);
+            
+            // Parse arguments until we hit RPAREN
+            int first_arg = 1;
+            Token* arg_tok = lexer_next_token(lexer);
+            while (arg_tok && arg_tok->type != TOKEN_RPAREN) {
+                if (!first_arg) {
+                    // Skip semicolon separator (PMPL uses ; not ,)
+                    if (arg_tok->type == TOKEN_SEMICOLON) {
+                        token_free(arg_tok);
+                        arg_tok = lexer_next_token(lexer);
+                        if (!arg_tok) break;
+                    }
+                    strncat(func_call, ";", sizeof(func_call) - strlen(func_call) - 1);
+                }
+                first_arg = 0;
+                
+                // Add argument value
+                if (arg_tok->value) {
+                    strncat(func_call, arg_tok->value, sizeof(func_call) - strlen(func_call) - 1);
+                }
+                token_free(arg_tok);
+                arg_tok = lexer_next_token(lexer);
+            }
+            
+            strncat(func_call, ")", sizeof(func_call) - strlen(func_call) - 1);
+            
+            if (arg_tok) token_free(arg_tok);  // Free RPAREN
+            token_free(lookahead);
+            
+            expr->left_value = strdup(func_call);
+            expr->left_is_literal = 0;  // Function call is not a literal
+            expr->left_is_func_call = 1;  // Mark as function call for codegen
         } else {
             // Simple identifier, no member/array access
             if (lookahead) {
@@ -368,6 +405,44 @@ ComparisonExpr* comparison_parse_expression_stateless(Lexer* lexer, Token* first
             token_free(lookahead);
             token_free(index_tok);
             token_free(rbracket);
+            token_free(right_tok);
+            right_tok = NULL;
+        } else if (lookahead && lookahead->type == TOKEN_LPAREN) {
+            // Phase 2: Function call detected: identifier(args)
+            // Build: "func_name(arg1;arg2)"
+            char func_call[1024];
+            snprintf(func_call, sizeof(func_call), "%s(", right_tok->value);
+            token_free(lookahead);  // Free LPAREN
+            
+            // Parse arguments until RPAREN
+            int first_arg = 1;
+            Token* arg_tok = lexer_next_token(lexer);
+            while (arg_tok && arg_tok->type != TOKEN_RPAREN) {
+                if (!first_arg) {
+                    if (arg_tok->type == TOKEN_SEMICOLON) {
+                        token_free(arg_tok);
+                        arg_tok = lexer_next_token(lexer);
+                        if (!arg_tok) break;
+                    }
+                    strncat(func_call, ";", sizeof(func_call) - strlen(func_call) - 1);
+                }
+                first_arg = 0;
+                
+                if (arg_tok->value) {
+                    strncat(func_call, arg_tok->value, sizeof(func_call) - strlen(func_call) - 1);
+                }
+                token_free(arg_tok);
+                arg_tok = lexer_next_token(lexer);
+            }
+            
+            strncat(func_call, ")", sizeof(func_call) - strlen(func_call) - 1);
+            
+            if (arg_tok) token_free(arg_tok);  // Free RPAREN
+            
+            expr->right_value = strdup(func_call);
+            expr->right_is_literal = 0;
+            expr->right_is_func_call = 1;
+            
             token_free(right_tok);
             right_tok = NULL;
         } else {
