@@ -75,7 +75,7 @@ function parse_if_statement(list tokens; numeric pos) returns list
     list current_token = tokens[pos]
     numeric token_type = current_token[0]
     
-    if token_type != T_IF
+    if token_type != T_IF then
         return [[]; pos]  -- Not an if statement
     end_if
     
@@ -87,7 +87,7 @@ function parse_if_statement(list tokens; numeric pos) returns list
     list condition = condition_result[0]
     current_pos = condition_result[1]
     
-    if condition == []
+    if condition == [] then
         print "Error: Expected condition after 'if'"
         return [[]; pos]
     end_if
@@ -96,7 +96,7 @@ function parse_if_statement(list tokens; numeric pos) returns list
     current_token = tokens[current_pos]
     token_type = current_token[0]
     
-    if token_type != T_THEN
+    if token_type != T_THEN then
         print "Error: Expected 'then' after if condition"
         return [[]; pos]
     end_if
@@ -112,15 +112,15 @@ function parse_if_statement(list tokens; numeric pos) returns list
         token_type = current_token[0]
         
         -- Check for end_if or else
-        if token_type == T_END_IF
+        if token_type == T_END_IF then
             parsing_then = 0
         end_if
         
-        if token_type == T_ELSE
+        if token_type == T_ELSE then
             parsing_then = 0
         end_if
         
-        if parsing_then == 1
+        if parsing_then == 1 then
             -- Parse statement (simplified - would call statement parser)
             -- For now, just skip token
             current_pos = current_pos + 1
@@ -134,7 +134,7 @@ function parse_if_statement(list tokens; numeric pos) returns list
     current_token = tokens[current_pos]
     token_type = current_token[0]
     
-    if token_type == T_ELSE
+    if token_type == T_ELSE then
         has_else = 1
         current_pos = current_pos + 1  -- Move past 'else'
         
@@ -145,11 +145,11 @@ function parse_if_statement(list tokens; numeric pos) returns list
             current_token = tokens[current_pos]
             token_type = current_token[0]
             
-            if token_type == T_END_IF
+            if token_type == T_END_IF then
                 parsing_else = 0
             end_if
             
-            if parsing_else == 1
+            if parsing_else == 1 then
                 -- Parse statement (simplified)
                 current_pos = current_pos + 1
             end_if
@@ -160,7 +160,7 @@ function parse_if_statement(list tokens; numeric pos) returns list
     current_token = tokens[current_pos]
     token_type = current_token[0]
     
-    if token_type != T_END_IF
+    if token_type != T_END_IF then
         print "Error: Expected 'end_if' to close if statement"
         return [[]; pos]
     end_if
@@ -169,7 +169,7 @@ function parse_if_statement(list tokens; numeric pos) returns list
     
     -- Build if statement structure
     numeric ctrl_type = CTRL_IF
-    if has_else == 1
+    if has_else == 1 then
         ctrl_type = CTRL_IF_ELSE
     end_if
     
@@ -186,7 +186,7 @@ function parse_while_statement(list tokens; numeric pos) returns list
     list current_token = tokens[pos]
     numeric token_type = current_token[0]
     
-    if token_type != T_WHILE
+    if token_type != T_WHILE then
         return [[]; pos]  -- Not a while statement
     end_if
     
@@ -198,7 +198,7 @@ function parse_while_statement(list tokens; numeric pos) returns list
     list condition = condition_result[0]
     current_pos = condition_result[1]
     
-    if condition == []
+    if condition == [] then
         print "Error: Expected condition after 'while'"
         return [[]; pos]
     end_if
@@ -207,7 +207,7 @@ function parse_while_statement(list tokens; numeric pos) returns list
     current_token = tokens[current_pos]
     token_type = current_token[0]
     
-    if token_type == T_DO
+    if token_type == T_DO then
         current_pos = current_pos + 1  -- Move past 'do'
     end_if
     
@@ -219,11 +219,11 @@ function parse_while_statement(list tokens; numeric pos) returns list
         current_token = tokens[current_pos]
         token_type = current_token[0]
         
-        if token_type == T_END_WHILE
+        if token_type == T_END_WHILE then
             parsing_body = 0
         end_if
         
-        if parsing_body == 1
+        if parsing_body == 1 then
             -- Parse statement (simplified)
             current_pos = current_pos + 1
         end_if
@@ -233,7 +233,7 @@ function parse_while_statement(list tokens; numeric pos) returns list
     current_token = tokens[current_pos]
     token_type = current_token[0]
     
-    if token_type != T_END_WHILE
+    if token_type != T_END_WHILE then
         print "Error: Expected 'end_while' to close while statement"
         return [0; pos]
     end_if
@@ -254,7 +254,7 @@ function parse_for_statement(list tokens; numeric pos) returns list
     list current_token = tokens[pos]
     numeric token_type = current_token[0]
     
-    if token_type != T_FOR
+    if token_type != T_FOR then
         return [[]; pos]  -- Not a for statement
     end_if
     
@@ -265,7 +265,7 @@ function parse_for_statement(list tokens; numeric pos) returns list
     current_token = tokens[current_pos]
     token_type = current_token[0]
     
-    if token_type != T_IDENTIFIER
+    if token_type != T_IDENTIFIER then
         print "Error: Expected iterator variable after 'for'"
         return [[]; pos]
     end_if
@@ -277,7 +277,7 @@ function parse_for_statement(list tokens; numeric pos) returns list
     current_token = tokens[current_pos]
     token_type = current_token[0]
     
-    if token_type != T_IN
+    if token_type != T_IN then
         print "Error: Expected 'in' after iterator variable"
         return [[]; pos]
     end_if
@@ -289,7 +289,7 @@ function parse_for_statement(list tokens; numeric pos) returns list
     list start_expr = start_result[0]
     current_pos = start_result[1]
     
-    if start_expr == []
+    if start_expr == [] then
         print "Error: Expected start expression in for loop"
         return [[]; pos]
     end_if
@@ -298,7 +298,7 @@ function parse_for_statement(list tokens; numeric pos) returns list
     current_token = tokens[current_pos]
     token_type = current_token[0]
     
-    if token_type != T_RANGE
+    if token_type != T_RANGE then
         print "Error: Expected '..' for range in for loop"
         return [[]; pos]
     end_if
@@ -310,7 +310,7 @@ function parse_for_statement(list tokens; numeric pos) returns list
     list end_expr = end_result[0]
     current_pos = end_result[1]
     
-    if end_expr == []
+    if end_expr == [] then
         print "Error: Expected end expression in for loop"
         return [[]; pos]
     end_if
@@ -319,7 +319,7 @@ function parse_for_statement(list tokens; numeric pos) returns list
     current_token = tokens[current_pos]
     token_type = current_token[0]
     
-    if token_type == T_DO
+    if token_type == T_DO then
         current_pos = current_pos + 1  -- Move past 'do'
     end_if
     
@@ -331,11 +331,11 @@ function parse_for_statement(list tokens; numeric pos) returns list
         current_token = tokens[current_pos]
         token_type = current_token[0]
         
-        if token_type == T_END_FOR
+        if token_type == T_END_FOR then
             parsing_body = 0
         end_if
         
-        if parsing_body == 1
+        if parsing_body == 1 then
             -- Parse statement (simplified)
             current_pos = current_pos + 1
         end_if
@@ -345,7 +345,7 @@ function parse_for_statement(list tokens; numeric pos) returns list
     current_token = tokens[current_pos]
     token_type = current_token[0]
     
-    if token_type != T_END_FOR
+    if token_type != T_END_FOR then
         print "Error: Expected 'end_for' to close for statement"
         return [0; pos]
     end_if
@@ -367,15 +367,15 @@ function parse_control_flow_statement(list tokens; numeric pos) returns list
     numeric token_type = current_token[0]
     
     -- Dispatch to appropriate parser
-    if token_type == T_IF
+    if token_type == T_IF then
         return parse_if_statement(tokens; pos)
     end_if
     
-    if token_type == T_WHILE
+    if token_type == T_WHILE then
         return parse_while_statement(tokens; pos)
     end_if
     
-    if token_type == T_FOR
+    if token_type == T_FOR then
         return parse_for_statement(tokens; pos)
     end_if
     
@@ -389,22 +389,22 @@ end_function
 
 -- Get control flow type name (for debugging/error messages)
 function get_control_flow_type_name(numeric ctrl_type) returns string
-    if ctrl_type == CTRL_IF
+    if ctrl_type == CTRL_IF then
         return "if"
     end_if
-    if ctrl_type == CTRL_IF_ELSE
+    if ctrl_type == CTRL_IF_ELSE then
         return "if-else"
     end_if
-    if ctrl_type == CTRL_WHILE
+    if ctrl_type == CTRL_WHILE then
         return "while"
     end_if
-    if ctrl_type == CTRL_FOR
+    if ctrl_type == CTRL_FOR then
         return "for"
     end_if
-    if ctrl_type == CTRL_IF_EXPR
+    if ctrl_type == CTRL_IF_EXPR then
         return "if-expression"
     end_if
-    if ctrl_type == CTRL_LOOP_LABELED
+    if ctrl_type == CTRL_LOOP_LABELED then
         return "labeled-loop"
     end_if
     
@@ -413,13 +413,13 @@ end_function
 
 -- Check if token is a control flow keyword
 function is_control_flow_keyword(numeric token_type) returns numeric
-    if token_type == T_IF
+    if token_type == T_IF then
         return 1
     end_if
-    if token_type == T_WHILE
+    if token_type == T_WHILE then
         return 1
     end_if
-    if token_type == T_FOR
+    if token_type == T_FOR then
         return 1
     end_if
     
@@ -428,15 +428,15 @@ end_function
 
 -- Check if statement is a control flow statement
 function is_control_flow_statement(list stmt) returns numeric
-    if stmt == []
+    if stmt == [] then
         return 0
     end_if
     
     -- If statement: [ctrl_type, ...]
-    if stmt[0] == CTRL_IF
+    if stmt[0] == CTRL_IF then
         return 1
     end_if
-    if stmt[0] == CTRL_IF_ELSE
+    if stmt[0] == CTRL_IF_ELSE then
         return 1
     end_if
     

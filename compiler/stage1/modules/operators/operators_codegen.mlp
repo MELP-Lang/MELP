@@ -38,40 +38,40 @@ function codegen_logical_unary(list expr; string result_reg; string indent) retu
     -- Generate operation instruction
     string comment = "; " + get_operator_name(op) + " operation"
     
-    if op == OP_ADD
+    if op == OP_ADD then
         code = code + indent + result_reg + " = add i64 " + left_reg + ", " + right_reg + "  " + comment + "\n"
     end_if
     
-    if op == OP_SUB
+    if op == OP_SUB then
         code = code + indent + result_reg + " = sub i64 " + left_reg + ", " + right_reg + "  " + comment + "\n"
     end_if
     
-    if op == OP_MUL
+    if op == OP_MUL then
         code = code + indent + result_reg + " = mul i64 " + left_reg + ", " + right_reg + "  " + comment + "\n"
     end_if
     
-    if op == OP_DIV
+    if op == OP_DIV then
         code = code + indent + result_reg + " = sdiv i64 " + left_reg + ", " + right_reg + "  " + comment + "\n"
     end_if
     
-    if op == OP_MOD
+    if op == OP_MOD then
         code = code + indent + result_reg + " = srem i64 " + left_reg + ", " + right_reg + "  " + comment + "\n"
     end_if
     
-    if op == OP_POW
+    if op == OP_POW then
         -- Power operation: call @llvm.powi intrinsic
         code = code + indent + result_reg + " = call i64 @llvm.powi.i64(i64 " + left_reg + ", i32 " + right_reg + ")  " + comment + "\n"
     end_if
     
-    if op == OP_BIT_AND
+    if op == OP_BIT_AND then
         code = code + indent + result_reg + " = and i64 " + left_reg + ", " + right_reg + "  " + comment + "\n"
     end_if
     
-    if op == OP_BIT_OR
+    if op == OP_BIT_OR then
         code = code + indent + result_reg + " = or i64 " + left_reg + ", " + right_reg + "  " + comment + "\n"
     end_if
     
-    if op == OP_BIT_XOR
+    if op == OP_BIT_XOR then
         code = code + indent + result_reg + " = xor i64 " + left_reg + ", " + right_reg + "  " + comment + "\n"
     end_if
     
@@ -103,22 +103,22 @@ function codegen_comparison_binary(list expr; string result_reg; string indent) 
     string comment = "; " + get_operator_name(op) + " comparison"
     string condition = ""
     
-    if op == OP_EQ
+    if op == OP_EQ then
         condition = "eq"
     end_if
-    if op == OP_NE
+    if op == OP_NE then
         condition = "ne"
     end_if
-    if op == OP_LT
+    if op == OP_LT then
         condition = "slt"  -- signed less than
     end_if
-    if op == OP_GT
+    if op == OP_GT then
         condition = "sgt"  -- signed greater than
     end_if
-    if op == OP_LE
+    if op == OP_LE then
         condition = "sle"  -- signed less or equal
     end_if
-    if op == OP_GE
+    if op == OP_GE then
         condition = "sge"  -- signed greater or equal
     end_if
     
@@ -150,11 +150,11 @@ function codegen_logical_binary(list expr; string result_reg; string indent) ret
     -- Generate logical instruction
     string comment = "; " + get_operator_name(op) + " operation"
     
-    if op == OP_AND
+    if op == OP_AND then
         code = code + indent + result_reg + " = and i1 " + left_reg + ", " + right_reg + "  " + comment + "\n"
     end_if
     
-    if op == OP_OR
+    if op == OP_OR then
         code = code + indent + result_reg + " = or i1 " + left_reg + ", " + right_reg + "  " + comment + "\n"
     end_if
     
@@ -185,23 +185,23 @@ end_function
 
 -- Generate LLVM IR for any expression
 function codegen_expression(list expr; string result_reg; string indent) returns string
-    if expr == 0
+    if expr == 0 then
         return ""
     end_if
     
     numeric expr_type = get_expr_type(expr)
     
     -- Literal value
-    if expr_type == EXPR_LITERAL
+    if expr_type == EXPR_LITERAL then
         string value = get_expr_value(expr)
         string code = ""
         
         -- Boolean literals
-        if value == "true"
+        if value == "true" then
             code = code + indent + result_reg + " = add i1 0, 1  ; true\n"
             return code
         end_if
-        if value == "false"
+        if value == "false" then
             code = code + indent + result_reg + " = add i1 0, 0  ; false\n"
             return code
         end_if
@@ -212,7 +212,7 @@ function codegen_expression(list expr; string result_reg; string indent) returns
     end_if
     
     -- Variable reference
-    if expr_type == EXPR_VARIABLE
+    if expr_type == EXPR_VARIABLE then
         string var_name = get_expr_value(expr)
         string code = ""
         
@@ -223,43 +223,43 @@ function codegen_expression(list expr; string result_reg; string indent) returns
     end_if
     
     -- Binary operation
-    if expr_type == EXPR_BINARY
+    if expr_type == EXPR_BINARY then
         numeric op = get_expr_operator(expr)
         
         -- Arithmetic operations
-        if op >= OP_ADD
-            if op <= OP_BIT_XOR
+        if op >= OP_ADD then
+            if op <= OP_BIT_XOR then
                 return codegen_arithmetic_binary(expr; result_reg; indent)
             end_if
         end_if
         
         -- Comparison operations
-        if op >= OP_EQ
-            if op <= OP_GE
+        if op >= OP_EQ then
+            if op <= OP_GE then
                 return codegen_comparison_binary(expr; result_reg; indent)
             end_if
         end_if
         
         -- Logical operations
-        if op == OP_AND
+        if op == OP_AND then
             return codegen_logical_binary(expr, result_reg, indent)
         end_if
-        if op == OP_OR
+        if op == OP_OR then
             return codegen_logical_binary(expr, result_reg, indent)
         end_if
     end_if
     
     -- Unary operation
-    if expr_type == EXPR_UNARY
+    if expr_type == EXPR_UNARY then
         numeric op = get_expr_operator(expr)
         
         -- Logical NOT
-        if op == OP_NOT
+        if op == OP_NOT then
             return codegen_logical_unary(expr, result_reg, indent)
         end_if
         
         -- Unary minus (negation)
-        if op == OP_SUB
+        if op == OP_SUB then
             list operand = get_expr_left(expr)
             string code = ""
             string operand_reg = "%temp_operand"
@@ -281,7 +281,7 @@ end_function
 -- target_var: Optional variable to store result (or "" for temp)
 -- Returns: Complete LLVM IR code
 function codegen_operator_expression(list expr; string target_var) returns string
-    if expr == 0
+    if expr == 0 then
         return ""
     end_if
     
@@ -290,7 +290,7 @@ function codegen_operator_expression(list expr; string target_var) returns strin
     
     -- Determine result register
     string result_reg = "%result"
-    if target_var != ""
+    if target_var != "" then
         result_reg = "%temp_result"
     end_if
     
@@ -298,7 +298,7 @@ function codegen_operator_expression(list expr; string target_var) returns strin
     code = code + codegen_expression(expr; result_reg; indent)
     
     -- Store to variable if target provided
-    if target_var != ""
+    if target_var != "" then
         code = code + indent + "; Store to variable: " + target_var + "\n"
         code = code + indent + "store i64 " + result_reg + ", i64* %" + target_var + ", align 8\n"
     end_if
@@ -337,22 +337,22 @@ function codegen_string_compare(string left_reg; string right_reg; string result
     code = code + indent + "%strcmp_result = call i32 @strcmp(i8* " + left_reg + ", i8* " + right_reg + ")\n"
     
     -- Convert strcmp result to boolean based on operator
-    if op == "=="
+    if op == "==" then
         code = code + indent + result_reg + " = icmp eq i32 %strcmp_result, 0\n"
     end_if
-    if op == "!="
+    if op == "!=" then
         code = code + indent + result_reg + " = icmp ne i32 %strcmp_result, 0\n"
     end_if
-    if op == "<"
+    if op == "<" then
         code = code + indent + result_reg + " = icmp slt i32 %strcmp_result, 0\n"
     end_if
-    if op == ">"
+    if op == ">" then
         code = code + indent + result_reg + " = icmp sgt i32 %strcmp_result, 0\n"
     end_if
-    if op == "<="
+    if op == "<=" then
         code = code + indent + result_reg + " = icmp sle i32 %strcmp_result, 0\n"
     end_if
-    if op == ">="
+    if op == ">=" then
         code = code + indent + result_reg + " = icmp sge i32 %strcmp_result, 0\n"
     end_if
     
