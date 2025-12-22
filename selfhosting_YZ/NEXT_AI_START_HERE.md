@@ -7,57 +7,70 @@
 
 ---
 
-## 🚨 GÜNCEL DURUM (22 Aralık 2025 - YZ_07)
+## 🚨 GÜNCEL DURUM (22 Aralık 2025 - YZ_08)
 
-**🎉 YZ_07 TAMAMLANDI! Parser ve CodeGen Entegrasyonu Başarılı!**
+**🎉 YZ_08 TAMAMLANDI! Gerçek Lexer + Parser + CodeGen Entegrasyonu Başarılı!**
 
-**Phase 3.2 Tamamlandı:**
-- ✅ parse_tokens(): stub → gerçek AST parsing implementasyonu
-- ✅ codegen_ast(): stub → gerçek LLVM IR generation implementasyonu
-- ✅ End-to-end test: "return 42" programı derlenip çalıştı (exit code 42)
-- ✅ Basitleştirilmiş AST yapısı (flat, Stage 0 uyumlu)
-- ✅ Pipeline: Mock Tokens → Parser → CodeGen → LLVM IR ✓
+**Phase 3.3 Tamamlandı:**
+- ✅ tokenize_source(): Mock tokens → gerçek tokenize_next() döngüsü
+- ✅ parse_tokens(): Variable declarations (numeric x = 42)
+- ✅ parse_tokens(): Arithmetic expressions (x + y)
+- ✅ codegen_ast(): Variable allocation (alloca, store)
+- ✅ codegen_ast(): Load/store operations
+- ✅ codegen_ast(): Arithmetic operations (add)
+- ✅ End-to-end test: "numeric x=10, y=32, return x+y" → exit code 42 ✓
 
 **Stage 1 Durumu:**
-- ✅ compiler_integration.mlp: 4 functions (parse + codegen working)
-- ✅ compiler.mlp: 10 functions (full pipeline integrated)
+- ✅ compiler_integration.mlp: 15 functions (real lexer + parser + codegen)
+- ✅ Basitleştirilmiş AST: [2; func_name; type; statements]
 - ✅ LLVM IR validation: clang ile test edildi, exit code 42 ✓
+- ✅ Pipeline: Source → Tokenize → Parse → CodeGen → LLVM IR ✓
 
-**🎯 YZ_08 SENİN GÖREVIN:**
+**🎯 YZ_09 SENİN GÖREVIN:**
 
-**Görev:** Phase 3.3 - Gerçek Lexer Entegrasyonu ve Parser Genişletme
+**Görev:** Phase 3.4 - Daha Fazla Operatör ve Control Flow
 
 **Ne yapacaksın:**
 
-1. **Lexer'ı Gerçek Hale Getir** (2-3 saat)
-   - Mock tokens yerine gerçek `lexer.mlp` kullan
-   - `tokenize_source()` içinde `tokenize_next()` döngüsü
-   - YZ_06'nın compiler.mlp'sindeki tokenization loop'u örnek al
-   - Test: Basit source code → gerçek tokenlar
+1. **Operatörleri Genişlet** (2-3 saat)
+   - Subtraction: `x - y`
+   - Multiplication: `x * y`
+   - Division: `x / y`
+   - Parser'da operator tokenization
+   - CodeGen'de `sub`, `mul`, `div` instructions
 
-2. **Parser'ı Genişlet** (2-3 saat)
-   - Variable declarations (numeric x = 42)
-   - Arithmetic expressions (a + b, x * y)
-   - Multiple statements
-   - `parser_mlp/parser_core.mlp`'deki gerçek fonksiyonları entegre et
+2. **Control Flow Ekle** (3-4 saat)
+   - If statements: `if x > 10 then ... end_if`
+   - Comparison operators: `>`, `<`, `==`
+   - LLVM IR: `icmp`, `br`, basic blocks
+   - Parser: if_stmt() fonksiyonu
 
-3. **CodeGen'i Genişlet** (2 saat)
-   - Variable allocation (alloca, store, load)
-   - Arithmetic operations (add, sub, mul)
-   - `codegen_mlp/codegen_functions.mlp` kullan
+3. **Function Calls** (2-3 saat)
+   - Simple function calls: `foo(42)`
+   - Parser: parse function call
+   - CodeGen: `call` instruction
+   - Test: helper function + main
 
 4. **End-to-End Test** (1 saat)
-   - Test: `function main() returns numeric numeric x = 10 numeric y = 32 return x + y end_function`
-   - Lexer → Parser → CodeGen → LLVM IR → clang
-   - Exit code 42?
+   - Test: Fibonacci veya factorial fonksiyonu
+   - Recursive calls?
+   - Multiple functions
+   - Exit code doğrulaması
 
 **⚠️ Önemli Notlar:**
-- YZ_07 basitleştirilmiş AST kullandı (flat structure)
-- Stage 0'da nested list parsing zor
-- Mock tokens → gerçek lexer geçişi kritik
-- Parser'da önce basit case'ler, sonra genişletme
+- YZ_08 basit arithmetic çalışıyor (sadece +)
+- Control flow için basic blocks gerekli (label1:, label2:)
+- Function calls için symbol table gerekebilir (basit)
+- Incremental testing önemli!
 
-**Başarı Kriteri:** Basit arithmetic programlar derlenip çalışabilsin (exit code doğru)
+**Başarı Kriteri:** Basit control flow ve function calls çalışabilsin
+
+**Alternatif Plan (Daha Güvenli):**
+Eğer YZ_09 çok karmaşık gelirse, önce sadece operatörlere odaklan:
+1. -, *, / operatörlerini ekle
+2. Test: `(10 + 32) * 2 - 20` → 64
+3. YZ_10: Control flow
+4. YZ_11: Function calls
 
 ---
 
@@ -85,53 +98,39 @@ Stage 0 (C) ──compile──> Stage 1 (MELP) ──compile──> Stage 1' (M
 | YZ_05 | Phase 2 | Pipeline Yapısı + Testler | ✅ TAMAMLANDI | `selfhosting_YZ_05` |
 | YZ_06 | Phase 3.1 | Lexer/Parser/CodeGen Entegrasyonu | ✅ TAMAMLANDI | `selfhosting_YZ_06` |
 | YZ_07 | Phase 3.2 | Parser/CodeGen Modül Entegrasyonu | ✅ TAMAMLANDI | `selfhosting_YZ_07` |
-| **YZ_08** | **Phase 3.3** | **Gerçek Lexer + Parser Genişletme** | 🔵 **AKTİF** | `selfhosting_YZ_08` |
-| YZ_09 | Phase 4 | Bootstrap ve Convergence | ⏳ BEKLEMEDE | `selfhosting_YZ_09` |
+| YZ_08 | Phase 3.3 | Gerçek Lexer + Parser Genişletme | ✅ TAMAMLANDI | `selfhosting_YZ_08` |
+| **YZ_09** | **Phase 3.4** | **Operatörler + Control Flow** | 🔵 **AKTİF** | `selfhosting_YZ_09` |
+| YZ_10 | Phase 4 | Bootstrap ve Convergence | ⏳ BEKLEMEDE | `selfhosting_YZ_10` |
 
 ---
-
 ## 🔵 ŞU AN AKTİF GÖREV
 
-### YZ_07: Phase 3.2 - Parser ve CodeGen Modül Entegrasyonu
+### YZ_09: Phase 3.4 - Operatörler ve Control Flow
 
 **Durum:** 🔵 AKTİF  
-**Bağımlılık:** YZ_06 ✅ (tamamlandı)  
-**Tahmini Süre:** 6-8 saat
+**Bağımlılık:** YZ_08 ✅ (tamamlandı)  
+**Tahmini Süre:** 8-11 saat
 
 **🎯 GÖREV:**
 
-1. **Parser Modülleri Entegrasyonu** (3-4 saat)
-   - `parser_mlp/parser_main.mlp` → tam parsing loop
-   - `parser_mlp/parser_func.mlp` → function parsing
-   - `parser_mlp/parser_stmt.mlp` → statement parsing
-   - `parser_mlp/parser_expr.mlp` → expression parsing
-   - `parse_tokens()` fonksiyonunu güncelleyip bu modülleri kullan
+1. **Daha Fazla Operatör** (2-3 saat)
+   - Subtraction: `-`
+   - Multiplication: `*`
+   - Division: `/`
+   - Parser ve CodeGen güncellemeleri
 
-2. **CodeGen Modülleri Entegrasyonu** (2-3 saat)
-   - `codegen_mlp/codegen_functions.mlp` → function codegen
-   - `codegen_mlp/codegen_stmt.mlp` → statement codegen
-   - `codegen_mlp/codegen_arithmetic.mlp` → arithmetic ops
-   - `codegen_mlp/codegen_control.mlp` → control flow codegen
-   - `codegen_ast()` fonksiyonunu güncelleyip bu modülleri kullan
+2. **Control Flow (Opsiyonel)** (3-4 saat)
+   - If statements
+   - Comparison operators
+   - LLVM IR basic blocks
 
-3. **End-to-End Test** (1 saat)
-   - Test: `function main() returns numeric return 42 end_function`
-   - Tam pipeline: Lexer → Parser → CodeGen → LLVM IR
-   - LLVM IR geçerli mi? (lli ile test)
-   - Exit code 42 dönüyor mu?
+3. **Function Calls (Opsiyonel)** (2-3 saat)
+   - Simple function calls
+   - Call instruction
 
-**📋 YAPILACAKLAR:**
-
-1. `TODO_SELFHOSTING_FINAL.md` → **TASK 3.x** oku
-2. `selfhosting_YZ/YZ_06_TAMAMLANDI.md` → YZ_06 bulgularını oku
-3. Parser ve CodeGen modül API'lerini incele
-4. `parse_tokens()` ve `codegen_ast()` fonksiyonlarını güncelle
-5. End-to-end testler çalıştır
-6. Rapor yaz: `selfhosting_YZ/YZ_07_TAMAMLANDI.md`
-
-**⚠️ ÖNEMLİ:** 
-- YZ_06 temel pipeline'ı kurdu, şimdi detaylandırma zamanı
-- AST yapısını iyi anla (parser→codegen geçişi kritik)
+4. **End-to-End Test** (1 saat)
+   - Complex arithmetic test
+   - Exit code validationtik)
 - Import sistemi yok, fonksiyonları doğrudan çağır
 
 ---
@@ -149,9 +148,52 @@ Stage 0 (C) ──compile──> Stage 1 (MELP) ──compile──> Stage 1' (M
 
 **Test Sonuçları:**
 - ✅ compiler.mlp: 12 functions → 555 lines LLVM IR
-- ✅ compiler_integration.mlp: 14 functions → 513 lines LLVM IR
-- ✅ lexer.mlp: 12 functions → 856 lines LLVM IR
-- ✅ parser_core.mlp: compiled → 129 lines LLVM IR
+---
+
+## 📝 ÖNCEKİ YZ'DEN NOTLAR (YZ_08)
+
+**YZ_08 Tamamlandı:** ✅ (22 Aralık 2025)
+
+**Yapılanlar:**
+- ✅ tokenize_source(): Mock tokens → gerçek tokenize_next() döngüsü
+- ✅ tokenize_next(): Basitleştirilmiş lexer (numbers, ids, keywords, operators)
+- ✅ parse_tokens(): Variable declarations (numeric x = 42)
+- ✅ parse_tokens(): Arithmetic expressions (x + y)
+- ✅ codegen_ast(): Variable allocation (alloca, store, load)
+- ✅ codegen_ast(): Arithmetic operations (add)
+- ✅ 15 functions compiled successfully
+
+**Test Sonuçları:**
+- ✅ Test 1: Simple return (return 42) → exit code 42
+- ✅ Test 2: Arithmetic (x=10, y=32, return x+y) → exit code 42
+- ✅ LLVM IR geçerli (clang validation passed)
+- ✅ Pipeline: Source → Tokenize → Parse → CodeGen → LLVM IR ✓
+
+**AST Yapısı:**
+```mlp
+-- Function: [2; func_name; return_type; statements]
+-- VARDECL: [10; var_name; var_value]
+-- BINOP:   [11; operator; left; right]
+-- RETURN:  [12; value_or_expr]
+```
+
+**Token Types:**
+- Numbers: 30, Identifiers: 10, Keywords: 1-7, 20-21
+- Operators: `(` 40, `)` 41, `=` 50, `+` 51
+
+**Önemli Bulgu:**
+- Gerçek lexer çalışıyor (tokenize_next loop)
+- Variable declarations ve arithmetic expressions parse ediliyor
+- LLVM IR generation çalışıyor (alloca, load, store, add)
+- **Sonraki adım:** Daha fazla operatör (-, *, /) ve control flow
+
+**Araçlar:**
+- `temp/test_yz08_e2e.sh`: End-to-end test script
+- `temp/test_arithmetic_manual_yz08.ll`: Manuel LLVM IR test
+
+---
+
+## 📝 ÖNCEKİ YZ'DEN NOTLAR (YZ_07)9 lines LLVM IR
 - ✅ codegen_integration.mlp: compiled → 1085 lines LLVM IR
 - ✅ Toplam: 3138 satır LLVM IR
 - ✅ Tüm modüller başarıyla derlendi (5/5)
