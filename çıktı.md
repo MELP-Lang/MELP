@@ -1,3 +1,48 @@
+# YZ_01 - Phase 1.1-1.2: Core + Parser Syntax Fix
+
+**Tarih:** 22 Aralık 2025  
+**YZ:** YZ_01  
+**Phase:** Phase 1.1-1.2  
+**Branch:** selfhosting_YZ_01
+
+---
+
+## 🚨 KRİTİK BULGU: Stage 0 Array Return Limitasyonu
+
+### Sorun
+Stage 0 compiler, fonksiyonlardan **2+ elemanlı array döndürmeyi** desteklemiyor!
+
+**Test Sonuçları:**
+```mlp
+function test() returns list
+    return [42]       ✅ Çalışıyor (1 eleman)
+    return [42, 99]   ❌ Parser hatası (2 eleman)
+    return [1,2,3,4]  ❌ Parser hatası (4 eleman)
+end_function
+```
+
+**Hata Mesajı:**
+```
+error [Parser]: Expected ']' to close array
+error [Parser]: Expected 'function' keyword
+```
+
+### Etkilenen Dosyalar
+- `compiler/stage1/modules/lexer_mlp/lexer.mlp` - 3 fonksiyon array döndürüyor
+- Muhtemelen diğer modüller de etkileniyor
+
+### Geçici Çözüm Önerileri
+1. **Array return yerine global değişken kullan**
+2. **Struct kullanarak elemanları wrap et**
+3. **Stage 0'ı düzelt (YZ_200+ çalışmasına ek)**
+
+### İlerleme Durumu
+- lexer.mlp: Syntax düzeltmeleri yapıldı (semicolon, end_if, boolean→numeric)
+- Ama array return sorunu nedeniyle tam derlenemiyor
+- Commit: `8830b7c4` - Partial fix kaydedildi
+
+---
+
 # YZ_00 - Phase 0: Sistem Tutarlılığı Raporu
 
 **Tarih:** 22 Aralık 2025  

@@ -8,21 +8,21 @@
 -- ============================================================================
 
 -- This file integrates all tokenization modules:
--- - tokenize_literals.mlp (numbers, strings)
--- - tokenize_identifiers.mlp (identifiers, keywords)
--- - tokenize_operators.mlp (operators, symbols, comments)
+-- - tokenize_literals.mlp (numbers; strings)
+-- - tokenize_identifiers.mlp (identifiers; keywords)
+-- - tokenize_operators.mlp (operators; symbols; comments)
 
 -- ============================================================================
 -- Token Creation
 -- ============================================================================
 
 function create_token(numeric token_type; string token_value; numeric line_num; numeric col_num) returns list
-    return [token_type, token_value, line_num, col_num]
+    return [token_type; token_value; line_num; col_num]
 end_function
 
--- Helper: Create position result [pos, col, line]
+-- Helper: Create position result [pos; col; line]
 function create_position_result(numeric p; numeric c; numeric l) returns list
-    return [p, c, l]
+    return [p; c; l]
 end_function
 
 -- ============================================================================
@@ -178,7 +178,7 @@ function starts_with_quote(string source; numeric pos) returns numeric
         if ch == "0" then return 0 end_if
         if ch == " " then return 0 end_if
         if ch == "+" then return 0 end_if
-        -- If not common char, assume it might be quote
+        -- If not common char; assume it might be quote
         -- (This is a limitation - better char_code needed)
         return 1
     end_if
@@ -213,8 +213,8 @@ end_function
 -- ============================================================================
 
 -- Determine next token type and dispatch to appropriate scanner
--- Returns: [token_type_hint, 0, 0]
--- token_type_hint: 1=number, 2=string, 3=identifier, 4=operator, 5=comment, 0=EOF
+-- Returns: [token_type_hint; 0, 0]
+-- token_type_hint: 1=number; 2=string; 3=identifier; 4=operator; 5=comment; 0=EOF
 function peek_next_token_type(string source; numeric pos) returns numeric
     numeric source_len = length(source)
     string ch = ""
@@ -229,7 +229,7 @@ function peek_next_token_type(string source; numeric pos) returns numeric
     ch = substring(source; pos; 1)
     
     -- Check for comment
-    is_comment = starts_with_dash_dash(source, pos)
+    is_comment = starts_with_dash_dash(source; pos)
     if is_comment then
         return 5  -- Comment
     end_if
@@ -251,7 +251,7 @@ function peek_next_token_type(string source; numeric pos) returns numeric
     end_if
     
     -- Check for string (simplified - assumes anything else unusual is string)
-    -- In real implementation, would check for quote character
+    -- In real implementation; would check for quote character
     
     -- Default: operator or symbol
     return 4
@@ -262,7 +262,7 @@ end_function
 -- ============================================================================
 
 -- Tokenize single token from source at position
--- Returns: [token, new_pos, new_col, new_line]
+-- Returns: [token; new_pos; new_col; new_line]
 -- This is a simplified version that shows the structure
 -- Full implementation would loop until EOF
 function tokenize_next(string source; numeric pos; numeric line; numeric col) returns list
@@ -283,7 +283,7 @@ function tokenize_next(string source; numeric pos; numeric line; numeric col) re
     -- Check for EOF
     if pos >= source_len then
         token = create_token(80; ""; line; col)  -- EOF
-        return [token, pos, col, line]
+        return [token; pos; col; line]
     end_if
     
     -- Peek next token type
@@ -299,7 +299,7 @@ function tokenize_next(string source; numeric pos; numeric line; numeric col) re
         return tokenize_next(source; pos; line; col)
     end_if
     
-    -- For this simplified version, just return a placeholder
+    -- For this simplified version; just return a placeholder
     -- Full implementation would dispatch to:
     -- - scan_number() for token_hint == 1
     -- - scan_string() for token_hint == 2
@@ -307,7 +307,7 @@ function tokenize_next(string source; numeric pos; numeric line; numeric col) re
     -- - scan_operator() for token_hint == 4
     
     token = create_token(81; "?"; line; col)  -- UNKNOWN placeholder
-    return [token, pos + 1, col + 1, line]
+    return [token; pos + 1; col + 1; line]
 end_function
 
 -- ============================================================================
@@ -316,7 +316,7 @@ end_function
 
 function main() returns numeric
     -- Demonstrate lexer structure
-    -- In full implementation, would tokenize entire source file
+    -- In full implementation; would tokenize entire source file
     
     string test_source = "function main()"
     numeric pos = 0
@@ -333,7 +333,7 @@ function main() returns numeric
     
     -- This would be a loop in full implementation:
     -- while pos < source_len
-    --   result = tokenize_next(source, pos, line, col)
+    --   result = tokenize_next(source; pos; line; col)
     --   token = result[0]
     --   pos = result[1]
     --   col = result[2]
