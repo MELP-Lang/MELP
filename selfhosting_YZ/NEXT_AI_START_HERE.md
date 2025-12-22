@@ -24,20 +24,29 @@
 - ✅ Tüm çok satırlı if'ler PMPL uyumlu
 - ✅ Pipeline yapısı hazır (lexer/parser/codegen entegrasyonu için)
 
-**⚠️ YZ_06 İçin Kritik Görevler:**
-1. **Gerçek Lexer Entegrasyonu**
-   - lexer.mlp'den `tokenize_next()` fonksiyonunu kullan
-   - Token listesi oluştur
-   
-2. **Gerçek Parser Entegrasyonu**
-   - parser_core.mlp'den parse fonksiyonlarını kullan
-   - Token stream'den AST oluştur
-   
-3. **Gerçek CodeGen Entegrasyonu**
-   - codegen_integration.mlp'den codegen fonksiyonlarını kullan
-   - AST'den LLVM IR üret
+**🎯 YZ_06 SENİN GÖREVIN:**
 
-**Önemli Not:** Import sistemi Stage 0'da çalışmıyor - fonksiyonları doğrudan çağırmak gerekebilir
+**Görev:** Phase 3 - Gerçek Lexer/Parser/CodeGen Entegrasyonu (TODO_SELFHOSTING_FINAL.md Task 3.1-3.3)
+
+**Ne yapacaksın:**
+`compiler/stage1/modules/compiler.mlp` dosyasındaki `compile_source()` fonksiyonunu güncelle:
+
+1. **Stub'ları Kaldır - Gerçek Çağrılar Ekle:**
+   - Lexer: `lexer.mlp`'deki `tokenize_next()` fonksiyonunu çağır
+   - Parser: `parser_core.mlp`'deki parse fonksiyonlarını çağır
+   - CodeGen: `codegen_integration.mlp`'deki codegen fonksiyonlarını çağır
+
+2. **End-to-End Test:**
+   - Basit MELP programı (hello_simple.mlp) tam pipeline'dan geçsin
+   - Lexer → Parser → CodeGen → LLVM IR çıktısı
+
+3. **Validasyon:**
+   - LLVM IR'ın geçerli olduğunu doğrula (`lli` ile test)
+   - Stage 1 compiler'ın kendini derleyebilmesine hazırlan
+
+**⚠️ Önemli Not:** Import sistemi Stage 0'da çalışmıyor - fonksiyonları doğrudan çağırmak gerekebilir
+
+**Başarı Kriteri:** Stage 1 compiler gerçek MELP kodu derleyebilsin (şu an sadece minimal IR üretiyor)
 
 ---
 

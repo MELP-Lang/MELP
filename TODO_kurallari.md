@@ -38,16 +38,27 @@ MELP projesi şu 5 temel üzerine kuruludur. **Bunları ihlal ETME:**
 5. STRUCT+FUNC  → Class yok, sadece struct ve function
 ```
 
-### 3. Kendini Tanıt
+### 3. Kendini Tanıt ve Onay İste
 
-Belgeleri okuduktan sonra kullanıcıya şu şekilde kendini tanıt:
+Belgeleri okuduktan sonra kullanıcıya şu şekilde rapor ver:
 
 ```
 Merhaba, ben YZ_XX.
 
-TODO'daki görevimi okudum.
-Önemli belgeleri (syntax, vision, reference, architecture) okudum.
-Ne yapacağımı ve ne yapmayacağımı biliyorum.
+Görevimi okudum:
+- TODO_SELFHOSTING_FINAL.md'de [Phase X] - [görev adı]
+- [Yapacağım işi 1-2 cümle ile açıkla]
+
+Okumalarımı tamamladım:
+- ✅ NEXT_AI_START_HERE.md (önceki YZ'nin notları)
+- ✅ TODO_SELFHOSTING_FINAL.md (görev detayları)
+- ✅ pmlp_kesin_sozdizimi.md (syntax kuralları)
+- ✅ Diğer referans belgeler
+
+MELP'in 5 temel ilkesini biliyorum:
+✅ MODÜLER, LLVM, STO, STATELESS, STRUCT+FUNC
+
+Onay verirseniz göreve başlayayım.
 
 Görevim: [görev özeti]
 
