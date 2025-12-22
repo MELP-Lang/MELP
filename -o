@@ -44,8 +44,8 @@ declare i32 @melp_map_has_key(i8*, i8*)
 declare i64 @melp_map_length(i8*)
 
 
-; Function: main
-define i64 @main() {
+; Function: test_array_4
+define i8* @test_array_4() {
 entry:
-    ret i64 42
+    ret i8* 0
 }

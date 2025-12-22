@@ -17,95 +17,95 @@
 -- ============================================================================
 
 function create_token(numeric token_type; string token_value; numeric line_num; numeric col_num) returns list
-    return [token_type; token_value; line_num; col_num]
-end function
+    return [token_type, token_value, line_num, col_num]
+end_function
 
 -- Helper: Create position result [pos, col, line]
 function create_position_result(numeric p; numeric c; numeric l) returns list
-    return [p; c; l]
-end function
+    return [p, c, l]
+end_function
 
 -- ============================================================================
 -- Character Classification (from modules)
 -- ============================================================================
 
-function is_digit(string ch) returns boolean
-    if ch == "0" then return 1 end if
-    if ch == "1" then return 1 end if
-    if ch == "2" then return 1 end if
-    if ch == "3" then return 1 end if
-    if ch == "4" then return 1 end if
-    if ch == "5" then return 1 end if
-    if ch == "6" then return 1 end if
-    if ch == "7" then return 1 end if
-    if ch == "8" then return 1 end if
-    if ch == "9" then return 1 end if
+function is_digit(string ch) returns numeric
+    if ch == "0" then return 1 end_if
+    if ch == "1" then return 1 end_if
+    if ch == "2" then return 1 end_if
+    if ch == "3" then return 1 end_if
+    if ch == "4" then return 1 end_if
+    if ch == "5" then return 1 end_if
+    if ch == "6" then return 1 end_if
+    if ch == "7" then return 1 end_if
+    if ch == "8" then return 1 end_if
+    if ch == "9" then return 1 end_if
     return 0
-end function
+end_function
 
-function is_alpha(string ch) returns boolean
-    if ch == "a" then return 1 end if
-    if ch == "b" then return 1 end if
-    if ch == "c" then return 1 end if
-    if ch == "d" then return 1 end if
-    if ch == "e" then return 1 end if
-    if ch == "f" then return 1 end if
-    if ch == "g" then return 1 end if
-    if ch == "h" then return 1 end if
-    if ch == "i" then return 1 end if
-    if ch == "j" then return 1 end if
-    if ch == "k" then return 1 end if
-    if ch == "l" then return 1 end if
-    if ch == "m" then return 1 end if
-    if ch == "n" then return 1 end if
-    if ch == "o" then return 1 end if
-    if ch == "p" then return 1 end if
-    if ch == "q" then return 1 end if
-    if ch == "r" then return 1 end if
-    if ch == "s" then return 1 end if
-    if ch == "t" then return 1 end if
-    if ch == "u" then return 1 end if
-    if ch == "v" then return 1 end if
-    if ch == "w" then return 1 end if
-    if ch == "x" then return 1 end if
-    if ch == "y" then return 1 end if
-    if ch == "z" then return 1 end if
-    if ch == "A" then return 1 end if
-    if ch == "B" then return 1 end if
-    if ch == "C" then return 1 end if
-    if ch == "D" then return 1 end if
-    if ch == "E" then return 1 end if
-    if ch == "F" then return 1 end if
-    if ch == "G" then return 1 end if
-    if ch == "H" then return 1 end if
-    if ch == "I" then return 1 end if
-    if ch == "J" then return 1 end if
-    if ch == "K" then return 1 end if
-    if ch == "L" then return 1 end if
-    if ch == "M" then return 1 end if
-    if ch == "N" then return 1 end if
-    if ch == "O" then return 1 end if
-    if ch == "P" then return 1 end if
-    if ch == "Q" then return 1 end if
-    if ch == "R" then return 1 end if
-    if ch == "S" then return 1 end if
-    if ch == "T" then return 1 end if
-    if ch == "U" then return 1 end if
-    if ch == "V" then return 1 end if
-    if ch == "W" then return 1 end if
-    if ch == "X" then return 1 end if
-    if ch == "Y" then return 1 end if
-    if ch == "Z" then return 1 end if
+function is_alpha(string ch) returns numeric
+    if ch == "a" then return 1 end_if
+    if ch == "b" then return 1 end_if
+    if ch == "c" then return 1 end_if
+    if ch == "d" then return 1 end_if
+    if ch == "e" then return 1 end_if
+    if ch == "f" then return 1 end_if
+    if ch == "g" then return 1 end_if
+    if ch == "h" then return 1 end_if
+    if ch == "i" then return 1 end_if
+    if ch == "j" then return 1 end_if
+    if ch == "k" then return 1 end_if
+    if ch == "l" then return 1 end_if
+    if ch == "m" then return 1 end_if
+    if ch == "n" then return 1 end_if
+    if ch == "o" then return 1 end_if
+    if ch == "p" then return 1 end_if
+    if ch == "q" then return 1 end_if
+    if ch == "r" then return 1 end_if
+    if ch == "s" then return 1 end_if
+    if ch == "t" then return 1 end_if
+    if ch == "u" then return 1 end_if
+    if ch == "v" then return 1 end_if
+    if ch == "w" then return 1 end_if
+    if ch == "x" then return 1 end_if
+    if ch == "y" then return 1 end_if
+    if ch == "z" then return 1 end_if
+    if ch == "A" then return 1 end_if
+    if ch == "B" then return 1 end_if
+    if ch == "C" then return 1 end_if
+    if ch == "D" then return 1 end_if
+    if ch == "E" then return 1 end_if
+    if ch == "F" then return 1 end_if
+    if ch == "G" then return 1 end_if
+    if ch == "H" then return 1 end_if
+    if ch == "I" then return 1 end_if
+    if ch == "J" then return 1 end_if
+    if ch == "K" then return 1 end_if
+    if ch == "L" then return 1 end_if
+    if ch == "M" then return 1 end_if
+    if ch == "N" then return 1 end_if
+    if ch == "O" then return 1 end_if
+    if ch == "P" then return 1 end_if
+    if ch == "Q" then return 1 end_if
+    if ch == "R" then return 1 end_if
+    if ch == "S" then return 1 end_if
+    if ch == "T" then return 1 end_if
+    if ch == "U" then return 1 end_if
+    if ch == "V" then return 1 end_if
+    if ch == "W" then return 1 end_if
+    if ch == "X" then return 1 end_if
+    if ch == "Y" then return 1 end_if
+    if ch == "Z" then return 1 end_if
     return 0
-end function
+end_function
 
-function is_whitespace(string ch) returns boolean
-    if ch == " " then return 1 end if
-    if ch == "\t" then return 1 end if
-    if ch == "\n" then return 1 end if
-    if ch == "\r" then return 1 end if
+function is_whitespace(string ch) returns numeric
+    if ch == " " then return 1 end_if
+    if ch == "\t" then return 1 end_if
+    if ch == "\n" then return 1 end_if
+    if ch == "\r" then return 1 end_if
     return 0
-end function
+end_function
 
 -- ============================================================================
 -- Whitespace Handling
@@ -114,10 +114,10 @@ end function
 function skip_whitespace(string source; numeric pos; numeric line; numeric col) returns list
     numeric source_len = length(source)
     string ch = ""
-    boolean ch_is_whitespace = 0
+    numeric ch_is_whitespace = 0
     
     while pos < source_len do
-        ch = substring(source, pos, 1)
+        ch = substring(source; pos; 1)
         ch_is_whitespace = is_whitespace(ch)
         
         if ch_is_whitespace then
@@ -128,14 +128,14 @@ function skip_whitespace(string source; numeric pos; numeric line; numeric col) 
             else
                 col = col + 1
                 pos = pos + 1
-            end if
+            end_if
         else
-            exit while
-        end if
-    end while
+            exit
+        end_if
+    end_while
     
-    return create_position_result(pos, col, line)
-end function
+    return create_position_result(pos; col; line)
+end_function
 
 -- ============================================================================
 -- Comment Handling
@@ -146,67 +146,67 @@ function skip_line_comment(string source; numeric pos; numeric line; numeric col
     string ch = ""
     
     while pos < source_len do
-        ch = substring(source, pos, 1)
+        ch = substring(source; pos; 1)
         if ch == "\n" then
             pos = pos + 1
             line = line + 1
             col = 1
-            exit while
+            exit
         else
             pos = pos + 1
             col = col + 1
-        end if
-    end while
+        end_if
+    end_while
     
-    return create_position_result(pos, col, line)
-end function
+    return create_position_result(pos; col; line)
+end_function
 
 -- ============================================================================
 -- Check for Start of Token Types
 -- ============================================================================
 
-function starts_with_quote(string source; numeric pos) returns boolean
+function starts_with_quote(string source; numeric pos) returns numeric
     string ch = ""
     numeric source_len = length(source)
     numeric quote_code = 34
     
     if pos < source_len then
-        ch = substring(source, pos, 1)
+        ch = substring(source; pos; 1)
         -- Check for quote character (ASCII 34)
         -- Workaround: check common non-quote chars first
-        if ch == "a" then return 0 end if
-        if ch == "0" then return 0 end if
-        if ch == " " then return 0 end if
-        if ch == "+" then return 0 end if
+        if ch == "a" then return 0 end_if
+        if ch == "0" then return 0 end_if
+        if ch == " " then return 0 end_if
+        if ch == "+" then return 0 end_if
         -- If not common char, assume it might be quote
         -- (This is a limitation - better char_code needed)
         return 1
-    end if
+    end_if
     
     return 0
-end function
+end_function
 
-function starts_with_dash_dash(string source; numeric pos) returns boolean
+function starts_with_dash_dash(string source; numeric pos) returns numeric
     numeric source_len = length(source)
     numeric next_pos = 0
     string ch = ""
     string next_ch = ""
     
     if pos < source_len then
-        ch = substring(source, pos, 1)
+        ch = substring(source; pos; 1)
         if ch == "-" then
             next_pos = pos + 1
             if next_pos < source_len then
-                next_ch = substring(source, next_pos, 1)
+                next_ch = substring(source; next_pos; 1)
                 if next_ch == "-" then
                     return 1
-                end if
-            end if
-        end if
-    end if
+                end_if
+            end_if
+        end_if
+    end_if
     
     return 0
-end function
+end_function
 
 -- ============================================================================
 -- Token Dispatching
@@ -218,44 +218,44 @@ end function
 function peek_next_token_type(string source; numeric pos) returns numeric
     numeric source_len = length(source)
     string ch = ""
-    boolean ch_is_digit = 0
-    boolean ch_is_alpha = 0
-    boolean is_comment = 0
+    numeric ch_is_digit = 0
+    numeric ch_is_alpha = 0
+    numeric is_comment = 0
     
     if pos >= source_len then
         return 0  -- EOF
-    end if
+    end_if
     
-    ch = substring(source, pos, 1)
+    ch = substring(source; pos; 1)
     
     -- Check for comment
     is_comment = starts_with_dash_dash(source, pos)
     if is_comment then
         return 5  -- Comment
-    end if
+    end_if
     
     -- Check for number
     ch_is_digit = is_digit(ch)
     if ch_is_digit then
         return 1  -- Number
-    end if
+    end_if
     
     -- Check for identifier/keyword
     ch_is_alpha = is_alpha(ch)
     if ch_is_alpha then
         return 3  -- Identifier
-    end if
+    end_if
     
     if ch == "_" then
         return 3  -- Identifier starting with underscore
-    end if
+    end_if
     
     -- Check for string (simplified - assumes anything else unusual is string)
     -- In real implementation, would check for quote character
     
     -- Default: operator or symbol
     return 4
-end function
+end_function
 
 -- ============================================================================
 -- Main Lexer Function (Simplified - Single Token)
@@ -283,11 +283,11 @@ function tokenize_next(string source; numeric pos; numeric line; numeric col) re
     -- Check for EOF
     if pos >= source_len then
         token = create_token(80; ""; line; col)  -- EOF
-        return [token; pos; col; line]
-    end if
+        return [token, pos, col, line]
+    end_if
     
     -- Peek next token type
-    token_hint = peek_next_token_type(source, pos)
+    token_hint = peek_next_token_type(source; pos)
     
     -- Handle comment
     if token_hint == 5 then
@@ -297,7 +297,7 @@ function tokenize_next(string source; numeric pos; numeric line; numeric col) re
         line = ws_result[2]
         -- Recursively get next token after comment
         return tokenize_next(source; pos; line; col)
-    end if
+    end_if
     
     -- For this simplified version, just return a placeholder
     -- Full implementation would dispatch to:
@@ -307,8 +307,8 @@ function tokenize_next(string source; numeric pos; numeric line; numeric col) re
     -- - scan_operator() for token_hint == 4
     
     token = create_token(81; "?"; line; col)  -- UNKNOWN placeholder
-    return [token; pos + 1; col + 1; line]
-end function
+    return [token, pos + 1, col + 1, line]
+end_function
 
 -- ============================================================================
 -- Main (for testing)
@@ -338,7 +338,7 @@ function main() returns numeric
     --   pos = result[1]
     --   col = result[2]
     --   line = result[3]
-    -- end while
+    -- end_while
     
     return 0
-end function
+end_function
