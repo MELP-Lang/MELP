@@ -63,8 +63,24 @@ end_function
 
 | PMPL Keyword | Token | Kullanım |
 |--------------|-------|----------|
+| `if` | TOKEN_IF | If başlangıcı |
+| `then` | TOKEN_THEN | If koşulu sonu |
 | `else_if` | TOKEN_ELSE_IF | Else-if cümlesi |
 | `else` | TOKEN_ELSE | Else cümlesi |
+
+**⚠️ KRİTİK KURAL: `if` HER ZAMAN `then` İLE BİTMELİ!**
+
+```pmpl
+-- DOĞRU:
+if x > 5 then
+    ...
+end_if
+
+-- YANLIŞ:
+if x > 5
+    ...
+end_if
+```
 
 **Örnek:**
 ```pmpl

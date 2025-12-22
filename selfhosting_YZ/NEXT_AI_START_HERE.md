@@ -1,9 +1,32 @@
 # SELF-HOSTING YZ - BURADAN BAŞLA
 
-**Son Güncelleme:** 22 Aralık 2025  
+**Son Güncelleme:** 22 Aralık 2025 (Üst Akıl - Yeni Keşif)  
 **Üst Akıl:** Opus  
 **Ana TODO:** `/TODO_SELFHOSTING_FINAL.md`  
 **Kurallar:** `/TODO_kurallari.md`
+
+---
+
+## 🚨 KRİTİK KEŞİF (22 Aralık 2025)
+
+**1,034 `if` statement'da `then` anahtar kelimesi eksik!**
+
+Stage 1 modüllerinde iki farklı `if` syntax'ı kullanılmış:
+- DOĞRU: `if <condition> then` (854 adet)
+- YANLIŞ: `if <condition>` (1,034 adet - **then yok!**)
+
+**En çok etkilenen dosyalar:**
+| # | Dosya | Eksik `then` |
+|---|-------|--------------|
+| 1 | `lexer_mlp/tokenize_identifiers.mlp` | 84 |
+| 2 | `parser_mlp/parser.mlp` | 78 |
+| 3 | `lexer_mlp/lexer.mlp` | 76 |
+| 4 | `operators/operators_parser.mlp` | 70 |
+| 5 | `variables/variables_parser.mlp` | 39 |
+
+**Diğer keşifler:**
+- `token_types.mlp` LLVM IR ile üzerine yazılmıştı → GERİ YÜKLENDİ ✅
+- Stage 0 hem `end if` hem `end_if` kabul ediyor (normalizer var)
 
 ---
 
@@ -26,7 +49,7 @@ Stage 0 (C) ──compile──> Stage 1 (MELP) ──compile──> Stage 1' (M
 | YZ_00 | Phase 0 | Sistem Tutarlılığı | ✅ TAMAMLANDI | `selfhosting_YZ_00` |
 | YZ_01 | Phase 1.1-1.2 | Core + Parser Syntax Fix | ✅ TAMAMLANDI | `selfhosting_YZ_01` |
 | YZ_02 | Phase 1.3-1.5 | Kalan Modüller + While Syntax + Doğrulama | ✅ TAMAMLANDI | `selfhosting_YZ_02` |
-| YZ_03 | Phase 2 | Integration | 🔵 AKTİF | `selfhosting_YZ_03` |
+| YZ_03 | Phase 2 | Integration + **THEN FIX** | 🔵 AKTİF | `selfhosting_YZ_03` |
 | YZ_04 | Phase 3 | Bootstrap | ⏳ BEKLEMEDE | `selfhosting_YZ_04` |
 | YZ_05 | Phase 4 | Convergence | ⏳ BEKLEMEDE | `selfhosting_YZ_05` |
 | YZ_06 | Phase 5 | Finalization | ⏳ BEKLEMEDE | `selfhosting_YZ_06` |
@@ -35,31 +58,34 @@ Stage 0 (C) ──compile──> Stage 1 (MELP) ──compile──> Stage 1' (M
 
 ## 🔵 ŞU AN AKTİF GÖREV
 
-### YZ_03: Phase 2 - Integration
+### YZ_03: Phase 2 - Integration + THEN FIX
 
 **Durum:** 🔵 AKTİF  
 **Bağımlılık:** YZ_02 ✅ (tamamlandı)  
 **Tahmini Süre:** 4-6 saat
 
-**Görevler:**
+**⚠️ YENİ ÖNCELİK:**
 
-1. **Import Sorunlarını Çöz (2 saat)**
+**1. `then` Ekleme (2-3 saat)**
+   - 1,034 `if` statement'a `then` ekle
+   - Her `if <condition>` satırını `if <condition> then` yap
+   - Zaten `then` içerenleri bozma!
+
+**Script Önerisi:**
+```bash
+# Her "if ..." satırını (then ile bitmiyorsa) "if ... then" yap
+for f in $(find compiler/stage1/modules -name "*.mlp"); do
+    sed -i '/^[[:space:]]*if .*[^n]$/s/$/ then/' "$f"
+done
+```
+
+**2. Import Sorunlarını Çöz (1-2 saat)**
    - `control_flow_codegen.mlp` ve `enums_codegen.mlp` import hatalarını araştır
-   - Import edilen modüllerdeki syntax sorunlarını tespit et
-   - Bağımlılık grafiği oluştur
+   - token_types.mlp geri yüklendi, test et
 
-2. **Kalan Modülleri Tespit Et ve Düzelt (2-3 saat)**
-   - Toplam modül sayısını tespit et
-   - Düzeltilmemiş ~30 modülü belirle
-   - Syntax fix uygula
-   - Test et
-
-3. **Integration Test (1-2 saat)**
+**3. Integration Test (1-2 saat)**
    - Tüm modülleri birlikte test et
    - Bootstrap sürecini dene
-   - Detaylı rapor oluştur
-
-**Hedef:** Phase 1 tamamen tamamlanmış olacak (tüm modüller syntax temiz)
 
 **Tamamlandığında:**
 - `selfhosting_YZ/YZ_03_TAMAMLANDI.md` oluştur

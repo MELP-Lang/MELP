@@ -44,8 +44,486 @@ declare i32 @melp_map_has_key(i8*, i8*)
 declare i64 @melp_map_length(i8*)
 
 
-; Function: test
-define i64 @test() {
+; Function: token_to_operator
+define i64 @token_to_operator(i64 %token_type) {
 entry:
-    ret i64 1
+    %tmp1 = load i64, i64* %T_PLUS, align 8
+    %tmp2 = icmp eq i64 %token_type, %tmp1
+    br i1 %tmp2, label %label1, label %label2
+label1:
+    %tmp3 = load i64, i64* %OP_ADD, align 8
+    ret i64 %tmp3
+    br label %label2
+label2:
+    %tmp4 = load i64, i64* %T_MINUS, align 8
+    %tmp5 = icmp eq i64 %token_type, %tmp4
+    br i1 %tmp5, label %label3, label %label4
+label3:
+    %tmp6 = load i64, i64* %OP_SUB, align 8
+    ret i64 %tmp6
+    br label %label4
+label4:
+    %tmp7 = load i64, i64* %T_STAR, align 8
+    %tmp8 = icmp eq i64 %token_type, %tmp7
+    br i1 %tmp8, label %label5, label %label6
+label5:
+    %tmp9 = load i64, i64* %OP_MUL, align 8
+    ret i64 %tmp9
+    br label %label6
+label6:
+    %tmp10 = load i64, i64* %T_SLASH, align 8
+    %tmp11 = icmp eq i64 %token_type, %tmp10
+    br i1 %tmp11, label %label7, label %label8
+label7:
+    %tmp12 = load i64, i64* %OP_DIV, align 8
+    ret i64 %tmp12
+    br label %label8
+label8:
+    %tmp13 = load i64, i64* %T_PERCENT, align 8
+    %tmp14 = icmp eq i64 %token_type, %tmp13
+    br i1 %tmp14, label %label9, label %label10
+label9:
+    %tmp15 = load i64, i64* %OP_MOD, align 8
+    ret i64 %tmp15
+    br label %label10
+label10:
+    %tmp16 = load i64, i64* %T_POWER, align 8
+    %tmp17 = icmp eq i64 %token_type, %tmp16
+    br i1 %tmp17, label %label11, label %label12
+label11:
+    %tmp18 = load i64, i64* %OP_POW, align 8
+    ret i64 %tmp18
+    br label %label12
+label12:
+    %tmp19 = load i64, i64* %T_EQ, align 8
+    %tmp20 = icmp eq i64 %token_type, %tmp19
+    br i1 %tmp20, label %label13, label %label14
+label13:
+    %tmp21 = load i64, i64* %OP_EQ, align 8
+    ret i64 %tmp21
+    br label %label14
+label14:
+    %tmp22 = load i64, i64* %T_NE, align 8
+    %tmp23 = icmp eq i64 %token_type, %tmp22
+    br i1 %tmp23, label %label15, label %label16
+label15:
+    %tmp24 = load i64, i64* %OP_NE, align 8
+    ret i64 %tmp24
+    br label %label16
+label16:
+    %tmp25 = load i64, i64* %T_LT, align 8
+    %tmp26 = icmp eq i64 %token_type, %tmp25
+    br i1 %tmp26, label %label17, label %label18
+label17:
+    %tmp27 = load i64, i64* %OP_LT, align 8
+    ret i64 %tmp27
+    br label %label18
+label18:
+    %tmp28 = load i64, i64* %T_GT, align 8
+    %tmp29 = icmp eq i64 %token_type, %tmp28
+    br i1 %tmp29, label %label19, label %label20
+label19:
+    %tmp30 = load i64, i64* %OP_GT, align 8
+    ret i64 %tmp30
+    br label %label20
+label20:
+    %tmp31 = load i64, i64* %T_LE, align 8
+    %tmp32 = icmp eq i64 %token_type, %tmp31
+    br i1 %tmp32, label %label21, label %label22
+label21:
+    %tmp33 = load i64, i64* %OP_LE, align 8
+    ret i64 %tmp33
+    br label %label22
+label22:
+    %tmp34 = load i64, i64* %T_GE, align 8
+    %tmp35 = icmp eq i64 %token_type, %tmp34
+    br i1 %tmp35, label %label23, label %label24
+label23:
+    %tmp36 = load i64, i64* %OP_GE, align 8
+    ret i64 %tmp36
+    br label %label24
+label24:
+    %tmp37 = load i64, i64* %T_AND, align 8
+    %tmp38 = icmp eq i64 %token_type, %tmp37
+    br i1 %tmp38, label %label25, label %label26
+label25:
+    %tmp39 = load i64, i64* %OP_AND, align 8
+    ret i64 %tmp39
+    br label %label26
+label26:
+    %tmp40 = load i64, i64* %T_OR, align 8
+    %tmp41 = icmp eq i64 %token_type, %tmp40
+    br i1 %tmp41, label %label27, label %label28
+label27:
+    %tmp42 = load i64, i64* %OP_OR, align 8
+    ret i64 %tmp42
+    br label %label28
+label28:
+    %tmp43 = load i64, i64* %T_NOT, align 8
+    %tmp44 = icmp eq i64 %token_type, %tmp43
+    br i1 %tmp44, label %label29, label %label30
+label29:
+    %tmp45 = load i64, i64* %OP_NOT, align 8
+    ret i64 %tmp45
+    br label %label30
+label30:
+    %tmp46 = load i64, i64* %T_AMPERSAND, align 8
+    %tmp47 = icmp eq i64 %token_type, %tmp46
+    br i1 %tmp47, label %label31, label %label32
+label31:
+    %tmp48 = load i64, i64* %OP_BIT_AND, align 8
+    ret i64 %tmp48
+    br label %label32
+label32:
+    %tmp49 = load i64, i64* %T_PIPE, align 8
+    %tmp50 = icmp eq i64 %token_type, %tmp49
+    br i1 %tmp50, label %label33, label %label34
+label33:
+    %tmp51 = load i64, i64* %OP_BIT_OR, align 8
+    ret i64 %tmp51
+    br label %label34
+label34:
+    %tmp52 = load i64, i64* %T_CARET, align 8
+    %tmp53 = icmp eq i64 %token_type, %tmp52
+    br i1 %tmp53, label %label35, label %label36
+label35:
+    %tmp54 = load i64, i64* %OP_BIT_XOR, align 8
+    ret i64 %tmp54
+    br label %label36
+label36:
+    ret i64 0
 }
+
+; Function: get_precedence
+define i64 @get_precedence(i64 %op) {
+entry:
+    %tmp55 = load i64, i64* %OP_OR, align 8
+    %tmp56 = icmp eq i64 %op, %tmp55
+    br i1 %tmp56, label %label37, label %label38
+label37:
+    %tmp57 = load i64, i64* %PREC_OR, align 8
+    ret i64 %tmp57
+    br label %label38
+label38:
+    %tmp58 = load i64, i64* %OP_AND, align 8
+    %tmp59 = icmp eq i64 %op, %tmp58
+    br i1 %tmp59, label %label39, label %label40
+label39:
+    %tmp60 = load i64, i64* %PREC_AND, align 8
+    ret i64 %tmp60
+    br label %label40
+label40:
+    %tmp61 = load i64, i64* %OP_NOT, align 8
+    %tmp62 = icmp eq i64 %op, %tmp61
+    br i1 %tmp62, label %label41, label %label42
+label41:
+    %tmp63 = load i64, i64* %PREC_UNARY, align 8
+    ret i64 %tmp63
+    br label %label42
+label42:
+    %tmp64 = load i64, i64* %OP_EQ, align 8
+    %tmp65 = icmp eq i64 %op, %tmp64
+    br i1 %tmp65, label %label43, label %label44
+label43:
+    %tmp66 = load i64, i64* %PREC_EQUALITY, align 8
+    ret i64 %tmp66
+    br label %label44
+label44:
+    %tmp67 = load i64, i64* %OP_NE, align 8
+    %tmp68 = icmp eq i64 %op, %tmp67
+    br i1 %tmp68, label %label45, label %label46
+label45:
+    %tmp69 = load i64, i64* %PREC_EQUALITY, align 8
+    ret i64 %tmp69
+    br label %label46
+label46:
+    %tmp70 = load i64, i64* %OP_LT, align 8
+    %tmp71 = icmp eq i64 %op, %tmp70
+    br i1 %tmp71, label %label47, label %label48
+label47:
+    %tmp72 = load i64, i64* %PREC_COMPARISON, align 8
+    ret i64 %tmp72
+    br label %label48
+label48:
+    %tmp73 = load i64, i64* %OP_GT, align 8
+    %tmp74 = icmp eq i64 %op, %tmp73
+    br i1 %tmp74, label %label49, label %label50
+label49:
+    %tmp75 = load i64, i64* %PREC_COMPARISON, align 8
+    ret i64 %tmp75
+    br label %label50
+label50:
+    %tmp76 = load i64, i64* %OP_LE, align 8
+    %tmp77 = icmp eq i64 %op, %tmp76
+    br i1 %tmp77, label %label51, label %label52
+label51:
+    %tmp78 = load i64, i64* %PREC_COMPARISON, align 8
+    ret i64 %tmp78
+    br label %label52
+label52:
+    %tmp79 = load i64, i64* %OP_GE, align 8
+    %tmp80 = icmp eq i64 %op, %tmp79
+    br i1 %tmp80, label %label53, label %label54
+label53:
+    %tmp81 = load i64, i64* %PREC_COMPARISON, align 8
+    ret i64 %tmp81
+    br label %label54
+label54:
+    %tmp82 = load i64, i64* %OP_BIT_OR, align 8
+    %tmp83 = icmp eq i64 %op, %tmp82
+    br i1 %tmp83, label %label55, label %label56
+label55:
+    %tmp84 = load i64, i64* %PREC_BIT_OR, align 8
+    ret i64 %tmp84
+    br label %label56
+label56:
+    %tmp85 = load i64, i64* %OP_BIT_XOR, align 8
+    %tmp86 = icmp eq i64 %op, %tmp85
+    br i1 %tmp86, label %label57, label %label58
+label57:
+    %tmp87 = load i64, i64* %PREC_BIT_XOR, align 8
+    ret i64 %tmp87
+    br label %label58
+label58:
+    %tmp88 = load i64, i64* %OP_BIT_AND, align 8
+    %tmp89 = icmp eq i64 %op, %tmp88
+    br i1 %tmp89, label %label59, label %label60
+label59:
+    %tmp90 = load i64, i64* %PREC_BIT_AND, align 8
+    ret i64 %tmp90
+    br label %label60
+label60:
+    %tmp91 = load i64, i64* %OP_ADD, align 8
+    %tmp92 = icmp eq i64 %op, %tmp91
+    br i1 %tmp92, label %label61, label %label62
+label61:
+    %tmp93 = load i64, i64* %PREC_TERM, align 8
+    ret i64 %tmp93
+    br label %label62
+label62:
+    %tmp94 = load i64, i64* %OP_SUB, align 8
+    %tmp95 = icmp eq i64 %op, %tmp94
+    br i1 %tmp95, label %label63, label %label64
+label63:
+    %tmp96 = load i64, i64* %PREC_TERM, align 8
+    ret i64 %tmp96
+    br label %label64
+label64:
+    %tmp97 = load i64, i64* %OP_MUL, align 8
+    %tmp98 = icmp eq i64 %op, %tmp97
+    br i1 %tmp98, label %label65, label %label66
+label65:
+    %tmp99 = load i64, i64* %PREC_FACTOR, align 8
+    ret i64 %tmp99
+    br label %label66
+label66:
+    %tmp100 = load i64, i64* %OP_DIV, align 8
+    %tmp101 = icmp eq i64 %op, %tmp100
+    br i1 %tmp101, label %label67, label %label68
+label67:
+    %tmp102 = load i64, i64* %PREC_FACTOR, align 8
+    ret i64 %tmp102
+    br label %label68
+label68:
+    %tmp103 = load i64, i64* %OP_MOD, align 8
+    %tmp104 = icmp eq i64 %op, %tmp103
+    br i1 %tmp104, label %label69, label %label70
+label69:
+    %tmp105 = load i64, i64* %PREC_FACTOR, align 8
+    ret i64 %tmp105
+    br label %label70
+label70:
+    %tmp106 = load i64, i64* %OP_POW, align 8
+    %tmp107 = icmp eq i64 %op, %tmp106
+    br i1 %tmp107, label %label71, label %label72
+label71:
+    %tmp108 = load i64, i64* %PREC_POWER, align 8
+    ret i64 %tmp108
+    br label %label72
+label72:
+    %tmp109 = load i64, i64* %PREC_LOWEST, align 8
+    ret i64 %tmp109
+}
+
+; Function: get_operator_name
+define i8* @get_operator_name(i64 %op) {
+entry:
+    %tmp110 = load i64, i64* %OP_ADD, align 8
+    %tmp111 = icmp eq i64 %op, %tmp110
+    br i1 %tmp111, label %label73, label %label74
+label73:
+    %tmp112 = getelementptr inbounds [2 x i8], [2 x i8]* @.str.1, i64 0, i64 0
+    ret i8* %tmp112
+    br label %label74
+label74:
+    %tmp113 = load i64, i64* %OP_SUB, align 8
+    %tmp114 = icmp eq i64 %op, %tmp113
+    br i1 %tmp114, label %label75, label %label76
+label75:
+    %tmp115 = getelementptr inbounds [2 x i8], [2 x i8]* @.str.2, i64 0, i64 0
+    ret i8* %tmp115
+    br label %label76
+label76:
+    %tmp116 = load i64, i64* %OP_MUL, align 8
+    %tmp117 = icmp eq i64 %op, %tmp116
+    br i1 %tmp117, label %label77, label %label78
+label77:
+    %tmp118 = getelementptr inbounds [2 x i8], [2 x i8]* @.str.3, i64 0, i64 0
+    ret i8* %tmp118
+    br label %label78
+label78:
+    %tmp119 = load i64, i64* %OP_DIV, align 8
+    %tmp120 = icmp eq i64 %op, %tmp119
+    br i1 %tmp120, label %label79, label %label80
+label79:
+    %tmp121 = getelementptr inbounds [2 x i8], [2 x i8]* @.str.4, i64 0, i64 0
+    ret i8* %tmp121
+    br label %label80
+label80:
+    %tmp122 = load i64, i64* %OP_MOD, align 8
+    %tmp123 = icmp eq i64 %op, %tmp122
+    br i1 %tmp123, label %label81, label %label82
+label81:
+    %tmp124 = getelementptr inbounds [2 x i8], [2 x i8]* @.str.5, i64 0, i64 0
+    ret i8* %tmp124
+    br label %label82
+label82:
+    %tmp125 = load i64, i64* %OP_POW, align 8
+    %tmp126 = icmp eq i64 %op, %tmp125
+    br i1 %tmp126, label %label83, label %label84
+label83:
+    %tmp127 = getelementptr inbounds [3 x i8], [3 x i8]* @.str.6, i64 0, i64 0
+    ret i8* %tmp127
+    br label %label84
+label84:
+    %tmp128 = load i64, i64* %OP_EQ, align 8
+    %tmp129 = icmp eq i64 %op, %tmp128
+    br i1 %tmp129, label %label85, label %label86
+label85:
+    %tmp130 = getelementptr inbounds [3 x i8], [3 x i8]* @.str.7, i64 0, i64 0
+    ret i8* %tmp130
+    br label %label86
+label86:
+    %tmp131 = load i64, i64* %OP_NE, align 8
+    %tmp132 = icmp eq i64 %op, %tmp131
+    br i1 %tmp132, label %label87, label %label88
+label87:
+    %tmp133 = getelementptr inbounds [3 x i8], [3 x i8]* @.str.8, i64 0, i64 0
+    ret i8* %tmp133
+    br label %label88
+label88:
+    %tmp134 = load i64, i64* %OP_LT, align 8
+    %tmp135 = icmp eq i64 %op, %tmp134
+    br i1 %tmp135, label %label89, label %label90
+label89:
+    %tmp136 = getelementptr inbounds [2 x i8], [2 x i8]* @.str.9, i64 0, i64 0
+    ret i8* %tmp136
+    br label %label90
+label90:
+    %tmp137 = load i64, i64* %OP_GT, align 8
+    %tmp138 = icmp eq i64 %op, %tmp137
+    br i1 %tmp138, label %label91, label %label92
+label91:
+    %tmp139 = getelementptr inbounds [2 x i8], [2 x i8]* @.str.10, i64 0, i64 0
+    ret i8* %tmp139
+    br label %label92
+label92:
+    %tmp140 = load i64, i64* %OP_LE, align 8
+    %tmp141 = icmp eq i64 %op, %tmp140
+    br i1 %tmp141, label %label93, label %label94
+label93:
+    %tmp142 = getelementptr inbounds [3 x i8], [3 x i8]* @.str.11, i64 0, i64 0
+    ret i8* %tmp142
+    br label %label94
+label94:
+    %tmp143 = load i64, i64* %OP_GE, align 8
+    %tmp144 = icmp eq i64 %op, %tmp143
+    br i1 %tmp144, label %label95, label %label96
+label95:
+    %tmp145 = getelementptr inbounds [3 x i8], [3 x i8]* @.str.12, i64 0, i64 0
+    ret i8* %tmp145
+    br label %label96
+label96:
+    %tmp146 = load i64, i64* %OP_AND, align 8
+    %tmp147 = icmp eq i64 %op, %tmp146
+    br i1 %tmp147, label %label97, label %label98
+label97:
+    %tmp148 = getelementptr inbounds [4 x i8], [4 x i8]* @.str.13, i64 0, i64 0
+    ret i8* %tmp148
+    br label %label98
+label98:
+    %tmp149 = load i64, i64* %OP_OR, align 8
+    %tmp150 = icmp eq i64 %op, %tmp149
+    br i1 %tmp150, label %label99, label %label100
+label99:
+    %tmp151 = getelementptr inbounds [3 x i8], [3 x i8]* @.str.14, i64 0, i64 0
+    ret i8* %tmp151
+    br label %label100
+label100:
+    %tmp152 = load i64, i64* %OP_NOT, align 8
+    %tmp153 = icmp eq i64 %op, %tmp152
+    br i1 %tmp153, label %label101, label %label102
+label101:
+    %tmp154 = getelementptr inbounds [4 x i8], [4 x i8]* @.str.15, i64 0, i64 0
+    ret i8* %tmp154
+    br label %label102
+label102:
+    %tmp155 = load i64, i64* %OP_BIT_AND, align 8
+    %tmp156 = icmp eq i64 %op, %tmp155
+    br i1 %tmp156, label %label103, label %label104
+label103:
+    %tmp157 = getelementptr inbounds [2 x i8], [2 x i8]* @.str.16, i64 0, i64 0
+    ret i8* %tmp157
+    br label %label104
+label104:
+    %tmp158 = load i64, i64* %OP_BIT_OR, align 8
+    %tmp159 = icmp eq i64 %op, %tmp158
+    br i1 %tmp159, label %label105, label %label106
+label105:
+    %tmp160 = getelementptr inbounds [2 x i8], [2 x i8]* @.str.17, i64 0, i64 0
+    ret i8* %tmp160
+    br label %label106
+label106:
+    %tmp161 = load i64, i64* %OP_BIT_XOR, align 8
+    %tmp162 = icmp eq i64 %op, %tmp161
+    br i1 %tmp162, label %label107, label %label108
+label107:
+    %tmp163 = getelementptr inbounds [2 x i8], [2 x i8]* @.str.18, i64 0, i64 0
+    ret i8* %tmp163
+    br label %label108
+label108:
+    %tmp164 = getelementptr inbounds [8 x i8], [8 x i8]* @.str.19, i64 0, i64 0
+    ret i8* %tmp164
+}
+
+; Function: is_operator
+define i64 @is_operator(i64 %token_type) {
+entry:
+    %op = alloca i64, align 8
+    %tmp165 = call i64 @token_to_operator(i64 %token_type)
+    store i64 %tmp165, i64* %op, align 8
+    %tmp166 = load i64, i64* %op, align 8
+    ret i64 %tmp166
+}
+
+; String Constants
+@.str.1 = private unnamed_addr constant [2 x i8] c"+\00", align 1
+@.str.2 = private unnamed_addr constant [2 x i8] c"-\00", align 1
+@.str.3 = private unnamed_addr constant [2 x i8] c"*\00", align 1
+@.str.4 = private unnamed_addr constant [2 x i8] c"/\00", align 1
+@.str.5 = private unnamed_addr constant [2 x i8] c"%\00", align 1
+@.str.6 = private unnamed_addr constant [3 x i8] c"**\00", align 1
+@.str.7 = private unnamed_addr constant [3 x i8] c"==\00", align 1
+@.str.8 = private unnamed_addr constant [3 x i8] c"!=\00", align 1
+@.str.9 = private unnamed_addr constant [2 x i8] c"<\00", align 1
+@.str.10 = private unnamed_addr constant [2 x i8] c">\00", align 1
+@.str.11 = private unnamed_addr constant [3 x i8] c"<=\00", align 1
+@.str.12 = private unnamed_addr constant [3 x i8] c">=\00", align 1
+@.str.13 = private unnamed_addr constant [4 x i8] c"and\00", align 1
+@.str.14 = private unnamed_addr constant [3 x i8] c"or\00", align 1
+@.str.15 = private unnamed_addr constant [4 x i8] c"not\00", align 1
+@.str.16 = private unnamed_addr constant [2 x i8] c"&\00", align 1
+@.str.17 = private unnamed_addr constant [2 x i8] c"|\00", align 1
+@.str.18 = private unnamed_addr constant [2 x i8] c"^\00", align 1
+@.str.19 = private unnamed_addr constant [8 x i8] c"unknown\00", align 1
+

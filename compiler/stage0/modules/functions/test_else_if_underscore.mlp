@@ -1,0 +1,10 @@
+function test_else_if_underscore() returns numeric
+    numeric x = 5
+    if x == 1 then
+        return 1
+    else_if x == 5 then
+        return 5
+    else
+        return 0
+    end_if
+end_function

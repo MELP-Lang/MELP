@@ -336,7 +336,7 @@ function parse_primary(list tokens; numeric pos) returns list
         numeric new_pos = result[1]
         
         -- Expect closing parenthesis
-        if new_pos >= tokens.length
+        if new_pos >= len(tokens)
             return [0; new_pos]  -- Error: missing )
         end_if
         
@@ -387,7 +387,7 @@ function parse_expression(list tokens; numeric pos; numeric min_prec) returns li
     numeric continue_loop = 1
     while continue_loop do
         -- Check if next token is an operator
-        if current_pos >= tokens.length
+        if current_pos >= len(tokens)
             continue_loop = 0
         end_if
         

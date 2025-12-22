@@ -1,0 +1,10 @@
+function test_else_if_space() returns integer
+    integer x = 5
+    if x == 1 then
+        return 1
+    else if x == 5 then
+        return 5
+    else
+        return 0
+    end if
+end_function

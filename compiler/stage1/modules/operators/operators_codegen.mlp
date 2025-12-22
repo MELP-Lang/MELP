@@ -84,7 +84,7 @@ end_function
 
 -- Generate LLVM IR for comparison binary operation
 -- Returns i1 (boolean) result
-function codegen_comparison_binary(list expr, string result_reg, string indent) returns string
+function codegen_comparison_binary(list expr; string result_reg; string indent) returns string
     numeric op = get_expr_operator(expr)
     list left = get_expr_left(expr)
     list right = get_expr_right(expr)
@@ -229,14 +229,14 @@ function codegen_expression(list expr; string result_reg; string indent) returns
         -- Arithmetic operations
         if op >= OP_ADD
             if op <= OP_BIT_XOR
-                return codegen_arithmetic_binary(expr, result_reg, indent)
+                return codegen_arithmetic_binary(expr; result_reg; indent)
             end_if
         end_if
         
         -- Comparison operations
         if op >= OP_EQ
             if op <= OP_GE
-                return codegen_comparison_binary(expr, result_reg, indent)
+                return codegen_comparison_binary(expr; result_reg; indent)
             end_if
         end_if
         
@@ -280,7 +280,7 @@ end_function
 -- expr: Expression node from parser
 -- target_var: Optional variable to store result (or "" for temp)
 -- Returns: Complete LLVM IR code
-function codegen_operator_expression(list expr, string target_var) returns string
+function codegen_operator_expression(list expr; string target_var) returns string
     if expr == 0
         return ""
     end_if

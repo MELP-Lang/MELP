@@ -1,0 +1,6 @@
+function test_end_if() returns boolean
+    if true then
+        return true
+    end if
+    return false
+end_function

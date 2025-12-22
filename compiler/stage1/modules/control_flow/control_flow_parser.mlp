@@ -111,7 +111,8 @@ function parse_if_statement(list tokens; numeric pos) returns list
         current_token = tokens[current_pos]
         token_type = current_token[0]
         
-        -- Check for end_if or else_if token_type == T_END_IF
+        -- Check for end_if or else
+        if token_type == T_END_IF
             parsing_then = 0
         end_if
         
@@ -234,7 +235,7 @@ function parse_while_statement(list tokens; numeric pos) returns list
     
     if token_type != T_END_WHILE
         print "Error: Expected 'end_while' to close while statement"
-        return [[]; pos]
+        return [0; pos]
     end_if
     
     current_pos = current_pos + 1  -- Move past 'end_while'
@@ -346,7 +347,7 @@ function parse_for_statement(list tokens; numeric pos) returns list
     
     if token_type != T_END_FOR
         print "Error: Expected 'end_for' to close for statement"
-        return [[]; pos]
+        return [0; pos]
     end_if
     
     current_pos = current_pos + 1  -- Move past 'end_for'

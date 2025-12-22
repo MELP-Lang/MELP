@@ -156,6 +156,44 @@ Raporu çıktı.md'ye yaz.
 ### Amaç
 Tüm Stage 1 modüllerini pmlp_kesin_sozdizimi.md'ye uyumlu hale getir.
 
+### ⚠️ KRİTİK BULGU (22 Aralık 2025 - Üst Akıl)
+
+**1,034 `if` statement'da `then` anahtar kelimesi eksik!**
+
+Stage 1 modüllerinde iki farklı `if` syntax'ı kullanılmış:
+- DOĞRU: `if <condition> then` (854 adet)
+- YANLIŞ: `if <condition>` (1,034 adet - then yok!)
+
+**En çok etkilenen dosyalar:**
+| # | Dosya | Eksik `then` |
+|---|-------|--------------|
+| 1 | `lexer_mlp/tokenize_identifiers.mlp` | 84 |
+| 2 | `parser_mlp/parser.mlp` | 78 |
+| 3 | `lexer_mlp/lexer.mlp` | 76 |
+| 4 | `operators/operators_parser.mlp` | 70 |
+| 5 | `variables/variables_parser.mlp` | 39 |
+
+**Çözüm:** Her `if <condition>` satırına `then` eklenmeli.
+
+### TASK 1.0: `then` Anahtar Kelimesi Ekleme (YENİ - 4 saat)
+
+**Görevli YZ Talimatı:**
+
+```
+Her dosya için:
+1. "if ... ==" veya "if ... !=" gibi satırları bul
+2. Satır sonunda "then" yoksa ekle
+3. Test et
+
+Örnek:
+  YANLIŞ: if op == OP_ADD
+  DOĞRU:  if op == OP_ADD then
+
+Script örneği:
+  sed -i 's/^\([[:space:]]*if .*[^n]\)$/\1 then/' dosya.mlp
+  (Dikkat: Zaten "then" içerenleri bozmamalı!)
+```
+
 ### TASK 1.1: Core Modüller Syntax Fix (4 saat)
 
 **Öncelik sırası (kritikten başla):**
@@ -175,6 +213,7 @@ Her dosya için:
 2. while X → while X do
 3. break → exit_while veya exit_for
 4. Fonksiyon çağrılarında virgül → semicolon
+5. if X → if X then (YENİ!)
 
 Her düzeltmeden sonra:
   timeout 15 compiler/stage0/modules/functions/functions_compiler <dosya> -o temp/test.ll
