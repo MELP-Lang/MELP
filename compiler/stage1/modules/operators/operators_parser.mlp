@@ -269,18 +269,18 @@ function get_operator_name(numeric op) returns string
 end_function
 
 -- Check if token is an operator
-function is_operator(numeric token_type) returns boolean
+function is_operator(numeric token_type) returns numeric
     numeric op = token_to_operator(token_type)
     return op != 0
 end_function
 
 -- Check if operator is unary
-function is_unary_operator(numeric op) returns boolean
+function is_unary_operator(numeric op) returns numeric
     return op == OP_NOT
 end_function
 
 -- Check if operator is binary
-function is_binary_operator(numeric op) returns boolean
+function is_binary_operator(numeric op) returns numeric
     return op != OP_NOT
 end_function
 
@@ -331,7 +331,7 @@ function parse_primary(list tokens; numeric pos) returns list
     
     -- Parenthesized expression: ( expr )
     if token_type == T_LPAREN
-        list result = parse_expression(tokens, pos + 1, PREC_LOWEST)
+        list result = parse_expression(tokens; pos + 1; PREC_LOWEST)
         list expr = result[0]
         numeric new_pos = result[1]
         
@@ -350,7 +350,7 @@ function parse_primary(list tokens; numeric pos) returns list
     
     -- Unary operator (not, !)
     if token_type == T_NOT
-        list result = parse_expression(tokens, pos + 1, PREC_UNARY)
+        list result = parse_expression(tokens; pos + 1; PREC_UNARY)
         list operand = result[0]
         numeric new_pos = result[1]
         
@@ -360,7 +360,7 @@ function parse_primary(list tokens; numeric pos) returns list
     
     -- Unary minus
     if token_type == T_MINUS
-        list result = parse_expression(tokens, pos + 1, PREC_UNARY)
+        list result = parse_expression(tokens; pos + 1; PREC_UNARY)
         list operand = result[0]
         numeric new_pos = result[1]
         
@@ -375,7 +375,7 @@ end_function
 -- Returns: [expr_node, new_position]
 function parse_expression(list tokens; numeric pos; numeric min_prec) returns list
     -- Parse left operand (primary)
-    list result = parse_primary(tokens, pos)
+    list result = parse_primary(tokens; pos)
     list left = result[0]
     numeric current_pos = result[1]
     
@@ -413,7 +413,7 @@ function parse_expression(list tokens; numeric pos; numeric min_prec) returns li
                 current_pos = current_pos + 1
                 
                 -- Parse right operand with higher precedence
-                list right_result = parse_expression(tokens, current_pos, prec + 1)
+                list right_result = parse_expression(tokens; current_pos; prec + 1)
                 list right = right_result[0]
                 current_pos = right_result[1]
                 

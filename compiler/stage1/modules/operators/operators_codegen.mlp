@@ -29,11 +29,11 @@ function codegen_logical_unary(list expr; string result_reg; string indent) retu
     
     -- Generate code for left operand
     string left_reg = "%temp_left"
-    code = code + codegen_expression(left, left_reg, indent)
+    code = code + codegen_expression(left; left_reg; indent)
     
     -- Generate code for right operand
     string right_reg = "%temp_right"
-    code = code + codegen_expression(right, right_reg, indent)
+    code = code + codegen_expression(right; right_reg; indent)
     
     -- Generate operation instruction
     string comment = "; " + get_operator_name(op) + " operation"
@@ -93,11 +93,11 @@ function codegen_comparison_binary(list expr, string result_reg, string indent) 
     
     -- Generate code for left operand
     string left_reg = "%temp_left"
-    code = code + codegen_expression(left, left_reg, indent)
+    code = code + codegen_expression(left; left_reg; indent)
     
     -- Generate code for right operand
     string right_reg = "%temp_right"
-    code = code + codegen_expression(right, right_reg, indent)
+    code = code + codegen_expression(right; right_reg; indent)
     
     -- Generate comparison instruction
     string comment = "; " + get_operator_name(op) + " comparison"
@@ -141,11 +141,11 @@ function codegen_logical_binary(list expr; string result_reg; string indent) ret
     
     -- Generate code for left operand (should be i1)
     string left_reg = "%temp_left_bool"
-    code = code + codegen_expression(left, left_reg, indent)
+    code = code + codegen_expression(left; left_reg; indent)
     
     -- Generate code for right operand (should be i1)
     string right_reg = "%temp_right_bool"
-    code = code + codegen_expression(right, right_reg, indent)
+    code = code + codegen_expression(right; right_reg; indent)
     
     -- Generate logical instruction
     string comment = "; " + get_operator_name(op) + " operation"
@@ -170,7 +170,7 @@ function codegen_logical_unary(list expr; string result_reg; string indent) retu
     
     -- Generate code for operand
     string operand_reg = "%temp_operand"
-    code = code + codegen_expression(operand, operand_reg, indent)
+    code = code + codegen_expression(operand; operand_reg; indent)
     
     -- Generate NOT instruction (XOR with true)
     string comment = "; not operation"
@@ -263,7 +263,7 @@ function codegen_expression(list expr; string result_reg; string indent) returns
             list operand = get_expr_left(expr)
             string code = ""
             string operand_reg = "%temp_operand"
-            code = code + codegen_expression(operand, operand_reg, indent)
+            code = code + codegen_expression(operand; operand_reg; indent)
             code = code + indent + result_reg + " = sub i64 0, " + operand_reg + "  ; unary minus\n"
             return code
         end_if
@@ -295,7 +295,7 @@ function codegen_operator_expression(list expr, string target_var) returns strin
     end_if
     
     -- Generate expression code
-    code = code + codegen_expression(expr, result_reg, indent)
+    code = code + codegen_expression(expr; result_reg; indent)
     
     -- Store to variable if target provided
     if target_var != ""
