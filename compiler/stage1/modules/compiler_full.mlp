@@ -22,14 +22,14 @@
 -- PART 1: COMPILATION PIPELINE (from compiler_integration.mlp)
 -- ============================================================================
 
-function report_error(string phase, string message) returns numeric
+function report_error(string phase; string message) returns numeric
     println("[ERROR] Compilation error occurred")
     println(phase)
     println(message)
     return 1
 end_function
 
-function report_warning(string phase, string message) returns numeric
+function report_warning(string phase; string message) returns numeric
     println("[WARNING] Compilation warning")
     println(phase)
     println(message)
@@ -236,13 +236,13 @@ function read_source_file(string filename) returns string
     return content
 end_function
 
-function write_output_file(string filename, string content) returns numeric
+function write_output_file(string filename; string content) returns numeric
     println("[INFO] Writing file:")
     println(filename)
     println("")
     
     -- Use builtin write_file() wrapper (YZ_25 - maps to mlp_write_file)
-    numeric result = write_file(filename, content)
+    numeric result = write_file(filename; content)
     
     if result == 1 then
         println("  ✓ File written successfully")
@@ -277,7 +277,7 @@ end_function
 -- MAIN COMPILATION DRIVER
 -- ============================================================================
 
-function compile_file(string input_file, string output_file) returns numeric
+function compile_file(string input_file; string output_file) returns numeric
     println("")
     println("========================================")
     println("  MELP Compiler - Compilation")
@@ -308,7 +308,7 @@ function compile_file(string input_file, string output_file) returns numeric
     -- Step 3: Write output
     println("[3/3] Writing output file...")
     numeric write_result
-    write_result = write_output_file(output_file, llvm_ir)
+    write_result = write_output_file(output_file; llvm_ir)
     println("  ✓ Output file written successfully")
     println("")
     
@@ -345,7 +345,7 @@ function main() returns numeric
     
     -- Compile the file
     numeric result
-    result = compile_file(input_file, output_file)
+    result = compile_file(input_file; output_file)
     
     -- Return status
     println("")

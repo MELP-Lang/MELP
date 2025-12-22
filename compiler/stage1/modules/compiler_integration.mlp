@@ -36,21 +36,21 @@
 -- Error counter (stored in function scope)
 -- Returns: 1 (always increments)
 
-function report_error(string phase, string message) returns numeric
+function report_error(string phase; string message) returns numeric
     println("[ERROR] Compilation error occurred")
     println(phase)
     println(message)
     return 1
 end_function
 
-function report_warning(string phase, string message) returns numeric
+function report_warning(string phase; string message) returns numeric
     println("[WARNING] Compilation warning")
     println(phase)
     println(message)
     return 1
 end_function
 
-function log_verbose(string message, numeric verbose_mode) returns numeric
+function log_verbose(string message; numeric verbose_mode) returns numeric
     if verbose_mode == 1 then
         println("[INFO]")
         println(message)
@@ -105,7 +105,7 @@ function parse_tokens(list tokens) returns list
     -- Parsing phases:
     -- 1. Parse imports (parser_import.mlp)
     -- 2. Parse struct/enum definitions (parser_struct.mlp, parser_enum.mlp)
-    -- 3. Parse function declarations (parser_func.mlp)
+    -- 3. Parse function declarations(parser_func.mlp)
     -- 4. Parse statements (parser_stmt.mlp, parser_control.mlp)
     
     -- TODO: Actual parser integration

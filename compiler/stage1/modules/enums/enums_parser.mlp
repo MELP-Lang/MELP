@@ -74,7 +74,7 @@ function parse_enum_definition(list tokens; numeric pos) returns list
         -- Check for end_enum
         if token_type == TOKEN_END_ENUM then
             current_pos = current_pos + 1  -- Skip end_enum
-            break
+            exit
         end_if
         
         -- Expect identifier (value name)
@@ -257,7 +257,7 @@ function get_enum_ref_value(list ref_node) returns string
 end_function
 
 -- Check if node is enum definition
-function is_enum_definition(list node) returns boolean
+function is_enum_definition(list node) returns numeric
     if len(node) == 0 then
         return false
     end_if
@@ -265,7 +265,7 @@ function is_enum_definition(list node) returns boolean
 end_function
 
 -- Check if node is enum value
-function is_enum_value(list node) returns boolean
+function is_enum_value(list node) returns numeric
     if len(node) == 0 then
         return false
     end_if
@@ -273,7 +273,7 @@ function is_enum_value(list node) returns boolean
 end_function
 
 -- Check if node is enum value reference
-function is_enum_value_ref(list node) returns boolean
+function is_enum_value_ref(list node) returns numeric
     if len(node) == 0 then
         return false
     end_if
@@ -281,7 +281,7 @@ function is_enum_value_ref(list node) returns boolean
 end_function
 
 -- Check if node is enum assignment
-function is_enum_assignment(list node) returns boolean
+function is_enum_assignment(list node) returns numeric
     if len(node) == 0 then
         return false
     end_if
@@ -310,7 +310,7 @@ function parse_int(string s) returns numeric
     numeric result = 0
     numeric i = 0
     numeric len_s = len(s)
-    boolean is_negative = false
+    numeric is_negative = false
     
     -- Check for negative sign
     if len_s > 0 and s[0] == "-" then

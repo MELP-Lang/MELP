@@ -136,7 +136,7 @@ end_function
 -- Generate LLVM IR comment for enum definition
 -- Enums are compile-time only, no runtime code needed
 -- Returns: LLVM IR string
-function codegen_enum_definition(list enum_node, string indent) returns string
+function codegen_enum_definition(list enum_node; string indent) returns string
     if not is_enum_definition(enum_node) then
         return ""
     end_if
@@ -150,9 +150,9 @@ function codegen_enum_definition(list enum_node, string indent) returns string
     
     -- Generate comment documentation
     string result = indent
-    result = concat(result, "; Enum: ")
-    result = concat(result, enum_name)
-    result = concat(result, "\n")
+    result = concat(result; "; Enum: ")
+    result = concat(result; enum_name)
+    result = concat(result; "\n")
     
     -- Generate value comments
     numeric i = 0
@@ -161,14 +161,14 @@ function codegen_enum_definition(list enum_node, string indent) returns string
         string value_name = get_enum_value_name(value_node)
         numeric value_num = get_enum_value_numeric(value_node)
         
-        result = concat(result, indent)
-        result = concat(result, ";   ")
-        result = concat(result, enum_name)
-        result = concat(result, ".")
-        result = concat(result, value_name)
-        result = concat(result, " = ")
-        result = concat(result, to_string(value_num))
-        result = concat(result, "\n")
+        result = concat(result; indent)
+        result = concat(result; ";   ")
+        result = concat(result; enum_name)
+        result = concat(result; ".")
+        result = concat(result; value_name)
+        result = concat(result; " = ")
+        result = concat(result; to_string(value_num))
+        result = concat(result; "\n")
         
         i = i + 1
     end_while
@@ -192,7 +192,7 @@ function codegen_enum_value_reference(list ref_node) returns string
         value = lookup_enum_value_unqualified(value_name)
     else
         -- Qualified reference
-        value = lookup_enum_value(enum_type, value_name)
+        value = lookup_enum_value(enum_type; value_name)
     end_if
     
     if value == -1 then
@@ -202,13 +202,13 @@ function codegen_enum_value_reference(list ref_node) returns string
     
     -- Return constant value
     string result = "i32 "
-    result = concat(result, to_string(value))
+    result = concat(result; to_string(value))
     return result
 end_function
 
 -- Generate LLVM IR for enum variable assignment
 -- Returns: LLVM IR string
-function codegen_enum_assignment(list assignment_node, string indent, list context) returns string
+function codegen_enum_assignment(list assignment_node; string indent; list context) returns string
     if not is_enum_assignment(assignment_node) then
         return ""
     end_if
@@ -221,28 +221,28 @@ function codegen_enum_assignment(list assignment_node, string indent, list conte
     string result = ""
     
     -- Allocate variable
-    result = concat(result, indent)
-    result = concat(result, "%")
-    result = concat(result, var_name)
-    result = concat(result, " = alloca i32\n")
+    result = concat(result; indent)
+    result = concat(result; "%")
+    result = concat(result; var_name)
+    result = concat(result; " = alloca i32\n")
     
     -- Get value
     string value_ir = codegen_enum_value_reference(value_expr)
     
     -- Store value
-    result = concat(result, indent)
-    result = concat(result, "store ")
-    result = concat(result, value_ir)
-    result = concat(result, ", i32* %")
-    result = concat(result, var_name)
-    result = concat(result, "\n")
+    result = concat(result; indent)
+    result = concat(result; "store ")
+    result = concat(result; value_ir)
+    result = concat(result; ", i32* %")
+    result = concat(result; var_name)
+    result = concat(result; "\n")
     
     return result
 end_function
 
 -- Generate LLVM IR for enum comparison
 -- Returns: LLVM IR string for comparison result
-function codegen_enum_comparison(list left_ref, list right_ref, string op, string indent, numeric reg_counter) returns list
+function codegen_enum_comparison(list left_ref; list right_ref; string op; string indent; numeric reg_counter) returns list
     -- Load left value
     string left_ir = codegen_enum_value_reference(left_ref)
     
@@ -252,43 +252,43 @@ function codegen_enum_comparison(list left_ref, list right_ref, string op, strin
     string result = ""
     
     -- Generate comparison
-    result = concat(result, indent)
-    result = concat(result, "%cmp_")
-    result = concat(result, to_string(reg_counter))
-    result = concat(result, " = icmp ")
+    result = concat(result; indent)
+    result = concat(result; "%cmp_")
+    result = concat(result; to_string(reg_counter))
+    result = concat(result; " = icmp ")
     
     -- Map operator to LLVM comparison
     if op == "==" then
-        result = concat(result, "eq")
+        result = concat(result; "eq")
     end_if
     if op == "!=" then
-        result = concat(result, "ne")
+        result = concat(result; "ne")
     end_if
     if op == "<" then
-        result = concat(result, "slt")
+        result = concat(result; "slt")
     end_if
     if op == "<=" then
-        result = concat(result, "sle")
+        result = concat(result; "sle")
     end_if
     if op == ">" then
-        result = concat(result, "sgt")
+        result = concat(result; "sgt")
     end_if
     if op == ">=" then
-        result = concat(result, "sge")
+        result = concat(result; "sge")
     end_if
     
-    result = concat(result, " ")
-    result = concat(result, left_ir)
-    result = concat(result, ", ")
+    result = concat(result; " ")
+    result = concat(result; left_ir)
+    result = concat(result; ", ")
     
     -- Extract just the value from right_ir (remove "i32 " prefix)
-    string right_value = substring(right_ir, 4, len(right_ir))
-    result = concat(result, right_value)
-    result = concat(result, "\n")
+    string right_value = substring(right_ir; 4; len(right_ir))
+    result = concat(result; right_value)
+    result = concat(result; "\n")
     
     numeric new_reg = reg_counter + 1
     
-    return [result, new_reg]
+    return [result; new_reg]
 end_function
 
 -- ============================================================================
@@ -312,19 +312,19 @@ function to_string(numeric n) returns string
 end_function
 
 -- Concatenate strings
-function concat(string a, string b) returns string
+function concat(string a; string b) returns string
     -- In real implementation, concatenates strings
     return a
 end_function
 
 -- Get substring
-function substring(string s, numeric start, numeric end_pos) returns string
+function substring(string s; numeric start; numeric end_pos) returns string
     -- In real implementation, extracts substring
     return ""
 end_function
 
 -- Helper to append to list
-function append(list lst, list item) returns list
+function append(list lst; list item) returns list
     list result = lst
     -- In real implementation, this would append item to result
     return result

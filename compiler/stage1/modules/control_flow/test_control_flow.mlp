@@ -21,7 +21,7 @@ numeric test_passed = 0
 numeric test_failed = 0
 
 -- Print test result
-function test_result(string test_name, numeric passed) returns numeric
+function test_result(string test_name; numeric passed) returns numeric
     test_count = test_count + 1
     
     if passed == 1
@@ -38,24 +38,24 @@ function test_result(string test_name, numeric passed) returns numeric
 end_function
 
 -- Assert equal
-function assert_equal(string name, numeric actual, numeric expected) returns numeric
+function assert_equal(string name; numeric actual; numeric expected) returns numeric
     if actual == expected
-        return test_result(name, 1)
+        return test_result(name; 1)
     end_if
     
     print "  Expected: " + expected
     print "  Actual: " + actual
-    return test_result(name, 0)
+    return test_result(name; 0)
 end_function
 
 -- Assert not empty
-function assert_not_empty(string name, list value) returns numeric
+function assert_not_empty(string name; list value) returns numeric
     if value != []
-        return test_result(name, 1)
+        return test_result(name; 1)
     end_if
     
     print "  Expected non-empty list"
-    return test_result(name, 0)
+    return test_result(name; 0)
 end_function
 
 -- ============================================================================
@@ -67,21 +67,21 @@ function test_parse_if_simple() returns numeric
     
     -- Create token list for: if x > 5 then end_if
     list tokens = [
-        [T_IF, "if"],
-        [T_IDENTIFIER, "x"],
-        [T_GT, ">"],
-        [T_NUMBER, "5"],
-        [T_THEN, "then"],
-        [T_END_IF, "end_if"]
+        [T_IF; "if"],
+        [T_IDENTIFIER; "x"],
+        [T_GT; ">"],
+        [T_NUMBER; "5"],
+        [T_THEN; "then"],
+        [T_END_IF; "end_if"]
     ]
     
     -- Parse if statement
-    list result = parse_if_statement(tokens, 0)
+    list result = parse_if_statement(tokens; 0)
     list if_stmt = result[0]
     numeric new_pos = result[1]
     
     -- Check if parsing succeeded
-    numeric passed = assert_not_empty("Parse if statement", if_stmt)
+    numeric passed = assert_not_empty("Parse if statement"; if_stmt)
     
     if passed == 0
         return 0
@@ -89,13 +89,13 @@ function test_parse_if_simple() returns numeric
     
     -- Check structure
     numeric ctrl_type = if_stmt[0]
-    passed = assert_equal("If type is CTRL_IF", ctrl_type, CTRL_IF)
+    passed = assert_equal("If type is CTRL_IF"; ctrl_type; CTRL_IF)
     
     numeric has_else = if_stmt[2]
-    passed = assert_equal("Has no else clause", has_else, 0)
+    passed = assert_equal("Has no else clause"; has_else; 0)
     
     -- Check position advanced correctly
-    passed = assert_equal("Position after parsing", new_pos, 6)
+    passed = assert_equal("Position after parsing"; new_pos; 6)
     
     return passed
 end_function
@@ -109,22 +109,22 @@ function test_parse_if_else() returns numeric
     
     -- Create token list for: if x > 5 then else end_if
     list tokens = [
-        [T_IF, "if"],
-        [T_IDENTIFIER, "x"],
-        [T_GT, ">"],
-        [T_NUMBER, "5"],
-        [T_THEN, "then"],
-        [T_ELSE, "else"],
-        [T_END_IF, "end_if"]
+        [T_IF; "if"],
+        [T_IDENTIFIER; "x"],
+        [T_GT; ">"],
+        [T_NUMBER; "5"],
+        [T_THEN; "then"],
+        [T_ELSE; "else"],
+        [T_END_IF; "end_if"]
     ]
     
     -- Parse if statement
-    list result = parse_if_statement(tokens, 0)
+    list result = parse_if_statement(tokens; 0)
     list if_stmt = result[0]
     numeric new_pos = result[1]
     
     -- Check if parsing succeeded
-    numeric passed = assert_not_empty("Parse if-else statement", if_stmt)
+    numeric passed = assert_not_empty("Parse if-else statement"; if_stmt)
     
     if passed == 0
         return 0
@@ -132,10 +132,10 @@ function test_parse_if_else() returns numeric
     
     -- Check structure
     numeric ctrl_type = if_stmt[0]
-    passed = assert_equal("If type is CTRL_IF_ELSE", ctrl_type, CTRL_IF_ELSE)
+    passed = assert_equal("If type is CTRL_IF_ELSE"; ctrl_type; CTRL_IF_ELSE)
     
     numeric has_else = if_stmt[2]
-    passed = assert_equal("Has else clause", has_else, 1)
+    passed = assert_equal("Has else clause"; has_else; 1)
     
     return passed
 end_function
@@ -149,28 +149,28 @@ function test_parse_while() returns numeric
     
     -- Create token list for: while count < 10 do end_while
     list tokens = [
-        [T_WHILE, "while"],
-        [T_IDENTIFIER, "count"],
-        [T_LT, "<"],
-        [T_NUMBER, "10"],
-        [T_DO, "do"],
-        [T_END_WHILE, "end_while"]
+        [T_WHILE; "while"],
+        [T_IDENTIFIER; "count"],
+        [T_LT; "<"],
+        [T_NUMBER; "10"],
+        [T_DO; "do"],
+        [T_END_WHILE; "end_while"]
     ]
     
     -- Parse while statement
-    list result = parse_while_statement(tokens, 0)
+    list result = parse_while_statement(tokens; 0)
     list while_stmt = result[0]
     numeric new_pos = result[1]
     
     -- Check if parsing succeeded
-    numeric passed = assert_not_empty("Parse while statement", while_stmt)
+    numeric passed = assert_not_empty("Parse while statement"; while_stmt)
     
     if passed == 0
         return 0
     end_if
     
     -- Check position
-    passed = assert_equal("Position after parsing", new_pos, 6)
+    passed = assert_equal("Position after parsing"; new_pos; 6)
     
     return passed
 end_function
@@ -184,19 +184,19 @@ function test_parse_while_no_do() returns numeric
     
     -- Create token list for: while x > 0 end_while
     list tokens = [
-        [T_WHILE, "while"],
-        [T_IDENTIFIER, "x"],
-        [T_GT, ">"],
-        [T_NUMBER, "0"],
-        [T_END_WHILE, "end_while"]
+        [T_WHILE; "while"],
+        [T_IDENTIFIER; "x"],
+        [T_GT; ">"],
+        [T_NUMBER; "0"],
+        [T_END_WHILE; "end_while"]
     ]
     
     -- Parse while statement
-    list result = parse_while_statement(tokens, 0)
+    list result = parse_while_statement(tokens; 0)
     list while_stmt = result[0]
     
     -- Check if parsing succeeded
-    numeric passed = assert_not_empty("Parse while without do", while_stmt)
+    numeric passed = assert_not_empty("Parse while without do"; while_stmt)
     
     return passed
 end_function
@@ -210,23 +210,23 @@ function test_parse_for() returns numeric
     
     -- Create token list for: for i in 0..10 do end_for
     list tokens = [
-        [T_FOR, "for"],
-        [T_IDENTIFIER, "i"],
-        [T_IN, "in"],
-        [T_NUMBER, "0"],
-        [T_RANGE, ".."],
-        [T_NUMBER, "10"],
-        [T_DO, "do"],
-        [T_END_FOR, "end_for"]
+        [T_FOR; "for"],
+        [T_IDENTIFIER; "i"],
+        [T_IN; "in"],
+        [T_NUMBER; "0"],
+        [T_RANGE; ".."],
+        [T_NUMBER; "10"],
+        [T_DO; "do"],
+        [T_END_FOR; "end_for"]
     ]
     
     -- Parse for statement
-    list result = parse_for_statement(tokens, 0)
+    list result = parse_for_statement(tokens; 0)
     list for_stmt = result[0]
     numeric new_pos = result[1]
     
     -- Check if parsing succeeded
-    numeric passed = assert_not_empty("Parse for statement", for_stmt)
+    numeric passed = assert_not_empty("Parse for statement"; for_stmt)
     
     if passed == 0
         return 0
@@ -235,11 +235,11 @@ function test_parse_for() returns numeric
     -- Check iterator
     string iterator = for_stmt[0]
     if iterator == "i"
-        passed = test_result("Iterator is 'i'", 1)
+        passed = test_result("Iterator is 'i'"; 1)
     end_if
     
     if iterator != "i"
-        passed = test_result("Iterator is 'i'", 0)
+        passed = test_result("Iterator is 'i'"; 0)
     end_if
     
     return passed
@@ -254,18 +254,18 @@ function test_codegen_if() returns numeric
     
     -- Create simple if statement structure
     -- if_stmt: [CTRL_IF, condition, has_else=0, then_body=[], else_body=[]]
-    list condition = [EXPR_LITERAL, "1"]  -- Simple true condition
-    list if_stmt = [CTRL_IF, condition, 0, [], []]
+    list condition = [EXPR_LITERAL; "1"]  -- Simple true condition
+    list if_stmt = [CTRL_IF; condition; 0; []; []]
     
     -- Generate code
-    string code = codegen_if_statement(if_stmt, "%result", "    ")
+    string code = codegen_if_statement(if_stmt; "%result"; "    ")
     
     -- Check if code was generated
     if code != ""
-        return test_result("CodeGen if statement", 1)
+        return test_result("CodeGen if statement"; 1)
     end_if
     
-    return test_result("CodeGen if statement", 0)
+    return test_result("CodeGen if statement"; 0)
 end_function
 
 -- ============================================================================
@@ -276,18 +276,18 @@ function test_codegen_if_else() returns numeric
     print "\n=== TEST 7: CodeGen If-Else Statement ==="
     
     -- Create if-else statement structure
-    list condition = [EXPR_LITERAL, "1"]
-    list if_stmt = [CTRL_IF_ELSE, condition, 1, [], []]
+    list condition = [EXPR_LITERAL; "1"]
+    list if_stmt = [CTRL_IF_ELSE; condition; 1; []; []]
     
     -- Generate code
-    string code = codegen_if_statement(if_stmt, "%result", "    ")
+    string code = codegen_if_statement(if_stmt; "%result"; "    ")
     
     -- Check if code was generated and contains else label
     if code != ""
-        return test_result("CodeGen if-else statement", 1)
+        return test_result("CodeGen if-else statement"; 1)
     end_if
     
-    return test_result("CodeGen if-else statement", 0)
+    return test_result("CodeGen if-else statement"; 0)
 end_function
 
 -- ============================================================================
@@ -299,18 +299,18 @@ function test_codegen_while() returns numeric
     
     -- Create while statement structure
     -- while_stmt: [condition, body]
-    list condition = [EXPR_LITERAL, "1"]  -- Simple condition
-    list while_stmt = [condition, []]
+    list condition = [EXPR_LITERAL; "1"]  -- Simple condition
+    list while_stmt = [condition; []]
     
     -- Generate code
-    string code = codegen_while_statement(while_stmt, "%result", "    ")
+    string code = codegen_while_statement(while_stmt; "%result"; "    ")
     
     -- Check if code was generated
     if code != ""
-        return test_result("CodeGen while statement", 1)
+        return test_result("CodeGen while statement"; 1)
     end_if
     
-    return test_result("CodeGen while statement", 0)
+    return test_result("CodeGen while statement"; 0)
 end_function
 
 -- ============================================================================
@@ -322,19 +322,19 @@ function test_codegen_for() returns numeric
     
     -- Create for statement structure
     -- for_stmt: [iterator, start_expr, end_expr, label, body]
-    list start_expr = [EXPR_LITERAL, "0"]
-    list end_expr = [EXPR_LITERAL, "10"]
-    list for_stmt = ["i", start_expr, end_expr, "", []]
+    list start_expr = [EXPR_LITERAL; "0"]
+    list end_expr = [EXPR_LITERAL; "10"]
+    list for_stmt = ["i"; start_expr; end_expr; ""; []]
     
     -- Generate code
-    string code = codegen_for_statement(for_stmt, "%result", "    ")
+    string code = codegen_for_statement(for_stmt; "%result"; "    ")
     
     -- Check if code was generated
     if code != ""
-        return test_result("CodeGen for statement", 1)
+        return test_result("CodeGen for statement"; 1)
     end_if
     
-    return test_result("CodeGen for statement", 0)
+    return test_result("CodeGen for statement"; 0)
 end_function
 
 -- ============================================================================
@@ -349,22 +349,22 @@ function test_helper_functions() returns numeric
     numeric passed = 0
     
     if name == "if"
-        passed = test_result("Get if type name", 1)
+        passed = test_result("Get if type name"; 1)
     end_if
     
     if name != "if"
-        passed = test_result("Get if type name", 0)
+        passed = test_result("Get if type name"; 0)
     end_if
     
     -- Test control flow keyword detection
     numeric is_keyword = is_control_flow_keyword(T_IF)
-    passed = assert_equal("T_IF is control flow keyword", is_keyword, 1)
+    passed = assert_equal("T_IF is control flow keyword"; is_keyword; 1)
     
     is_keyword = is_control_flow_keyword(T_WHILE)
-    passed = assert_equal("T_WHILE is control flow keyword", is_keyword, 1)
+    passed = assert_equal("T_WHILE is control flow keyword"; is_keyword; 1)
     
     is_keyword = is_control_flow_keyword(T_NUMBER)
-    passed = assert_equal("T_NUMBER is not control flow keyword", is_keyword, 0)
+    passed = assert_equal("T_NUMBER is not control flow keyword"; is_keyword; 0)
     
     return passed
 end_function
@@ -376,15 +376,15 @@ end_function
 function test_codegen_break() returns numeric
     print "\n=== TEST 11: CodeGen Break Statement ==="
     
-    -- Generate break code
-    string code = codegen_break_statement(1, "    ")
+    -- Generate exit code
+    string code = codegen_break_statement(1; "    ")
     
     -- Check if code was generated
     if code != ""
-        return test_result("CodeGen break statement", 1)
+        return test_result("CodeGen exit statement"; 1)
     end_if
     
-    return test_result("CodeGen break statement", 0)
+    return test_result("CodeGen exit statement"; 0)
 end_function
 
 -- ============================================================================
@@ -395,14 +395,14 @@ function test_codegen_continue() returns numeric
     print "\n=== TEST 12: CodeGen Continue Statement ==="
     
     -- Generate continue code
-    string code = codegen_continue_statement(1, "    ")
+    string code = codegen_continue_statement(1; "    ")
     
     -- Check if code was generated
     if code != ""
-        return test_result("CodeGen continue statement", 1)
+        return test_result("CodeGen continue statement"; 1)
     end_if
     
-    return test_result("CodeGen continue statement", 0)
+    return test_result("CodeGen continue statement"; 0)
 end_function
 
 -- ============================================================================

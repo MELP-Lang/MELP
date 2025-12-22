@@ -20,12 +20,12 @@
 function test_empty_array() returns numeric
     -- Input tokens: [LBRACKET, RBRACKET]
     list tokens = [
-        [TOKEN_LBRACKET, "["],
-        [TOKEN_RBRACKET, "]"]
+        [TOKEN_LBRACKET; "["],
+        [TOKEN_RBRACKET; "]"]
     ]
     
     -- Parse array literal
-    list result = parse_array_literal(tokens, 0)
+    list result = parse_array_literal(tokens; 0)
     list array_node = result[0]
     numeric new_pos = result[1]
     
@@ -50,7 +50,7 @@ function test_empty_array() returns numeric
     
     -- Generate LLVM IR
     list context = []
-    list codegen_result = codegen_array_literal(array_node, "%empty_arr", "  ", context)
+    list codegen_result = codegen_array_literal(array_node; "%empty_arr"; "  "; context)
     string llvm_code = codegen_result[0]
     
     -- Verify code generation (basic check)
@@ -70,17 +70,17 @@ end_function
 function test_integer_array() returns numeric
     -- Input tokens: [LBRACKET, NUMBER "1", COMMA, NUMBER "2", COMMA, NUMBER "3", RBRACKET]
     list tokens = [
-        [TOKEN_LBRACKET, "["],
-        [TOKEN_NUMBER, "1"],
-        [TOKEN_COMMA, ","],
-        [TOKEN_NUMBER, "2"],
-        [TOKEN_COMMA, ","],
-        [TOKEN_NUMBER, "3"],
-        [TOKEN_RBRACKET, "]"]
+        [TOKEN_LBRACKET; "["],
+        [TOKEN_NUMBER; "1"],
+        [TOKEN_COMMA; ","],
+        [TOKEN_NUMBER; "2"],
+        [TOKEN_COMMA; ","],
+        [TOKEN_NUMBER; "3"],
+        [TOKEN_RBRACKET; "]"]
     ]
     
     -- Parse array literal
-    list result = parse_array_literal(tokens, 0)
+    list result = parse_array_literal(tokens; 0)
     list array_node = result[0]
     numeric new_pos = result[1]
     
@@ -107,7 +107,7 @@ function test_integer_array() returns numeric
     
     -- Generate LLVM IR
     list context = []
-    list codegen_result = codegen_array_literal(array_node, "%int_arr", "  ", context)
+    list codegen_result = codegen_array_literal(array_node; "%int_arr"; "  "; context)
     string llvm_code = codegen_result[0]
     
     if llvm_code == "" then
@@ -126,15 +126,15 @@ end_function
 function test_string_array() returns numeric
     -- Input tokens
     list tokens = [
-        [TOKEN_LBRACKET, "["],
-        [TOKEN_STRING, "hello"],
-        [TOKEN_COMMA, ","],
-        [TOKEN_STRING, "world"],
-        [TOKEN_RBRACKET, "]"]
+        [TOKEN_LBRACKET; "["],
+        [TOKEN_STRING; "hello"],
+        [TOKEN_COMMA; ","],
+        [TOKEN_STRING; "world"],
+        [TOKEN_RBRACKET; "]"]
     ]
     
     -- Parse array literal
-    list result = parse_array_literal(tokens, 0)
+    list result = parse_array_literal(tokens; 0)
     list array_node = result[0]
     
     if array_node == [] then
@@ -160,20 +160,20 @@ end_function
 -- TEST 4: Boolean Array Literal
 -- ============================================================================
 -- Test: Parse [true, false, true]
--- Expected: Array node with 3 boolean elements
+-- Expected: Array node with 3 numeric elements
 -- ============================================================================
 function test_boolean_array() returns numeric
     list tokens = [
-        [TOKEN_LBRACKET, "["],
-        [TOKEN_TRUE, "true"],
-        [TOKEN_COMMA, ","],
-        [TOKEN_FALSE, "false"],
-        [TOKEN_COMMA, ","],
-        [TOKEN_TRUE, "true"],
-        [TOKEN_RBRACKET, "]"]
+        [TOKEN_LBRACKET; "["],
+        [TOKEN_TRUE; "true"],
+        [TOKEN_COMMA; ","],
+        [TOKEN_FALSE; "false"],
+        [TOKEN_COMMA; ","],
+        [TOKEN_TRUE; "true"],
+        [TOKEN_RBRACKET; "]"]
     ]
     
-    list result = parse_array_literal(tokens, 0)
+    list result = parse_array_literal(tokens; 0)
     list array_node = result[0]
     
     if array_node == [] then
@@ -204,14 +204,14 @@ end_function
 function test_array_indexing() returns numeric
     -- Input tokens: [IDENTIFIER "arr", LBRACKET, NUMBER "0", RBRACKET]
     list tokens = [
-        [TOKEN_IDENTIFIER, "arr"],
-        [TOKEN_LBRACKET, "["],
-        [TOKEN_NUMBER, "0"],
-        [TOKEN_RBRACKET, "]"]
+        [TOKEN_IDENTIFIER; "arr"],
+        [TOKEN_LBRACKET; "["],
+        [TOKEN_NUMBER; "0"],
+        [TOKEN_RBRACKET; "]"]
     ]
     
     -- Parse array indexing
-    list result = parse_array_index(tokens, 0)
+    list result = parse_array_index(tokens; 0)
     list index_node = result[0]
     numeric new_pos = result[1]
     
@@ -240,7 +240,7 @@ function test_array_indexing() returns numeric
     
     -- Generate LLVM IR
     list context = []
-    list codegen_result = codegen_array_index(index_node, "%result", "  ", context)
+    list codegen_result = codegen_array_index(index_node; "%result"; "  "; context)
     string llvm_code = codegen_result[0]
     
     if llvm_code == "" then
@@ -259,14 +259,14 @@ end_function
 function test_array_length() returns numeric
     -- Input tokens: [IDENTIFIER "len", LPAREN, IDENTIFIER "arr", RPAREN]
     list tokens = [
-        [TOKEN_IDENTIFIER, "len"],
-        [TOKEN_LPAREN, "("],
-        [TOKEN_IDENTIFIER, "arr"],
-        [TOKEN_RPAREN, ")"]
+        [TOKEN_IDENTIFIER; "len"],
+        [TOKEN_LPAREN; "("],
+        [TOKEN_IDENTIFIER; "arr"],
+        [TOKEN_RPAREN; ")"]
     ]
     
     -- Parse array length
-    list result = parse_array_length(tokens, 0)
+    list result = parse_array_length(tokens; 0)
     list length_node = result[0]
     numeric new_pos = result[1]
     
@@ -290,7 +290,7 @@ function test_array_length() returns numeric
     
     -- Generate LLVM IR
     list context = []
-    list codegen_result = codegen_array_length(length_node, "%len_result", "  ", context)
+    list codegen_result = codegen_array_length(length_node; "%len_result"; "  "; context)
     string llvm_code = codegen_result[0]
     
     if llvm_code == "" then
@@ -309,20 +309,20 @@ end_function
 function test_array_declaration() returns numeric
     -- Input tokens: [LIST, IDENTIFIER "numbers", ASSIGN, LBRACKET, ...]
     list tokens = [
-        [TOKEN_LIST, "list"],
-        [TOKEN_IDENTIFIER, "numbers"],
-        [TOKEN_ASSIGN, "="],
-        [TOKEN_LBRACKET, "["],
-        [TOKEN_NUMBER, "1"],
-        [TOKEN_COMMA, ","],
-        [TOKEN_NUMBER, "2"],
-        [TOKEN_COMMA, ","],
-        [TOKEN_NUMBER, "3"],
-        [TOKEN_RBRACKET, "]"]
+        [TOKEN_LIST; "list"],
+        [TOKEN_IDENTIFIER; "numbers"],
+        [TOKEN_ASSIGN; "="],
+        [TOKEN_LBRACKET; "["],
+        [TOKEN_NUMBER; "1"],
+        [TOKEN_COMMA; ","],
+        [TOKEN_NUMBER; "2"],
+        [TOKEN_COMMA; ","],
+        [TOKEN_NUMBER; "3"],
+        [TOKEN_RBRACKET; "]"]
     ]
     
     -- Parse array declaration
-    list result = parse_array_declaration(tokens, 0)
+    list result = parse_array_declaration(tokens; 0)
     list decl_node = result[0]
     numeric new_pos = result[1]
     
@@ -347,7 +347,7 @@ function test_array_declaration() returns numeric
     
     -- Generate LLVM IR
     list context = []
-    list codegen_result = codegen_array_declaration(decl_node, "  ", context)
+    list codegen_result = codegen_array_declaration(decl_node; "  "; context)
     string llvm_code = codegen_result[0]
     
     if llvm_code == "" then
@@ -365,12 +365,12 @@ end_function
 -- ============================================================================
 function test_single_element_array() returns numeric
     list tokens = [
-        [TOKEN_LBRACKET, "["],
-        [TOKEN_NUMBER, "42"],
-        [TOKEN_RBRACKET, "]"]
+        [TOKEN_LBRACKET; "["],
+        [TOKEN_NUMBER; "42"],
+        [TOKEN_RBRACKET; "]"]
     ]
     
-    list result = parse_array_literal(tokens, 0)
+    list result = parse_array_literal(tokens; 0)
     list array_node = result[0]
     
     if array_node == [] then
@@ -394,12 +394,12 @@ end_function
 function test_array_type_inference() returns numeric
     -- Create integer array
     list int_elements = [
-        [LIT_INTEGER, "1", "1"],
-        [LIT_INTEGER, "2", "2"],
-        [LIT_INTEGER, "3", "3"]
+        [LIT_INTEGER; "1"; "1"],
+        [LIT_INTEGER; "2"; "2"],
+        [LIT_INTEGER; "3"; "3"]
     ]
     
-    numeric is_homogeneous = is_homogeneous_array(int_elements, 3)
+    numeric is_homogeneous = is_homogeneous_array(int_elements; 3)
     if is_homogeneous != 1 then
         return 0  -- FAIL: Should be homogeneous
     end_if
@@ -437,7 +437,7 @@ function test_helper_functions() returns numeric
     end_if
     
     -- Test is_array_node
-    list test_node = [ARRAY_LITERAL, [], 0]
+    list test_node = [ARRAY_LITERAL; []; 0]
     numeric is_array = is_array_node(test_node)
     if is_array != 1 then
         return 0  -- FAIL
