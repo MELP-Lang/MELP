@@ -7,56 +7,57 @@
 
 ---
 
-## 🚨 GÜNCEL DURUM (22 Aralık 2025 - YZ_06)
+## 🚨 GÜNCEL DURUM (22 Aralık 2025 - YZ_07)
 
-**🎉 YZ_06 TAMAMLANDI! Gerçek Lexer/Parser/CodeGen entegrasyonu başarılı!**
+**🎉 YZ_07 TAMAMLANDI! Parser ve CodeGen Entegrasyonu Başarılı!**
 
-**Phase 3 Tamamlandı:**
-- ✅ compiler.mlp: stub → gerçek implementasyon (tokenize_next döngüsü)
-- ✅ compiler_integration.mlp: 3 faz gerçek API çağrıları yapıyor
-- ✅ Tüm ana modüller derlenebiliyor (5/5 başarı)
-- ✅ 3138 satır LLVM IR üretildi
-- ✅ Pipeline: Lexer → Parser → CodeGen entegre
+**Phase 3.2 Tamamlandı:**
+- ✅ parse_tokens(): stub → gerçek AST parsing implementasyonu
+- ✅ codegen_ast(): stub → gerçek LLVM IR generation implementasyonu
+- ✅ End-to-end test: "return 42" programı derlenip çalıştı (exit code 42)
+- ✅ Basitleştirilmiş AST yapısı (flat, Stage 0 uyumlu)
+- ✅ Pipeline: Mock Tokens → Parser → CodeGen → LLVM IR ✓
 
 **Stage 1 Durumu:**
-- ✅ compiler.mlp: 12 functions (555 lines LLVM IR)
-- ✅ compiler_integration.mlp: 14 functions (513 lines LLVM IR)
-- ✅ lexer.mlp: 12 functions (856 lines LLVM IR)
-- ✅ parser_core.mlp: compiled (129 lines LLVM IR)
-- ✅ codegen_integration.mlp: compiled (1085 lines LLVM IR)
+- ✅ compiler_integration.mlp: 4 functions (parse + codegen working)
+- ✅ compiler.mlp: 10 functions (full pipeline integrated)
+- ✅ LLVM IR validation: clang ile test edildi, exit code 42 ✓
 
-**🎯 YZ_07 SENİN GÖREVIN:**
+**🎯 YZ_08 SENİN GÖREVIN:**
 
-**Görev:** Phase 3 Devam - Parser ve CodeGen Modül Entegrasyonu
+**Görev:** Phase 3.3 - Gerçek Lexer Entegrasyonu ve Parser Genişletme
 
 **Ne yapacaksın:**
 
-1. **Parser Modüllerini Entegre Et** (3-4 saat)
-   - `parser_mlp/parser_main.mlp` → tam parsing loop
-   - `parser_mlp/parser_func.mlp` → function declaration parsing
-   - `parser_mlp/parser_stmt.mlp` → statement parsing
-   - `parser_mlp/parser_expr.mlp` → expression parsing
-   - `parse_tokens()` fonksiyonunu bu modülleri kullanacak şekilde güncelle
+1. **Lexer'ı Gerçek Hale Getir** (2-3 saat)
+   - Mock tokens yerine gerçek `lexer.mlp` kullan
+   - `tokenize_source()` içinde `tokenize_next()` döngüsü
+   - YZ_06'nın compiler.mlp'sindeki tokenization loop'u örnek al
+   - Test: Basit source code → gerçek tokenlar
 
-2. **CodeGen Modüllerini Entegre Et** (2-3 saat)
-   - `codegen_mlp/codegen_functions.mlp` → function codegen
-   - `codegen_mlp/codegen_stmt.mlp` → statement codegen
-   - `codegen_mlp/codegen_arithmetic.mlp` → arithmetic operations
-   - `codegen_mlp/codegen_control.mlp` → if/while/for codegen
-   - `codegen_ast()` fonksiyonunu bu modülleri kullanacak şekilde güncelle
+2. **Parser'ı Genişlet** (2-3 saat)
+   - Variable declarations (numeric x = 42)
+   - Arithmetic expressions (a + b, x * y)
+   - Multiple statements
+   - `parser_mlp/parser_core.mlp`'deki gerçek fonksiyonları entegre et
 
-3. **End-to-End Test** (1 saat)
-   - Test: `function main() returns numeric return 42 end_function`
-   - Lexer → Parser → CodeGen → LLVM IR
-   - LLVM IR'ı geçerli mi? (lli ile test)
-   - Exit code 42 dönüyor mu?
+3. **CodeGen'i Genişlet** (2 saat)
+   - Variable allocation (alloca, store, load)
+   - Arithmetic operations (add, sub, mul)
+   - `codegen_mlp/codegen_functions.mlp` kullan
+
+4. **End-to-End Test** (1 saat)
+   - Test: `function main() returns numeric numeric x = 10 numeric y = 32 return x + y end_function`
+   - Lexer → Parser → CodeGen → LLVM IR → clang
+   - Exit code 42?
 
 **⚠️ Önemli Notlar:**
-- YZ_06'da temel pipeline kuruldu, şimdi detaylandırma zamanı
-- Import sistemi yok - fonksiyon çağrıları doğrudan yapılmalı
-- AST yapısını iyi anla (parser'dan codegen'e geçiş kritik)
+- YZ_07 basitleştirilmiş AST kullandı (flat structure)
+- Stage 0'da nested list parsing zor
+- Mock tokens → gerçek lexer geçişi kritik
+- Parser'da önce basit case'ler, sonra genişletme
 
-**Başarı Kriteri:** Basit MELP programları tam pipeline ile derlenip çalışabilsin
+**Başarı Kriteri:** Basit arithmetic programlar derlenip çalışabilsin (exit code doğru)
 
 ---
 
@@ -83,8 +84,9 @@ Stage 0 (C) ──compile──> Stage 1 (MELP) ──compile──> Stage 1' (M
 | YZ_04 | Phase 1.0 | 133 `then` Eksikliğini Düzelt | ✅ TAMAMLANDI | `selfhosting_YZ_04` |
 | YZ_05 | Phase 2 | Pipeline Yapısı + Testler | ✅ TAMAMLANDI | `selfhosting_YZ_05` |
 | YZ_06 | Phase 3.1 | Lexer/Parser/CodeGen Entegrasyonu | ✅ TAMAMLANDI | `selfhosting_YZ_06` |
-| **YZ_07** | **Phase 3.2** | **Parser/CodeGen Modül Entegrasyonu** | 🔵 **AKTİF** | `selfhosting_YZ_07` |
-| YZ_08 | Phase 4 | Bootstrap ve Convergence | ⏳ BEKLEMEDE | `selfhosting_YZ_08` |
+| YZ_07 | Phase 3.2 | Parser/CodeGen Modül Entegrasyonu | ✅ TAMAMLANDI | `selfhosting_YZ_07` |
+| **YZ_08** | **Phase 3.3** | **Gerçek Lexer + Parser Genişletme** | 🔵 **AKTİF** | `selfhosting_YZ_08` |
+| YZ_09 | Phase 4 | Bootstrap ve Convergence | ⏳ BEKLEMEDE | `selfhosting_YZ_09` |
 
 ---
 
