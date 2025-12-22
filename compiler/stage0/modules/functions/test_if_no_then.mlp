@@ -1,0 +1,7 @@
+function main() -> numeric
+    numeric x = 5
+    if x == 5
+        return 42
+    end if
+    return 0
+end function
