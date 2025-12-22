@@ -21,8 +21,8 @@
 --   melp_compiler --version
 -- ============================================================================
 
--- Import lexer module
-import "lexer_mlp/lexer.mlp"
+-- NOTE: Import temporarily disabled for x86 build
+-- import "lexer_mlp/lexer.mlp"
 
 -- ============================================================================
 -- VERSION INFORMATION
@@ -94,24 +94,20 @@ function read_source_file(string filename) returns string
     println("[INFO] Reading file:")
     println(filename)
     
-    -- TODO: Actual file reading
-    -- For now, return sample source
-    return "function main() returns numeric"
+    -- Use Stage 0's built-in read_file function
+    string content = read_file(filename)
+    
+    return content
 end_function
 
 function write_output_file(string filename; string content) returns numeric
     println("[INFO] Writing file:")
     println(filename)
     
-    -- TODO: Actual file writing
-    -- For now, just print content
-    println("")
-    println("Generated LLVM IR:")
-    println("---")
-    println(content)
-    println("---")
+    -- Use Stage 0's built-in write_file function
+    numeric result = write_file(filename; content)
     
-    return 0
+    return result
 end_function
 
 function file_exists(string filename) returns numeric
@@ -141,87 +137,38 @@ end_function
 -- ============================================================================
 
 -- Simple stub for compile_source (from compiler_integration.mlp)
--- Uses real lexer for tokenization
+-- Simple compilation (stub until lexer integration)
 function compile_source(string source_code) returns string
     println("========================================")
     println("  MELP Compiler - Pipeline")
     println("========================================")
     println("")
     
-    -- Phase 1: Lexical Analysis (REAL!)
+    -- Phase 1: Lexical Analysis
     println("Phase 1: Lexical Analysis...")
-    
-    numeric token_count = 0
-    numeric pos = 0
-    numeric line = 1
-    numeric col = 1
-    
-    -- Tokenize until we hit EOF or pos exceeds reasonable limit
-    numeric max_iterations = 10000
-    numeric iterations = 0
-    
-    while iterations < max_iterations
-        list result = tokenize_next(source_code; pos; line; col)
-        
-        -- result = [token; new_pos; new_line; new_col]
-        list token = result[0]
-        numeric new_pos = result[1]
-        numeric new_line = result[2]
-        numeric new_col = result[3]
-        
-        -- Get token type
-        numeric ttype = token[0]
-        
-        -- Check for EOF (type 0) or no progress (stuck)
-        if ttype == 0
-            exit
-        end_if
-        
-        if new_pos == pos
-            exit
-        end_if
-        
-        pos = new_pos
-        line = new_line
-        col = new_col
-        token_count = token_count + 1
-        iterations = iterations + 1
-    end_while
-    
-    println("  ✓ Tokenization complete")
-    print("  Total tokens: ")
-    println(token_count)
+    println("  [STUB] Lexer not yet integrated")
+    println("  Source code received successfully")
     println("")
     
     -- Phase 2: Parsing
     println("Phase 2: Parsing...")
-    
-    -- Simple recursive descent parser stub
-    -- In full implementation, would call parse_program(tokens)
-    if token_count > 0
-        println("  ✓ Found tokens to parse")
-        println("  ✓ AST construction complete (simplified)")
-    else
-        println("  ⚠ No tokens found")
-    end_if
+    println("  [STUB] Parser not yet integrated")
     println("")
     
     -- Phase 3: Code Generation
     println("Phase 3: Code Generation...")
-    
-    -- Generate minimal LLVM IR (simple string, no concatenation)
-    println("  ✓ LLVM IR generation complete")
+    println("  [STUB] Codegen not yet integrated")
     println("")
     
     println("========================================")
     println("Compilation Summary:")
-    println("  Status: SUCCESS")
-    print("  Tokens: ")
-    println(token_count)
+    println("  Status: STUB (real compilation pending)")
     println("========================================")
     println("")
     
-    return "; MELP Generated LLVM IR - define i64 @main() { ret i64 0 }"
+    -- Return minimal valid LLVM IR
+    string ir = "; MELP Generated LLVM IR"
+    return ir
 end_function
 
 function compile_file(string input_file; string output_file) returns numeric
@@ -264,7 +211,7 @@ function compile_file(string input_file; string output_file) returns numeric
     println("[3/3] Writing output file...")
     numeric write_result = write_output_file(output_file; llvm_ir)
     
-    if write_result == 1 then
+    if write_result == 0 then
         println("[ERROR] Failed to write output file")
         return 1
     end_if
