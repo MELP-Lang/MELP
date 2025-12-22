@@ -1,35 +1,39 @@
 # SELF-HOSTING YZ - BURADAN BAŞLA
 
-**Son Güncelleme:** 22 Aralık 2025 (Üst Akıl - Yeni Keşif)  
+**Son Güncelleme:** 22 Aralık 2025 (YZ_04)  
 **Üst Akıl:** Opus  
 **Ana TODO:** `/TODO_SELFHOSTING_FINAL.md`  
 **Kurallar:** `/TODO_kurallari.md`
 
 ---
 
-## 🚨 GÜNCEL DURUM (22 Aralık 2025 - ÜA_01)
+## 🚨 GÜNCEL DURUM (22 Aralık 2025 - YZ_04)
 
-**YZ_01/YZ_02 kısmen düzeltmiş! Kalan: 133 çok satırlı `then` eksikliği**
+**🎉 YZ_04 TAMAMLANDI! Tüm 133 `then` eksikliği düzeltildi!**
 
-**Analiz sonucu:**
-- ✅ Tek satırlık if'ler: TAMAM (örn: `if x == 5 then return 1 end_if`)
-- ✅ `if ... then` kullanımı: 1,354 adet (çoğu doğru!)
-- ⚠️ Çok satırlı `then` eksik: **133 adet** (SADECE 6 dosyada!)
+**Düzeltme Özeti:**
+- ✅ control_flow/control_flow_parser.mlp: 42 adet ✓
+- ✅ operators/operators_codegen.mlp: 41 adet ✓
+- ✅ control_flow/test_control_flow.mlp: 19 adet ✓
+- ✅ operators/test_operators.mlp: 17 adet ✓
+- ✅ control_flow/control_flow_codegen.mlp: 12 adet ✓
+- ✅ core/type_mapper.mlp: 2 adet ✓
+- ✅ **TOPLAM: 0 kalan `then` eksikliği!**
 
-**En çok etkilenen dosyalar:**
-| # | Dosya | Eksik `then` |
-|---|-------|--------------|
-| 1 | `control_flow/control_flow_parser.mlp` | 42 |
-| 2 | `operators/operators_codegen.mlp` | 41 |
-| 3 | `control_flow/test_control_flow.mlp` | 19 |
-| 4 | `operators/test_operators.mlp` | 17 |
-| 5 | `control_flow/control_flow_codegen.mlp` | 12 |
-| 6 | `core/type_mapper.mlp` | 2 |
-
-**ÜA_00 Başarıları:**
+**Stage 1 Durumu:**
 - ✅ Stage 0 function call fix (kritik!)
 - ✅ 102/107 modül derleniyor (%95)
 - ✅ Stage 1 binary çalışıyor (34KB)
+- ✅ Tüm çok satırlı if'ler artık PMPL uyumlu
+
+**⚠️ YZ_05 İçin Önemli Bulgu:**
+- operators_parser.mlp'de parse hataları var:
+  ```
+  274: error [Parser]: Expected 'function' keyword
+  279, 284, 390: Aynı hata
+  ```
+- Bu `then` eksikliği değil, başka bir syntax sorunu
+- YZ_05 bu dosyayı öncelikli düzeltmeli
 
 ---
 
@@ -53,40 +57,80 @@ Stage 0 (C) ──compile──> Stage 1 (MELP) ──compile──> Stage 1' (M
 | YZ_01 | Phase 1.1-1.2 | Core + Parser Syntax | ✅ TAMAMLANDI | `selfhosting_YZ_01` |
 | YZ_02 | Phase 1.3-1.5 | Kalan Modüller + While | ✅ TAMAMLANDI | `selfhosting_YZ_02` |
 | YZ_03 + ÜA_00 | Phase 2 | Integration + Stage 0 Fix | ✅ TAMAMLANDI | `selfhosting_YZ_03` |
-| **YZ_04** | **Phase 1.0** | **133 `then` Eksikliğini Düzelt** | 🔵 **AKTİF** | `selfhosting_YZ_04` |
-| YZ_05 | Phase 2-3 | Integration + Bootstrap | ⏳ BEKLEMEDE | `selfhosting_YZ_05` |
+| YZ_04 | Phase 1.0 | 133 `then` Eksikliğini Düzelt | ✅ TAMAMLANDI | `selfhosting_YZ_04` |
+| **YZ_05** | **Phase 2-3** | **operators_parser Fix + Integration** | 🔵 **AKTİF** | `selfhosting_YZ_05` |
 | YZ_06 | Phase 4 | Convergence | ⏳ BEKLEMEDE | `selfhosting_YZ_06` |
 
 ---
 
 ## 🔵 ŞU AN AKTİF GÖREV
 
-### YZ_04: Phase 1.0 - 133 `then` Eksikliğini Düzelt
+### YZ_05: Phase 2-3 - operators_parser Fix + Integration
 
 **Durum:** 🔵 AKTİF  
-**Bağımlılık:** YZ_03 + ÜA_00 ✅ (tamamlandı)  
-**Tahmini Süre:** 1-2 saat (çok az!)
+**Bağımlılık:** YZ_04 ✅ (tamamlandı)  
+**Tahmini Süre:** 2-3 saat
 
 **🎯 GÖREV:**
-Sadece 6 dosyada toplam 133 çok satırlı if'e `then` ekle.
+
+1. **operators_parser.mlp Düzeltmesi** (öncelikli!)
+   - 274, 279, 284, 390. satırlarda "Expected 'function' keyword" hatası
+   - Fonksiyon tanımlarını kontrol et
+   - Parametreler ve return type syntax'ını düzelt
+
+2. **Kalan 5 Modül Analizi**
+   - Hangi modüller hala derlenmemiş?
+   - Syntax sorunları tespit et ve düzelt
+
+3. **Integration Testleri**
+   - Tüm Stage 1 modüllerini birlikte derle
+   - compiler.mlp, compiler_integration.mlp, compiler_full.mlp testleri
+
+4. **Bootstrap Hazırlığı**
+   - Stage 1 → Stage 1' derleme testi
+   - Binary boyut ve performans kontrolü
 
 **📋 YAPILACAKLAR:**
 
-1. `TODO_SELFHOSTING_FINAL.md` → **TASK 1.0** oku (detaylı talimat)
-2. Tespit scriptini çalıştır (Python kodu TODO'da var)
-3. 6 dosyayı öncelik sırasıyla düzelt:
-   - control_flow/control_flow_parser.mlp (42 adet)
-   - operators/operators_codegen.mlp (41 adet)
-   - control_flow/test_control_flow.mlp (19 adet)
-   - operators/test_operators.mlp (17 adet)
-   - control_flow/control_flow_codegen.mlp (12 adet)
-   - core/type_mapper.mlp (2 adet)
-4. Her düzeltmeden sonra compile test et
-5. Rapor yaz: `selfhosting_YZ/YZ_04_TAMAMLANDI.md`
+1. `TODO_SELFHOSTING_FINAL.md` → **TASK 2.x ve 3.x** oku
+2. `selfhosting_YZ/YZ_04_TAMAMLANDI.md` → YZ_04 bulgularını oku
+3. operators_parser.mlp'yi analiz et ve düzelt
+4. Kalan modülleri düzelt
+5. Integration testleri çalıştır
+6. Rapor yaz: `selfhosting_YZ/YZ_05_TAMAMLANDI.md`
 
 **⚠️ ÖNEMLİ:** 
-- Tek satırlık if'lere DOKUNMA (zaten doğru!)
-- Sadece çok satırlı if'leri düzelt
+- operators_parser.mlp dosyası çok kritik (tüm parser'lar buna bağımlı)
+- Düzeltirken PMPL syntax kurallarına sıkı sıkıya uymalısın
+
+---
+
+## 📝 ÖNCEKİ YZ'DEN NOTLAR (YZ_04)
+
+**YZ_04 Tamamlandı:** ✅ (22 Aralık 2025)
+
+**Yapılanlar:**
+- ✅ 133 çok satırlı `then` eksikliği düzeltildi
+- ✅ 6 dosya tamamen düzeltildi:
+  - control_flow_parser.mlp (42), operators_codegen.mlp (41)
+  - test_control_flow.mlp (19), test_operators.mlp (17)
+  - control_flow_codegen.mlp (12), type_mapper.mlp (2)
+- ✅ Python script ile otomatik düzeltme (45 dakika)
+- ✅ Tüm düzeltmeler test edildi ve derlendi
+
+**Test Sonuçları:**
+- ✅ operators_codegen.mlp: 25 functions compiled
+- ✅ type_mapper.mlp: 3 functions compiled
+- ✅ Final doğrulama: 0 kalan `then` eksikliği
+
+**Önemli Bulgu:**
+- ⚠️ operators_parser.mlp'de parse hataları (274, 279, 284, 390)
+- Bu `then` eksikliği değil, fonksiyon tanımı sorunu
+- YZ_05 bu dosyayı öncelikli düzeltmeli
+
+**Araçlar:**
+- Python regex script (çok satırlı if tespiti ve düzeltme)
+- Stage 0 compiler ile test (timeout 30s)
 
 ---
 
@@ -216,30 +260,16 @@ Göreve başlamadan önce oku:
 
 ```
 Phase 0: [✅] [✅] [✅] [✅]         4/4  (YZ_00 ✅)
-Phase 1: [✅] [✅] [✅] [✅] [✅]    5/5  (YZ_01 ✅ | YZ_02 ✅)
-Phase 2: [ ] [ ] [ ] [ ] [ ]       0/5 
+Phase 1: [✅] [✅] [✅] [✅] [✅]    5/5  (YZ_01 ✅ | YZ_02 ✅ | YZ_04 ✅)
+Phase 2: [ ] [ ] [ ] [ ] [ ]       0/5  (YZ_05 🔵)
 Phase 3: [ ] [ ] [ ]               0/3 
 Phase 4: [ ] [ ] [ ]               0/3 
 Phase 5: [ ] [ ] [ ] [ ]           0/4 
 
 TOPLAM: 9/24 task (38%)
 ```
+
 **Prensip ihlali tespit edersen: DURDUR ve Üst Akıl'a danış!**
-
----
-
-## 📊 GENEL İLERLEME
-
-```
-Phase 0: [ ] [ ] [ ] [ ]           0/4 
-Phase 1: [ ] [ ] [ ] [ ] [ ]       0/5 
-Phase 2: [ ] [ ] [ ] [ ] [ ]       0/5 
-Phase 3: [ ] [ ] [ ]               0/3 
-Phase 4: [ ] [ ] [ ]               0/3 
-Phase 5: [ ] [ ] [ ] [ ]           0/4 
-
-TOPLAM: 0/24 task (0%)
-```
 
 ---
 

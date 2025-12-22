@@ -44,757 +44,205 @@ declare i32 @melp_map_has_key(i8*, i8*)
 declare i64 @melp_map_length(i8*)
 
 
-; Function: codegen_array_literal
-define i8* @codegen_array_literal(i8* %array_node, i8* %result_var, i8* %indent, i8* %context) {
+; Function: type_name_to_kind
+define i64 @type_name_to_kind(i8* %type_name) {
 entry:
-  %elements = alloca i8*, align 8
-  store i8* null, i8** %elements, align 8
-    %element_count = alloca i64, align 8
-    store i64 0, i64* %element_count, align 8
-  %llvm_code_ptr = alloca i8*, align 8
-  %tmp1 = getelementptr inbounds [1 x i8], [1 x i8]* @.str.1, i64 0, i64 0
-  store i8* %tmp1, i8** %llvm_code_ptr, align 8
-  %global_decls_ptr = alloca i8*, align 8
-  %tmp2 = getelementptr inbounds [1 x i8], [1 x i8]* @.str.2, i64 0, i64 0
-  store i8* %tmp2, i8** %global_decls_ptr, align 8
-  %new_context = alloca i8*, align 8
-  store i8* %context, i8** %new_context, align 8
-    %tmp3 = load i64, i64* %element_count, align 8
-    %tmp4 = icmp eq i64 %tmp3, 0
-    br i1 %tmp4, label %label1, label %label2
+    %tmp1 = icmp eq i64 %type_name, 0
+    br i1 %tmp1, label %label1, label %label2
 label1:
-    store i64 %indent, i64* %llvm_code, align 8
-    %tmp5 = load i8*, i8** %llvm_code, align 8
-    %tmp6 = add nsw i64 %tmp5, %result_var
-    store i64 %tmp6, i64* %llvm_code, align 8
-    %tmp7 = load i8*, i8** %llvm_code, align 8
-    %tmp8 = getelementptr inbounds [37 x i8], [37 x i8]* @.str.3, i64 0, i64 0
-    %tmp9 = add nsw i64 %tmp7, %tmp8
-    store i64 %tmp9, i64* %llvm_code, align 8
-    ret i8* 0
+    %tmp2 = load i64, i64* %TYPE_INT, align 8
+    ret i64 %tmp2
     br label %label2
 label2:
-  %first_element = alloca i8*, align 8
-    %tmp10 = load i8*, i8** %elements, align 8
-    %tmp11 = call i8* @melp_list_get(i8* %tmp10, i64 0)
-    %tmp12 = bitcast i8* %tmp11 to i64*
-    %tmp13 = load i64, i64* %tmp12
-  store i8* %tmp13, i8** %first_element, align 8
-    %element_type = alloca i64, align 8
-    %tmp14 = load i8*, i8** %first_element, align 8
-    %tmp15 = call i64 @infer_element_llvm_type(i8* %tmp14)
-    store i64 %tmp15, i64* %element_type, align 8
-  %array_type_ptr = alloca i8*, align 8
-  %tmp16 = getelementptr inbounds [2 x i8], [2 x i8]* @.str.4, i64 0, i64 0
-  store i8* %tmp16, i8** %array_type_ptr, align 8
-    %tmp17 = load i8*, i8** %array_type, align 8
-    %tmp18 = getelementptr inbounds [6 x i8], [6 x i8]* @.str.5, i64 0, i64 0
-    %tmp19 = add nsw i64 %tmp17, %tmp18
-    store i64 %tmp19, i64* %array_type, align 8
-    %tmp20 = load i8*, i8** %array_type, align 8
-    %tmp21 = getelementptr inbounds [4 x i8], [4 x i8]* @.str.6, i64 0, i64 0
-    %tmp22 = add nsw i64 %tmp20, %tmp21
-    store i64 %tmp22, i64* %array_type, align 8
-    %tmp23 = load i8*, i8** %array_type, align 8
-    %tmp24 = load i64, i64* %element_type, align 8
-    %tmp25 = add nsw i64 %tmp23, %tmp24
-    store i64 %tmp25, i64* %array_type, align 8
-    %tmp26 = load i8*, i8** %array_type, align 8
-    %tmp27 = getelementptr inbounds [2 x i8], [2 x i8]* @.str.7, i64 0, i64 0
-    %tmp28 = add nsw i64 %tmp26, %tmp27
-    store i64 %tmp28, i64* %array_type, align 8
-    store i64 %indent, i64* %llvm_code, align 8
-    %tmp29 = load i8*, i8** %llvm_code, align 8
-    %tmp30 = add nsw i64 %tmp29, %result_var
-    store i64 %tmp30, i64* %llvm_code, align 8
-    %tmp31 = load i8*, i8** %llvm_code, align 8
-    %tmp32 = getelementptr inbounds [11 x i8], [11 x i8]* @.str.8, i64 0, i64 0
-    %tmp33 = add nsw i64 %tmp31, %tmp32
-    store i64 %tmp33, i64* %llvm_code, align 8
-    %tmp34 = load i8*, i8** %llvm_code, align 8
-    %tmp35 = load i8*, i8** %array_type, align 8
-    %tmp36 = add nsw i64 %tmp34, %tmp35
-    store i64 %tmp36, i64* %llvm_code, align 8
-    %tmp37 = load i8*, i8** %llvm_code, align 8
-    %tmp38 = getelementptr inbounds [20 x i8], [20 x i8]* @.str.9, i64 0, i64 0
-    %tmp39 = add nsw i64 %tmp37, %tmp38
-    store i64 %tmp39, i64* %llvm_code, align 8
-    %i = alloca i64, align 8
-    store i64 0, i64* %i, align 8
-    br label %label3
+    %tmp3 = icmp eq i64 %type_name, 0
+    br i1 %tmp3, label %label3, label %label4
 label3:
-    %tmp40 = load i64, i64* %i, align 8
-    %tmp41 = load i64, i64* %element_count, align 8
-    %tmp42 = icmp slt i64 %tmp40, %tmp41
-    br i1 %tmp42, label %label4, label %label5
+    %tmp4 = load i64, i64* %TYPE_FLOAT, align 8
+    ret i64 %tmp4
+    br label %label4
 label4:
-  %element = alloca i8*, align 8
-    %tmp43 = load i8*, i8** %elements, align 8
-    %tmp44 = load i64, i64* %i, align 8
-    %tmp45 = call i8* @melp_list_get(i8* %tmp43, i64 %tmp44)
-    %tmp46 = bitcast i8* %tmp45 to i64*
-    %tmp47 = load i64, i64* %tmp46
-  store i8* %tmp47, i8** %element, align 8
-  %elem_var_ptr = alloca i8*, align 8
-  %tmp48 = getelementptr inbounds [13 x i8], [13 x i8]* @.str.10, i64 0, i64 0
-  store i8* %tmp48, i8** %elem_var_ptr, align 8
-    %tmp49 = load i8*, i8** %elem_var, align 8
-    %tmp50 = getelementptr inbounds [2 x i8], [2 x i8]* @.str.11, i64 0, i64 0
-    %tmp51 = add nsw i64 %tmp49, %tmp50
-    store i64 %tmp51, i64* %elem_var, align 8
-  %elem_result = alloca i8*, align 8
-    %tmp52 = load i8*, i8** %element, align 8
-    %tmp53 = load i8*, i8** %elem_var, align 8
-    %tmp54 = load i8*, i8** %new_context, align 8
-    %tmp55 = call i64 @codegen_array_element(i8* %tmp52, i8* %tmp53, i8* %indent, i8* %tmp54)
-  store i8* %tmp55, i8** %elem_result, align 8
-    %elem_code = alloca i64, align 8
-    %tmp56 = load i8*, i8** %elem_result, align 8
-    %tmp57 = call i8* @melp_list_get(i8* %tmp56, i64 0)
-    %tmp58 = bitcast i8* %tmp57 to i64*
-    %tmp59 = load i64, i64* %tmp58
-    store i64 %tmp59, i64* %elem_code, align 8
-    %elem_globals = alloca i64, align 8
-    %tmp60 = load i8*, i8** %elem_result, align 8
-    %tmp61 = call i8* @melp_list_get(i8* %tmp60, i64 1)
-    %tmp62 = bitcast i8* %tmp61 to i64*
-    %tmp63 = load i64, i64* %tmp62
-    store i64 %tmp63, i64* %elem_globals, align 8
-    %tmp64 = load i8*, i8** %elem_result, align 8
-    %tmp65 = call i8* @melp_list_get(i8* %tmp64, i64 2)
-    %tmp66 = bitcast i8* %tmp65 to i64*
-    %tmp67 = load i64, i64* %tmp66
-    store i64 %tmp67, i64* %new_context, align 8
-    %tmp68 = load i8*, i8** %llvm_code, align 8
-    %tmp69 = load i64, i64* %elem_code, align 8
-    %tmp70 = add nsw i64 %tmp68, %tmp69
-    store i64 %tmp70, i64* %llvm_code, align 8
-    %tmp71 = load i8*, i8** %global_decls, align 8
-    %tmp72 = load i64, i64* %elem_globals, align 8
-    %tmp73 = add nsw i64 %tmp71, %tmp72
-    store i64 %tmp73, i64* %global_decls, align 8
-  %ptr_var_ptr = alloca i8*, align 8
-  %tmp74 = getelementptr inbounds [12 x i8], [12 x i8]* @.str.12, i64 0, i64 0
-  store i8* %tmp74, i8** %ptr_var_ptr, align 8
-    %tmp75 = load i8*, i8** %ptr_var, align 8
-    %tmp76 = getelementptr inbounds [2 x i8], [2 x i8]* @.str.13, i64 0, i64 0
-    %tmp77 = add nsw i64 %tmp75, %tmp76
-    store i64 %tmp77, i64* %ptr_var, align 8
-    %tmp78 = load i8*, i8** %llvm_code, align 8
-    %tmp79 = add nsw i64 %tmp78, %indent
-    store i64 %tmp79, i64* %llvm_code, align 8
-    %tmp80 = load i8*, i8** %llvm_code, align 8
-    %tmp81 = load i8*, i8** %ptr_var, align 8
-    %tmp82 = add nsw i64 %tmp80, %tmp81
-    store i64 %tmp82, i64* %llvm_code, align 8
-    %tmp83 = load i8*, i8** %llvm_code, align 8
-    %tmp84 = getelementptr inbounds [18 x i8], [18 x i8]* @.str.14, i64 0, i64 0
-    %tmp85 = add nsw i64 %tmp83, %tmp84
-    store i64 %tmp85, i64* %llvm_code, align 8
-    %tmp86 = load i8*, i8** %llvm_code, align 8
-    %tmp87 = load i8*, i8** %array_type, align 8
-    %tmp88 = add nsw i64 %tmp86, %tmp87
-    store i64 %tmp88, i64* %llvm_code, align 8
-    %tmp89 = load i8*, i8** %llvm_code, align 8
-    %tmp90 = getelementptr inbounds [3 x i8], [3 x i8]* @.str.15, i64 0, i64 0
-    %tmp91 = add nsw i64 %tmp89, %tmp90
-    store i64 %tmp91, i64* %llvm_code, align 8
-    %tmp92 = load i8*, i8** %llvm_code, align 8
-    %tmp93 = load i8*, i8** %array_type, align 8
-    %tmp94 = add nsw i64 %tmp92, %tmp93
-    store i64 %tmp94, i64* %llvm_code, align 8
-    %tmp95 = load i8*, i8** %llvm_code, align 8
-    %tmp96 = getelementptr inbounds [3 x i8], [3 x i8]* @.str.16, i64 0, i64 0
-    %tmp97 = add nsw i64 %tmp95, %tmp96
-    store i64 %tmp97, i64* %llvm_code, align 8
-    %tmp98 = load i8*, i8** %llvm_code, align 8
-    %tmp99 = add nsw i64 %tmp98, %result_var
-    store i64 %tmp99, i64* %llvm_code, align 8
-    %tmp100 = load i8*, i8** %llvm_code, align 8
-    %tmp101 = getelementptr inbounds [14 x i8], [14 x i8]* @.str.17, i64 0, i64 0
-    %tmp102 = add nsw i64 %tmp100, %tmp101
-    store i64 %tmp102, i64* %llvm_code, align 8
-    %tmp103 = load i8*, i8** %llvm_code, align 8
-    %tmp104 = getelementptr inbounds [8 x i8], [8 x i8]* @.str.18, i64 0, i64 0
-    %tmp105 = add nsw i64 %tmp103, %tmp104
-    store i64 %tmp105, i64* %llvm_code, align 8
-    %tmp106 = load i8*, i8** %llvm_code, align 8
-    %tmp107 = add nsw i64 %tmp106, %indent
-    store i64 %tmp107, i64* %llvm_code, align 8
-    %tmp108 = load i8*, i8** %llvm_code, align 8
-    %tmp109 = getelementptr inbounds [7 x i8], [7 x i8]* @.str.19, i64 0, i64 0
-    %tmp110 = add nsw i64 %tmp108, %tmp109
-    store i64 %tmp110, i64* %llvm_code, align 8
-    %tmp111 = load i8*, i8** %llvm_code, align 8
-    %tmp112 = load i64, i64* %element_type, align 8
-    %tmp113 = add nsw i64 %tmp111, %tmp112
-    store i64 %tmp113, i64* %llvm_code, align 8
-    %tmp114 = load i8*, i8** %llvm_code, align 8
-    %tmp115 = getelementptr inbounds [2 x i8], [2 x i8]* @.str.20, i64 0, i64 0
-    %tmp116 = add nsw i64 %tmp114, %tmp115
-    store i64 %tmp116, i64* %llvm_code, align 8
-    %tmp117 = load i8*, i8** %llvm_code, align 8
-    %tmp118 = load i8*, i8** %elem_var, align 8
-    %tmp119 = add nsw i64 %tmp117, %tmp118
-    store i64 %tmp119, i64* %llvm_code, align 8
-    %tmp120 = load i8*, i8** %llvm_code, align 8
-    %tmp121 = getelementptr inbounds [3 x i8], [3 x i8]* @.str.21, i64 0, i64 0
-    %tmp122 = add nsw i64 %tmp120, %tmp121
-    store i64 %tmp122, i64* %llvm_code, align 8
-    %tmp123 = load i8*, i8** %llvm_code, align 8
-    %tmp124 = load i64, i64* %element_type, align 8
-    %tmp125 = add nsw i64 %tmp123, %tmp124
-    store i64 %tmp125, i64* %llvm_code, align 8
-    %tmp126 = load i8*, i8** %llvm_code, align 8
-    %tmp127 = getelementptr inbounds [3 x i8], [3 x i8]* @.str.22, i64 0, i64 0
-    %tmp128 = add nsw i64 %tmp126, %tmp127
-    store i64 %tmp128, i64* %llvm_code, align 8
-    %tmp129 = load i8*, i8** %llvm_code, align 8
-    %tmp130 = load i8*, i8** %ptr_var, align 8
-    %tmp131 = add nsw i64 %tmp129, %tmp130
-    store i64 %tmp131, i64* %llvm_code, align 8
-    %tmp132 = load i8*, i8** %llvm_code, align 8
-    %tmp133 = getelementptr inbounds [3 x i8], [3 x i8]* @.str.23, i64 0, i64 0
-    %tmp134 = add nsw i64 %tmp132, %tmp133
-    store i64 %tmp134, i64* %llvm_code, align 8
-    %tmp135 = load i64, i64* %i, align 8
-    %tmp136 = add nsw i64 %tmp135, 1
-    store i64 %tmp136, i64* %i, align 8
-    br label %label3
+    %tmp5 = icmp eq i64 %type_name, 0
+    br i1 %tmp5, label %label5, label %label6
 label5:
-    ret i8* 0
-}
-
-; Function: codegen_array_element
-define i8* @codegen_array_element(i8* %element, i8* %result_var, i8* %indent, i8* %context) {
-entry:
-    %elem_type = alloca i64, align 8
-    %tmp137 = load i8*, i8** %element, align 8
-    %tmp138 = call i8* @melp_list_get(i8* %tmp137, i64 0)
-    %tmp139 = bitcast i8* %tmp138 to i64*
-    %tmp140 = load i64, i64* %tmp139
-    store i64 %tmp140, i64* %elem_type, align 8
-    %tmp141 = load i64, i64* %elem_type, align 8
-    %tmp142 = load i64, i64* %LIT_INTEGER, align 8
-    %tmp143 = icmp eq i64 %tmp141, %tmp142
-    br i1 %tmp143, label %label6, label %label7
+    %tmp6 = load i64, i64* %TYPE_STRING, align 8
+    ret i64 %tmp6
+    br label %label6
 label6:
-    %value = alloca i64, align 8
-    %tmp144 = load i8*, i8** %element, align 8
-    %tmp145 = call i8* @melp_list_get(i8* %tmp144, i64 1)
-    %tmp146 = bitcast i8* %tmp145 to i64*
-    %tmp147 = load i64, i64* %tmp146
-    store i64 %tmp147, i64* %value, align 8
-    %code = alloca i64, align 8
-    store i64 %indent, i64* %code, align 8
-    %tmp148 = load i64, i64* %code, align 8
-    %tmp149 = add nsw i64 %tmp148, %result_var
-    store i64 %tmp149, i64* %code, align 8
-    %tmp150 = load i64, i64* %code, align 8
-    %tmp151 = getelementptr inbounds [15 x i8], [15 x i8]* @.str.24, i64 0, i64 0
-    %tmp152 = add nsw i64 %tmp150, %tmp151
-    store i64 %tmp152, i64* %code, align 8
-    %tmp153 = load i64, i64* %code, align 8
-    %tmp154 = load i64, i64* %value, align 8
-    %tmp155 = add nsw i64 %tmp153, %tmp154
-    store i64 %tmp155, i64* %code, align 8
-    %tmp156 = load i64, i64* %code, align 8
-    %tmp157 = getelementptr inbounds [22 x i8], [22 x i8]* @.str.25, i64 0, i64 0
-    %tmp158 = add nsw i64 %tmp156, %tmp157
-    store i64 %tmp158, i64* %code, align 8
-    ret i8* 0
-    br label %label8
+    %tmp7 = icmp eq i64 %type_name, 0
+    br i1 %tmp7, label %label7, label %label8
 label7:
-    %tmp159 = load i64, i64* %elem_type, align 8
-    %tmp160 = load i64, i64* %LIT_STRING, align 8
-    %tmp161 = icmp eq i64 %tmp159, %tmp160
-    br i1 %tmp161, label %label9, label %label10
-label9:
-  %str_result = alloca i8*, align 8
-    %tmp162 = call i64 @codegen_string_literal(i8* %element, i8* %result_var, i8* %indent, i8* %context)
-  store i8* %tmp162, i8** %str_result, align 8
-    %tmp163 = load i8*, i8** %str_result, align 8
-    ret i8* %tmp163
-    br label %label11
-label10:
-    %tmp164 = load i64, i64* %elem_type, align 8
-    %tmp165 = load i64, i64* %LIT_BOOLEAN, align 8
-    %tmp166 = icmp eq i64 %tmp164, %tmp165
-    br i1 %tmp166, label %label12, label %label13
-label12:
-    %bool_val = alloca i64, align 8
-    %tmp167 = load i8*, i8** %element, align 8
-    %tmp168 = call i8* @melp_list_get(i8* %tmp167, i64 1)
-    %tmp169 = bitcast i8* %tmp168 to i64*
-    %tmp170 = load i64, i64* %tmp169
-    store i64 %tmp170, i64* %bool_val, align 8
-    %code = alloca i64, align 8
-    store i64 %indent, i64* %code, align 8
-    %tmp171 = load i64, i64* %code, align 8
-    %tmp172 = add nsw i64 %tmp171, %result_var
-    store i64 %tmp172, i64* %code, align 8
-    %tmp173 = load i64, i64* %code, align 8
-    %tmp174 = getelementptr inbounds [14 x i8], [14 x i8]* @.str.26, i64 0, i64 0
-    %tmp175 = add nsw i64 %tmp173, %tmp174
-    store i64 %tmp175, i64* %code, align 8
-    %tmp176 = load i64, i64* %bool_val, align 8
-    %tmp177 = icmp eq i64 %tmp176, 1
-    br i1 %tmp177, label %label15, label %label16
-label15:
-    %tmp178 = load i64, i64* %code, align 8
-    %tmp179 = getelementptr inbounds [2 x i8], [2 x i8]* @.str.27, i64 0, i64 0
-    %tmp180 = add nsw i64 %tmp178, %tmp179
-    store i64 %tmp180, i64* %code, align 8
-    br label %label17
-label16:
-    %tmp181 = load i64, i64* %code, align 8
-    %tmp182 = getelementptr inbounds [2 x i8], [2 x i8]* @.str.28, i64 0, i64 0
-    %tmp183 = add nsw i64 %tmp181, %tmp182
-    store i64 %tmp183, i64* %code, align 8
-    br label %label17
-label17:
-    %tmp184 = load i64, i64* %code, align 8
-    %tmp185 = getelementptr inbounds [22 x i8], [22 x i8]* @.str.29, i64 0, i64 0
-    %tmp186 = add nsw i64 %tmp184, %tmp185
-    store i64 %tmp186, i64* %code, align 8
-    ret i8* 0
-    br label %label14
-label13:
-    ret i8* 0
-    br label %label14
-label14:
-    br label %label11
-label11:
+    %tmp8 = load i64, i64* %TYPE_BOOL, align 8
+    ret i64 %tmp8
     br label %label8
 label8:
+    %tmp9 = icmp eq i64 %type_name, 0
+    br i1 %tmp9, label %label9, label %label10
+label9:
+    %tmp10 = load i64, i64* %TYPE_VOID, align 8
+    ret i64 %tmp10
+    br label %label10
+label10:
+    %tmp11 = icmp eq i64 %type_name, 0
+    br i1 %tmp11, label %label11, label %label12
+label11:
+    %tmp12 = load i64, i64* %TYPE_CHAR, align 8
+    ret i64 %tmp12
+    br label %label12
+label12:
+    %tmp13 = load i64, i64* %TYPE_UNKNOWN, align 8
+    ret i64 %tmp13
 }
 
-; Function: codegen_array_index
-define i8* @codegen_array_index(i8* %index_node, i8* %result_var, i8* %indent, i8* %context) {
+; Function: type_kind_to_name
+define i8* @type_kind_to_name(i64 %kind) {
 entry:
-    %array_name = alloca i64, align 8
-    store i64 0, i64* %array_name, align 8
-  %index_expr = alloca i8*, align 8
-  store i8* null, i8** %index_expr, align 8
-  %llvm_code_ptr = alloca i8*, align 8
-  %tmp187 = getelementptr inbounds [1 x i8], [1 x i8]* @.str.30, i64 0, i64 0
-  store i8* %tmp187, i8** %llvm_code_ptr, align 8
-  %global_decls_ptr = alloca i8*, align 8
-  %tmp188 = getelementptr inbounds [1 x i8], [1 x i8]* @.str.31, i64 0, i64 0
-  store i8* %tmp188, i8** %global_decls_ptr, align 8
-  %new_context = alloca i8*, align 8
-  store i8* %context, i8** %new_context, align 8
-  %index_var_ptr = alloca i8*, align 8
-  %tmp189 = getelementptr inbounds [18 x i8], [18 x i8]* @.str.32, i64 0, i64 0
-  store i8* %tmp189, i8** %index_var_ptr, align 8
-  %index_result = alloca i8*, align 8
-    %tmp190 = load i8*, i8** %index_expr, align 8
-    %tmp191 = load i8*, i8** %index_var, align 8
-    %tmp192 = load i8*, i8** %new_context, align 8
-    %tmp193 = call i64 @codegen_array_element(i8* %tmp190, i8* %tmp191, i8* %indent, i8* %tmp192)
-  store i8* %tmp193, i8** %index_result, align 8
-    %index_code = alloca i64, align 8
-    %tmp194 = load i8*, i8** %index_result, align 8
-    %tmp195 = call i8* @melp_list_get(i8* %tmp194, i64 0)
-    %tmp196 = bitcast i8* %tmp195 to i64*
-    %tmp197 = load i64, i64* %tmp196
-    store i64 %tmp197, i64* %index_code, align 8
-    %index_globals = alloca i64, align 8
-    %tmp198 = load i8*, i8** %index_result, align 8
-    %tmp199 = call i8* @melp_list_get(i8* %tmp198, i64 1)
-    %tmp200 = bitcast i8* %tmp199 to i64*
-    %tmp201 = load i64, i64* %tmp200
-    store i64 %tmp201, i64* %index_globals, align 8
-    %tmp202 = load i8*, i8** %index_result, align 8
-    %tmp203 = call i8* @melp_list_get(i8* %tmp202, i64 2)
-    %tmp204 = bitcast i8* %tmp203 to i64*
-    %tmp205 = load i64, i64* %tmp204
-    store i64 %tmp205, i64* %new_context, align 8
-    %tmp206 = load i8*, i8** %llvm_code, align 8
-    %tmp207 = load i64, i64* %index_code, align 8
-    %tmp208 = add nsw i64 %tmp206, %tmp207
-    store i64 %tmp208, i64* %llvm_code, align 8
-    %tmp209 = load i8*, i8** %global_decls, align 8
-    %tmp210 = load i64, i64* %index_globals, align 8
-    %tmp211 = add nsw i64 %tmp209, %tmp210
-    store i64 %tmp211, i64* %global_decls, align 8
-  %ptr_var_ptr = alloca i8*, align 8
-  %tmp212 = getelementptr inbounds [16 x i8], [16 x i8]* @.str.33, i64 0, i64 0
-  store i8* %tmp212, i8** %ptr_var_ptr, align 8
-  %array_type_ptr = alloca i8*, align 8
-  %tmp213 = getelementptr inbounds [11 x i8], [11 x i8]* @.str.34, i64 0, i64 0
-  store i8* %tmp213, i8** %array_type_ptr, align 8
-  %elem_type_ptr = alloca i8*, align 8
-  %tmp214 = getelementptr inbounds [4 x i8], [4 x i8]* @.str.35, i64 0, i64 0
-  store i8* %tmp214, i8** %elem_type_ptr, align 8
-    %tmp215 = load i8*, i8** %llvm_code, align 8
-    %tmp216 = add nsw i64 %tmp215, %indent
-    store i64 %tmp216, i64* %llvm_code, align 8
-    %tmp217 = load i8*, i8** %llvm_code, align 8
-    %tmp218 = load i8*, i8** %ptr_var, align 8
-    %tmp219 = add nsw i64 %tmp217, %tmp218
-    store i64 %tmp219, i64* %llvm_code, align 8
-    %tmp220 = load i8*, i8** %llvm_code, align 8
-    %tmp221 = getelementptr inbounds [18 x i8], [18 x i8]* @.str.36, i64 0, i64 0
-    %tmp222 = add nsw i64 %tmp220, %tmp221
-    store i64 %tmp222, i64* %llvm_code, align 8
-    %tmp223 = load i8*, i8** %llvm_code, align 8
-    %tmp224 = load i8*, i8** %array_type, align 8
-    %tmp225 = add nsw i64 %tmp223, %tmp224
-    store i64 %tmp225, i64* %llvm_code, align 8
-    %tmp226 = load i8*, i8** %llvm_code, align 8
-    %tmp227 = getelementptr inbounds [3 x i8], [3 x i8]* @.str.37, i64 0, i64 0
-    %tmp228 = add nsw i64 %tmp226, %tmp227
-    store i64 %tmp228, i64* %llvm_code, align 8
-    %tmp229 = load i8*, i8** %llvm_code, align 8
-    %tmp230 = load i8*, i8** %array_type, align 8
-    %tmp231 = add nsw i64 %tmp229, %tmp230
-    store i64 %tmp231, i64* %llvm_code, align 8
-    %tmp232 = load i8*, i8** %llvm_code, align 8
-    %tmp233 = getelementptr inbounds [4 x i8], [4 x i8]* @.str.38, i64 0, i64 0
-    %tmp234 = add nsw i64 %tmp232, %tmp233
-    store i64 %tmp234, i64* %llvm_code, align 8
-    %tmp235 = load i8*, i8** %llvm_code, align 8
-    %tmp236 = load i64, i64* %array_name, align 8
-    %tmp237 = add nsw i64 %tmp235, %tmp236
-    store i64 %tmp237, i64* %llvm_code, align 8
-    %tmp238 = load i8*, i8** %llvm_code, align 8
-    %tmp239 = getelementptr inbounds [14 x i8], [14 x i8]* @.str.39, i64 0, i64 0
-    %tmp240 = add nsw i64 %tmp238, %tmp239
-    store i64 %tmp240, i64* %llvm_code, align 8
-    %tmp241 = load i8*, i8** %llvm_code, align 8
-    %tmp242 = load i8*, i8** %index_var, align 8
-    %tmp243 = add nsw i64 %tmp241, %tmp242
-    store i64 %tmp243, i64* %llvm_code, align 8
-    %tmp244 = load i8*, i8** %llvm_code, align 8
-    %tmp245 = getelementptr inbounds [21 x i8], [21 x i8]* @.str.40, i64 0, i64 0
-    %tmp246 = add nsw i64 %tmp244, %tmp245
-    store i64 %tmp246, i64* %llvm_code, align 8
-    %tmp247 = load i8*, i8** %llvm_code, align 8
-    %tmp248 = add nsw i64 %tmp247, %indent
-    store i64 %tmp248, i64* %llvm_code, align 8
-    %tmp249 = load i8*, i8** %llvm_code, align 8
-    %tmp250 = add nsw i64 %tmp249, %result_var
-    store i64 %tmp250, i64* %llvm_code, align 8
-    %tmp251 = load i8*, i8** %llvm_code, align 8
-    %tmp252 = getelementptr inbounds [9 x i8], [9 x i8]* @.str.41, i64 0, i64 0
-    %tmp253 = add nsw i64 %tmp251, %tmp252
-    store i64 %tmp253, i64* %llvm_code, align 8
-    %tmp254 = load i8*, i8** %llvm_code, align 8
-    %tmp255 = load i64, i64* %elem_type, align 8
-    %tmp256 = add nsw i64 %tmp254, %tmp255
-    store i64 %tmp256, i64* %llvm_code, align 8
-    %tmp257 = load i8*, i8** %llvm_code, align 8
-    %tmp258 = getelementptr inbounds [3 x i8], [3 x i8]* @.str.42, i64 0, i64 0
-    %tmp259 = add nsw i64 %tmp257, %tmp258
-    store i64 %tmp259, i64* %llvm_code, align 8
-    %tmp260 = load i8*, i8** %llvm_code, align 8
-    %tmp261 = load i64, i64* %elem_type, align 8
-    %tmp262 = add nsw i64 %tmp260, %tmp261
-    store i64 %tmp262, i64* %llvm_code, align 8
-    %tmp263 = load i8*, i8** %llvm_code, align 8
-    %tmp264 = getelementptr inbounds [3 x i8], [3 x i8]* @.str.43, i64 0, i64 0
-    %tmp265 = add nsw i64 %tmp263, %tmp264
-    store i64 %tmp265, i64* %llvm_code, align 8
-    %tmp266 = load i8*, i8** %llvm_code, align 8
-    %tmp267 = load i8*, i8** %ptr_var, align 8
-    %tmp268 = add nsw i64 %tmp266, %tmp267
-    store i64 %tmp268, i64* %llvm_code, align 8
-    %tmp269 = load i8*, i8** %llvm_code, align 8
-    %tmp270 = getelementptr inbounds [3 x i8], [3 x i8]* @.str.44, i64 0, i64 0
-    %tmp271 = add nsw i64 %tmp269, %tmp270
-    store i64 %tmp271, i64* %llvm_code, align 8
-    ret i8* 0
-}
-
-; Function: codegen_array_length
-define i8* @codegen_array_length(i8* %length_node, i8* %result_var, i8* %indent, i8* %context) {
-entry:
-    %array_name = alloca i64, align 8
-    store i64 0, i64* %array_name, align 8
-    %array_length = alloca i64, align 8
-    store i64 10, i64* %array_length, align 8
-    %llvm_code = alloca i64, align 8
-    store i64 %indent, i64* %llvm_code, align 8
-    %tmp272 = load i8*, i8** %llvm_code, align 8
-    %tmp273 = add nsw i64 %tmp272, %result_var
-    store i64 %tmp273, i64* %llvm_code, align 8
-    %tmp274 = load i8*, i8** %llvm_code, align 8
-    %tmp275 = getelementptr inbounds [15 x i8], [15 x i8]* @.str.45, i64 0, i64 0
-    %tmp276 = add nsw i64 %tmp274, %tmp275
-    store i64 %tmp276, i64* %llvm_code, align 8
-    %tmp277 = load i8*, i8** %llvm_code, align 8
-    %tmp278 = getelementptr inbounds [7 x i8], [7 x i8]* @.str.46, i64 0, i64 0
-    %tmp279 = add nsw i64 %tmp277, %tmp278
-    store i64 %tmp279, i64* %llvm_code, align 8
-    %tmp280 = load i8*, i8** %llvm_code, align 8
-    %tmp281 = getelementptr inbounds [19 x i8], [19 x i8]* @.str.47, i64 0, i64 0
-    %tmp282 = add nsw i64 %tmp280, %tmp281
-    store i64 %tmp282, i64* %llvm_code, align 8
-    ret i8* 0
-}
-
-; Function: codegen_array_declaration
-define i8* @codegen_array_declaration(i8* %decl_node, i8* %indent, i8* %context) {
-entry:
-    %var_name = alloca i64, align 8
-    store i64 0, i64* %var_name, align 8
-  %array_literal = alloca i8*, align 8
-  store i8* null, i8** %array_literal, align 8
-  %result_var_ptr = alloca i8*, align 8
-  %tmp283 = getelementptr inbounds [2 x i8], [2 x i8]* @.str.48, i64 0, i64 0
-  store i8* %tmp283, i8** %result_var_ptr, align 8
-    %tmp284 = load i8*, i8** %result_var, align 8
-    %tmp285 = load i64, i64* %var_name, align 8
-    %tmp286 = add nsw i64 %tmp284, %tmp285
-    store i64 %tmp286, i64* %result_var, align 8
-  %literal_result = alloca i8*, align 8
-    %tmp287 = load i8*, i8** %array_literal, align 8
-    %tmp288 = load i8*, i8** %result_var, align 8
-    %tmp289 = call i64 @codegen_array_literal(i8* %tmp287, i8* %tmp288, i8* %indent, i8* %context)
-  store i8* %tmp289, i8** %literal_result, align 8
-    %tmp290 = load i8*, i8** %literal_result, align 8
-    ret i8* %tmp290
-}
-
-; Function: infer_element_llvm_type
-define i8* @infer_element_llvm_type(i8* %element) {
-entry:
-    %elem_type = alloca i64, align 8
-    %tmp291 = load i8*, i8** %element, align 8
-    %tmp292 = call i8* @melp_list_get(i8* %tmp291, i64 0)
-    %tmp293 = bitcast i8* %tmp292 to i64*
-    %tmp294 = load i64, i64* %tmp293
-    store i64 %tmp294, i64* %elem_type, align 8
-    %tmp295 = load i64, i64* %elem_type, align 8
-    %tmp296 = load i64, i64* %LIT_INTEGER, align 8
-    %tmp297 = icmp eq i64 %tmp295, %tmp296
-    br i1 %tmp297, label %label18, label %label19
+    %tmp14 = load i64, i64* %TYPE_INT, align 8
+    %tmp15 = icmp eq i64 %kind, %tmp14
+    br i1 %tmp15, label %label13, label %label14
+label13:
+    %tmp16 = getelementptr inbounds [8 x i8], [8 x i8]* @.str.1, i64 0, i64 0
+    ret i8* %tmp16
+    br label %label14
+label14:
+    %tmp17 = load i64, i64* %TYPE_FLOAT, align 8
+    %tmp18 = icmp eq i64 %kind, %tmp17
+    br i1 %tmp18, label %label15, label %label16
+label15:
+    %tmp19 = getelementptr inbounds [6 x i8], [6 x i8]* @.str.2, i64 0, i64 0
+    ret i8* %tmp19
+    br label %label16
+label16:
+    %tmp20 = load i64, i64* %TYPE_STRING, align 8
+    %tmp21 = icmp eq i64 %kind, %tmp20
+    br i1 %tmp21, label %label17, label %label18
+label17:
+    %tmp22 = getelementptr inbounds [7 x i8], [7 x i8]* @.str.3, i64 0, i64 0
+    ret i8* %tmp22
+    br label %label18
 label18:
-    %tmp298 = getelementptr inbounds [4 x i8], [4 x i8]* @.str.49, i64 0, i64 0
-    ret i8* %tmp298
-    br label %label20
+    %tmp23 = load i64, i64* %TYPE_BOOL, align 8
+    %tmp24 = icmp eq i64 %kind, %tmp23
+    br i1 %tmp24, label %label19, label %label20
 label19:
-    %tmp299 = load i64, i64* %elem_type, align 8
-    %tmp300 = load i64, i64* %LIT_STRING, align 8
-    %tmp301 = icmp eq i64 %tmp299, %tmp300
-    br i1 %tmp301, label %label21, label %label22
-label21:
-    %tmp302 = getelementptr inbounds [4 x i8], [4 x i8]* @.str.50, i64 0, i64 0
-    ret i8* %tmp302
-    br label %label23
-label22:
-    %tmp303 = load i64, i64* %elem_type, align 8
-    %tmp304 = load i64, i64* %LIT_BOOLEAN, align 8
-    %tmp305 = icmp eq i64 %tmp303, %tmp304
-    br i1 %tmp305, label %label24, label %label25
-label24:
-    %tmp306 = getelementptr inbounds [3 x i8], [3 x i8]* @.str.51, i64 0, i64 0
-    ret i8* %tmp306
-    br label %label26
-label25:
-    %tmp307 = getelementptr inbounds [4 x i8], [4 x i8]* @.str.52, i64 0, i64 0
-    ret i8* %tmp307
-    br label %label26
-label26:
-    br label %label23
-label23:
+    %tmp25 = getelementptr inbounds [8 x i8], [8 x i8]* @.str.4, i64 0, i64 0
+    ret i8* %tmp25
     br label %label20
 label20:
-}
-
-; Function: get_array_llvm_type
-define i8* @get_array_llvm_type(i64 %count, i8* %element_type) {
-entry:
-  %array_type_ptr = alloca i8*, align 8
-  %tmp308 = getelementptr inbounds [2 x i8], [2 x i8]* @.str.53, i64 0, i64 0
-  store i8* %tmp308, i8** %array_type_ptr, align 8
-    %tmp309 = load i8*, i8** %array_type, align 8
-    %tmp310 = getelementptr inbounds [2 x i8], [2 x i8]* @.str.54, i64 0, i64 0
-    %tmp311 = add nsw i64 %tmp309, %tmp310
-    store i64 %tmp311, i64* %array_type, align 8
-    %tmp312 = load i8*, i8** %array_type, align 8
-    %tmp313 = getelementptr inbounds [4 x i8], [4 x i8]* @.str.55, i64 0, i64 0
-    %tmp314 = add nsw i64 %tmp312, %tmp313
-    store i64 %tmp314, i64* %array_type, align 8
-    %tmp315 = load i8*, i8** %array_type, align 8
-    %tmp316 = add nsw i64 %tmp315, %element_type
-    store i64 %tmp316, i64* %array_type, align 8
-    %tmp317 = load i8*, i8** %array_type, align 8
-    %tmp318 = getelementptr inbounds [2 x i8], [2 x i8]* @.str.56, i64 0, i64 0
-    %tmp319 = add nsw i64 %tmp317, %tmp318
-    store i64 %tmp319, i64* %array_type, align 8
-    %tmp320 = load i8*, i8** %array_type, align 8
-    ret i8* %tmp320
-}
-
-; Function: is_homogeneous_array
-define i64 @is_homogeneous_array(i8* %elements, i64 %count) {
-entry:
-    %tmp321 = icmp eq i64 %count, 0
-    br i1 %tmp321, label %label27, label %label28
+    %tmp26 = load i64, i64* %TYPE_VOID, align 8
+    %tmp27 = icmp eq i64 %kind, %tmp26
+    br i1 %tmp27, label %label21, label %label22
+label21:
+    %tmp28 = getelementptr inbounds [5 x i8], [5 x i8]* @.str.5, i64 0, i64 0
+    ret i8* %tmp28
+    br label %label22
+label22:
+    %tmp29 = load i64, i64* %TYPE_CHAR, align 8
+    %tmp30 = icmp eq i64 %kind, %tmp29
+    br i1 %tmp30, label %label23, label %label24
+label23:
+    %tmp31 = getelementptr inbounds [5 x i8], [5 x i8]* @.str.6, i64 0, i64 0
+    ret i8* %tmp31
+    br label %label24
+label24:
+    %tmp32 = load i64, i64* %TYPE_ARRAY, align 8
+    %tmp33 = icmp eq i64 %kind, %tmp32
+    br i1 %tmp33, label %label25, label %label26
+label25:
+    %tmp34 = getelementptr inbounds [6 x i8], [6 x i8]* @.str.7, i64 0, i64 0
+    ret i8* %tmp34
+    br label %label26
+label26:
+    %tmp35 = load i64, i64* %TYPE_POINTER, align 8
+    %tmp36 = icmp eq i64 %kind, %tmp35
+    br i1 %tmp36, label %label27, label %label28
 label27:
-    ret i64 1
+    %tmp37 = getelementptr inbounds [8 x i8], [8 x i8]* @.str.8, i64 0, i64 0
+    ret i8* %tmp37
     br label %label28
 label28:
-    %tmp322 = icmp eq i64 %count, 1
-    br i1 %tmp322, label %label29, label %label30
+    %tmp38 = load i64, i64* %TYPE_FUNCTION, align 8
+    %tmp39 = icmp eq i64 %kind, %tmp38
+    br i1 %tmp39, label %label29, label %label30
 label29:
-    ret i64 1
+    %tmp40 = getelementptr inbounds [9 x i8], [9 x i8]* @.str.9, i64 0, i64 0
+    ret i8* %tmp40
     br label %label30
 label30:
-  %first = alloca i8*, align 8
-    %tmp323 = load i8*, i8** %elements, align 8
-    %tmp324 = call i8* @melp_list_get(i8* %tmp323, i64 0)
-    %tmp325 = bitcast i8* %tmp324 to i64*
-    %tmp326 = load i64, i64* %tmp325
-  store i8* %tmp326, i8** %first, align 8
-    %first_type = alloca i64, align 8
-    %tmp327 = load i8*, i8** %first, align 8
-    %tmp328 = call i64 @infer_element_llvm_type(i8* %tmp327)
-    store i64 %tmp328, i64* %first_type, align 8
-    %i = alloca i64, align 8
-    store i64 1, i64* %i, align 8
-    br label %label31
+    %tmp41 = load i64, i64* %TYPE_STRUCT, align 8
+    %tmp42 = icmp eq i64 %kind, %tmp41
+    br i1 %tmp42, label %label31, label %label32
 label31:
-    %tmp329 = load i64, i64* %i, align 8
-    %tmp330 = icmp slt i64 %tmp329, %count
-    br i1 %tmp330, label %label32, label %label33
+    %tmp43 = getelementptr inbounds [7 x i8], [7 x i8]* @.str.10, i64 0, i64 0
+    ret i8* %tmp43
+    br label %label32
 label32:
-  %elem = alloca i8*, align 8
-    %tmp331 = load i8*, i8** %elements, align 8
-    %tmp332 = load i64, i64* %i, align 8
-    %tmp333 = call i8* @melp_list_get(i8* %tmp331, i64 %tmp332)
-    %tmp334 = bitcast i8* %tmp333 to i64*
-    %tmp335 = load i64, i64* %tmp334
-  store i8* %tmp335, i8** %elem, align 8
-    %elem_type = alloca i64, align 8
-    %tmp336 = load i8*, i8** %elem, align 8
-    %tmp337 = call i64 @infer_element_llvm_type(i8* %tmp336)
-    store i64 %tmp337, i64* %elem_type, align 8
-    %tmp338 = load i64, i64* %elem_type, align 8
-    %tmp339 = load i64, i64* %first_type, align 8
-    %tmp340 = icmp ne i64 %tmp338, %tmp339
-    br i1 %tmp340, label %label34, label %label35
-label34:
-    ret i64 0
-    br label %label35
-label35:
-    %tmp341 = load i64, i64* %i, align 8
-    %tmp342 = add nsw i64 %tmp341, 1
-    store i64 %tmp342, i64* %i, align 8
-    br label %label31
+    %tmp44 = load i64, i64* %TYPE_ENUM, align 8
+    %tmp45 = icmp eq i64 %kind, %tmp44
+    br i1 %tmp45, label %label33, label %label34
 label33:
-    ret i64 1
-}
-
-; Function: codegen_array
-define i8* @codegen_array(i8* %array_node, i8* %result_var, i8* %indent, i8* %context) {
-entry:
-    %node_type = alloca i64, align 8
-    store i64 0, i64* %node_type, align 8
-    %tmp343 = load i64, i64* %node_type, align 8
-    %tmp344 = load i64, i64* %ARRAY_LITERAL, align 8
-    %tmp345 = icmp eq i64 %tmp343, %tmp344
-    br i1 %tmp345, label %label36, label %label37
+    %tmp46 = getelementptr inbounds [5 x i8], [5 x i8]* @.str.11, i64 0, i64 0
+    ret i8* %tmp46
+    br label %label34
+label34:
+    %tmp47 = load i64, i64* %TYPE_GENERIC, align 8
+    %tmp48 = icmp eq i64 %kind, %tmp47
+    br i1 %tmp48, label %label35, label %label36
+label35:
+    %tmp49 = getelementptr inbounds [8 x i8], [8 x i8]* @.str.12, i64 0, i64 0
+    ret i8* %tmp49
+    br label %label36
 label36:
-    %tmp346 = call i64 @codegen_array_literal(i8* %array_node, i8* %result_var, i8* %indent, i8* %context)
-    ret i8* %tmp346
-    br label %label38
+    %tmp50 = load i64, i64* %TYPE_UNKNOWN, align 8
+    %tmp51 = icmp eq i64 %kind, %tmp50
+    br i1 %tmp51, label %label37, label %label38
 label37:
-    %tmp347 = load i64, i64* %node_type, align 8
-    %tmp348 = load i64, i64* %ARRAY_INDEX, align 8
-    %tmp349 = icmp eq i64 %tmp347, %tmp348
-    br i1 %tmp349, label %label39, label %label40
-label39:
-    %tmp350 = call i64 @codegen_array_index(i8* %array_node, i8* %result_var, i8* %indent, i8* %context)
-    ret i8* %tmp350
-    br label %label41
-label40:
-    %tmp351 = load i64, i64* %node_type, align 8
-    %tmp352 = load i64, i64* %ARRAY_LENGTH, align 8
-    %tmp353 = icmp eq i64 %tmp351, %tmp352
-    br i1 %tmp353, label %label42, label %label43
-label42:
-    %tmp354 = call i64 @codegen_array_length(i8* %array_node, i8* %result_var, i8* %indent, i8* %context)
-    ret i8* %tmp354
-    br label %label44
-label43:
-    %tmp355 = load i64, i64* %node_type, align 8
-    %tmp356 = load i64, i64* %ARRAY_DECLARATION, align 8
-    %tmp357 = icmp eq i64 %tmp355, %tmp356
-    br i1 %tmp357, label %label45, label %label46
-label45:
-    %tmp358 = call i64 @codegen_array_declaration(i8* %array_node, i8* %indent, i8* %context)
-    ret i8* %tmp358
-    br label %label47
-label46:
-    ret i8* 0
-    br label %label47
-label47:
-    br label %label44
-label44:
-    br label %label41
-label41:
+    %tmp52 = getelementptr inbounds [8 x i8], [8 x i8]* @.str.13, i64 0, i64 0
+    ret i8* %tmp52
     br label %label38
 label38:
+    %tmp53 = load i64, i64* %TYPE_ERROR, align 8
+    %tmp54 = icmp eq i64 %kind, %tmp53
+    br i1 %tmp54, label %label39, label %label40
+label39:
+    %tmp55 = getelementptr inbounds [6 x i8], [6 x i8]* @.str.14, i64 0, i64 0
+    ret i8* %tmp55
+    br label %label40
+label40:
+    %tmp56 = getelementptr inbounds [8 x i8], [8 x i8]* @.str.15, i64 0, i64 0
+    ret i8* %tmp56
+}
+
+; Function: types_compatible
+define i64 @types_compatible(i64 %lhs_kind, i64 %rhs_kind) {
+entry:
+    %tmp57 = icmp eq i64 %lhs_kind, %rhs_kind
+    br i1 %tmp57, label %label41, label %label42
+label41:
+    ret i64 1
+    br label %label42
+label42:
+    %tmp58 = load i64, i64* %TYPE_INT, align 8
+    %tmp59 = icmp eq i64 %lhs_kind, %tmp58
+    br i1 %tmp59, label %label43, label %label44
+label43:
+    br label %label44
+label44:
 }
 
 ; String Constants
-@.str.1 = private unnamed_addr constant [1 x i8] c"\00", align 1
-@.str.2 = private unnamed_addr constant [1 x i8] c"\00", align 1
-@.str.3 = private unnamed_addr constant [37 x i8] c" = alloca [0 x i64]  ; empty array\\n\00", align 1
-@.str.4 = private unnamed_addr constant [2 x i8] c"[\00", align 1
-@.str.5 = private unnamed_addr constant [6 x i8] c"COUNT\00", align 1
-@.str.6 = private unnamed_addr constant [4 x i8] c" x \00", align 1
-@.str.7 = private unnamed_addr constant [2 x i8] c"]\00", align 1
-@.str.8 = private unnamed_addr constant [11 x i8] c" = alloca \00", align 1
-@.str.9 = private unnamed_addr constant [20 x i8] c"  ; array literal\\n\00", align 1
-@.str.10 = private unnamed_addr constant [13 x i8] c"%array_elem_\00", align 1
-@.str.11 = private unnamed_addr constant [2 x i8] c"N\00", align 1
-@.str.12 = private unnamed_addr constant [12 x i8] c"%array_ptr_\00", align 1
-@.str.13 = private unnamed_addr constant [2 x i8] c"N\00", align 1
-@.str.14 = private unnamed_addr constant [18 x i8] c" = getelementptr \00", align 1
-@.str.15 = private unnamed_addr constant [3 x i8] c", \00", align 1
-@.str.16 = private unnamed_addr constant [3 x i8] c"* \00", align 1
-@.str.17 = private unnamed_addr constant [14 x i8] c", i32 0, i32 \00", align 1
-@.str.18 = private unnamed_addr constant [8 x i8] c"INDEX\\n\00", align 1
-@.str.19 = private unnamed_addr constant [7 x i8] c"store \00", align 1
-@.str.20 = private unnamed_addr constant [2 x i8] c" \00", align 1
-@.str.21 = private unnamed_addr constant [3 x i8] c", \00", align 1
-@.str.22 = private unnamed_addr constant [3 x i8] c"* \00", align 1
-@.str.23 = private unnamed_addr constant [3 x i8] c"\\n\00", align 1
-@.str.24 = private unnamed_addr constant [15 x i8] c" = add i64 0, \00", align 1
-@.str.25 = private unnamed_addr constant [22 x i8] c"  ; integer literal\\n\00", align 1
-@.str.26 = private unnamed_addr constant [14 x i8] c" = add i1 0, \00", align 1
-@.str.27 = private unnamed_addr constant [2 x i8] c"1\00", align 1
-@.str.28 = private unnamed_addr constant [2 x i8] c"0\00", align 1
-@.str.29 = private unnamed_addr constant [22 x i8] c"  ; numeric literal\\n\00", align 1
-@.str.30 = private unnamed_addr constant [1 x i8] c"\00", align 1
-@.str.31 = private unnamed_addr constant [1 x i8] c"\00", align 1
-@.str.32 = private unnamed_addr constant [18 x i8] c"%array_index_temp\00", align 1
-@.str.33 = private unnamed_addr constant [16 x i8] c"%array_elem_ptr\00", align 1
-@.str.34 = private unnamed_addr constant [11 x i8] c"[10 x i64]\00", align 1
-@.str.35 = private unnamed_addr constant [4 x i8] c"i64\00", align 1
-@.str.36 = private unnamed_addr constant [18 x i8] c" = getelementptr \00", align 1
-@.str.37 = private unnamed_addr constant [3 x i8] c", \00", align 1
-@.str.38 = private unnamed_addr constant [4 x i8] c"* %\00", align 1
-@.str.39 = private unnamed_addr constant [14 x i8] c", i32 0, i64 \00", align 1
-@.str.40 = private unnamed_addr constant [21 x i8] c"  ; array indexing\\n\00", align 1
-@.str.41 = private unnamed_addr constant [9 x i8] c" = load \00", align 1
-@.str.42 = private unnamed_addr constant [3 x i8] c", \00", align 1
-@.str.43 = private unnamed_addr constant [3 x i8] c"* \00", align 1
-@.str.44 = private unnamed_addr constant [3 x i8] c"\\n\00", align 1
-@.str.45 = private unnamed_addr constant [15 x i8] c" = add i64 0, \00", align 1
-@.str.46 = private unnamed_addr constant [7 x i8] c"LENGTH\00", align 1
-@.str.47 = private unnamed_addr constant [19 x i8] c"  ; array length\\n\00", align 1
-@.str.48 = private unnamed_addr constant [2 x i8] c"%\00", align 1
-@.str.49 = private unnamed_addr constant [4 x i8] c"i64\00", align 1
-@.str.50 = private unnamed_addr constant [4 x i8] c"i8*\00", align 1
-@.str.51 = private unnamed_addr constant [3 x i8] c"i1\00", align 1
-@.str.52 = private unnamed_addr constant [4 x i8] c"i64\00", align 1
-@.str.53 = private unnamed_addr constant [2 x i8] c"[\00", align 1
-@.str.54 = private unnamed_addr constant [2 x i8] c"N\00", align 1
-@.str.55 = private unnamed_addr constant [4 x i8] c" x \00", align 1
-@.str.56 = private unnamed_addr constant [2 x i8] c"]\00", align 1
+@.str.1 = private unnamed_addr constant [8 x i8] c"numeric\00", align 1
+@.str.2 = private unnamed_addr constant [6 x i8] c"float\00", align 1
+@.str.3 = private unnamed_addr constant [7 x i8] c"string\00", align 1
+@.str.4 = private unnamed_addr constant [8 x i8] c"boolean\00", align 1
+@.str.5 = private unnamed_addr constant [5 x i8] c"void\00", align 1
+@.str.6 = private unnamed_addr constant [5 x i8] c"char\00", align 1
+@.str.7 = private unnamed_addr constant [6 x i8] c"array\00", align 1
+@.str.8 = private unnamed_addr constant [8 x i8] c"pointer\00", align 1
+@.str.9 = private unnamed_addr constant [9 x i8] c"function\00", align 1
+@.str.10 = private unnamed_addr constant [7 x i8] c"struct\00", align 1
+@.str.11 = private unnamed_addr constant [5 x i8] c"enum\00", align 1
+@.str.12 = private unnamed_addr constant [8 x i8] c"generic\00", align 1
+@.str.13 = private unnamed_addr constant [8 x i8] c"unknown\00", align 1
+@.str.14 = private unnamed_addr constant [6 x i8] c"error\00", align 1
+@.str.15 = private unnamed_addr constant [8 x i8] c"unknown\00", align 1
 
