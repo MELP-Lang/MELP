@@ -1,0 +1,11 @@
+-- ============================================================================
+-- Duplicate Function Module B
+-- ============================================================================
+
+function duplicate_func() returns numeric
+    return 200
+end_function
+
+function unique_b() returns numeric
+    return 2
+end_function

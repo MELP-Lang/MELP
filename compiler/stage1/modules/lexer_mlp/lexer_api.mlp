@@ -1,0 +1,96 @@
+-- ============================================================================
+-- MELP Lexer - Public API Wrapper (Clean Interface)
+-- ============================================================================
+-- File: modules/lexer_mlp/lexer_api.mlp
+-- Author: YZ_26 (Part 1)
+-- Date: 17 Aralık 2025
+-- Purpose: Thin API wrapper for lexer - NO ORCHESTRATION!
+-- Status: Stage 1 - Clean Public API
+--
+-- Design Principles:
+-- ✅ Single responsibility: Expose ONE public function
+-- ✅ Clean interface: Hide implementation details
+-- ✅ No orchestration: Just a thin wrapper
+-- ✅ No coupling: Depends only on lexer.mlp API
+--
+-- Public API:
+--   tokenize_source(source_code) → token_count (stub for Stage 0)
+--
+-- NOTE: Stage 0 limitation - returns numeric instead of list
+--       Real implementation will return list of tokens
+-- ============================================================================
+
+-- ============================================================================
+-- PUBLIC API - Single Entry Point
+-- ============================================================================
+
+-- Tokenize source code and return token count
+-- Input: source_code (string) - MELP source code to tokenize
+-- Output: token_count (numeric) - Number of tokens generated
+--
+-- NOTE: This is a STUB for Stage 0 compatibility
+--       Real implementation will call tokenize_next() in loop
+--       and return list of tokens
+function tokenize_source(string source_code) returns numeric
+    -- Stage 0 stub - just validate input
+    numeric source_len = length(source_code)
+    
+    if source_len == 0 then
+        -- Empty source
+        return 0
+    end_if
+    
+    -- In real implementation (Stage 1+):
+    -- 1. Initialize position tracking (pos=0, line=1, col=1)
+    -- 2. Call tokenize_next() in loop until EOF
+    -- 3. Collect tokens in list
+    -- 4. Return token list
+    --
+    -- Example:
+    --   list tokens = []
+    --   numeric pos = 0
+    --   numeric line = 1
+    --   numeric col = 1
+    --   while pos < source_len
+    --     list result = tokenize_next(source_code, pos, line, col)
+    --     list token = result[0]
+    --     pos = result[1]
+    --     col = result[2]
+    --     line = result[3]
+    --     append tokens, token
+    --   end_while
+    --   return tokens
+    
+    -- For now, return estimated token count (source_len / 5)
+    numeric token_estimate = source_len / 5
+    
+    if token_estimate < 1 then
+        token_estimate = 1
+    end_if
+    
+    return token_estimate
+end_function
+
+-- ============================================================================
+-- PRIVATE HELPERS (Optional - for future expansion)
+-- ============================================================================
+
+-- Validate token list (future use)
+function validate_tokens(numeric token_count) returns numeric
+    if token_count < 0 then
+        return 0  -- Invalid
+    end_if
+    
+    return 1  -- Valid
+end_function
+
+-- Get token statistics (future use)
+function get_token_stats(numeric token_count) returns numeric
+    -- Could return stats struct in Stage 1+
+    -- For now, just echo count
+    return token_count
+end_function
+
+-- ============================================================================
+-- NO MAIN - This is a library module, not executable
+-- ============================================================================

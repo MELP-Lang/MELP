@@ -1,0 +1,487 @@
+-- ============================================================================
+-- MELP Stage 1 - Operators Parser Module
+-- ============================================================================
+-- Purpose: Parse arithmetic, comparison, and logical operators
+-- Author: YZ_06
+-- Date: 18 Aralık 2025
+-- Source: Stage 0 arithmetic/, comparison/, logical/ modules
+-- Dependencies: core/token_types.mlp
+-- ============================================================================
+
+import "../core/token_types.mlp"
+
+-- ============================================================================
+-- OPERATOR TYPE CONSTANTS
+-- ============================================================================
+
+-- Arithmetic operators
+const numeric OP_ADD = 1        -- +
+const numeric OP_SUB = 2        -- -
+const numeric OP_MUL = 3        -- *
+const numeric OP_DIV = 4        -- /
+const numeric OP_MOD = 5        -- %
+const numeric OP_POW = 6        -- **
+
+-- Comparison operators
+const numeric OP_EQ = 10        -- ==
+const numeric OP_NE = 11        -- !=
+const numeric OP_LT = 12        -- <
+const numeric OP_GT = 13        -- >
+const numeric OP_LE = 14        -- <=
+const numeric OP_GE = 15        -- >=
+
+-- Logical operators
+const numeric OP_AND = 20       -- and / &&
+const numeric OP_OR = 21        -- or / ||
+const numeric OP_NOT = 22       -- not / !
+
+-- Bitwise operators
+const numeric OP_BIT_AND = 30   -- & (bitwise AND)
+const numeric OP_BIT_OR = 31    -- | (bitwise OR)
+const numeric OP_BIT_XOR = 32   -- ^ (bitwise XOR)
+
+-- ============================================================================
+-- EXPRESSION NODE TYPES
+-- ============================================================================
+
+const numeric EXPR_LITERAL = 1      -- Literal value (number, string, boolean)
+const numeric EXPR_VARIABLE = 2     -- Variable reference
+const numeric EXPR_BINARY = 3       -- Binary operation (left op right)
+const numeric EXPR_UNARY = 4        -- Unary operation (op operand)
+
+-- ============================================================================
+-- OPERATOR PRECEDENCE (Higher = Stronger binding)
+-- ============================================================================
+
+const numeric PREC_LOWEST = 0
+const numeric PREC_OR = 1           -- or, ||
+const numeric PREC_AND = 2          -- and, &&
+const numeric PREC_EQUALITY = 3     -- ==, !=
+const numeric PREC_COMPARISON = 4   -- <, >, <=, >=
+const numeric PREC_BIT_OR = 5       -- |
+const numeric PREC_BIT_XOR = 6      -- ^
+const numeric PREC_BIT_AND = 7      -- &
+const numeric PREC_TERM = 8         -- +, -
+const numeric PREC_FACTOR = 9       -- *, /, %
+const numeric PREC_POWER = 10       -- **
+const numeric PREC_UNARY = 11       -- !, not, - (unary)
+const numeric PREC_HIGHEST = 12
+
+-- ============================================================================
+-- HELPER FUNCTIONS
+-- ============================================================================
+
+-- Get operator type from token
+function token_to_operator(numeric token_type) returns numeric
+    -- Arithmetic
+    if token_type == T_PLUS
+        return OP_ADD
+    end_if
+    if token_type == T_MINUS
+        return OP_SUB
+    end_if
+    if token_type == T_STAR
+        return OP_MUL
+    end_if
+    if token_type == T_SLASH
+        return OP_DIV
+    end_if
+    if token_type == T_PERCENT
+        return OP_MOD
+    end_if
+    if token_type == T_POWER
+        return OP_POW
+    end_if
+    
+    -- Comparison
+    if token_type == T_EQ
+        return OP_EQ
+    end_if
+    if token_type == T_NE
+        return OP_NE
+    end_if
+    if token_type == T_LT
+        return OP_LT
+    end_if
+    if token_type == T_GT
+        return OP_GT
+    end_if
+    if token_type == T_LE
+        return OP_LE
+    end_if
+    if token_type == T_GE
+        return OP_GE
+    end_if
+    
+    -- Logical
+    if token_type == T_AND
+        return OP_AND
+    end_if
+    if token_type == T_OR
+        return OP_OR
+    end_if
+    if token_type == T_NOT
+        return OP_NOT
+    end_if
+    
+    -- Bitwise
+    if token_type == T_AMPERSAND
+        return OP_BIT_AND
+    end_if
+    if token_type == T_PIPE
+        return OP_BIT_OR
+    end_if
+    if token_type == T_CARET
+        return OP_BIT_XOR
+    end_if
+    
+    return 0  -- Unknown operator
+end_function
+
+-- Get operator precedence
+function get_precedence(numeric op) returns numeric
+    -- Logical
+    if op == OP_OR
+        return PREC_OR
+    end_if
+    if op == OP_AND
+        return PREC_AND
+    end_if
+    if op == OP_NOT
+        return PREC_UNARY
+    end_if
+    
+    -- Comparison
+    if op == OP_EQ
+        return PREC_EQUALITY
+    end_if
+    if op == OP_NE
+        return PREC_EQUALITY
+    end_if
+    if op == OP_LT
+        return PREC_COMPARISON
+    end_if
+    if op == OP_GT
+        return PREC_COMPARISON
+    end_if
+    if op == OP_LE
+        return PREC_COMPARISON
+    end_if
+    if op == OP_GE
+        return PREC_COMPARISON
+    end_if
+    
+    -- Bitwise
+    if op == OP_BIT_OR
+        return PREC_BIT_OR
+    end_if
+    if op == OP_BIT_XOR
+        return PREC_BIT_XOR
+    end_if
+    if op == OP_BIT_AND
+        return PREC_BIT_AND
+    end_if
+    
+    -- Arithmetic
+    if op == OP_ADD
+        return PREC_TERM
+    end_if
+    if op == OP_SUB
+        return PREC_TERM
+    end_if
+    if op == OP_MUL
+        return PREC_FACTOR
+    end_if
+    if op == OP_DIV
+        return PREC_FACTOR
+    end_if
+    if op == OP_MOD
+        return PREC_FACTOR
+    end_if
+    if op == OP_POW
+        return PREC_POWER
+    end_if
+    
+    return PREC_LOWEST
+end_function
+
+-- Get operator name (for debugging/display)
+function get_operator_name(numeric op) returns string
+    if op == OP_ADD
+        return "+"
+    end_if
+    if op == OP_SUB
+        return "-"
+    end_if
+    if op == OP_MUL
+        return "*"
+    end_if
+    if op == OP_DIV
+        return "/"
+    end_if
+    if op == OP_MOD
+        return "%"
+    end_if
+    if op == OP_POW
+        return "**"
+    end_if
+    
+    if op == OP_EQ
+        return "=="
+    end_if
+    if op == OP_NE
+        return "!="
+    end_if
+    if op == OP_LT
+        return "<"
+    end_if
+    if op == OP_GT
+        return ">"
+    end_if
+    if op == OP_LE
+        return "<="
+    end_if
+    if op == OP_GE
+        return ">="
+    end_if
+    
+    if op == OP_AND
+        return "and"
+    end_if
+    if op == OP_OR
+        return "or"
+    end_if
+    if op == OP_NOT
+        return "not"
+    end_if
+    
+    if op == OP_BIT_AND
+        return "&"
+    end_if
+    if op == OP_BIT_OR
+        return "|"
+    end_if
+    if op == OP_BIT_XOR
+        return "^"
+    end_if
+    
+    return "unknown"
+end_function
+
+-- Check if token is an operator
+function is_operator(numeric token_type) returns boolean
+    numeric op = token_to_operator(token_type)
+    return op != 0
+end_function
+
+-- Check if operator is unary
+function is_unary_operator(numeric op) returns boolean
+    return op == OP_NOT
+end_function
+
+-- Check if operator is binary
+function is_binary_operator(numeric op) returns boolean
+    return op != OP_NOT
+end_function
+
+-- ============================================================================
+-- EXPRESSION PARSING (Pratt Parser / Precedence Climbing)
+-- ============================================================================
+
+-- Parse primary expression (literal, variable, parenthesized expression)
+-- Returns: [expr_node, new_position]
+-- expr_node: [node_type, value, left_child, right_child, operator]
+function parse_primary(list tokens, numeric pos) returns list
+    -- Safety check
+    if pos >= tokens.length
+        return [0, pos]  -- End of tokens
+    end_if
+    
+    list token = tokens[pos]
+    numeric token_type = token[0]
+    string token_value = token[1]
+    
+    -- Number literal
+    if token_type == T_NUMBER
+        list expr = [EXPR_LITERAL, token_value, 0, 0, 0]
+        return [expr, pos + 1]
+    end_if
+    
+    -- String literal
+    if token_type == T_STRING
+        list expr = [EXPR_LITERAL, token_value, 0, 0, 0]
+        return [expr, pos + 1]
+    end_if
+    
+    -- Boolean literal
+    if token_type == T_TRUE
+        list expr = [EXPR_LITERAL, "true", 0, 0, 0]
+        return [expr, pos + 1]
+    end_if
+    if token_type == T_FALSE
+        list expr = [EXPR_LITERAL, "false", 0, 0, 0]
+        return [expr, pos + 1]
+    end_if
+    
+    -- Variable
+    if token_type == T_IDENTIFIER
+        list expr = [EXPR_VARIABLE, token_value, 0, 0, 0]
+        return [expr, pos + 1]
+    end_if
+    
+    -- Parenthesized expression: ( expr )
+    if token_type == T_LPAREN
+        list result = parse_expression(tokens, pos + 1, PREC_LOWEST)
+        list expr = result[0]
+        numeric new_pos = result[1]
+        
+        -- Expect closing parenthesis
+        if new_pos >= tokens.length
+            return [0, new_pos]  -- Error: missing )
+        end_if
+        
+        list next_token = tokens[new_pos]
+        if next_token[0] != T_RPAREN
+            return [0, new_pos]  -- Error: expected )
+        end_if
+        
+        return [expr, new_pos + 1]
+    end_if
+    
+    -- Unary operator (not, !)
+    if token_type == T_NOT
+        list result = parse_expression(tokens, pos + 1, PREC_UNARY)
+        list operand = result[0]
+        numeric new_pos = result[1]
+        
+        list expr = [EXPR_UNARY, "not", operand, 0, OP_NOT]
+        return [expr, new_pos]
+    end_if
+    
+    -- Unary minus
+    if token_type == T_MINUS
+        list result = parse_expression(tokens, pos + 1, PREC_UNARY)
+        list operand = result[0]
+        numeric new_pos = result[1]
+        
+        list expr = [EXPR_UNARY, "-", operand, 0, OP_SUB]
+        return [expr, new_pos]
+    end_if
+    
+    return [0, pos]  -- Unable to parse
+end_function
+
+-- Parse expression with precedence climbing
+-- Returns: [expr_node, new_position]
+function parse_expression(list tokens, numeric pos, numeric min_prec) returns list
+    -- Parse left operand (primary)
+    list result = parse_primary(tokens, pos)
+    list left = result[0]
+    numeric current_pos = result[1]
+    
+    if left == 0
+        return [0, current_pos]  -- Error
+    end_if
+    
+    -- Climb precedence for binary operators
+    boolean continue_loop = true
+    while continue_loop
+        -- Check if next token is an operator
+        if current_pos >= tokens.length
+            continue_loop = false
+        end_if
+        
+        if continue_loop
+            list token = tokens[current_pos]
+            numeric token_type = token[0]
+            numeric op = token_to_operator(token_type)
+            
+            -- Not an operator or precedence too low
+            if op == 0
+                continue_loop = false
+            end_if
+            
+            if continue_loop
+                numeric prec = get_precedence(op)
+                if prec < min_prec
+                    continue_loop = false
+                end_if
+            end_if
+            
+            if continue_loop
+                -- Consume operator
+                current_pos = current_pos + 1
+                
+                -- Parse right operand with higher precedence
+                list right_result = parse_expression(tokens, current_pos, prec + 1)
+                list right = right_result[0]
+                current_pos = right_result[1]
+                
+                if right == 0
+                    return [0, current_pos]  -- Error
+                end_if
+                
+                -- Create binary expression node
+                string op_name = get_operator_name(op)
+                list binary_expr = [EXPR_BINARY, op_name, left, right, op]
+                left = binary_expr
+            end_if
+        end_if
+    end_while
+    
+    return [left, current_pos]
+end_function
+
+-- ============================================================================
+-- PUBLIC API
+-- ============================================================================
+
+-- Parse operator expression (entry point)
+-- Returns: [expr_node, new_position]
+function parse_operator_expression(list tokens, numeric pos) returns list
+    return parse_expression(tokens, pos, PREC_LOWEST)
+end_function
+
+-- Extract expression type
+function get_expr_type(list expr) returns numeric
+    if expr == 0
+        return 0
+    end_if
+    return expr[0]
+end_function
+
+-- Extract expression value
+function get_expr_value(list expr) returns string
+    if expr == 0
+        return ""
+    end_if
+    return expr[1]
+end_function
+
+-- Extract left child
+function get_expr_left(list expr) returns list
+    if expr == 0
+        return 0
+    end_if
+    return expr[2]
+end_function
+
+-- Extract right child
+function get_expr_right(list expr) returns list
+    if expr == 0
+        return 0
+    end_if
+    return expr[3]
+end_function
+
+-- Extract operator
+function get_expr_operator(list expr) returns numeric
+    if expr == 0
+        return 0
+    end_if
+    return expr[4]
+end_function
+
+-- ============================================================================
+-- END OF OPERATORS PARSER MODULE
+-- ============================================================================

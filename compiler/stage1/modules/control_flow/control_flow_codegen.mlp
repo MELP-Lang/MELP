@@ -1,0 +1,328 @@
+-- ============================================================================
+-- MELP Stage 1 - Control Flow CodeGen Module
+-- ============================================================================
+-- Purpose: Generate LLVM IR for control flow statements
+-- Author: YZ_07
+-- Date: 18 Aralık 2025
+-- Source: Stage 0 control_flow_codegen.c
+-- Dependencies: control_flow_parser.mlp, operators/operators_codegen.mlp
+-- ============================================================================
+
+import "control_flow_parser.mlp"
+import "../operators/operators_codegen.mlp"
+
+-- ============================================================================
+-- LABEL COUNTER (using const pattern - compile-time initialization)
+-- ============================================================================
+-- Note: In real implementation, this would be passed as parameter
+-- For now, using simplified approach for demonstration
+
+-- ============================================================================
+-- IF STATEMENT CODE GENERATION
+-- ============================================================================
+
+-- Generate LLVM IR for if statement
+-- Input: if_stmt (list), result_var (string), indent (string)
+-- Returns: string (LLVM IR code)
+-- Note: Stateless - no global state
+function codegen_if_statement(list if_stmt, string result_var, string indent) returns string
+    -- if_stmt structure: [ctrl_type, condition, has_else, then_body, else_body]
+    numeric ctrl_type = if_stmt[0]
+    list condition = if_stmt[1]
+    numeric has_else = if_stmt[2]
+    list then_body = if_stmt[3]
+    list else_body = if_stmt[4]
+    
+    -- Check for TIER 1 expression-based if
+    if ctrl_type == CTRL_IF_EXPR
+        string code = indent
+        code = code + "; TIER 1: Expression-based if (result = if cond then val1 else val2)\n"
+        code = code + indent + "; TODO: Implement expression-based if codegen\n"
+        return code
+    end_if
+    
+    -- Generate unique labels (simplified - in real impl would use counter parameter)
+    numeric label_else = 1
+    numeric label_end = 2
+    
+    string code = ""
+    
+    -- Comment
+    code = code + "\n" + indent + "; If statement\n"
+    
+    -- Generate condition code (using operators module)
+    string cond_var = "%cond_result"
+    string cond_code = codegen_operator_expression(condition, cond_var)
+    code = code + cond_code
+    
+    -- Test result (condition is i1 boolean)
+    code = code + indent + "%cond_i1 = trunc i64 " + cond_var + " to i1\n"
+    
+    if has_else == 1
+        -- Branch: if true goto then, else goto else_block
+        code = code + indent + "br i1 %cond_i1, label %if_then_"
+        code = code + "1, label %if_else_" + "1\n"
+    end_if
+    
+    if has_else == 0
+        -- Branch: if true goto then, else goto end
+        code = code + indent + "br i1 %cond_i1, label %if_then_"
+        code = code + "1, label %if_end_" + "2\n"
+    end_if
+    
+    -- Then block
+    code = code + "\n" + "if_then_1:\n"
+    code = code + indent + "; Then body\n"
+    
+    -- Generate then body statements (simplified - would recursively generate)
+    -- For now, just placeholder
+    code = code + indent + "; TODO: Generate then body statements\n"
+    
+    if has_else == 1
+        -- Jump to end after then block
+        code = code + indent + "br label %if_end_2\n"
+        
+        -- Else block
+        code = code + "\n" + "if_else_1:\n"
+        code = code + indent + "; Else body\n"
+        
+        -- Generate else body statements
+        code = code + indent + "; TODO: Generate else body statements\n"
+        
+        -- Jump to end
+        code = code + indent + "br label %if_end_2\n"
+    end_if
+    
+    -- End label
+    code = code + "\n" + "if_end_2:\n"
+    
+    return code
+end_function
+
+-- ============================================================================
+-- WHILE STATEMENT CODE GENERATION
+-- ============================================================================
+
+-- Generate LLVM IR for while statement
+-- Input: while_stmt (list), result_var (string), indent (string)
+-- Returns: string (LLVM IR code)
+function codegen_while_statement(list while_stmt, string result_var, string indent) returns string
+    -- while_stmt structure: [condition, body]
+    list condition = while_stmt[0]
+    list body = while_stmt[1]
+    
+    -- Generate unique labels (simplified)
+    numeric loop_id = 1
+    
+    string code = ""
+    
+    -- Comment
+    code = code + "\n" + indent + "; While loop\n"
+    
+    -- Loop start label
+    code = code + "while_start_1:\n"
+    
+    -- Generate condition code
+    string cond_var = "%loop_cond"
+    string cond_code = codegen_operator_expression(condition, cond_var)
+    code = code + cond_code
+    
+    -- Test condition
+    code = code + indent + "%loop_cond_i1 = trunc i64 " + cond_var + " to i1\n"
+    code = code + indent + "br i1 %loop_cond_i1, label %loop_body_1, label %loop_end_1\n"
+    
+    -- Loop body
+    code = code + "\n" + "loop_body_1:\n"
+    code = code + indent + "; Loop body\n"
+    
+    -- Generate body statements (simplified)
+    code = code + indent + "; TODO: Generate loop body statements\n"
+    
+    -- Jump back to start
+    code = code + indent + "br label %while_start_1\n"
+    
+    -- Loop end label
+    code = code + "\n" + "loop_end_1:\n"
+    
+    return code
+end_function
+
+-- ============================================================================
+-- FOR STATEMENT CODE GENERATION
+-- ============================================================================
+
+-- Generate LLVM IR for for statement
+-- Input: for_stmt (list), result_var (string), indent (string)
+-- Returns: string (LLVM IR code)
+function codegen_for_statement(list for_stmt, string result_var, string indent) returns string
+    -- for_stmt structure: [iterator, start_expr, end_expr, label, body]
+    string iterator = for_stmt[0]
+    list start_expr = for_stmt[1]
+    list end_expr = for_stmt[2]
+    string label = for_stmt[3]
+    list body = for_stmt[4]
+    
+    string code = ""
+    
+    -- Comment
+    code = code + "\n" + indent + "; For loop\n"
+    
+    -- TIER 1: Handle labeled loops
+    if label != ""
+        code = code + indent + "; TIER 1: Loop label '" + label + "'\n"
+        code = code + "loop_label_" + label + ":\n"
+    end_if
+    
+    code = code + indent + "; Iterator: " + iterator + "\n"
+    
+    -- Initialize iterator
+    code = code + indent + "; Allocate iterator variable\n"
+    code = code + indent + "%" + iterator + "_ptr = alloca i64, align 8\n"
+    
+    -- Generate start expression code
+    string start_var = "%for_start"
+    string start_code = codegen_operator_expression(start_expr, start_var)
+    code = code + start_code
+    
+    -- Store start value in iterator
+    code = code + indent + "store i64 " + start_var + ", i64* %" + iterator + "_ptr\n"
+    
+    -- Generate end expression code
+    string end_var = "%for_end"
+    string end_code = codegen_operator_expression(end_expr, end_var)
+    code = code + end_code
+    
+    -- Loop start
+    code = code + "\n" + "for_start_1:\n"
+    
+    -- Load iterator value
+    code = code + indent + "%" + iterator + " = load i64, i64* %" + iterator + "_ptr\n"
+    
+    -- Compare iterator with end value
+    code = code + indent + "%for_cond = icmp slt i64 %" + iterator + ", " + end_var + "\n"
+    code = code + indent + "br i1 %for_cond, label %for_body_1, label %for_end_1\n"
+    
+    -- Loop body
+    code = code + "\n" + "for_body_1:\n"
+    code = code + indent + "; Loop body\n"
+    code = code + indent + "; TODO: Generate for body statements\n"
+    
+    -- Increment iterator
+    code = code + indent + "%" + iterator + "_next = add i64 %" + iterator + ", 1\n"
+    code = code + indent + "store i64 %" + iterator + "_next, i64* %" + iterator + "_ptr\n"
+    
+    -- Jump back to start
+    code = code + indent + "br label %for_start_1\n"
+    
+    -- Loop end
+    code = code + "\n" + "for_end_1:\n"
+    
+    return code
+end_function
+
+-- ============================================================================
+-- BREAK/CONTINUE STATEMENTS
+-- ============================================================================
+
+-- Generate LLVM IR for break statement
+-- Input: loop_id (numeric), indent (string)
+-- Returns: string (LLVM IR code)
+function codegen_break_statement(numeric loop_id, string indent) returns string
+    string code = indent + "; Break statement\n"
+    code = code + indent + "br label %loop_end_"
+    -- Convert loop_id to string (simplified - would use helper)
+    code = code + "1\n"
+    return code
+end_function
+
+-- Generate LLVM IR for continue statement
+-- Input: loop_id (numeric), indent (string)
+-- Returns: string (LLVM IR code)
+function codegen_continue_statement(numeric loop_id, string indent) returns string
+    string code = indent + "; Continue statement\n"
+    code = code + indent + "br label %while_start_"
+    -- Convert loop_id to string (simplified)
+    code = code + "1\n"
+    return code
+end_function
+
+-- ============================================================================
+-- DISPATCHER FUNCTION
+-- ============================================================================
+
+-- Generate code for control flow statement (dispatcher)
+-- Input: stmt (list), stmt_type (numeric), result_var (string)
+-- Returns: string (LLVM IR code)
+function codegen_control_flow_statement(list stmt, numeric stmt_type, string result_var) returns string
+    string indent = "    "
+    
+    if stmt_type == STMT_IF
+        return codegen_if_statement(stmt, result_var, indent)
+    end_if
+    
+    if stmt_type == STMT_WHILE
+        return codegen_while_statement(stmt, result_var, indent)
+    end_if
+    
+    if stmt_type == STMT_FOR
+        return codegen_for_statement(stmt, result_var, indent)
+    end_if
+    
+    if stmt_type == STMT_BREAK
+        return codegen_break_statement(1, indent)
+    end_if
+    
+    if stmt_type == STMT_CONTINUE
+        return codegen_continue_statement(1, indent)
+    end_if
+    
+    return ""
+end_function
+
+-- ============================================================================
+-- UTILITY FUNCTIONS
+-- ============================================================================
+
+-- Generate unique label ID
+-- Note: In real implementation, this would be managed as parameter
+-- For demonstration, returns hardcoded value
+function generate_label_id() returns numeric
+    return 1
+end_function
+
+-- Generate label name
+-- Input: prefix (string), id (numeric)
+-- Returns: string (label name)
+function generate_label_name(string prefix, numeric id) returns string
+    -- Simplified: would convert id to string
+    return prefix + "_1"
+end_function
+
+-- Check if expression is constant (for optimization)
+-- Input: expr (list)
+-- Returns: numeric (1 if constant, 0 otherwise)
+function is_constant_expression(list expr) returns numeric
+    if expr == []
+        return 0
+    end_if
+    
+    -- Check if expression is literal
+    numeric expr_type = expr[0]
+    if expr_type == EXPR_LITERAL
+        return 1
+    end_if
+    
+    return 0
+end_function
+
+-- Optimize control flow (constant folding, dead code elimination)
+-- Input: stmt (list)
+-- Returns: list (optimized statement)
+function optimize_control_flow(list stmt) returns list
+    -- Future: Implement optimizations
+    -- - Constant condition folding
+    -- - Dead code elimination
+    -- - Loop unrolling (simple cases)
+    
+    return stmt
+end_function

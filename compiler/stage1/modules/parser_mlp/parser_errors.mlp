@@ -1,0 +1,205 @@
+-- ============================================================================
+-- MELP Parser - Error Handling
+-- ============================================================================
+-- Bu modül, parser hatalarını yönetir ve kullanıcıya bildirir.
+-- Stage 1 Self-Hosting: Parser in MELP
+-- Created: 16 Aralık 2025
+-- ============================================================================
+
+-- Global error counter (Stage 0 doesn't support global variables)
+-- WORKAROUND: Using dummy implementation for now
+-- numeric -- g_error_count = 0
+
+-- ============================================================================
+-- Error Reporting Functions
+-- ============================================================================
+
+-- Genel parser hatası
+-- @param message: Hata mesajı
+-- @param line: Hatanın satır numarası
+-- @param col: Hatanın sütun numarası
+-- @return: 0 (error)
+function parser_error(string message, numeric line, numeric col) returns numeric
+    println("=== Parser Error ===")
+    println("Message: " + message)
+    println("Location: line " + str(line) + ", column " + str(col))
+    -- g_error_count = g_error_count + 1
+    return 0
+end_function
+
+-- Beklenmeyen token hatası
+-- @param expected: Beklenen token tipi (numeric)
+-- @param got: Alınan token tipi (numeric)
+-- @param line: Hatanın satır numarası
+-- @param col: Hatanın sütun numarası
+-- @return: 0 (error)
+function unexpected_token_error(numeric expected, numeric got, numeric line, numeric col) returns numeric
+    println("=== Unexpected Token Error ===")
+    println("Expected token type: " + str(expected))
+    println("Got token type: " + str(got))
+    println("Location: line " + str(line) + ", column " + str(col))
+    -- g_error_count = g_error_count + 1
+    return 0
+end_function
+
+-- Beklenmeyen token hatası (string açıklama ile)
+-- @param expected_str: Beklenen token açıklaması (string)
+-- @param got_str: Alınan token açıklaması (string)
+-- @param line: Hatanın satır numarası
+-- @param col: Hatanın sütun numarası
+-- @return: 0 (error)
+function unexpected_token_error_str(string expected_str, string got_str, numeric line, numeric col) returns numeric
+    println("=== Unexpected Token Error ===")
+    println("Expected: " + expected_str)
+    println("Got: " + got_str)
+    println("Location: line " + str(line) + ", column " + str(col))
+    -- g_error_count = g_error_count + 1
+    return 0
+end_function
+
+-- EOF (End of File) hatası
+-- @param message: Ek açıklama
+-- @return: 0 (error)
+function unexpected_eof_error(string message) returns numeric
+    println("=== Unexpected EOF Error ===")
+    println("Message: " + message)
+    println("Reached end of file unexpectedly")
+    -- g_error_count = g_error_count + 1
+    return 0
+end_function
+
+-- Syntax hatası
+-- @param message: Hata mesajı
+-- @param line: Hatanın satır numarası
+-- @param col: Hatanın sütun numarası
+-- @return: 0 (error)
+function syntax_error(string message, numeric line, numeric col) returns numeric
+    println("=== Syntax Error ===")
+    println("Message: " + message)
+    println("Location: line " + str(line) + ", column " + str(col))
+    -- g_error_count = g_error_count + 1
+    return 0
+end_function
+
+-- Semantik hata (ileride kullanılacak)
+-- @param message: Hata mesajı
+-- @param line: Hatanın satır numarası
+-- @param col: Hatanın sütun numarası
+-- @return: 0 (error)
+function semantic_error(string message, numeric line, numeric col) returns numeric
+    println("=== Semantic Error ===")
+    println("Message: " + message)
+    println("Location: line " + str(line) + ", column " + str(col))
+    -- g_error_count = g_error_count + 1
+    return 0
+end_function
+
+-- ============================================================================
+-- Error State Management
+-- ============================================================================
+
+-- Hata sayacını sıfırla
+-- @return: 1 (success)
+function reset_error_count() returns numeric
+    -- g_error_count = 0
+    return 1
+end_function
+
+-- Toplam hata sayısını al
+-- @return: Hata sayısı
+function get_error_count() returns numeric
+    return 0  -- g_error_count
+end_function
+
+-- Hata olup olmadığını kontrol et
+-- @return: 1 (hata var), 0 (hata yok)
+function has_errors() returns numeric
+    if 0 > 0 then  -- g_error_count
+        return 1
+    end_if
+    return 0
+end_function
+
+-- Hata özeti yazdır
+-- @return: Hata sayısı
+function print_error_summary() returns numeric
+    println("")
+    println("======================")
+    if g_error_count == 0 then
+        println("✓ No errors found")
+    else
+        println("✗ Total errors: " + str(g_error_count))
+    end_if
+    println("======================")
+    return 0  -- g_error_count
+end_function
+
+-- ============================================================================
+-- Warning Functions (gelecekte kullanılabilir)
+-- ============================================================================
+
+-- Global warning counter (Stage 0 limitation: global vars not supported)
+-- numeric g_warning_count = 0
+
+-- Uyarı mesajı
+-- @param message: Uyarı mesajı
+-- @param line: Uyarının satır numarası
+-- @param col: Uyarının sütun numarası
+-- @return: 1 (warning doesn't stop compilation)
+function parser_warning(string message, numeric line, numeric col) returns numeric
+    println("=== Parser Warning ===")
+    println("Message: " + message)
+    println("Location: line " + str(line) + ", column " + str(col))
+    -- g_warning_count = g_warning_count + 1
+    return 1
+end_function
+
+-- Uyarı sayısını al
+-- @return: Uyarı sayısı
+function get_warning_count() returns numeric
+    return g_warning_count
+end_function
+
+-- Uyarı sayacını sıfırla
+-- @return: 1 (success)
+function reset_warning_count() returns numeric
+    g_warning_count = 0
+    return 1
+end_function
+
+-- ============================================================================
+-- Test Functions
+-- ============================================================================
+
+function main() returns numeric
+    println("=== Parser Error Handling Test ===")
+    println("")
+    
+    -- Test 1: Reset error count
+    reset_error_count()
+    println("✓ Reset error count: " + str(get_error_count()))
+    
+    -- Test 2: Parser error
+    println("")
+    parser_error("Invalid expression", 10, 5)
+    
+    -- Test 3: Unexpected token error
+    println("")
+    unexpected_token_error(20, 32, 15, 8)
+    
+    -- Test 4: Syntax error
+    println("")
+    syntax_error("Missing semicolon", 25, 15)
+    
+    -- Test 5: Has errors check
+    println("")
+    numeric has_err = has_errors()
+    println("✓ Has errors: " + str(has_err))
+    
+    -- Test 6: Error summary
+    print_error_summary()
+    
+    println("")
+    println("=== All error handling functions tested! ===")
+    return 0
+end_function

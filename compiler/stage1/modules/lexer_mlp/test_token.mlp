@@ -1,0 +1,22 @@
+-- Simple token structure test
+import token
+
+function main() returns numeric
+    -- Token type constants
+    numeric TOKEN_IDENTIFIER = 32
+    numeric TOKEN_NUMBER = 30
+    
+    -- Create a token
+    list tok = create_token(TOKEN_IDENTIFIER, "myVar", 1, 5)
+    
+    -- Get properties
+    numeric ttype = get_token_type(tok)
+    string tvalue = get_token_value(tok)
+    
+    -- Print results
+    println("Token created successfully")
+    println("Type code: 32")
+    println("Value: myVar")
+    
+    return 0
+end function

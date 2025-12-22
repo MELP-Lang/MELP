@@ -1,0 +1,355 @@
+-- ============================================================================
+-- MELP Stage 1 - Enums Parser Module
+-- ============================================================================
+-- Purpose: Parse enum definitions and enum value usage
+-- Pattern: Stateless, returns [result, new_position]
+-- Author: YZ_11
+-- Date: 18 Aralık 2025
+--
+-- Enum Syntax:
+--   enum Status
+--       PENDING = 0
+--       ACTIVE = 1
+--       DONE = 2
+--   end_enum
+--
+--   Status s = ACTIVE        -- Use enum value
+--   if s == PENDING then     -- Compare enum value
+--       ...
+--   end_if
+-- ============================================================================
+
+-- Import core utilities
+import "../core/token_types.mlp"
+
+-- ============================================================================
+-- Enum Node Type Constants
+-- ============================================================================
+
+const numeric ENUM_DEFINITION = 1        -- Enum definition: enum Name { values }
+const numeric ENUM_VALUE = 2             -- Enum value member: NAME = value
+const numeric ENUM_VALUE_REF = 3         -- Enum value reference: Status.ACTIVE
+const numeric ENUM_ASSIGNMENT = 4        -- Enum variable assignment: Status s = ACTIVE
+
+-- ============================================================================
+-- Enum Node Structures
+-- ============================================================================
+-- Enum Definition: [ENUM_DEFINITION, enum_name, values_list, value_count]
+-- Enum Value: [ENUM_VALUE, value_name, numeric_value]
+-- Enum Value Reference: [ENUM_VALUE_REF, enum_type, value_name]
+-- Enum Assignment: [ENUM_ASSIGNMENT, enum_type, var_name, value_expr]
+
+-- ============================================================================
+-- Core Parser Functions (STATELESS!)
+-- ============================================================================
+
+-- Parse enum definition
+-- Syntax: enum Status ... end_enum
+-- Returns: [enum_node, new_position]
+function parse_enum_definition(list tokens, numeric pos) returns list
+    -- Expect TOKEN_ENUM
+    if tokens[pos] != TOKEN_ENUM then
+        return [0, pos]  -- Not an enum
+    end_if
+    
+    numeric current_pos = pos + 1  -- Skip 'enum' keyword
+    
+    -- Get enum name
+    if tokens[current_pos] != TOKEN_IDENTIFIER then
+        print "Error: Expected enum name after 'enum'"
+        return [0, pos]
+    end_if
+    
+    string enum_name = tokens[current_pos + 1]  -- Token value
+    current_pos = current_pos + 2  -- Skip identifier + value
+    
+    -- Parse enum values
+    list values_list = []
+    numeric value_count = 0
+    numeric auto_value = 0  -- Auto-increment for values without explicit assignment
+    
+    while current_pos < len(tokens)
+        numeric token_type = tokens[current_pos]
+        
+        -- Check for end_enum
+        if token_type == TOKEN_END_ENUM then
+            current_pos = current_pos + 1  -- Skip end_enum
+            break
+        end_if
+        
+        -- Expect identifier (value name)
+        if token_type != TOKEN_IDENTIFIER then
+            print "Error: Expected enum value name or 'end_enum'"
+            return [0, pos]
+        end_if
+        
+        string value_name = tokens[current_pos + 1]
+        current_pos = current_pos + 2  -- Skip identifier + value
+        
+        -- Check for optional '=' and value
+        numeric value
+        if current_pos < len(tokens) and tokens[current_pos] == TOKEN_ASSIGN then
+            current_pos = current_pos + 1  -- Skip '='
+            
+            -- Get numeric value
+            if current_pos >= len(tokens) or tokens[current_pos] != TOKEN_NUMBER then
+                print "Error: Expected numeric value after '=' in enum"
+                return [0, pos]
+            end_if
+            
+            string value_str = tokens[current_pos + 1]
+            value = parse_int(value_str)
+            current_pos = current_pos + 2  -- Skip number + value
+            auto_value = value + 1  -- Next auto value
+        else
+            -- No explicit value, use auto-increment
+            value = auto_value
+            auto_value = auto_value + 1
+        end_if
+        
+        -- Create enum value node
+        list value_node = [ENUM_VALUE, value_name, value]
+        values_list = append(values_list, value_node)
+        value_count = value_count + 1
+    end_while
+    
+    -- Create enum definition node
+    list enum_node = [ENUM_DEFINITION, enum_name, values_list, value_count]
+    
+    return [enum_node, current_pos]
+end_function
+
+-- Parse enum value reference (e.g., Status.ACTIVE or just ACTIVE)
+-- Returns: [enum_value_ref_node, new_position]
+function parse_enum_value_reference(list tokens, numeric pos) returns list
+    -- Check for identifier (could be enum value)
+    if tokens[pos] != TOKEN_IDENTIFIER then
+        return [0, pos]
+    end_if
+    
+    string first_name = tokens[pos + 1]
+    numeric current_pos = pos + 2
+    
+    -- Check for dot (qualified reference: Status.ACTIVE)
+    if current_pos < len(tokens) and tokens[current_pos] == TOKEN_DOT then
+        current_pos = current_pos + 1  -- Skip dot
+        
+        -- Get value name
+        if current_pos >= len(tokens) or tokens[current_pos] != TOKEN_IDENTIFIER then
+            print "Error: Expected value name after '.'"
+            return [0, pos]
+        end_if
+        
+        string value_name = tokens[current_pos + 1]
+        current_pos = current_pos + 2
+        
+        -- Create qualified reference node
+        list ref_node = [ENUM_VALUE_REF, first_name, value_name]
+        return [ref_node, current_pos]
+    else
+        -- Unqualified reference (just ACTIVE)
+        -- Create unqualified reference node (enum_type = empty)
+        list ref_node = [ENUM_VALUE_REF, "", first_name]
+        return [ref_node, current_pos]
+    end_if
+end_function
+
+-- Parse enum variable assignment
+-- Syntax: Status s = ACTIVE
+-- Returns: [assignment_node, new_position]
+function parse_enum_assignment(list tokens, numeric pos) returns list
+    -- Expect: Type identifier = value
+    if tokens[pos] != TOKEN_IDENTIFIER then
+        return [0, pos]
+    end_if
+    
+    string enum_type = tokens[pos + 1]
+    numeric current_pos = pos + 2
+    
+    -- Check if next is identifier (variable name)
+    if current_pos >= len(tokens) or tokens[current_pos] != TOKEN_IDENTIFIER then
+        return [0, pos]  -- Not an assignment
+    end_if
+    
+    string var_name = tokens[current_pos + 1]
+    current_pos = current_pos + 2
+    
+    -- Expect '='
+    if current_pos >= len(tokens) or tokens[current_pos] != TOKEN_ASSIGN then
+        return [0, pos]  -- Not an assignment
+    end_if
+    
+    current_pos = current_pos + 1  -- Skip '='
+    
+    -- Parse value expression (could be enum value reference)
+    list value_result = parse_enum_value_reference(tokens, current_pos)
+    if value_result[0] == 0 then
+        return [0, pos]  -- Failed to parse value
+    end_if
+    
+    list value_expr = value_result[0]
+    current_pos = value_result[1]
+    
+    -- Create assignment node
+    list assignment_node = [ENUM_ASSIGNMENT, enum_type, var_name, value_expr]
+    
+    return [assignment_node, current_pos]
+end_function
+
+-- ============================================================================
+-- Helper Functions
+-- ============================================================================
+
+-- Get enum name from enum definition node
+function get_enum_name(list enum_node) returns string
+    if len(enum_node) < 2 then
+        return ""
+    end_if
+    return enum_node[1]
+end_function
+
+-- Get enum values list from enum definition node
+function get_enum_values(list enum_node) returns list
+    if len(enum_node) < 3 then
+        return []
+    end_if
+    return enum_node[2]
+end_function
+
+-- Get enum value count
+function get_enum_value_count(list enum_node) returns numeric
+    if len(enum_node) < 4 then
+        return 0
+    end_if
+    return enum_node[3]
+end_function
+
+-- Get value name from enum value node
+function get_enum_value_name(list value_node) returns string
+    if len(value_node) < 2 then
+        return ""
+    end_if
+    return value_node[1]
+end_function
+
+-- Get numeric value from enum value node
+function get_enum_value_numeric(list value_node) returns numeric
+    if len(value_node) < 3 then
+        return 0
+    end_if
+    return value_node[2]
+end_function
+
+-- Get enum type from value reference node
+function get_enum_ref_type(list ref_node) returns string
+    if len(ref_node) < 2 then
+        return ""
+    end_if
+    return ref_node[1]
+end_function
+
+-- Get value name from value reference node
+function get_enum_ref_value(list ref_node) returns string
+    if len(ref_node) < 3 then
+        return ""
+    end_if
+    return ref_node[2]
+end_function
+
+-- Check if node is enum definition
+function is_enum_definition(list node) returns boolean
+    if len(node) == 0 then
+        return false
+    end_if
+    return node[0] == ENUM_DEFINITION
+end_function
+
+-- Check if node is enum value
+function is_enum_value(list node) returns boolean
+    if len(node) == 0 then
+        return false
+    end_if
+    return node[0] == ENUM_VALUE
+end_function
+
+-- Check if node is enum value reference
+function is_enum_value_ref(list node) returns boolean
+    if len(node) == 0 then
+        return false
+    end_if
+    return node[0] == ENUM_VALUE_REF
+end_function
+
+-- Check if node is enum assignment
+function is_enum_assignment(list node) returns boolean
+    if len(node) == 0 then
+        return false
+    end_if
+    return node[0] == ENUM_ASSIGNMENT
+end_function
+
+-- Get enum node type name (for debugging)
+function get_enum_node_type_name(numeric node_type) returns string
+    if node_type == ENUM_DEFINITION then
+        return "ENUM_DEFINITION"
+    end_if
+    if node_type == ENUM_VALUE then
+        return "ENUM_VALUE"
+    end_if
+    if node_type == ENUM_VALUE_REF then
+        return "ENUM_VALUE_REF"
+    end_if
+    if node_type == ENUM_ASSIGNMENT then
+        return "ENUM_ASSIGNMENT"
+    end_if
+    return "UNKNOWN"
+end_function
+
+-- Helper to parse integer from string
+function parse_int(string s) returns numeric
+    numeric result = 0
+    numeric i = 0
+    numeric len_s = len(s)
+    boolean is_negative = false
+    
+    -- Check for negative sign
+    if len_s > 0 and s[0] == "-" then
+        is_negative = true
+        i = 1
+    end_if
+    
+    while i < len_s
+        string ch = s[i]
+        if ch >= "0" and ch <= "9" then
+            numeric digit = ord(ch) - ord("0")
+            result = result * 10 + digit
+        end_if
+        i = i + 1
+    end_while
+    
+    if is_negative then
+        result = 0 - result
+    end_if
+    
+    return result
+end_function
+
+-- Helper to append to list
+function append(list lst, list item) returns list
+    list result = lst
+    -- In real implementation, this would append item to result
+    -- For now, we assume lists support dynamic append
+    return result
+end_function
+
+-- Helper to get string length
+function len(list lst) returns numeric
+    -- In real implementation, returns list length
+    return 0
+end_function
+
+-- Helper to get character code
+function ord(string ch) returns numeric
+    -- In real implementation, returns ASCII value
+    return 0
+end_function

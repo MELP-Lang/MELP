@@ -1,0 +1,34 @@
+-- ============================================================================
+-- MELP Parser - Main Entry Point Module
+-- ============================================================================
+-- Stage 1 Self-Hosting: Parser main entry in MELP
+-- Created: December 17, 2025 (YZ_31)
+-- Purpose: Main entry point for parser integration test
+-- Architecture: Modular + Stateless + LLVM + STO + (Struct + Functions)
+-- ============================================================================
+
+-- Note: This module requires all other parser modules when concatenated:
+--   - parser_state.mlp (TokenType enum + state management)
+--   - parser_expressions.mlp (expression parsing)
+--   - parser_statements.mlp (statement parsing)
+--   - parser_toplevel.mlp (function/struct/enum parsing)
+
+-- ============================================================================
+-- Main Entry Point - Placeholder for Standalone Compile
+-- ============================================================================
+
+function main() returns numeric
+    println("=== MELP Parser - Main Module Compile Test ===")
+    println("")
+    println("This module is designed to be concatenated with:")
+    println("  1. parser_state.mlp")
+    println("  2. parser_expressions.mlp")
+    println("  3. parser_statements.mlp")
+    println("  4. parser_toplevel.mlp")
+    println("  5. parser_main.mlp (this file)")
+    println("")
+    println("Standalone compile test: SUCCESS")
+    println("For full integration test, use concat script.")
+    
+    return 0
+end_function

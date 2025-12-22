@@ -1,0 +1,121 @@
+-- ============================================================================
+-- MELP Parser - Expression Parsing Module
+-- ============================================================================
+-- Stage 1 Self-Hosting: Expression parsing in MELP
+-- Created: December 17, 2025 (YZ_31)
+-- Purpose: Stateless expression parsing with operator precedence
+-- Architecture: Modular + Stateless + LLVM + STO + (Struct + Functions)
+-- ============================================================================
+
+-- Note: This module requires TokenType enum and state management functions
+-- from parser_state.mlp when concatenated
+--
+-- STANDALONE MODE: Uses magic numbers for compile test
+-- PRODUCTION MODE: concat script will use enum values from parser_state.mlp
+
+-- ============================================================================
+-- Operator Precedence and Binary Operators
+-- ============================================================================
+-- NOTE: Magic numbers used for standalone compile
+-- In production (concat), these will reference TokenType enum
+
+function get_operator_precedence(numeric token_type) returns numeric
+    -- Multiplicative (highest)
+    if token_type == 39 then return 6 end_if  -- 39 = T_MULTIPLY
+    if token_type == 40 then return 6 end_if  -- 40 = T_DIVIDE
+    if token_type == 41 then return 6 end_if  -- 41 = T_MODULO
+    
+    -- Additive
+    if token_type == 37 then return 5 end_if  -- 37 = T_PLUS
+    if token_type == 38 then return 5 end_if  -- 38 = T_MINUS
+    
+    -- Comparison
+    if token_type == 44 then return 4 end_if  -- 44 = T_LT
+    if token_type == 45 then return 4 end_if  -- 45 = T_GT
+    if token_type == 46 then return 4 end_if  -- 46 = T_LE
+    if token_type == 47 then return 4 end_if  -- 47 = T_GE
+    
+    -- Equality
+    if token_type == 42 then return 3 end_if  -- 42 = T_EQ
+    if token_type == 43 then return 3 end_if  -- 43 = T_NE
+    
+    -- Logical
+    if token_type == 48 then return 2 end_if  -- 48 = T_AND
+    if token_type == 49 then return 1 end_if  -- 49 = T_OR
+    
+    return 0
+end_function
+
+function is_binary_op(numeric t) returns numeric
+    if t == 37 then return 1 end_if  -- 37 = T_PLUS
+    if t == 38 then return 1 end_if  -- 38 = T_MINUS
+    if t == 39 then return 1 end_if  -- 39 = T_MULTIPLY
+    if t == 40 then return 1 end_if  -- 40 = T_DIVIDE
+    if t == 41 then return 1 end_if  -- 41 = T_MODULO
+    if t == 42 then return 1 end_if  -- 42 = T_EQ
+    if t == 43 then return 1 end_if  -- 43 = T_NE
+    if t == 44 then return 1 end_if  -- 44 = T_LT
+    if t == 45 then return 1 end_if  -- 45 = T_GT
+    if t == 46 then return 1 end_if  -- 46 = T_LE
+    if t == 47 then return 1 end_if  -- 47 = T_GE
+    if t == 48 then return 1 end_if  -- 48 = T_AND
+    if t == 49 then return 1 end_if  -- 49 = T_OR
+    return 0
+end_function
+
+-- ============================================================================
+-- Primary Expression Parsing
+-- ============================================================================
+
+-- Parse primary expression (number, string, identifier, parenthesized)
+-- Input: parser_state
+-- Returns: [result_string, new_parser_state]
+function state_parse_primary(list parser_state) returns list
+    -- Placeholder: will use state_current_token from parser_state module
+    -- This is a standalone version for testing
+    
+    list result = []
+    result = result + ["42"]  -- Dummy result for compile test
+    result = result + [parser_state]
+    return result
+end_function
+
+-- ============================================================================
+-- Expression Parsing with Precedence
+-- ============================================================================
+
+-- Parse expression with operator precedence (stateless)
+-- Input: parser_state
+-- Returns: [result_string, new_parser_state]
+function state_parse_expression(list parser_state) returns list
+    return state_parse_expression_prec(parser_state, 0)
+end_function
+
+-- Parse expression with precedence (stateless)
+-- Input: parser_state, min_precedence
+-- Returns: [result_string, new_parser_state]
+function state_parse_expression_prec(list parser_state, numeric min_prec) returns list
+    -- Placeholder: will call state_parse_primary when modules are combined
+    
+    list result = []
+    result = result + ["(2 + 3)"]  -- Dummy result for compile test
+    result = result + [parser_state]
+    return result
+end_function
+
+-- ============================================================================
+-- Test Function
+-- ============================================================================
+
+function main() returns numeric
+    println("Parser Expressions Module - Compile Test")
+    
+    println("All 5 functions compiled successfully!")
+    println("  - get_operator_precedence")
+    println("  - is_binary_op") 
+    println("  - state_parse_primary")
+    println("  - state_parse_expression")
+    println("  - state_parse_expression_prec")
+    
+    return 0
+end_function

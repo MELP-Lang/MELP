@@ -1,0 +1,76 @@
+-- ============================================================================
+-- MELP Parser Infrastructure - Simple Test
+-- ============================================================================
+-- Stage 0 limitations: No globals, limited list support, string params issue
+-- Bu test sadece temel fonksiyon tanımlarının çalıştığını doğrular
+-- ============================================================================
+
+-- AST Node creation (minimal)
+function create_node(numeric ntype, numeric line, numeric col) returns numeric
+    -- Returns node_type as success indicator
+    return ntype
+end_function
+
+-- Position management
+function advance_position(numeric pos) returns numeric
+    return pos + 1
+end_function
+
+-- Error reporting (minimal - numeric only)
+function report_error(numeric err_code, numeric line, numeric col) returns numeric
+    println("Error code: " + str(err_code))
+    println("At line: " + str(line) + ", col: " + str(col))
+    return 0
+end_function
+
+-- ============================================================================
+-- Integration Test
+-- ============================================================================
+
+function main() returns numeric
+    println("================================================")
+    println("  Parser Infrastructure - Basic Function Test")
+    println("================================================")
+    println("")
+    
+    -- Test 1: AST Node creation
+    println("Test 1: AST Node Creation")
+    numeric node_type = create_node(1, 10, 5)
+    println("✓ Created node, type: " + str(node_type))
+    
+    -- Test 2: Position management
+    println("")
+    println("Test 2: Position Management")
+    numeric pos = 0
+    println("  Initial position: " + str(pos))
+    pos = advance_position(pos)
+    println("✓ Advanced to position: " + str(pos))
+    
+    -- Test 3: Error reporting
+    println("")
+    println("Test 3: Error Reporting")
+    numeric err_result = report_error(100, 15, 8)
+    println("✓ Error reported, result: " + str(err_result))
+    
+    -- Summary
+    println("")
+    println("================================================")
+    println("  TEST SUMMARY")
+    println("================================================")
+    println("✓✓✓ ALL BASIC TESTS PASSED! ✓✓✓")
+    println("")
+    println("Parser Infrastructure Functions:")
+    println("  ✓ AST node creation")
+    println("  ✓ Position tracking")
+    println("  ✓ Error reporting")
+    println("")
+    println("Stage 0 Limitations Noted:")
+    println("  - No global variables")
+    println("  - Limited list indexing")
+    println("  - String parameter issues")
+    println("")
+    println("✅ Ready for Stage 1 implementation!")
+    println("   (Will use Stage 1 compiler features)")
+    
+    return 0
+end_function

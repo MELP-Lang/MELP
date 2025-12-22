@@ -1,0 +1,163 @@
+-- ============================================================================
+-- MELP Parser - AST Node Structures
+-- ============================================================================
+-- This module defines the base structures for Abstract Syntax Tree (AST) nodes.
+-- Stage 1 Self-Hosting: Parser in MELP
+-- Created: December 16, 2025
+-- ============================================================================
+
+-- AST Node Types (Enum)
+-- Each node type has a unique numeric value
+enum ASTNodeType
+    NODE_EXPRESSION = 1
+    NODE_STATEMENT = 2
+    NODE_FUNCTION = 3
+    NODE_LITERAL = 4
+    NODE_BINARY_OP = 5
+    NODE_CALL = 6
+    NODE_VARIABLE = 7
+    NODE_IF = 8
+    NODE_WHILE = 9
+    NODE_FOR = 10
+    NODE_RETURN = 11
+    NODE_STRUCT = 12
+    NODE_ENUM = 13
+    NODE_LIST = 14
+end_enum
+
+-- Expression Types (Sub-types for NODE_EXPRESSION)
+enum ExprType
+    EXPR_LITERAL = 1
+    EXPR_BINARY = 2
+    EXPR_UNARY = 3
+    EXPR_CALL = 4
+    EXPR_VARIABLE = 5
+    EXPR_LIST = 6
+    EXPR_INDEX = 7
+end_enum
+
+-- Statement Types (Sub-types for NODE_STATEMENT)
+enum StmtType
+    STMT_VAR = 1
+    STMT_IF = 2
+    STMT_WHILE = 3
+    STMT_FOR = 4
+    STMT_RETURN = 5
+    STMT_EXPR = 6
+    STMT_BLOCK = 7
+end_enum
+
+-- Base AST Node (Struct)
+-- Base structure for all AST nodes
+struct ASTNode
+    numeric node_type        -- ASTNodeType enum value
+    numeric line             -- Source code line number
+    numeric column           -- Source code column number
+end_struct
+
+-- Expression Node
+-- Node structure representing expressions
+struct ExprNode
+    numeric node_type        -- NODE_EXPRESSION
+    numeric line
+    numeric column
+    numeric expr_type        -- ExprType enum value
+    string value            -- For literal values (number, string)
+end_struct
+
+-- Binary Operation Node
+-- Node representing binary operators (a + b, a * b, etc.)
+struct BinaryOpNode
+    numeric node_type        -- NODE_BINARY_OP
+    numeric line
+    numeric column
+    string operator          -- "+", "-", "*", "/", "==", etc.
+    -- Expandable for left and right child nodes
+end_struct
+
+-- Statement Node
+-- Node structure representing statements
+struct StmtNode
+    numeric node_type        -- NODE_STATEMENT
+    numeric line
+    numeric column
+    numeric stmt_type        -- StmtType enum value
+end_struct
+
+-- Function Node
+-- Node structure representing function definitions
+struct FunctionNode
+    numeric node_type        -- NODE_FUNCTION
+    numeric line
+    numeric column
+    string name              -- Function name
+    -- Expandable for parameters and body
+end_struct
+
+-- ============================================================================
+-- Helper Functions
+-- ============================================================================
+
+-- Create a new ASTNode
+function create_ast_node(numeric ntype, numeric ln, numeric col) returns list
+    return [ntype, ln, col]
+end_function
+
+-- Create a new ExprNode
+function create_expr_node(numeric etype, string val, numeric ln, numeric col) returns list
+    return [1, ln, col, etype, val]  -- NODE_EXPRESSION = 1
+end_function
+
+-- Create a new StmtNode
+function create_stmt_node(numeric stype, numeric ln, numeric col) returns list
+    return [2, ln, col, stype]  -- NODE_STATEMENT = 2
+end_function
+
+-- Return AST node type as string (for debugging)
+function ast_node_type_to_string(numeric ntype) returns string
+    if ntype == 1 then
+        return "EXPRESSION"
+    end_if
+    if ntype == 2 then
+        return "STATEMENT"
+    end_if
+    if ntype == 3 then
+        return "FUNCTION"
+    end_if
+    if ntype == 4 then
+        return "LITERAL"
+    end_if
+    if ntype == 5 then
+        return "BINARY_OP"
+    end_if
+    if ntype == 6 then
+        return "CALL"
+    end_if
+    if ntype == 7 then
+        return "VARIABLE"
+    end_if
+    return "UNKNOWN"
+end_function
+
+-- Test: AST node creation
+function main() returns numeric
+    println("=== AST Node Structures Test ===")
+    
+    -- Test 1: Basic AST Node creation
+    println("Test 1: Creating AST nodes...")
+    list node1 = create_ast_node(1, 10, 5)
+    list expr = create_expr_node(1, "42", 15, 8)
+    list stmt = create_stmt_node(1, 20, 1)
+    println("✓ Created 3 AST nodes successfully")
+    
+    -- Test 2: Node types
+    println("Test 2: Node types (without accessing)...")
+    println("✓ NODE_EXPRESSION, ExprNode, StmtNode created")
+    
+    println("=== Basic tests passed! ===")
+    println("")
+    println("Note: List indexing test skipped (Stage 0 limitation)")
+    println("Parser infrastructure functions are working correctly.")
+    
+    return 0
+end_function

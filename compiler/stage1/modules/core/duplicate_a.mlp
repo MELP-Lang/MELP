@@ -1,0 +1,11 @@
+-- ============================================================================
+-- Duplicate Function Module A
+-- ============================================================================
+
+function duplicate_func() returns numeric
+    return 100
+end_function
+
+function unique_a() returns numeric
+    return 1
+end_function

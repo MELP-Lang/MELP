@@ -1,0 +1,57 @@
+-- ============================================================================
+-- MELP Parser - Public API Wrapper (Clean Interface)
+-- ============================================================================
+-- File: modules/parser_mlp/parser_api.mlp
+-- Author: YZ_26 (Part 2 - Real Implementation)
+-- Date: 17 Aralık 2025
+-- Purpose: Thin API wrapper for parser - NO ORCHESTRATION!
+-- Status: Stage 1 - Real Parser API (calls parser.mlp)
+--
+-- Design Principles:
+-- ✅ Single responsibility: Expose ONE public function
+-- ✅ Clean interface: Hide implementation details
+-- ✅ No orchestration: Just a thin wrapper
+-- ✅ No coupling: Depends only on parser.mlp
+--
+-- Public API:
+--   parser_api_parse(token_list) → ast_string
+--
+-- Real Implementation:
+--   Calls parse_program() from parser.mlp
+--   Returns AST as string (Stage 0 limitation)
+-- ============================================================================
+
+-- ============================================================================
+-- PUBLIC API - Single Entry Point
+-- ============================================================================
+
+-- Parse tokens and build AST
+-- Input: token_list (list) - List of tokens from lexer
+-- Output: ast_string (string) - AST representation (Stage 0 format)
+--
+-- Real implementation calls parser.mlp functions:
+--   1. init_parser(token_list) - Initialize parser state
+--   2. parse_program() - Parse entire program
+--   3. Return AST string
+function parser_api_parse(list token_list) returns string
+    numeric token_count = length(token_list)
+    
+    if token_count == 0 then
+        -- No tokens to parse
+        return ""
+    end_if
+    
+    -- Initialize parser with token stream
+    -- This sets up g_tokens, g_current_pos, g_error_count
+    init_parser(token_list)
+    
+    -- Parse entire program
+    -- This calls parse_function(), parse_struct(), parse_enum(), etc.
+    string ast = parse_program()
+    
+    return ast
+end_function
+
+-- ============================================================================
+-- NO MAIN - This is a library module, not executable
+-- ============================================================================

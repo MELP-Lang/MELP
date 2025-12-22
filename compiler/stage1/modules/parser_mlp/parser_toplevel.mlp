@@ -1,0 +1,75 @@
+-- ============================================================================
+-- MELP Parser - Top-Level Parsing Module
+-- ============================================================================
+-- Stage 1 Self-Hosting: Top-level declarations in MELP
+-- Created: December 17, 2025 (YZ_31)
+-- Purpose: Stateless parsing of functions, structs, enums, program
+-- Architecture: Modular + Stateless + LLVM + STO + (Struct + Functions)
+-- ============================================================================
+
+-- Note: This module requires TokenType enum and state management functions
+-- from parser_state.mlp when concatenated
+
+-- ============================================================================
+-- Top-Level Parsing Functions
+-- ============================================================================
+
+-- Parse function (stateless)
+-- Input: parser_state
+-- Returns: [result_string, new_parser_state]
+function state_parse_function(list parser_state) returns list
+    -- Placeholder for standalone compile
+    list result = []
+    result = result + ["function main() returns numeric end_function"]
+    result = result + [parser_state]
+    return result
+end_function
+
+-- Parse struct (stateless)
+-- Input: parser_state
+-- Returns: [result_string, new_parser_state]
+function state_parse_struct(list parser_state) returns list
+    -- Placeholder for standalone compile
+    list result = []
+    result = result + ["struct Point numeric x end_struct"]
+    result = result + [parser_state]
+    return result
+end_function
+
+-- Parse enum (stateless)
+-- Input: parser_state
+-- Returns: [result_string, new_parser_state]
+function state_parse_enum(list parser_state) returns list
+    -- Placeholder for standalone compile
+    list result = []
+    result = result + ["enum Status ACTIVE = 1 end_enum"]
+    result = result + [parser_state]
+    return result
+end_function
+
+-- Parse program (stateless)
+-- Input: parser_state
+-- Returns: [result_string, new_parser_state]
+function state_parse_program(list parser_state) returns list
+    -- Placeholder for standalone compile
+    list result = []
+    result = result + ["program"]
+    result = result + [parser_state]
+    return result
+end_function
+
+-- ============================================================================
+-- Test Function
+-- ============================================================================
+
+function main() returns numeric
+    println("Parser Top-Level Module - Compile Test")
+    
+    println("All 4 functions compiled successfully!")
+    println("  - state_parse_function")
+    println("  - state_parse_struct")
+    println("  - state_parse_enum")
+    println("  - state_parse_program")
+    
+    return 0
+end_function

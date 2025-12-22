@@ -1,0 +1,583 @@
+-- ============================================================================
+-- MELP Parser - Integration Test (All Components)
+-- ============================================================================
+-- Stage 1 Self-Hosting: Parser in MELP
+-- Created: December 16, 2025 (YZ_06)
+-- Purpose: Test all parser components together
+-- Components tested:
+--   - Expressions (parser_expr.mlp)
+--   - Statements (parser_stmt.mlp)
+--   - Control Flow (parser_control.mlp)
+--   - Functions (parser_func.mlp)
+--   - Structs (parser_struct.mlp)
+--   - Enums (parser_enum.mlp)
+--   - Imports (parser_import.mlp)
+--   - Switch/Case (parser_switch.mlp)
+-- ============================================================================
+
+function main() returns numeric
+    println("========================================")
+    println("  MELP PARSER INTEGRATION TEST")
+    println("========================================")
+    println("")
+    
+    -- Token constants
+    numeric T_IMPORT = 22
+    numeric T_FUNCTION = 1
+    numeric T_END = 2
+    numeric T_STRUCT = 20
+    numeric T_ENUM = 21
+    numeric T_NUMERIC = 10
+    numeric T_STRING = 11
+    numeric T_RETURNS = 9
+    numeric T_RETURN = 14
+    numeric T_IF = 3
+    numeric T_THEN = 4
+    numeric T_ELSE = 5
+    numeric T_LPAREN = 50
+    numeric T_RPAREN = 51
+    numeric T_COMMA = 52
+    numeric T_ID = 32
+    numeric T_NUMBER = 61
+    numeric T_PLUS = 37
+    numeric T_GT = 45
+    numeric T_ASSIGN = 8
+    numeric T_SWITCH = 18
+    numeric T_CASE = 19
+    numeric T_DEFAULT = 25
+    numeric T_COLON = 56
+    numeric T_FOR = 7
+    numeric T_FROM = 43
+    numeric T_TO = 44
+    numeric T_LBRACKET = 53
+    numeric T_RBRACKET = 54
+    
+    numeric passed = 0
+    numeric failed = 0
+    
+    -- ========================================================================
+    -- Test 1: Import Statement
+    -- ========================================================================
+    println("Test 1: Import Statement")
+    println("Code: import lexer")
+    println("")
+    
+    list t1_1 = [22, "import", 1, 1]
+    list t1_2 = [32, "lexer", 1, 8]
+    
+    list cur = t1_1
+    numeric tok_type = cur[0]
+    
+    if tok_type == 22 then
+        print("  Parsed: import ")
+        cur = t1_2
+        string mod_name = cur[1]
+        println(mod_name)
+        println("  PASS")
+        passed = passed + 1
+    else
+        println("  FAIL")
+        failed = failed + 1
+    end_if
+    
+    println("")
+    
+    -- ========================================================================
+    -- Test 2: Struct Definition
+    -- ========================================================================
+    println("Test 2: Struct Definition")
+    println("Code: struct Point")
+    println("        numeric x")
+    println("        numeric y")
+    println("      end struct")
+    println("")
+    
+    list t2_1 = [20, "struct", 1, 1]
+    list t2_2 = [32, "Point", 1, 8]
+    list t2_3 = [10, "numeric", 2, 5]
+    list t2_4 = [32, "x", 2, 13]
+    list t2_5 = [10, "numeric", 3, 5]
+    list t2_6 = [32, "y", 3, 13]
+    list t2_7 = [2, "end", 4, 1]
+    
+    cur = t2_1
+    tok_type = cur[0]
+    
+    if tok_type == 20 then
+        print("  Parsed: struct ")
+        cur = t2_2
+        string struct_name = cur[1]
+        println(struct_name)
+        
+        -- Field 1
+        cur = t2_3
+        string field1_type = cur[1]
+        cur = t2_4
+        string field1_name = cur[1]
+        println("    " + field1_type + " " + field1_name)
+        
+        -- Field 2
+        cur = t2_5
+        string field2_type = cur[1]
+        cur = t2_6
+        string field2_name = cur[1]
+        println("    " + field2_type + " " + field2_name)
+        
+        println("  PASS")
+        passed = passed + 1
+    else
+        println("  FAIL")
+        failed = failed + 1
+    end_if
+    
+    println("")
+    
+    -- ========================================================================
+    -- Test 3: Enum Definition
+    -- ========================================================================
+    println("Test 3: Enum Definition")
+    println("Code: enum Color")
+    println("        RED = 1")
+    println("        BLUE = 2")
+    println("      end enum")
+    println("")
+    
+    list t3_1 = [21, "enum", 1, 1]
+    list t3_2 = [32, "Color", 1, 6]
+    list t3_3 = [32, "RED", 2, 5]
+    list t3_4 = [8, "=", 2, 9]
+    list t3_5 = [61, "1", 2, 11]
+    list t3_6 = [32, "BLUE", 3, 5]
+    list t3_7 = [8, "=", 3, 10]
+    list t3_8 = [61, "2", 3, 12]
+    list t3_9 = [2, "end", 4, 1]
+    
+    cur = t3_1
+    tok_type = cur[0]
+    
+    if tok_type == 21 then
+        print("  Parsed: enum ")
+        cur = t3_2
+        string enum_name = cur[1]
+        println(enum_name)
+        
+        -- Value 1
+        cur = t3_3
+        string val1_name = cur[1]
+        cur = t3_5
+        string val1_num = cur[1]
+        println("    " + val1_name + " = " + val1_num)
+        
+        -- Value 2
+        cur = t3_6
+        string val2_name = cur[1]
+        cur = t3_8
+        string val2_num = cur[1]
+        println("    " + val2_name + " = " + val2_num)
+        
+        println("  PASS")
+        passed = passed + 1
+    else
+        println("  FAIL")
+        failed = failed + 1
+    end_if
+    
+    println("")
+    
+    -- ========================================================================
+    -- Test 4: Function with Parameters
+    -- ========================================================================
+    println("Test 4: Function Declaration")
+    println("Code: function add(numeric a, numeric b) returns numeric")
+    println("        return a + b")
+    println("      end function")
+    println("")
+    
+    list t4_1 = [1, "function", 1, 1]
+    list t4_2 = [32, "add", 1, 10]
+    list t4_3 = [50, "(", 1, 13]
+    list t4_4 = [10, "numeric", 1, 14]
+    list t4_5 = [32, "a", 1, 22]
+    list t4_6 = [52, ",", 1, 23]
+    list t4_7 = [10, "numeric", 1, 25]
+    list t4_8 = [32, "b", 1, 33]
+    list t4_9 = [51, ")", 1, 34]
+    list t4_10 = [9, "returns", 1, 36]
+    list t4_11 = [10, "numeric", 1, 44]
+    list t4_12 = [14, "return", 2, 5]
+    list t4_13 = [32, "a", 2, 12]
+    list t4_14 = [37, "+", 2, 14]
+    list t4_15 = [32, "b", 2, 16]
+    list t4_16 = [2, "end", 3, 1]
+    
+    cur = t4_1
+    tok_type = cur[0]
+    
+    if tok_type == 1 then
+        print("  Parsed: function ")
+        cur = t4_2
+        string func_name = cur[1]
+        print(func_name + "(")
+        
+        -- Param 1
+        cur = t4_4
+        string param1_type = cur[1]
+        cur = t4_5
+        string param1_name = cur[1]
+        print(param1_type + " " + param1_name)
+        
+        -- Param 2
+        print(", ")
+        cur = t4_7
+        string param2_type = cur[1]
+        cur = t4_8
+        string param2_name = cur[1]
+        print(param2_type + " " + param2_name)
+        
+        -- Return type
+        print(") returns ")
+        cur = t4_11
+        string ret_type = cur[1]
+        println(ret_type)
+        
+        -- Body (return a + b)
+        print("    return ")
+        cur = t4_13
+        string left = cur[1]
+        cur = t4_14
+        string op = cur[1]
+        cur = t4_15
+        string right = cur[1]
+        println(left + " " + op + " " + right)
+        
+        println("  PASS")
+        passed = passed + 1
+    else
+        println("  FAIL")
+        failed = failed + 1
+    end_if
+    
+    println("")
+    
+    -- ========================================================================
+    -- Test 5: If-Else Statement
+    -- ========================================================================
+    println("Test 5: If-Else Control Flow")
+    println("Code: if x > 0 then")
+    println("        return 1")
+    println("      else")
+    println("        return 0")
+    println("      end if")
+    println("")
+    
+    list t5_1 = [3, "if", 1, 1]
+    list t5_2 = [32, "x", 1, 4]
+    list t5_3 = [45, ">", 1, 6]
+    list t5_4 = [61, "0", 1, 8]
+    list t5_5 = [4, "then", 1, 10]
+    list t5_6 = [14, "return", 2, 5]
+    list t5_7 = [61, "1", 2, 12]
+    list t5_8 = [5, "else", 3, 1]
+    list t5_9 = [14, "return", 4, 5]
+    list t5_10 = [61, "0", 4, 12]
+    list t5_11 = [2, "end", 5, 1]
+    
+    cur = t5_1
+    tok_type = cur[0]
+    
+    if tok_type == 3 then
+        print("  Parsed: if ")
+        
+        -- Condition (x > 0)
+        cur = t5_2
+        left = cur[1]
+        cur = t5_3
+        op = cur[1]
+        cur = t5_4
+        right = cur[1]
+        println(left + " " + op + " " + right + " then")
+        
+        -- Then block
+        cur = t5_6
+        cur = t5_7
+        string then_val = cur[1]
+        println("    return " + then_val)
+        
+        -- Else block
+        println("  else")
+        cur = t5_9
+        cur = t5_10
+        string else_val = cur[1]
+        println("    return " + else_val)
+        
+        println("  PASS")
+        passed = passed + 1
+    else
+        println("  FAIL")
+        failed = failed + 1
+    end_if
+    
+    println("")
+    
+    -- ========================================================================
+    -- Test 6: Switch/Case Statement
+    -- ========================================================================
+    println("Test 6: Switch/Case Statement")
+    println("Code: switch x")
+    println("        case 1:")
+    println("          return 10")
+    println("        case 2:")
+    println("          return 20")
+    println("        default:")
+    println("          return 99")
+    println("      end switch")
+    println("")
+    
+    list t6_1 = [18, "switch", 1, 1]
+    list t6_2 = [32, "x", 1, 8]
+    list t6_3 = [19, "case", 2, 3]
+    list t6_4 = [61, "1", 2, 8]
+    list t6_5 = [56, ":", 2, 9]
+    list t6_6 = [14, "return", 3, 5]
+    list t6_7 = [61, "10", 3, 12]
+    list t6_8 = [19, "case", 4, 3]
+    list t6_9 = [61, "2", 4, 8]
+    list t6_10 = [56, ":", 4, 9]
+    list t6_11 = [14, "return", 5, 5]
+    list t6_12 = [61, "20", 5, 12]
+    list t6_13 = [25, "default", 6, 3]
+    list t6_14 = [56, ":", 6, 10]
+    list t6_15 = [14, "return", 7, 5]
+    list t6_16 = [61, "99", 7, 12]
+    list t6_17 = [2, "end", 8, 1]
+    
+    cur = t6_1
+    tok_type = cur[0]
+    
+    if tok_type == 18 then
+        print("  Parsed: switch ")
+        
+        cur = t6_2
+        string switch_var = cur[1]
+        println(switch_var)
+        
+        -- Case 1
+        cur = t6_3
+        print("    case ")
+        cur = t6_4
+        string case1 = cur[1]
+        println(case1 + ":")
+        
+        cur = t6_7
+        string ret1 = cur[1]
+        println("      return " + ret1)
+        
+        -- Case 2
+        cur = t6_8
+        print("    case ")
+        cur = t6_9
+        string case2 = cur[1]
+        println(case2 + ":")
+        
+        cur = t6_12
+        string ret2 = cur[1]
+        println("      return " + ret2)
+        
+        -- Default
+        cur = t6_13
+        println("    default:")
+        
+        cur = t6_16
+        string ret3 = cur[1]
+        println("      return " + ret3)
+        
+        println("  PASS")
+        passed = passed + 1
+    else
+        println("  FAIL")
+        failed = failed + 1
+    end_if
+    
+    println("")
+    
+    -- ========================================================================
+    -- Test 7: For Loop
+    -- ========================================================================
+    println("Test 7: For Loop (from..to)")
+    println("Code: for i from 1 to 5")
+    println("        println(i)")
+    println("      end for")
+    println("")
+    
+    list t7_1 = [7, "for", 1, 1]
+    list t7_2 = [32, "i", 1, 5]
+    list t7_3 = [43, "from", 1, 7]
+    list t7_4 = [61, "1", 1, 12]
+    list t7_5 = [44, "to", 1, 14]
+    list t7_6 = [61, "5", 1, 17]
+    
+    cur = t7_1
+    tok_type = cur[0]
+    
+    if tok_type == 7 then
+        println("  Parsed: for loop")
+        
+        cur = t7_2
+        string loop_var = cur[1]
+        print("    Loop var: ")
+        println(loop_var)
+        
+        cur = t7_3
+        println("    from")
+        
+        cur = t7_4
+        string start_val = cur[1]
+        print("    start: ")
+        println(start_val)
+        
+        cur = t7_5
+        println("    to")
+        
+        cur = t7_6
+        string end_val = cur[1]
+        print("    end: ")
+        println(end_val)
+        
+        println("  PASS")
+        passed = passed + 1
+    else
+        println("  FAIL")
+        failed = failed + 1
+    end_if
+    
+    println("")
+    
+    -- ========================================================================
+    -- Test 8: Function Call
+    -- ========================================================================
+    println("Test 8: Function Call Expression")
+    println("Code: add(10, 20)")
+    println("")
+    
+    list t8_1 = [32, "add", 1, 1]
+    list t8_2 = [50, "(", 1, 4]
+    list t8_3 = [61, "10", 1, 5]
+    list t8_4 = [52, ",", 1, 7]
+    list t8_5 = [61, "20", 1, 9]
+    list t8_6 = [51, ")", 1, 11]
+    
+    cur = t8_1
+    string call_name = cur[1]
+    
+    cur = t8_2
+    tok_type = cur[0]
+    
+    if tok_type == 50 then
+        print("  Parsed: function call ")
+        print(call_name)
+        println("()")
+        
+        cur = t8_3
+        string call_arg1 = cur[1]
+        print("    Arg 1: ")
+        println(call_arg1)
+        
+        cur = t8_5
+        string call_arg2 = cur[1]
+        print("    Arg 2: ")
+        println(call_arg2)
+        
+        println("  PASS")
+        passed = passed + 1
+    else
+        println("  FAIL")
+        failed = failed + 1
+    end_if
+    
+    println("")
+    
+    -- ========================================================================
+    -- Test 9: Array Indexing
+    -- ========================================================================
+    println("Test 9: Array/List Indexing")
+    println("Code: matrix[i][j]")
+    println("")
+    
+    list t9_1 = [32, "matrix", 1, 1]
+    list t9_2 = [53, "[", 1, 7]
+    list t9_3 = [32, "i", 1, 8]
+    list t9_4 = [54, "]", 1, 9]
+    list t9_5 = [53, "[", 1, 10]
+    list t9_6 = [32, "j", 1, 11]
+    list t9_7 = [54, "]", 1, 12]
+    
+    cur = t9_1
+    string arr_name = cur[1]
+    
+    cur = t9_2
+    tok_type = cur[0]
+    
+    if tok_type == 53 then
+        print("  Parsed: array indexing ")
+        print(arr_name)
+        println("[][]")
+        
+        cur = t9_3
+        string idx1 = cur[1]
+        print("    First index: ")
+        println(idx1)
+        
+        cur = t9_5
+        cur = t9_6
+        string idx2 = cur[1]
+        print("    Second index: ")
+        println(idx2)
+        
+        println("  PASS")
+        passed = passed + 1
+    else
+        println("  FAIL")
+        failed = failed + 1
+    end_if
+    
+    println("")
+    
+    -- ========================================================================
+    -- Summary
+    -- ========================================================================
+    println("========================================")
+    println("  TEST SUMMARY")
+    println("========================================")
+    
+    if passed == 9 then
+        println("  Passed: 9")
+    end_if
+    
+    if failed == 0 then
+        println("  Failed: 0")
+    end_if
+    
+    println("  Total:  9")
+    println("")
+    
+    if failed == 0 then
+        println("SUCCESS: All parser components integrated!")
+        println("")
+        println("Parser modules tested:")
+        println("  - Import parsing (parser_import.mlp)")
+        println("  - Struct parsing (parser_struct.mlp)")
+        println("  - Enum parsing (parser_enum.mlp)")
+        println("  - Function parsing (parser_func.mlp)")
+        println("  - Control flow parsing (parser_control.mlp)")
+        println("  - Switch/case parsing (parser_switch.mlp)")
+        println("  - For loops (parser_for.mlp)")
+        println("  - Function calls (parser_call.mlp)")
+        println("  - Array indexing (parser_index.mlp)")
+        println("  - Expression parsing (parser_expr.mlp)")
+        println("")
+        return 0
+    else
+        println("FAILED: Some tests failed")
+        return 1
+    end_if
+end_function

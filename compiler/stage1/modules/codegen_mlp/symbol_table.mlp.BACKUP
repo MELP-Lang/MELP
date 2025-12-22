@@ -1,0 +1,2 @@
+-- BACKUP of symbol_table.mlp before Stage 0 compatibility fixes
+-- This file uses list indexing which is not yet supported in Stage 0

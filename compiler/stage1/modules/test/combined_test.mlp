@@ -1,0 +1,35 @@
+-- Multi-module test - Combined
+-- Tests multiple functions working together
+
+function square(numeric x) returns numeric
+    return x * x
+end_function
+
+function cube(numeric x) returns numeric
+    return x * x * x
+end_function
+
+function sum_of_squares(numeric a, numeric b) returns numeric
+    numeric sq_a = 0
+    numeric sq_b = 0
+    sq_a = square(a)
+    sq_b = square(b)
+    return sq_a + sq_b
+end_function
+
+function test_calculation() returns numeric
+    numeric a = 3
+    numeric b = 4
+    numeric result = 0
+    
+    -- Should calculate 3^2 + 4^2 = 9 + 16 = 25
+    result = sum_of_squares(a, b)
+    
+    return result
+end_function
+
+function melp_main() returns numeric
+    numeric final_result = 0
+    final_result = test_calculation()
+    return final_result
+end_function

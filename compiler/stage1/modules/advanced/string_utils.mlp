@@ -1,0 +1,13 @@
+-- ============================================================================
+-- Advanced Module - String utilities  
+-- ============================================================================
+
+function string_length(string text) returns numeric
+    -- Simple mock implementation for testing
+    return 10
+end_function
+
+function string_concat(string a, string b) returns string
+    -- Mock implementation
+    return "combined"
+end_function
