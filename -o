@@ -1,0 +1,51 @@
+; MELP Program - Generated LLVM IR
+; Compiler: MELP Stage 0 with LLVM Backend
+; Date: 13 Aralık 2025
+
+; Type definitions
+%sto_value = type { i8, i64 }
+
+; MLP Standard Library - I/O Functions
+; void mlp_println_numeric(void* value, uint8_t sto_type)
+declare void @mlp_println_numeric(i8*, i8)
+; void mlp_println_string(const char* str)
+declare void @mlp_println_string(i8*)
+
+; C Standard Library - Memory Allocation
+; void* malloc(size_t size)
+declare i8* @malloc(i64)
+
+; MLP Standard Library - List Functions (YZ_200)
+; MelpList* melp_list_create(size_t element_size)
+declare i8* @melp_list_create(i64)
+; int melp_list_append(MelpList* list, void* element)
+declare i32 @melp_list_append(i8*, i8*)
+; int melp_list_prepend(MelpList* list, void* element)
+declare i32 @melp_list_prepend(i8*, i8*)
+; size_t melp_list_length(MelpList* list)
+declare i64 @melp_list_length(i8*)
+; void* melp_list_get(MelpList* list, size_t index)
+declare i8* @melp_list_get(i8*, i64)
+; int melp_list_set(MelpList* list, size_t index, void* element)
+declare i32 @melp_list_set(i8*, i64, i8*)
+
+; MLP Standard Library - Map Functions (YZ_201)
+; MelpMap* melp_map_create(size_t value_size)
+declare i8* @melp_map_create(i64)
+; int melp_map_insert(MelpMap* map, const char* key, const void* value)
+declare i32 @melp_map_insert(i8*, i8*, i8*)
+; void* melp_map_get(MelpMap* map, const char* key)
+declare i8* @melp_map_get(i8*, i8*)
+; int melp_map_remove(MelpMap* map, const char* key)
+declare i32 @melp_map_remove(i8*, i8*)
+; int melp_map_has_key(MelpMap* map, const char* key)
+declare i32 @melp_map_has_key(i8*, i8*)
+; size_t melp_map_length(MelpMap* map)
+declare i64 @melp_map_length(i8*)
+
+
+; Function: main
+define i64 @main() {
+entry:
+    ret i64 42
+}

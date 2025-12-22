@@ -99,18 +99,18 @@ end_struct
 -- ============================================================================
 
 -- Create a new ASTNode
-function create_ast_node(numeric ntype, numeric ln, numeric col) returns list
-    return [ntype, ln, col]
+function create_ast_node(numeric ntype; numeric ln; numeric col) returns list
+    return [ntype; ln; col]
 end_function
 
 -- Create a new ExprNode
-function create_expr_node(numeric etype, string val, numeric ln, numeric col) returns list
-    return [1, ln, col, etype, val]  -- NODE_EXPRESSION = 1
+function create_expr_node(numeric etype; string val; numeric ln; numeric col) returns list
+    return [1; ln; col; etype; val]  -- NODE_EXPRESSION = 1
 end_function
 
 -- Create a new StmtNode
-function create_stmt_node(numeric stype, numeric ln, numeric col) returns list
-    return [2, ln, col, stype]  -- NODE_STATEMENT = 2
+function create_stmt_node(numeric stype; numeric ln; numeric col) returns list
+    return [2; ln; col; stype]  -- NODE_STATEMENT = 2
 end_function
 
 -- Return AST node type as string (for debugging)
@@ -145,9 +145,9 @@ function main() returns numeric
     
     -- Test 1: Basic AST Node creation
     println("Test 1: Creating AST nodes...")
-    list node1 = create_ast_node(1, 10, 5)
-    list expr = create_expr_node(1, "42", 15, 8)
-    list stmt = create_stmt_node(1, 20, 1)
+    list node1 = create_ast_node(1; 10; 5)
+    list expr = create_expr_node(1; "42"; 15; 8)
+    list stmt = create_stmt_node(1; 20; 1)
     println("✓ Created 3 AST nodes successfully")
     
     -- Test 2: Node types

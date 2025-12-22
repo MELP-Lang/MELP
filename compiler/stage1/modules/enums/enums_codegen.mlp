@@ -41,15 +41,15 @@ const string LLVM_ENUM_TYPE = "i32"      -- Enums are 32-bit integers
 -- Note: In a real compiler, this would be part of the symbol table
 -- For Stage 1, we use a simple list-based registry
 
--- Global enum registry (list of enum definitions)
--- Each entry: [enum_name, values_map]
--- values_map: [[value_name, numeric_value], ...]
-list g_enum_registry = []
+-- Registry artık parametre olarak geçilecek (global state YOK)
+-- Each entry: [enum_name; values_map]
+-- values_map: [[value_name; numeric_value]; ...]
 
 -- Register enum definition in compile-time registry
-function register_enum(list enum_node) returns boolean
+function register_enum(list enum_node; list enum_registry) returns list
     if not is_enum_definition(enum_node) then
-        return false
+        list result = [false; enum_registry]
+        return result
     end_if
     
     string enum_name = get_enum_name(enum_node)
@@ -63,24 +63,24 @@ function register_enum(list enum_node) returns boolean
         string value_name = get_enum_value_name(value_node)
         numeric value_num = get_enum_value_numeric(value_node)
         
-        list entry = [value_name, value_num]
-        values_map = append(values_map, entry)
+        list entry = [value_name; value_num]
+        values_map = append(values_map; entry)
         i = i + 1
     end_while
     
     -- Add to registry
-    list registry_entry = [enum_name, values_map]
-    g_enum_registry = append(g_enum_registry, registry_entry)
-    
-    return true
+    list registry_entry = [enum_name; values_map]
+    list updated_registry = append(enum_registry; registry_entry)
+    list result = [true; updated_registry]
+    return result
 end_function
 
 -- Lookup enum value by qualified name (Status.ACTIVE)
 -- Returns numeric value, or -1 if not found
-function lookup_enum_value(string enum_name, string value_name) returns numeric
+function lookup_enum_value(string enum_name; string value_name; list enum_registry) returns numeric
     numeric i = 0
-    while i < len(g_enum_registry)
-        list entry = g_enum_registry[i]
+    while i < len(enum_registry)
+        list entry = enum_registry[i]
         string entry_name = entry[0]
         
         if entry_name == enum_name then
@@ -106,10 +106,10 @@ end_function
 
 -- Lookup unqualified enum value (ACTIVE)
 -- Searches all registered enums
-function lookup_enum_value_unqualified(string value_name) returns numeric
+function lookup_enum_value_unqualified(string value_name; list enum_registry) returns numeric
     numeric i = 0
-    while i < len(g_enum_registry)
-        list entry = g_enum_registry[i]
+    while i < len(enum_registry)
+        list entry = enum_registry[i]
         list values_map = entry[1]
         
         -- Search in values map

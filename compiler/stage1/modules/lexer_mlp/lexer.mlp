@@ -16,13 +16,13 @@
 -- Token Creation
 -- ============================================================================
 
-function create_token(numeric token_type, string token_value, numeric line_num, numeric col_num) returns list
-    return [token_type, token_value, line_num, col_num]
+function create_token(numeric token_type; string token_value; numeric line_num; numeric col_num) returns list
+    return [token_type; token_value; line_num; col_num]
 end function
 
 -- Helper: Create position result [pos, col, line]
-function create_position_result(numeric p, numeric c, numeric l) returns list
-    return [p, c, l]
+function create_position_result(numeric p; numeric c; numeric l) returns list
+    return [p; c; l]
 end function
 
 -- ============================================================================
@@ -111,12 +111,12 @@ end function
 -- Whitespace Handling
 -- ============================================================================
 
-function skip_whitespace(string source, numeric pos, numeric line, numeric col) returns list
+function skip_whitespace(string source; numeric pos; numeric line; numeric col) returns list
     numeric source_len = length(source)
     string ch = ""
     boolean ch_is_whitespace = 0
     
-    while pos < source_len
+    while pos < source_len do
         ch = substring(source, pos, 1)
         ch_is_whitespace = is_whitespace(ch)
         
@@ -141,11 +141,11 @@ end function
 -- Comment Handling
 -- ============================================================================
 
-function skip_line_comment(string source, numeric pos, numeric line, numeric col) returns list
+function skip_line_comment(string source; numeric pos; numeric line; numeric col) returns list
     numeric source_len = length(source)
     string ch = ""
     
-    while pos < source_len
+    while pos < source_len do
         ch = substring(source, pos, 1)
         if ch == "\n" then
             pos = pos + 1
@@ -165,7 +165,7 @@ end function
 -- Check for Start of Token Types
 -- ============================================================================
 
-function starts_with_quote(string source, numeric pos) returns boolean
+function starts_with_quote(string source; numeric pos) returns boolean
     string ch = ""
     numeric source_len = length(source)
     numeric quote_code = 34
@@ -186,7 +186,7 @@ function starts_with_quote(string source, numeric pos) returns boolean
     return 0
 end function
 
-function starts_with_dash_dash(string source, numeric pos) returns boolean
+function starts_with_dash_dash(string source; numeric pos) returns boolean
     numeric source_len = length(source)
     numeric next_pos = 0
     string ch = ""
@@ -215,7 +215,7 @@ end function
 -- Determine next token type and dispatch to appropriate scanner
 -- Returns: [token_type_hint, 0, 0]
 -- token_type_hint: 1=number, 2=string, 3=identifier, 4=operator, 5=comment, 0=EOF
-function peek_next_token_type(string source, numeric pos) returns numeric
+function peek_next_token_type(string source; numeric pos) returns numeric
     numeric source_len = length(source)
     string ch = ""
     boolean ch_is_digit = 0
@@ -265,25 +265,25 @@ end function
 -- Returns: [token, new_pos, new_col, new_line]
 -- This is a simplified version that shows the structure
 -- Full implementation would loop until EOF
-function tokenize_next(string source, numeric pos, numeric line, numeric col) returns list
+function tokenize_next(string source; numeric pos; numeric line; numeric col) returns list
     numeric source_len = length(source)
     numeric new_pos = 0
     numeric new_col = 0
     numeric new_line = 0
-    list ws_result = create_position_result(0, 0, 0)
-    list token = create_token(80, "", line, col)
+    list ws_result = create_position_result(0; 0; 0)
+    list token = create_token(80; ""; line; col)
     numeric token_hint = 0
     
     -- Skip whitespace
-    ws_result = skip_whitespace(source, pos, line, col)
+    ws_result = skip_whitespace(source; pos; line; col)
     pos = ws_result[0]
     col = ws_result[1]
     line = ws_result[2]
     
     -- Check for EOF
     if pos >= source_len then
-        token = create_token(80, "", line, col)  -- EOF
-        return [token, pos, col, line]
+        token = create_token(80; ""; line; col)  -- EOF
+        return [token; pos; col; line]
     end if
     
     -- Peek next token type
@@ -291,12 +291,12 @@ function tokenize_next(string source, numeric pos, numeric line, numeric col) re
     
     -- Handle comment
     if token_hint == 5 then
-        ws_result = skip_line_comment(source, pos, line, col)
+        ws_result = skip_line_comment(source; pos; line; col)
         pos = ws_result[0]
         col = ws_result[1]
         line = ws_result[2]
         -- Recursively get next token after comment
-        return tokenize_next(source, pos, line, col)
+        return tokenize_next(source; pos; line; col)
     end if
     
     -- For this simplified version, just return a placeholder
@@ -306,8 +306,8 @@ function tokenize_next(string source, numeric pos, numeric line, numeric col) re
     -- - scan_identifier() for token_hint == 3
     -- - scan_operator() for token_hint == 4
     
-    token = create_token(81, "?", line, col)  -- UNKNOWN placeholder
-    return [token, pos + 1, col + 1, line]
+    token = create_token(81; "?"; line; col)  -- UNKNOWN placeholder
+    return [token; pos + 1; col + 1; line]
 end function
 
 -- ============================================================================
@@ -325,7 +325,7 @@ function main() returns numeric
     numeric new_pos = 0
     numeric new_col = 0
     numeric new_line = 0
-    list token = create_token(0, "", 0, 0)
+    list token = create_token(0; ""; 0; 0)
     numeric result_0 = 0
     numeric result_1 = 0
     numeric result_2 = 0

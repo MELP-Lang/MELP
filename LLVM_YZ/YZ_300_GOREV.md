@@ -1,103 +1,179 @@
 # YZ_300: Self-Hosting Completion 🚀
 **Başlangıç:** 22 Aralık 2025  
 **Öncelik:** 🔴 **KRİTİK** (Tüm gelecek development buna bağlı)  
-**Tahmini Süre:** 1-2 hafta  
-**Durum:** 🚀 **BAŞLATILDI!** - No more C hamallık!
+**Tahmini Süre:** 3-5 gün  
+**Durum:** 🚀 **PHASE 1 - Critical Fixes**
+
+---
+
+## 📚 ÖNCE OKU - Zorunlu Belgeler
+
+**Implementation AI, işe başlamadan önce MUTLAKA oku:**
+
+1. **PMPL Sözdizimi:** `temp/archived_docs/pmlp_kesin_sozdizimi.md`
+   - MELP'in tek ve kesin sözdizimi
+   - Önemli: `end_function`, `end_if`, `end_while` (alt çizgili!)
+   - Parametre ayırıcı: `;` (noktalı virgül)
+
+2. **Stage 1 Test Sonuçları:** `LLVM_YZ/YZ_300_MODULE_TEST_RESULTS.md`
+   - 107 modül test edildi
+   - %90 başarı (78/87 modül çalışıyor)
+   - Sadece 9 modül fix gerekiyor
+
+3. **Stage 1 Modüller:** `compiler/stage1/modules/` (YZ_11'den restore edildi)
+   - Template import kullanır (compile-time code copy)
+   - C'nin `#include` ile aynı mantık
+   - MELP felsefesine uygun ✅
 
 ---
 
 ## 🎯 Görev Özeti
 
-**HEDEF:** MELP compiler'ı MELP ile yaz, C'yi artık sadece bootstrap için kullan.
+**GÜNCEL DURUM (22 Aralık 2025):**
+- ✅ Stage 1: %90 hazır (78/87 modül çalışıyor)
+- ✅ YZ_11 restore tamamlandı (107 modül)
+- ✅ Template import çalışıyor
+- ⚠️ Sadece 9 modülde küçük fix gerekli
 
-**NEDEN YAPIYORUZ:**
-- ❌ **Şu An:** Her feature C'de yaz → Stage 1'e port et (2x effort)
-- ✅ **Sonra:** Her feature MELP'te yaz → 1x effort, self-compile!
-- 🗑️ **Stage 0 (C):** Geçici scaffold, deprecated olacak
-- 🎯 **Stage 1 (MELP):** Asıl ürün, self-hosting
-
-**MEVCUT DURUM:**
-- Stage 1: %50 complete (YZ_01-20'de başlanmış, yarım kalmış)
-- Stage 0: %95 complete (production-ready ama geçici!)
-- Şimdi: Stage 0'a feature ekliyoruz (hamallık!)
+**HEDEF:** 9 modülü fix et → Bootstrap test → Self-compile!
 
 ---
 
-## 📋 Phase 1: Critical Modules Port (3-4 gün)
+## 📋 Phase 1: Critical Fixes (1 gün - 9 modül)
 
-### 1.1. Lexer (1 gün)
-**Kaynak:** `compiler/stage0/modules/lexer/lexer.c`  
-**Hedef:** `compiler/stage1/lexer.mlp`
+**Test Sonuçları Analizi:**
+- ✅ Çalışan: 78/87 (%90)
+- ❌ Hatalı: 9/87 (%10)
 
-**İşler:**
+### Hatalı Modüller:
+
+| Modül | Sorun | Fix Süresi |
+|-------|-------|------------|
+| parser_mlp/ast_nodes.mlp | Syntax error line 102 | 5 dk |
+| enums/enums_codegen.mlp | Stateless violation (g_enum_registry) | 10 dk |
+| control_flow/control_flow_codegen.mlp | LLVM IR syntax | 15 dk |
+| 6 test dosyası | Parser sorunları | İhtiyaç yok |
+
+**Toplam Fix Süresi:** ~30 dakika (test dosyaları hariç)
+
+### 1.1. Fix: ast_nodes.mlp
+
+**Dosya:** `compiler/stage1/modules/parser_mlp/ast_nodes.mlp`  
+**Sorun:** Line 102 - Parser error (muhtemelen end_function vs end function)
+
+**Yapılacak:**
+```bash
+# 1. Hatayı göster
+./compiler/stage0/modules/functions/functions_standalone \
+  compiler/stage1/modules/parser_mlp/ast_nodes.mlp \
+  temp/ast_test.s 2>&1 | grep error
+
+# 2. Fix uygula (PMPL syntax'a göre)
+# 3. Test et
 ```
-Stage 0 lexer.c → MELP translation:
 
-1. Token types enum → MELP enum
-2. Lexer struct → MELP struct
-3. Tokenize functions:
-   - read_number()
-   - read_string()
-   - read_identifier()
-   - keyword matching
-4. Comment handling
-5. Whitespace handling
-```
+### 1.2. Fix: enums_codegen.mlp
 
-**Test:**
-```melp
--- Test lexer independently
-function test_lexer() returns numeric
-    string source = "function main() returns numeric end_function"
-    Lexer lex = lexer_create(source)
-    
-    Token tok1 = lexer_next_token(lex)  -- TOKEN_FUNCTION
-    Token tok2 = lexer_next_token(lex)  -- TOKEN_IDENTIFIER ("main")
-    
-    return 0
+**Dosya:** `compiler/stage1/modules/enums/enums_codegen.mlp`  
+**Sorun:** Line 47 - Global mutable state (stateless violation)
+
+**Mevcut Kod:**
+```mlp
+list g_enum_registry = []  -- ❌ GLOBAL STATE
+
+function register_enum(list enum_node) returns boolean
+    g_enum_registry = append(g_enum_registry, entry)
+    return true
 end_function
 ```
 
----
+**Fix (commit 4d744fc2'den):**
+```mlp
+-- ✅ NO GLOBAL - Registry parametre olarak geçilir
 
-### 1.2. Parser (1 gün)
-**Kaynak:** `compiler/stage0/modules/functions/functions_parser.c`  
-**Hedef:** `compiler/stage1/parser.mlp`
-
-**İşler:**
-```
-Stage 0 parser → MELP translation:
-
-1. AST node types → MELP structs
-2. Parser functions:
-   - parse_function_declaration()
-   - parse_expression()
-   - parse_statement()
-   - parse_type()
-3. Error handling
-4. AST tree construction
-```
-
-**Test:**
-```melp
--- Test parser independently
-function test_parser() returns numeric
-    string source = "function add(x; y) returns numeric return x + y end_function"
-    Lexer lex = lexer_create(source)
-    Parser parser = parser_create(lex)
-    
-    ASTNode func = parse_function_declaration(parser)
-    -- Verify AST structure
-    
-    return 0
+function register_enum(list enum_node; list enum_registry) returns list
+    list updated_registry = append(enum_registry; entry)
+    return [true; updated_registry]
 end_function
 ```
 
+**Not:** Parametre ayırıcı `;` (noktalı virgül) - PMPL syntax!
+
+### 1.3. Fix: control_flow_codegen.mlp
+
+**Dosya:** `compiler/stage1/modules/control_flow/control_flow_codegen.mlp`  
+**Sorun:** LLVM IR syntax hataları
+
+**Yapılacak:**
+```bash
+# Test et, hataları gör
+./compiler/stage0/modules/functions/functions_standalone \
+  compiler/stage1/modules/control_flow/control_flow_codegen.mlp \
+  temp/control_test.s 2>&1
+
+# Fix uygula (LLVM IR syntax'a göre)
+```
+
+### 1.4. Test Dosyaları (OPTIONAL)
+
+**6 test dosyası hatalı ama ÖNEMLİ DEĞİL:**
+- Bunlar sadece test amaçlı
+- Production compiler'da kullanılmıyor
+- İsteğe bağlı fix (öncelik düşük)
+
 ---
 
-### 1.3. LLVM Codegen (1-2 gün)
-**Kaynak:** `compiler/stage0/modules/functions/functions_codegen_llvm.c`  
-**Hedef:** `compiler/stage1/codegen_llvm.mlp`
+## 📋 Phase 2: Bootstrap Test (2-3 saat)
+
+**Hedef:** Stage 0 ile Stage 1 compiler'ını compile et
+
+### 2.1. Basit Test Case
+
+```mlp
+-- test_simple.mlp
+function add(numeric a; numeric b) returns numeric
+    return a + b
+end_function
+
+function main() returns numeric
+    numeric result = add(5; 10)
+    return result
+end_function
+```
+
+**Compile:**
+```bash
+# Stage 0 ile compile et
+./compiler/stage0/modules/functions/functions_standalone \
+  test_simple.mlp test_simple.ll
+
+# LLVM ile çalıştır
+lli test_simple.ll
+# Expected: 15
+```
+
+### 2.2. Stage 1 Compiler Test
+
+**Working Modül Sayısı:** 78 (Core + Lexer + Parser + Codegen)
+
+**Test:**
+```bash
+# Stage 0 ile Stage 1 modüllerini compile et
+./compiler/stage0/modules/functions/functions_standalone \
+  compiler/stage1/modules/compiler.mlp \
+  build/stage1_compiler.ll
+
+# Test et
+lli build/stage1_compiler.ll test_simple.mlp
+```
+
+---
+
+## 📋 Phase 3: Self-Compile (1-2 gün)
+
+**Hedef:** Stage 1 kendini compile etsin!
+
+### 3.1. Bootstrap Chain
 
 **İşler:**
 ```

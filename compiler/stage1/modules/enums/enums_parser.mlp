@@ -45,11 +45,11 @@ const numeric ENUM_ASSIGNMENT = 4        -- Enum variable assignment: Status s =
 
 -- Parse enum definition
 -- Syntax: enum Status ... end_enum
--- Returns: [enum_node, new_position]
-function parse_enum_definition(list tokens, numeric pos) returns list
+-- Returns: [enum_node; new_position]
+function parse_enum_definition(list tokens; numeric pos) returns list
     -- Expect TOKEN_ENUM
     if tokens[pos] != TOKEN_ENUM then
-        return [0, pos]  -- Not an enum
+        return [0; pos]  -- Not an enum
     end_if
     
     numeric current_pos = pos + 1  -- Skip 'enum' keyword
@@ -57,7 +57,7 @@ function parse_enum_definition(list tokens, numeric pos) returns list
     -- Get enum name
     if tokens[current_pos] != TOKEN_IDENTIFIER then
         print "Error: Expected enum name after 'enum'"
-        return [0, pos]
+        return [0; pos]
     end_if
     
     string enum_name = tokens[current_pos + 1]  -- Token value
@@ -80,7 +80,7 @@ function parse_enum_definition(list tokens, numeric pos) returns list
         -- Expect identifier (value name)
         if token_type != TOKEN_IDENTIFIER then
             print "Error: Expected enum value name or 'end_enum'"
-            return [0, pos]
+            return [0; pos]
         end_if
         
         string value_name = tokens[current_pos + 1]
@@ -94,7 +94,7 @@ function parse_enum_definition(list tokens, numeric pos) returns list
             -- Get numeric value
             if current_pos >= len(tokens) or tokens[current_pos] != TOKEN_NUMBER then
                 print "Error: Expected numeric value after '=' in enum"
-                return [0, pos]
+                return [0; pos]
             end_if
             
             string value_str = tokens[current_pos + 1]
@@ -108,23 +108,23 @@ function parse_enum_definition(list tokens, numeric pos) returns list
         end_if
         
         -- Create enum value node
-        list value_node = [ENUM_VALUE, value_name, value]
-        values_list = append(values_list, value_node)
+        list value_node = [ENUM_VALUE; value_name; value]
+        values_list = append(values_list; value_node)
         value_count = value_count + 1
     end_while
     
     -- Create enum definition node
-    list enum_node = [ENUM_DEFINITION, enum_name, values_list, value_count]
+    list enum_node = [ENUM_DEFINITION; enum_name; values_list; value_count]
     
-    return [enum_node, current_pos]
+    return [enum_node; current_pos]
 end_function
 
 -- Parse enum value reference (e.g., Status.ACTIVE or just ACTIVE)
--- Returns: [enum_value_ref_node, new_position]
-function parse_enum_value_reference(list tokens, numeric pos) returns list
+-- Returns: [enum_value_ref_node; new_position]
+function parse_enum_value_reference(list tokens; numeric pos) returns list
     -- Check for identifier (could be enum value)
     if tokens[pos] != TOKEN_IDENTIFIER then
-        return [0, pos]
+        return [0; pos]
     end_if
     
     string first_name = tokens[pos + 1]
@@ -137,30 +137,30 @@ function parse_enum_value_reference(list tokens, numeric pos) returns list
         -- Get value name
         if current_pos >= len(tokens) or tokens[current_pos] != TOKEN_IDENTIFIER then
             print "Error: Expected value name after '.'"
-            return [0, pos]
+            return [0; pos]
         end_if
         
         string value_name = tokens[current_pos + 1]
         current_pos = current_pos + 2
         
         -- Create qualified reference node
-        list ref_node = [ENUM_VALUE_REF, first_name, value_name]
-        return [ref_node, current_pos]
+        list ref_node = [ENUM_VALUE_REF; first_name; value_name]
+        return [ref_node; current_pos]
     else
         -- Unqualified reference (just ACTIVE)
         -- Create unqualified reference node (enum_type = empty)
-        list ref_node = [ENUM_VALUE_REF, "", first_name]
-        return [ref_node, current_pos]
+        list ref_node = [ENUM_VALUE_REF; ""; first_name]
+        return [ref_node; current_pos]
     end_if
 end_function
 
 -- Parse enum variable assignment
 -- Syntax: Status s = ACTIVE
--- Returns: [assignment_node, new_position]
-function parse_enum_assignment(list tokens, numeric pos) returns list
+-- Returns: [assignment_node; new_position]
+function parse_enum_assignment(list tokens; numeric pos) returns list
     -- Expect: Type identifier = value
     if tokens[pos] != TOKEN_IDENTIFIER then
-        return [0, pos]
+        return [0; pos]
     end_if
     
     string enum_type = tokens[pos + 1]
@@ -168,7 +168,7 @@ function parse_enum_assignment(list tokens, numeric pos) returns list
     
     -- Check if next is identifier (variable name)
     if current_pos >= len(tokens) or tokens[current_pos] != TOKEN_IDENTIFIER then
-        return [0, pos]  -- Not an assignment
+        return [0; pos]  -- Not an assignment
     end_if
     
     string var_name = tokens[current_pos + 1]
@@ -176,24 +176,24 @@ function parse_enum_assignment(list tokens, numeric pos) returns list
     
     -- Expect '='
     if current_pos >= len(tokens) or tokens[current_pos] != TOKEN_ASSIGN then
-        return [0, pos]  -- Not an assignment
+        return [0; pos]  -- Not an assignment
     end_if
     
     current_pos = current_pos + 1  -- Skip '='
     
     -- Parse value expression (could be enum value reference)
-    list value_result = parse_enum_value_reference(tokens, current_pos)
+    list value_result = parse_enum_value_reference(tokens; current_pos)
     if value_result[0] == 0 then
-        return [0, pos]  -- Failed to parse value
+        return [0; pos]  -- Failed to parse value
     end_if
     
     list value_expr = value_result[0]
     current_pos = value_result[1]
     
     -- Create assignment node
-    list assignment_node = [ENUM_ASSIGNMENT, enum_type, var_name, value_expr]
+    list assignment_node = [ENUM_ASSIGNMENT; enum_type; var_name; value_expr]
     
-    return [assignment_node, current_pos]
+    return [assignment_node; current_pos]
 end_function
 
 -- ============================================================================
@@ -335,7 +335,7 @@ function parse_int(string s) returns numeric
 end_function
 
 -- Helper to append to list
-function append(list lst, list item) returns list
+function append(list lst; list item) returns list
     list result = lst
     -- In real implementation, this would append item to result
     -- For now, we assume lists support dynamic append
