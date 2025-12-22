@@ -2,19 +2,218 @@
 -- MELP Compiler - Full Pipeline Integration
 -- ============================================================================
 -- File: modules/compiler_integration.mlp
--- Author: YZ_24 Part 1
--- Date: 17 Aralık 2025
+-- Author: YZ_08 (from YZ_24)
+-- Date: 22 Aralık 2025
 -- Purpose: Orchestrate Lexer → Parser → CodeGen pipeline
--- Status: Stage 1 Self-Hosting - Integration Module
+-- Status: Stage 1 Self-Hosting - Integration Module with Real Lexer
 -- ============================================================================
 --
 -- This module connects all compiler phases:
--- 1. Lexer (tokenization)
--- 2. Parser (AST construction)
--- 3. CodeGen (LLVM IR emission)
+-- 1. Lexer (tokenization) - REAL implementation
+-- 2. Parser (AST construction) - Variables + Arithmetic
+-- 3. CodeGen (LLVM IR emission) - Alloca + Load/Store + Add
 --
 -- Entry point: compile_source(string source_code) returns string llvm_ir
 -- ============================================================================
+
+-- ============================================================================
+-- LEXER HELPER FUNCTIONS (from lexer.mlp)
+-- ============================================================================
+
+-- Token creation helper
+function create_token(numeric token_type; string token_value; numeric line_num; numeric col_num) returns list
+    return [token_type; token_value; line_num; col_num]
+end_function
+
+-- Position result helper
+function create_position_result(numeric p; numeric c; numeric l) returns list
+    return [p; c; l]
+end_function
+
+-- Character classification
+function is_digit(string ch) returns boolean
+    if ch == "0" then return 1 end if
+    if ch == "1" then return 1 end if
+    if ch == "2" then return 1 end if
+    if ch == "3" then return 1 end if
+    if ch == "4" then return 1 end if
+    if ch == "5" then return 1 end if
+    if ch == "6" then return 1 end if
+    if ch == "7" then return 1 end if
+    if ch == "8" then return 1 end if
+    if ch == "9" then return 1 end if
+    return 0
+end_function
+
+function is_alpha(string ch) returns boolean
+    if ch == "a" then return 1 end if
+    if ch == "b" then return 1 end if
+    if ch == "c" then return 1 end if
+    if ch == "d" then return 1 end if
+    if ch == "e" then return 1 end if
+    if ch == "f" then return 1 end if
+    if ch == "g" then return 1 end if
+    if ch == "h" then return 1 end if
+    if ch == "i" then return 1 end if
+    if ch == "j" then return 1 end if
+    if ch == "k" then return 1 end if
+    if ch == "l" then return 1 end if
+    if ch == "m" then return 1 end if
+    if ch == "n" then return 1 end if
+    if ch == "o" then return 1 end if
+    if ch == "p" then return 1 end if
+    if ch == "q" then return 1 end if
+    if ch == "r" then return 1 end if
+    if ch == "s" then return 1 end if
+    if ch == "t" then return 1 end if
+    if ch == "u" then return 1 end if
+    if ch == "v" then return 1 end if
+    if ch == "w" then return 1 end if
+    if ch == "x" then return 1 end if
+    if ch == "y" then return 1 end if
+    if ch == "z" then return 1 end if
+    return 0
+end_function
+
+function is_whitespace(string ch) returns boolean
+    if ch == " " then return 1 end if
+    if ch == "\n" then return 1 end if
+    if ch == "\t" then return 1 end if
+    if ch == "\r" then return 1 end if
+    return 0
+end_function
+
+function is_identifier_char(string ch) returns boolean
+    boolean is_alpha_result = is_alpha(ch)
+    boolean is_digit_result = is_digit(ch)
+    if is_alpha_result then return 1 end if
+    if is_digit_result then return 1 end if
+    if ch == "_" then return 1 end if
+    return 0
+end_function
+
+-- Skip whitespace
+function skip_whitespace(string source; numeric pos; numeric line; numeric col) returns list
+    numeric source_len = length(source)
+    string ch = ""
+    boolean ch_is_whitespace = 0
+    
+    while pos < source_len
+        ch = substring(source; pos; 1)
+        ch_is_whitespace = is_whitespace(ch)
+        
+        if ch_is_whitespace then
+            if ch == "\n" then
+                line = line + 1
+                col = 1
+                pos = pos + 1
+            else
+                pos = pos + 1
+                col = col + 1
+            end if
+        else
+            exit while
+        end if
+    end while
+    
+    return create_position_result(pos; col; line)
+end_function
+
+-- Simplified tokenize_next (minimal implementation)
+function tokenize_next(string source; numeric pos; numeric line; numeric col) returns list
+    numeric source_len = length(source)
+    list ws_result = create_position_result(0; 0; 0)
+    list token = create_token(80; ""; line; col)
+    string ch = ""
+    boolean ch_is_digit = 0
+    boolean ch_is_alpha = 0
+    boolean ch_is_id = 0
+    string token_val = ""
+    
+    -- Skip whitespace
+    ws_result = skip_whitespace(source; pos; line; col)
+    pos = ws_result[0]
+    col = ws_result[1]
+    line = ws_result[2]
+    
+    -- Check for EOF
+    if pos >= source_len then
+        token = create_token(80; ""; line; col)
+        return [token; pos; col; line]
+    end if
+    
+    ch = substring(source; pos; 1)
+    
+    -- Check for number
+    ch_is_digit = is_digit(ch)
+    if ch_is_digit then
+        -- Scan number
+        while pos < source_len
+            ch = substring(source; pos; 1)
+            ch_is_digit = is_digit(ch)
+            if ch_is_digit then
+                token_val = token_val + ch
+                pos = pos + 1
+                col = col + 1
+            else
+                exit while
+            end if
+        end while
+        token = create_token(30; token_val; line; col)
+        return [token; pos; col; line]
+    end if
+    
+    -- Check for identifier/keyword
+    ch_is_alpha = is_alpha(ch)
+    if ch_is_alpha then
+        -- Scan identifier
+        while pos < source_len
+            ch = substring(source; pos; 1)
+            ch_is_id = is_identifier_char(ch)
+            if ch_is_id then
+                token_val = token_val + ch
+                pos = pos + 1
+                col = col + 1
+            else
+                exit while
+            end if
+        end while
+        
+        -- Classify keyword or identifier
+        numeric tok_type = 10
+        if token_val == "function" then tok_type = 1 end if
+        if token_val == "returns" then tok_type = 5 end if
+        if token_val == "return" then tok_type = 6 end if
+        if token_val == "end_function" then tok_type = 7 end if
+        if token_val == "numeric" then tok_type = 20 end if
+        if token_val == "string" then tok_type = 21 end if
+        
+        token = create_token(tok_type; token_val; line; col)
+        return [token; pos; col; line]
+    end if
+    
+    -- Check for operators/symbols
+    if ch == "(" then
+        token = create_token(40; "("; line; col)
+        return [token; pos + 1; col + 1; line]
+    end if
+    if ch == ")" then
+        token = create_token(41; ")"; line; col)
+        return [token; pos + 1; col + 1; line]
+    end if
+    if ch == "=" then
+        token = create_token(50; "="; line; col)
+        return [token; pos + 1; col + 1; line]
+    end if
+    if ch == "+" then
+        token = create_token(51; "+"; line; col)
+        return [token; pos + 1; col + 1; line]
+    end if
+    
+    -- Unknown token
+    token = create_token(81; ch; line; col)
+    return [token; pos + 1; col + 1; line]
+end_function
 
 -- ============================================================================
 -- CONSTANTS & CONFIGURATION
@@ -58,6 +257,39 @@ function log_verbose(string message; numeric verbose_mode) returns numeric
     return 0
 end_function
 
+-- Helper: Print numeric value (workaround for Stage 0)
+function print_numeric(numeric n) returns numeric
+    if n == 0 then print("0") end if
+    if n == 1 then print("1") end if
+    if n == 2 then print("2") end if
+    if n == 3 then print("3") end if
+    if n == 4 then print("4") end if
+    if n == 5 then print("5") end if
+    if n == 6 then print("6") end if
+    if n == 7 then print("7") end if
+    if n == 8 then print("8") end if
+    if n == 9 then print("9") end if
+    if n == 10 then print("10") end if
+    if n == 11 then print("11") end if
+    if n == 12 then print("12") end if
+    if n == 13 then print("13") end if
+    if n == 14 then print("14") end if
+    if n == 15 then print("15") end if
+    if n == 16 then print("16") end if
+    if n == 17 then print("17") end if
+    if n == 18 then print("18") end if
+    if n == 19 then print("19") end if
+    if n == 20 then print("20") end if
+    return 0
+end_function
+
+-- Helper: Print numeric value with newline
+function println_numeric(numeric n) returns numeric
+    numeric dummy = print_numeric(n)
+    println("")
+    return 0
+end_function
+
 -- ============================================================================
 -- PHASE 1: LEXER INTEGRATION
 -- ============================================================================
@@ -66,22 +298,47 @@ end_function
 -- Returns: list of tokens (or empty list on error)
 -- Token format: [type, value, line, column]
 function tokenize_source(string source) returns list
-    log_verbose("Starting lexer phase...", 0)
+    log_verbose("Starting lexer phase..."; 0)
     
     -- Token list (will be built incrementally)
     list tokens = []
     numeric pos = 0
     numeric line = 1
     numeric col = 1
-    numeric source_len = 0  -- TODO: Need string_length() builtin
+    numeric source_len = length(source)
+    list result = []
+    list token = []
+    numeric token_type = 0
+    numeric max_tokens = 100
+    numeric token_count = 0
     
-    -- Tokenization loop
-    -- Note: This is simplified - real implementation needs:
-    -- - Loop until EOF
-    -- - Call tokenize_next() from lexer.mlp
-    -- - Accumulate tokens
+    -- Tokenization loop: call tokenize_next() until EOF
+    while pos < source_len
+        if token_count >= max_tokens then
+            exit while
+        end if
+        
+        result = tokenize_next(source; pos; line; col)
+        token = result[0]
+        pos = result[1]
+        col = result[2]
+        line = result[3]
+        
+        -- Check token type (80 = EOF, 82 = COMMENT)
+        token_type = token[0]
+        
+        if token_type == 80 then
+            exit while
+        end if
+        
+        -- Skip comments (type 82)
+        if token_type != 82 then
+            tokens = tokens + [token]
+            token_count = token_count + 1
+        end if
+    end while
     
-    log_verbose("Lexer phase complete", 0)
+    log_verbose("Lexer phase complete"; 0)
     return tokens
 end_function
 
@@ -91,49 +348,118 @@ end_function
 
 -- Parse token stream into AST
 -- Returns: AST root node (list representation)
--- AST format: [node_type, name, return_type, body]
--- node_type: 1=PROGRAM, 2=FUNCTION, 3=RETURN, 4=LITERAL
+-- AST format: [node_type, func_name, return_type, statements]
+-- node_type: 2=FUNCTION
+-- statements: list of statement nodes
+-- Statement types: 10=VARDECL, 11=BINOP, 12=RETURN
 function parse_tokens(list tokens) returns list
-    log_verbose("Starting parser phase...", 0)
+    log_verbose("Starting parser phase..."; 0)
     
     -- Initialize parser state
-    numeric token_index = 0
+    numeric idx = 0
+    numeric token_count = length(tokens)
+    list token = []
+    string token_val = ""
     
-    -- AST root: PROGRAM node
-    -- Format: [1, "program", "", [function_nodes]]
-    list ast_root = [1, "program", "", []]
+    -- Parse function header
+    -- token[0]: function keyword (skip)
+    idx = 1
+    token = tokens[idx]
+    string func_name = token[1]
     
-    -- Simple parsing for: function main() returns numeric return 42 end_function
-    -- Expected tokens:
-    -- [0] = [TOKEN_FUNCTION, "function", line, col]
-    -- [1] = [TOKEN_ID, "main", line, col]  
-    -- [2] = [TOKEN_LPAREN, "(", line, col]
-    -- [3] = [TOKEN_RPAREN, ")", line, col]
-    -- [4] = [TOKEN_RETURNS, "returns", line, col]
-    -- [5] = [TOKEN_NUMERIC, "numeric", line, col]
-    -- [6] = [TOKEN_RETURN, "return", line, col]
-    -- [7] = [TOKEN_NUMBER, "42", line, col]
-    -- [8] = [TOKEN_END_FUNCTION, "end_function", line, col]
+    -- Skip '(', ')', 'returns', type_name
+    idx = 6
     
-    -- Parse function declaration (simplified)
-    -- token_index = 0: function keyword (skip)
-    -- token_index = 1: function name
-    list name_token = tokens[1]
-    string func_name = name_token[1]
+    -- Parse statements until end_function
+    list statements = []
+    numeric stmt_count = 0
+    numeric max_stmts = 20
     
-    -- token_index = 5: return type
-    list ret_type_token = tokens[5]
-    string return_type = ret_type_token[1]
+    while idx < token_count
+        if stmt_count >= max_stmts then
+            exit while
+        end if
+        
+        token = tokens[idx]
+        token_val = token[1]
+        
+        -- Check for end_function
+        if token_val == "end_function" then
+            exit while
+        end if
+        
+        -- Check for variable declaration: numeric x = 42
+        if token_val == "numeric" then
+            -- Variable declaration
+            idx = idx + 1
+            list var_name_token = tokens[idx]
+            string var_name = var_name_token[1]
+            
+            idx = idx + 1
+            -- Skip '=' token
+            
+            idx = idx + 1
+            list var_value_token = tokens[idx]
+            string var_value = var_value_token[1]
+            
+            -- Create VARDECL node: [10; var_name; var_value]
+            list vardecl_node = [10; var_name; var_value]
+            statements = statements + [vardecl_node]
+            stmt_count = stmt_count + 1
+            idx = idx + 1
+        else
+            -- Check for return statement
+            if token_val == "return" then
+                idx = idx + 1
+                
+                -- Check if next token is an identifier (variable reference)
+                token = tokens[idx]
+                string ret_val_1 = token[1]
+                
+                -- Check for binary operation: x + y
+                idx = idx + 1
+                if idx < token_count then
+                    token = tokens[idx]
+                    string op_token = token[1]
+                    
+                    -- Check for operator
+                    if op_token == "+" then
+                        idx = idx + 1
+                        token = tokens[idx]
+                        string ret_val_2 = token[1]
+                        
+                        -- Create BINOP node: [11, "+", left, right]
+                        list binop_node = [11; "+"; ret_val_1; ret_val_2]
+                        
+                        -- Create RETURN node: [12; binop_node]
+                        list return_node = [12; binop_node]
+                        statements = statements + [return_node]
+                        stmt_count = stmt_count + 1
+                    else
+                        -- Simple return value
+                        list return_node = [12; ret_val_1]
+                        statements = statements + [return_node]
+                        stmt_count = stmt_count + 1
+                        idx = idx - 1
+                    end if
+                else
+                    -- Simple return value
+                    list return_node = [12; ret_val_1]
+                    statements = statements + [return_node]
+                    stmt_count = stmt_count + 1
+                end if
+                
+                idx = idx + 1
+            else
+                idx = idx + 1
+            end if
+        end if
+    end while
     
-    -- token_index = 7: return value
-    list ret_val_token = tokens[7]
-    string return_value = ret_val_token[1]
+    -- Build function AST: [2; func_name; "numeric"; statements]
+    list ast_root = [2; func_name; "numeric"; statements]
     
-    -- Build simplified AST
-    -- Format: [2, func_name, return_type, return_value]
-    list ast_root = [2, func_name, return_type, return_value]
-    
-    log_verbose("Parser phase complete", 0)
+    log_verbose("Parser phase complete"; 0)
     return ast_root
 end_function
 
@@ -143,29 +469,19 @@ end_function
 
 -- Generate LLVM IR from AST
 -- Returns: LLVM IR string (or empty on error)
--- AST format: [node_type, func_name, return_type, return_value]
+-- AST format: [node_type, func_name, return_type, statements]
 -- node_type: 2=FUNCTION
+-- Statement types: 10=VARDECL, 11=BINOP, 12=RETURN
 function codegen_ast(list ast) returns string
-    log_verbose("Starting codegen phase...", 0)
+    log_verbose("Starting codegen phase..."; 0)
     
-    -- Extract function info from simplified AST
-    numeric ast_type = ast[0]
+    -- Extract function info
     string func_name = ast[1]
-    string return_type = ast[2]
-    string return_value = ast[3]
+    list statements = ast[3]
+    numeric stmt_count = length(statements)
     
-    -- Map MELP types to LLVM types
+    -- LLVM IR generation
     string llvm_type = "i64"
-    if return_type == "numeric" then
-        llvm_type = "i64"
-    end_if
-    if return_type == "string" then
-        llvm_type = "i8*"
-    end_if
-    
-    -- Generate LLVM IR
-    -- Note: Stage 0 string concatenation is limited
-    -- We'll print IR line by line and return a marker
     
     println("; LLVM IR Generated by MELP Compiler")
     println("")
@@ -180,18 +496,116 @@ function codegen_ast(list ast) returns string
     -- Entry block
     println("entry:")
     
-    -- Return statement
-    print("  ret ")
-    print(llvm_type)
-    print(" ")
-    println(return_value)
+    -- Process statements
+    numeric idx = 0
+    numeric temp_reg = 0
+    
+    while idx < stmt_count
+        list stmt = statements[idx]
+        numeric stmt_type = stmt[0]
+        
+        -- VARDECL: [10; var_name; var_value]
+        if stmt_type == 10 then
+            string var_name = stmt[1]
+            string var_value = stmt[2]
+            
+            -- Allocate variable
+            print("  %")
+            print(var_name)
+            print(" = alloca ")
+            println(llvm_type)
+            
+            -- Store initial value
+            print("  store ")
+            print(llvm_type)
+            print(" ")
+            print(var_value)
+            print(", ")
+            print(llvm_type)
+            print("* %")
+            println(var_name)
+        end if
+        
+        -- RETURN: [12, value_or_expr]
+        if stmt_type == 12 then
+            -- Check if return value is an expression
+            list ret_val = stmt[1]
+            
+            -- Check if it's a BINOP: [11, op, left, right]
+            if length(ret_val) > 2 then
+                numeric expr_type = ret_val[0]
+                
+                if expr_type == 11 then
+                    string op = ret_val[1]
+                    string left_var = ret_val[2]
+                    string right_var = ret_val[3]
+                    
+                    -- Load left operand
+                    print("  %")
+                    print_numeric(temp_reg)
+                    print(" = load ")
+                    print(llvm_type)
+                    print(", ")
+                    print(llvm_type)
+                    print("* %")
+                    println(left_var)
+                    numeric left_reg = temp_reg
+                    temp_reg = temp_reg + 1
+                    
+                    -- Load right operand
+                    print("  %")
+                    print_numeric(temp_reg)
+                    print(" = load ")
+                    print(llvm_type)
+                    print(", ")
+                    print(llvm_type)
+                    print("* %")
+                    println(right_var)
+                    numeric right_reg = temp_reg
+                    temp_reg = temp_reg + 1
+                    
+                    -- Perform operation
+                    print("  %")
+                    print_numeric(temp_reg)
+                    print(" = add ")
+                    print(llvm_type)
+                    print(" %")
+                    print_numeric(left_reg)
+                    print(", %")
+                    println_numeric(right_reg)
+                    numeric result_reg = temp_reg
+                    temp_reg = temp_reg + 1
+                    
+                    -- Return result
+                    print("  ret ")
+                    print(llvm_type)
+                    print(" %")
+                    println_numeric(result_reg)
+                else
+                    -- Simple value return
+                    print("  ret ")
+                    print(llvm_type)
+                    print(" ")
+                    println(left_var)
+                end if
+            else
+                -- Simple return (literal or variable)
+                string ret_simple = stmt[1]
+                print("  ret ")
+                print(llvm_type)
+                print(" ")
+                println(ret_simple)
+            end if
+        end if
+        
+        idx = idx + 1
+    end while
     
     -- Close function
     println("}")
     
-    log_verbose("Codegen phase complete", 0)
+    log_verbose("Codegen phase complete"; 0)
     
-    -- Return indicator
     return "LLVM_IR_GENERATED"
 end_function
 
