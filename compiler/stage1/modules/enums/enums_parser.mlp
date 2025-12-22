@@ -68,7 +68,7 @@ function parse_enum_definition(list tokens; numeric pos) returns list
     numeric value_count = 0
     numeric auto_value = 0  -- Auto-increment for values without explicit assignment
     
-    while current_pos < len(tokens)
+    while current_pos < len(tokens) do
         numeric token_type = tokens[current_pos]
         
         -- Check for end_enum
@@ -318,7 +318,7 @@ function parse_int(string s) returns numeric
         i = 1
     end_if
     
-    while i < len_s
+    while i < len_s do
         string ch = s[i]
         if ch >= "0" and ch <= "9" then
             numeric digit = ord(ch) - ord("0")

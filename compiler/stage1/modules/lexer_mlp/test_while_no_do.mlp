@@ -2,7 +2,7 @@ function test() returns numeric
     numeric i = 0
     string ch = ""
     
-    while i < 3
+    while i < 3 do
         ch = "a"
         i = i + 1
     end while

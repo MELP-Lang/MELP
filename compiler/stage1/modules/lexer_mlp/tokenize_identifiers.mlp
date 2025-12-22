@@ -195,7 +195,7 @@ function scan_identifier(string source; numeric pos; numeric line; numeric col) 
     string ch = ""
     boolean ch_is_id_char = 0
     
-    while pos < source_len
+    while pos < source_len do
         ch = substring(source, pos, 1)
         ch_is_id_char = is_identifier_char(ch)
         

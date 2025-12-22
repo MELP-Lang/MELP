@@ -385,7 +385,7 @@ function parse_expression(list tokens, numeric pos, numeric min_prec) returns li
     
     -- Climb precedence for binary operators
     boolean continue_loop = true
-    while continue_loop
+    while continue_loop do
         -- Check if next token is an operator
         if current_pos >= tokens.length
             continue_loop = false

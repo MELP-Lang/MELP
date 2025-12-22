@@ -107,7 +107,7 @@ function parse_struct_definition(list tokens, numeric pos) returns list
     numeric member_count = 0
     
     -- Loop until end_struct
-    while pos < len(tokens)
+    while pos < len(tokens) do
         token = tokens[pos]
         
         -- Check for end_struct
@@ -252,7 +252,7 @@ function parse_struct_instantiation(list tokens, numeric pos) returns list
     numeric init_count = 0
     
     -- Loop until }
-    while pos < len(tokens)
+    while pos < len(tokens) do
         token = tokens[pos]
         
         -- Check for }

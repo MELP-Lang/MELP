@@ -5,7 +5,7 @@ function scan_number() returns string
     numeric source_len = 3
     string ch = ""
     
-    while pos < source_len
+    while pos < source_len do
         ch = substring(source, pos, 1)
         num_value = num_value + ch
         pos = pos + 1
