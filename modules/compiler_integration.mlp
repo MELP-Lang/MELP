@@ -185,6 +185,10 @@ function tokenize_next(string source; numeric pos; numeric line; numeric col) re
         if token_val == "returns" then tok_type = 5 end if
         if token_val == "return" then tok_type = 6 end if
         if token_val == "end_function" then tok_type = 7 end if
+        if token_val == "if" then tok_type = 8 end if
+        if token_val == "then" then tok_type = 9 end if
+        if token_val == "end_if" then tok_type = 11 end if
+        if token_val == "else" then tok_type = 12 end if
         if token_val == "numeric" then tok_type = 20 end if
         if token_val == "string" then tok_type = 21 end if
         
@@ -201,12 +205,55 @@ function tokenize_next(string source; numeric pos; numeric line; numeric col) re
         token = create_token(41; ")"; line; col)
         return [token; pos + 1; col + 1; line]
     end if
+    if ch == "," then
+        token = create_token(42; ","; line; col)
+        return [token; pos + 1; col + 1; line]
+    end if
+    if ch == ";" then
+        token = create_token(43; ";"; line; col)
+        return [token; pos + 1; col + 1; line]
+    end if
+    
+    -- Check for == (must come before single =)
     if ch == "=" then
+        -- Check next character for ==
+        if pos + 1 < source_len then
+            string next_ch = substring(source; pos + 1; 1)
+            if next_ch == "=" then
+                token = create_token(58; "=="; line; col)
+                return [token; pos + 2; col + 2; line]
+            end if
+        end if
+        -- Single =
         token = create_token(50; "="; line; col)
         return [token; pos + 1; col + 1; line]
     end if
+    
+    -- Arithmetic operators
     if ch == "+" then
         token = create_token(51; "+"; line; col)
+        return [token; pos + 1; col + 1; line]
+    end if
+    if ch == "-" then
+        token = create_token(52; "-"; line; col)
+        return [token; pos + 1; col + 1; line]
+    end if
+    if ch == "*" then
+        token = create_token(53; "*"; line; col)
+        return [token; pos + 1; col + 1; line]
+    end if
+    if ch == "/" then
+        token = create_token(54; "/"; line; col)
+        return [token; pos + 1; col + 1; line]
+    end if
+    
+    -- Comparison operators
+    if ch == ">" then
+        token = create_token(56; ">"; line; col)
+        return [token; pos + 1; col + 1; line]
+    end if
+    if ch == "<" then
+        token = create_token(57; "<"; line; col)
         return [token; pos + 1; col + 1; line]
     end if
     
@@ -408,7 +455,64 @@ function parse_tokens(list tokens) returns list
             stmt_count = stmt_count + 1
             idx = idx + 1
         else
-            -- Check for return statement
+            -- Check for if statement: if x > 10 then ... end_if
+            if token_val == "if" then
+                idx = idx + 1
+                
+                -- Parse condition: x > 10
+                token = tokens[idx]
+                string cond_left = token[1]
+                
+                idx = idx + 1
+                token = tokens[idx]
+                string cond_op = token[1]
+                
+                idx = idx + 1
+                token = tokens[idx]
+                string cond_right = token[1]
+                
+                -- Create condition node: [13; op; left; right]
+                list cond_node = [13; cond_op; cond_left; cond_right]
+                
+                idx = idx + 1
+                -- Skip 'then' token
+                
+                idx = idx + 1
+                
+                -- Parse if body (simple: single return statement)
+                list if_body = []
+                
+                -- Look for return statement in body
+                while idx < token_count
+                    token = tokens[idx]
+                    token_val = token[1]
+                    
+                    if token_val == "end_if" then
+                        exit while
+                    end if
+                    
+                    if token_val == "return" then
+                        idx = idx + 1
+                        token = tokens[idx]
+                        string ret_val = token[1]
+                        
+                        list return_node = [12; ret_val]
+                        if_body = if_body + [return_node]
+                        idx = idx + 1
+                    else
+                        idx = idx + 1
+                    end if
+                end while
+                
+                -- Create IF statement node: [14; cond_node; if_body; else_body]
+                list else_body = []
+                list if_node = [14; cond_node; if_body; else_body]
+                statements = statements + [if_node]
+                stmt_count = stmt_count + 1
+                
+                idx = idx + 1
+            else
+                -- Check for return statement
             if token_val == "return" then
                 idx = idx + 1
                 
@@ -422,7 +526,7 @@ function parse_tokens(list tokens) returns list
                     token = tokens[idx]
                     string op_token = token[1]
                     
-                    -- Check for operator
+                    -- Check for arithmetic operators
                     if op_token == "+" then
                         idx = idx + 1
                         token = tokens[idx]
@@ -436,11 +540,78 @@ function parse_tokens(list tokens) returns list
                         statements = statements + [return_node]
                         stmt_count = stmt_count + 1
                     else
-                        -- Simple return value
-                        list return_node = [12; ret_val_1]
-                        statements = statements + [return_node]
-                        stmt_count = stmt_count + 1
-                        idx = idx - 1
+                        if op_token == "-" then
+                            idx = idx + 1
+                            token = tokens[idx]
+                            string ret_val_2 = token[1]
+                            
+                            list binop_node = [11; "-"; ret_val_1; ret_val_2]
+                            list return_node = [12; binop_node]
+                            statements = statements + [return_node]
+                            stmt_count = stmt_count + 1
+                        else
+                            if op_token == "*" then
+                                idx = idx + 1
+                                token = tokens[idx]
+                                string ret_val_2 = token[1]
+                                
+                                list binop_node = [11; "*"; ret_val_1; ret_val_2]
+                                list return_node = [12; binop_node]
+                                statements = statements + [return_node]
+                                stmt_count = stmt_count + 1
+                            else
+                                if op_token == "/" then
+                                    idx = idx + 1
+                                    token = tokens[idx]
+                                    string ret_val_2 = token[1]
+                                    
+                                    list binop_node = [11; "/"; ret_val_1; ret_val_2]
+                                    list return_node = [12; binop_node]
+                                    statements = statements + [return_node]
+                                    stmt_count = stmt_count + 1
+                                else
+                                    -- Check for comparison operators
+                                    if op_token == ">" then
+                                        idx = idx + 1
+                                        token = tokens[idx]
+                                        string ret_val_2 = token[1]
+                                        
+                                        list compop_node = [13; ">"; ret_val_1; ret_val_2]
+                                        list return_node = [12; compop_node]
+                                        statements = statements + [return_node]
+                                        stmt_count = stmt_count + 1
+                                    else
+                                        if op_token == "<" then
+                                            idx = idx + 1
+                                            token = tokens[idx]
+                                            string ret_val_2 = token[1]
+                                            
+                                            list compop_node = [13; "<"; ret_val_1; ret_val_2]
+                                            list return_node = [12; compop_node]
+                                            statements = statements + [return_node]
+                                            stmt_count = stmt_count + 1
+                                        else
+                                            if op_token == "==" then
+                                                idx = idx + 1
+                                                token = tokens[idx]
+                                                string ret_val_2 = token[1]
+                                                
+                                                list compop_node = [13; "=="; ret_val_1; ret_val_2]
+                                                list return_node = [12; compop_node]
+                                                statements = statements + [return_node]
+                                                stmt_count = stmt_count + 1
+                                            else
+                                                -- Simple return value (no operator)
+                                                list return_node = [12; ret_val_1]
+                                                statements = statements + [return_node]
+                                                stmt_count = stmt_count + 1
+                                                idx = idx - 1
+                                            end if
+                                        end if
+                                    end if
+                                end if
+                            end if
+                        end if
                     end if
                 else
                     -- Simple return value
@@ -526,6 +697,110 @@ function codegen_ast(list ast) returns string
             println(var_name)
         end if
         
+        -- IF statement: [14; cond_node; if_body; else_body]
+        if stmt_type == 14 then
+            list cond_node = stmt[1]
+            list if_body = stmt[2]
+            
+            -- Generate unique block labels
+            numeric block_id = idx
+            
+            -- Evaluate condition
+            string cond_op = cond_node[1]
+            string cond_left = cond_node[2]
+            string cond_right = cond_node[3]
+            
+            -- Load left operand
+            print("  %")
+            print_numeric(temp_reg)
+            print(" = load ")
+            print(llvm_type)
+            print(", ")
+            print(llvm_type)
+            print("* %")
+            println(cond_left)
+            numeric left_reg = temp_reg
+            temp_reg = temp_reg + 1
+            
+            -- Load right operand
+            print("  %")
+            print_numeric(temp_reg)
+            print(" = load ")
+            print(llvm_type)
+            print(", ")
+            print(llvm_type)
+            print("* %")
+            println(cond_right)
+            numeric right_reg = temp_reg
+            temp_reg = temp_reg + 1
+            
+            -- Perform comparison
+            print("  %")
+            print_numeric(temp_reg)
+            print(" = icmp ")
+            
+            if cond_op == ">" then
+                print("sgt ")
+            end if
+            if cond_op == "<" then
+                print("slt ")
+            end if
+            if cond_op == "==" then
+                print("eq ")
+            end if
+            
+            print(llvm_type)
+            print(" %")
+            print_numeric(left_reg)
+            print(", %")
+            println_numeric(right_reg)
+            numeric cond_reg = temp_reg
+            temp_reg = temp_reg + 1
+            
+            -- Branch instruction
+            print("  br i1 %")
+            print_numeric(cond_reg)
+            print(", label %then")
+            print_numeric(block_id)
+            print(", label %endif")
+            println_numeric(block_id)
+            
+            -- Then block
+            println("")
+            print("then")
+            print_numeric(block_id)
+            println(":")
+            
+            -- Process if body statements
+            numeric body_idx = 0
+            numeric body_count = length(if_body)
+            while body_idx < body_count
+                list body_stmt = if_body[body_idx]
+                numeric body_stmt_type = body_stmt[0]
+                
+                if body_stmt_type == 12 then
+                    -- Return statement in if body
+                    string ret_val = body_stmt[1]
+                    print("  ret ")
+                    print(llvm_type)
+                    print(" ")
+                    println(ret_val)
+                end if
+                
+                body_idx = body_idx + 1
+            end while
+            
+            -- Branch to endif
+            print("  br label %endif")
+            println_numeric(block_id)
+            
+            -- Endif block
+            println("")
+            print("endif")
+            print_numeric(block_id)
+            println(":")
+        end if
+        
         -- RETURN: [12, value_or_expr]
         if stmt_type == 12 then
             -- Check if return value is an expression
@@ -564,10 +839,23 @@ function codegen_ast(list ast) returns string
                     numeric right_reg = temp_reg
                     temp_reg = temp_reg + 1
                     
-                    -- Perform operation
+                    -- Perform operation based on operator
                     print("  %")
                     print_numeric(temp_reg)
-                    print(" = add ")
+                    
+                    if op == "+" then
+                        print(" = add ")
+                    end if
+                    if op == "-" then
+                        print(" = sub ")
+                    end if
+                    if op == "*" then
+                        print(" = mul ")
+                    end if
+                    if op == "/" then
+                        print(" = sdiv ")
+                    end if
+                    
                     print(llvm_type)
                     print(" %")
                     print_numeric(left_reg)
@@ -582,11 +870,81 @@ function codegen_ast(list ast) returns string
                     print(" %")
                     println_numeric(result_reg)
                 else
-                    -- Simple value return
-                    print("  ret ")
-                    print(llvm_type)
-                    print(" ")
-                    println(left_var)
+                    -- Check for COMPOP: [13, op, left, right]
+                    if expr_type == 13 then
+                        string op = ret_val[1]
+                        string left_var = ret_val[2]
+                        string right_var = ret_val[3]
+                        
+                        -- Load left operand
+                        print("  %")
+                        print_numeric(temp_reg)
+                        print(" = load ")
+                        print(llvm_type)
+                        print(", ")
+                        print(llvm_type)
+                        print("* %")
+                        println(left_var)
+                        numeric left_reg = temp_reg
+                        temp_reg = temp_reg + 1
+                        
+                        -- Load right operand
+                        print("  %")
+                        print_numeric(temp_reg)
+                        print(" = load ")
+                        print(llvm_type)
+                        print(", ")
+                        print(llvm_type)
+                        print("* %")
+                        println(right_var)
+                        numeric right_reg = temp_reg
+                        temp_reg = temp_reg + 1
+                        
+                        -- Perform comparison (icmp)
+                        print("  %")
+                        print_numeric(temp_reg)
+                        print(" = icmp ")
+                        
+                        if op == ">" then
+                            print("sgt ")
+                        end if
+                        if op == "<" then
+                            print("slt ")
+                        end if
+                        if op == "==" then
+                            print("eq ")
+                        end if
+                        
+                        print(llvm_type)
+                        print(" %")
+                        print_numeric(left_reg)
+                        print(", %")
+                        println_numeric(right_reg)
+                        numeric cmp_reg = temp_reg
+                        temp_reg = temp_reg + 1
+                        
+                        -- Convert i1 to i64 (zext)
+                        print("  %")
+                        print_numeric(temp_reg)
+                        print(" = zext i1 %")
+                        print_numeric(cmp_reg)
+                        print(" to ")
+                        println(llvm_type)
+                        numeric result_reg = temp_reg
+                        temp_reg = temp_reg + 1
+                        
+                        -- Return result
+                        print("  ret ")
+                        print(llvm_type)
+                        print(" %")
+                        println_numeric(result_reg)
+                    else
+                        -- Simple value return
+                        print("  ret ")
+                        print(llvm_type)
+                        print(" ")
+                        println(left_var)
+                    end if
                 end if
             else
                 -- Simple return (literal or variable)

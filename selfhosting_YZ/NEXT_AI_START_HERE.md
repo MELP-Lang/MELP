@@ -1,17 +1,41 @@
 # SELF-HOSTING YZ - BURADAN BAŞLA
 
-**Son Güncelleme:** 22 Aralık 2025 (YZ_06)  
+**Son Güncelleme:** 23 Aralık 2025 (YZ_09)  
 **Üst Akıl:** Opus  
 **Ana TODO:** `/TODO_SELFHOSTING_FINAL.md`  
 **Kurallar:** `/TODO_kurallari.md`
 
 ---
 
-## 🚨 GÜNCEL DURUM (22 Aralık 2025 - YZ_08)
+## 🚨 GÜNCEL DURUM (23 Aralık 2025 - YZ_09)
 
-**🎉 YZ_08 TAMAMLANDI! Gerçek Lexer + Parser + CodeGen Entegrasyonu Başarılı!**
+**🎉 YZ_09 TAMAMLANDI! Arithmetic + Comparison Operatörler + If-Statement Eklendi!**
 
-**Phase 3.3 Tamamlandı:**
+**Phase 3.4 Tamamlandı:**
+- ✅ Arithmetic operators: -, *, / (sub, mul, sdiv)
+- ✅ Comparison operators: >, <, == (icmp sgt/slt/eq)
+- ✅ If-statement: if-then-end_if (basic blocks + br)
+- ✅ AST nodes: BINOP (11), COMPOP (13), IF (14)
+- ✅ All tests passed: arithmetic, comparison, control flow ✓
+
+**Test Sonuçları:**
+- ✅ Subtraction: 50 - 8 = 42 ✓
+- ✅ Multiplication: 6 * 7 = 42 ✓
+- ✅ Division: 84 / 2 = 42 ✓
+- ✅ Comparison: 50 > 8, 5 < 10, 42 == 42 ✓
+- ✅ If-statement: control flow with basic blocks ✓
+
+---
+
+## 📋 ÖNCEDEN TAMAMLANANLAR
+
+**YZ_08 TAMAMLANDI:**
+
+---
+
+## 📋 ÖNCEDEN TAMAMLANANLAR
+
+**YZ_08 TAMAMLANDI:**
 - ✅ tokenize_source(): Mock tokens → gerçek tokenize_next() döngüsü
 - ✅ parse_tokens(): Variable declarations (numeric x = 42)
 - ✅ parse_tokens(): Arithmetic expressions (x + y)
@@ -20,57 +44,38 @@
 - ✅ codegen_ast(): Arithmetic operations (add)
 - ✅ End-to-end test: "numeric x=10, y=32, return x+y" → exit code 42 ✓
 
-**Stage 1 Durumu:**
-- ✅ compiler_integration.mlp: 15 functions (real lexer + parser + codegen)
-- ✅ Basitleştirilmiş AST: [2; func_name; type; statements]
-- ✅ LLVM IR validation: clang ile test edildi, exit code 42 ✓
-- ✅ Pipeline: Source → Tokenize → Parse → CodeGen → LLVM IR ✓
+---
 
-**🎯 YZ_09 SENİN GÖREVIN:**
+## 🎯 YZ_10 SENİN GÖREVIN:
 
-**Görev:** Phase 3.4 - Daha Fazla Operatör ve Control Flow
+**Görev:** Phase 4 - Bootstrap veya Genişletme
 
-**Ne yapacaksın:**
+**Seçenek A: Bootstrap'a Geç** (6-8 saat)
+Mevcut compiler features yeterli olabilir. Şu anda destekleniyor:
+- Variables (numeric)
+- Arithmetic: +, -, *, /
+- Comparison: >, <, ==
+- Control flow: if-then-end_if
+- Return statements
 
-1. **Operatörleri Genişlet** (2-3 saat)
-   - Subtraction: `x - y`
-   - Multiplication: `x * y`
-   - Division: `x / y`
-   - Parser'da operator tokenization
-   - CodeGen'de `sub`, `mul`, `div` instructions
+Bootstrap için:
+1. compiler_integration.mlp'yi Stage 0 ile derle
+2. Stage 1 binary oluştur
+3. Stage 1 ile compiler_integration.mlp'yi tekrar derle
+4. Stage 1' binary ile convergence test
 
-2. **Control Flow Ekle** (3-4 saat)
-   - If statements: `if x > 10 then ... end_if`
-   - Comparison operators: `>`, `<`, `==`
-   - LLVM IR: `icmp`, `br`, basic blocks
-   - Parser: if_stmt() fonksiyonu
+**Seçenek B: Daha Fazla Feature** (4-6 saat)
+1. **Operator Precedence**: Parser'a precedence ekle
+2. **Else Branch**: If-statement'a else desteği ekle
+3. **While Loop**: while-do-end_while
+4. **Function Calls**: Simple function calls + call instruction
 
-3. **Function Calls** (2-3 saat)
-   - Simple function calls: `foo(42)`
-   - Parser: parse function call
-   - CodeGen: `call` instruction
-   - Test: helper function + main
+**Seçenek C: Her İkisi** (10-14 saat)
+Önce features ekle, sonra bootstrap
 
-4. **End-to-End Test** (1 saat)
-   - Test: Fibonacci veya factorial fonksiyonu
-   - Recursive calls?
-   - Multiple functions
-   - Exit code doğrulaması
+**Öneri:** Seçenek A (Bootstrap). Mevcut features basit bir compiler için yeterli. Bootstrap başarılı olursa, Stage 2'de daha fazla feature eklenebilir.
 
 **⚠️ Önemli Notlar:**
-- YZ_08 basit arithmetic çalışıyor (sadece +)
-- Control flow için basic blocks gerekli (label1:, label2:)
-- Function calls için symbol table gerekebilir (basit)
-- Incremental testing önemli!
-
-**Başarı Kriteri:** Basit control flow ve function calls çalışabilsin
-
-**Alternatif Plan (Daha Güvenli):**
-Eğer YZ_09 çok karmaşık gelirse, önce sadece operatörlere odaklan:
-1. -, *, / operatörlerini ekle
-2. Test: `(10 + 32) * 2 - 20` → 64
-3. YZ_10: Control flow
-4. YZ_11: Function calls
 
 ---
 
