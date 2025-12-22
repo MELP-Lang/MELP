@@ -16,7 +16,7 @@
 -- @param line: Hatanın satır numarası
 -- @param col: Hatanın sütun numarası
 -- @return: 0 (error)
-function parser_error(string message, numeric line, numeric col) returns numeric
+function parser_error(string message; numeric line; numeric col) returns numeric
     println("=== Parser Error ===")
     println("Message: " + message)
     println("Location: line " + str(line) + ", column " + str(col))
@@ -29,7 +29,7 @@ end_function
 -- @param line: Hatanın satır numarası
 -- @param col: Hatanın sütun numarası
 -- @return: 0 (error)
-function unexpected_token_error(numeric expected, numeric got, numeric line, numeric col) returns numeric
+function unexpected_token_error(numeric expected; numeric got; numeric line; numeric col) returns numeric
     println("=== Unexpected Token Error ===")
     println("Expected token type: " + str(expected))
     println("Got token type: " + str(got))
@@ -43,7 +43,7 @@ end_function
 -- @param line: Hatanın satır numarası
 -- @param col: Hatanın sütun numarası
 -- @return: 0 (error)
-function unexpected_token_error_str(string expected_str, string got_str, numeric line, numeric col) returns numeric
+function unexpected_token_error_str(string expected_str; string got_str; numeric line; numeric col) returns numeric
     println("=== Unexpected Token Error ===")
     println("Expected: " + expected_str)
     println("Got: " + got_str)
@@ -66,7 +66,7 @@ end_function
 -- @param line: Hatanın satır numarası
 -- @param col: Hatanın sütun numarası
 -- @return: 0 (error)
-function syntax_error(string message, numeric line, numeric col) returns numeric
+function syntax_error(string message; numeric line; numeric col) returns numeric
     println("=== Syntax Error ===")
     println("Message: " + message)
     println("Location: line " + str(line) + ", column " + str(col))

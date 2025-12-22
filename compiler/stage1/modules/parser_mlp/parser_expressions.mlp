@@ -94,7 +94,7 @@ end_function
 -- Parse expression with precedence (stateless)
 -- Input: parser_state, min_precedence
 -- Returns: [result_string, new_parser_state]
-function state_parse_expression_prec(list parser_state, numeric min_prec) returns list
+function state_parse_expression_prec(list parser_state; numeric min_prec) returns list
     -- Placeholder: will call state_parse_primary when modules are combined
     
     list result = []

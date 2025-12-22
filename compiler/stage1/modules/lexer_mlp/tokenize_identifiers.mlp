@@ -181,13 +181,13 @@ end function
 -- ============================================================================
 
 -- Creates a token [type, value, line, column]
-function create_token(numeric token_type, string token_value, numeric line_num, numeric col_num) returns list
+function create_token(numeric token_type; string token_value; numeric line_num; numeric col_num) returns list
     return [token_type, token_value, line_num, col_num]
 end function
 
 -- Scan an identifier or keyword
 -- Returns: [token, new_pos, new_col]
-function scan_identifier(string source, numeric pos, numeric line, numeric col) returns list
+function scan_identifier(string source; numeric pos; numeric line; numeric col) returns list
     string id_value = ""
     numeric start_col = col
     numeric start_line = line

@@ -9,11 +9,11 @@ function create_symbol_table() returns list
     return empty_table
 end_function
 
-function add_symbol(list sym_table, string name, string type_str, string llvm_name, numeric scope) returns list
+function add_symbol(list sym_table; string name; string type_str; string llvm_name; numeric scope) returns list
     return sym_table
 end_function
 
-function find_symbol(list sym_table, string name) returns list
+function find_symbol(list sym_table; string name) returns list
     list empty = []
     return empty
 end_function
@@ -30,7 +30,7 @@ function get_symbol_scope(list entry) returns numeric
     return 0
 end_function
 
-function pop_scope(list sym_table, numeric scope_level) returns list
+function pop_scope(list sym_table; numeric scope_level) returns list
     return sym_table
 end_function
 

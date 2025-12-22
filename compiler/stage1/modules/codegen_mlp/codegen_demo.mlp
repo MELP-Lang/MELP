@@ -17,9 +17,9 @@ function emit_simple_module() returns numeric
     println("define i64 @main() {")
     println("entry:")
     println("  %x = alloca i64")
-    println("  store i64 42, i64* %x")
-    println("  %t0 = load i64, i64* %x")
-    println("  %t1 = add i64 %t0, 8")
+    println("  store i64 42; i64* %x")
+    println("  %t0 = load i64; i64* %x")
+    println("  %t1 = add i64 %t0; 8")
     println("  ret i64 %t1")
     println("}")
     println("")
@@ -31,7 +31,7 @@ function demo_type_mapping() returns numeric
     println("=== Type Mapping Demo ===")
     println("MELP Type -> LLVM Type")
     println("numeric   -> i64")
-    println("boolean   -> i1")
+    println("numeric   -> i1")
     println("string    -> i8*")
     println("list      -> i8*")
     println("")
@@ -42,8 +42,8 @@ end_function
 function demo_symbol_management() returns numeric
     println("=== Symbol Management Demo ===")
     println("Symbol Table:")
-    println("  [name='x', type='numeric', llvm='%x', scope=0]")
-    println("  [name='result', type='numeric', llvm='%result', scope=1]")
+    println("  [name='x'; type='numeric'; llvm='%x'; scope=0]")
+    println("  [name='result'; type='numeric'; llvm='%result'; scope=1]")
     println("")
     return 1
 end_function
@@ -60,7 +60,7 @@ function demo_complete_codegen() returns numeric
     println("function main() returns numeric")
     println("    numeric x = 42")
     println("    return x + 8")
-    println("end function")
+    println("end_function")
     println("─────────────────────────────────────────────────────")
     println("")
     

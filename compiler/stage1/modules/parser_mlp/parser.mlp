@@ -132,7 +132,7 @@ end_function
 -- Check if current token matches expected type
 -- Input: parser_state, expected_type
 -- Returns: 1 if match, 0 if not
-function state_check_token(list parser_state, numeric expected_type) returns numeric
+function state_check_token(list parser_state; numeric expected_type) returns numeric
     list tok = state_current_token(parser_state)
     numeric len = length(tok)
     
@@ -150,7 +150,7 @@ end_function
 -- Expect token and advance if matched
 -- Input: parser_state, expected_type
 -- Returns: [success (1/0), new_parser_state]
-function state_expect_token(list parser_state, numeric expected_type) returns list
+function state_expect_token(list parser_state; numeric expected_type) returns list
     numeric match = state_check_token(parser_state, expected_type)
     
     if match == 1 then
@@ -175,7 +175,7 @@ end_function
 -- Report parser error and increment error count in state
 -- Input: parser_state, error_message
 -- Returns: new parser_state with incremented error_count
-function state_parser_error(list parser_state, string message) returns list
+function state_parser_error(list parser_state; string message) returns list
     println("Parse Error: " + message)
     
     list tokens = parser_state[0]
@@ -194,7 +194,7 @@ end_function
 -- Report unexpected token error
 -- Input: parser_state, expected_type, got_type
 -- Returns: new parser_state with incremented error_count
-function state_unexpected_token_error(list parser_state, numeric expected, numeric got) returns list
+function state_unexpected_token_error(list parser_state; numeric expected; numeric got) returns list
     print("Unexpected token: expected type ")
     print(str(expected))
     print(", got ")
@@ -348,7 +348,7 @@ end_function
 -- Parse expression with precedence (stateless)
 -- Input: parser_state, min_precedence
 -- Returns: [result_string, new_parser_state]
-function state_parse_expression_prec(list parser_state, numeric min_prec) returns list
+function state_parse_expression_prec(list parser_state; numeric min_prec) returns list
     list left_result = state_parse_primary(parser_state)
     string left = left_result[0]
     list current_state = left_result[1]
@@ -440,7 +440,7 @@ end_function
 -- Parse assignment: x = 10 (stateless)
 -- Input: parser_state, var_name
 -- Returns: [result_string, new_parser_state]
-function state_parse_assignment(list parser_state, string var_name) returns list
+function state_parse_assignment(list parser_state; string var_name) returns list
     list state1 = state_advance(parser_state)  -- Skip =
     list expr_result = state_parse_expression(state1)
     string expr = expr_result[0]
@@ -493,7 +493,7 @@ end_function
 -- Parse print/println statement (stateless)
 -- Input: parser_state, is_println
 -- Returns: [result_string, new_parser_state]
-function state_parse_print(list parser_state, numeric is_println) returns list
+function state_parse_print(list parser_state; numeric is_println) returns list
     list state1 = state_advance(parser_state)  -- Skip print/println
     
     list expect_result = state_expect_token(state1, T_LPAREN)
@@ -1025,7 +1025,7 @@ function main() returns numeric
     println("")
     
     -- Create test tokens for a simple program
-    -- Program: function add(numeric a, numeric b) returns numeric
+    -- Program: function add(numeric a; numeric b) returns numeric
     --            return a + b
     --          end_function
     

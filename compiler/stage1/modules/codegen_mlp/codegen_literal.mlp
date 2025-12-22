@@ -5,7 +5,7 @@ function codegen_numeric_literal(numeric value) returns string
     return ""
 end_function
 
-function codegen_boolean_literal(boolean value) returns string
+function codegen_boolean_literal(numeric value) returns string
     return ""
 end_function
 
@@ -17,7 +17,7 @@ function compute_string_length(string s) returns numeric
     return 0
 end_function
 
-function codegen_literal(string literal_type, string literal_value_str) returns string
+function codegen_literal(string literal_type; string literal_value_str) returns string
     return ""
 end_function
 

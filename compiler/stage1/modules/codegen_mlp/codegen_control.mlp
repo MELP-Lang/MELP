@@ -35,7 +35,7 @@
 function codegen_if_simple(cond_result) returns numeric
     -- Branch based on condition
     -- Using fixed labels for demonstration
-    println("  br i1 " + cond_result + ", label %if_then_0, label %if_end_0")
+    println("  br i1 " + cond_result + "; label %if_then_0; label %if_end_0")
     
     -- Then block
     println("if_then_0:")
@@ -69,7 +69,7 @@ end_function
 --   ; continue
 function codegen_if_else(cond_result) returns numeric
     -- Branch based on condition
-    println("  br i1 " + cond_result + ", label %if_then_0, label %if_else_0")
+    println("  br i1 " + cond_result + "; label %if_then_0; label %if_else_0")
     
     -- Then block
     println("if_then_0:")
@@ -114,9 +114,9 @@ end_function
 --   br label %if_end_0
 -- if_end_0:
 --   ; continue
-function codegen_if_elif_else(cond1, cond2) returns numeric
+function codegen_if_elif_else(cond1; cond2) returns numeric
     -- First condition
-    println("  br i1 " + cond1 + ", label %if_then_0, label %if_elif_0")
+    println("  br i1 " + cond1 + "; label %if_then_0; label %if_elif_0")
     
     -- First then block
     println("if_then_0:")
@@ -128,7 +128,7 @@ function codegen_if_elif_else(cond1, cond2) returns numeric
     println("  ; evaluate else-if condition")
     -- Second condition would be evaluated here
     
-    println("  br i1 " + cond2 + ", label %if_then_1, label %if_else_0")
+    println("  br i1 " + cond2 + "; label %if_then_1; label %if_else_0")
     
     -- Else-if then block
     println("if_then_1:")
@@ -153,12 +153,12 @@ end_function
 -- Generate IR for condition evaluation (integrates with codegen_comparison.mlp)
 -- This is a placeholder that shows the expected interface
 -- Real implementation would call codegen_comparison functions
-function codegen_condition(left_var, op, right_val) returns string
+function codegen_condition(left_var; op; right_val) returns string
     -- For now, return a fixed condition result register
     -- In real implementation, this would call codegen_comparison functions
     
     -- Hardcoded for demo - print the comparison
-    println("  %cond_0 = icmp sgt i64 %x, 0")
+    println("  %cond_0 = icmp sgt i64 %x; 0")
     
     return "%cond_0"
 end_function
@@ -179,7 +179,7 @@ function main() returns numeric
     println("")
     
     -- Generate condition
-    string cond = codegen_condition("x", ">", "0")
+    string cond = codegen_condition("x"; ">"; "0")
     
     -- Generate if statement
     codegen_if_simple(cond)
@@ -196,7 +196,7 @@ function main() returns numeric
     println("")
     
     -- Generate condition
-    string cond2 = codegen_condition("x", ">", "0")
+    string cond2 = codegen_condition("x"; ">"; "0")
     
     -- Generate if-else statement
     codegen_if_else(cond2)
@@ -213,13 +213,13 @@ function main() returns numeric
     println("")
     
     -- Generate first condition
-    println("  %cond3_1 = icmp sgt i64 %x, 0")
+    println("  %cond3_1 = icmp sgt i64 %x; 0")
     
     -- Generate second condition (for else_if)
-    println("  %cond3_2 = icmp slt i64 %x, 0")
+    println("  %cond3_2 = icmp slt i64 %x; 0")
     
     -- Generate if-elif-else chain
-    codegen_if_elif_else("%cond3_1", "%cond3_2")
+    codegen_if_elif_else("%cond3_1"; "%cond3_2")
     
     println("")
     println("  PASS")
@@ -233,19 +233,19 @@ function main() returns numeric
     println("")
     
     -- Outer if condition
-    println("  %cond4_outer = icmp sgt i64 %x, 0")
+    println("  %cond4_outer = icmp sgt i64 %x; 0")
     
     -- Outer if start
-    println("  br i1 %cond4_outer, label %if_then_outer, label %if_end_outer")
+    println("  br i1 %cond4_outer; label %if_then_outer; label %if_end_outer")
     
     println("if_then_outer:")
     println("  ; outer then body - contains inner if")
     
     -- Inner if condition
-    println("  %cond4_inner = icmp sgt i64 %y, 0")
+    println("  %cond4_inner = icmp sgt i64 %y; 0")
     
     -- Inner if
-    println("  br i1 %cond4_inner, label %if_then_inner, label %if_end_inner")
+    println("  br i1 %cond4_inner; label %if_then_inner; label %if_end_inner")
     println("if_then_inner:")
     println("  ; inner then body")
     println("  br label %if_end_inner")

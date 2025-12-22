@@ -76,7 +76,7 @@ function main() returns numeric
     -- Test 2: Pretty print function declaration
     -- ========================================================================
     println("Test 2: Function Declaration AST")
-    println("Code: function add(numeric a, numeric b) returns numeric")
+    println("Code: function add(numeric a; numeric b) returns numeric")
     println("")
     
     indent_level = 0

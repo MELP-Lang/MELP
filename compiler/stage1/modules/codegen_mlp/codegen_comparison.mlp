@@ -22,7 +22,7 @@
 -- Input: left_val, right_val (LLVM IR values/registers)
 -- Output: Result register (i1 boolean)
 -- Note: Uses a fixed temp name for demo purposes
-function codegen_eq(left_val, right_val) returns string
+function codegen_eq(left_val; right_val) returns string
     string result_reg = "%cmp"
     -- icmp eq i64 left_val, right_val -> i1
     string instr = "  " + result_reg + " = icmp eq i64 " + left_val + ", " + right_val
@@ -31,7 +31,7 @@ function codegen_eq(left_val, right_val) returns string
 end_function
 
 -- Generate IR for inequality comparison (!=)
-function codegen_ne(left_val, right_val) returns string
+function codegen_ne(left_val; right_val) returns string
     string result_reg = "%cmp"
     -- icmp ne i64 left_val, right_val -> i1
     string instr = "  " + result_reg + " = icmp ne i64 " + left_val + ", " + right_val
@@ -40,7 +40,7 @@ function codegen_ne(left_val, right_val) returns string
 end_function
 
 -- Generate IR for less than (<)
-function codegen_lt(left_val, right_val) returns string
+function codegen_lt(left_val; right_val) returns string
     string result_reg = "%cmp"
     -- icmp slt i64 left_val, right_val -> i1 (signed less than)
     string instr = "  " + result_reg + " = icmp slt i64 " + left_val + ", " + right_val
@@ -49,7 +49,7 @@ function codegen_lt(left_val, right_val) returns string
 end_function
 
 -- Generate IR for greater than (>)
-function codegen_gt(left_val, right_val) returns string
+function codegen_gt(left_val; right_val) returns string
     string result_reg = "%cmp"
     -- icmp sgt i64 left_val, right_val -> i1 (signed greater than)
     string instr = "  " + result_reg + " = icmp sgt i64 " + left_val + ", " + right_val
@@ -58,7 +58,7 @@ function codegen_gt(left_val, right_val) returns string
 end_function
 
 -- Generate IR for less than or equal (<=)
-function codegen_le(left_val, right_val) returns string
+function codegen_le(left_val; right_val) returns string
     string result_reg = "%cmp"
     -- icmp sle i64 left_val, right_val -> i1 (signed less or equal)
     string instr = "  " + result_reg + " = icmp sle i64 " + left_val + ", " + right_val
@@ -67,7 +67,7 @@ function codegen_le(left_val, right_val) returns string
 end_function
 
 -- Generate IR for greater than or equal (>=)
-function codegen_ge(left_val, right_val) returns string
+function codegen_ge(left_val; right_val) returns string
     string result_reg = "%cmp"
     -- icmp sge i64 left_val, right_val -> i1 (signed greater or equal)
     string instr = "  " + result_reg + " = icmp sge i64 " + left_val + ", " + right_val
@@ -79,7 +79,7 @@ end_function
 -- BOOLEAN RESULT EXTENSION
 -- ============================================================================
 
--- Extend i1 boolean result to i64 (0 or 1)
+-- Extend i1 numeric result to i64 (0 or 1)
 -- Input: bool_val (i1 register)
 -- Output: i64 register (0 or 1)
 function codegen_bool_to_i64(bool_val) returns string
@@ -110,23 +110,23 @@ end_function
 --   - operator: "==", "!=", "<", ">", "<=", ">="
 --   - left_val: LLVM IR value (left operand)
 --   - right_val: LLVM IR value (right operand)
---   - extend_to_i64: boolean (1 = extend result to i64, 0 = keep i1)
+--   - extend_to_i64: numeric (1 = extend result to i64, 0 = keep i1)
 -- Output: Result register (i1 or i64)
-function codegen_comparison(operator, left_val, right_val, extend_to_i64) returns string
+function codegen_comparison(operator; left_val; right_val; extend_to_i64) returns string
     string result = ""
     
     if operator == "==" then
-        result = codegen_eq(left_val, right_val)
+        result = codegen_eq(left_val; right_val)
     else if operator == "!=" then
-        result = codegen_ne(left_val, right_val)
+        result = codegen_ne(left_val; right_val)
     else if operator == "<" then
-        result = codegen_lt(left_val, right_val)
+        result = codegen_lt(left_val; right_val)
     else if operator == ">" then
-        result = codegen_gt(left_val, right_val)
+        result = codegen_gt(left_val; right_val)
     else if operator == "<=" then
-        result = codegen_le(left_val, right_val)
+        result = codegen_le(left_val; right_val)
     else if operator == ">=" then
-        result = codegen_ge(left_val, right_val)
+        result = codegen_ge(left_val; right_val)
     else
         println("ERROR: Unknown comparison operator: " + operator)
         return ""
@@ -176,12 +176,12 @@ function test_codegen_comparison() returns numeric
     
     -- Test equality
     string eq_op = "=="
-    string r1 = codegen_comparison(eq_op, "%x", "%y", 1)
+    string r1 = codegen_comparison(eq_op; "%x"; "%y"; 1)
     println(r1)
     
     -- Test less than
     string lt_op = "<"
-    string r2 = codegen_comparison(lt_op, "42", "100", 1)
+    string r2 = codegen_comparison(lt_op; "42"; "100"; 1)
     println(r2)
     
     return 0

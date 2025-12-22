@@ -48,7 +48,7 @@
 --   br label %while_header_0
 -- while_end_0:
 --   ; continue
-function codegen_while_simple(cond_result, loop_id) returns numeric
+function codegen_while_simple(cond_result; loop_id) returns numeric
     -- Generate unconditional branch to loop header
     println("  br label %while_header_" + loop_id)
     println("")
@@ -59,7 +59,7 @@ function codegen_while_simple(cond_result, loop_id) returns numeric
     -- Condition evaluation would be generated here (in integration)
     
     -- Branch based on condition (true = body, false = exit)
-    println("  br i1 " + cond_result + ", label %while_body_" + loop_id + ", label %while_end_" + loop_id)
+    println("  br i1 " + cond_result + "; label %while_body_" + loop_id + "; label %while_end_" + loop_id)
     println("")
     
     -- Loop body
@@ -86,7 +86,7 @@ end_function
 --   while count < 10 do
 --       count = count + 1
 --   end_while
-function codegen_while_counter(var_name, limit, loop_id) returns numeric
+function codegen_while_counter(var_name; limit; loop_id) returns numeric
     -- Generate unconditional branch to loop header
     println("  br label %while_header_" + loop_id)
     println("")
@@ -95,21 +95,21 @@ function codegen_while_counter(var_name, limit, loop_id) returns numeric
     println("while_header_" + loop_id + ":")
     
     -- Load loop variable
-    println("  %" + var_name + "_val = load i64, i64* %" + var_name)
+    println("  %" + var_name + "_val = load i64; i64* %" + var_name)
     
     -- Compare with limit
-    println("  %cond_" + loop_id + " = icmp slt i64 %" + var_name + "_val, " + limit)
+    println("  %cond_" + loop_id + " = icmp slt i64 %" + var_name + "_val; " + limit)
     
     -- Branch based on condition
-    println("  br i1 %cond_" + loop_id + ", label %while_body_" + loop_id + ", label %while_end_" + loop_id)
+    println("  br i1 %cond_" + loop_id + "; label %while_body_" + loop_id + "; label %while_end_" + loop_id)
     println("")
     
     -- Loop body
     println("while_body_" + loop_id + ":")
     
     -- Increment loop variable (count = count + 1)
-    println("  %" + var_name + "_inc = add i64 %" + var_name + "_val, 1")
-    println("  store i64 %" + var_name + "_inc, i64* %" + var_name)
+    println("  %" + var_name + "_inc = add i64 %" + var_name + "_val; 1")
+    println("  store i64 %" + var_name + "_inc; i64* %" + var_name)
     
     -- Back-edge
     println("  br label %while_header_" + loop_id)
@@ -131,15 +131,15 @@ end_function
 --       end_while
 --       i = i + 1
 --   end_while
-function codegen_while_nested(outer_var, outer_limit, inner_var, inner_limit, outer_id, inner_id) returns numeric
+function codegen_while_nested(outer_var; outer_limit; inner_var; inner_limit; outer_id; inner_id) returns numeric
     -- Outer loop header
     println("  br label %while_header_" + outer_id)
     println("")
     
     println("while_header_" + outer_id + ":")
-    println("  %" + outer_var + "_val = load i64, i64* %" + outer_var)
-    println("  %cond_" + outer_id + " = icmp slt i64 %" + outer_var + "_val, " + outer_limit)
-    println("  br i1 %cond_" + outer_id + ", label %while_body_" + outer_id + ", label %while_end_" + outer_id)
+    println("  %" + outer_var + "_val = load i64; i64* %" + outer_var)
+    println("  %cond_" + outer_id + " = icmp slt i64 %" + outer_var + "_val; " + outer_limit)
+    println("  br i1 %cond_" + outer_id + "; label %while_body_" + outer_id + "; label %while_end_" + outer_id)
     println("")
     
     -- Outer loop body (contains inner loop)
@@ -152,15 +152,15 @@ function codegen_while_nested(outer_var, outer_limit, inner_var, inner_limit, ou
     println("")
     
     println("while_header_" + inner_id + ":")
-    println("  %" + inner_var + "_val = load i64, i64* %" + inner_var)
-    println("  %cond_" + inner_id + " = icmp slt i64 %" + inner_var + "_val, " + inner_limit)
-    println("  br i1 %cond_" + inner_id + ", label %while_body_" + inner_id + ", label %while_end_" + inner_id)
+    println("  %" + inner_var + "_val = load i64; i64* %" + inner_var)
+    println("  %cond_" + inner_id + " = icmp slt i64 %" + inner_var + "_val; " + inner_limit)
+    println("  br i1 %cond_" + inner_id + "; label %while_body_" + inner_id + "; label %while_end_" + inner_id)
     println("")
     
     -- Inner loop body
     println("while_body_" + inner_id + ":")
-    println("  %" + inner_var + "_inc = add i64 %" + inner_var + "_val, 1")
-    println("  store i64 %" + inner_var + "_inc, i64* %" + inner_var)
+    println("  %" + inner_var + "_inc = add i64 %" + inner_var + "_val; 1")
+    println("  store i64 %" + inner_var + "_inc; i64* %" + inner_var)
     println("  br label %while_header_" + inner_id)
     println("")
     
@@ -170,8 +170,8 @@ function codegen_while_nested(outer_var, outer_limit, inner_var, inner_limit, ou
     
     -- Continue outer loop body
     println("  ; outer loop increment")
-    println("  %" + outer_var + "_inc = add i64 %" + outer_var + "_val, 1")
-    println("  store i64 %" + outer_var + "_inc, i64* %" + outer_var)
+    println("  %" + outer_var + "_inc = add i64 %" + outer_var + "_val; 1")
+    println("  store i64 %" + outer_var + "_inc; i64* %" + outer_var)
     
     -- Outer loop back-edge
     println("  br label %while_header_" + outer_id)
@@ -190,15 +190,15 @@ end_function
 -- Generate IR for loop condition evaluation
 -- This is a placeholder that shows the expected interface
 -- Real implementation would call codegen_comparison functions
-function codegen_loop_condition(var_name, op, limit_val, cond_id) returns string
+function codegen_loop_condition(var_name; op; limit_val; cond_id) returns string
     -- For now, return a fixed condition result register
     -- In real implementation, this would:
     -- 1. Load the variable
     -- 2. Call codegen_comparison to generate comparison
     -- 3. Return the result register name
     
-    println("  %" + var_name + "_val = load i64, i64* %" + var_name)
-    println("  %cond_" + cond_id + " = icmp slt i64 %" + var_name + "_val, " + limit_val)
+    println("  %" + var_name + "_val = load i64; i64* %" + var_name)
+    println("  %cond_" + cond_id + " = icmp slt i64 %" + var_name + "_val; " + limit_val)
     
     return "%cond_" + cond_id
 end_function
@@ -218,7 +218,7 @@ function main() returns numeric
     println("Code: while i < 5 do ... end_while")
     println("")
     
-    codegen_while_simple("%cond_0", "0")
+    codegen_while_simple("%cond_0"; "0")
     
     println("")
     println("  PASS")
@@ -234,11 +234,11 @@ function main() returns numeric
     
     -- Variable declaration
     println("  %count = alloca i64")
-    println("  store i64 0, i64* %count")
+    println("  store i64 0; i64* %count")
     println("")
     
     -- Generate while loop
-    codegen_while_counter("count", "10", "1")
+    codegen_while_counter("count"; "10"; "1")
     
     println("")
     println("  PASS")
@@ -255,13 +255,13 @@ function main() returns numeric
     
     -- Variable declarations
     println("  %i = alloca i64")
-    println("  store i64 0, i64* %i")
+    println("  store i64 0; i64* %i")
     println("  %j = alloca i64")
-    println("  store i64 0, i64* %j")
+    println("  store i64 0; i64* %j")
     println("")
     
     -- Generate nested loops
-    codegen_while_nested("i", "3", "j", "2", "2", "3")
+    codegen_while_nested("i"; "3"; "j"; "2"; "2"; "3")
     
     println("")
     println("  PASS")
@@ -282,13 +282,13 @@ function main() returns numeric
     println("while_header_4:")
     
     -- Evaluate complex condition (would use codegen_logical.mlp)
-    println("  %x_val = load i64, i64* %x")
-    println("  %y_val = load i64, i64* %y")
-    println("  %cond_4a = icmp slt i64 %x_val, 10")
-    println("  %cond_4b = icmp sgt i64 %y_val, 0")
-    println("  %cond_4 = and i1 %cond_4a, %cond_4b")
+    println("  %x_val = load i64; i64* %x")
+    println("  %y_val = load i64; i64* %y")
+    println("  %cond_4a = icmp slt i64 %x_val; 10")
+    println("  %cond_4b = icmp sgt i64 %y_val; 0")
+    println("  %cond_4 = and i1 %cond_4a; %cond_4b")
     
-    println("  br i1 %cond_4, label %while_body_4, label %while_end_4")
+    println("  br i1 %cond_4; label %while_body_4; label %while_end_4")
     println("")
     println("while_body_4:")
     println("  ; loop body")
@@ -311,12 +311,12 @@ function main() returns numeric
     println("")
     println("while_header_5:")
     println("  ; condition always true")
-    println("  br i1 true, label %while_body_5, label %while_end_5")
+    println("  br i1 true; label %while_body_5; label %while_end_5")
     println("")
     println("while_body_5:")
     println("  ; check exit condition")
-    println("  %exit_cond = icmp eq i64 %x, 0")
-    println("  br i1 %exit_cond, label %while_end_5, label %while_continue_5")
+    println("  %exit_cond = icmp eq i64 %x; 0")
+    println("  br i1 %exit_cond; label %while_end_5; label %while_continue_5")
     println("")
     println("while_continue_5:")
     println("  ; rest of loop body")

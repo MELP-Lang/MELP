@@ -6,7 +6,7 @@
 -- ============================================================================
 
 -- AST Node creation (minimal)
-function create_node(numeric ntype, numeric line, numeric col) returns numeric
+function create_node(numeric ntype; numeric line; numeric col) returns numeric
     -- Returns node_type as success indicator
     return ntype
 end_function
@@ -17,7 +17,7 @@ function advance_position(numeric pos) returns numeric
 end_function
 
 -- Error reporting (minimal - numeric only)
-function report_error(numeric err_code, numeric line, numeric col) returns numeric
+function report_error(numeric err_code; numeric line; numeric col) returns numeric
     println("Error code: " + str(err_code))
     println("At line: " + str(line) + ", col: " + str(col))
     return 0

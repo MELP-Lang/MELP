@@ -28,7 +28,7 @@ function main() returns numeric
     println("")
     
     -- ========================================================================
-    -- Test 1: Simple function call (no arguments)
+    -- Test 1: Simple function call(no arguments)
     -- ========================================================================
     println("Test 1: Function call with no arguments")
     println("Code: foo()")

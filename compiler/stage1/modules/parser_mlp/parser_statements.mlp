@@ -28,7 +28,7 @@ end_function
 -- Parse assignment: x = 10 (stateless)
 -- Input: parser_state, var_name
 -- Returns: [result_string, new_parser_state]
-function state_parse_assignment(list parser_state, string var_name) returns list
+function state_parse_assignment(list parser_state; string var_name) returns list
     -- Placeholder for standalone compile
     list result = []
     result = result + ["x = 10"]
@@ -50,7 +50,7 @@ end_function
 -- Parse print/println statement (stateless)
 -- Input: parser_state, is_println
 -- Returns: [result_string, new_parser_state]
-function state_parse_print(list parser_state, numeric is_println) returns list
+function state_parse_print(list parser_state; numeric is_println) returns list
     -- Placeholder for standalone compile
     list result = []
     result = result + ["print(x)"]

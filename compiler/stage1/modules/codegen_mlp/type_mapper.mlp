@@ -59,7 +59,7 @@ function is_pointer_type(string melp_type) returns numeric
 end_function
 
 -- Get LLVM comparison operator for type
-function get_cmp_op(string melp_type, string op) returns string
+function get_cmp_op(string melp_type; string op) returns string
     -- For numeric types
     if melp_type == "numeric" then
         if op == "==" then
@@ -82,7 +82,7 @@ function get_cmp_op(string melp_type, string op) returns string
         end_if
     end_if
     
-    -- For boolean types
+    -- For numeric types
     if melp_type == "boolean" then
         if op == "==" then
             return "eq"
@@ -112,9 +112,9 @@ function test_type_mapping() returns numeric
     end_if
     
     if t2 == "i1" then
-        println("✓ boolean -> i1")
+        println("✓ numeric -> i1")
     else
-        println("✗ boolean mapping failed")
+        println("✗ numeric mapping failed")
         return 0
     end_if
     
@@ -151,9 +151,9 @@ function test_type_sizes() returns numeric
     end_if
     
     if s2 == 1 then
-        println("✓ boolean size = 1 byte")
+        println("✓ numeric size = 1 byte")
     else
-        println("✗ boolean size wrong")
+        println("✗ numeric size wrong")
         return 0
     end_if
     
@@ -203,10 +203,10 @@ end_function
 function test_comparison_ops() returns numeric
     println("=== Test 4: Comparison Operators ===")
     
-    string c1 = get_cmp_op("numeric", "==")
-    string c2 = get_cmp_op("numeric", "<")
-    string c3 = get_cmp_op("numeric", ">")
-    string c4 = get_cmp_op("boolean", "==")
+    string c1 = get_cmp_op("numeric"; "==")
+    string c2 = get_cmp_op("numeric"; "<")
+    string c3 = get_cmp_op("numeric"; ">")
+    string c4 = get_cmp_op("boolean"; "==")
     
     if c1 == "eq" then
         println("✓ numeric == -> eq")
@@ -230,9 +230,9 @@ function test_comparison_ops() returns numeric
     end_if
     
     if c4 == "eq" then
-        println("✓ boolean == -> eq")
+        println("✓ numeric == -> eq")
     else
-        println("✗ boolean == failed")
+        println("✗ numeric == failed")
         return 0
     end_if
     
