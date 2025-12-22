@@ -24,12 +24,12 @@ numeric test_failed = 0
 function test_result(string test_name; numeric passed) returns numeric
     test_count = test_count + 1
     
-    if passed == 1
+    if passed == 1 then
         print "[PASS] " + test_name
         test_passed = test_passed + 1
     end_if
     
-    if passed == 0
+    if passed == 0 then
         print "[FAIL] " + test_name
         test_failed = test_failed + 1
     end_if
@@ -39,7 +39,7 @@ end_function
 
 -- Assert equal
 function assert_equal(string name; numeric actual; numeric expected) returns numeric
-    if actual == expected
+    if actual == expected then
         return test_result(name; 1)
     end_if
     
@@ -50,7 +50,7 @@ end_function
 
 -- Assert not empty
 function assert_not_empty(string name; list value) returns numeric
-    if value != []
+    if value != [] then
         return test_result(name; 1)
     end_if
     
@@ -83,7 +83,7 @@ function test_parse_if_simple() returns numeric
     -- Check if parsing succeeded
     numeric passed = assert_not_empty("Parse if statement"; if_stmt)
     
-    if passed == 0
+    if passed == 0 then
         return 0
     end_if
     
@@ -126,7 +126,7 @@ function test_parse_if_else() returns numeric
     -- Check if parsing succeeded
     numeric passed = assert_not_empty("Parse if-else statement"; if_stmt)
     
-    if passed == 0
+    if passed == 0 then
         return 0
     end_if
     
@@ -165,7 +165,7 @@ function test_parse_while() returns numeric
     -- Check if parsing succeeded
     numeric passed = assert_not_empty("Parse while statement"; while_stmt)
     
-    if passed == 0
+    if passed == 0 then
         return 0
     end_if
     
@@ -228,17 +228,17 @@ function test_parse_for() returns numeric
     -- Check if parsing succeeded
     numeric passed = assert_not_empty("Parse for statement"; for_stmt)
     
-    if passed == 0
+    if passed == 0 then
         return 0
     end_if
     
     -- Check iterator
     string iterator = for_stmt[0]
-    if iterator == "i"
+    if iterator == "i" then
         passed = test_result("Iterator is 'i'"; 1)
     end_if
     
-    if iterator != "i"
+    if iterator != "i" then
         passed = test_result("Iterator is 'i'"; 0)
     end_if
     
@@ -261,7 +261,7 @@ function test_codegen_if() returns numeric
     string code = codegen_if_statement(if_stmt; "%result"; "    ")
     
     -- Check if code was generated
-    if code != ""
+    if code != "" then
         return test_result("CodeGen if statement"; 1)
     end_if
     
@@ -283,7 +283,7 @@ function test_codegen_if_else() returns numeric
     string code = codegen_if_statement(if_stmt; "%result"; "    ")
     
     -- Check if code was generated and contains else label
-    if code != ""
+    if code != "" then
         return test_result("CodeGen if-else statement"; 1)
     end_if
     
@@ -306,7 +306,7 @@ function test_codegen_while() returns numeric
     string code = codegen_while_statement(while_stmt; "%result"; "    ")
     
     -- Check if code was generated
-    if code != ""
+    if code != "" then
         return test_result("CodeGen while statement"; 1)
     end_if
     
@@ -330,7 +330,7 @@ function test_codegen_for() returns numeric
     string code = codegen_for_statement(for_stmt; "%result"; "    ")
     
     -- Check if code was generated
-    if code != ""
+    if code != "" then
         return test_result("CodeGen for statement"; 1)
     end_if
     
@@ -348,11 +348,11 @@ function test_helper_functions() returns numeric
     string name = get_control_flow_type_name(CTRL_IF)
     numeric passed = 0
     
-    if name == "if"
+    if name == "if" then
         passed = test_result("Get if type name"; 1)
     end_if
     
-    if name != "if"
+    if name != "if" then
         passed = test_result("Get if type name"; 0)
     end_if
     
@@ -380,7 +380,7 @@ function test_codegen_break() returns numeric
     string code = codegen_break_statement(1; "    ")
     
     -- Check if code was generated
-    if code != ""
+    if code != "" then
         return test_result("CodeGen exit statement"; 1)
     end_if
     
@@ -398,7 +398,7 @@ function test_codegen_continue() returns numeric
     string code = codegen_continue_statement(1; "    ")
     
     -- Check if code was generated
-    if code != ""
+    if code != "" then
         return test_result("CodeGen continue statement"; 1)
     end_if
     
@@ -440,7 +440,7 @@ function run_all_tests() returns numeric
     print "Passed: " + test_passed
     print "Failed: " + test_failed
     
-    if test_failed == 0
+    if test_failed == 0 then
         print "\n✅ ALL TESTS PASSED!"
         return 0
     end_if

@@ -25,10 +25,10 @@ end_function
 
 -- Print test result
 function print_test_result(boolean passed, string message)
-    if passed
+    if passed then
         println("[✓] PASS: " + message)
     end_if
-    if not passed
+    if not passed then
         println("[✗] FAIL: " + message)
     end_if
 end_function
@@ -61,7 +61,7 @@ function test_arithmetic_addition()
     boolean parse_ok = expr != 0
     print_test_result(parse_ok, "Expression parsed successfully")
     
-    if parse_ok
+    if parse_ok then
         numeric expr_type = get_expr_type(expr)
         boolean is_binary = expr_type == EXPR_BINARY
         print_test_result(is_binary, "Expression type is BINARY")
@@ -88,7 +88,7 @@ function test_arithmetic_addition()
         boolean codegen_ok = ir != ""
         print_test_result(codegen_ok, "LLVM IR generated")
         
-        if codegen_ok
+        if codegen_ok then
             println("")
             println("Generated LLVM IR:")
             println(ir)
@@ -121,7 +121,7 @@ function test_arithmetic_precedence()
     boolean parse_ok = expr != 0
     print_test_result(parse_ok, "Expression parsed successfully")
     
-    if parse_ok
+    if parse_ok then
         -- Root should be ADD
         numeric root_op = get_expr_operator(expr)
         boolean root_is_add = root_op == OP_ADD
@@ -139,7 +139,7 @@ function test_arithmetic_precedence()
         boolean right_is_mul = right_op == OP_MUL
         print_test_result(right_is_mul, "Right child is MUL (*)")
         
-        if right_is_mul
+        if right_is_mul then
             list mul_left = get_expr_left(right)
             string mul_left_val = get_expr_value(mul_left)
             boolean mul_left_ok = mul_left_val == "3"
@@ -156,7 +156,7 @@ function test_arithmetic_precedence()
         boolean codegen_ok = ir != ""
         print_test_result(codegen_ok, "LLVM IR generated")
         
-        if codegen_ok
+        if codegen_ok then
             println("")
             println("Generated LLVM IR:")
             println(ir)
@@ -186,7 +186,7 @@ function test_comparison_expression()
     boolean parse_ok = expr != 0
     print_test_result(parse_ok, "Expression parsed successfully")
     
-    if parse_ok
+    if parse_ok then
         numeric expr_type = get_expr_type(expr)
         boolean is_binary = expr_type == EXPR_BINARY
         print_test_result(is_binary, "Expression type is BINARY")
@@ -214,7 +214,7 @@ function test_comparison_expression()
         boolean codegen_ok = ir != ""
         print_test_result(codegen_ok, "LLVM IR generated")
         
-        if codegen_ok
+        if codegen_ok then
             println("")
             println("Generated LLVM IR:")
             println(ir)
@@ -244,7 +244,7 @@ function test_logical_and()
     boolean parse_ok = expr != 0
     print_test_result(parse_ok, "Expression parsed successfully")
     
-    if parse_ok
+    if parse_ok then
         numeric op = get_expr_operator(expr)
         boolean is_and = op == OP_AND
         print_test_result(is_and, "Operator is AND")
@@ -264,7 +264,7 @@ function test_logical_and()
         boolean codegen_ok = ir != ""
         print_test_result(codegen_ok, "LLVM IR generated")
         
-        if codegen_ok
+        if codegen_ok then
             println("")
             println("Generated LLVM IR:")
             println(ir)
@@ -293,7 +293,7 @@ function test_unary_not()
     boolean parse_ok = expr != 0
     print_test_result(parse_ok, "Expression parsed successfully")
     
-    if parse_ok
+    if parse_ok then
         numeric expr_type = get_expr_type(expr)
         boolean is_unary = expr_type == EXPR_UNARY
         print_test_result(is_unary, "Expression type is UNARY")
@@ -312,7 +312,7 @@ function test_unary_not()
         boolean codegen_ok = ir != ""
         print_test_result(codegen_ok, "LLVM IR generated")
         
-        if codegen_ok
+        if codegen_ok then
             println("")
             println("Generated LLVM IR:")
             println(ir)
@@ -347,7 +347,7 @@ function test_parenthesized_expression()
     boolean parse_ok = expr != 0
     print_test_result(parse_ok, "Expression parsed successfully")
     
-    if parse_ok
+    if parse_ok then
         -- Root should be MUL
         numeric root_op = get_expr_operator(expr)
         boolean root_is_mul = root_op == OP_MUL
@@ -370,7 +370,7 @@ function test_parenthesized_expression()
         boolean codegen_ok = ir != ""
         print_test_result(codegen_ok, "LLVM IR generated")
         
-        if codegen_ok
+        if codegen_ok then
             println("")
             println("Generated LLVM IR:")
             println(ir)
@@ -406,7 +406,7 @@ function test_complex_expression()
     boolean parse_ok = expr != 0
     print_test_result(parse_ok, "Expression parsed successfully")
     
-    if parse_ok
+    if parse_ok then
         -- Root should be AND
         numeric root_op = get_expr_operator(expr)
         boolean root_is_and = root_op == OP_AND
@@ -429,7 +429,7 @@ function test_complex_expression()
         boolean codegen_ok = ir != ""
         print_test_result(codegen_ok, "LLVM IR generated")
         
-        if codegen_ok
+        if codegen_ok then
             println("")
             println("Generated LLVM IR:")
             println(ir)

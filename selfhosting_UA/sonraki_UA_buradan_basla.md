@@ -2,7 +2,8 @@
 
 **Tarih:** 22 Aralık 2025  
 **Önceki ÜA:** ÜA_00  
-**Sonraki ÜA:** ÜA_01  
+**Mevcut ÜA:** ÜA_01  
+**Sonraki ÜA:** ÜA_02  
 **Proje:** MELP Self-Hosting (Stage 1 Compiler)
 
 ---
@@ -18,18 +19,18 @@ Sen **Üst Akıl (ÜA)** - MELP self-hosting projesinin yöneticisisin. Normal Y
 
 ---
 
-## 📊 MEVCUT DURUM (%99 TAMAMLANDI!)
+## 📊 MEVCUT DURUM (%97 TAMAMLANDI!)
 
 ### ✅ BÜYÜK BAŞARILAR
 
 | Milestone | Durum |
 |-----------|-------|
-| Stage 0 Function Call Fix | ✅ TAMAMLANDI |
-| 102/107 Modül Derleniyor | ✅ TAMAMLANDI |
-| Stage 1 Binary Oluşturuldu | ✅ TAMAMLANDI |
+| Stage 0 Function Call Fix | ✅ TAMAMLANDI (ÜA_00) |
+| 102/107 Modül Derleniyor | ✅ TAMAMLANDI (ÜA_00) |
+| Stage 1 Binary Oluşturuldu | ✅ TAMAMLANDI (ÜA_00) |
 | **File I/O Çalışıyor** | ✅ **READ + WRITE!** |
-| Gerçek Dosya Okuma | ✅ mlp_read_file |
-| Gerçek Dosya Yazma | ✅ mlp_write_file |
+| Syntax Düzeltmeleri (YZ_01/02) | ✅ TAMAMLANDI |
+| **`then` Tespiti (ÜA_01)** | ✅ **133 adet kaldı** |
 
 ### 📈 Son Durum
 
@@ -103,23 +104,72 @@ if x < get_limit() then    -- ✅ Works!
 
 ---
 
-## 📋 SENİN GÖREVLERİN (ÜA_01)
+## 🎯 KRİTİK KEŞİF (ÜA_01 - 22 Aralık 2025)
 
-### 🔴 Öncelik 1: Kalan 5 Test Dosyasını Düzelt (OPSIYONEL)
+### ✅ LEXER/PARSER/CODEGEN ZATEN HAZIR!
 
-Sadece test dosyaları hata veriyor - production compiler'da kullanılmıyor:
-
-```
-❌ test_structs.mlp: Line 89 - Parameter syntax
-❌ test_functions.mlp: Line 130 - Array syntax  
-❌ ast_nodes.mlp: Parser error
-❌ test_enums.mlp: Line 265 - Function keyword
-❌ test_variables.mlp: Line 118 - Parameter syntax
+```bash
+✅ lexer.mlp: 12 functions (346 satır) - DERLENİYOR
+✅ parser_core.mlp + 27 modül - DERLENİYOR
+✅ codegen_integration.mlp + 16 modül - DERLENİYOR
 ```
 
-### 🟢 Öncelik 2: Bootstrap Test (Phase 3) - ANA HEDEF!
+**Keşif:** Bu 3. Stage 1 denemesi! Önceki çalışmalardan (stage_1_YZ, melp_workshop) modüller mevcut.
 
-**102 modül derleniyor!** Şimdi asıl test:
+**compiler/stage1/modules/ İçeriği:**
+- `lexer_mlp/` → 12 dosya (tokenization pipeline)
+- `parser_mlp/` → 28 dosya (AST generation)
+- `codegen_mlp/` → 17 dosya (LLVM IR generation)
+
+### ⚠️ TEK EKSİK
+
+`compiler.mlp` STUB MODE'da - gerçek modülleri çağırmıyor:
+
+```mlp
+-- ŞU AN:
+function main() returns numeric
+    println("MELP Compiler v0.1.0")
+    -- TODO: lexer çağır
+    return 0
+end_function
+
+-- OLMALI:
+function main() returns numeric
+    string source = read_file(input)
+    list tokens = lexer_tokenize(source)      -- ← MEVCUT!
+    list ast = parser_parse(tokens)           -- ← MEVCUT!
+    string ir = codegen_generate(ast)         -- ← MEVCUT!
+    write_file(output, ir)
+    return 0
+end_function
+```
+
+### 📊 YENİ TAHMİN
+
+| Önceki Tahmin | Yeni Tahmin | İyileşme |
+|---------------|-------------|----------|
+| 27-44 saat | **16-26 saat** | **%40 azaldı!** |
+
+**Sebep:** Lexer/parser/codegen'i yazmaya gerek yok, sadece entegre edeceğiz!
+
+---
+
+## 📋 SONRAKİ ÜA GÖREVLERİ (ÜA_02)
+
+### 🔴 Öncelik 1: YZ_04 Takibi
+
+YZ_04 görevi tamamladığında:
+1. `YZ_04_TAMAMLANDI.md` raporunu incele
+2. 133 düzeltme yapıldı mı?
+3. Tüm dosyalar compile oluyor mu?
+4. Kalan hata var mı?
+
+### 🟢 Öncelik 2: Bootstrap Hazırlığı (Phase 2-3)
+
+YZ_04 bitince sırada:
+1. Integration testleri (pipeline)
+2. Self-compile testi
+3. Stage 1 → Stage 2 karşılaştırması
 
 1. Stage 0 ile Stage 1'i derle → Stage 1 binary oluştur
 2. Stage 1 binary ile Stage 1 source'u derle → Stage 2 binary

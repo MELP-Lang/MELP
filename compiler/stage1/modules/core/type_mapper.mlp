@@ -120,7 +120,7 @@ function types_compatible(numeric lhs_kind; numeric rhs_kind) returns numeric
     end_if
     
     -- Numeric compatibility (int can be assigned float, vice versa)
-    if (lhs_kind == TYPE_INT or lhs_kind == TYPE_FLOAT) and
+    if (lhs_kind == TYPE_INT or lhs_kind == TYPE_FLOAT) and then
        (rhs_kind == TYPE_INT or rhs_kind == TYPE_FLOAT) then
         return 1
     end_if
@@ -135,7 +135,7 @@ end_function
 
 -- Check if type is a primitive (int, float, bool, char, string)
 function is_primitive_type(numeric kind) returns numeric
-    if kind == TYPE_INT or kind == TYPE_FLOAT or kind == TYPE_BOOL or 
+    if kind == TYPE_INT or kind == TYPE_FLOAT or kind == TYPE_BOOL or then
        kind == TYPE_CHAR or kind == TYPE_STRING then
         return 1
     end_if

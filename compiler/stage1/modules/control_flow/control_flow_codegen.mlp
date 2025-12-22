@@ -34,7 +34,7 @@ function codegen_if_statement(list if_stmt; string result_var; string indent) re
     list else_body = if_stmt[4]
     
     -- Check for TIER 1 expression-based if
-    if ctrl_type == CTRL_IF_EXPR
+    if ctrl_type == CTRL_IF_EXPR then
         string code = indent
         code = code + "; TIER 1: Expression-based if (result = if cond then val1 else val2)\n"
         code = code + indent + "; TODO: Implement expression-based if codegen\n"
@@ -58,13 +58,13 @@ function codegen_if_statement(list if_stmt; string result_var; string indent) re
     -- Test result (condition is i1 numeric)
     code = code + indent + "%cond_i1 = trunc i64 " + cond_var + " to i1\n"
     
-    if has_else == 1
+    if has_else == 1 then
         -- Branch: if true goto then, else goto else_block
         code = code + indent + "br i1 %cond_i1, label %if_then_"
         code = code + "1, label %if_else_" + "1\n"
     end_if
     
-    if has_else == 0
+    if has_else == 0 then
         -- Branch: if true goto then, else goto end
         code = code + indent + "br i1 %cond_i1, label %if_then_"
         code = code + "1, label %if_end_" + "2\n"
@@ -78,7 +78,7 @@ function codegen_if_statement(list if_stmt; string result_var; string indent) re
     -- For now, just placeholder
     code = code + indent + "; TODO: Generate then body statements\n"
     
-    if has_else == 1
+    if has_else == 1 then
         -- Jump to end after then block
         code = code + indent + "br label %if_end_2\n"
         
@@ -168,7 +168,7 @@ function codegen_for_statement(list for_stmt; string result_var; string indent) 
     code = code + "\n" + indent + "; For loop\n"
     
     -- TIER 1: Handle labeled loops
-    if label != ""
+    if label != "" then
         code = code + indent + "; TIER 1: Loop label '" + label + "'\n"
         code = code + "loop_label_" + label + ":\n"
     end_if
@@ -256,23 +256,23 @@ end_function
 function codegen_control_flow_statement(list stmt; numeric stmt_type; string result_var) returns string
     string indent = "    "
     
-    if stmt_type == STMT_IF
+    if stmt_type == STMT_IF then
         return codegen_if_statement(stmt; result_var; indent)
     end_if
     
-    if stmt_type == STMT_WHILE
+    if stmt_type == STMT_WHILE then
         return codegen_while_statement(stmt; result_var; indent)
     end_if
     
-    if stmt_type == STMT_FOR
+    if stmt_type == STMT_FOR then
         return codegen_for_statement(stmt; result_var; indent)
     end_if
     
-    if stmt_type == STMT_BREAK
+    if stmt_type == STMT_BREAK then
         return codegen_break_statement(1; indent)
     end_if
     
-    if stmt_type == STMT_CONTINUE
+    if stmt_type == STMT_CONTINUE then
         return codegen_continue_statement(1; indent)
     end_if
     
@@ -302,13 +302,13 @@ end_function
 -- Input: expr (list)
 -- Returns: numeric (1 if constant, 0 otherwise)
 function is_constant_expression(list expr) returns numeric
-    if expr == []
+    if expr == [] then
         return 0
     end_if
     
     -- Check if expression is literal
     numeric expr_type = expr[0]
-    if expr_type == EXPR_LITERAL
+    if expr_type == EXPR_LITERAL then
         return 1
     end_if
     
