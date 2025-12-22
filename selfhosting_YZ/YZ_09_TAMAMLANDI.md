@@ -129,20 +129,56 @@ Operators:     40-41 (parentheses), 42-43 (comma, semicolon),
 
 ---
 
-## 🔜 Sonraki YZ İçin Notlar
+## ❌ Tamamlanamayan Görev: Phase 3 Bootstrap
 
-### YZ_10 için öneriler:
-1. **Operator precedence**: Parser'a precedence ekle
-2. **Nested expressions**: Parentheses desteği genişlet
-3. **Else branch**: If-statement'a else desteği ekle
-4. **Function calls**: Basit function call parsing + codegen
-5. **While loops**: While-do-end_while desteği
+**Hedef:** Stage 1 compiler oluşturup self-compile yapmak
 
-### Alternatif: Bootstrap'a Geç
-Eğer mevcut özellikler yeterli görülürse, YZ_10 doğrudan bootstrap'a (self-compilation) geçebilir. Şu anda compiler_integration.mlp:
-- Lexer ✅
-- Parser (variables + arithmetic + if) ✅
-- CodeGen (LLVM IR) ✅
+**Denenen yaklaşımlar:**
+1. ✅ compiler_integration.mlp Stage 0 ile derlendi → Gen1 oluştu
+2. ❌ Gen1'de main fonksiyonu yok (library mode, entry point eksik)
+3. ✅ compiler.mlp Stage 0 ile derlendi
+4. ❌ Stage 0 compiler main() fonksiyonunu derlemedi
+5. ❌ Mevcut Stage 1 binary (melp_compiler) dosya okuma hatası veriyor
+6. ❌ `lli` komutu sistemde yok (LLVM runtime kurulu değil)
+
+**Tespit edilen sorunlar:**
+- **Stage 0 compiler eksiklikleri**: Tam MELP syntax'ını desteklemiyor
+- **compiler.mlp eksikliği**: Entry point var ama Stage 0 derleyemiyor
+- **LLVM runtime eksik**: `lli`, `llc`, `opt` komutları kurulu değil
+- **Dosya I/O sorunları**: Mevcut Stage 1 binary dosya okuyamıyor
+
+**Sonuç:** Bootstrap Phase 3 ve 4'ü YZ_10'a devredildi.
+
+---
+
+## 🔜 YZ_10'a Devredilen Görevler
+
+### Kritik Hazırlıklar:
+1. **LLVM Runtime Kurulumu**
+   ```bash
+   sudo apt install llvm-14 llvm-14-runtime llvm-14-dev
+   # veya
+   sudo apt install llvm
+   ```
+
+2. **compiler.mlp Düzeltmeleri**
+   - main() fonksiyonunun Stage 0 ile derlenebilmesi
+   - Komut satırı argüman parsing düzeltmeleri
+   - Dosya I/O fonksiyonlarının düzgün çalışması
+
+3. **Stage 0 Compiler Düzeltmeleri** (Opsiyonel)
+   - functions_compiler'ın tüm MELP syntax'ını desteklemesi
+   - main() fonksiyonunu derleme desteği
+
+### Bootstrap Görevleri (Phase 3 + 4):
+1. **Gen1 Oluştur**: Stage 0 ile compiler.mlp'yi derle
+2. **Gen1 Test**: Basit programları derleyebildiğini doğrula
+3. **Gen2 Oluştur**: Gen1 ile compiler.mlp'yi tekrar derle
+4. **Gen3 Oluştur**: Gen2 ile compiler.mlp'yi tekrar derle
+5. **Convergence Test**: `diff Gen2 Gen3` → boş olmalı
+6. **Final Validation**: Gen3 ile test programları derle
+
+**Başarı Kriteri:** Gen2 = Gen3 (Convergence sağlandı) → Self-hosting tamamlandı! 🎉
 
 ---
 
@@ -150,15 +186,18 @@ Eğer mevcut özellikler yeterli görülürse, YZ_10 doğrudan bootstrap'a (self
 
 ### Sorun 1: TODO'da Phase 3.4 yok
 - **Çözüm**: NEXT_AI_START_HERE.md'ye göre çalıştım (Alternatif Plan)
-- Sadece operatörlere odaklandım, bonus olarak comparison ve if ekledi m
+- Sadece operatörlere odaklandım, bonus olarak comparison ve if ekledim
 
 ### Sorun 2: Token type numaraları
 - **Çözüm**: Mantıksal bir numbering scheme kullandım
-  - Keywords: 1-21
-  - Numbers: 30
-  - Parentheses: 40-43
-  - Operators: 50-58
+  - Keywords: 1-21, Numbers: 30
+  - Parentheses: 40-43, Operators: 50-58
   - Special: 80-82 (EOF, ERROR, COMMENT)
+
+### Sorun 3: Bootstrap için araçlar eksik
+- **Çözüm**: YZ_10'a devredildi
+- LLVM kurulumu gerekli
+- compiler.mlp düzeltmeleri gerekli
 
 ---
 
@@ -168,11 +207,24 @@ Eğer mevcut özellikler yeterli görülürse, YZ_10 doğrudan bootstrap'a (self
 2. **Basic blocks**: Control flow için label naming (then0, endif0)
 3. **Incremental testing**: Her özellik için ayrı test suite
 4. **AST design**: Node type'lar ile extensible yapı
+5. **Bootstrap challenges**: Self-hosting için stable toolchain gerekli
 
 ---
 
 ## ✨ Özet
 
-YZ_09 başarıyla tamamlandı! Arithmetic operatörler (-, *, /), comparison operatörler (>, <, ==) ve if-statement desteği eklendi. Tüm testler geçti. Compiler artık basit control flow'ları ve arithmetic expressions'ları derleyebiliyor.
+**✅ Tamamlandı:**
+- Phase 3.4: Arithmetic operatörler (-, *, /), comparison operatörler (>, <, ==) ve if-statement desteği eklendi
+- Tüm operatör testleri geçti
+- Compiler artık basit control flow'ları ve arithmetic expressions'ları derleyebiliyor
 
-**Sonraki adım**: YZ_10 daha gelişmiş features ekleyebilir veya doğrudan bootstrap'a geçebilir.
+**❌ Tamamlanamadı:**
+- Phase 3 Bootstrap: Araç eksiklikleri nedeniyle Gen1/Gen2/Gen3 oluşturulamadı
+- Phase 4 Convergence: Bootstrap olmadan yapılamadı
+
+**🔄 YZ_10'a Devredildi:**
+- LLVM runtime kurulumu
+- compiler.mlp düzeltmeleri
+- Bootstrap süreci (Gen1 → Gen2 → Gen3)
+- Convergence testi
+- Self-hosting kanıtı
