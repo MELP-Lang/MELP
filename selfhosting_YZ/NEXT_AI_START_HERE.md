@@ -46,40 +46,245 @@
 
 ---
 
-## 🎯 YZ_10 SENİN GÖREVIN:
+## 🔵 YZ_10 SENİN GÖREVIN:
 
-**Görev:** Phase 4 - Bootstrap veya Genişletme
+**Görev:** Phase 3 Bootstrap + Phase 4 Convergence
 
-**Seçenek A: Bootstrap'a Geç** (6-8 saat)
-Mevcut compiler features yeterli olabilir. Şu anda destekleniyor:
-- Variables (numeric)
-- Arithmetic: +, -, *, /
-- Comparison: >, <, ==
-- Control flow: if-then-end_if
-- Return statements
-
-Bootstrap için:
-1. compiler_integration.mlp'yi Stage 0 ile derle
-2. Stage 1 binary oluştur
-3. Stage 1 ile compiler_integration.mlp'yi tekrar derle
-4. Stage 1' binary ile convergence test
-
-**Seçenek B: Daha Fazla Feature** (4-6 saat)
-1. **Operator Precedence**: Parser'a precedence ekle
-2. **Else Branch**: If-statement'a else desteği ekle
-3. **While Loop**: while-do-end_while
-4. **Function Calls**: Simple function calls + call instruction
-
-**Seçenek C: Her İkisi** (10-14 saat)
-Önce features ekle, sonra bootstrap
-
-**Öneri:** Seçenek A (Bootstrap). Mevcut features basit bir compiler için yeterli. Bootstrap başarılı olursa, Stage 2'de daha fazla feature eklenebilir.
-
-**⚠️ Önemli Notlar:**
+**Durum:** YZ_09 operatörleri ekledi ama bootstrap yapamadı (araç eksikliği)
 
 ---
 
-## 🎯 PROJE HEDEFİ
+### 🛠️ ADIM 1: Ortam Hazırlığı (1-2 saat)
+
+#### 1.1. LLVM Runtime Kurulumu
+```bash
+# LLVM araçlarını kur
+sudo apt update
+sudo apt install llvm-14 llvm-14-runtime llvm-14-dev
+
+# veya en son sürüm
+sudo apt install llvm llvm-runtime
+
+# Kontrol et
+which lli    # /usr/bin/lli olmalı
+which llc    # /usr/bin/llc olmalı
+which opt    # /usr/bin/opt olmalı
+
+lli --version  # LLVM version bilgisi
+```
+
+#### 1.2. compiler.mlp Düzeltmeleri
+**Sorun:** Stage 0 compiler main() fonksiyonunu derlemiyor
+
+**Çözüm seçenekleri:**
+1. **Basit yaklaşım**: compiler.mlp'yi Stage 0 için uyarla
+2. **Alternatif**: C'de basit bir wrapper yaz (main.c)
+3. **En iyi**: compiler_integration.mlp'ye main ekle
+
+**Test için:**
+```bash
+# compiler.mlp'yi derle
+./compiler/stage0/modules/functions/functions_compiler \
+  modules/compiler.mlp build/compiler_gen0.ll
+
+# Main fonksiyonu var mı kontrol et
+grep "define.*@main" build/compiler_gen0.ll
+
+# Yoksa: compiler.mlp'yi düzelt veya wrapper ekle
+```
+
+---
+
+### 🚀 ADIM 2: Bootstrap Süreci (4-6 saat)
+
+#### 2.1. Gen1 Oluştur (Stage 0 ile)
+```bash
+# compiler.mlp'yi Stage 0 ile derle
+./compiler/stage0/modules/functions/functions_compiler \
+  modules/compiler.mlp build/stage1_gen1.ll
+
+# Gen1 oluştu mu kontrol et
+ls -lh build/stage1_gen1.ll
+grep "define.*@main" build/stage1_gen1.ll  # main olmalı!
+```
+
+#### 2.2. Gen1 Test Et
+```bash
+# Basit test programı
+echo 'function main() returns numeric
+    return 42
+end_function' > /tmp/test.mlp
+
+# Gen1 ile test programını derle
+lli build/stage1_gen1.ll /tmp/test.mlp /tmp/test_output.ll
+
+# Çıktıyı çalıştır
+lli /tmp/test_output.ll
+echo $?  # 42 olmalı!
+
+# ✅ Gen1 çalışıyor → Devam et
+```
+
+#### 2.3. Gen2 Oluştur (Gen1 ile)
+```bash
+# Gen1 kullanarak compiler.mlp'yi tekrar derle
+lli build/stage1_gen1.ll \
+  modules/compiler.mlp \
+  build/stage1_gen2.ll
+
+# Gen2 oluştu mu kontrol et
+ls -lh build/stage1_gen2.ll
+```
+
+#### 2.4. Gen3 Oluştur (Gen2 ile)
+```bash
+# Gen2 kullanarak compiler.mlp'yi tekrar derle
+lli build/stage1_gen2.ll \
+  modules/compiler.mlp \
+  build/stage1_gen3.ll
+
+# Gen3 oluştu mu kontrol et
+ls -lh build/stage1_gen3.ll
+```
+
+---
+
+### ✅ ADIM 3: Convergence Testi (1-2 saat)
+
+#### 3.1. Gen2 ve Gen3 Karşılaştır
+```bash
+# Byte-level karşılaştırma
+diff build/stage1_gen2.ll build/stage1_gen3.ll
+
+# Boş çıktı = BAŞARI! 🎉
+# Farklılık var = Analiz gerekli
+```
+
+#### 3.2. Convergence Analizi
+```bash
+if [ "$(diff build/stage1_gen2.ll build/stage1_gen3.ll)" == "" ]; then
+    echo "🎉 CONVERGENCE SAĞLANDI!"
+    echo "Stage 1 compiler stable - self-hosting TAMAMLANDI!"
+else
+    echo "⚠️ Gen2 ve Gen3 farklı"
+    echo "Fark analizi:"
+    diff -u build/stage1_gen2.ll build/stage1_gen3.ll | head -50
+fi
+```
+
+---
+
+### 🧪 ADIM 4: Final Validation (1 saat)
+
+#### 4.1. Gen3 ile Test Programları Derle
+```bash
+# Arithmetic test
+echo 'function main() returns numeric
+    numeric x = 10
+    numeric y = 32
+    return x + y
+end_function' > /tmp/test_arith.mlp
+
+lli build/stage1_gen3.ll /tmp/test_arith.mlp /tmp/test_arith.ll
+lli /tmp/test_arith.ll
+echo $?  # 42 olmalı
+
+# If-statement test (YZ_09'un eklediği feature)
+echo 'function main() returns numeric
+    numeric x = 50
+    numeric y = 10
+    if x > y then
+        return 1
+    end_if
+    return 0
+end_function' > /tmp/test_if.mlp
+
+lli build/stage1_gen3.ll /tmp/test_if.mlp /tmp/test_if.ll
+lli /tmp/test_if.ll
+echo $?  # 1 olmalı
+```
+
+---
+
+### 🎯 Başarı Kriterleri
+
+```
+Phase 3 Bootstrap:
+[ ] LLVM runtime kurulu (lli çalışıyor)
+[ ] compiler.mlp Stage 0 ile derlendi (Gen1 oluştu)
+[ ] Gen1 test programlarını derleyebiliyor
+[ ] Gen1 ile Gen2 oluşturuldu
+[ ] Gen2 çalışıyor
+
+Phase 4 Convergence:
+[ ] Gen2 ile Gen3 oluşturuldu
+[ ] diff Gen2 Gen3 → boş (convergence sağlandı)
+[ ] Gen3 test programları derleyebiliyor
+[ ] Tüm testler geçti
+
+🎉 Self-hosting TAMAMLANDI!
+```
+
+---
+
+### ⚠️ Önemli Notlar:
+
+**YZ_09'dan Devralınan:**
+- ✅ Arithmetic operators: +, -, *, / (LLVM: add, sub, mul, sdiv)
+- ✅ Comparison operators: >, <, == (LLVM: icmp sgt/slt/eq)
+- ✅ If-statement: if-then-end_if (basic blocks + br)
+- ✅ AST nodes: BINOP (11), COMPOP (13), IF (14)
+- ✅ Testler: Tüm operatörler validate edildi
+
+**YZ_09'un Tamamlayamadığı:**
+- ❌ Bootstrap (LLVM runtime eksik)
+- ❌ Gen1/Gen2/Gen3 oluşturma (araç eksikliği)
+- ❌ Convergence testi
+
+**Sorunlar ve Çözümleri:**
+1. **LLVM eksik**: `sudo apt install llvm-14 llvm-14-runtime` ile çöz
+2. **compiler.mlp main()**: Stage 0 derleyemedi → düzelt veya wrapper ekle
+3. **Stage 0 sınırlamaları**: Tam MELP syntax'ı desteklemiyor
+
+**Alternatif Yaklaşım (Stage 0 sorunlu ise):**
+- C'de basit main.c wrapper yaz
+- compiler_integration.mlp'yi direkt kullan
+- Manuel LLVM IR ile test et
+
+---
+
+## 📝 ÖNCEKİ YZ'LERDEN NOTLAR
+
+**YZ_09 TAMAMLANDI (Kısmi):** ✅ (23 Aralık 2025)
+
+**Yapılanlar:**
+- ✅ Arithmetic operators: -, *, / eklendi
+- ✅ Comparison operators: >, <, == eklendi  
+- ✅ If-statement: if-then-end_if eklendi
+- ✅ Parser: Tüm yeni operatörleri parse ediyor
+- ✅ CodeGen: sub, mul, sdiv, icmp, br instructions
+- ✅ Testler: Tüm operatör ve control flow testleri geçti (exit code 42)
+
+**Tamamlanamadılar:**
+- ❌ Bootstrap süreci (LLVM runtime kurulu değil)
+- ❌ Gen1/Gen2/Gen3 oluşturma
+- ❌ Convergence testi
+
+**YZ_10'a Devredilen:**
+- 🔧 LLVM runtime kurulumu (`lli`, `llc`, `opt`)
+- 🔧 compiler.mlp düzeltmeleri (main fonksiyonu)
+- 🔧 Bootstrap tam süreci (Gen1 → Gen2 → Gen3)
+- 🔧 Convergence validation (diff Gen2 Gen3)
+- 🎯 Self-hosting kanıtı
+
+**Dosyalar:**
+- ✅ `modules/compiler_integration.mlp`: 1104 satır (updated)
+- ✅ `build/stage1_gen1.ll`: 671 satır (partial, no main)
+- ✅ Test scripts: `temp/test_yz09_*.sh`
+
+---
+
+**YZ_08 TAMAMLANDI:**
 
 Stage 1 compiler'ın kendini derleyebilmesi (self-hosting %100).
 
