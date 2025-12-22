@@ -2,8 +2,8 @@
 -- MELP Compiler - Main Entry Point
 -- ============================================================================
 -- File: modules/compiler.mlp
--- Author: YZ_24 Part 2
--- Date: 17 Aralık 2025
+-- Author: YZ_24 Part 2 + ÜA_00
+-- Date: 22 Aralık 2025
 -- Purpose: CLI driver for MELP compiler
 -- Status: Stage 1 Self-Hosting - Main Module
 -- ============================================================================
@@ -20,6 +20,9 @@
 --   melp_compiler --help
 --   melp_compiler --version
 -- ============================================================================
+
+-- Import lexer module
+import "lexer_mlp/lexer.mlp"
 
 -- ============================================================================
 -- VERSION INFORMATION
@@ -138,28 +141,75 @@ end_function
 -- ============================================================================
 
 -- Simple stub for compile_source (from compiler_integration.mlp)
--- TODO: Import compiler_integration.mlp when imports are supported
+-- Uses real lexer for tokenization
 function compile_source(string source_code) returns string
     println("========================================")
-    println("  MELP Compiler - Pipeline Stub")
+    println("  MELP Compiler - Pipeline")
     println("========================================")
     println("")
     
+    -- Phase 1: Lexical Analysis (REAL!)
     println("Phase 1: Lexical Analysis...")
+    
+    numeric token_count = 0
+    numeric pos = 0
+    numeric line = 1
+    numeric col = 1
+    
+    -- Tokenize until we hit EOF or pos exceeds reasonable limit
+    -- Note: Using a fixed iteration limit since len() is not available
+    numeric max_iterations = 10000
+    numeric iterations = 0
+    
+    while iterations < max_iterations
+        list result = tokenize_next(source_code; pos; line; col)
+        
+        -- result = [token; new_pos; new_line; new_col]
+        list token = result[0]
+        numeric new_pos = result[1]
+        numeric new_line = result[2]
+        numeric new_col = result[3]
+        
+        -- Get token type
+        numeric ttype = token[0]
+        
+        -- Check for EOF (type 0) or no progress (stuck)
+        if ttype == 0
+            exit
+        end_if
+        
+        if new_pos == pos
+            -- No progress, exit to prevent infinite loop
+            exit
+        end_if
+        
+        pos = new_pos
+        line = new_line
+        col = new_col
+        token_count = token_count + 1
+        iterations = iterations + 1
+    end_while
+    
     println("  ✓ Tokenization complete")
+    print("  Tokens found: ")
+    println(token_count)
     println("")
     
+    -- Phase 2: Parsing (STUB for now)
     println("Phase 2: Parsing...")
-    println("  ✓ AST construction complete")
+    println("  ✓ AST construction complete (stub)")
     println("")
     
+    -- Phase 3: Code Generation (STUB for now)
     println("Phase 3: Code Generation...")
-    println("  ✓ LLVM IR generation complete")
+    println("  ✓ LLVM IR generation complete (stub)")
     println("")
     
     println("========================================")
     println("Compilation Summary:")
     println("  Status: SUCCESS")
+    print("  Tokens: ")
+    println(token_count)
     println("========================================")
     println("")
     

@@ -314,7 +314,8 @@ end_function
 -- Main (for testing)
 -- ============================================================================
 
-function main() returns numeric
+-- Test function for lexer (renamed from main to avoid conflicts)
+function lexer_test() returns numeric
     -- Demonstrate lexer structure
     -- In full implementation; would tokenize entire source file
     
