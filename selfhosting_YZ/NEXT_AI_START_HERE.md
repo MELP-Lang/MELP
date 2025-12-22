@@ -24,8 +24,8 @@ Stage 0 (C) ──compile──> Stage 1 (MELP) ──compile──> Stage 1' (M
 | YZ | Phase | Görev | Durum | Branch |
 |----|-------|-------|-------|--------|
 | YZ_00 | Phase 0 | Sistem Tutarlılığı | ✅ TAMAMLANDI | `selfhosting_YZ_00` |
-| YZ_01 | Phase 1.1-1.2 | Core + Parser Syntax Fix | 🔵 AKTİF | `selfhosting_YZ_01` |
-| YZ_02 | Phase 1.3-1.5 | CodeGen + Diğer Syntax Fix | ⏳ BEKLEMEDE | `selfhosting_YZ_02` |
+| YZ_01 | Phase 1.1-1.2 | Core + Parser Syntax Fix | ✅ TAMAMLANDI | `selfhosting_YZ_01` |
+| YZ_02 | Phase 1.3-1.5 | Kalan Modüller + While Syntax + Doğrulama | 🔵 AKTİF | `selfhosting_YZ_02` |
 | YZ_03 | Phase 2 | Integration | ⏳ BEKLEMEDE | `selfhosting_YZ_03` |
 | YZ_04 | Phase 3 | Bootstrap | ⏳ BEKLEMEDE | `selfhosting_YZ_04` |
 | YZ_05 | Phase 4 | Convergence | ⏳ BEKLEMEDE | `selfhosting_YZ_05` |
@@ -35,40 +35,83 @@ Stage 0 (C) ──compile──> Stage 1 (MELP) ──compile──> Stage 1' (M
 
 ## 🔵 ŞU AN AKTİF GÖREV
 
-### YZ_01: Phase 1.1-1.2 - Core + Parser Syntax Fix
+### YZ_02: Phase 1.3-1.5 - Kalan Modüller + While Syntax + Doğrulama
 
 **Durum:** 🔵 AKTİF  
-**Bağımlılık:** YZ_00 ✅ (tamamlandı)  
-**Tahmini Süre:** 4-6 saat
+**Bağımlılık:** YZ_01 ✅ (tamamlandı)  
+**Tahmini Süre:** 3-4 saat
 
 **Görevler:**
 
-1. **Task 1.1: Core Modüller Syntax Fix (2 saat)**
-   - `compiler/stage1/modules/lexer_mlp/lexer.mlp` (345 satır)
-   - `compiler/stage1/modules/codegen_mlp/codegen_api.mlp`
-   - Virgül → Semicolon
-   - `while X` → `while X do`
-   - `break` → `exit`
-   - Her dosya sonrası test et
+1. **Task 1.3: Kalan Core Modüller (1 saat)**
+   - `compiler.mlp`, `compiler_integration.mlp`, `compiler_full.mlp`
+   - `arrays/`, `control_flow/`, `enums/` klasörleri
+   - ~40 modül
+   - Python script kullan: `temp/fix_syntax_complete.py`
 
-2. **Task 1.2: Parser Modülleri Syntax Fix (2-3 saat)**
-   - `compiler/stage1/modules/parser_mlp/*.mlp` (~16 modül)
-   - Aynı düzeltmeler
-   - Her modül ayrı test edilecek
+2. **Task 1.4: While Syntax Fix (1 saat)**
+   - `while X` → `while X do` değişiklikleri
+   - YZ_00 raporunda 32 adet tespit edilmişti
+   - grep ile bul: `grep -rn "while .* " --include="*.mlp"`
 
-**Düzeltme Pattern:**
+3. **Task 1.5: Test ve Doğrulama (1-2 saat)**
+   - Her modülü Stage 0 ile derlemeyi dene
+   - Tam derlenenleri listele
+   - Kısmi derlenenlerin sorunlarını belirle
+   - `temp/compilation_results.txt` raporu oluştur
+
+**Kullanılacak Araçlar:**
 ```bash
-# Dikkat: String içindeki virgülleri değiştirme!
-# Ondalık sayılardaki virgüllere dokunma (3,14)
-# Her düzeltmeden sonra test et
+# Toplu syntax fix
+python3 temp/fix_syntax_complete.py <file.mlp>
 
-timeout 10 compiler/stage0/modules/functions/functions_compiler <file.mlp> temp/test.ll
+# While syntax fix
+sed -i 's/while \([^d][^ ]*\) /while \1 do /g' <file.mlp>
+
+# Test
+timeout 15 compiler/stage0/modules/functions/functions_compiler <file.mlp> temp/test.ll
 ```
 
-**Hedef:** Core ve Parser modülleri %100 derlenebilir hale getir
+**Hedef:** Tüm Stage 1 modülleri syntax açısından %100 temiz
 
 **Tamamlandığında:**
-- `selfhosting_YZ/YZ_01_TAMAMLANDI.md` oluştur
+- `selfhosting_YZ/YZ_02_TAMAMLANDI.md` oluştur
+- `NEXT_AI_START_HERE.md`'yi güncelle
+
+---
+
+## 📝 ÖNCEKİ YZ'DEN NOTLAR (YZ_01)
+
+**YZ_01 Tamamlandı:** ✅ (22 Aralık 2025)
+
+**Yapılanlar:**
+- ✅ lexer_mlp: lexer.mlp düzeltildi (6 fonksiyon derlenmiş)
+- ✅ parser_mlp: 28 modül syntax fix (toplu düzeltme)
+- ✅ codegen_mlp: 17 modül syntax fix (toplu düzeltme)
+- ✅ **Toplam 65+ modül düzeltildi**
+
+**Syntax Düzeltmeleri:**
+- Virgül → Semicolon: ~300+ değişiklik
+- Blok sonları: ~200+ değişiklik (end_if, end_while, vb.)
+- Boolean → numeric: ~50 değişiklik (STO prensibi)
+- exit while → exit: ~20 değişiklik
+
+**Önemli Bulgular:**
+- ✅ Stage 0 semicolon'u TAM destekliyor
+- ✅ Array literal'lerde semicolon zorunlu: `[a; b; c]`
+- ✅ Fonksiyon parametreleri/çağrıları: semicolon
+- ⚠️ Bazı modüller kısmen derlenmiş (hata var ama output üretiyor)
+
+**Araçlar:**
+- `temp/fix_syntax_complete.py` oluşturuldu
+- Python script ile toplu düzeltme çok hızlı
+
+**Bilinen Sorunlar:**
+- Bazı modüller "println not found" hatası veriyor (runtime dependency)
+- While syntax (32 adet `while X` do eksik) henüz düzeltilmedi
+
+---
+
 ## 📝 ÖNCEKİ YZ'DEN NOTLAR (YZ_00)
 
 **YZ_00 Tamamlandı:** ✅ (22 Aralık 2025)
