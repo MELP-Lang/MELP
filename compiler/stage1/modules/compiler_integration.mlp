@@ -66,22 +66,41 @@ end_function
 -- Returns: list of tokens (or empty list on error)
 -- Token format: [type, value, line, column]
 function tokenize_source(string source) returns list
-    log_verbose("Starting lexer phase...")
+    println("[INFO] Starting lexer phase...")
     
     -- Token list (will be built incrementally)
     list tokens = []
     numeric pos = 0
     numeric line = 1
     numeric col = 1
-    numeric source_len = 0  -- TODO: Need string_length() builtin
+    numeric source_len = length(source)
+    list result = []
+    list token = []
+    numeric token_type = 0
     
-    -- Tokenization loop
-    -- Note: This is simplified - real implementation needs:
-    -- - Loop until EOF
-    -- - Call tokenize_next() from lexer.mlp
-    -- - Accumulate tokens
+    -- Tokenization loop - call lexer.mlp's tokenize_next()
+    while pos < source_len
+        result = tokenize_next(source; pos; line; col)
+        
+        -- Extract results
+        token = result[0]
+        pos = result[1]
+        col = result[2]
+        line = result[3]
+        
+        -- Get token type
+        token_type = token[0]
+        
+        -- Break on EOF
+        if token_type == 80 then
+            exit
+        end_if
+        
+        -- Add token to list (TODO: proper list append)
+        -- tokens.append(token) when available
+    end_while
     
-    log_verbose("Lexer phase complete")
+    println("[INFO] Lexer phase complete")
     return tokens
 end_function
 
@@ -93,40 +112,62 @@ end_function
 -- Returns: AST root node (list representation)
 -- AST format: [node_type, data1, data2, children_list]
 function parse_tokens(list tokens) returns list
-    log_verbose("Starting parser phase...")
+    println("[INFO] Starting parser phase...")
     
     -- Initialize parser state
     numeric token_index = 0
-    numeric token_count = 0  -- TODO: Need list_length() builtin
+    numeric token_count = 0
     
     -- AST root (will contain program structure)
     list ast_root = []
     
-    -- Parsing phases:
+    -- Parsing phases (calling parser_mlp modules):
     -- 1. Parse imports (parser_import.mlp)
     -- 2. Parse struct/enum definitions (parser_struct.mlp, parser_enum.mlp)
-    -- 3. Parse function declarations(parser_func.mlp)
+    -- 3. Parse function declarations (parser_func.mlp)
     -- 4. Parse statements (parser_stmt.mlp, parser_control.mlp)
     
-    -- TODO: Actual parser integration
-    -- For now, return empty AST
+    -- TODO: Integrate with parser_mlp/parser_main.mlp
+    -- For now, return minimal AST structure
+    -- AST format: [type; name; body]
+    -- type=1 means PROGRAM node
+    ast_root = [1; "program"; []]
     
-    log_verbose("Parser phase complete")
+    println("[INFO] Parser phase complete")
     return ast_root
 end_function
 
 -- ============================================================================
--- PHASE 3: CODEGEN INTEGRATION
--- ============================================================================
-
 -- Generate LLVM IR from AST
 -- Returns: LLVM IR string (or empty on error)
 function codegen_ast(list ast) returns string
-    -- Note: String concatenation not fully working in Stage 0
-    -- Using simple approach for now
+    println("[INFO] Starting codegen phase...")
     
-    -- Minimal LLVM IR stub
-    return "define i64 @main() { entry: ret i64 0 }"
+    -- Get AST node type
+    numeric ast_type = ast[0]
+    
+    -- Start building LLVM IR
+    string llvm_ir = "; MELP Compiler v0.1.0 - Generated LLVM IR\n"
+    llvm_ir = llvm_ir + "; AST Type: "
+    
+    -- Add ast type info
+    if ast_type == 1 then
+        llvm_ir = llvm_ir + "PROGRAM\n\n"
+    else
+        llvm_ir = llvm_ir + "UNKNOWN\n\n"
+    end_if
+    
+    -- Generate minimal valid LLVM IR
+    -- TODO: Integrate with codegen_mlp/codegen_integration.mlp
+    -- Call codegen_expression(), codegen_statement() etc.
+    
+    llvm_ir = llvm_ir + "define i64 @main() {\n"
+    llvm_ir = llvm_ir + "entry:\n"
+    llvm_ir = llvm_ir + "  ret i64 0\n"
+    llvm_ir = llvm_ir + "}\n"
+    
+    println("[INFO] Codegen phase complete")
+    return llvm_ir
 end_function
 
 -- ============================================================================
