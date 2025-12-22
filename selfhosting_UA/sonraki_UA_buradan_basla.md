@@ -27,8 +27,9 @@ Sen **Üst Akıl (ÜA)** - MELP self-hosting projesinin yöneticisisin. Normal Y
 | Stage 0 Function Call Fix | ✅ TAMAMLANDI |
 | 102/107 Modül Derleniyor | ✅ TAMAMLANDI |
 | Stage 1 Binary Oluşturuldu | ✅ TAMAMLANDI |
-| Lexer Entegre Edildi | ✅ TAMAMLANDI |
-| **Gerçek Tokenization ÇALIŞIYOR** | ✅ **28 TOKEN!** |
+| **File I/O Çalışıyor** | ✅ **READ + WRITE!** |
+| Gerçek Dosya Okuma | ✅ mlp_read_file |
+| Gerçek Dosya Yazma | ✅ mlp_write_file |
 
 ### 📈 Son Durum
 
@@ -36,10 +37,11 @@ Sen **Üst Akıl (ÜA)** - MELP self-hosting projesinin yöneticisisin. Normal Y
 |--------|-------|
 | Toplam Modül | 107 |
 | Başarılı Derleme | 102 (%95) |
-| Compiler Fonksiyon | 24 (12 compiler + 12 lexer) |
-| Binary Boyutu | 62KB |
-| Token Sayısı (test) | 28 |
+| Compiler Fonksiyon | 12 |
+| Binary Boyutu | 36KB |
 | Üretilen Assembly | 173,698+ satır |
+| **Dosya Okuma** | ✅ Çalışıyor |
+| **Dosya Yazma** | ✅ Çalışıyor |
 
 ### ✅ Tamamlanan Fazlar
 
