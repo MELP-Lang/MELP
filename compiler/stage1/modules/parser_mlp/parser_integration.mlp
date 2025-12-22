@@ -62,8 +62,8 @@ function main() returns numeric
     println("Code: import lexer")
     println("")
     
-    list t1_1 = [22, "import", 1, 1]
-    list t1_2 = [32, "lexer", 1, 8]
+    list t1_1 = [22; "import", 1, 1]
+    list t1_2 = [32; "lexer"; 1; 8]
     
     list cur = t1_1
     numeric tok_type = cur[0]
@@ -92,13 +92,13 @@ function main() returns numeric
     println("      end struct")
     println("")
     
-    list t2_1 = [20, "struct", 1, 1]
-    list t2_2 = [32, "Point", 1, 8]
-    list t2_3 = [10, "numeric", 2, 5]
-    list t2_4 = [32, "x", 2, 13]
-    list t2_5 = [10, "numeric", 3, 5]
-    list t2_6 = [32, "y", 3, 13]
-    list t2_7 = [2, "end", 4, 1]
+    list t2_1 = [20; "struct"; 1; 1]
+    list t2_2 = [32; "Point", 1, 8]
+    list t2_3 = [10; "numeric", 2, 5]
+    list t2_4 = [32; "x"; 2; 13]
+    list t2_5 = [10; "numeric", 3, 5]
+    list t2_6 = [32; "y"; 3; 13]
+    list t2_7 = [2; "end"; 4; 1]
     
     cur = t2_1
     tok_type = cur[0]
@@ -142,15 +142,15 @@ function main() returns numeric
     println("      end enum")
     println("")
     
-    list t3_1 = [21, "enum", 1, 1]
-    list t3_2 = [32, "Color", 1, 6]
-    list t3_3 = [32, "RED", 2, 5]
-    list t3_4 = [8, "=", 2, 9]
-    list t3_5 = [61, "1", 2, 11]
-    list t3_6 = [32, "BLUE", 3, 5]
-    list t3_7 = [8, "=", 3, 10]
-    list t3_8 = [61, "2", 3, 12]
-    list t3_9 = [2, "end", 4, 1]
+    list t3_1 = [21; "enum"; 1; 1]
+    list t3_2 = [32; "Color"; 1; 6]
+    list t3_3 = [32; "RED"; 2; 5]
+    list t3_4 = [8; "=", 2, 9]
+    list t3_5 = [61; "1"; 2; 11]
+    list t3_6 = [32; "BLUE"; 3; 5]
+    list t3_7 = [8; "=", 3, 10]
+    list t3_8 = [61; "2"; 3; 12]
+    list t3_9 = [2; "end"; 4; 1]
     
     cur = t3_1
     tok_type = cur[0]
@@ -190,25 +190,25 @@ function main() returns numeric
     println("Test 4: Function Declaration")
     println("Code: function add(numeric a, numeric b) returns numeric")
     println("        return a + b")
-    println("      end function")
+    println("      end_function")
     println("")
     
-    list t4_1 = [1, "function", 1, 1]
-    list t4_2 = [32, "add", 1, 10]
-    list t4_3 = [50, "(", 1, 13]
-    list t4_4 = [10, "numeric", 1, 14]
-    list t4_5 = [32, "a", 1, 22]
-    list t4_6 = [52, ",", 1, 23]
-    list t4_7 = [10, "numeric", 1, 25]
-    list t4_8 = [32, "b", 1, 33]
-    list t4_9 = [51, ")", 1, 34]
-    list t4_10 = [9, "returns", 1, 36]
-    list t4_11 = [10, "numeric", 1, 44]
-    list t4_12 = [14, "return", 2, 5]
-    list t4_13 = [32, "a", 2, 12]
-    list t4_14 = [37, "+", 2, 14]
-    list t4_15 = [32, "b", 2, 16]
-    list t4_16 = [2, "end", 3, 1]
+    list t4_1 = [1; "function", 1, 1]
+    list t4_2 = [32; "add"; 1; 10]
+    list t4_3 = [50; "(", 1, 13]
+    list t4_4 = [10; "numeric", 1, 14]
+    list t4_5 = [32; "a"; 1; 22]
+    list t4_6 = [52; ",", 1, 23]
+    list t4_7 = [10; "numeric", 1, 25]
+    list t4_8 = [32; "b"; 1; 33]
+    list t4_9 = [51; ")", 1, 34]
+    list t4_10 = [9; "returns"; 1; 36]
+    list t4_11 = [10; "numeric", 1, 44]
+    list t4_12 = [14; "return"; 2; 5]
+    list t4_13 = [32; "a"; 2; 12]
+    list t4_14 = [37; "+", 2, 14]
+    list t4_15 = [32; "b"; 2; 16]
+    list t4_16 = [2; "end"; 3; 1]
     
     cur = t4_1
     tok_type = cur[0]
@@ -267,20 +267,20 @@ function main() returns numeric
     println("        return 1")
     println("      else")
     println("        return 0")
-    println("      end if")
+    println("      end_if")
     println("")
     
-    list t5_1 = [3, "if", 1, 1]
-    list t5_2 = [32, "x", 1, 4]
-    list t5_3 = [45, ">", 1, 6]
-    list t5_4 = [61, "0", 1, 8]
-    list t5_5 = [4, "then", 1, 10]
-    list t5_6 = [14, "return", 2, 5]
-    list t5_7 = [61, "1", 2, 12]
-    list t5_8 = [5, "else", 3, 1]
-    list t5_9 = [14, "return", 4, 5]
-    list t5_10 = [61, "0", 4, 12]
-    list t5_11 = [2, "end", 5, 1]
+    list t5_1 = [3; "if", 1, 1]
+    list t5_2 = [32; "x"; 1; 4]
+    list t5_3 = [45; ">", 1, 6]
+    list t5_4 = [61; "0"; 1; 8]
+    list t5_5 = [4; "then"; 1; 10]
+    list t5_6 = [14; "return"; 2; 5]
+    list t5_7 = [61; "1"; 2; 12]
+    list t5_8 = [5; "else"; 3; 1]
+    list t5_9 = [14; "return"; 4; 5]
+    list t5_10 = [61; "0"; 4; 12]
+    list t5_11 = [2; "end"; 5; 1]
     
     cur = t5_1
     tok_type = cur[0]
@@ -333,23 +333,23 @@ function main() returns numeric
     println("      end switch")
     println("")
     
-    list t6_1 = [18, "switch", 1, 1]
-    list t6_2 = [32, "x", 1, 8]
-    list t6_3 = [19, "case", 2, 3]
-    list t6_4 = [61, "1", 2, 8]
-    list t6_5 = [56, ":", 2, 9]
-    list t6_6 = [14, "return", 3, 5]
-    list t6_7 = [61, "10", 3, 12]
-    list t6_8 = [19, "case", 4, 3]
-    list t6_9 = [61, "2", 4, 8]
-    list t6_10 = [56, ":", 4, 9]
-    list t6_11 = [14, "return", 5, 5]
-    list t6_12 = [61, "20", 5, 12]
-    list t6_13 = [25, "default", 6, 3]
-    list t6_14 = [56, ":", 6, 10]
-    list t6_15 = [14, "return", 7, 5]
-    list t6_16 = [61, "99", 7, 12]
-    list t6_17 = [2, "end", 8, 1]
+    list t6_1 = [18; "switch", 1, 1]
+    list t6_2 = [32; "x"; 1; 8]
+    list t6_3 = [19; "case"; 2; 3]
+    list t6_4 = [61; "1"; 2; 8]
+    list t6_5 = [56; ":", 2, 9]
+    list t6_6 = [14; "return"; 3; 5]
+    list t6_7 = [61; "10"; 3; 12]
+    list t6_8 = [19; "case"; 4; 3]
+    list t6_9 = [61; "2"; 4; 8]
+    list t6_10 = [56; ":", 4, 9]
+    list t6_11 = [14; "return"; 5; 5]
+    list t6_12 = [61; "20"; 5; 12]
+    list t6_13 = [25; "default"; 6; 3]
+    list t6_14 = [56; ":", 6, 10]
+    list t6_15 = [14; "return"; 7; 5]
+    list t6_16 = [61; "99"; 7; 12]
+    list t6_17 = [2; "end"; 8; 1]
     
     cur = t6_1
     tok_type = cur[0]
@@ -406,15 +406,15 @@ function main() returns numeric
     println("Test 7: For Loop (from..to)")
     println("Code: for i from 1 to 5")
     println("        println(i)")
-    println("      end for")
+    println("      end_for")
     println("")
     
-    list t7_1 = [7, "for", 1, 1]
-    list t7_2 = [32, "i", 1, 5]
-    list t7_3 = [43, "from", 1, 7]
-    list t7_4 = [61, "1", 1, 12]
-    list t7_5 = [44, "to", 1, 14]
-    list t7_6 = [61, "5", 1, 17]
+    list t7_1 = [7; "for"; 1; 1]
+    list t7_2 = [32; "i", 1, 5]
+    list t7_3 = [43; "from"; 1; 7]
+    list t7_4 = [61; "1"; 1; 12]
+    list t7_5 = [44; "to"; 1; 14]
+    list t7_6 = [61; "5"; 1; 17]
     
     cur = t7_1
     tok_type = cur[0]
@@ -459,12 +459,12 @@ function main() returns numeric
     println("Code: add(10, 20)")
     println("")
     
-    list t8_1 = [32, "add", 1, 1]
-    list t8_2 = [50, "(", 1, 4]
-    list t8_3 = [61, "10", 1, 5]
-    list t8_4 = [52, ",", 1, 7]
-    list t8_5 = [61, "20", 1, 9]
-    list t8_6 = [51, ")", 1, 11]
+    list t8_1 = [32; "add"; 1; 1]
+    list t8_2 = [50; "(", 1, 4]
+    list t8_3 = [61; "10"; 1; 5]
+    list t8_4 = [52; ",", 1, 7]
+    list t8_5 = [61; "20"; 1; 9]
+    list t8_6 = [51; ")", 1, 11]
     
     cur = t8_1
     string call_name = cur[1]
@@ -503,13 +503,13 @@ function main() returns numeric
     println("Code: matrix[i][j]")
     println("")
     
-    list t9_1 = [32, "matrix", 1, 1]
-    list t9_2 = [53, "[", 1, 7]
-    list t9_3 = [32, "i", 1, 8]
-    list t9_4 = [54, "]", 1, 9]
-    list t9_5 = [53, "[", 1, 10]
-    list t9_6 = [32, "j", 1, 11]
-    list t9_7 = [54, "]", 1, 12]
+    list t9_1 = [32; "matrix", 1, 1]
+    list t9_2 = [53; "[", 1, 7]
+    list t9_3 = [32; "i", 1, 8]
+    list t9_4 = [54; "]", 1, 9]
+    list t9_5 = [53; "[", 1, 10]
+    list t9_6 = [32; "j"; 1; 11]
+    list t9_7 = [54; "]", 1, 12]
     
     cur = t9_1
     string arr_name = cur[1]

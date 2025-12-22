@@ -45,14 +45,14 @@ function main() returns numeric
     println("")
     
     -- Tokens: struct Point numeric x numeric y end struct
-    list tok1_1 = [T_STRUCT, "struct", 1, 1]
+    list tok1_1 = [T_STRUCT; "struct"; 1; 1]
     list tok1_2 = [T_ID, "Point", 1, 8]
     list tok1_3 = [T_NUMERIC, "numeric", 2, 5]
     list tok1_4 = [T_ID, "x", 2, 13]
     list tok1_5 = [T_NUMERIC, "numeric", 3, 5]
     list tok1_6 = [T_ID, "y", 3, 13]
-    list tok1_7 = [T_END, "end", 4, 1]
-    list tok1_8 = [T_STRUCT, "struct", 4, 5]
+    list tok1_7 = [T_END; "end"; 4; 1]
+    list tok1_8 = [T_STRUCT; "struct"; 4; 5]
     
     -- Parse: struct keyword
     current_tok = tok1_1
@@ -105,21 +105,21 @@ function main() returns numeric
     println("Code: struct Person")
     println("        string name")
     println("        numeric age")
-    println("        boolean active")
+    println("        numeric active")
     println("      end struct")
     println("")
     
-    -- Tokens: struct Person string name numeric age boolean active end struct
-    list tok2_1 = [T_STRUCT, "struct", 1, 1]
+    -- Tokens: struct Person string name numeric age numeric active end struct
+    list tok2_1 = [T_STRUCT; "struct"; 1; 1]
     list tok2_2 = [T_ID, "Person", 1, 8]
     list tok2_3 = [T_STRING, "string", 2, 5]
     list tok2_4 = [T_ID, "name", 2, 12]
     list tok2_5 = [T_NUMERIC, "numeric", 3, 5]
     list tok2_6 = [T_ID, "age", 3, 13]
-    list tok2_7 = [T_BOOLEAN, "boolean", 4, 5]
+    list tok2_7 = [T_BOOLEAN; "boolean"; 4; 5]
     list tok2_8 = [T_ID, "active", 4, 13]
-    list tok2_9 = [T_END, "end", 5, 1]
-    list tok2_10 = [T_STRUCT, "struct", 5, 5]
+    list tok2_9 = [T_END; "end"; 5; 1]
+    list tok2_10 = [T_STRUCT; "struct"; 5; 5]
     
     -- Parse struct declaration
     current_tok = tok2_1
@@ -154,7 +154,7 @@ function main() returns numeric
     print(" ")
     println(field2_name)
     
-    -- Field 3: boolean active
+    -- Field 3: numeric active
     current_tok = tok2_7
     field3_type = current_tok[1]
     current_tok = tok2_8
@@ -183,14 +183,14 @@ function main() returns numeric
     println("")
     
     -- Tokens: struct Container list items numeric count end struct
-    list tok3_1 = [T_STRUCT, "struct", 1, 1]
+    list tok3_1 = [T_STRUCT; "struct"; 1; 1]
     list tok3_2 = [T_ID, "Container", 1, 8]
     list tok3_3 = [T_LIST, "list", 2, 5]
     list tok3_4 = [T_ID, "items", 2, 10]
     list tok3_5 = [T_NUMERIC, "numeric", 3, 5]
     list tok3_6 = [T_ID, "count", 3, 13]
-    list tok3_7 = [T_END, "end", 4, 1]
-    list tok3_8 = [T_STRUCT, "struct", 4, 5]
+    list tok3_7 = [T_END; "end"; 4; 1]
+    list tok3_8 = [T_STRUCT; "struct"; 4; 5]
     
     current_tok = tok3_1
     println("  Parse: STRUCT keyword")

@@ -38,22 +38,22 @@ function main() returns numeric
     println("Test 1: For loop with from..to (ascending)")
     println("Code: for i from 1 to 10")
     println("        println(i)")
-    println("      end for")
+    println("      end_for")
     println("")
     
-    -- Tokens: for i from 1 to 10 println(i) end for
-    list tok1_1 = [T_FOR, "for", 1, 1]
+    -- Tokens: for i from 1 to 10 println(i) end_for
+    list tok1_1 = [T_FOR; "for"; 1; 1]
     list tok1_2 = [T_ID, "i", 1, 5]
-    list tok1_3 = [T_FROM, "from", 1, 7]
-    list tok1_4 = [T_NUMBER, "1", 1, 12]
-    list tok1_5 = [T_TO, "to", 1, 14]
-    list tok1_6 = [T_NUMBER, "10", 1, 17]
+    list tok1_3 = [T_FROM; "from"; 1; 7]
+    list tok1_4 = [T_NUMBER; "1"; 1; 12]
+    list tok1_5 = [T_TO; "to"; 1; 14]
+    list tok1_6 = [T_NUMBER; "10"; 1; 17]
     list tok1_7 = [T_PRINTLN, "println", 2, 5]
-    list tok1_8 = [T_LPAREN, "(", 2, 12]
+    list tok1_8 = [T_LPAREN; "(", 2, 12]
     list tok1_9 = [T_ID, "i", 2, 13]
-    list tok1_10 = [T_RPAREN, ")", 2, 14]
-    list tok1_11 = [T_END, "end", 3, 1]
-    list tok1_12 = [T_FOR, "for", 3, 5]
+    list tok1_10 = [T_RPAREN; ")", 2, 14]
+    list tok1_11 = [T_END; "end"; 3; 1]
+    list tok1_12 = [T_FOR; "for"; 3; 5]
     
     -- Parse: for
     current_tok = tok1_1
@@ -99,7 +99,7 @@ function main() returns numeric
     print(body_stmt)
     println(")")
     
-    -- Parse: end for
+    -- Parse: end_for
     current_tok = tok1_11
     current_tok = tok1_12
     println("  END FOR")
@@ -118,22 +118,22 @@ function main() returns numeric
     println("Test 2: For loop with from..downto (descending)")
     println("Code: for i from 10 downto 1")
     println("        println(i)")
-    println("      end for")
+    println("      end_for")
     println("")
     
-    -- Tokens: for i from 10 downto 1 println(i) end for
-    list tok2_1 = [T_FOR, "for", 1, 1]
+    -- Tokens: for i from 10 downto 1 println(i) end_for
+    list tok2_1 = [T_FOR; "for"; 1; 1]
     list tok2_2 = [T_ID, "i", 1, 5]
-    list tok2_3 = [T_FROM, "from", 1, 7]
-    list tok2_4 = [T_NUMBER, "10", 1, 12]
-    list tok2_5 = [T_DOWNTO, "downto", 1, 15]
-    list tok2_6 = [T_NUMBER, "1", 1, 22]
+    list tok2_3 = [T_FROM; "from"; 1; 7]
+    list tok2_4 = [T_NUMBER; "10"; 1; 12]
+    list tok2_5 = [T_DOWNTO; "downto"; 1; 15]
+    list tok2_6 = [T_NUMBER; "1"; 1; 22]
     list tok2_7 = [T_PRINTLN, "println", 2, 5]
-    list tok2_8 = [T_LPAREN, "(", 2, 12]
+    list tok2_8 = [T_LPAREN; "(", 2, 12]
     list tok2_9 = [T_ID, "i", 2, 13]
-    list tok2_10 = [T_RPAREN, ")", 2, 14]
-    list tok2_11 = [T_END, "end", 3, 1]
-    list tok2_12 = [T_FOR, "for", 3, 5]
+    list tok2_10 = [T_RPAREN; ")", 2, 14]
+    list tok2_11 = [T_END; "end"; 3; 1]
+    list tok2_12 = [T_FOR; "for"; 3; 5]
     
     -- Parse: for
     current_tok = tok2_1
@@ -177,7 +177,7 @@ function main() returns numeric
     print(body_stmt)
     println(")")
     
-    -- Parse: end for
+    -- Parse: end_for
     current_tok = tok2_11
     current_tok = tok2_12
     println("  END FOR")
@@ -196,22 +196,22 @@ function main() returns numeric
     println("Test 3: For loop with variable expressions")
     println("Code: for i from start to end")
     println("        print(i)")
-    println("      end for")
+    println("      end_for")
     println("")
     
-    -- Tokens: for i from start to end print(i) end for
-    list tok3_1 = [T_FOR, "for", 1, 1]
+    -- Tokens: for i from start to end print(i) end_for
+    list tok3_1 = [T_FOR; "for"; 1; 1]
     list tok3_2 = [T_ID, "i", 1, 5]
-    list tok3_3 = [T_FROM, "from", 1, 7]
+    list tok3_3 = [T_FROM; "from"; 1; 7]
     list tok3_4 = [T_ID, "start", 1, 12]
-    list tok3_5 = [T_TO, "to", 1, 18]
+    list tok3_5 = [T_TO; "to"; 1; 18]
     list tok3_6 = [T_ID, "end", 1, 21]
     list tok3_7 = [T_PRINT, "print", 2, 5]
-    list tok3_8 = [T_LPAREN, "(", 2, 10]
+    list tok3_8 = [T_LPAREN; "(", 2, 10]
     list tok3_9 = [T_ID, "i", 2, 11]
-    list tok3_10 = [T_RPAREN, ")", 2, 12]
-    list tok3_11 = [T_END, "end", 3, 1]
-    list tok3_12 = [T_FOR, "for", 3, 5]
+    list tok3_10 = [T_RPAREN; ")", 2, 12]
+    list tok3_11 = [T_END; "end"; 3; 1]
+    list tok3_12 = [T_FOR; "for"; 3; 5]
     
     -- Parse for loop
     current_tok = tok3_1
@@ -259,8 +259,8 @@ function main() returns numeric
     println("Code: for i from 1 to 3")
     println("        for j from 1 to 2")
     println("          println(i)")
-    println("        end for")
-    println("      end for")
+    println("        end_for")
+    println("      end_for")
     println("")
     
     -- Simplified test - structure validation

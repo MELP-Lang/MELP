@@ -71,7 +71,7 @@ end_enum
 -- Parser State Management (Stateless Architecture)
 -- ============================================================================
 -- YZ_28: Refactored to remove global state (Stage 0 compatibility)
--- Parser state is passed as list: [tokens, position, error_count]
+-- Parser state is passed as list: [tokens; position, error_count]
 -- ============================================================================
 
 -- Create initial parser state

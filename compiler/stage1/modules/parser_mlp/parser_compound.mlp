@@ -47,8 +47,8 @@ function main() returns numeric
     list tok1_1 = [T_ID, "x", 1, 1]
     list tok1_2 = [T_ASSIGN, "=", 1, 3]
     list tok1_3 = [T_ID, "x", 1, 5]
-    list tok1_4 = [T_PLUS, "+", 1, 7]
-    list tok1_5 = [T_NUMBER, "5", 1, 9]
+    list tok1_4 = [T_PLUS; "+", 1, 7]
+    list tok1_5 = [T_NUMBER; "5"; 1; 9]
     
     current_tok = tok1_1
     var_name = current_tok[1]
@@ -85,7 +85,7 @@ function main() returns numeric
     list tok2_2 = [T_ASSIGN, "=", 1, 7]
     list tok2_3 = [T_ID, "count", 1, 9]
     list tok2_4 = [T_MINUS, "-", 1, 15]
-    list tok2_5 = [T_NUMBER, "1", 1, 17]
+    list tok2_5 = [T_NUMBER; "1"; 1; 17]
     
     current_tok = tok2_1
     var_name = current_tok[1]

@@ -33,9 +33,9 @@ function main() returns numeric
     
     -- Tokens: arr[5]
     list tok1_1 = [T_ID, "arr", 1, 1]
-    list tok1_2 = [T_LBRACKET, "[", 1, 4]
-    list tok1_3 = [T_NUMBER, "5", 1, 5]
-    list tok1_4 = [T_RBRACKET, "]", 1, 6]
+    list tok1_2 = [T_LBRACKET; "[", 1, 4]
+    list tok1_3 = [T_NUMBER; "5"; 1; 5]
+    list tok1_4 = [T_RBRACKET; "]", 1, 6]
     
     -- Parse: array name
     current_tok = tok1_1
@@ -80,9 +80,9 @@ function main() returns numeric
     
     -- Tokens: items[i]
     list tok2_1 = [T_ID, "items", 1, 1]
-    list tok2_2 = [T_LBRACKET, "[", 1, 6]
+    list tok2_2 = [T_LBRACKET; "[", 1, 6]
     list tok2_3 = [T_ID, "i", 1, 7]
-    list tok2_4 = [T_RBRACKET, "]", 1, 8]
+    list tok2_4 = [T_RBRACKET; "]", 1, 8]
     
     -- Parse array indexing
     current_tok = tok2_1
@@ -118,11 +118,11 @@ function main() returns numeric
     
     -- Tokens: data[i + 1]
     list tok3_1 = [T_ID, "data", 1, 1]
-    list tok3_2 = [T_LBRACKET, "[", 1, 5]
+    list tok3_2 = [T_LBRACKET; "[", 1, 5]
     list tok3_3 = [T_ID, "i", 1, 6]
-    list tok3_4 = [T_PLUS, "+", 1, 8]
-    list tok3_5 = [T_NUMBER, "1", 1, 10]
-    list tok3_6 = [T_RBRACKET, "]", 1, 11]
+    list tok3_4 = [T_PLUS; "+", 1, 8]
+    list tok3_5 = [T_NUMBER; "1"; 1; 10]
+    list tok3_6 = [T_RBRACKET; "]", 1, 11]
     
     -- Parse array indexing
     current_tok = tok3_1
@@ -163,12 +163,12 @@ function main() returns numeric
     
     -- Tokens: matrix[i][j]
     list tok4_1 = [T_ID, "matrix", 1, 1]
-    list tok4_2 = [T_LBRACKET, "[", 1, 7]
+    list tok4_2 = [T_LBRACKET; "[", 1, 7]
     list tok4_3 = [T_ID, "i", 1, 8]
-    list tok4_4 = [T_RBRACKET, "]", 1, 9]
-    list tok4_5 = [T_LBRACKET, "[", 1, 10]
+    list tok4_4 = [T_RBRACKET; "]", 1, 9]
+    list tok4_5 = [T_LBRACKET; "[", 1, 10]
     list tok4_6 = [T_ID, "j", 1, 11]
-    list tok4_7 = [T_RBRACKET, "]", 1, 12]
+    list tok4_7 = [T_RBRACKET; "]", 1, 12]
     
     -- Parse first dimension
     current_tok = tok4_1

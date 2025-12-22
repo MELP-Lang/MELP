@@ -62,19 +62,19 @@ function main() returns numeric
     println("Test 1: Simple function (no parameters)")
     println("Code: function main() returns numeric")
     println("        return 0")
-    println("      end function")
+    println("      end_function")
     println("")
     
-    -- Tokens: function main ( ) returns numeric return 0 end function
+    -- Tokens: function main ( ) returns numeric return 0 end_function
     list tok1_1 = [T_FUNCTION, "function", 1, 1]
     list tok1_2 = [T_ID, "main", 1, 10]
-    list tok1_3 = [T_LPAREN, "(", 1, 14]
-    list tok1_4 = [T_RPAREN, ")", 1, 15]
-    list tok1_5 = [T_RETURNS, "returns", 1, 17]
+    list tok1_3 = [T_LPAREN; "(", 1, 14]
+    list tok1_4 = [T_RPAREN; ")", 1, 15]
+    list tok1_5 = [T_RETURNS; "returns"; 1; 17]
     list tok1_6 = [T_NUMERIC, "numeric", 1, 25]
-    list tok1_7 = [T_RETURN, "return", 2, 5]
-    list tok1_8 = [T_NUMBER, "0", 2, 12]
-    list tok1_9 = [T_END, "end", 3, 1]
+    list tok1_7 = [T_RETURN; "return"; 2; 5]
+    list tok1_8 = [T_NUMBER; "0"; 2; 12]
+    list tok1_9 = [T_END; "end"; 3; 1]
     list tok1_10 = [T_FUNCTION, "function", 3, 5]
     
     -- Parse: function keyword
@@ -117,7 +117,7 @@ function main() returns numeric
     print("    return ")
     println(ret_expr)
     
-    -- Parse: end function
+    -- Parse: end_function
     current_tok = tok1_9
     current_tok = tok1_10
     println("  END FUNCTION")
@@ -130,23 +130,23 @@ function main() returns numeric
     println("Test 2: Function with one parameter")
     println("Code: function increment(numeric x) returns numeric")
     println("        return x + 1")
-    println("      end function")
+    println("      end_function")
     println("")
     
-    -- Tokens: function increment ( numeric x ) returns numeric return x + 1 end function
+    -- Tokens: function increment ( numeric x ) returns numeric return x + 1 end_function
     list tok2_1 = [T_FUNCTION, "function", 1, 1]
     list tok2_2 = [T_ID, "increment", 1, 10]
-    list tok2_3 = [T_LPAREN, "(", 1, 19]
+    list tok2_3 = [T_LPAREN; "(", 1, 19]
     list tok2_4 = [T_NUMERIC, "numeric", 1, 20]
     list tok2_5 = [T_ID, "x", 1, 28]
-    list tok2_6 = [T_RPAREN, ")", 1, 29]
-    list tok2_7 = [T_RETURNS, "returns", 1, 31]
+    list tok2_6 = [T_RPAREN; ")", 1, 29]
+    list tok2_7 = [T_RETURNS; "returns"; 1; 31]
     list tok2_8 = [T_NUMERIC, "numeric", 1, 39]
-    list tok2_9 = [T_RETURN, "return", 2, 5]
+    list tok2_9 = [T_RETURN; "return"; 2; 5]
     list tok2_10 = [T_ID, "x", 2, 12]
-    list tok2_11 = [T_PLUS, "+", 2, 14]
-    list tok2_12 = [T_NUMBER, "1", 2, 16]
-    list tok2_13 = [T_END, "end", 3, 1]
+    list tok2_11 = [T_PLUS; "+", 2, 14]
+    list tok2_12 = [T_NUMBER; "1"; 2; 16]
+    list tok2_13 = [T_END; "end"; 3; 1]
     list tok2_14 = [T_FUNCTION, "function", 3, 5]
     
     -- Parse function declaration
@@ -213,36 +213,36 @@ function main() returns numeric
     println("        numeric result = 0")
     println("        result = a + b")
     println("        return result")
-    println("      end function")
+    println("      end_function")
     println("")
     
     -- Tokens: function add ( numeric a , numeric b ) returns numeric ...
     list tok3_1 = [T_FUNCTION, "function", 1, 1]
     list tok3_2 = [T_ID, "add", 1, 10]
-    list tok3_3 = [T_LPAREN, "(", 1, 13]
+    list tok3_3 = [T_LPAREN; "(", 1, 13]
     list tok3_4 = [T_NUMERIC, "numeric", 1, 14]
     list tok3_5 = [T_ID, "a", 1, 22]
-    list tok3_6 = [T_COMMA, ",", 1, 23]
+    list tok3_6 = [T_COMMA; ",", 1, 23]
     list tok3_7 = [T_NUMERIC, "numeric", 1, 25]
     list tok3_8 = [T_ID, "b", 1, 33]
-    list tok3_9 = [T_RPAREN, ")", 1, 34]
-    list tok3_10 = [T_RETURNS, "returns", 1, 36]
+    list tok3_9 = [T_RPAREN; ")", 1, 34]
+    list tok3_10 = [T_RETURNS; "returns"; 1; 36]
     list tok3_11 = [T_NUMERIC, "numeric", 1, 44]
     -- Body: numeric result = 0
     list tok3_12 = [T_NUMERIC, "numeric", 2, 5]
     list tok3_13 = [T_ID, "result", 2, 13]
     list tok3_14 = [T_ASSIGN, "=", 2, 20]
-    list tok3_15 = [T_NUMBER, "0", 2, 22]
+    list tok3_15 = [T_NUMBER; "0"; 2; 22]
     -- Body: result = a + b
     list tok3_16 = [T_ID, "result", 3, 5]
     list tok3_17 = [T_ASSIGN, "=", 3, 12]
     list tok3_18 = [T_ID, "a", 3, 14]
-    list tok3_19 = [T_PLUS, "+", 3, 16]
+    list tok3_19 = [T_PLUS; "+", 3, 16]
     list tok3_20 = [T_ID, "b", 3, 18]
     -- Body: return result
-    list tok3_21 = [T_RETURN, "return", 4, 5]
+    list tok3_21 = [T_RETURN; "return"; 4; 5]
     list tok3_22 = [T_ID, "result", 4, 12]
-    list tok3_23 = [T_END, "end", 5, 1]
+    list tok3_23 = [T_END; "end"; 5; 1]
     list tok3_24 = [T_FUNCTION, "function", 5, 5]
     
     -- Parse function declaration
@@ -356,45 +356,45 @@ function main() returns numeric
     println("          return a")
     println("        else")
     println("          return b")
-    println("        end if")
+    println("        end_if")
     println("        return 0")
-    println("      end function")
+    println("      end_function")
     println("")
     
     -- Tokens: function max ( numeric a , numeric b ) returns numeric ...
     list tok4_1 = [T_FUNCTION, "function", 1, 1]
     list tok4_2 = [T_ID, "max", 1, 10]
-    list tok4_3 = [T_LPAREN, "(", 1, 13]
+    list tok4_3 = [T_LPAREN; "(", 1, 13]
     list tok4_4 = [T_NUMERIC, "numeric", 1, 14]
     list tok4_5 = [T_ID, "a", 1, 22]
-    list tok4_6 = [T_COMMA, ",", 1, 23]
+    list tok4_6 = [T_COMMA; ",", 1, 23]
     list tok4_7 = [T_NUMERIC, "numeric", 1, 25]
     list tok4_8 = [T_ID, "b", 1, 33]
-    list tok4_9 = [T_RPAREN, ")", 1, 34]
-    list tok4_10 = [T_RETURNS, "returns", 1, 36]
+    list tok4_9 = [T_RPAREN; ")", 1, 34]
+    list tok4_10 = [T_RETURNS; "returns"; 1; 36]
     list tok4_11 = [T_NUMERIC, "numeric", 1, 44]
     -- Body: if a > b then
     list tok4_12 = [T_IF, "if", 2, 5]
     list tok4_13 = [T_ID, "a", 2, 8]
-    list tok4_14 = [T_GT, ">", 2, 10]
+    list tok4_14 = [T_GT; ">", 2, 10]
     list tok4_15 = [T_ID, "b", 2, 12]
-    list tok4_16 = [T_THEN, "then", 2, 14]
+    list tok4_16 = [T_THEN; "then"; 2; 14]
     -- Then: return a
-    list tok4_17 = [T_RETURN, "return", 3, 7]
+    list tok4_17 = [T_RETURN; "return"; 3; 7]
     list tok4_18 = [T_ID, "a", 3, 14]
     -- Else
-    list tok4_19 = [T_ELSE, "else", 4, 5]
+    list tok4_19 = [T_ELSE; "else"; 4; 5]
     -- Else: return b
-    list tok4_20 = [T_RETURN, "return", 5, 7]
+    list tok4_20 = [T_RETURN; "return"; 5; 7]
     list tok4_21 = [T_ID, "b", 5, 14]
     -- End if
-    list tok4_22 = [T_END, "end", 6, 5]
+    list tok4_22 = [T_END; "end"; 6; 5]
     list tok4_23 = [T_IF, "if", 6, 9]
     -- Final return
-    list tok4_24 = [T_RETURN, "return", 7, 5]
-    list tok4_25 = [T_NUMBER, "0", 7, 12]
+    list tok4_24 = [T_RETURN; "return"; 7; 5]
+    list tok4_25 = [T_NUMBER; "0"; 7; 12]
     -- End function
-    list tok4_26 = [T_END, "end", 8, 1]
+    list tok4_26 = [T_END; "end"; 8; 1]
     list tok4_27 = [T_FUNCTION, "function", 8, 5]
     
     -- Parse function declaration

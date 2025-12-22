@@ -135,7 +135,7 @@ function main() returns numeric
     -- Test 3: Pretty print if statement
     -- ========================================================================
     println("Test 3: If Statement AST")
-    println("Code: if x > 0 then ... else ... end if")
+    println("Code: if x > 0 then ... else ... end_if")
     println("")
     
     indent_level = 0

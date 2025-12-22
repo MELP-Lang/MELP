@@ -23,7 +23,7 @@ function parser_init(numeric dummy) returns list
 end_function
 
 -- Mevcut pozisyonu al
--- @param state: Parser state [tokens, pos]
+-- @param state: Parser state [tokens; pos]
 -- @return: Mevcut pozisyon
 function parser_get_position(numeric pos) returns numeric
     return pos
