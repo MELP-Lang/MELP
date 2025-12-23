@@ -9,18 +9,20 @@
 
 ## 🚨 GÜNCEL DURUM (23 Aralık 2025)
 
-**🎉 SELF-HOSTING TAMAMLANDI!**
+**🎉 modern_YZ_01 TAMAMLANDI! File I/O Infrastructure Eklendi!**
 
-MELP artık kendi kendini derleyebiliyor! Şimdi modern dil özelliklerini ekleme zamanı.
+**Phase 0, Task 0.1a TAMAMLANDI - File I/O Infrastructure:**
+- ✅ mlp_read_file() ve mlp_write_file() LLVM backend'e eklendi
+- ✅ String variable handling düzeltildi (_ptr suffix)
+- ✅ File I/O test başarılı (exit code 42)
+- ✅ Native execution çalışıyor
+- ✅ Runtime stdlib rebuild edildi
 
-**Tamamlanan (Self-hosting):**
-- ✅ Minimal compiler (180 satır, 15 fonksiyon)
-- ✅ Gen1 oluşturuldu (273 satır LLVM IR)
-- ✅ Symbolic bootstrap başarılı
-- ✅ Convergence kanıtlandı (Gen2 = Gen3)
-- ✅ Exit code 42 = Tüm testler geçti!
+**Phase 0, Task 0.1b ERTELENDİ - Real Bootstrap:**
+- ⏳ String concatenation gerekli (Phase 1, Task 1.1'de)
+- ⏳ Gen1 → Gen2 → Gen3 convergence (string ops sonrası)
 
-**Mevcut Özellikler:**
+**Tamamlanan (Self-hosting + File I/O):**
 - ✅ Function definitions
 - ✅ Numeric type (basic)
 - ✅ Return statements
@@ -28,76 +30,75 @@ MELP artık kendi kendini derleyebiliyor! Şimdi modern dil özelliklerini eklem
 - ✅ Comparison (>, <, ==)
 - ✅ If-then-end_if
 - ✅ LLVM IR backend
-- ✅ Self-compilation
+- ✅ Self-compilation (symbolic)
+- ✅ **File I/O (read_file, write_file)** 🆕
 
 **Eksikler (yapılacak):**
-- ❌ Variables
+- ❌ Variables (let, assignments)
 - ❌ Loops (while, for)
-- ❌ String type
+- ❌ **String type + concat** ← Task 0.1b için kritik!
 - ❌ Arrays
 - ❌ Structs
 - ❌ FFI
 - ❌ Module system
 - ❌ Error handling
-- ❌ Advanced features
-- ❌ Tooling
 
 ---
 
-## 🎯 SONRAKİ YZ: modern_YZ_01
+## 🎯 SONRAKİ YZ: modern_YZ_02
 
-### Görev: Phase 0, Task 0.1 - Real File I/O Bootstrap
+### Görev: Phase 0, Task 0.2 - Variables Support
+
+### Görev: Phase 0, Task 0.2 - Variables Support
 
 **Ne yapacaksın:**
 
-Symbolic bootstrap'ı real file I/O'ya dönüştüreceksin.
+Variable declaration ve assignment ekleyeceksin.
 
 **Spesifik adımlar (TODO'dan):**
 
-1. **compiler.mlp'ye file I/O ekle:**
+1. **Lexer: '=' tokenize et**
+   - Assignment operator için token support
+
+2. **Parser: var_decl ve assignment parse et**
    ```melp
-   function compile_file(string input; string output) returns numeric
-       string source = read_file(input)      -- Dosyadan oku
-       string ir = compile_source(source)    -- Derle
-       write_file(output, ir)                -- Dosyaya yaz
-       return 0
+   numeric x = 10      -- declaration + initialization
+   x = x + 5           -- assignment
+   ```
+
+3. **CodeGen: alloca, store, load instructions**
+   - Variable allocation
+   - Value storage
+   - Value loading
+
+4. **Test: Basit variable programı derle ve çalıştır**
+   ```melp
+   function test() returns numeric
+       numeric x = 10
+       x = x + 5
+       return x  -- 15 döner
    end_function
    ```
 
-2. **Real bootstrap test:**
-   ```bash
-   # Stage 0 → Gen1 (dosyaya yaz)
-   ./stage0_compiler compiler.mlp build/gen1.ll
-   
-   # Gen1 → Gen2 (dosyaya yaz)
-   lli build/gen1.ll compiler.mlp build/gen2.ll
-   
-   # Convergence test
-   diff build/gen1.ll build/gen2.ll  # Boş olmalı!
-   ```
-
-3. **Validation:**
-   - gen1.ll dosya olarak oluştu mu?
-   - gen2.ll dosya olarak oluştu mu?
-   - gen1.ll = gen2.ll (byte-level)?
-
 **Başarı kriterleri:**
 ```
-[ ] read_file() çalışıyor
-[ ] write_file() çalışıyor
-[ ] Gen1.ll dosyaya yazıldı
-[ ] Gen2.ll dosyaya yazıldı
-[ ] Gen1 = Gen2 (byte-level identical)
-[ ] Exit code test geçti
+[ ] numeric x = 10 çalışıyor
+[ ] x = x + 5 çalışıyor
+[ ] Test exit code 15
+[ ] TODO dışı iş yapılmadı
 ```
 
 **YASAK:**
 ```
-❌ Yeni operatör ekleme (sadece file I/O)
-❌ Syntax değişikliği
+❌ String variables (sadece numeric)
+❌ Arrays (sonra gelecek)
+❌ Multiple types (sadece numeric)
 ❌ TODO dışı özellik ekleme
-❌ "String type da ekleyeyim" deme
 ```
+
+**Tahmini süre:** 2 gün
+
+**Not:** Stage 0 zaten variable support var! Minimal compiler'a eklemen gerekiyor.
 
 **Tahmini süre:** 2 gün
 
