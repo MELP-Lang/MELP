@@ -1,0 +1,11 @@
+-- Test: extern "C" function declaration and call
+-- YZ_09: Phase 2, Task 2.1 - C FFI Basics
+
+-- Declare printf from C standard library
+extern "C" function printf(string format) returns numeric
+
+-- Main function that calls printf
+function main() returns numeric
+    printf("Hello from MELP!\n")
+    return 0
+end_function

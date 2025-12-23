@@ -1866,6 +1866,82 @@ void function_generate_declaration_llvm(FunctionLLVMContext* ctx, FunctionDeclar
     
     ctx->current_func = func;
     
+    // YZ_09: Handle extern "C" functions differently
+    if (func->is_extern) {
+        // Emit LLVM declare for external function
+        // Collect parameter types
+        int param_count = func->param_count;
+        int* param_types = NULL;
+        
+        if (param_count > 0) {
+            param_types = malloc(sizeof(int) * param_count);
+            FunctionParam* param = func->params;
+            int i = 0;
+            while (param) {
+                // Type mapping: numeric -> i64 (0), string -> i8* (1), boolean -> i1 (2)
+                if (param->type == FUNC_PARAM_TEXT) {
+                    param_types[i] = 1;  // i8*
+                } else if (param->type == FUNC_PARAM_BOOLEAN) {
+                    param_types[i] = 2;  // i1
+                } else {
+                    param_types[i] = 0;  // i64
+                }
+                i++;
+                param = param->next;
+            }
+        }
+        
+        // Map return type: numeric -> i64 (0), string -> i8* (1), void -> 0
+        int return_type = 0;
+        if (func->return_type == FUNC_RETURN_TEXT) {
+            return_type = 1;  // i8*
+        } else if (func->return_type == FUNC_RETURN_VOID) {
+            return_type = -1;  // void (special marker)
+        } else if (func->return_type == FUNC_RETURN_BOOLEAN) {
+            return_type = 2;  // i1
+        } else {
+            return_type = 0;  // i64
+        }
+        
+        // Emit declare statement
+        fprintf(ctx->llvm_ctx->output, "declare ");
+        
+        // Return type
+        if (return_type == -1) {
+            fprintf(ctx->llvm_ctx->output, "void");
+        } else if (return_type == 1) {
+            fprintf(ctx->llvm_ctx->output, "i8*");
+        } else if (return_type == 2) {
+            fprintf(ctx->llvm_ctx->output, "i1");
+        } else {
+            fprintf(ctx->llvm_ctx->output, "i64");
+        }
+        
+        fprintf(ctx->llvm_ctx->output, " @%s(", func->name);
+        
+        // Parameters
+        for (int i = 0; i < param_count; i++) {
+            if (i > 0) fprintf(ctx->llvm_ctx->output, ", ");
+            
+            if (param_types[i] == 1) {
+                fprintf(ctx->llvm_ctx->output, "i8*");
+            } else if (param_types[i] == 2) {
+                fprintf(ctx->llvm_ctx->output, "i1");
+            } else {
+                fprintf(ctx->llvm_ctx->output, "i64");
+            }
+        }
+        
+        fprintf(ctx->llvm_ctx->output, ")\n\n");
+        
+        // Cleanup
+        if (param_types) {
+            free(param_types);
+        }
+        
+        return;  // Done with extern function
+    }
+    
     // YZ_65: First pass - scan for local variables to populate registry
     Statement* scan_stmt = func->body;
     while (scan_stmt) {

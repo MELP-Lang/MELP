@@ -1,0 +1,20 @@
+-- Test: Multiple extern "C" functions
+-- YZ_09: Phase 2, Task 2.1 - C FFI Basics
+
+-- Declare C functions
+extern "C" function printf(string format) returns numeric
+extern "C" function puts(string s) returns numeric
+extern "C" function strlen(string s) returns numeric
+
+function main() returns numeric
+    -- Test printf
+    printf("Testing printf: %d\n")
+    
+    -- Test puts
+    puts("Testing puts")
+    
+    -- Test strlen (should return 5)
+    numeric len = strlen("Hello")
+    
+    return len
+end_function

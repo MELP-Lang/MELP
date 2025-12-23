@@ -88,6 +88,7 @@ typedef enum {
     TOKEN_SHARED_STATE,    // shared_state
     // Function keywords
     TOKEN_FUNCTION,
+    TOKEN_EXTERN,          // extern (YZ_09: external function declaration)
     TOKEN_RETURN,
     TOKEN_RETURNS,         // returns (for return type declaration)
     TOKEN_AS,              // as (alternative for return type: func() as numeric)

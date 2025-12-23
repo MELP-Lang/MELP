@@ -187,6 +187,7 @@ static Token* read_identifier(Lexer* lexer) {
     else if (strcmp(value, "exit") == 0) type = TOKEN_EXIT;       // YZ_28: exit, exit for, exit while, exit if
     // Function keywords
     else if (strcmp(value, "function") == 0) type = TOKEN_FUNCTION;
+    else if (strcmp(value, "extern") == 0) type = TOKEN_EXTERN;  // YZ_09: external function
     else if (strcmp(value, "return") == 0) type = TOKEN_RETURN;
     else if (strcmp(value, "returns") == 0) type = TOKEN_RETURNS;
     else if (strcmp(value, "as") == 0) type = TOKEN_AS;  // YZ_31: as numeric (alternative to returns)

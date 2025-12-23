@@ -73,6 +73,10 @@ typedef struct FunctionDeclaration {
     int type_param_count;      // Number of type parameters
     int is_generic_template;   // 1 if this is a generic template (not yet instantiated)
     
+    // YZ_09: FFI support (Phase 2, Task 2.1)
+    int is_extern;             // 1 if extern "C" function, 0 if regular function
+    char* extern_linkage;      // Linkage type: "C" (only C supported for now)
+    
     struct FunctionDeclaration* next;  // Linked list of functions
 } FunctionDeclaration;
 

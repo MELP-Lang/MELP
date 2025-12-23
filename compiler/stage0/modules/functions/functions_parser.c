@@ -38,9 +38,43 @@ static FunctionReturnType token_to_return_type(TokenType type) {
 
 // Parse function declaration (STATELESS PATTERN)
 // Syntax: def func_name(param1: numeric, param2: text) -> numeric { ... }
+// YZ_09: Also supports: extern "C" function func_name(...) returns type
 FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
-    // Peek first - check if 'function' keyword exists
+    // YZ_09: Check for extern "C" prefix
+    int is_extern = 0;
+    char* extern_linkage = NULL;
+    
     Token* tok = lexer_next_token(lexer);
+    if (!tok) return NULL;  // EOF
+    
+    if (tok->type == TOKEN_EXTERN) {
+        // extern keyword found
+        is_extern = 1;
+        token_free(tok);
+        
+        // Expect string literal for linkage ("C")
+        tok = lexer_next_token(lexer);
+        if (!tok || tok->type != TOKEN_STRING) {
+            error_parser(tok ? tok->line : 0, "Expected linkage string after 'extern' (e.g., \"C\")");
+            if (tok) token_free(tok);
+            return NULL;
+        }
+        
+        // Only "C" linkage supported for now
+        if (strcmp(tok->value, "C") != 0) {
+            error_parser(tok->line, "Only \"C\" linkage is supported (extern \"C\")");
+            token_free(tok);
+            return NULL;
+        }
+        
+        extern_linkage = strdup(tok->value);
+        token_free(tok);
+        
+        // Now expect 'function' keyword
+        tok = lexer_next_token(lexer);
+    }
+    
+    // Peek first - check if 'function' keyword exists
     if (!tok) return NULL;  // EOF
     
     if (tok->type != TOKEN_FUNCTION) {
@@ -60,6 +94,7 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
             }
         }
         token_free(tok);
+        free(extern_linkage);
         return NULL;
     }
     token_free(tok);
@@ -89,6 +124,10 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
         
         // Create function (we'll add type params to it)
         func = function_create(func_name, FUNC_RETURN_VOID);
+        
+        // YZ_09: Set extern flags
+        func->is_extern = is_extern;
+        func->extern_linkage = extern_linkage;
         
         // Parse type parameters: <T, U, V>
         while (1) {
@@ -155,6 +194,7 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
     if (!tok || tok->type != TOKEN_LPAREN) {
         error_parser(tok ? tok->line : 0, "Expected '(' after function name");
         free(func_name);
+        free(extern_linkage);
         if (tok) token_free(tok);
         return NULL;
     }
@@ -163,6 +203,10 @@ FunctionDeclaration* parse_function_declaration(Lexer* lexer) {
     // Create function with default return type (will be updated if return type specified)
     func = function_create(func_name, FUNC_RETURN_VOID);
     free(func_name);
+    
+    // YZ_09: Set extern flags
+    func->is_extern = is_extern;
+    func->extern_linkage = extern_linkage;
     
 parse_parameters:
     // Parse parameters
@@ -502,6 +546,11 @@ parse_parameters:
         if (tok) {
             lexer_unget_token(lexer, tok);
         }
+    }
+    
+    // YZ_09: Extern functions have no body - return immediately
+    if (func->is_extern) {
+        return func;
     }
     
     // ✅ Function body - use statement parser (modular!)

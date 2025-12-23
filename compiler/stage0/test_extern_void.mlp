@@ -1,0 +1,9 @@
+-- Test: extern "C" with void return
+-- YZ_09: Phase 2, Task 2.1 - C FFI Basics
+
+extern "C" function puts(string s) returns numeric
+
+function main() returns numeric
+    puts("FFI test successful!")
+    return 42
+end_function

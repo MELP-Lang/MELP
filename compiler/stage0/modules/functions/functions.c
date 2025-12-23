@@ -18,6 +18,10 @@ FunctionDeclaration* function_create(const char* name, FunctionReturnType return
     func->type_param_count = 0;
     func->is_generic_template = 0;
     
+    // YZ_09: Initialize FFI support
+    func->is_extern = 0;
+    func->extern_linkage = NULL;
+    
     func->next = NULL;  // Initialize linked list pointer
     return func;
 }
@@ -98,6 +102,9 @@ void function_free(FunctionDeclaration* func) {
         }
         free(func->type_params);
     }
+    
+    // YZ_09: Free FFI linkage string
+    free(func->extern_linkage);
     
     FunctionParam* param = func->params;
     while (param) {
