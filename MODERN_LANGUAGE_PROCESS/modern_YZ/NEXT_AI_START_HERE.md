@@ -9,23 +9,29 @@
 
 ## 🚨 GÜNCEL DURUM (23 Aralık 2025)
 
-**🎉 modern_YZ_04 TAMAMLANDI! Phase 0 Finalized!**
+**🎉 modern_YZ_05 TAMAMLANDI! Phase 1, Task 1.1 - String Type Complete!**
 
-**Phase 0, Task 0.4 TAMAMLANDI - Finalization:**
-- ✅ README.md updated with Phase 0 features
-- ✅ Test suite created (8 tests passing)
-- ✅ Performance benchmark completed (avg 2.8ms)
-- ✅ Git tag v0.1.0-phase0 created
-- ✅ Documentation comprehensive
+**Phase 1, Task 1.1 TAMAMLANDI - String Type & Concatenation:**
+- ✅ String variable declaration: `string x = "hello"`
+- ✅ String concatenation: `"a" + "b"` = `"ab"`
+- ✅ String comparison: all 6 operators (==, !=, <, >, <=, >=)
+- ✅ Test suite: 8/8 tests passing
+- ✅ LLVM backend: mlp_string_concat, mlp_string_compare
 
 **Phase 0 COMPLETE! All Tasks Finished:**
 - ✅ Task 0.1a: File I/O Infrastructure (modern_YZ_01)
 - ✅ Task 0.2: Variables Support (modern_YZ_02)
 - ✅ Task 0.3: While Loops (modern_YZ_03)
 - ✅ Task 0.4: Finalization (modern_YZ_04)
-- ⏳ Task 0.1b: Real Bootstrap (deferred to after Task 1.1)
+- ⏳ Task 0.1b: Real Bootstrap (deferred to after Task 1.1) ← NOW READY!
 
-**Tamamlanan (Self-hosting + File I/O + Variables + While Loops + Tests):**
+**Phase 1 Progress:**
+- ✅ Task 1.1: String Type & Concatenation (modern_YZ_05)
+- ❌ Task 1.2: For Loops ← SONRAKİ TASK!
+- ❌ Task 1.3: Arrays
+- ❌ Task 1.4: Structs
+
+**Tamamlanan Özellikler:**
 - ✅ Function definitions
 - ✅ Numeric type (basic)
 - ✅ Return statements
@@ -37,12 +43,10 @@
 - ✅ **File I/O (read_file, write_file)**
 - ✅ **Variables (declaration + assignment)**
 - ✅ **While loops (while-do-end_while)**
-- ✅ **Test suite (8 tests)**
-- ✅ **Benchmark (2.8ms avg)**
+- ✅ **String type (declaration, concat, compare)**
 
 **Eksikler (yapılacak - Phase 1):**
-- ❌ **String type + concat** ← Task 1.1 - SONRAKİ TASK!
-- ❌ For loops ← Task 1.2
+- ❌ **For loops** ← Task 1.2 - SONRAKİ TASK!
 - ❌ Arrays ← Task 1.3
 - ❌ Structs ← Task 1.4
 - ❌ FFI
@@ -50,50 +54,48 @@
 - ❌ Error handling
 
 ---
-## 🎯 SONRAKİ YZ: modern_YZ_05
+## 🎯 SONRAKİ YZ: modern_YZ_06
 
-### Görev: Phase 1, Task 1.1 - String Type & Concatenation
+### Görev: Phase 1, Task 1.2 - For Loops
 
 **Ne yapacaksın:**
 
-String type desteği ve concatenation ekle.
+For döngüsü desteği ekle (numeric range iteration).
 
 **Spesifik adımlar (TODO'dan):**
 
-1. **String type definition**
-   - Lexer: string keyword
-   - Parser: string variable declaration
-   - CodeGen: LLVM string handling
+1. **Parser: for...to...do syntax**
+   - `for i = 1 to 10 do` ... `end_for`
+   - `for i = 10 to 1 step -1 do` (reverse range)
+   - Token: TOKEN_FOR, TOKEN_TO, TOKEN_STEP
 
-2. **String concatenation**
-   - Operator: `+` for strings
-   - Multi-operand chaining
-   - LLVM IR string concat
+2. **CodeGen: LLVM IR loop generation**
+   - Loop initialization: i = start
+   - Condition check: i <= end (or i >= end for reverse)
+   - Body execution
+   - Increment/decrement: i = i + step
+   - Branch back to condition
 
-3. **String comparison**
-   - Operators: ==, !=, <, >, <=, >=
-   - Lexicographic ordering
-
-4. **Test & Validate**
-   - String literals
-   - String variables
-   - Concatenation tests
-   - Comparison tests
+3. **Test & Validate**
+   - Simple range: `for i = 1 to 10`
+   - Reverse range: `for i = 10 to 1 step -1`
+   - Accumulation: sum from 1 to 10 = 55
 
 **Başarı kriterleri:**
 ```
-[ ] string x = "hello" çalışıyor
-[ ] String concat: "a" + "b" = "ab"
-[ ] String comparison: "a" < "b" = true
+[ ] for i = 1 to 10 do ... end_for çalışıyor
+[ ] Reverse range: for i = 10 to 1 step -1
+[ ] Test: sum 1 to 10 = 55 (exit code 55)
 [ ] Test exit codes doğru
 [ ] TODO dışı iş yapılmadı
 ```
 
-**BONUS (opsiyonel):**
+**YASAK:**
 ```
-✅ Task 1.1 tamamlandıktan sonra Task 0.1b'yi yap
-   → Real bootstrap with file I/O
-   → Gen1 → Gen2 → Gen3 convergence test
+❌ for-in (list iteration) - Task 1.3'te gelecek!
+❌ Break/continue - sonra
+❌ Multiple step sizes - sadece +1 ve -1
+❌ Task dışı özellik ekleme
 ```
 
 ---

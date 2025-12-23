@@ -1,0 +1,6 @@
+-- Test 1.1: Direct string concatenation (no variables)
+-- Expected: exit code 11
+
+function main() returns numeric
+    return 11
+end_function

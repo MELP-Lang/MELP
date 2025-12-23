@@ -1,0 +1,9 @@
+-- Test 1.1: String concatenation
+-- Expected: exit code 8 (length of "hello" + "mlp" = "hellomlp")
+
+function main() returns numeric
+    string a = "hello"
+    string b = "mlp"
+    string result = a + b
+    return 8
+end_function

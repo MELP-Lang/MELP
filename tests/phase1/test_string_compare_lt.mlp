@@ -1,0 +1,11 @@
+-- Test 1.1: String comparison - less than
+-- Expected: exit code 1 (true, "apple" < "banana")
+
+function main() returns numeric
+    string a = "apple"
+    string b = "banana"
+    if a < b then
+        return 1
+    end_if
+    return 0
+end_function

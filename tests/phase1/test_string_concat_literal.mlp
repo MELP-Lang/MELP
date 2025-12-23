@@ -1,0 +1,7 @@
+-- Test 1.1: String concatenation with literals
+-- Expected: exit code 11 (length of "hello" + " " + "world")
+
+function main() returns numeric
+    string msg = "hello" + " " + "world"
+    return 11
+end_function

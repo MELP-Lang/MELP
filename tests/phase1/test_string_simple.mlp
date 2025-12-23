@@ -1,0 +1,7 @@
+-- Test 1.1: Simple string variable declaration
+-- Expected: exit code 5 (string length)
+
+function main() returns numeric
+    string x = "hello"
+    return 5
+end_function

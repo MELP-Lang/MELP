@@ -323,6 +323,11 @@ VariableDeclaration* variable_parse_declaration(Lexer* lexer, Token* type_token)
         token_free(tok);  // arithmetic parser borrowed it, we still own it
         
         if (expr) {
+            // modern_YZ_05: Force is_string flag for string variables
+            if (decl->type == VAR_STRING) {
+                expr->is_string = 1;
+            }
+            
             // Check if it's a simple literal (but not a collection)
             if (expr->is_literal && !expr->left && !expr->right && !expr->is_collection) {
                 // Simple literal: numeric x = 5

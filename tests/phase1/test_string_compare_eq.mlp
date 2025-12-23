@@ -1,0 +1,11 @@
+-- Test 1.1: String comparison - equality
+-- Expected: exit code 1 (true)
+
+function main() returns numeric
+    string a = "hello"
+    string b = "hello"
+    if a == b then
+        return 1
+    end_if
+    return 0
+end_function
