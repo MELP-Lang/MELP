@@ -391,13 +391,15 @@ LLVMValue* llvm_emit_call(LLVMContext* ctx, const char* func_name,
     result->is_constant = 0;
     
     // YZ_200: Determine return type based on function name
+    // modern_YZ_01: Add file I/O functions
     int returns_pointer = (strncmp(func_name, "melp_list", 9) == 0 && 
                           (strcmp(func_name, "melp_list_create") == 0 ||
                            strcmp(func_name, "melp_list_get") == 0)) ||
                           (strncmp(func_name, "melp_map", 8) == 0 &&
                           (strcmp(func_name, "melp_map_create") == 0 ||
                            strcmp(func_name, "melp_map_get") == 0)) ||
-                          strcmp(func_name, "malloc") == 0;  // malloc returns i8*
+                          strcmp(func_name, "malloc") == 0 ||  // malloc returns i8*
+                          strcmp(func_name, "mlp_read_file") == 0;  // mlp_read_file returns i8*
     
     int returns_i32 = (strcmp(func_name, "melp_list_append") == 0 ||
                        strcmp(func_name, "melp_list_prepend") == 0 ||
@@ -588,6 +590,14 @@ void llvm_emit_printf_support(LLVMContext* ctx) {
     fprintf(ctx->output, "declare i32 @melp_map_has_key(i8*, i8*)\n");
     fprintf(ctx->output, "; size_t melp_map_length(MelpMap* map)\n");
     fprintf(ctx->output, "declare i64 @melp_map_length(i8*)\n\n");
+    
+    fprintf(ctx->output, "; MLP Standard Library - File I/O Functions (modern_YZ_01)\n");
+    fprintf(ctx->output, "; char* mlp_read_file(const char* filename)\n");
+    fprintf(ctx->output, "declare i8* @mlp_read_file(i8*)\n");
+    fprintf(ctx->output, "; int64_t mlp_write_file(const char* filename, const char* content)\n");
+    fprintf(ctx->output, "declare i64 @mlp_write_file(i8*, i8*)\n");
+    fprintf(ctx->output, "; int64_t mlp_append_file(const char* filename, const char* content)\n");
+    fprintf(ctx->output, "declare i64 @mlp_append_file(i8*, i8*)\n\n");
 }
 
 LLVMValue* llvm_emit_println(LLVMContext* ctx, LLVMValue* value) {

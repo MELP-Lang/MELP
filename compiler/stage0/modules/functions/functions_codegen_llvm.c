@@ -352,12 +352,13 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
             
             if (is_pointer) {
                 // Pointer variable (string/list): load i8* from i8**
+                // modern_YZ_01: String variables use _ptr suffix
                 LLVMValue* loaded = malloc(sizeof(LLVMValue));
                 loaded->name = llvm_new_temp(ctx->llvm_ctx);
                 loaded->is_constant = 0;
                 loaded->type = LLVM_TYPE_I8_PTR;
                 
-                fprintf(ctx->llvm_ctx->output, "    %s = load i8*, i8** %%%s, align 8\n",
+                fprintf(ctx->llvm_ctx->output, "    %s = load i8*, i8** %%%s_ptr, align 8\n",
                         loaded->name, arith->value);
                 
                 return loaded;
@@ -575,6 +576,64 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
             LLVMValue* arg = generate_expression_llvm(ctx, call->arguments[0]);
             LLVMValue* result = llvm_emit_println(ctx->llvm_ctx, arg);
             // Don't free arg - println returns it
+            return result;
+        }
+        
+        // modern_YZ_01: File I/O functions
+        if (strcmp(actual_function_name, "read_file") == 0) {
+            if (call->arg_count != 1) {
+                fprintf(stderr, "ERROR: read_file requires exactly 1 argument (filename)\n");
+                return llvm_const_i64(0);
+            }
+            // Generate filename argument
+            LLVMValue* filename = generate_expression_llvm(ctx, call->arguments[0]);
+            // Call mlp_read_file(i8*) -> i8*
+            LLVMValue** args = malloc(sizeof(LLVMValue*) * 1);
+            args[0] = filename;
+            LLVMValue* result = llvm_emit_call(ctx->llvm_ctx, "mlp_read_file", args, 1);
+            result->type = LLVM_TYPE_I8_PTR;  // Returns string pointer
+            llvm_value_free(filename);
+            free(args);
+            return result;
+        }
+        
+        if (strcmp(actual_function_name, "write_file") == 0) {
+            if (call->arg_count != 2) {
+                fprintf(stderr, "ERROR: write_file requires exactly 2 arguments (filename, content)\n");
+                return llvm_const_i64(0);
+            }
+            // Generate filename and content arguments
+            LLVMValue* filename = generate_expression_llvm(ctx, call->arguments[0]);
+            LLVMValue* content = generate_expression_llvm(ctx, call->arguments[1]);
+            // Call mlp_write_file(i8*, i8*) -> i64
+            LLVMValue** args = malloc(sizeof(LLVMValue*) * 2);
+            args[0] = filename;
+            args[1] = content;
+            LLVMValue* result = llvm_emit_call(ctx->llvm_ctx, "mlp_write_file", args, 2);
+            result->type = LLVM_TYPE_I64;  // Returns i64 (success/failure)
+            llvm_value_free(filename);
+            llvm_value_free(content);
+            free(args);
+            return result;
+        }
+        
+        if (strcmp(actual_function_name, "append_file") == 0) {
+            if (call->arg_count != 2) {
+                fprintf(stderr, "ERROR: append_file requires exactly 2 arguments (filename, content)\n");
+                return llvm_const_i64(0);
+            }
+            // Generate filename and content arguments
+            LLVMValue* filename = generate_expression_llvm(ctx, call->arguments[0]);
+            LLVMValue* content = generate_expression_llvm(ctx, call->arguments[1]);
+            // Call mlp_append_file(i8*, i8*) -> i64
+            LLVMValue** args = malloc(sizeof(LLVMValue*) * 2);
+            args[0] = filename;
+            args[1] = content;
+            LLVMValue* result = llvm_emit_call(ctx->llvm_ctx, "mlp_append_file", args, 2);
+            result->type = LLVM_TYPE_I64;  // Returns i64 (success/failure)
+            llvm_value_free(filename);
+            llvm_value_free(content);
+            free(args);
             return result;
         }
         
@@ -912,30 +971,52 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
             }
             
             // YZ_62: Phase 17 - Handle string variables
-            if (decl->type == VAR_STRING && decl->value) {
+            if (decl->type == VAR_STRING) {
                 // Register variable type
                 register_variable_type(ctx, decl->name, 1);  // 1 = pointer (i8*)
                 
-                // String variable: string x = "hello"
+                // String variable: string x = "hello" or string x = read_file(...)
                 // Allocate i8* pointer on stack using variable name + _ptr suffix
                 char var_ptr_name[256];
                 snprintf(var_ptr_name, sizeof(var_ptr_name), "%%%s_ptr", decl->name);
                 fprintf(ctx->llvm_ctx->output, "  %s = alloca i8*, align 8\n", var_ptr_name);
                 
-                // Create global string constant
-                char* global_name = llvm_emit_string_global(ctx->llvm_ctx, decl->value);
+                // modern_YZ_01: Handle both literal and expression initializers
+                if (decl->init_expr) {
+                    // Expression initializer (e.g., read_file(...))
+                    LLVMValue* init_val = generate_expression_llvm(ctx, decl->init_expr);
+                    
+                    // Store string pointer to variable
+                    fprintf(ctx->llvm_ctx->output, "  store i8* ");
+                    if (init_val->is_constant) {
+                        fprintf(ctx->llvm_ctx->output, "null");
+                    } else {
+                        fprintf(ctx->llvm_ctx->output, "%s", init_val->name);
+                    }
+                    fprintf(ctx->llvm_ctx->output, ", i8** %s, align 8\n", var_ptr_name);
+                    
+                    llvm_value_free(init_val);
+                } else if (decl->value) {
+                    // Literal string initializer
+                    // Create global string constant
+                    char* global_name = llvm_emit_string_global(ctx->llvm_ctx, decl->value);
+                    
+                    // Get pointer to first character
+                    char* str_ptr = llvm_new_temp(ctx->llvm_ctx);
+                    size_t str_len = strlen(decl->value) + 1;
+                    fprintf(ctx->llvm_ctx->output, "  %s = getelementptr inbounds [%zu x i8], [%zu x i8]* %s, i64 0, i64 0\n",
+                            str_ptr, str_len, str_len, global_name);
+                    
+                    // Store string pointer to variable
+                    fprintf(ctx->llvm_ctx->output, "  store i8* %s, i8** %s, align 8\n", str_ptr, var_ptr_name);
+                    
+                    free(global_name);
+                    free(str_ptr);
+                } else {
+                    // No initializer - store NULL
+                    fprintf(ctx->llvm_ctx->output, "  store i8* null, i8** %s, align 8\n", var_ptr_name);
+                }
                 
-                // Get pointer to first character
-                char* str_ptr = llvm_new_temp(ctx->llvm_ctx);
-                size_t str_len = strlen(decl->value) + 1;
-                fprintf(ctx->llvm_ctx->output, "  %s = getelementptr inbounds [%zu x i8], [%zu x i8]* %s, i64 0, i64 0\n",
-                        str_ptr, str_len, str_len, global_name);
-                
-                // Store string pointer to variable
-                fprintf(ctx->llvm_ctx->output, "  store i8* %s, i8** %s, align 8\n", str_ptr, var_ptr_name);
-                
-                free(global_name);
-                free(str_ptr);
                 return NULL;
             }
             
