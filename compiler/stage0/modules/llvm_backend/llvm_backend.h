@@ -27,13 +27,15 @@ struct LLVMContext {
     int label_counter;      // Counter for labels
     int string_counter;     // Counter for string constants
     StringGlobal* string_globals;  // YZ_61: Linked list of string constants
+    int last_was_terminator; // modern_YZ_05: Track if last instruction was ret/br
 };
 
 // YZ_64: LLVM Value Type
 typedef enum {
     LLVM_TYPE_I64 = 0,      // numeric (default)
     LLVM_TYPE_I8_PTR = 1,   // string (i8*)
-    LLVM_TYPE_I1 = 2        // boolean (for future use)
+    LLVM_TYPE_I1 = 2,       // boolean (for future use)
+    LLVM_TYPE_I32 = 3       // modern_YZ_05: i32 for comparison results
 } LLVMValueType;
 
 // LLVM Value - represents a value in IR (register or constant)

@@ -767,6 +767,19 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
         
         LLVMValue* result = NULL;
         
+        // modern_YZ_05: Check for string concatenation
+        if (arith->op == ARITH_ADD && arith->is_string) {
+            // String concatenation: call mlp_string_concat
+            LLVMValue** args = malloc(sizeof(LLVMValue*) * 2);
+            args[0] = left;
+            args[1] = right;
+            result = llvm_emit_call(ctx->llvm_ctx, "mlp_string_concat", args, 2);
+            free(args);
+            llvm_value_free(left);
+            llvm_value_free(right);
+            return result;
+        }
+        
         switch (arith->op) {
             case ARITH_ADD:
                 result = llvm_emit_add(ctx->llvm_ctx, left, right);
@@ -817,12 +830,14 @@ static LLVMValue* generate_comparison_llvm(FunctionLLVMContext* ctx, ComparisonE
             long val = atol(cmp->left_value);
             left = llvm_const_i64(val);
         } else {
-            // Variable reference
+            // Variable reference - modern_YZ_05: Check if it's a string (pointer type)
             FunctionParam* param = ctx->current_func->params;
             int is_param = 0;
+            int param_is_string = 0;
             while (param) {
                 if (strcmp(param->name, cmp->left_value) == 0) {
                     is_param = 1;
+                    param_is_string = (param->type == FUNC_PARAM_TEXT);
                     break;
                 }
                 param = param->next;
@@ -830,10 +845,26 @@ static LLVMValue* generate_comparison_llvm(FunctionLLVMContext* ctx, ComparisonE
             
             if (is_param) {
                 left = llvm_reg(cmp->left_value);
+                if (param_is_string) {
+                    left->type = LLVM_TYPE_I8_PTR;
+                }
             } else {
-                LLVMValue* var_ptr = llvm_reg(cmp->left_value);
-                left = llvm_emit_load(ctx->llvm_ctx, var_ptr);
-                llvm_value_free(var_ptr);
+                // Local variable - check if it's a pointer type
+                int is_pointer = lookup_variable_type(ctx, cmp->left_value);
+                if (is_pointer) {
+                    // String variable: load from varname_ptr
+                    char ptr_name[256];
+                    snprintf(ptr_name, sizeof(ptr_name), "%s_ptr", cmp->left_value);
+                    LLVMValue* var_ptr = llvm_reg(ptr_name);
+                    var_ptr->type = LLVM_TYPE_I8_PTR;  // Mark as i8** before load
+                    left = llvm_emit_load(ctx->llvm_ctx, var_ptr);
+                    llvm_value_free(var_ptr);
+                } else {
+                    // Numeric variable
+                    LLVMValue* var_ptr = llvm_reg(cmp->left_value);
+                    left = llvm_emit_load(ctx->llvm_ctx, var_ptr);
+                    llvm_value_free(var_ptr);
+                }
             }
         }
     } else {
@@ -848,12 +879,14 @@ static LLVMValue* generate_comparison_llvm(FunctionLLVMContext* ctx, ComparisonE
             long val = atol(cmp->right_value);
             right = llvm_const_i64(val);
         } else {
-            // Variable reference
+            // Variable reference - modern_YZ_05: Check if it's a string (pointer type)
             FunctionParam* param = ctx->current_func->params;
             int is_param = 0;
+            int param_is_string = 0;
             while (param) {
                 if (strcmp(param->name, cmp->right_value) == 0) {
                     is_param = 1;
+                    param_is_string = (param->type == FUNC_PARAM_TEXT);
                     break;
                 }
                 param = param->next;
@@ -861,10 +894,26 @@ static LLVMValue* generate_comparison_llvm(FunctionLLVMContext* ctx, ComparisonE
             
             if (is_param) {
                 right = llvm_reg(cmp->right_value);
+                if (param_is_string) {
+                    right->type = LLVM_TYPE_I8_PTR;
+                }
             } else {
-                LLVMValue* var_ptr = llvm_reg(cmp->right_value);
-                right = llvm_emit_load(ctx->llvm_ctx, var_ptr);
-                llvm_value_free(var_ptr);
+                // Local variable - check if it's a pointer type
+                int is_pointer = lookup_variable_type(ctx, cmp->right_value);
+                if (is_pointer) {
+                    // String variable: load from varname_ptr
+                    char ptr_name[256];
+                    snprintf(ptr_name, sizeof(ptr_name), "%s_ptr", cmp->right_value);
+                    LLVMValue* var_ptr = llvm_reg(ptr_name);
+                    var_ptr->type = LLVM_TYPE_I8_PTR;  // Mark as i8** before load
+                    right = llvm_emit_load(ctx->llvm_ctx, var_ptr);
+                    llvm_value_free(var_ptr);
+                } else {
+                    // Numeric variable
+                    LLVMValue* var_ptr = llvm_reg(cmp->right_value);
+                    right = llvm_emit_load(ctx->llvm_ctx, var_ptr);
+                    llvm_value_free(var_ptr);
+                }
             }
         }
     } else {
@@ -881,6 +930,54 @@ static LLVMValue* generate_comparison_llvm(FunctionLLVMContext* ctx, ComparisonE
         case CMP_GREATER:       llvm_op = "sgt"; break;
         case CMP_GREATER_EQUAL: llvm_op = "sge"; break;
         default:                llvm_op = "eq";  break;
+    }
+    
+    // modern_YZ_05: Handle string comparisons (check if operands are i8*)
+    // Infer from loaded types instead of relying on cmp->is_string flag
+    if (left->type == LLVM_TYPE_I8_PTR && right->type == LLVM_TYPE_I8_PTR) {
+        // Call mlp_string_compare(str1, str2) -> returns int
+        // -1 if str1 < str2, 0 if equal, 1 if str1 > str2
+        LLVMValue** args = malloc(sizeof(LLVMValue*) * 2);
+        args[0] = left;
+        args[1] = right;
+        LLVMValue* cmp_result = llvm_emit_call(ctx->llvm_ctx, "mlp_string_compare", args, 2);
+        free(args);
+        
+        // Compare result with 0 to get boolean (cmp_result is i32, need i32 zero)
+        LLVMValue* zero = llvm_const_i64(0);
+        zero->type = LLVM_TYPE_I32;  // Override to i32 for comparison with i32 result
+        LLVMValue* result = NULL;
+        
+        switch (cmp->op) {
+            case CMP_EQUAL:         // strcmp == 0
+                result = llvm_emit_icmp(ctx->llvm_ctx, "eq", cmp_result, zero);
+                break;
+            case CMP_NOT_EQUAL:     // strcmp != 0
+                result = llvm_emit_icmp(ctx->llvm_ctx, "ne", cmp_result, zero);
+                break;
+            case CMP_LESS:          // strcmp < 0
+                result = llvm_emit_icmp(ctx->llvm_ctx, "slt", cmp_result, zero);
+                break;
+            case CMP_LESS_EQUAL:    // strcmp <= 0
+                result = llvm_emit_icmp(ctx->llvm_ctx, "sle", cmp_result, zero);
+                break;
+            case CMP_GREATER:       // strcmp > 0
+                result = llvm_emit_icmp(ctx->llvm_ctx, "sgt", cmp_result, zero);
+                break;
+            case CMP_GREATER_EQUAL: // strcmp >= 0
+                result = llvm_emit_icmp(ctx->llvm_ctx, "sge", cmp_result, zero);
+                break;
+            default:
+                result = llvm_emit_icmp(ctx->llvm_ctx, "eq", cmp_result, zero);
+                break;
+        }
+        
+        llvm_value_free(cmp_result);
+        llvm_value_free(zero);
+        llvm_value_free(left);
+        llvm_value_free(right);
+        
+        return result;
     }
     
     // Emit comparison instruction
@@ -1231,9 +1328,14 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
                 generate_statement_llvm(ctx, then_stmt);
                 then_stmt = then_stmt->next;
             }
-            llvm_emit_br(ctx->llvm_ctx, after_label);
+            // modern_YZ_05: Only emit branch if last statement wasn't a terminator
+            int then_terminated = ctx->llvm_ctx->last_was_terminator;
+            if (!then_terminated) {
+                llvm_emit_br(ctx->llvm_ctx, after_label);
+            }
             
             // Else block (if exists)
+            int else_terminated = 0;
             if (if_stmt->has_else) {
                 llvm_emit_label(ctx->llvm_ctx, else_label);
                 Statement* else_stmt = if_stmt->else_body;
@@ -1241,12 +1343,18 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
                     generate_statement_llvm(ctx, else_stmt);
                     else_stmt = else_stmt->next;
                 }
-                llvm_emit_br(ctx->llvm_ctx, after_label);
+                // modern_YZ_05: Only emit branch if last statement wasn't a terminator
+                else_terminated = ctx->llvm_ctx->last_was_terminator;
+                if (!else_terminated) {
+                    llvm_emit_br(ctx->llvm_ctx, after_label);
+                }
                 free(else_label);
             }
             
-            // After if
-            llvm_emit_label(ctx->llvm_ctx, after_label);
+            // After if - modern_YZ_05: Only emit label if at least one branch didn't terminate
+            if (!then_terminated || !else_terminated) {
+                llvm_emit_label(ctx->llvm_ctx, after_label);
+            }
             
             free(then_label);
             free(after_label);

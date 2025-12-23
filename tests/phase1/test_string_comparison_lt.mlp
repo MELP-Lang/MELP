@@ -1,0 +1,11 @@
+-- Task 1.1: String comparison (<) lexicographic
+function main() returns numeric
+    string a = "apple"
+    string b = "banana"
+    
+    if a < b then
+        return 1
+    else
+        return 0
+    end_if
+end_function

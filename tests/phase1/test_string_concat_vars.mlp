@@ -1,0 +1,8 @@
+-- Task 1.1: String concatenation with variables
+function main() returns numeric
+    string a = "Hello"
+    string b = "World"
+    string c = a + " " + b
+    print(c)
+    return 0
+end_function

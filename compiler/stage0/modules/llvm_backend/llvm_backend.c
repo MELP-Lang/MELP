@@ -17,6 +17,7 @@ LLVMContext* llvm_context_create(FILE* output) {
     ctx->label_counter = 1;
     ctx->string_counter = 1;
     ctx->string_globals = NULL;  // YZ_61: Initialize globals list
+    ctx->last_was_terminator = 0; // modern_YZ_05: Initialize terminator flag
     return ctx;
 }
 
@@ -112,6 +113,7 @@ LLVMValue* llvm_emit_return(LLVMContext* ctx, LLVMValue* value, int return_type)
     } else {
         fprintf(ctx->output, "    ret %s %s\n", ret_type_str, value->name);
     }
+    ctx->last_was_terminator = 1; // modern_YZ_05: Mark as terminator
     return value;
 }
 
@@ -144,10 +146,20 @@ LLVMValue* llvm_emit_load(LLVMContext* ctx, LLVMValue* ptr) {
     LLVMValue* result = malloc(sizeof(LLVMValue));
     result->name = llvm_new_temp(ctx);
     result->is_constant = 0;
-    result->type = LLVM_TYPE_I64;  // YZ_64: Load always returns i64 for now
     
-    fprintf(ctx->output, "    %s = load i64, i64* %s, align 8\n",
-            result->name, ptr->name);
+    // modern_YZ_05: Check pointer type to determine load type
+    if (ptr->type == LLVM_TYPE_I8_PTR) {
+        // Loading from i8** (string variable ptr)
+        result->type = LLVM_TYPE_I8_PTR;
+        fprintf(ctx->output, "    %s = load i8*, i8** %s, align 8\n",
+                result->name, ptr->name);
+    } else {
+        // Loading from i64* (numeric variable)
+        result->type = LLVM_TYPE_I64;
+        fprintf(ctx->output, "    %s = load i64, i64* %s, align 8\n",
+                result->name, ptr->name);
+    }
+    
     return result;
 }
 
@@ -305,7 +317,13 @@ LLVMValue* llvm_emit_icmp(LLVMContext* ctx, const char* op,
     result->is_constant = 0;
     result->type = LLVM_TYPE_I1;  // YZ_64: Comparison returns i1 (boolean)
     
-    fprintf(ctx->output, "    %s = icmp %s i64 ", result->name, op);
+    // modern_YZ_05: Determine comparison type based on operands
+    const char* cmp_type = "i64";  // Default
+    if (left->type == LLVM_TYPE_I32 || right->type == LLVM_TYPE_I32) {
+        cmp_type = "i32";
+    }
+    
+    fprintf(ctx->output, "    %s = icmp %s %s ", result->name, op, cmp_type);
     
     if (left->is_constant) {
         fprintf(ctx->output, "%ld", left->const_value);
@@ -378,6 +396,7 @@ void llvm_emit_br_cond(LLVMContext* ctx, LLVMValue* condition,
 
 void llvm_emit_label(LLVMContext* ctx, const char* label_name) {
     fprintf(ctx->output, "%s:\n", label_name);
+    ctx->last_was_terminator = 0; // modern_YZ_05: Reset at new label
 }
 
 // ============================================================================
@@ -392,6 +411,7 @@ LLVMValue* llvm_emit_call(LLVMContext* ctx, const char* func_name,
     
     // YZ_200: Determine return type based on function name
     // modern_YZ_01: Add file I/O functions
+    // modern_YZ_05: Add string concatenation
     int returns_pointer = (strncmp(func_name, "melp_list", 9) == 0 && 
                           (strcmp(func_name, "melp_list_create") == 0 ||
                            strcmp(func_name, "melp_list_get") == 0)) ||
@@ -399,14 +419,16 @@ LLVMValue* llvm_emit_call(LLVMContext* ctx, const char* func_name,
                           (strcmp(func_name, "melp_map_create") == 0 ||
                            strcmp(func_name, "melp_map_get") == 0)) ||
                           strcmp(func_name, "malloc") == 0 ||  // malloc returns i8*
-                          strcmp(func_name, "mlp_read_file") == 0;  // mlp_read_file returns i8*
+                          strcmp(func_name, "mlp_read_file") == 0 ||  // mlp_read_file returns i8*
+                          strcmp(func_name, "mlp_string_concat") == 0;  // mlp_string_concat returns i8*
     
     int returns_i32 = (strcmp(func_name, "melp_list_append") == 0 ||
                        strcmp(func_name, "melp_list_prepend") == 0 ||
                        strcmp(func_name, "melp_list_set") == 0 ||
                        strcmp(func_name, "melp_map_insert") == 0 ||
                        strcmp(func_name, "melp_map_remove") == 0 ||
-                       strcmp(func_name, "melp_map_has_key") == 0);
+                       strcmp(func_name, "melp_map_has_key") == 0 ||
+                       strcmp(func_name, "mlp_string_compare") == 0);  // modern_YZ_05
     
     result->type = returns_pointer ? LLVM_TYPE_I8_PTR : LLVM_TYPE_I64;
     const char* return_type_str = returns_pointer ? "i8*" : (returns_i32 ? "i32" : "i64");
@@ -598,6 +620,12 @@ void llvm_emit_printf_support(LLVMContext* ctx) {
     fprintf(ctx->output, "declare i64 @mlp_write_file(i8*, i8*)\n");
     fprintf(ctx->output, "; int64_t mlp_append_file(const char* filename, const char* content)\n");
     fprintf(ctx->output, "declare i64 @mlp_append_file(i8*, i8*)\n\n");
+    
+    fprintf(ctx->output, "; MLP Standard Library - String Functions (modern_YZ_05)\n");
+    fprintf(ctx->output, "; char* mlp_string_concat(const char* str1, const char* str2)\n");
+    fprintf(ctx->output, "declare i8* @mlp_string_concat(i8*, i8*)\n");
+    fprintf(ctx->output, "; int mlp_string_compare(const char* str1, const char* str2)\n");
+    fprintf(ctx->output, "declare i32 @mlp_string_compare(i8*, i8*)\n\n");
 }
 
 LLVMValue* llvm_emit_println(LLVMContext* ctx, LLVMValue* value) {

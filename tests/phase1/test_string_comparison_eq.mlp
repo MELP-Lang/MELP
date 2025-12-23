@@ -1,0 +1,11 @@
+-- Task 1.1: String comparison (==)
+function main() returns numeric
+    string a = "test"
+    string b = "test"
+    
+    if a == b then
+        return 1
+    else
+        return 0
+    end_if
+end_function

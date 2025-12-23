@@ -1655,8 +1655,33 @@ static ArithmeticExpr* parse_primary_stateless(Lexer* lexer, Token** current, Fu
         expr->is_literal = 0;
         expr->value = identifier;
         expr->is_float = 0;
-        expr->is_string = 0;  // YZ_10: TODO - Infer from variable type in symbol table
+        
+        // modern_YZ_05: Infer string type from variable declaration
+        expr->is_string = 0;
         expr->is_boolean = 0;
+        if (func) {
+            // Check local variables
+            LocalVariable* var = func->local_vars;
+            while (var) {
+                if (strcmp(var->name, identifier) == 0) {
+                    expr->is_string = !var->is_numeric;  // is_numeric=0 means string
+                    break;
+                }
+                var = var->next;
+            }
+            
+            // Check parameters
+            if (!expr->is_string) {
+                FunctionParam* param = func->params;
+                while (param) {
+                    if (strcmp(param->name, identifier) == 0) {
+                        expr->is_string = (param->type == FUNC_PARAM_TEXT);
+                        break;
+                    }
+                    param = param->next;
+                }
+            }
+        }
         
         STOTypeInfo* sto_info = malloc(sizeof(STOTypeInfo));
         sto_info->type = INTERNAL_TYPE_INT64;
