@@ -1,0 +1,6 @@
+function main() returns numeric
+    string source = "hello"
+    numeric pos = 0
+    string ch = substring(source, pos, 1)
+    return 0
+end

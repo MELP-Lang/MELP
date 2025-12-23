@@ -1,0 +1,4 @@
+function main() returns numeric
+    string content = read_file("test.txt")
+    return 42
+end
