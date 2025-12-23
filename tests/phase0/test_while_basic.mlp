@@ -1,0 +1,10 @@
+-- Phase 0 Test: While Loop (Task 0.3)
+-- Tests: Basic while loop with counter
+
+function main() returns numeric
+    numeric i = 0
+    while i < 10 do
+        i = i + 1
+    end_while
+    return i  -- Expected: 10
+end_function

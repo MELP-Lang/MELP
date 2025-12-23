@@ -1,0 +1,12 @@
+-- Phase 0 Test: While Loop with Sum
+-- Tests: Accumulation in loop (1+2+...+10 = 55)
+
+function main() returns numeric
+    numeric i = 1
+    numeric sum = 0
+    while i <= 10 do
+        sum = sum + i
+        i = i + 1
+    end_while
+    return sum  -- Expected: 55
+end_function

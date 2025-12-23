@@ -32,9 +32,37 @@ MELP is a statically-typed, compiled programming language designed for:
 
 ## 🎉 Current Status: Stage 0 Bootstrap Compiler (~98% Complete!)
 
-**Latest Achievement: Phase 17 String Support - 100% Complete! 🎉**
+**Latest Achievement: Phase 0 Modern Language - Self-hosting Improvements Complete! 🎉**
 
-### ✅ Completed Features (Phase 1-17)
+### ✅ Phase 0: Self-hosting Improvements (COMPLETE - Dec 23, 2025)
+
+Modern MELP compiler features for production-ready self-hosting:
+
+#### Phase 0 Features (modern_YZ_01-04)
+- ✅ **File I/O Infrastructure** (Task 0.1a): Runtime functions for reading/writing files
+  - `mlp_read_file(filename)` - Read file contents as string
+  - `mlp_write_file(filename, content)` - Write string to file
+  - LLVM backend builtin support
+- ✅ **Variables Support** (Task 0.2): Declaration and assignment
+  - `numeric x = 10` - Declaration with initialization
+  - `x = x + 5` - Variable assignment
+  - LLVM IR: alloca, store, load instructions
+- ✅ **While Loops** (Task 0.3): Control flow iteration
+  - `while i < 10 do ... end_while` - Loop syntax
+  - Loop condition evaluation and body execution
+  - Integration with variables
+- ✅ **Finalization** (Task 0.4): Documentation and testing
+  - Comprehensive test suite (10+ tests)
+  - Performance benchmarking
+  - Phase 0 documentation
+
+**Known Issues:**
+- ⚠️ Stage 0 LLVM backend while codegen bug (functions_codegen_llvm.c:1256)
+  - Body statements generate in wrong label (label3 instead of label2)
+  - Workaround: Use Stage 0 native minimal compiler for while loops
+- ⚠️ Real bootstrap deferred to Phase 1 (requires string concatenation from Task 1.1)
+
+### ✅ Completed Features (Phase 1-17 + Stage 0)
 
 #### Core Language Features
 - ✅ **Variables**: Int, String, Boolean types with type inference
@@ -60,10 +88,12 @@ MELP is a statically-typed, compiled programming language designed for:
 - ✅ **STO Runtime**: Smart Type Optimization for strings
 - ✅ **Modular Architecture**: 26+ feature modules for maintainability
 
-### 🔜 Coming Soon (Phase 18-20)
+### 🔜 Coming Soon (Phase 1+)
 
-- ⏳ **Arrays**: `nums: Array<Int> = [1, 2, 3]` - Dynamic collections (Phase 18)
-- ⏳ **Structs**: User-defined types with fields (Phase 20) ⭐ CRITICAL for Stage 1!
+- ⏳ **String Concatenation** (Phase 1, Task 1.1): Full string concat support for real bootstrap
+- ⏳ **For Loops** (Phase 1, Task 1.2): Iteration with counters
+- ⏳ **Arrays**: `nums: Array<Int> = [1, 2, 3]` - Dynamic collections (Phase 1, Task 1.3)
+- ⏳ **Structs**: User-defined types with fields (Phase 1, Task 1.4) ⭐ CRITICAL for Stage 1!
 - 📝 **Documentation**: Comprehensive tutorials (Phase 19.3 - 95% complete)
 - ⏳ **LLVM Optimizations**: -O0, -O1, -O2, -O3 flags (Phase 16)
 - ⏳ **Debug Info**: DWARF debug information, GDB support (Phase 16)
@@ -72,6 +102,7 @@ MELP is a statically-typed, compiled programming language designed for:
 
 ```
 Stage 0 Bootstrap:  ████████████████████░  98%
+Phase 0 (Modern):   ████████████████████  100%  ✅
 Core Language:      ████████████████████  100%
 String Support:     ████████████████████  100%  ✅
 LLVM Backend:       ███████████████████░   95%
@@ -81,9 +112,11 @@ Documentation:      ███████████████████░
 Self-Hosting:       ████░░░░░░░░░░░░░░░░   20%
 ```
 
-**Target:** Stage 0 Complete by Dec 31, 2025 · Stage 1 Self-hosting by Mar 31, 2026
+**Target:** Phase 1 Start by Dec 31, 2025 · Stage 1 Self-hosting by Mar 31, 2026
 
 **Recent Achievements:**
+- ✅ Phase 0 (Self-hosting Improvements) - 100% complete with finalization
+- ✅ Variables, While Loops, File I/O infrastructure
 - ✅ Phase 17 (String Support) - 100% complete with all operators
 - ✅ 8 Tutorials created (English + Turkish)
 - ✅ ARCHITECTURE.md comprehensive update (+1300 lines)
@@ -92,12 +125,14 @@ Self-Hosting:       ████░░░░░░░░░░░░░░░░
 ---
 
 > **For AI Assistants (YZ Series)**: 
-> - 📋 Start with `NEXT_AI_START_HERE.md` for your current mission
+> - 📋 Start with `MODERN_LANGUAGE_PROCESS/modern_YZ/NEXT_AI_START_HERE.md` for modern language tasks
+> - 📋 Or start with `NEXT_AI_START_HERE.md` for legacy YZ tasks
 > - 📐 Read `ARCHITECTURE.md` for critical architectural rules
-> - 📂 All YZ sessions documented in `YZ/` folder
+> - 📂 Modern YZ sessions documented in `MODERN_LANGUAGE_PROCESS/modern_YZ/` folder
+> - 📂 Legacy YZ sessions documented in `YZ/` folder
 > - 🔧 Follow modular design - NO monolithic code!
 > 
-> **Current Session**: YZ_73 (Phase 19.4 - README Update & Branch Merge)
+> **Current Session**: modern_YZ_04 (Phase 0, Task 0.4 - Finalization)
 
 ---
 

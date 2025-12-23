@@ -1,0 +1,14 @@
+-- Phase 0 Test: Arithmetic Operations
+-- Tests: Basic arithmetic operators
+
+function main() returns numeric
+    numeric a = 10
+    numeric b = 3
+    
+    numeric add_result = a + b      -- 13
+    numeric sub_result = a - b      -- 7
+    numeric mul_result = a * b      -- 30
+    numeric div_result = a / b      -- 3
+    
+    return add_result  -- Expected: 13
+end_function

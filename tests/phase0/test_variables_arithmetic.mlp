@@ -1,0 +1,10 @@
+-- Phase 0 Test: Variables with Arithmetic
+-- Tests: Variable operations with multiple arithmetic
+
+function main() returns numeric
+    numeric a = 5
+    numeric b = 3
+    numeric result = a + b
+    result = result * 2
+    return result  -- Expected: 16
+end_function

@@ -1,0 +1,17 @@
+-- Phase 0 Test: Integration Test (Without While Loop - Known Bug)
+-- Tests: Variables + If + Functions
+
+function calculate_simple(numeric limit) returns numeric
+    numeric result = 0
+    
+    if limit > 5 then
+        result = limit + 10
+    end_if
+    
+    return result
+end_function
+
+function main() returns numeric
+    numeric result = calculate_simple(10)
+    return result  -- Expected: 20
+end_function

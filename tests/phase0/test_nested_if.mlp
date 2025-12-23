@@ -1,0 +1,13 @@
+-- Phase 0 Test: Nested If Statements
+-- Tests: Nested conditionals
+
+function main() returns numeric
+    numeric x = 10
+    if x > 5 then
+        if x > 8 then
+            return 20
+        end_if
+        return 15
+    end_if
+    return 10
+end_function

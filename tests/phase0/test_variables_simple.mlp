@@ -1,0 +1,8 @@
+-- Phase 0 Test: Variables (Task 0.2)
+-- Tests: Variable declaration and assignment
+
+function main() returns numeric
+    numeric x = 10
+    x = x + 5
+    return x  -- Expected: 15
+end_function

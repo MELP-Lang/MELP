@@ -1,0 +1,18 @@
+-- Phase 0 Test: File I/O (Task 0.1a)
+-- Tests: read_file() and write_file() functions
+
+function main() returns numeric
+    -- Write test content to file
+    string test_content = "Hello from MELP!"
+    numeric write_result = write_file("/tmp/melp_test.txt", test_content)
+    
+    if write_result == 0 then
+        return 1  -- Write failed
+    end_if
+    
+    -- Read back the file
+    string read_content = read_file("/tmp/melp_test.txt")
+    
+    -- Success
+    return 42
+end_function

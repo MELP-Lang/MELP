@@ -1,0 +1,10 @@
+-- Phase 0 Test: If Statement
+-- Tests: Basic conditional
+
+function main() returns numeric
+    numeric x = 5
+    if x > 3 then
+        x = x + 10
+    end_if
+    return x  -- Expected: 15
+end_function

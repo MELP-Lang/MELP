@@ -1,0 +1,21 @@
+-- Phase 0 Test: Comparison Operators
+-- Tests: Multiple comparison operators
+
+function main() returns numeric
+    numeric a = 10
+    numeric b = 5
+    
+    if a > b then
+        return 1
+    end_if
+    
+    if a < b then
+        return 2
+    end_if
+    
+    if a == b then
+        return 3
+    end_if
+    
+    return 0
+end_function
