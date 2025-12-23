@@ -7,7 +7,7 @@ function string_length(string text) returns numeric
     return 10
 end_function
 
-function string_concat(string a, string b) returns string
+function string_concat(string a; string b) returns string
     -- Mock implementation
     return "combined"
 end_function

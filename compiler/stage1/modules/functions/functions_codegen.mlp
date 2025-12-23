@@ -114,7 +114,7 @@ function codegen_function_prologue(string func_name; list params; numeric return
     numeric i = 0
     
     -- Count parameters
-    while i < 100 do  -- Max 100 params (Stage 0 limitation)
+    while i < 100  -- Max 100 params (Stage 0 limitation)
         list param = params[i]
         if param == 0 then
             -- No more params
@@ -209,13 +209,13 @@ function codegen_function_declaration(list func_decl; string body_ir) returns st
     string ir = ""
     
     -- Prologue
-    ir = ir + codegen_function_prologue(func_name, params, return_type)
+    ir = ir + codegen_function_prologue(func_name; params; return_type)
     
     -- Body
     ir = ir + body_ir
     
     -- Epilogue (with default return for now)
-    ir = ir + codegen_function_epilogue(return_type, "0")
+    ir = ir + codegen_function_epilogue(return_type; "0")
     
     return ir
 end_function
@@ -240,7 +240,7 @@ function codegen_function_call(list func_call; numeric register_num) returns lis
     numeric i = 0
     
     -- Count arguments
-    while i < 100 do  -- Max 100 args
+    while i < 100  -- Max 100 args
         list arg = args[i]
         if arg == 0 then
             i = 100

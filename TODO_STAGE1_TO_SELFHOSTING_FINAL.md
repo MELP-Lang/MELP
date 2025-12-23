@@ -280,38 +280,45 @@ timeout 15 ./compiler/stage0/modules/functions/functions_compiler \
 
 ### PHASE 2: Modül Entegrasyonu (1 gün)
 
-**Hedef:** Lexer, parser, codegen modüllerini `compiler.mlp`'de birleştir.
+**Hedef:** Lexer, parser, codegen modüllerini build-time concat ile birleştir.
 
-#### Task 2.1: Compiler Orchestrator (4 saat)
+#### Task 2.1: Build-time Concat Pipeline (2 saat)
 
-**Görev:** `compiler.mlp`'yi düzelt/yeniden yaz.
+**MASTERMIND KARARI (24 Aralık 2025):**
+- ❌ Monolitik compiler.mlp → Bakım zorluğu
+- ❌ Stage 0'a import ekle → Scope creep, geciktirici
+- ✅ **Build-time concat** → Pragmatik, hızlı
 
-```melp
--- compiler.mlp
--- Stage 1 Self-Hosting Compiler
+**Görev:** Modüler kaynak dosyalarını derleme öncesi birleştir.
 
-function main() returns numeric
-    -- 1. Kaynak dosyayı oku
-    string source = read_file("input.mlp")
-    
-    -- 2. Tokenize et
-    list tokens = tokenize(source)
-    
-    -- 3. Parse et
-    list ast = parse(tokens)
-    
-    -- 4. LLVM IR üret
-    string ir = generate_llvm(ast)
-    
-    -- 5. Dosyaya yaz
-    write_file("output.ll"; ir)
-    
-    return 0
-end_function
+**Kaynak yapısı (modüler kalır):**
+```
+compiler/stage1/
+├── lexer.mlp      # Bağımsız lexer
+├── parser.mlp     # Bağımsız parser  
+├── codegen.mlp    # Bağımsız codegen
+└── main.mlp       # Entry point
 ```
 
-**Seçenek A:** Tüm fonksiyonları tek dosyada birleştir
-**Seçenek B:** Stage 0'a multi-file desteği ekle (SON ÇARE!)
+**Build script (`scripts/build_compiler.sh`):**
+```bash
+#!/bin/bash
+# Build-time concat - modülleri birleştir
+cat compiler/stage1/lexer.mlp \
+    compiler/stage1/parser.mlp \
+    compiler/stage1/codegen.mlp \
+    compiler/stage1/main.mlp > /tmp/compiler_full.mlp
+
+# Derle
+./compiler/stage0/melp /tmp/compiler_full.mlp -o build/compiler_gen1.ll
+```
+
+**Başarı kriteri:** 
+- [ ] 4 modüler dosya oluşturulmuş
+- [ ] Build script çalışıyor
+- [ ] compiler_gen1.ll üretiliyor
+
+**NOT:** Gerçek import desteği Stage 1 tamamlandıktan SONRA eklenir!
 
 ---
 

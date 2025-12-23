@@ -50,24 +50,52 @@ declare i32 @melp_map_has_key(i8*, i8*)
 declare i64 @melp_map_length(i8*)
 
 
-; Function: get_name
-define i8* @get_name() {
+; Function: add
+define i64 @add(i64 %a, i64 %b) {
 entry:
-    %tmp1 = getelementptr inbounds [5 x i8], [5 x i8]* @.str.1, i64 0, i64 0
-    ret i8* %tmp1
+    %tmp1 = add nsw i64 %a, %b
+    ret i64 %tmp1
+}
+
+; Function: multiply
+define i64 @multiply(i64 %x, i64 %y) {
+entry:
+    %tmp2 = mul nsw i64 %x, %y
+    ret i64 %tmp2
+}
+
+; Function: calculate
+define i64 @calculate() {
+entry:
+    %a = alloca i64, align 8
+    store i64 10, i64* %a, align 8
+    %b = alloca i64, align 8
+    store i64 20, i64* %b, align 8
+    %sum = alloca i64, align 8
+    store i64 0, i64* %sum, align 8
+    %product = alloca i64, align 8
+    store i64 0, i64* %product, align 8
+    %tmp3 = load i64, i64* %a, align 8
+    %tmp4 = load i64, i64* %b, align 8
+    %tmp5 = call i64 @add(i64 %tmp3, i64 %tmp4)
+    store i64 %tmp5, i64* %sum, align 8
+    %tmp6 = load i64, i64* %a, align 8
+    %tmp7 = load i64, i64* %b, align 8
+    %tmp8 = call i64 @multiply(i64 %tmp6, i64 %tmp7)
+    store i64 %tmp8, i64* %product, align 8
+    %tmp9 = load i64, i64* %sum, align 8
+    %tmp10 = load i64, i64* %product, align 8
+    %tmp11 = add nsw i64 %tmp9, %tmp10
+    ret i64 %tmp11
 }
 
 ; Function: main
 define i64 @main() {
 entry:
-  %name_ptr = alloca i8*, align 8
-    %tmp2 = call i8* @get_name()
-  store i8* %tmp2, i8** %name_ptr, align 8
-    %tmp3 = load i8*, i8** %name_ptr, align 8
-    call void @mlp_println_string(i8* %tmp3)
-    ret i64 0
+    %result = alloca i64, align 8
+    store i64 0, i64* %result, align 8
+    %tmp12 = call i64 @calculate()
+    store i64 %tmp12, i64* %result, align 8
+    %tmp13 = load i64, i64* %result, align 8
+    ret i64 %tmp13
 }
-
-; String Constants
-@.str.1 = private unnamed_addr constant [5 x i8] c"MELP\00", align 1
-
