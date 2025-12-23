@@ -1,198 +1,121 @@
 # 🎯 GÖREVLİ YZ BAŞLANGIÇ NOKTASI
 
-**Son Güncelleme:** 23 Aralık 2025  
-**Durum:** 🟢 YZ_04 Göreve Hazır!  
-**Önceki YZ:** YZ_03 (Multi-line strings + Modular compiler!)  
-**Sen:** selfhosting_YZ_04
+**Son Güncelleme:** 24 Aralık 2025  
+**Durum:** 🟢 YZ_08 Göreve Hazır!  
+**Önceki YZ:** YZ_07 (String return bug fix)  
+**Sen:** selfhosting_YZ_08
 
 ---
 
-## 🚨 YZ_03 BAŞARISI!
+## ✅ PHASE 0 TAMAMLANDI!
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  ✅ Gen1 v2 Compiler ÇALIŞIYOR!                             │
+│  Stage 0 artık self-hosting için %100 HAZIR!               │
 │                                                             │
-│  4 Modular Functions:                                      │
-│  → main() - orchestration                                  │
-│  → extract_function_name() - stubbed                       │
-│  → extract_return_value() - stubbed                        │
-│  → generate_llvm_ir() - template-based                     │
+│  Tamamlanan özellikler:                                    │
+│  ✅ YZ_05: While/For Codegen Fix                           │
+│  ✅ YZ_06: char_at() string karakter erişimi               │
+│  ✅ YZ_06: String concat (+) operatörü                     │
+│  ✅ YZ_07: String return bug fix (i8* return type)         │
 │                                                             │
-│  Multi-line Strings: ✅ PMPL natively destekliyor!         │
-│  → No sed workaround needed!                               │
-│  → Clean, readable LLVM IR templates                       │
-│                                                             │
-│  Pipeline:                                                 │
-│  test.mlp → [Gen1 v2] → test.ll → [lli] → Exit 42 ✅      │
+│  Test sonuçları:                                           │
+│  → While: exit code 10 ✅                                  │
+│  → char_at("MELP"; 0) → "M" ✅                             │
+│  → "Hello " + "World" → "Hello World" ✅                   │
+│  → String döndüren fonksiyon çağrısı ✅                    │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 📍 GÜNCEL DURUM
+## 📍 ŞİMDİKİ DURUM
 
-**YZ_03 Başarılar:**
-- ✅ Multi-line string literals working
-- ✅ 4-function modular architecture
-- ✅ Clean LLVM IR templates
-- ✅ File I/O tested and working
-- ✅ compiler_gen1_v2 binary created
+**Branch:** `TODO_STAGE1_TO_SELFHOSTING_FINAL`  
+**İlerleme:** 4/13 task (%30)
 
-**Mevcut Sınırlamalar:**
-- ⚠️ Function name extraction stubbed (returns "main")
-- ⚠️ Return value extraction stubbed (returns 42)
-- ⚠️ LLVM IR generation still template-based
-- ⚠️ No real parsing yet
+**Aktif Görev:** Phase 1 Task 1.1 - Syntax Analizi
 
 ---
 
-## 🎯 YZ_04 GÖREVİ
+## 🎯 YZ_08 GÖREVİ
 
-**Phase 2, Task 2.3: String Operations & Basic Lexer**
+**Phase 1, Task 1.1: Syntax Analizi**
 
-### Ne yapacaksın:
+### Ön Analiz (hazır veri):
 
-**Hedef:** Gen1 v2'ye gerçek string parsing ekle.
+```
+Syntax Hata Özeti:
+- Virgüllü parametre (, yerine ;): 19 dosya
+- while...do (do OLMAMALI): 5 dosya  
+- Array literal virgül ([a,b] yerine [a;b]): 51 dosya
+- then eksik olabilecek if'ler: 20+ dosya
 
-**Adım 1: PMPL String Operations Testi**
-
-PMPL'de string manipulation için builtin fonksiyonlar var mı?
-
-**Test:**
-```mlp
-function test_string_ops() returns numeric
-    string test = "function my_test() returns numeric return 77 end"
-    
-    -- Test 1: length
-    numeric len = length(test)
-    
-    -- Test 2: substring (varsa)
-    -- string sub = substring(test; 0; 8)
-    
-    -- Test 3: find/indexOf (varsa)
-    -- numeric pos = find(test; "function")
-    
-    return len
-end_function
+Toplam Stage 1 modül sayısı: 107 dosya
 ```
 
-**Action:** Test et, hangi fonksiyonlar var?
+### Yapılacaklar:
 
-**Adım 2: Manual String Scanning**
+1. **Tüm Stage 1 modüllerini tara**
+   ```bash
+   find compiler/stage1/modules -name "*.mlp"
+   ```
 
-Eğer builtin yok ise, karakter karakter tara:
+2. **pmlp_kesin_sozdizimi.md'ye göre kontrol et:**
+   - Parametre ayırıcı: `,` → `;`
+   - Array literal: `[a, b]` → `[a; b]`
+   - while: `while cond do` → `while cond` (do YOK!)
+   - Çok satırlı if: `then` gerekli mi?
 
-```mlp
-function find_keyword(string source; string keyword) returns numeric
-    numeric source_len = length(source)
-    numeric keyword_len = length(keyword)
-    
-    -- Loop through source
-    numeric i = 0
-    while i < source_len
-        -- Check if keyword starts at position i
-        -- (Implementation TODO)
-        i = i + 1
-    end_while
-    
-    return -1  -- Not found
-end_function
-```
+3. **Düzeltilecek dosya listesi çıkar**
 
-**Challenge:** PMPL'de string character access nasıl?
+4. **Derleme testi yap:**
+   ```bash
+   ./scripts/run_mlp.sh dosya.mlp
+   ```
 
-**Adım 3: Extract Function Name**
+### Başarı Kriteri:
 
-```mlp
-function extract_function_name(string source) returns string
-    -- Find "function " keyword
-    numeric pos = find_keyword(source; "function ")
-    
-    -- Skip "function " (9 characters)
-    numeric name_start = pos + 9
-    
-    -- Find next '(' or whitespace
-    numeric name_end = find_next_delimiter(source; name_start)
-    
-    -- Extract substring
-    -- string name = substring(source; name_start; name_end)
-    
-    return "extracted_name"
-end_function
-```
+- [ ] Tüm syntax hataları listelenmiş
+- [ ] En az 3 örnek dosya düzeltilmiş ve derlenmiş
+- [ ] Task 1.2 için hazırlık raporu
 
-**Adım 4: Test**
+---
+
+## 📚 ZORUNLU OKUMALAR
+
+1. **TODO_STAGE1_TO_SELFHOSTING_FINAL.md** - Ana görev listesi
+2. **TODO_kurallari.md** - YZ kuralları
+3. **pmlp_kesin_sozdizimi.md** - MELP syntax referansı (KRİTİK!)
+
+---
+
+## ⚠️ KURALLAR
+
+- TODO'da ne yazıyorsa onu yap
+- "Detaylandırmamı ister misin?" YASAK
+- Phase/Task icat etme
+- Yeni TODO yazma
+- Raporu `selfhosting_YZ/YZ_08_TAMAMLANDI.md` olarak yaz
+
+---
+
+## 🛠️ FAYDALI KOMUTLAR
 
 ```bash
-# Test input:
-echo "function my_test() returns numeric return 77 end" > test.mlp
+# MELP programı derle ve çalıştır
+./scripts/run_mlp.sh dosya.mlp
 
-# Gen1_v2 ile compile et
-./build/compiler_gen1_v2
+# Virgüllü parametre bul
+find compiler/stage1/modules -name "*.mlp" -exec grep -l "function.*(.*, " {} \;
 
-# Check output
-cat test.ll
-# Beklenen: define i64 @my_test() { ... ret i64 77 }
+# while...do bul
+find compiler/stage1/modules -name "*.mlp" -exec grep -l "while.*do" {} \;
+
+# Stage 0 compiler
+./compiler/stage0/melp dosya.mlp -o output.ll
 ```
 
 ---
 
-## 📋 OKUMAN GEREKENLER
-
-| Dosya | İçerik |
-|-------|--------|
-| `selfhosting_YZ/YZ_03_TAMAMLANDI.md` | **ÖNCE BUNU OKU!** YZ_03 başarıları |
-| `modules/compiler_gen1_v2.mlp` | Modular compiler (4 functions) |
-| `pmlp_kesin_sozdizimi.md` | PMPL syntax reference |
-
----
-
-## 🚀 BAŞLA!
-
-```bash
-git checkout -b selfhosting_YZ_04
-
-# 1. ÖNCE YZ_03 raporunu oku
-cat selfhosting_YZ/YZ_03_TAMAMLANDI.md
-
-# 2. Test string operations
-cat > test_string_ops.mlp << 'EOF'
-function main() returns numeric
-    string test = "function test() returns numeric return 42 end"
-    numeric len = length(test)
-    -- Test other string functions
-    return len
-end_function
-EOF
-
-./compiler/stage0/modules/functions/functions_compiler test_string_ops.mlp test_string_ops.ll
-lli test_string_ops.ll
-echo $?  # Should be length of string
-
-# 3. Implement string scanning
-nano modules/compiler_gen1_v2.mlp
-```
-
----
-
-## ⚠️ YASAKLAR
-
-| YASAK | NEDEN |
-|-------|-------|
-| Stage 0'a dokunma | Stage 0 KAPALI |
-| Multi-param bug fix | Stage 0 bug |
-| String concatenation `+` | Stage 0 codegen bug (workaround: multi-line templates) |
-
----
-
-## 🎯 HEDEF: GERÇEK PARSING!
-
-```
-Input:  function my_func() returns numeric return 123 end
-Output: define i64 @my_func() { entry: ret i64 123 }
-                    ^^^^^^^^                   ^^^
-                    PARSED!                    PARSED!
-```
-
-**Takıldığın yer olursa sor, yoksa direkt başla!** 🚀
+**🚀 PHASE 1 BAŞLIYOR!** 🚀
