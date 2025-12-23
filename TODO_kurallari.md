@@ -18,13 +18,15 @@ Sen bir **Görevli YZ**'sin. Görevin, Üst Akıl ve Kullanıcı tarafından bel
 Aşağıdaki belgeleri **mutlaka** oku:
 
 ```
-1. selfhosting_YZ/NEXT_AI_START_HERE.md  → Önceki YZ'nin sana bıraktığı notlar
-2. TODO_SELFHOSTING_FINAL.md             → Ana görev listesi
-3. pmlp_kesin_sozdizimi.md               → MELP syntax kuralları
-4. MELP_VISION.md                        → Proje vizyonu
-5. MELP_REFERENCE.md                     → Teknik referans
-6. ARCHITECTURE.md                       → Mimari kurallar
+1. MODERN_LANGUAGE_PROCESS/modern_YZ/NEXT_AI_START_HERE.md  → Önceki YZ'nin sana bıraktığı notlar (EN ÖNEMLİ!)
+2. MODERN_LANGUAGE_PROCESS/TODO_MODERN_FINAL.md             → Ana görev listesi
+3. pmlp_kesin_sozdizimi.md                                  → MELP syntax kuralları
+4. MELP_VISION.md                                           → Proje vizyonu
+5. MELP_REFERENCE.md                                        → Teknik referans
+6. ARCHITECTURE.md                                          → Mimari kurallar
 ```
+
+**ÖNEMLİ:** MODERN_LANGUAGE_PROCESS/modern_YZ/ klasöründe çalışıyoruz artık!
 
 ### 2. MELP'in 5 Temel İlkesi
 
@@ -43,15 +45,15 @@ MELP projesi şu 5 temel üzerine kuruludur. **Bunları ihlal ETME:**
 Belgeleri okuduktan sonra kullanıcıya şu şekilde rapor ver:
 
 ```
-Merhaba, ben YZ_XX.
+Merhaba, ben modern_YZ_XX.
 
 Görevimi okudum:
-- TODO_SELFHOSTING_FINAL.md'de [Phase X] - [görev adı]
+- MODERN_LANGUAGE_PROCESS/TODO_MODERN_FINAL.md'de [Phase X] - [görev adı]
 - [Yapacağım işi 1-2 cümle ile açıkla]
 
 Okumalarımı tamamladım:
-- ✅ NEXT_AI_START_HERE.md (önceki YZ'nin notları)
-- ✅ TODO_SELFHOSTING_FINAL.md (görev detayları)
+- ✅ MODERN_LANGUAGE_PROCESS/modern_YZ/NEXT_AI_START_HERE.md (önceki YZ'nin notları)
+- ✅ MODERN_LANGUAGE_PROCESS/TODO_MODERN_FINAL.md (görev detayları)
 - ✅ pmlp_kesin_sozdizimi.md (syntax kuralları)
 - ✅ Diğer referans belgeler
 
@@ -73,14 +75,14 @@ Onay veriyor musunuz?
 
 ```bash
 # 1. Kendi branch'ini oluştur
-git checkout -b selfhosting_YZ_XX
+git checkout -b modern_YZ_XX
 
 # 2. Çalış ve commit et
 git add .
-git commit -m "YZ_XX: [açıklama]"
+git commit -m "modern_YZ_XX: [açıklama]"
 
 # 3. Push et
-git push origin selfhosting_YZ_XX
+git push origin modern_YZ_XX
 ```
 
 ### ⚠️ YAPMA!
@@ -107,10 +109,10 @@ Aklına takılan bir şey olursa:
 
 ### 1. Bitirme Raporu Yaz
 
-`selfhosting_YZ/YZ_XX_TAMAMLANDI.md` dosyası oluştur:
+`MODERN_LANGUAGE_PROCESS/modern_YZ/modern_YZ_XX_TAMAMLANDI.md` dosyası oluştur:
 
 ```markdown
-# YZ_XX Tamamlandı
+# modern_YZ_XX Tamamlandı
 
 **Tarih:** [tarih]
 **Phase:** [phase numarası]
@@ -133,11 +135,11 @@ Aklına takılan bir şey olursa:
 
 ### 2. NEXT_AI_START_HERE.md Güncelle
 
-Bir sonraki YZ için belgeyi güncelle:
+**EN ÖNEMLİ!** `MODERN_LANGUAGE_PROCESS/modern_YZ/NEXT_AI_START_HERE.md` dosyasını güncelle:
 
 ```
 - Kendi görevini ✅ TAMAMLANDI olarak işaretle
-- Sonraki görevi 🔵 AKTİF olarak işaretle
+- Sonraki görevi ❌ (TODO) olarak işaretle ve detaylandır
 - Varsa önemli notları ekle
 ```
 
@@ -145,8 +147,8 @@ Bir sonraki YZ için belgeyi güncelle:
 
 ```bash
 git add .
-git commit -m "YZ_XX: Görev tamamlandı"
-git push origin selfhosting_YZ_XX
+git commit -m "modern_YZ_XX: Görev tamamlandı"
+git push origin modern_YZ_XX
 ```
 
 ---
@@ -154,17 +156,21 @@ git push origin selfhosting_YZ_XX
 ## 📊 YZ NUMARALANDIRMA
 
 ```
-YZ_00 → İlk YZ (Phase 0 başlangıcı)
-YZ_01 → İkinci YZ
-YZ_02 → Üçüncü YZ
+modern_YZ_01 → İlk Modern YZ (Phase 0 başlangıcı)
+modern_YZ_02 → İkinci Modern YZ
+modern_YZ_03 → Üçüncü Modern YZ
+modern_YZ_04 → Phase 0 Finalization
+modern_YZ_05 → Phase 1, Task 1.1 (String Type)
+modern_YZ_06 → Phase 1, Task 1.2 (For Loops)
+modern_YZ_07 → Phase 1, Task 1.3 (Arrays) ← SONRAKİ!
 ...
 ```
 
 Bir sonraki YZ'ye mesajın:
 
 ```
-Ben YZ_XX idim, sen YZ_XX+1'sin.
-Ne yapacağın NEXT_AI_START_HERE.md'de yazıyor.
+Ben modern_YZ_XX idim, sen modern_YZ_XX+1'sin.
+Ne yapacağın MODERN_LANGUAGE_PROCESS/modern_YZ/NEXT_AI_START_HERE.md'de yazıyor.
 ```
 
 ---
@@ -193,23 +199,25 @@ DURDUR!
 → Kullanıcıya sor
 → Varsayım yapma
 → Net talimat bekle
-```
-
----
-
 ## 📁 DOSYA YAPISI
 
 ```
 /home/pardus/projeler/MLP/MLP/
-├── TODO_SELFHOSTING_FINAL.md        ← Ana TODO
+├── MODERN_LANGUAGE_PROCESS/
+│   ├── TODO_MODERN_FINAL.md         ← Ana TODO (MODERN)
+│   └── modern_YZ/
+│       ├── NEXT_AI_START_HERE.md    ← YZ koordinasyon (EN ÖNEMLİ!)
+│       ├── modern_YZ_01_TAMAMLANDI.md  ← Raporlar
+│       ├── modern_YZ_02_TAMAMLANDI.md
+│       ├── modern_YZ_06_TAMAMLANDI.md
+│       └── ...
 ├── TODO_kurallari.md                ← BU DOSYA
-├── selfhosting_YZ/
-│   ├── NEXT_AI_START_HERE.md        ← YZ koordinasyon
-│   ├── YZ_00_TAMAMLANDI.md          ← Raporlar
-│   ├── YZ_01_TAMAMLANDI.md
-│   └── ...
 ├── çıktı.md                         ← Geçici iletişim
 ├── pmlp_kesin_sozdizimi.md          ← Syntax referans
+├── MELP_VISION.md                   ← Vizyon
+├── MELP_REFERENCE.md                ← Referans
+└── ARCHITECTURE.md                  ← Mimari
+``` pmlp_kesin_sozdizimi.md          ← Syntax referans
 ├── MELP_VISION.md                   ← Vizyon
 ├── MELP_REFERENCE.md                ← Referans
 └── ARCHITECTURE.md                  ← Mimari

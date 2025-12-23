@@ -1,0 +1,10 @@
+-- Test 1.2: For loop sum (1 to 10)
+-- Expected: exit code 55 (1+2+3+...+10)
+
+function main() returns numeric
+    numeric total = 0
+    for i = 1 to 10 do
+        total = total + i
+    end_for
+    return total
+end_function

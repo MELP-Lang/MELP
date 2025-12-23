@@ -1,0 +1,10 @@
+-- Test 1.2: For loop without 'do' keyword (PMPL allows both)
+-- Expected: exit code 10
+
+function main() returns numeric
+    numeric last = 0
+    for i = 1 to 10
+        last = i
+    end_for
+    return last
+end_function

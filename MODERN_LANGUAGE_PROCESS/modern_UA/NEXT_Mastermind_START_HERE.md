@@ -1,11 +1,12 @@
 # ÜST AKIL (MASTERMIND) - BURADAN BAŞLA
 
-**Önceki ÜA:** ÜA_00 (23 Aralık 2025)  
-**Sen:** ÜA_01  
-**Sonraki ÜA:** ÜA_02 (sen güncelleyeceksin!)  
+**Önceki ÜA:** ÜA_01 (23 Aralık 2025)  
+**Sen:** ÜA_02  
+**Sonraki ÜA:** ÜA_03 (sen güncelleyeceksin!)  
 **Ana TODO:** `TODO_MODERN_FINAL.md`  
 **Kurallar:** `TODO_kurallari.md`  
-**Durum:** 🟢 Denetim aktif
+**Durum:** 🟢 Denetim aktif  
+**Son Güncelleme:** 23 Aralık 2025
 
 ---
 
@@ -51,6 +52,41 @@ Ben **ÜA_00**, senden önceki Üst Akıl.
 
 ---
 
+## 🏛️ MELP'İN 5 MİMARİ SÜTUNU (DEĞİŞMEZ)
+
+MELP şu 5 temel mimari ilke üzerine inşa edilmiştir:
+
+```
+1. MODÜLER      → Tek dosya 500 satırı geçmez, modüller bağımsız
+2. LLVM         → Backend her zaman LLVM IR
+3. STO          → Kullanıcı sadece numeric/string görür, compiler optimize eder
+4. STATELESS    → Global state yok, fonksiyonlar pure
+5. STRUCT+FUNC  → Class yok, sadece struct ve function
+```
+
+**Kritik Belgeler (ÜA Mutlaka Okumalı):**
+- `MELP_VISION.md` - 5 temel ilke ve felsefe
+- `MELP_REFERENCE.md` - Comprehensive guide, modüler mimari
+- `ARCHITECTURE.md` - Immutable rules, YZ workflow
+- `docs_tr/language/STO.md` - STO detaylı açıklama
+- `pmlp_kesin_sozdizimi.md` - PMPL syntax reference
+
+⚠️ **KRİTİK KURAL: BELGE DEĞİŞTİRME YASAĞI**
+```
+❌ Hiçbir referans belgenin içeriği değiştirilemez!
+❌ TODO_MODERN_FINAL.md değiştirilemez (sadece ✅/❌ işaretleme)
+❌ TODO_kurallari.md değiştirilemez
+❌ MELP_VISION.md, ARCHITECTURE.md, STO.md değiştirilemez
+❌ pmlp_kesin_sozdizimi.md değiştirilemez
+
+✅ Sadece YZ raporları ve NEXT_AI_START_HERE güncellenebilir
+✅ Mastermind devir teslim notları eklenebilir
+```
+
+**Neden?** Çünkü bu belgeler MELP'in anayasasıdır. Değişiklik = proje tutarsızlığı.
+
+---
+
 ## 🎯 ROLÜN: ÜST AKIL (ÜA)
 
 Sen bir **YZ değilsin**, YZ'leri **denetleyen ve yönlendiren** Üst Akıl'sın.
@@ -61,11 +97,13 @@ Sen bir **YZ değilsin**, YZ'leri **denetleyen ve yönlendiren** Üst Akıl'sın
 3. ✅ **Onay:** Task tamamlandıysa onayla, raporunu kontrol et
 4. 📊 **Meta-analiz:** TODO sisteminin işleyişini değerlendir
 5. 🛠️ **İyileştirme:** TODO/kurallar eksikse öner
+6. 🏛️ **Mimari Koruma:** 5 sütuna uyumu kontrol et
 
 **YAPMAman gerekenler:**
 - ❌ Kod yazma (bu YZ'nin işi)
 - ❌ Task'ı kendin yapma
 - ❌ YZ'nin context'ini doldurma (kısa ve net ol)
+- ❌ Referans belgeleri değiştirme (anayasa dokunulmazdır!)
 
 ---
 
@@ -474,3 +512,76 @@ Branch: modern_YZ_(XX+1)
 ---
 
 **Not:** Sonraki ÜA'lar, kendi notlarını buraya eklesin. Zaman içinde **kolektif bilgi** oluşsun.
+
+---
+
+## 📦 ÜA_01 DEVİR TESLİM NOTU
+
+**Tarih:** 23 Aralık 2025  
+**Denetlenen YZ'ler:** modern_YZ_06  
+**Tamamlanan Task'lar:** Phase 1, Task 1.2 - For Loops
+
+### Önemli Gözlemler:
+
+1. **YZ_06 Performansı:** Mükemmel! ⭐⭐⭐⭐⭐
+   - Minimal değişiklik (sadece 12 satır kod)
+   - Bug fix yaptı (reverse loop çalışmıyordu, düzeltti)
+   - 4/4 test passing
+   - Rapor çok detaylı ve profesyonel
+   
+2. **Git Workflow Eksikliği:** ⚠️
+   - YZ_06 branch oluşturmadı (ARCHITECTURE.md ihlali)
+   - Hala modern_YZ_05 branch'inde çalıştı
+   - Commit yapmadı (kullanıcı yapacak)
+   - **Sonraki ÜA:** YZ'lere git workflow'u hatırlat!
+
+3. **Belge İyileştirmesi:** ✅
+   - MELP'in 5 Mimari Sütunu her iki belgeye eklendi
+   - Belge değiştirilemezlik kuralı eklendi
+   - STO.md referansı eklendi
+   - Artık ÜA'ların mimari ihlal tespiti daha net
+
+4. **TODO Sistemi İyileştirme İhtiyacı:**
+   - ❌ "Required Reading" listesi eksik (ÜA_00'ın önerisi hala geçerli)
+   - ❌ Karar ağacı eksik ("İki yol var, hangisi?" sorularına cevap yok)
+   - ✅ YASAK listesi iyi çalışıyor
+
+5. **Pattern Gözlemi:**
+   - YZ'ler kod kalitesinde başarılı
+   - Git workflow'u ihmal ediliyor (eğitim gerekli)
+   - Rapor yazma disiplini mükemmel
+
+### Sonraki ÜA'ya Öneriler:
+
+1. 🔍 **modern_YZ_07 (Arrays)** dikkatle izle:
+   - Array syntax karmaşık olabilir
+   - Bounds checking tartışması çıkabilir
+   - Memory management kritik (malloc/free)
+   
+2. ⚠️ **Git Workflow'u zorla:**
+   - YZ'ye branch oluşturmasını hatırlat
+   - Commit disiplinini vurgula
+   - ARCHITECTURE.md'yi göster
+   
+3. 📚 **Required Reading ekle:**
+   - Her task için "OKU (önce):" bölümü ekle
+   - Hangi modülleri incelemeli belirt
+   - Örnek: "Task 1.3 için: compiler/stage0/modules/array/ klasörünü incele"
+   
+4. 🎯 **5 Mimari Sütuna Göre Denetim:**
+   - Artık net kriterler var
+   - Her task sonrası 5 sütunu kontrol et
+   - İhlal erken tespit = büyük sorun önlenir
+
+### Meta-Öğrenme:
+
+**ÜA_01'in Öğrendikleri:**
+- ✅ Belge okuma disiplini kritik
+- ✅ Tutarlılık kriterleri net olmalı
+- ✅ YZ'leri yönlendirmek ≠ kod yazmak
+- ✅ Git workflow hatırlatması gerekli
+- ⚠️ İlk görevimde commit yaptım (hata!) - ÜA kod yazmaz!
+
+**ÜA_02'ye başarılar!** 🧠✨
+
+---

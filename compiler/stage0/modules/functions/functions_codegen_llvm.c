@@ -428,9 +428,66 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
             llvm_value_free(elem_ptr);
             return result;
         } else {
-            // Array indexing: legacy assembly code (not implemented in LLVM yet)
-            // TODO: Implement array indexing in LLVM
-            return llvm_const_i64(0);
+            // modern_YZ_07: Fixed-size array indexing
+            // Array is allocated as [N x i64]*, access via getelementptr
+            
+            // Generate index expression (handle different index types)
+            LLVMValue* index_val = NULL;
+            if (access->index_type == 0) {
+                // Constant index
+                index_val = llvm_const_i64(access->index.const_index);
+            } else if (access->index_type == 1) {
+                // Variable index
+                LLVMValue* var_ptr = llvm_reg(access->index.var_index);
+                index_val = llvm_emit_load(ctx->llvm_ctx, var_ptr);
+                llvm_value_free(var_ptr);
+            } else {
+                // Expression index
+                index_val = generate_expression_llvm(ctx, (ArithmeticExpr*)access->index.expr_index);
+            }
+            
+            // Find array size from variable declaration
+            int array_size = 0;
+            Statement* stmt_iter = ctx->current_func->body;
+            while (stmt_iter) {
+                if (stmt_iter->type == STMT_VARIABLE_DECL) {
+                    VariableDeclaration* decl = (VariableDeclaration*)stmt_iter->data;
+                    if (strcmp(decl->name, access->collection_name) == 0 && decl->is_array) {
+                        array_size = decl->array_size;
+                        break;
+                    }
+                }
+                stmt_iter = stmt_iter->next;
+            }
+            
+            if (array_size == 0) {
+                // Fallback: assume size 10
+                array_size = 10;
+            }
+            
+            // Get pointer to array[index] using getelementptr
+            char* elem_ptr = llvm_new_temp(ctx->llvm_ctx);
+            fprintf(ctx->llvm_ctx->output, 
+                    "    %s = getelementptr inbounds [%d x i64], [%d x i64]* %%%s, i64 0, i64 ",
+                    elem_ptr, array_size, array_size, access->collection_name);
+            
+            if (index_val->is_constant) {
+                fprintf(ctx->llvm_ctx->output, "%ld\n", index_val->const_value);
+            } else {
+                fprintf(ctx->llvm_ctx->output, "%s\n", index_val->name);
+            }
+            
+            // Load value from array[index]
+            LLVMValue* result = malloc(sizeof(LLVMValue));
+            result->name = llvm_new_temp(ctx->llvm_ctx);
+            result->is_constant = 0;
+            result->type = LLVM_TYPE_I64;
+            fprintf(ctx->llvm_ctx->output, "    %s = load i64, i64* %s, align 8\n",
+                    result->name, elem_ptr);
+            
+            llvm_value_free(index_val);
+            free(elem_ptr);
+            return result;
         }
     }
     
@@ -1001,6 +1058,71 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
         case STMT_VARIABLE_DECL: {
             VariableDeclaration* decl = (VariableDeclaration*)stmt->data;
             
+            // modern_YZ_07: Handle array variables
+            if (decl->type == VAR_ARRAY || decl->is_array) {
+                // Register variable type (0 = not pointer, it's an array)
+                register_variable_type(ctx, decl->name, 0);  // 0 = array (not i8* pointer)
+                
+                // Array variable: numeric[5] numbers = [1; 2; 3; 4; 5]
+                // Allocate array on stack
+                char var_name[256];
+                snprintf(var_name, sizeof(var_name), "%%%s", decl->name);
+                
+                if (decl->array_size > 0) {
+                    // Fixed-size array: alloca [N x i64]
+                    fprintf(ctx->llvm_ctx->output, "    %s = alloca [%d x i64], align 8\n", 
+                            var_name, decl->array_size);
+                    
+                    // Generate initializer expression (array literal)
+                    if (decl->init_expr) {
+                        ArithmeticExpr* expr = (ArithmeticExpr*)decl->init_expr;
+                        if (expr->is_collection && expr->collection && 
+                            expr->collection->type == COLL_ARRAY) {
+                            Array* arr = &expr->collection->data.array;
+                            
+                            // Initialize each element
+                            fprintf(ctx->llvm_ctx->output, "    ; Initialize array elements\n");
+                            for (int i = 0; i < arr->length && i < decl->array_size; i++) {
+                                ArithmeticExpr* elem = (ArithmeticExpr*)arr->elements[i];
+                                
+                                // Generate element value
+                                LLVMValue* elem_val = generate_expression_llvm(ctx, elem);
+                                
+                                if (!elem_val) {
+                                    // Skip null values
+                                    fprintf(ctx->llvm_ctx->output, "    ; Skipping null element %d\n", i);
+                                    continue;
+                                }
+                                
+                                // Get pointer to array[i]
+                                char* elem_ptr = llvm_new_temp(ctx->llvm_ctx);
+                                fprintf(ctx->llvm_ctx->output, 
+                                        "    %s = getelementptr inbounds [%d x i64], [%d x i64]* %s, i64 0, i64 %d\n",
+                                        elem_ptr, decl->array_size, decl->array_size, var_name, i);
+                                
+                                // Store element (handle constant vs register)
+                                if (elem_val->is_constant) {
+                                    fprintf(ctx->llvm_ctx->output, "    store i64 %ld, i64* %s, align 8\n",
+                                            elem_val->const_value, elem_ptr);
+                                } else {
+                                    fprintf(ctx->llvm_ctx->output, "    store i64 %s, i64* %s, align 8\n",
+                                            elem_val->name, elem_ptr);
+                                }
+                                
+                                llvm_value_free(elem_val);
+                                free(elem_ptr);
+                            }
+                        }
+                    }
+                } else {
+                    // Dynamic array (heap allocation)
+                    fprintf(ctx->llvm_ctx->output, "    %s = alloca i64*, align 8\n", var_name);
+                    fprintf(ctx->llvm_ctx->output, "    store i64* null, i64** %s, align 8\n", var_name);
+                }
+                
+                return NULL;
+            }
+            
             // YZ_200: Handle list variables
             if (decl->type == VAR_LIST) {
                 // Register variable type
@@ -1431,11 +1553,13 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
             // Jump to condition
             llvm_emit_br(ctx->llvm_ctx, cond_label);
             
-            // Condition: i <= end
+            // Condition: i <= end (FOR_TO) or i >= end (FOR_DOWNTO)
             llvm_emit_label(ctx->llvm_ctx, cond_label);
             LLVMValue* iter_val = llvm_emit_load(ctx->llvm_ctx, iter_ptr);
             LLVMValue* end_val_loaded = llvm_emit_load(ctx->llvm_ctx, end_ptr);
-            LLVMValue* cond = llvm_emit_icmp(ctx->llvm_ctx, "sle", iter_val, end_val_loaded);
+            // modern_YZ_06: Use correct comparison operator based on direction
+            const char* cmp_op = (for_loop->direction == FOR_TO) ? "sle" : "sge";
+            LLVMValue* cond = llvm_emit_icmp(ctx->llvm_ctx, cmp_op, iter_val, end_val_loaded);
             llvm_emit_br_cond(ctx->llvm_ctx, cond, body_label, end_label);
             llvm_value_free(iter_val);
             llvm_value_free(end_val_loaded);
@@ -1492,6 +1616,75 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
             
             llvm_value_free(value);
             llvm_value_free(var_ptr);
+            return NULL;
+        }
+        
+        case STMT_ARRAY_ASSIGNMENT: {
+            // modern_YZ_07: Array element assignment: arr[i] = value
+            ArrayAssignment* arr_assign = (ArrayAssignment*)stmt->data;
+            IndexAccess* access = (IndexAccess*)arr_assign->index_access;
+            
+            // Generate value expression
+            LLVMValue* value = generate_expression_llvm(ctx, arr_assign->value_expr);
+            
+            // Generate index expression
+            LLVMValue* index_val = NULL;
+            if (access->index_type == 0) {
+                // Constant index
+                index_val = llvm_const_i64(access->index.const_index);
+            } else if (access->index_type == 1) {
+                // Variable index
+                LLVMValue* var_ptr = llvm_reg(access->index.var_index);
+                index_val = llvm_emit_load(ctx->llvm_ctx, var_ptr);
+                llvm_value_free(var_ptr);
+            } else {
+                // Expression index
+                index_val = generate_expression_llvm(ctx, (ArithmeticExpr*)access->index.expr_index);
+            }
+            
+            // Find array size from variable declaration
+            int array_size = 0;
+            Statement* stmt_iter = ctx->current_func->body;
+            while (stmt_iter) {
+                if (stmt_iter->type == STMT_VARIABLE_DECL) {
+                    VariableDeclaration* decl = (VariableDeclaration*)stmt_iter->data;
+                    if (strcmp(decl->name, access->collection_name) == 0 && decl->is_array) {
+                        array_size = decl->array_size;
+                        break;
+                    }
+                }
+                stmt_iter = stmt_iter->next;
+            }
+            
+            if (array_size == 0) {
+                // Fallback: assume size 10
+                array_size = 10;
+            }
+            
+            // Get pointer to array[index] using getelementptr
+            char* elem_ptr = llvm_new_temp(ctx->llvm_ctx);
+            fprintf(ctx->llvm_ctx->output, 
+                    "    %s = getelementptr inbounds [%d x i64], [%d x i64]* %%%s, i64 0, i64 ",
+                    elem_ptr, array_size, array_size, access->collection_name);
+            
+            if (index_val->is_constant) {
+                fprintf(ctx->llvm_ctx->output, "%ld\n", index_val->const_value);
+            } else {
+                fprintf(ctx->llvm_ctx->output, "%s\n", index_val->name);
+            }
+            
+            // Store value to array[index]
+            if (value->is_constant) {
+                fprintf(ctx->llvm_ctx->output, "    store i64 %ld, i64* %s, align 8\n",
+                        value->const_value, elem_ptr);
+            } else {
+                fprintf(ctx->llvm_ctx->output, "    store i64 %s, i64* %s, align 8\n",
+                        value->name, elem_ptr);
+            }
+            
+            llvm_value_free(value);
+            llvm_value_free(index_val);
+            free(elem_ptr);
             return NULL;
         }
         

@@ -587,9 +587,9 @@ end_function
 
 ---
 
-## 📋 PHASE 5: ADVANCED FEATURES (2 hafta)
+## 📋 PHASE 5: ADVANCED FEATURES **(Daha sonra yapılacak)**
 
-### TASK 5.1: Generics (5 gün)
+### TASK 5.1: Generics **(Daha sonra yapılacak - v2.0)**
 
 **Görev:**
 Generic functions ve types.
@@ -626,7 +626,7 @@ end_function
 
 ---
 
-### TASK 5.2: Closures (4 gün)
+### TASK 5.2: Closures **(Daha sonra yapılacak - v2.0)**
 
 **Görev:**
 First-class functions ve closures.
@@ -657,7 +657,7 @@ end_function
 
 ---
 
-### TASK 5.3: Pattern Matching (5 gün)
+### TASK 5.3: Pattern Matching **(Daha sonra yapılacak - v2.0)**
 
 **Görev:**
 Match expressions.
@@ -711,7 +711,7 @@ melp build --test     # Run tests
 
 ---
 
-### TASK 6.2: Package Manager (2 gün)
+### TASK 6.2: Package Manager **(Daha sonra yapılacak - v2.0)**
 
 **Görev:**
 Temel package management.
@@ -736,7 +736,7 @@ melp update
 
 ---
 
-### TASK 6.3: Language Server (2 gün)
+### TASK 6.3: Language Server **(Daha sonra yapılacak - v2.0 veya community)**
 
 **Görev:**
 Basic LSP support.

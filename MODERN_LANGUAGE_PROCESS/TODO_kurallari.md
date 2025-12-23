@@ -30,19 +30,88 @@ Sen bir **Görevli YZ**'sin. Görevin, TODO_MODERN_FINAL.md'deki **TEK BİR TASK
 
 ---
 
-### 2. MELP'in 5 Temel İlkesi
+### 2. MELP'in 5 Mimari Sütunu (DEĞİŞMEZ)
 
-Her task'ta bu prensiplere uy:
+MELP şu 5 temel mimari ilke üzerine inşa edilmiştir. Her task'ta bu prensiplere uy:
 
 ```
-1. MODÜLER      → Tek dosya 500 satırı geçmez
+1. MODÜLER      → Tek dosya 500 satırı geçmez, modüller bağımsız
 2. LLVM         → Backend her zaman LLVM IR
-3. STO          → Kullanıcı sadece numeric/string görür
-4. STATELESS    → Global state yok, pure functions
+3. STO          → Kullanıcı sadece numeric/string görür, compiler optimize eder
+4. STATELESS    → Global state yok, fonksiyonlar pure
 5. STRUCT+FUNC  → Class yok, sadece struct ve function
 ```
 
+**STO (Smart Type Optimization) Detayı:**
+- Kullanıcı görür: `numeric` (tüm sayılar), `string` (tüm metinler)
+- Compiler optimize eder: int64/double/BigDecimal, SSO/heap/rodata
+- Detay: `docs_tr/language/STO.md` (mutlaka oku!)
+
 ⚠️ **İhlal = Görev durdurulur!**
+
+---
+
+### 2.1. 🚫 KRİTİK KURAL: BELGE DEĞİŞTİRME YASAĞI
+
+**MELP'in anayasası olan şu belgeler hiçbir şekilde değiştirilemez:**
+
+```
+❌ TODO_MODERN_FINAL.md (sadece ✅/❌ işaretleme yapılabilir, içerik değişmez)
+❌ TODO_kurallari.md (bu belge - değiştirilemez!)
+❌ MELP_VISION.md (5 temel ilke)
+❌ MELP_REFERENCE.md (comprehensive guide)
+❌ ARCHITECTURE.md (immutable rules)
+❌ docs_tr/language/STO.md (STO açıklaması)
+❌ pmlp_kesin_sozdizimi.md (syntax reference)
+```
+
+**Değiştirilebilir dosyalar:**
+```
+✅ modern_YZ/modern_YZ_XX_TAMAMLANDI.md (rapor)
+✅ modern_YZ/NEXT_AI_START_HERE.md (durum güncelleme)
+✅ Kod dosyaları (task kapsamında)
+✅ Test dosyaları (task kapsamında)
+```
+
+**Neden bu kural var?**
+- Referans belgeler MELP'in anayasasıdır
+- Tutarsızlık önlenir
+- Her YZ aynı kuralları görür
+- Meta-seviye kararlılık sağlanır
+
+⚠️ **Belge değiştirme girişimi = Görev derhal durdurulur!**
+
+---
+
+### 2.2. 🎯 MVP ÖNCELİĞİ: "(Daha sonra yapılacak)" İşaretli Task'lar
+
+**Kural:** TODO_MODERN_FINAL.md'de bazı task'ların yanında **(Daha sonra yapılacak)** işareti var.
+
+**Bu task'lar:**
+- ❌ ŞU ANDA YAPILMAZ!
+- ❌ MVP (Minimum Viable Product) için gerekli değil
+- ✅ v2.0 veya sonraki versiyonlara ertelendi
+- ✅ TODO'da kalır (gelecek referansı için)
+
+**Örnekler:**
+```
+✅ Task 1.3: Arrays → YAP (kritik)
+❌ Task 5.1: Generics (Daha sonra yapılacak) → ATLAMA
+❌ Task 5.2: Closures (Daha sonra yapılacak) → ATLAMA
+```
+
+**YZ olarak yapman gereken:**
+1. TODO'yu okurken **(Daha sonra yapılacak)** işaretli task'ları GÖZ ARDI ET
+2. Sadece işaretsiz task'ları yap
+3. Raporda: "Ertelenen task'lara dokunulmadı" beyan et
+
+**Neden bu sistem?**
+- MVP odaklı ilerleme (hızlı, değer odaklı)
+- Scope creep önlenir
+- Niş özellikler stabil dil üzerine inşa edilir
+- TODO temiz ve organize kalır
+
+⚠️ **"(Daha sonra yapılacak)" task yapmaya çalışma = Görev durdurulur!**
 
 ---
 

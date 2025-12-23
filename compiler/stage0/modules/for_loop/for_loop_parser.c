@@ -139,6 +139,15 @@ ForLoop* for_loop_parse(Lexer* lexer, Token* for_token) {
     loop->end_value = atoi(end_tok->value);
     token_free(end_tok);
     
+    // modern_YZ_06: Optional 'do' keyword (PMPL allows both "for i = 1 to 10" and "for i = 1 to 10 do")
+    Token* do_tok = lexer_next_token(lexer);
+    if (do_tok && do_tok->type == TOKEN_DO) {
+        token_free(do_tok);  // Consume 'do'
+    } else if (do_tok) {
+        // Not 'do' - put it back
+        lexer_unget_token(lexer, do_tok);
+    }
+    
     // Body will be parsed by statement_parser (like while loop)
     // Just return the ForLoop structure
     loop->body = NULL;  // Will be filled by statement_parser

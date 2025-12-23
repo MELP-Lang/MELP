@@ -1,0 +1,7 @@
+-- Test 1.3.2: Array literal initialization
+-- Expected: exit code 3 (first element)
+
+function main() returns numeric
+    numeric[5] numbers = [3; 7; 11; 15; 19]
+    return numbers[0]
+end_function

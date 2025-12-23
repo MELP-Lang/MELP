@@ -1,0 +1,8 @@
+-- Test 1.3.3: Array indexing (read/write)
+-- Expected: exit code 99 (set and get)
+
+function main() returns numeric
+    numeric[3] values = [10; 20; 30]
+    values[1] = 99
+    return values[1]
+end_function
