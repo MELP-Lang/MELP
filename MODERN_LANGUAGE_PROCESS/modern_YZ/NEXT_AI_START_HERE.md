@@ -9,35 +9,23 @@
 
 ## 🚨 GÜNCEL DURUM (23 Aralık 2025)
 
-**🎉 modern_YZ_03 TAMAMLANDI! While Loops Eklendi!**
+**🎉 modern_YZ_04 TAMAMLANDI! Phase 0 Finalized!**
 
-**Phase 0, Task 0.3 TAMAMLANDI - While Loops:**
-- ✅ While loop syntax tanınıyor (while i < 10 do ... end_while)
-- ✅ Minimal compiler'a while encoding eklendi (50000+ range)
-- ✅ Loop logic doğrulandı (1+2+...+10 = 55)
-- ✅ Test programı başarılı (exit code 55)
-- ✅ Stage 0 control_flow module validation
-- ⚠️ Known bug: Stage 0 LLVM backend while codegen (documented)
+**Phase 0, Task 0.4 TAMAMLANDI - Finalization:**
+- ✅ README.md updated with Phase 0 features
+- ✅ Test suite created (8 tests passing)
+- ✅ Performance benchmark completed (avg 2.8ms)
+- ✅ Git tag v0.1.0-phase0 created
+- ✅ Documentation comprehensive
 
-**Phase 0, Task 0.2 TAMAMLANDI - Variables Support:**
-- ✅ Variable declaration çalışıyor (numeric x = 10)
-- ✅ Variable assignment çalışıyor (x = x + 5)
-- ✅ LLVM IR: alloca, store, load instructions
-- ✅ Test programı başarılı (exit code 15)
-- ✅ Stage 0 variable module validation
+**Phase 0 COMPLETE! All Tasks Finished:**
+- ✅ Task 0.1a: File I/O Infrastructure (modern_YZ_01)
+- ✅ Task 0.2: Variables Support (modern_YZ_02)
+- ✅ Task 0.3: While Loops (modern_YZ_03)
+- ✅ Task 0.4: Finalization (modern_YZ_04)
+- ⏳ Task 0.1b: Real Bootstrap (deferred to after Task 1.1)
 
-**Phase 0, Task 0.1a TAMAMLANDI - File I/O Infrastructure:**
-- ✅ mlp_read_file() ve mlp_write_file() LLVM backend'e eklendi
-- ✅ String variable handling düzeltildi (_ptr suffix)
-- ✅ File I/O test başarılı (exit code 42)
-- ✅ Native execution çalışıyor
-- ✅ Runtime stdlib rebuild edildi
-
-**Phase 0, Task 0.1b ERTELENDİ - Real Bootstrap:**
-- ⏳ String concatenation gerekli (Phase 1, Task 1.1'de)
-- ⏳ Gen1 → Gen2 → Gen3 convergence (string ops sonrası)
-
-**Tamamlanan (Self-hosting + File I/O + Variables + While Loops):**
+**Tamamlanan (Self-hosting + File I/O + Variables + While Loops + Tests):**
 - ✅ Function definitions
 - ✅ Numeric type (basic)
 - ✅ Return statements
@@ -48,105 +36,113 @@
 - ✅ Self-compilation (symbolic)
 - ✅ **File I/O (read_file, write_file)**
 - ✅ **Variables (declaration + assignment)**
-- ✅ **While loops (while-do-end_while)** 🆕
+- ✅ **While loops (while-do-end_while)**
+- ✅ **Test suite (8 tests)**
+- ✅ **Benchmark (2.8ms avg)**
 
-**Eksikler (yapılacak):**
-- ❌ For loops
-- ❌ **String type + concat** ← Task 0.1b için kritik!
-- ❌ Arrays
-- ❌ Structs
+**Eksikler (yapılacak - Phase 1):**
+- ❌ **String type + concat** ← Task 1.1 - SONRAKİ TASK!
+- ❌ For loops ← Task 1.2
+- ❌ Arrays ← Task 1.3
+- ❌ Structs ← Task 1.4
 - ❌ FFI
 - ❌ Module system
 - ❌ Error handling
 
 ---
-## 🎯 SONRAKİ YZ: modern_YZ_04
+## 🎯 SONRAKİ YZ: modern_YZ_05
 
-### Görev: Phase 0, Task 0.4 - Finalization
+### Görev: Phase 1, Task 1.1 - String Type & Concatenation
 
 **Ne yapacaksın:**
 
-Phase 0'ı belgele, tamamla, test suite oluştur.
+String type desteği ve concatenation ekle.
 
 **Spesifik adımlar (TODO'dan):**
 
-1. **README.md güncelle (Phase 0 features)**
-   - File I/O, Variables, While loops ekle
-   - Known bugs listele
+1. **String type definition**
+   - Lexer: string keyword
+   - Parser: string variable declaration
+   - CodeGen: LLVM string handling
 
-2. **Test suite oluştur (tüm features)**
-   - 10+ test geçmeli
-   - Variables + While loops integration
-   - File I/O tests
+2. **String concatenation**
+   - Operator: `+` for strings
+   - Multi-operand chaining
+   - LLVM IR string concat
 
-3. **Performance benchmark (compile time)**
-   - Compilation speed ölçümü
-   - Memory usage
+3. **String comparison**
+   - Operators: ==, !=, <, >, <=, >=
+   - Lexicographic ordering
 
-4. **Git tag: v0.1.0-phase0**
-   - Version tag oluştur
+4. **Test & Validate**
+   - String literals
+   - String variables
+   - Concatenation tests
+   - Comparison tests
 
 **Başarı kriterleri:**
 ```
-[ ] README güncel
-[ ] 10+ test geçiyor
-[ ] Benchmark sonuçları
-[ ] Git tag oluşturuldu
+[ ] string x = "hello" çalışıyor
+[ ] String concat: "a" + "b" = "ab"
+[ ] String comparison: "a" < "b" = true
+[ ] Test exit codes doğru
+[ ] TODO dışı iş yapılmadı
 ```
 
 **BONUS (opsiyonel):**
 ```
-⚠️ Stage 0 LLVM backend while codegen bug'ını düzelt
-   → functions_codegen_llvm.c line ~1256
-   → Body statements label2'de olmalı, label3'te değil
+✅ Task 1.1 tamamlandıktan sonra Task 0.1b'yi yap
+   → Real bootstrap with file I/O
+   → Gen1 → Gen2 → Gen3 convergence test
 ```
-
-**Tahmini süre:** 0.5 gün
-
-**Not:** Bu task modern_YZ_03'te tespit edilen bug'ları düzeltme şansı!
-**Not:** Stage 0'da control_flow modülü var! While loop support kontrol et.
 
 ---
 
-## 📋 ZORUNLU OKUMALAR (modern_YZ_04 İçin)
+## 📋 ZORUNLU OKUMALAR (modern_YZ_05 İçin)
 
-1. **TODO_MODERN_FINAL.md** → Phase 0, Task 0.4'ü oku (SADECE!)
+1. **TODO_MODERN_FINAL.md** → Phase 1, Task 1.1'i oku (SADECE!)
 2. **TODO_kurallari.md** → YZ kurallarını oku (TAMAMI!)
+3. **modern_YZ/modern_YZ_04_TAMAMLANDI.md** → Önceki YZ'nin yaptıkları
+4. **/README.md** → Güncel proje durumu
+5. **/MELP_VISION.md** → 5 prensip
+6. **/pmlp_kesin_sozdizimi.md** → PMPL syntax (string literals)
+
+**UYARI:** TODO'nun tamamını okuma! Sadece Task 1.1!I!)
 3. **modern_YZ/modern_YZ_03_TAMAMLANDI.md** → Önceki YZ'nin yaptıkları
 4. **/README.md** → Güncel proje durumu
 5. **/MELP_VISION.md** → 5 prensip
 
 **UYARI:** TODO'nun tamamını okuma! Sadece Task 0.4!
-
 ---
 
-## 🚫 KRİTİK UYARILAR (modern_YZ_04 İçin)
+## 🚫 KRİTİK UYARILAR (modern_YZ_05 İçin)
 
 ### ❌ YAPMA:
-- "Test suite oluştururken for loop da ekleyeyim"
-- "String type da ekleyeyim" (YASAK! Task 1.1'de)
-- "Task 1.1'i de yapayım" (YASAK! Sadece Task 0.4)
+- "String type eklerken array da ekleyeyim"
+- "For loop da ekleyeyim" (YASAK! Task 1.2'de)
+- "Task 1.2'yi de yapayım" (YASAK! Sadece Task 1.1)
 - "Detaylandırmamı ister misin?" deme (pasif kalma!)
 
 ### ✅ YAP:
-- README güncellemesi net ve spesifik
-- 10+ test toparla ve çalıştır
-- Benchmark sonuçlarını ölç ve kaydet
-- Git tag v0.1.0-phase0 oluştur
+- String type definition net ve spesifik
+- String concatenation operator (`+`)
+- String comparison operators (6 adet)
+- Test programları çalıştır ve doğrula
+- PMPL syntax'a uy (string literals: "...")
+- (Opsiyonel) Task 1.1 sonrası Task 0.1b'yi yap
 - (Opsiyonel) Stage 0 while bug fix dene
-
 ## 📊 ROADMAP ÖZET
 
 ```
-Phase 0: Self-hosting improvements (1 hafta) ← ŞU AN BURADAYIZ
+Phase 0: Self-hosting improvements (1 hafta) ← ✅ TAMAMLANDI!
 ├── 0.1a: File I/O infrastructure (1 gün) ← ✅ TAMAMLANDI (modern_YZ_01)
 ├── 0.1b: Real bootstrap (ERTELENDI → Task 1.1'den sonra)
 ├── 0.2: Variables (2 gün) ← ✅ TAMAMLANDI (modern_YZ_02)
 ├── 0.3: While loops (1.5 gün) ← ✅ TAMAMLANDI (modern_YZ_03)
-└── 0.4: Finalization (0.5 gün) ← SONRAKİ TASK! (modern_YZ_04)
+└── 0.4: Finalization (0.5 gün) ← ✅ TAMAMLANDI (modern_YZ_04)
 
-Phase 1: Core features (2 hafta)
-├── 1.1: String type (3 gün)
+Phase 1: Core features (2 hafta) ← ŞİMDİ BURADAYIZ!
+├── 1.1: String type (3 gün) ← SONRAKİ TASK! (modern_YZ_05)
 ├── 1.2: For loops (2 gün)
 ├── 1.3: Arrays (4 gün)
 └── 1.4: Structs (3 gün)
@@ -155,11 +151,6 @@ Phase 2-7: FFI, Modules, Error handling, Advanced, Tooling, Finalization
 ```
 
 **Toplam:** 8-10 hafta, 20+ task
-└── 1.4: Structs (3 gün)
-
-Phase 2-7: FFI, Modules, Error handling, Advanced, Tooling, Finalization
-```
-
 **Toplam:** 8-10 hafta, 20+ task
 
 ---
@@ -180,63 +171,63 @@ Phase 2-7: FFI, Modules, Error handling, Advanced, Tooling, Finalization
 
 ```bash
 # modern_YZ_04 için:
-git checkout -b modern_YZ_04
-# Task 0.4'ü yap
+---
+
+## 🔧 GIT WORKFLOW
+
+```bash
+# modern_YZ_05 için:
+git checkout -b modern_YZ_05
+# Task 1.1'i yap (String type)
 git add -A
-git commit -m "modern_YZ_04: Phase 0 finalization (tests + docs + benchmark)"
-git push origin modern_YZ_04
+git commit -m "modern_YZ_05: Phase 1, Task 1.1 - String type & concatenation"
+git push origin modern_YZ_05
 
 # Merge ETME! Pull request AÇMA!
 ```
 
 **Kural:** Her YZ kendi branch'inde çalışır, merge edilmez.
-
+```markdown
 ---
 
 ## 📝 RAPOR FORMATI
 
 ```markdown
-# modern_YZ/modern_YZ_04_TAMAMLANDI.md
+# modern_YZ/modern_YZ_05_TAMAMLANDI.md
 
 ## TODO'daki Task:
-Phase 0, Task 0.4: Finalization
+Phase 1, Task 1.1: String Type & Concatenation
 [TODO'dan AYNEN kopyala]
 
 ## Yaptığım İş:
-1. README.md güncelleme
-2. Test suite (10+ tests)
-3. Performance benchmark
-4. Git tag v0.1.0-phase0
+1. String type definition
+2. String concatenation operator
+3. String comparison operators
+4. Test & validation
 
 ## Başarı Kriterleri:
-[✅] README güncel
-[✅] 10+ test geçiyor
-[✅] Benchmark sonuçları
-[✅] Git tag oluşturuldu
+[✅] string x = "hello" çalışıyor
+[✅] String concat çalışıyor
+[✅] String comparison çalışıyor
+[✅] Test exit codes doğru
 [✅] TODO dışı iş yapılmadı
 
 ## TODO Dışı İş Yapıldı mı?
-❌ Hayır! Sadece Phase 0 finalization.
+❌ Hayır! Sadece Phase 1, Task 1.1.
 
 ## Test Sonuçları:
 [Test suite output...]
 
-## Benchmark Sonuçları:
-[Compile time, memory usage...]
-
 ## Dosyalar:
-- README.md (güncellendi)
-- tests/ (10+ test)
-- BENCHMARK.md (yeni)
+- lexer/ (string keyword)
+- parser/ (string type)
+- codegen/ (string concat)
+- tests/ (string tests)
 
 ## Sonraki YZ İçin:
-Phase 1, Task 1.1 (String type) için hazır.
+Phase 1, Task 1.2 (For loops) için hazır.
+Bonus: Task 0.1b (Real bootstrap) yapıldıysa belirt.
 ```
-
----
-
-## 🎓 DERS: Self-hosting'den Öğrenilenler
-
 **500 session'da neler yanlış gitti:**
 - YZ'ler TODO'dan saptı ("Phase 3.4" icat ettiler)
 - Ekstra özellik eklediler (TODO'da yoktu)
@@ -253,21 +244,28 @@ Phase 1, Task 1.1 (String type) için hazır.
 1. TODO_MODERN_FINAL.md'de Task 0.4'ü oku
 2. TODO_kurallari.md'yi oku
 3. modern_YZ_03_TAMAMLANDI.md'yi oku
-4. Kendini tanıt (format uygun!)
-5. Onay al
-6. README.md güncelle
-7. Test suite topla (10+ test)
-8. Benchmark yap ve kaydet
-9. Git tag oluştur: v0.1.0-phase0
-10. (Opsiyonel) Stage 0 while bug fix
+## 💡 modern_YZ_05 İÇİN SON HATIRLATMALAR
+
+**Yapacaksın:**
+1. TODO_MODERN_FINAL.md'de Task 1.1'i oku
+2. TODO_kurallari.md'yi oku
+3. modern_YZ_04_TAMAMLANDI.md'yi oku
+4. pmlp_kesin_sozdizimi.md'yi oku (string syntax)
+5. Kendini tanıt (format uygun!)
+6. Onay al
+7. String type definition ekle
+8. String concatenation operator ekle
+9. String comparison operators ekle
+10. Test programları çalıştır
 11. Rapor yaz
 12. NEXT_AI güncelle
 13. Push et
+14. (Opsiyonel) Task 0.1b yap
 
 **Yapmayacaksın:**
 ❌ TODO'dan sapma
-❌ For loop ekleme (Phase 1!)
-❌ String type ekleme (Task 1.1!)
+❌ For loop ekleme (Phase 1, Task 1.2!)
+❌ Array ekleme (Phase 1, Task 1.3!)
 ❌ Ekstra özellik
 ❌ Pasif kalma
 ❌ Validation skip
@@ -276,21 +274,16 @@ Phase 1, Task 1.1 (String type) için hazır.
 - ✅ File I/O çalışıyor (modern_YZ_01'den)
 - ✅ Variables çalışıyor (modern_YZ_02'den)
 - ✅ While loops eklendi (modern_YZ_03'ten)
-- ✅ Test dosyaları mevcut (tests/manual/)
-- ⚠️ Known bug: Stage 0 while codegen (modern_YZ_03 raporunda)
+- ✅ Test framework hazır (modern_YZ_04'ten)
+- ✅ Benchmark framework hazır
+- ⚠️ Known bug: Stage 0 while codegen (documented)
 
 ---
 
-**Son Güncelleme:** 23 Aralık 2025 (modern_YZ_03 tamamlandı)  
-**Durum:** ✅ modern_YZ_04 başlayabilir!  
-**Branch:** `modern_YZ_04` (oluşturulacak)
+**Son Güncelleme:** 23 Aralık 2025 (modern_YZ_04 tamamlandı)  
+**Durum:** ✅ modern_YZ_05 başlayabilir!  
+**Branch:** `modern_YZ_05` (oluşturulacak)
 
 ---
 
-**Son Güncelleme:** 23 Aralık 2025 (modern_YZ_02 tamamlandı)  
-**Durum:** ✅ modern_YZ_03 başlayabilir!  
-**Branch:** `modern_YZ_03` (oluşturulacak)
-
----
-
-🚀 **MODERN MELP JOURNEY DEVAM EDİYOR!** 🚀
+🚀 **MODERN MELP JOURNEY - PHASE 1 BAŞLIYOR!** 🚀
