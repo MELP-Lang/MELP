@@ -46,16 +46,57 @@
 ### Amaç
 Minimal compiler'dan production-ready compiler'a geçiş.
 
-### TASK 0.1: Real File I/O Bootstrap (2 gün)
+### TASK 0.1a: File I/O Infrastructure (1 gün) ✅ TAMAMLANDI
+
+**Görev:**
+Runtime'a file I/O desteği ekle (bootstrap Phase 1'den sonra).
+
+**Spesifik Adımlar:**
+```bash
+1. Runtime'a file I/O fonksiyonları ekle:
+   - mlp_read_file(filename) → string
+   - mlp_write_file(filename, content) → numeric
+   
+2. LLVM backend'e file I/O desteği:
+   - Builtin function detection
+   - String parameter handling
+   
+3. Test:
+   test_file_io.mlp → dosyaya yaz, dosyadan oku
+```
+
+**Başarı kriteri:**
+```
+[✅] mlp_read_file() çalışıyor
+[✅] mlp_write_file() çalışıyor
+[✅] Test dosyası oluşturuldu
+[✅] Runtime stdlib rebuild edildi
+[✅] TODO dışı iş yapılmadı
+```
+
+**YASAK:**
+❌ Yeni operatör ekleme (sadece file I/O)
+❌ Syntax değişikliği
+❌ TODO dışı özellik ekleme
+
+**Durum:** ✅ Tamamlandı (modern_YZ_01)
+**Not:** Real bootstrap için string concat gerekli (Task 1.1'den sonra Task 0.1b yapılacak)
+
+---
+
+### TASK 0.1b: Real File I/O Bootstrap (ERTELENDI → Task 1.1'den sonra)
 
 **Görev:**
 Symbolic bootstrap'ı real file I/O'ya dönüştür.
 
+**Ön Koşul:** ⚠️ Task 1.1 (String type) tamamlanmalı!
+
 **Spesifik Adımlar:**
 ```bash
 1. compiler.mlp'ye file I/O ekle:
-   - read_file() fonksiyonunu kullan
-   - write_file() fonksiyonunu kullan
+   - read_file(input_filename) kullan
+   - write_file(output_filename, ir) kullan
+   - String concat ile path oluştur
    
 2. Real bootstrap test:
    Stage 0 → compiler.mlp → Gen1.ll (dosyaya yaz)
@@ -69,15 +110,14 @@ Symbolic bootstrap'ı real file I/O'ya dönüştür.
 ```
 
 **YASAK:**
-❌ Yeni operatör ekleme (sadece file I/O)
-❌ Syntax değişikliği
-❌ TODO dışı özellik ekleme
+❌ String olmadan zorla yapmaya çalışma
+❌ Task 1.1'i bekle!
 
-**Tahmini süre:** 2 gün
+**Tahmini süre:** 1 gün (Task 1.1'den sonra)
 
 ---
 
-### TASK 0.2: Variables Support (2 gün)
+### TASK 0.2: Variables Support (2 gün) ← SONRAKİ TASK!
 
 **Görev:**
 Variable declaration ve assignment ekle.

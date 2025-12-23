@@ -104,39 +104,43 @@ Variable declaration ve assignment ekleyeceksin.
 
 ---
 
-## 📋 ZORUNLU OKUMALAR (modern_YZ_01 İçin)
+## 📋 ZORUNLU OKUMALAR (modern_YZ_02 İçin)
 
-1. **TODO_MODERN_FINAL.md** → Phase 0, Task 0.1'i oku (SADECE!)
+1. **TODO_MODERN_FINAL.md** → Phase 0, Task 0.2'yi oku (SADECE!)
 2. **TODO_kurallari.md** → YZ kurallarını oku (TAMAMI!)
-3. **/pmlp_kesin_sozdizimi.md** → MELP syntax
-4. **/MELP_VISION.md** → 5 prensip
+3. **modern_YZ/modern_YZ_01_TAMAMLANDI.md** → Önceki YZ'nin yaptıkları
+4. **/pmlp_kesin_sozdizimi.md** → MELP syntax
+5. **/MELP_VISION.md** → 5 prensip
 
-**UYARI:** TODO'nun tamamını okuma! Sadece Task 0.1!
+**UYARI:** TODO'nun tamamını okuma! Sadece Task 0.2!
 
 ---
 
-## 🚫 KRİTİK UYARILAR (modern_YZ_01 İçin)
+## 🚫 KRİTİK UYARILAR (modern_YZ_02 İçin)
 
 ### ❌ YAPMA:
-- "Task 0.1 file I/O istiyor, ben ayrıca Task 0.2'yi de yapayım"
-- "Real file I/O yaparken string type'ı da ekleyeyim"
-- "TODO'da yok ama bence variables da gerekli"
+- "Variables eklerken arrays de ekleyeyim"
+- "String variables da ekleyeyim" (YASAK! Sadece numeric)
+- "Global variables da ekleyeyim" (YASAK! Sadece local)
+- "Task 0.3'ü de yapayım" (YASAK! Sadece Task 0.2)
 - "Detaylandırmamı ister misin?" deme (pasif kalma!)
 
 ### ✅ YAP:
 - TODO'daki spesifik adımları takip et
 - YASAK listesine %100 uy
+- Sadece numeric, sadece local variables
 - Başarı kriterlerini tamamla
 - Test et, rapor yaz, push et
-
----
 
 ## 📊 ROADMAP ÖZET
 
 ```
 Phase 0: Self-hosting improvements (1 hafta) ← ŞU AN BURADAYIZ
-├── 0.1: Real file I/O (2 gün) ← İLK TASK!
-├── 0.2: Variables (2 gün)
+├── 0.1a: File I/O infrastructure (1 gün) ← ✅ TAMAMLANDI (modern_YZ_01)
+├── 0.1b: Real bootstrap (ERTELENDI → Task 1.1'den sonra)
+├── 0.2: Variables (2 gün) ← SONRAKİ TASK! (modern_YZ_02)
+├── 0.3: While loops (1.5 gün)
+└── 0.4: Finalization (0.5 gün)
 ├── 0.3: While loops (1.5 gün)
 └── 0.4: Finalization (0.5 gün)
 
@@ -165,20 +169,20 @@ Phase 2-7: FFI, Modules, Error handling, Advanced, Tooling, Finalization
 **Süre:** 8-10 hafta (verimli, net, kurallara uygun!)
 
 ---
-
 ## 🔧 GIT WORKFLOW
 
 ```bash
-# modern_YZ_01 için:
-git checkout -b modern_YZ_01
-# Task 0.1'i yap
+# modern_YZ_02 için:
+git checkout -b modern_YZ_02
+# Task 0.2'yi yap
 git add -A
-git commit -m "modern_YZ_01: Real file I/O bootstrap implementation"
-git push origin modern_YZ_01
+git commit -m "modern_YZ_02: Variables support (declaration + assignment)"
+git push origin modern_YZ_02
 
 # Merge ETME! Pull request AÇMA!
 ```
 
+**Kural:** Her YZ kendi branch'inde çalışır, merge edilmez.
 **Kural:** Her YZ kendi branch'inde çalışır, merge edilmez.
 
 ---
@@ -186,38 +190,35 @@ git push origin modern_YZ_01
 ## 📝 RAPOR FORMATI
 
 ```markdown
-# modern_YZ/modern_YZ_01_TAMAMLANDI.md
+# modern_YZ/modern_YZ_02_TAMAMLANDI.md
 
 ## TODO'daki Task:
-Phase 0, Task 0.1: Real File I/O Bootstrap
+Phase 0, Task 0.2: Variables Support
 [TODO'dan AYNEN kopyala]
 
 ## Yaptığım İş:
-1. compiler.mlp'ye read_file/write_file eklendi
-2. Real bootstrap test yapıldı
-3. Convergence test geçti
+1. Lexer: '=' token kontrolü
+2. Parser: var_decl ve assignment parse
+3. CodeGen: alloca, store, load instructions
+4. Test: variable program derle ve çalıştır
 
 ## Başarı Kriterleri:
-[✅] read_file() çalışıyor
-[✅] write_file() çalışıyor
-[✅] Gen1.ll dosyaya yazıldı
-[✅] Gen2.ll dosyaya yazıldı
-[✅] Gen1 = Gen2 (diff boş)
-[✅] Exit code 0
+[✅] numeric x = 10 çalışıyor
+[✅] x = x + 5 çalışıyor
+[✅] Test exit code 15
+[✅] TODO dışı iş yapılmadı
 
 ## TODO Dışı İş Yapıldı mı?
-❌ Hayır! Sadece file I/O eklendi.
+❌ Hayır! Sadece numeric local variables eklendi.
 
 ## Test Sonuçları:
 [Output...]
 
 ## Dosyalar:
-- compiler.mlp (güncellendi)
-- build/gen1.ll (oluşturuldu)
-- build/gen2.ll (oluşturuldu)
+- [Değiştirilen dosyalar]
 
 ## Sonraki YZ İçin:
-Task 0.2 (Variables) için hazır. File I/O tamamen çalışıyor.
+Task 0.3 (While loops) için hazır. Variables tamamen çalışıyor.
 ```
 
 ---
@@ -243,29 +244,40 @@ Task 0.2 (Variables) için hazır. File I/O tamamen çalışıyor.
 ## 💡 modern_YZ_01 İÇİN SON HATIRLATMALAR
 
 **Yapacaksın:**
-1. TODO_MODERN_FINAL.md'de Task 0.1'i oku
+## 💡 modern_YZ_02 İÇİN SON HATIRLATMALAR
+
+**Yapacaksın:**
+1. TODO_MODERN_FINAL.md'de Task 0.2'yi oku
 2. TODO_kurallari.md'yi oku
-3. Kendini tanıt (format uygun!)
-4. Onay al
-5. Spesifik adımları takip et
-6. YASAK listesine uy
-7. Test et (başarı kriterleri)
-8. Rapor yaz
-9. NEXT_AI güncelle
-10. Push et
+3. modern_YZ_01_TAMAMLANDI.md'yi oku
+4. Kendini tanıt (format uygun!)
+5. Onay al
+6. Spesifik adımları takip et
+7. YASAK listesine uy (sadece numeric, sadece local!)
+8. Test et (başarı kriterleri)
+9. Rapor yaz
+10. NEXT_AI güncelle
+11. Push et
 
 **Yapmayacaksın:**
 ❌ TODO'dan sapma
+❌ String/array variables (YASAK!)
+❌ Global variables (YASAK!)
 ❌ Ekstra özellik
 ❌ Pasif kalma
 ❌ Validation skip
 
+**Hazır Altyapı:**
+- ✅ File I/O çalışıyor (modern_YZ_01'den)
+- ✅ LLVM backend hazır
+- ✅ Runtime güncel
+
 ---
 
-**Son Güncelleme:** 23 Aralık 2025  
-**Durum:** ✅ modern_YZ_01 başlayabilir!  
-**Branch:** `modern_YZ_01` (oluşturulacak)
+**Son Güncelleme:** 23 Aralık 2025 (modern_YZ_01 tamamlandı)  
+**Durum:** ✅ modern_YZ_02 başlayabilir!  
+**Branch:** `modern_YZ_02` (oluşturulacak)
 
 ---
 
-🚀 **MODERN MELP JOURNEY BAŞLIYOR!** 🚀
+🚀 **MODERN MELP JOURNEY DEVAM EDİYOR!** 🚀
