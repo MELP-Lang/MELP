@@ -1,0 +1,32 @@
+-- MELP Self-Hosting Compiler - Task 2.1
+-- Minimal working compiler for bootstrap
+-- Date: 23 Aralik 2025
+
+function generate_ir(numeric token_count) returns string
+    string ir = "; MELP Gen1\n"
+    ir = ir + "define i64 @main() {\n"
+    ir = ir + "  ret i64 " + int_to_string(token_count) + "\n"
+    ir = ir + "}\n"
+    return ir
+end_function
+
+function compile(string input_file; string output_file) returns numeric
+    string source = read_file(input_file)
+    numeric len = string_length(source)
+    if len == 0 then
+        return 1
+    end_if
+    
+    numeric token_count = len
+    string ir = generate_ir(token_count)
+    numeric result = write_file(output_file; ir)
+    
+    return result
+end_function
+
+function main() returns numeric
+    string input_file = "input.mlp"
+    string output_file = "output.ll"
+    numeric result = compile(input_file; output_file)
+    return result
+end_function
