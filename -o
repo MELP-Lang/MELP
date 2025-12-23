@@ -44,84 +44,14 @@ declare i32 @melp_map_has_key(i8*, i8*)
 declare i64 @melp_map_length(i8*)
 
 
-; Function: main
-define i64 @main() {
+; Function: test
+define i64 @test() {
 entry:
-    %T_IMPORT = alloca i64, align 8
-    store i64 22, i64* %T_IMPORT, align 8
-    %T_FUNCTION = alloca i64, align 8
-    store i64 1, i64* %T_FUNCTION, align 8
-    %T_END = alloca i64, align 8
-    store i64 2, i64* %T_END, align 8
-    %T_STRUCT = alloca i64, align 8
-    store i64 20, i64* %T_STRUCT, align 8
-    %T_ENUM = alloca i64, align 8
-    store i64 21, i64* %T_ENUM, align 8
-    %T_NUMERIC = alloca i64, align 8
-    store i64 10, i64* %T_NUMERIC, align 8
-    %T_STRING = alloca i64, align 8
-    store i64 11, i64* %T_STRING, align 8
-    %T_RETURNS = alloca i64, align 8
-    store i64 9, i64* %T_RETURNS, align 8
-    %T_RETURN = alloca i64, align 8
-    store i64 14, i64* %T_RETURN, align 8
-    %T_IF = alloca i64, align 8
-    store i64 3, i64* %T_IF, align 8
-    %T_THEN = alloca i64, align 8
-    store i64 4, i64* %T_THEN, align 8
-    %T_ELSE = alloca i64, align 8
-    store i64 5, i64* %T_ELSE, align 8
-    %T_LPAREN = alloca i64, align 8
-    store i64 50, i64* %T_LPAREN, align 8
-    %T_RPAREN = alloca i64, align 8
-    store i64 51, i64* %T_RPAREN, align 8
-    %T_COMMA = alloca i64, align 8
-    store i64 52, i64* %T_COMMA, align 8
-    %T_ID = alloca i64, align 8
-    store i64 32, i64* %T_ID, align 8
-    %T_NUMBER = alloca i64, align 8
-    store i64 61, i64* %T_NUMBER, align 8
-    %T_PLUS = alloca i64, align 8
-    store i64 37, i64* %T_PLUS, align 8
-    %T_GT = alloca i64, align 8
-    store i64 45, i64* %T_GT, align 8
-    %T_ASSIGN = alloca i64, align 8
-    store i64 8, i64* %T_ASSIGN, align 8
-    %T_SWITCH = alloca i64, align 8
-    store i64 18, i64* %T_SWITCH, align 8
-    %T_CASE = alloca i64, align 8
-    store i64 19, i64* %T_CASE, align 8
-    %T_DEFAULT = alloca i64, align 8
-    store i64 25, i64* %T_DEFAULT, align 8
-    %T_COLON = alloca i64, align 8
-    store i64 56, i64* %T_COLON, align 8
-    %T_FOR = alloca i64, align 8
-    store i64 7, i64* %T_FOR, align 8
-    %T_FROM = alloca i64, align 8
-    store i64 43, i64* %T_FROM, align 8
-    %T_TO = alloca i64, align 8
-    store i64 44, i64* %T_TO, align 8
-    %T_LBRACKET = alloca i64, align 8
-    store i64 53, i64* %T_LBRACKET, align 8
-    %T_RBRACKET = alloca i64, align 8
-    store i64 54, i64* %T_RBRACKET, align 8
-    %passed = alloca i64, align 8
-    store i64 0, i64* %passed, align 8
-    %failed = alloca i64, align 8
-    store i64 0, i64* %failed, align 8
-    %tmp1 = getelementptr inbounds [25 x i8], [25 x i8]* @.str.1, i64 0, i64 0
-    %tmp2 = getelementptr inbounds [5 x i8], [5 x i8]* @.fmt_num, i64 0, i64 0
-    call i32 (i8*, ...) @printf(i8* %tmp2, i64 %tmp1)
-    %tmp3 = getelementptr inbounds [19 x i8], [19 x i8]* @.str.2, i64 0, i64 0
-    %tmp4 = getelementptr inbounds [5 x i8], [5 x i8]* @.fmt_num, i64 0, i64 0
-    call i32 (i8*, ...) @printf(i8* %tmp4, i64 %tmp3)
-    %tmp5 = getelementptr inbounds [1 x i8], [1 x i8]* @.str.3, i64 0, i64 0
-    %tmp6 = getelementptr inbounds [5 x i8], [5 x i8]* @.fmt_num, i64 0, i64 0
-    call i32 (i8*, ...) @printf(i8* %tmp6, i64 %tmp5)
+  %ch_ptr = alloca i8*, align 8
+  %tmp1 = getelementptr inbounds [2 x i8], [2 x i8]* @.str.1, i64 0, i64 0
+  store i8* %tmp1, i8** %ch_ptr, align 8
 }
 
 ; String Constants
-@.str.1 = private unnamed_addr constant [25 x i8] c"Test 1: Import Statement\00", align 1
-@.str.2 = private unnamed_addr constant [19 x i8] c"Code: import lexer\00", align 1
-@.str.3 = private unnamed_addr constant [1 x i8] c"\00", align 1
+@.str.1 = private unnamed_addr constant [2 x i8] c"\\\00", align 1
 

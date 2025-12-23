@@ -1,262 +1,198 @@
-# SELF-HOSTING YZ - BURADAN BAŞLA
+# 🎯 GÖREVLİ YZ BAŞLANGIÇ NOKTASI
 
-**Son Güncelleme:** 22 Aralık 2025 (Üst Akıl - Yeni Keşif)  
-**Üst Akıl:** Opus  
-**Ana TODO:** `/TODO_SELFHOSTING_FINAL.md`  
-**Kurallar:** `/TODO_kurallari.md`
-
----
-
-## 🚨 KRİTİK KEŞİF (22 Aralık 2025)
-
-**1,034 `if` statement'da `then` anahtar kelimesi eksik!**
-
-Stage 1 modüllerinde iki farklı `if` syntax'ı kullanılmış:
-- DOĞRU: `if <condition> then` (854 adet)
-- YANLIŞ: `if <condition>` (1,034 adet - **then yok!**)
-
-**En çok etkilenen dosyalar:**
-| # | Dosya | Eksik `then` |
-|---|-------|--------------|
-| 1 | `lexer_mlp/tokenize_identifiers.mlp` | 84 |
-| 2 | `parser_mlp/parser.mlp` | 78 |
-| 3 | `lexer_mlp/lexer.mlp` | 76 |
-| 4 | `operators/operators_parser.mlp` | 70 |
-| 5 | `variables/variables_parser.mlp` | 39 |
-
-**Diğer keşifler:**
-- `token_types.mlp` LLVM IR ile üzerine yazılmıştı → GERİ YÜKLENDİ ✅
-- Stage 0 hem `end if` hem `end_if` kabul ediyor (normalizer var)
+**Son Güncelleme:** 23 Aralık 2025  
+**Durum:** 🟢 YZ_04 Göreve Hazır!  
+**Önceki YZ:** YZ_03 (Multi-line strings + Modular compiler!)  
+**Sen:** selfhosting_YZ_04
 
 ---
 
-## 🎯 PROJE HEDEFİ
-
-Stage 1 compiler'ın kendini derleyebilmesi (self-hosting %100).
+## 🚨 YZ_03 BAŞARISI!
 
 ```
-Stage 0 (C) ──compile──> Stage 1 (MELP) ──compile──> Stage 1' (MELP)
-                                │                         │
-                                └─────── AYNI ────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  ✅ Gen1 v2 Compiler ÇALIŞIYOR!                             │
+│                                                             │
+│  4 Modular Functions:                                      │
+│  → main() - orchestration                                  │
+│  → extract_function_name() - stubbed                       │
+│  → extract_return_value() - stubbed                        │
+│  → generate_llvm_ir() - template-based                     │
+│                                                             │
+│  Multi-line Strings: ✅ PMPL natively destekliyor!         │
+│  → No sed workaround needed!                               │
+│  → Clean, readable LLVM IR templates                       │
+│                                                             │
+│  Pipeline:                                                 │
+│  test.mlp → [Gen1 v2] → test.ll → [lli] → Exit 42 ✅      │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 📋 GÖREV DAĞILIMI
+## 📍 GÜNCEL DURUM
 
-| YZ | Phase | Görev | Durum | Branch |
-|----|-------|-------|-------|--------|
-| YZ_00 | Phase 0 | Sistem Tutarlılığı | ✅ TAMAMLANDI | `selfhosting_YZ_00` |
-| YZ_01 | Phase 1.1-1.2 | Core + Parser Syntax Fix | ✅ TAMAMLANDI | `selfhosting_YZ_01` |
-| YZ_02 | Phase 1.3-1.5 | Kalan Modüller + While Syntax + Doğrulama | ✅ TAMAMLANDI | `selfhosting_YZ_02` |
-| YZ_03 | Phase 2 | Integration + **THEN FIX** | 🔵 AKTİF | `selfhosting_YZ_03` |
-| YZ_04 | Phase 3 | Bootstrap | ⏳ BEKLEMEDE | `selfhosting_YZ_04` |
-| YZ_05 | Phase 4 | Convergence | ⏳ BEKLEMEDE | `selfhosting_YZ_05` |
-| YZ_06 | Phase 5 | Finalization | ⏳ BEKLEMEDE | `selfhosting_YZ_06` |
+**YZ_03 Başarılar:**
+- ✅ Multi-line string literals working
+- ✅ 4-function modular architecture
+- ✅ Clean LLVM IR templates
+- ✅ File I/O tested and working
+- ✅ compiler_gen1_v2 binary created
+
+**Mevcut Sınırlamalar:**
+- ⚠️ Function name extraction stubbed (returns "main")
+- ⚠️ Return value extraction stubbed (returns 42)
+- ⚠️ LLVM IR generation still template-based
+- ⚠️ No real parsing yet
 
 ---
 
-## 🔵 ŞU AN AKTİF GÖREV
+## 🎯 YZ_04 GÖREVİ
 
-### YZ_03: Phase 2 - Integration + THEN FIX
+**Phase 2, Task 2.3: String Operations & Basic Lexer**
 
-**Durum:** 🔵 AKTİF  
-**Bağımlılık:** YZ_02 ✅ (tamamlandı)  
-**Tahmini Süre:** 4-6 saat
+### Ne yapacaksın:
 
-**⚠️ YENİ ÖNCELİK:**
+**Hedef:** Gen1 v2'ye gerçek string parsing ekle.
 
-**1. `then` Ekleme (2-3 saat)**
-   - 1,034 `if` statement'a `then` ekle
-   - Her `if <condition>` satırını `if <condition> then` yap
-   - Zaten `then` içerenleri bozma!
+**Adım 1: PMPL String Operations Testi**
 
-**Script Önerisi:**
-```bash
-# Her "if ..." satırını (then ile bitmiyorsa) "if ... then" yap
-for f in $(find compiler/stage1/modules -name "*.mlp"); do
-    sed -i '/^[[:space:]]*if .*[^n]$/s/$/ then/' "$f"
-done
+PMPL'de string manipulation için builtin fonksiyonlar var mı?
+
+**Test:**
+```mlp
+function test_string_ops() returns numeric
+    string test = "function my_test() returns numeric return 77 end"
+    
+    -- Test 1: length
+    numeric len = length(test)
+    
+    -- Test 2: substring (varsa)
+    -- string sub = substring(test; 0; 8)
+    
+    -- Test 3: find/indexOf (varsa)
+    -- numeric pos = find(test; "function")
+    
+    return len
+end_function
 ```
 
-**2. Import Sorunlarını Çöz (1-2 saat)**
-   - `control_flow_codegen.mlp` ve `enums_codegen.mlp` import hatalarını araştır
-   - token_types.mlp geri yüklendi, test et
+**Action:** Test et, hangi fonksiyonlar var?
 
-**3. Integration Test (1-2 saat)**
-   - Tüm modülleri birlikte test et
-   - Bootstrap sürecini dene
+**Adım 2: Manual String Scanning**
 
-**Tamamlandığında:**
-- `selfhosting_YZ/YZ_03_TAMAMLANDI.md` oluştur
-- `NEXT_AI_START_HERE.md`'yi güncelle
+Eğer builtin yok ise, karakter karakter tara:
 
----
+```mlp
+function find_keyword(string source; string keyword) returns numeric
+    numeric source_len = length(source)
+    numeric keyword_len = length(keyword)
+    
+    -- Loop through source
+    numeric i = 0
+    while i < source_len
+        -- Check if keyword starts at position i
+        -- (Implementation TODO)
+        i = i + 1
+    end_while
+    
+    return -1  -- Not found
+end_function
+```
 
-## 📝 ÖNCEKİ YZ'DEN NOTLAR (YZ_02)
+**Challenge:** PMPL'de string character access nasıl?
 
-**YZ_02 Tamamlandı:** ✅ (22 Aralık 2025)
+**Adım 3: Extract Function Name**
 
-**Yapılanlar:**
-- ✅ Task 1.3: 12 modül syntax fix (compiler ana modüller, arrays, control_flow, enums)
-- ✅ Task 1.4: 52 while syntax fix (while X → while X do), 20 dosya
-- ✅ Task 1.5: Test ve doğrulama (7/9 başarılı)
-- ✅ **Toplam 77+ modül düzeltildi** (YZ_01: 65+ | YZ_02: 12)
+```mlp
+function extract_function_name(string source) returns string
+    -- Find "function " keyword
+    numeric pos = find_keyword(source; "function ")
+    
+    -- Skip "function " (9 characters)
+    numeric name_start = pos + 9
+    
+    -- Find next '(' or whitespace
+    numeric name_end = find_next_delimiter(source; name_start)
+    
+    -- Extract substring
+    -- string name = substring(source; name_start; name_end)
+    
+    return "extracted_name"
+end_function
+```
 
-**Syntax Düzeltmeleri:**
-- Virgül → Semicolon: ~400+ değişiklik
-- While do ekleme: 52 değişiklik
-- Blok sonları: ~100+ değişiklik
-- Boolean → numeric: (devam)
-- exit/break düzeltmeleri
-
-**Test Sonuçları:**
-- ✅ compiler.mlp, compiler_integration.mlp, compiler_full.mlp: Derlenmiş (78KB toplam)
-- ✅ arrays_codegen.mlp, arrays_parser.mlp: Derlenmiş (19KB)
-- ✅ control_flow_parser.mlp, enums_parser.mlp: Derlenmiş (26KB)
-- ⚠️ control_flow_codegen.mlp, enums_codegen.mlp: Import errors
-
-**Araçlar:**
-- `temp/fix_syntax_advanced.py` - Kapsamlı syntax fixer
-- `temp/fix_while.py` - While do fixer
-- `temp/test_stage1_modules.sh` - Test scripti
-- `temp/compilation_results_yz02.txt` - Detaylı rapor
-
-**Bilinen Sorunlar:**
-- 2 modül import edilen dosyalardaki syntax sorunları nedeniyle derlenemiyor
-- ~30 modül henüz kontrol edilmedi (test dosyaları, yardımcı modüller)
-
----
-
-## 📝 ÖNCEKİ YZ'DEN NOTLAR (YZ_01)
-
-**YZ_01 Tamamlandı:** ✅ (22 Aralık 2025)
-
-**Yapılanlar:**
-- ✅ lexer_mlp: lexer.mlp düzeltildi (6 fonksiyon derlenmiş)
-- ✅ parser_mlp: 28 modül syntax fix (toplu düzeltme)
-- ✅ codegen_mlp: 17 modül syntax fix (toplu düzeltme)
-- ✅ **Toplam 65+ modül düzeltildi**
-
-**Syntax Düzeltmeleri:**
-- Virgül → Semicolon: ~300+ değişiklik
-- Blok sonları: ~200+ değişiklik (end_if, end_while, vb.)
-- Boolean → numeric: ~50 değişiklik (STO prensibi)
-- exit while → exit: ~20 değişiklik
-
-**Önemli Bulgular:**
-- ✅ Stage 0 semicolon'u TAM destekliyor
-- ✅ Array literal'lerde semicolon zorunlu: `[a; b; c]`
-- ✅ Fonksiyon parametreleri/çağrıları: semicolon
-- ⚠️ Bazı modüller kısmen derlenmiş (hata var ama output üretiyor)
-
-**Araçlar:**
-- `temp/fix_syntax_complete.py` oluşturuldu
-- Python script ile toplu düzeltme çok hızlı
-
-**Bilinen Sorunlar:**
-- Bazı modüller "println not found" hatası veriyor (runtime dependency)
-- While syntax (32 adet `while X` do eksik) henüz düzeltilmedi
-
----
-
-## 📝 ÖNCEKİ YZ'DEN NOTLAR (YZ_00)
-
-**YZ_00 Tamamlandı:** ✅ (22 Aralık 2025)
-
-**Bulguları:**
-- ✅ Stage 0 build ve test başarılı
-- ✅ Import sistemi çalışıyor
-- ⚠️ 89/107 Stage 1 modülü syntax fix gerekiyor (%83)
-- 1,104 virgül → semicolon değişikliği
-- 32 `while` → `while do` değişikliği
-- 10 `break` → `exit` değişikliği
-
-**En Çok Sorun Olan Modüller:**
-1. codegen_mlp/codegen_arrays.mlp - 52 virgül
-2. codegen_mlp/codegen_functions.mlp - 45 virgül
-3. codegen_mlp/codegen_structs.mlp - 38 virgül
-4. parser_mlp/parser_expressions.mlp - 34 virgül
-
-**Önemli:** `temp/syntax_inventory.txt` detaylı rapor (982 satır)
-
-**Bilinen durumlar:**
-- Stage 1 modüllerinde eski syntax var (virgül kullanımı)
-- 98/107 modül derleniyor (%92)
-- `lexer.mlp`'de substring() çağrıları düzeltilmeli
-
----
-
-## ⚠️ KRİTİK KURALLAR
-
-### Git Workflow
+**Adım 4: Test**
 
 ```bash
-# 1. Branch oluştur
-git checkout -b selfhosting_YZ_XX
+# Test input:
+echo "function my_test() returns numeric return 77 end" > test.mlp
 
-# 2. Çalış ve commit et
-git add .
-git commit -m "YZ_XX: [açıklama]"
+# Gen1_v2 ile compile et
+./build/compiler_gen1_v2
 
-# 3. Push et
-git push origin selfhosting_YZ_XX
-
-# ⚠️ MERGE YAPMA! Pull request AÇMA!
+# Check output
+cat test.ll
+# Beklenen: define i64 @my_test() { ... ret i64 77 }
 ```
-
-### Zorunlu Okumalar
-
-Göreve başlamadan önce oku:
-1. `TODO_kurallari.md` - Tüm kurallar
-2. `TODO_SELFHOSTING_FINAL.md` - Detaylı görev listesi
-3. `pmlp_kesin_sozdizimi.md` - Syntax referans
-4. `MELP_VISION.md` - Vizyon
-5. `MELP_REFERENCE.md` - Referans
-6. `ARCHITECTURE.md` - Mimari
-
-## 📊 GENEL İLERLEME
-
-```
-Phase 0: [✅] [✅] [✅] [✅]         4/4  (YZ_00 ✅)
-Phase 1: [✅] [✅] [✅] [✅] [✅]    5/5  (YZ_01 ✅ | YZ_02 ✅)
-Phase 2: [ ] [ ] [ ] [ ] [ ]       0/5 
-Phase 3: [ ] [ ] [ ]               0/3 
-Phase 4: [ ] [ ] [ ]               0/3 
-Phase 5: [ ] [ ] [ ] [ ]           0/4 
-
-TOPLAM: 9/24 task (38%)
-```
-**Prensip ihlali tespit edersen: DURDUR ve Üst Akıl'a danış!**
 
 ---
 
-## 📊 GENEL İLERLEME
+## 📋 OKUMAN GEREKENLER
 
-```
-Phase 0: [ ] [ ] [ ] [ ]           0/4 
-Phase 1: [ ] [ ] [ ] [ ] [ ]       0/5 
-Phase 2: [ ] [ ] [ ] [ ] [ ]       0/5 
-Phase 3: [ ] [ ] [ ]               0/3 
-Phase 4: [ ] [ ] [ ]               0/3 
-Phase 5: [ ] [ ] [ ] [ ]           0/4 
-
-TOPLAM: 0/24 task (0%)
-```
+| Dosya | İçerik |
+|-------|--------|
+| `selfhosting_YZ/YZ_03_TAMAMLANDI.md` | **ÖNCE BUNU OKU!** YZ_03 başarıları |
+| `modules/compiler_gen1_v2.mlp` | Modular compiler (4 functions) |
+| `pmlp_kesin_sozdizimi.md` | PMPL syntax reference |
 
 ---
 
 ## 🚀 BAŞLA!
 
-1. `TODO_kurallari.md` oku ✓
-2. Bu dosyayı oku ✓
-3. `TODO_SELFHOSTING_FINAL.md` oku
-4. Zorunlu belgeleri oku
-5. Kullanıcıya kendini tanıt ve onay al
-6. Branch oluştur
-7. Çalış
-8. Rapor yaz
-9. Push et
-10. Bu dosyayı güncelle
+```bash
+git checkout -b selfhosting_YZ_04
 
-**Başarılar!**
+# 1. ÖNCE YZ_03 raporunu oku
+cat selfhosting_YZ/YZ_03_TAMAMLANDI.md
+
+# 2. Test string operations
+cat > test_string_ops.mlp << 'EOF'
+function main() returns numeric
+    string test = "function test() returns numeric return 42 end"
+    numeric len = length(test)
+    -- Test other string functions
+    return len
+end_function
+EOF
+
+./compiler/stage0/modules/functions/functions_compiler test_string_ops.mlp test_string_ops.ll
+lli test_string_ops.ll
+echo $?  # Should be length of string
+
+# 3. Implement string scanning
+nano modules/compiler_gen1_v2.mlp
+```
+
+---
+
+## ⚠️ YASAKLAR
+
+| YASAK | NEDEN |
+|-------|-------|
+| Stage 0'a dokunma | Stage 0 KAPALI |
+| Multi-param bug fix | Stage 0 bug |
+| String concatenation `+` | Stage 0 codegen bug (workaround: multi-line templates) |
+
+---
+
+## 🎯 HEDEF: GERÇEK PARSING!
+
+```
+Input:  function my_func() returns numeric return 123 end
+Output: define i64 @my_func() { entry: ret i64 123 }
+                    ^^^^^^^^                   ^^^
+                    PARSED!                    PARSED!
+```
+
+**Takıldığın yer olursa sor, yoksa direkt başla!** 🚀

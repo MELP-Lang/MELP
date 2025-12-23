@@ -1,4 +1,1 @@
--- Simple test input for Gen1 v2 compiler
-function test_main() returns numeric
-    return 77
-end_function
+function test() returns numeric return 123 end_function

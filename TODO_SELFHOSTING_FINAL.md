@@ -753,8 +753,8 @@ compiler/stage1/modules/lexer_mlp/lexer.mlp          # Lexer modülü
 compiler/stage1/modules/parser_mlp/parser.mlp        # Parser modülü
 modules/compiler_gen1_v2.mlp                         # Gen1 v2 (YZ_03) ⭐
 build/compiler_gen1_v2                                # Gen1 v2 Binary (YZ_03) ⭐
-YZ_reports/YZ_03_TAMAMLANDI.md                       # YZ_03 Raporu ⭐
-YZ_reports/NEXT_YZ_START_HERE.md                     # YZ_04 Görev Belgesi ⭐
+selfhosting_YZ/YZ_03_TAMAMLANDI.md                   # YZ_03 Raporu ⭐
+selfhosting_YZ/NEXT_AI_START_HERE.md                 # YZ_04 Görev Belgesi ⭐
 selfhosting_UA/sonraki_UA_buradan_basla.md           # Devir belgesi
 ```
 

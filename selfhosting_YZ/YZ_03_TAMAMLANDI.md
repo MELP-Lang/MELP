@@ -359,7 +359,7 @@ Sıradaki: YZ_04 - Real parsing with string operations.
 
 ---
 
-**Dosya:** `YZ_reports/YZ_03_TAMAMLANDI.md`  
+**Dosya:** `selfhosting_YZ/YZ_03_TAMAMLANDI.md`  
 **Branch:** `selfhosting_YZ_03`  
 **Durum:** ✅ TAMAMLANDI  
 **Next YZ:** YZ_04 - String Operations & Basic Lexer
