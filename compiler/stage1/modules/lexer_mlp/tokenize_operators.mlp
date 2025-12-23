@@ -23,22 +23,22 @@
 
 -- Creates a token [type, value, line, column]
 function create_token(numeric token_type; string token_value; numeric line_num; numeric col_num) returns list
-    return [token_type, token_value, line_num, col_num]
+    return (token_type; token_value; line_num; col_num;)
 end function
 
 -- Helper: Create empty two-char result
 function create_empty_two_char_result() returns list
-    return [0, 0, ""]
+    return (0; 0; "";)
 end function
 
 -- Helper: Create empty position result
 function create_empty_position_result() returns list
-    return [0, 0, 0]
+    return (0; 0; 0;)
 end function
 
 -- Helper: Create empty token
 function create_empty_token() returns list
-    return [0, "", 0, 0]
+    return (0; ""; 0; 0;)
 end function
 
 -- Check if character is whitespace
@@ -74,7 +74,7 @@ function skip_line_comment(string source; numeric pos; numeric line; numeric col
         end if
     end while
     
-    return [pos, col, line]
+    return [pos; col; line;]
 end function
 
 -- ============================================================================
@@ -140,40 +140,40 @@ function check_two_char_operator(string source; numeric pos) returns list
         -- ==
         if ch == "=" then
             if next_ch == "=" then
-                return [1, 46, "=="]  -- EQUALS
+                return (1; 46; "==";)  -- EQUALS
             end if
         end if
         
         -- !=
         if ch == "!" then
             if next_ch == "=" then
-                return [1, 47, "!="]  -- NOT_EQUALS
+                return (1; 47; "!=";)  -- NOT_EQUALS
             end if
         end if
         
         -- <=
         if ch == "<" then
             if next_ch == "=" then
-                return [1, 50, "<="]  -- LESS_EQUAL
+                return (1; 50; "<=";)  -- LESS_EQUAL
             end if
         end if
         
         -- >=
         if ch == ">" then
             if next_ch == "=" then
-                return [1, 51, ">="]  -- GREATER_EQUAL
+                return (1; 51; ">=";)  -- GREATER_EQUAL
             end if
         end if
         
         -- -- (comment marker - not a token, but detected here)
         if ch == "-" then
             if next_ch == "-" then
-                return [1, 82, "--"]  -- COMMENT
+                return (1; 82; "--";)  -- COMMENT
             end if
         end if
     end if
     
-    return [0, 0, ""]  -- Not a two-char operator
+    return (0; 0; "";)  -- Not a two-char operator
 end function
 
 -- ============================================================================
@@ -206,26 +206,26 @@ function scan_operator(string source; numeric pos; numeric line; numeric col) re
         -- Special case: comment marker
         if token_type == 82 then
             -- Return comment marker token (caller should skip it)
-            result_token = create_token(82, "--", start_line, start_col)
-            return [result_token, pos + 2, col + 2, line]
+            result_token = create_token(82; "--"; start_line; start_col)
+            return (result_token; pos + 2; col + 2; line;)
         end if
         
         -- Regular two-char operator
-        result_token = create_token(token_type, token_value, start_line, start_col)
-        return [result_token, pos + 2, col + 2, line]
+        result_token = create_token(token_type; token_value; start_line; start_col)
+        return (result_token; pos + 2; col + 2; line;)
     end if
     
     -- Single-character operator/symbol
     token_type = get_single_char_token_type(ch)
     
     if token_type > 0 then
-        result_token = create_token(token_type, ch, start_line, start_col)
-        return [result_token, pos + 1, col + 1, line]
+        result_token = create_token(token_type; ch; start_line; start_col)
+        return (result_token; pos + 1; col + 1; line;)
     end if
     
     -- Unknown character - return UNKNOWN token
-    result_token = create_token(81, ch, start_line, start_col)
-    return [result_token, pos + 1, col + 1, line]
+    result_token = create_token(81; ch; start_line; start_col)
+    return (result_token; pos + 1; col + 1; line;)
 end function
 
 -- ============================================================================
@@ -257,7 +257,7 @@ function skip_whitespace(string source; numeric pos; numeric line; numeric col) 
         end if
     end while
     
-    return [pos, col, line]
+    return (pos; col; line;)
 end function
 
 -- ============================================================================

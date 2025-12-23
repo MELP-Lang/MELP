@@ -35,8 +35,8 @@
 -- Creates a new token with the given properties
 -- Returns: list [type, value, line, column]
 function create_token(numeric token_type; string token_value; numeric line_num; numeric col_num) returns list
-    return [token_type, token_value, line_num, col_num]
-end function
+    return (token_type; token_value; line_num; col_num;)
+end_function
 
 -- ============================================================================
 -- Helper: Get ASCII code (simplified version for quote detection)
@@ -111,8 +111,8 @@ function scan_number(string source; numeric pos; numeric line; numeric col) retu
         end if
     end while
     
-    list token = create_token(30, num_value, start_line, start_col)
-    return [token, pos, col]
+    list token = create_token(30; num_value; start_line; start_col)
+    return (token; pos; col;)
 end function
 
 -- ============================================================================
@@ -193,11 +193,11 @@ function scan_string(string source; numeric pos; numeric line; numeric col) retu
     end while
     
     if terminated == 0 then
-        return []
+        return (;)
     end if
     
-    list token = create_token(31, str_value, start_line, start_col)
-    return [token, pos, col]
+    list token = create_token(31; str_value; start_line; start_col)
+    return (token; pos; col;)
 end function
 
 -- ============================================================================
