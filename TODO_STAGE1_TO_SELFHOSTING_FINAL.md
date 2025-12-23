@@ -248,9 +248,10 @@ find compiler/stage1/modules -name "*.mlp" -exec grep -l "," {} \;
 
 **Kontrol edilecekler:**
 - [ ] Parametre ayırıcıları: `,` → `;`
-- [ ] List literals: `[a, b]` → `[a; b]`
+- [ ] Array literals: `[a, b]` → `[a; b;]` (köşeli parantez + trailing `;`)
+- [ ] List literals: `(a, b)` → `(a; b;)` (normal parantez + trailing `;`)
 - [ ] Çok satırlı if'lerde `then` var mı?
-- [ ] while/for'da `do` var mı?
+- [ ] while/for'da `do` OLMAMALI (sadece `while cond` ... `end_while`)
 
 **Çıktı:** Düzeltilecek dosya listesi
 
@@ -430,10 +431,18 @@ git push origin v1.0.0-selfhosting
 Syntax Hata Özeti:
 - Virgüllü parametre (`, ` yerine `; `): 19 dosya
 - while...do (do OLMAMALI): 5 dosya
-- Array literal virgül ([a,b] yerine [a;b]): 51 dosya
+- Array literal virgül ([a,b] yerine [a;b;]): 51 dosya
+- List literal hatası ((a,b) yerine (a;b;)): kontrol edilmeli
 - then eksik olabilecek if'ler: 20+ dosya
 
 Toplam Stage 1 modül sayısı: 107 dosya
+
+DOĞRU SYNTAX (pmlp_kesin_sozdizimi.md'den):
+- Array: numeric[] arr = [1; 2; 3;]   -- köşeli parantez + trailing ;
+- List:  list data = (1; "x"; true;)  -- normal parantez + trailing ;
+- Parametre: func(a; b; c)            -- noktalı virgül ayırıcı
+- While: while cond ... end_while     -- "do" YOK!
+- If: if cond then ... end_if         -- "then" ZORUNLU!
 ```
 
 **Komutlar:**
@@ -441,11 +450,11 @@ Toplam Stage 1 modül sayısı: 107 dosya
 # Virgüllü parametre bul:
 find compiler/stage1/modules -name "*.mlp" -exec grep -l "function.*(.*, " {} \;
 
-# while...do bul:
+# while...do bul (HATALI - do olmamalı):
 find compiler/stage1/modules -name "*.mlp" -exec grep -l "while.*do" {} \;
 
-# Array virgül bul:
-find compiler/stage1/modules -name "*.mlp" -exec grep -l "\[.*,.*\]" {} \;
+# Array/List virgül bul (HATALI):
+find compiler/stage1/modules -name "*.mlp" -exec grep -l "\[.*,.*\]\|(.*,.*)" {} \;
 ```
 
 ---
