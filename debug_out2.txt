@@ -1,0 +1,2 @@
+✅ Compiled test_string_return.mlp -> test_string_return.ll
+   📊 2 functions, 0 structs, 0 enums

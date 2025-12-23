@@ -385,49 +385,32 @@ void llvm_emit_label(LLVMContext* ctx, const char* label_name) {
 // ============================================================================
 
 LLVMValue* llvm_emit_call(LLVMContext* ctx, const char* func_name,
-                          LLVMValue** args, int arg_count) {
+                          LLVMValue** args, int arg_count, const char* return_type_str) {
     LLVMValue* result = malloc(sizeof(LLVMValue));
     result->name = llvm_new_temp(ctx);
     result->is_constant = 0;
-    
-    // YZ_200: Determine return type based on function name
-    int returns_pointer = (strncmp(func_name, "melp_list", 9) == 0 && 
-                          (strcmp(func_name, "melp_list_create") == 0 ||
-                           strcmp(func_name, "melp_list_get") == 0)) ||
-                          (strncmp(func_name, "melp_map", 8) == 0 &&
-                          (strcmp(func_name, "melp_map_create") == 0 ||
-                           strcmp(func_name, "melp_map_get") == 0)) ||
-                          strcmp(func_name, "malloc") == 0;  // malloc returns i8*
-    
-    int returns_i32 = (strcmp(func_name, "melp_list_append") == 0 ||
-                       strcmp(func_name, "melp_list_prepend") == 0 ||
-                       strcmp(func_name, "melp_list_set") == 0 ||
-                       strcmp(func_name, "melp_map_insert") == 0 ||
-                       strcmp(func_name, "melp_map_remove") == 0 ||
-                       strcmp(func_name, "melp_map_has_key") == 0);
-    
-    result->type = returns_pointer ? LLVM_TYPE_I8_PTR : LLVM_TYPE_I64;
-    const char* return_type_str = returns_pointer ? "i8*" : (returns_i32 ? "i32" : "i64");
-    
+    // Set type for result (for codegen use)
+    if (strcmp(return_type_str, "i8*") == 0) {
+        result->type = LLVM_TYPE_I8_PTR;
+    } else if (strcmp(return_type_str, "i32") == 0) {
+        result->type = 2; // Not used, but for completeness
+    } else {
+        result->type = LLVM_TYPE_I64;
+    }
     fprintf(ctx->output, "    %s = call %s @%s(", result->name, return_type_str, func_name);
-    
     for (int i = 0; i < arg_count; i++) {
         if (i > 0) fprintf(ctx->output, ", ");
-        
-        // YZ_64: Emit correct type based on argument type
         if (args[i]->type == LLVM_TYPE_I8_PTR) {
             fprintf(ctx->output, "i8* ");
         } else {
             fprintf(ctx->output, "i64 ");
         }
-        
         if (args[i]->is_constant) {
             fprintf(ctx->output, "%ld", args[i]->const_value);
         } else {
             fprintf(ctx->output, "%s", args[i]->name);
         }
     }
-    
     fprintf(ctx->output, ")\n");
     return result;
 }
@@ -561,6 +544,12 @@ void llvm_emit_printf_support(LLVMContext* ctx) {
     fprintf(ctx->output, "; void* malloc(size_t size)\n");
     fprintf(ctx->output, "declare i8* @malloc(i64)\n\n");
     
+    fprintf(ctx->output, "; MLP Standard Library - String Functions (Task 0.2 + 0.3)\n");
+    fprintf(ctx->output, "; char* mlp_string_concat(const char* str1, const char* str2)\n");
+    fprintf(ctx->output, "declare i8* @mlp_string_concat(i8*, i8*)\n");
+    fprintf(ctx->output, "; char* mlp_string_char_at(const char* str, size_t index)\n");
+    fprintf(ctx->output, "declare i8* @mlp_string_char_at(i8*, i64)\n\n");
+    
     fprintf(ctx->output, "; MLP Standard Library - List Functions (YZ_200)\n");
     fprintf(ctx->output, "; MelpList* melp_list_create(size_t element_size)\n");
     fprintf(ctx->output, "declare i8* @melp_list_create(i64)\n");
@@ -591,6 +580,20 @@ void llvm_emit_printf_support(LLVMContext* ctx) {
 }
 
 LLVMValue* llvm_emit_println(LLVMContext* ctx, LLVMValue* value) {
+    // Task 0.2/0.3: Check if value is a string (i8*)
+    if (value->type == LLVM_TYPE_I8_PTR) {
+        // String: call mlp_println_string
+        fprintf(ctx->output, "    call void @mlp_println_string(i8* ");
+        if (value->is_constant) {
+            fprintf(ctx->output, "null");  // Shouldn't happen
+        } else {
+            fprintf(ctx->output, "%s", value->name);
+        }
+        fprintf(ctx->output, ")\n");
+        return value;
+    }
+    
+    // Numeric: use printf with format string
     // Get pointer to format string
     char* fmt_ptr = llvm_new_temp(ctx);
     fprintf(ctx->output, "    %s = getelementptr inbounds [5 x i8], [5 x i8]* @.fmt_num, i64 0, i64 0\n",

@@ -1,1 +1,30 @@
-function test() returns numeric return 123 end_function
+-- ===
+-- MELP Gen1 Compiler v2 - Minimal Self-Hosting Bootstrap
+-- ===
+-- File: modules/compiler_gen1_v2.mlp
+-- Author: YZ_04 (Mastermind Seçenek C)
+-- Date: 23 Aralık 2025
+-- Purpose: MINIMAL compiler that can compile itself
+-- Strategy: Start VERY simple, then iterate
+-- ===
+
+function main() returns numeric
+    -- For Gen1: Just generate a minimal working IR
+    -- Don't even read the source yet - just produce valid LLVM IR
+    
+    string llvm_ir = generate_minimal_ir()
+    numeric result = write_file("test.ll"; llvm_ir)
+    
+    return 0
+end_function
+
+-- Generate absolute minimal LLVM IR
+-- Just enough to compile and run
+function generate_minimal_ir() returns string
+    string ir = "define i64 @main() {
+entry:
+  ret i64 0
+}
+"
+    return ir
+end_function

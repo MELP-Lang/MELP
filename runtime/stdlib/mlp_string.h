@@ -28,6 +28,7 @@ int mlp_string_is_empty(const char* str);
 char* mlp_string_duplicate(const char* str);
 char* mlp_string_substring(const char* str, size_t start, size_t length);  // YZ_22
 int mlp_string_indexOf(const char* str, const char* substr);  // YZ_22
+char* mlp_string_char_at(const char* str, size_t index);  // Task 0.2: Character access
 
 // YZ_90: Number to string conversion (for string interpolation)
 char* mlp_number_to_string(long long num);

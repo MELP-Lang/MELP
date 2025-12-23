@@ -1,6 +1,7 @@
 # MELP Projesi - Görevli YZ Kuralları
 
-**Tarih:** 22 Aralık 2025  
+**Tarih:** 24 Aralık 2025  
+**Güncelleme:** pmlp_kesin_sozdizimi.md zorunlu referans olarak eklendi  
 **Amaç:** Tüm görevli YZ'lerin uyması gereken kurallar
 
 ---
@@ -19,12 +20,25 @@ Aşağıdaki belgeleri **mutlaka** oku:
 
 ```
 1. selfhosting_YZ/NEXT_AI_START_HERE.md  → Önceki YZ'nin sana bıraktığı notlar
-2. TODO_SELFHOSTING_FINAL.md             → Ana görev listesi
-3. pmlp_kesin_sozdizimi.md               → MELP syntax kuralları
+2. TODO_STAGE1_TO_SELFHOSTING_FINAL.md   → Ana görev listesi
+3. pmlp_kesin_sozdizimi.md               → ⚠️ KRİTİK: MELP syntax kuralları (HER ZAMAN REFERANS AL!)
 4. MELP_VISION.md                        → Proje vizyonu
 5. MELP_REFERENCE.md                     → Teknik referans
 6. ARCHITECTURE.md                       → Mimari kurallar
 ```
+
+### ⚠️ ÖNEMLI: pmlp_kesin_sozdizimi.md
+
+**Bu dosya MELP'in resmi syntax referansıdır.**
+
+Kod yazarken veya Stage 0 ile ilgili bir şey yaparken **mutlaka** bu dosyayı referans al!
+
+Örnekler:
+- `while i < 10` (do YOK!)
+- `;` parametre ayırıcı (`,` değil!)
+- `end_while`, `end_if`, `end_function`
+
+**Bu dosyayı okumadan kod yazma!**
 
 ### 2. MELP'in 5 Temel İlkesi
 
@@ -57,6 +71,30 @@ Onay veriyor musunuz?
 ---
 
 ## 🔧 ÇALIŞIRKEN
+
+### ⚠️ MELP Programı Çalıştırma (ÖNEMLİ!)
+
+**YANLIŞ (println çalışmaz!):**
+```bash
+lli output.ll  # ❌ Runtime yok, println hata verir!
+```
+
+**DOĞRU:**
+```bash
+./scripts/run_mlp.sh input.mlp  # ✅ Otomatik runtime link!
+```
+
+Veya manuel:
+```bash
+clang output.ll \
+    runtime/stdlib/libmlp_stdlib.a \
+    runtime/sto/bigdecimal.o \
+    runtime/sto/sso_string.o \
+    runtime/sto/runtime_sto.o \
+    runtime/sto/sto_runtime.o \
+    -lm -o program
+./program
+```
 
 ### Git Workflow
 

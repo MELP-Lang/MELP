@@ -237,6 +237,37 @@ int mlp_string_indexOf(const char* str, const char* substr) {
     return (int)(found - str);  // Calculate index
 }
 
+/**
+ * Task 0.2: Get character at index (returns single-character string)
+ * 
+ * @param str Source string
+ * @param index Position (0-based)
+ * @return New heap-allocated single-character string (caller must free)
+ *         Empty string if index out of bounds
+ * 
+ * Example:
+ *   string s = "MELP"
+ *   string ch = char_at(s; 0)  // "M"
+ */
+char* mlp_string_char_at(const char* str, size_t index) {
+    if (!str) return strdup("");
+    
+    size_t len = strlen(str);
+    if (index >= len) return strdup("");  // Out of bounds
+    
+    // Allocate 2 bytes: 1 char + null terminator
+    char* result = (char*)malloc(2);
+    if (!result) {
+        fprintf(stderr, "Error: mlp_string_char_at - malloc failed\n");
+        return NULL;
+    }
+    
+    result[0] = str[index];
+    result[1] = '\0';
+    
+    return result;
+}
+
 // ============================================================================
 // Memory Management Helpers
 // ============================================================================

@@ -183,7 +183,7 @@ void llvm_emit_label(LLVMContext* ctx, const char* label_name);
 // Emit function call
 // Example: %result = call i64 @add(i64 %a, i64 %b)
 LLVMValue* llvm_emit_call(LLVMContext* ctx, const char* func_name,
-                          LLVMValue** args, int arg_count);
+                          LLVMValue** args, int arg_count, const char* return_type_str);
 
 // ============================================================================
 // Constant & Literal Emission

@@ -28,7 +28,8 @@ FUNCTIONS_SOURCES = \
 	functions_parser.c \
 	functions_codegen.c \
 	functions_codegen_llvm.c \
-	functions_generic.c
+	functions_generic.c \
+	find_function_by_name.c
 
 # Variable modülü (Modül #1)
 VARIABLE_DIR = ../variable

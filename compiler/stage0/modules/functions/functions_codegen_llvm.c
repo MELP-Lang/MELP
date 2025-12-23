@@ -6,6 +6,7 @@
 #include "functions_codegen_llvm.h"
 #include "../type_system/type_inference.h"
 #include "functions_generic.h"  // YZ_203: Generic template support
+#include "find_function_by_name.h"
 #include "../arithmetic/arithmetic_parser.h"
 #include "../variable/variable.h"
 #include "../statement/statement.h"  // YZ_58: Statement types
@@ -190,7 +191,7 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
             // Generate list allocation and initialization
             // 1. Call melp_list_create(element_size)
             LLVMValue* element_size = llvm_const_i64(sizeof(int64_t));  // For now, numeric only
-            LLVMValue* list_ptr = llvm_emit_call(ctx->llvm_ctx, "melp_list_create", &element_size, 1);
+            LLVMValue* list_ptr = llvm_emit_call(ctx->llvm_ctx, "melp_list_create", &element_size, 1, "i8*");
             list_ptr->type = LLVM_TYPE_I8_PTR;  // Fix: melp_list_create returns i8*
             
             // 2. For each element, call melp_list_append(list, &element)
@@ -203,7 +204,7 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
                 // YZ_200: Allocate memory for element (runtime expects void**)
                 // malloc(8) for i64 element
                 LLVMValue* size_arg = llvm_const_i64(8);
-                LLVMValue* elem_mem = llvm_emit_call(ctx->llvm_ctx, "malloc", &size_arg, 1);
+                LLVMValue* elem_mem = llvm_emit_call(ctx->llvm_ctx, "malloc", &size_arg, 1, "i8*");
                 elem_mem->type = LLVM_TYPE_I8_PTR;
                 
                 // Bitcast i8* to i64* and store value
@@ -221,7 +222,7 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
                 
                 // Call melp_list_append(list_ptr, elem_mem) with i8* pointer
                 LLVMValue* args[2] = {list_ptr, elem_mem};
-                llvm_emit_call(ctx->llvm_ctx, "melp_list_append", args, 2);
+                llvm_emit_call(ctx->llvm_ctx, "melp_list_append", args, 2, "i32");
                 
                 llvm_value_free(elem_val);
             }
@@ -234,7 +235,7 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
             // YZ_201: Generate map allocation and initialization
             // 1. Call melp_map_create(value_size)
             LLVMValue* value_size = llvm_const_i64(sizeof(int64_t));  // For now, numeric values only
-            LLVMValue* map_ptr = llvm_emit_call(ctx->llvm_ctx, "melp_map_create", &value_size, 1);
+            LLVMValue* map_ptr = llvm_emit_call(ctx->llvm_ctx, "melp_map_create", &value_size, 1, "i8*");
             map_ptr->type = LLVM_TYPE_I8_PTR;  // melp_map_create returns i8*
             
             // 2. For each key-value pair, call melp_map_insert(map, key, &value)
@@ -253,7 +254,7 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
                 
                 // Allocate memory for value (runtime expects void*)
                 LLVMValue* size_arg = llvm_const_i64(8);  // i64 = 8 bytes
-                LLVMValue* val_mem = llvm_emit_call(ctx->llvm_ctx, "malloc", &size_arg, 1);
+                LLVMValue* val_mem = llvm_emit_call(ctx->llvm_ctx, "malloc", &size_arg, 1, "i8*");
                 val_mem->type = LLVM_TYPE_I8_PTR;
                 
                 // Bitcast i8* to i64* and store value
@@ -271,7 +272,7 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
                 
                 // Call melp_map_insert(map_ptr, key_ptr, val_mem)
                 LLVMValue* args[3] = {map_ptr, key_ptr, val_mem};
-                llvm_emit_call(ctx->llvm_ctx, "melp_map_insert", args, 3);
+                llvm_emit_call(ctx->llvm_ctx, "melp_map_insert", args, 3, "i32");
                 
                 llvm_value_free(val);
                 llvm_value_free(key_ptr);
@@ -352,12 +353,13 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
             
             if (is_pointer) {
                 // Pointer variable (string/list): load i8* from i8**
+                // Variable name has _ptr suffix
                 LLVMValue* loaded = malloc(sizeof(LLVMValue));
                 loaded->name = llvm_new_temp(ctx->llvm_ctx);
                 loaded->is_constant = 0;
                 loaded->type = LLVM_TYPE_I8_PTR;
                 
-                fprintf(ctx->llvm_ctx->output, "    %s = load i8*, i8** %%%s, align 8\n",
+                fprintf(ctx->llvm_ctx->output, "    %s = load i8*, i8** %%%s_ptr, align 8\n",
                         loaded->name, arith->value);
                 
                 return loaded;
@@ -406,7 +408,7 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
             
             // 3. Call melp_list_get(list, index) -> returns i8* (pointer to data)
             LLVMValue* args[2] = {list_ptr, index_val};
-            LLVMValue* elem_ptr = llvm_emit_call(ctx->llvm_ctx, "melp_list_get", args, 2);
+            LLVMValue* elem_ptr = llvm_emit_call(ctx->llvm_ctx, "melp_list_get", args, 2, "i8*");
             elem_ptr->type = LLVM_TYPE_I8_PTR;
             
             // 4. Bitcast i8* to i64* and load value
@@ -548,7 +550,7 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
             
             // 3. Call melp_list_get(list, index) -> returns i8* (void*)
             LLVMValue* args[2] = {list_ptr, index_val};
-            LLVMValue* elem_ptr = llvm_emit_call(ctx->llvm_ctx, "melp_list_get", args, 2);
+            LLVMValue* elem_ptr = llvm_emit_call(ctx->llvm_ctx, "melp_list_get", args, 2, "i8*");
             elem_ptr->type = LLVM_TYPE_I8_PTR;
             
             // 4. Bitcast i8* to i64* and load value
@@ -578,12 +580,44 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
             return result;
         }
         
+        // Task 0.2: char_at(string; index) -> string
+        if (strcmp(actual_function_name, "char_at") == 0 && call->arg_count == 2) {
+            // Generate arguments
+            LLVMValue* str_arg = generate_expression_llvm(ctx, call->arguments[0]);
+            LLVMValue* idx_arg = generate_expression_llvm(ctx, call->arguments[1]);
+            
+            // Call mlp_string_char_at(str, index) -> i8*
+            LLVMValue* args[2] = {str_arg, idx_arg};
+            LLVMValue* result = llvm_emit_call(ctx->llvm_ctx, "mlp_string_char_at", args, 2, "i8*");
+            result->type = LLVM_TYPE_I8_PTR;  // Returns string (i8*)
+            
+            llvm_value_free(str_arg);
+            llvm_value_free(idx_arg);
+            return result;
+        }
+        
+        // Task 0.3: concat(string; string) -> string (alternative to + operator)
+        if (strcmp(actual_function_name, "concat") == 0 && call->arg_count == 2) {
+            // Generate arguments
+            LLVMValue* str1_arg = generate_expression_llvm(ctx, call->arguments[0]);
+            LLVMValue* str2_arg = generate_expression_llvm(ctx, call->arguments[1]);
+            
+            // Call mlp_string_concat(str1, str2) -> i8*
+            LLVMValue* args[2] = {str1_arg, str2_arg};
+            LLVMValue* result = llvm_emit_call(ctx->llvm_ctx, "mlp_string_concat", args, 2, "i8*");
+            result->type = LLVM_TYPE_I8_PTR;  // Returns string (i8*)
+            
+            llvm_value_free(str1_arg);
+            llvm_value_free(str2_arg);
+            return result;
+        }
+        
         // YZ_200: Map built-in list functions to runtime functions
         // YZ_201: Map built-in map functions to runtime functions
         const char* runtime_name = actual_function_name;
         int is_list_append = 0;
         int is_map_insert = 0;
-        
+
         if (strcmp(actual_function_name, "append") == 0) {
             runtime_name = "melp_list_append";
             is_list_append = 1;
@@ -591,9 +625,6 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
             runtime_name = "melp_list_prepend";
             is_list_append = 1;  // prepend also needs i64->i8* conversion
         } else if (strcmp(actual_function_name, "length") == 0) {
-            // Check if first arg is map or list (both have length())
-            // For now, assume melp_map_length if name suggests map
-            // Better: check variable type from var_types
             runtime_name = "melp_list_length";  // Default to list, will handle map below
         } else if (strcmp(actual_function_name, "clear") == 0) {
             runtime_name = "melp_list_clear";
@@ -607,20 +638,18 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
         } else if (strcmp(actual_function_name, "has_key") == 0) {
             runtime_name = "melp_map_has_key";
         }
-        
+
         // Generate arguments
         LLVMValue** args = malloc(sizeof(LLVMValue*) * call->arg_count);
         for (int i = 0; i < call->arg_count; i++) {
             args[i] = generate_expression_llvm(ctx, call->arguments[i]);
-            
+
             // YZ_200: For append/prepend, convert second argument (element) to pointer
             // Runtime expects void* pointing to element data
             if (is_list_append && i == 1) {
                 if (args[i]->type == LLVM_TYPE_I64) {
-                    // Allocate stack space for element with unique name
                     char* elem_var = llvm_new_temp(ctx->llvm_ctx);
                     fprintf(ctx->llvm_ctx->output, "    %s = alloca i64, align 8\n", elem_var);
-                    // Store value
                     fprintf(ctx->llvm_ctx->output, "    store i64 ");
                     if (args[i]->is_constant) {
                         fprintf(ctx->llvm_ctx->output, "%ld", args[i]->const_value);
@@ -628,27 +657,21 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
                         fprintf(ctx->llvm_ctx->output, "%s", args[i]->name);
                     }
                     fprintf(ctx->llvm_ctx->output, ", i64* %s, align 8\n", elem_var);
-                    
-                    // Cast to i8* for runtime call
                     LLVMValue* ptr_val = malloc(sizeof(LLVMValue));
                     ptr_val->name = llvm_new_temp(ctx->llvm_ctx);
                     ptr_val->is_constant = 0;
                     ptr_val->type = LLVM_TYPE_I8_PTR;
-                    fprintf(ctx->llvm_ctx->output, "    %s = bitcast i64* %s to i8*\n",
-                            ptr_val->name, elem_var);
+                    fprintf(ctx->llvm_ctx->output, "    %s = bitcast i64* %s to i8*\n", ptr_val->name, elem_var);
                     llvm_value_free(args[i]);
                     args[i] = ptr_val;
                 }
             }
-            
+
             // YZ_201: For map insert, convert third argument (value) to pointer
-            // Runtime expects void* pointing to value data
             if (is_map_insert && i == 2) {
                 if (args[i]->type == LLVM_TYPE_I64) {
-                    // Allocate stack space for value
                     char* val_var = llvm_new_temp(ctx->llvm_ctx);
                     fprintf(ctx->llvm_ctx->output, "    %s = alloca i64, align 8\n", val_var);
-                    // Store value
                     fprintf(ctx->llvm_ctx->output, "    store i64 ");
                     if (args[i]->is_constant) {
                         fprintf(ctx->llvm_ctx->output, "%ld", args[i]->const_value);
@@ -656,28 +679,38 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
                         fprintf(ctx->llvm_ctx->output, "%s", args[i]->name);
                     }
                     fprintf(ctx->llvm_ctx->output, ", i64* %s, align 8\n", val_var);
-                    
-                    // Cast to i8* for runtime call
                     LLVMValue* ptr_val = malloc(sizeof(LLVMValue));
                     ptr_val->name = llvm_new_temp(ctx->llvm_ctx);
                     ptr_val->is_constant = 0;
                     ptr_val->type = LLVM_TYPE_I8_PTR;
-                    fprintf(ctx->llvm_ctx->output, "    %s = bitcast i64* %s to i8*\n",
-                            ptr_val->name, val_var);
+                    fprintf(ctx->llvm_ctx->output, "    %s = bitcast i64* %s to i8*\n", ptr_val->name, val_var);
                     llvm_value_free(args[i]);
                     args[i] = ptr_val;
                 }
             }
         }
+
+        // --- YZ_07: String Return Type Bugfix ---
+        // Find the function declaration for the call
+        extern FunctionDeclaration* functions; // defined in functions_standalone.c
+        FunctionDeclaration* callee_decl = NULL;
+        const char* call_return_type_str = "i64";
         
-        LLVMValue* result = llvm_emit_call(ctx->llvm_ctx, runtime_name, args, call->arg_count);
+        // Only check for user-defined functions (not runtime/builtin)
+        // Use actual_function_name (original name) not runtime_name (mapped name)
+        if (functions) {
+            callee_decl = find_function_by_name(functions, actual_function_name);
+            if (callee_decl && callee_decl->return_type == FUNC_RETURN_TEXT) {
+                call_return_type_str = "i8*";
+            }
+        }
         
+        LLVMValue* result = llvm_emit_call(ctx->llvm_ctx, runtime_name, args, call->arg_count, call_return_type_str);
         // Free args
         for (int i = 0; i < call->arg_count; i++) {
             llvm_value_free(args[i]);
         }
         free(args);
-        
         return result;
     }
     
@@ -708,27 +741,38 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
         
         LLVMValue* result = NULL;
         
-        switch (arith->op) {
-            case ARITH_ADD:
-                result = llvm_emit_add(ctx->llvm_ctx, left, right);
-                break;
-            case ARITH_SUB:
-                result = llvm_emit_sub(ctx->llvm_ctx, left, right);
-                break;
-            case ARITH_MUL:
-                result = llvm_emit_mul(ctx->llvm_ctx, left, right);
-                break;
-            case ARITH_DIV:
-                result = llvm_emit_div(ctx->llvm_ctx, left, right);
-                break;
-            case ARITH_AND:
-                result = llvm_emit_and(ctx->llvm_ctx, left, right);
-                break;
-            case ARITH_OR:
-                result = llvm_emit_or(ctx->llvm_ctx, left, right);
-                break;
-            default:
-                result = llvm_const_i64(0);
+        // Task 0.3: Check if this is string concatenation (string + string)
+        if (arith->op == ARITH_ADD && 
+            (arith->left->is_string || arith->right->is_string ||
+             left->type == LLVM_TYPE_I8_PTR || right->type == LLVM_TYPE_I8_PTR)) {
+            // String concatenation: call mlp_string_concat(left, right)
+            LLVMValue* args[2] = {left, right};
+            result = llvm_emit_call(ctx->llvm_ctx, "mlp_string_concat", args, 2, "i8*");
+            result->type = LLVM_TYPE_I8_PTR;  // Returns string (i8*)
+        } else {
+            // Numeric operations
+            switch (arith->op) {
+                case ARITH_ADD:
+                    result = llvm_emit_add(ctx->llvm_ctx, left, right);
+                    break;
+                case ARITH_SUB:
+                    result = llvm_emit_sub(ctx->llvm_ctx, left, right);
+                    break;
+                case ARITH_MUL:
+                    result = llvm_emit_mul(ctx->llvm_ctx, left, right);
+                    break;
+                case ARITH_DIV:
+                    result = llvm_emit_div(ctx->llvm_ctx, left, right);
+                    break;
+                case ARITH_AND:
+                    result = llvm_emit_and(ctx->llvm_ctx, left, right);
+                    break;
+                case ARITH_OR:
+                    result = llvm_emit_or(ctx->llvm_ctx, left, right);
+                    break;
+                default:
+                    result = llvm_const_i64(0);
+            }
         }
         
         llvm_value_free(left);
@@ -939,16 +983,36 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
                 return NULL;
             }
             
+            // Task 0.2/0.3: Handle string variables with expression initializers
+            if (decl->type == VAR_STRING && decl->init_expr) {
+                // Register variable type
+                register_variable_type(ctx, decl->name, 1);  // 1 = pointer (i8*)
+                char var_ptr_name[256];
+                snprintf(var_ptr_name, sizeof(var_ptr_name), "%%%s_ptr", decl->name);
+                fprintf(ctx->llvm_ctx->output, "  %s = alloca i8*, align 8\n", var_ptr_name);
+                
+                LLVMValue* init_val = generate_expression_llvm(ctx, decl->init_expr);
+                
+                fprintf(ctx->llvm_ctx->output, "  store i8* ");
+                if (init_val->is_constant) {
+                    fprintf(ctx->llvm_ctx->output, "null");  // Shouldn't happen for string funcs
+                } else {
+                    fprintf(ctx->llvm_ctx->output, "%s", init_val->name);
+                }
+                fprintf(ctx->llvm_ctx->output, ", i8** %s, align 8\n", var_ptr_name);
+                llvm_value_free(init_val);
+                return NULL;
+            }
+            
             // Numeric/boolean variables
             // Register variable type
             register_variable_type(ctx, decl->name, 0);  // 0 = not pointer (i64)
-            
-            // Allocate variable
             LLVMValue* var_ptr = llvm_emit_alloca(ctx->llvm_ctx, decl->name);
             
-            // Generate initializer expression
             if (decl->init_expr) {
                 LLVMValue* init_val = generate_expression_llvm(ctx, decl->init_expr);
+                fprintf(stderr, "[DEBUG VAR INIT] init_val->type: %d\n", init_val ? init_val->type : -1);
+                fprintf(stderr, "[DEBUG VAR INIT] store instruction yazılıyor\n");
                 llvm_emit_store(ctx->llvm_ctx, init_val, var_ptr);
                 llvm_value_free(init_val);
             } else if (decl->value) {
@@ -962,10 +1026,10 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
                     val = atol(decl->value);
                 }
                 LLVMValue* init_val = llvm_const_i64(val);
+                fprintf(stderr, "[DEBUG VAR INIT] store instruction yazılıyor (sabit değer)\n");
                 llvm_emit_store(ctx->llvm_ctx, init_val, var_ptr);
                 llvm_value_free(init_val);
             }
-            
             llvm_value_free(var_ptr);
             return NULL;
         }
@@ -995,16 +1059,11 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
             
             // YZ_62: Phase 17 - Handle string variable printing
             if (print_stmt->type == PRINT_VARIABLE) {
-                // Need to determine if variable is string or numeric
-                // For now, we'll check if it's a known string variable
-                // TODO: Add proper symbol table with type info
+                // Use type table to check if it's a string variable
+                int is_string_var = lookup_variable_type(ctx, print_stmt->value);
                 
-                // YZ_63: Check if it's a string variable or parameter
-                Statement* stmt_iter = ctx->current_func->body;
-                int is_string_var = 0;
+                // Check if it's a string parameter
                 int is_string_param = 0;
-                
-                // Check function parameters first
                 FunctionParam* param = ctx->current_func->params;
                 while (param) {
                     if (strcmp(param->name, print_stmt->value) == 0 && param->type == FUNC_PARAM_TEXT) {
@@ -1012,20 +1071,6 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
                         break;
                     }
                     param = param->next;
-                }
-                
-                // If not a parameter, check local variables
-                if (!is_string_param) {
-                    while (stmt_iter) {
-                        if (stmt_iter->type == STMT_VARIABLE_DECL) {
-                            VariableDeclaration* decl = (VariableDeclaration*)stmt_iter->data;
-                            if (strcmp(decl->name, print_stmt->value) == 0 && decl->type == VAR_STRING) {
-                                is_string_var = 1;
-                                break;
-                            }
-                        }
-                        stmt_iter = stmt_iter->next;
-                    }
                 }
                 
                 if (is_string_param) {
@@ -1036,18 +1081,15 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
                 
                 if (is_string_var) {
                     // String variable: load i8* and call mlp_println_string
-                    char* var_ptr_name = llvm_new_temp(ctx->llvm_ctx);
                     char* loaded_str = llvm_new_temp(ctx->llvm_ctx);
                     
                     // Load string pointer from variable
-                    // We need to find the alloca'd pointer
                     fprintf(ctx->llvm_ctx->output, "  %s = load i8*, i8** %%%s_ptr, align 8\n", 
                             loaded_str, print_stmt->value);
                     
                     // Call mlp_println_string
                     fprintf(ctx->llvm_ctx->output, "  call void @mlp_println_string(i8* %s)\n", loaded_str);
                     
-                    free(var_ptr_name);
                     free(loaded_str);
                     return NULL;
                 }
@@ -1291,16 +1333,13 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
         
         case STMT_ASSIGNMENT: {
             VariableAssignment* assign = (VariableAssignment*)stmt->data;
-            
+            fprintf(stderr, "[DEBUG STMT] STMT_ASSIGNMENT: name: %s\n", assign->name);
             // Generate value expression
             LLVMValue* value = generate_expression_llvm(ctx, assign->value_expr);
-            
             // Get variable pointer (already allocated)
             LLVMValue* var_ptr = llvm_reg(assign->name);
-            
             // Store value
             llvm_emit_store(ctx->llvm_ctx, value, var_ptr);
-            
             llvm_value_free(value);
             llvm_value_free(var_ptr);
             return NULL;

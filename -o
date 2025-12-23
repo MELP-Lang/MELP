@@ -15,6 +15,12 @@ declare void @mlp_println_string(i8*)
 ; void* malloc(size_t size)
 declare i8* @malloc(i64)
 
+; MLP Standard Library - String Functions (Task 0.2 + 0.3)
+; char* mlp_string_concat(const char* str1, const char* str2)
+declare i8* @mlp_string_concat(i8*, i8*)
+; char* mlp_string_char_at(const char* str, size_t index)
+declare i8* @mlp_string_char_at(i8*, i64)
+
 ; MLP Standard Library - List Functions (YZ_200)
 ; MelpList* melp_list_create(size_t element_size)
 declare i8* @melp_list_create(i64)
@@ -44,14 +50,24 @@ declare i32 @melp_map_has_key(i8*, i8*)
 declare i64 @melp_map_length(i8*)
 
 
-; Function: test
-define i64 @test() {
+; Function: get_name
+define i8* @get_name() {
 entry:
-  %ch_ptr = alloca i8*, align 8
-  %tmp1 = getelementptr inbounds [2 x i8], [2 x i8]* @.str.1, i64 0, i64 0
-  store i8* %tmp1, i8** %ch_ptr, align 8
+    %tmp1 = getelementptr inbounds [5 x i8], [5 x i8]* @.str.1, i64 0, i64 0
+    ret i8* %tmp1
+}
+
+; Function: main
+define i64 @main() {
+entry:
+  %name_ptr = alloca i8*, align 8
+    %tmp2 = call i8* @get_name()
+  store i8* %tmp2, i8** %name_ptr, align 8
+    %tmp3 = load i8*, i8** %name_ptr, align 8
+    call void @mlp_println_string(i8* %tmp3)
+    ret i64 0
 }
 
 ; String Constants
-@.str.1 = private unnamed_addr constant [2 x i8] c"\\\00", align 1
+@.str.1 = private unnamed_addr constant [5 x i8] c"MELP\00", align 1
 

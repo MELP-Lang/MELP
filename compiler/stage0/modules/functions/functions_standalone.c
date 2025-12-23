@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../../normalize/normalize.h"
 #include "../lexer/lexer.h"
 #include "../import/import.h"
 #include "../import/import_parser.h"
@@ -33,6 +34,9 @@ typedef enum {
 
 // Global backend selection (YZ_07: expose for array_codegen.c)
 BackendType backend = BACKEND_LLVM;
+
+// YZ_07: Global function list (for string return type lookup in llvm_emit_call)
+FunctionDeclaration* functions = NULL;
 
 // Read entire file into string
 static char* read_file(const char* path) {
@@ -103,16 +107,23 @@ int main(int argc, char** argv) {
         return 1;
     }
     
+    // Normalize to PMPL syntax ("end while" → "end_while", etc.)
+    char* normalized = normalize_to_pmpl(source);
+    free(source);
+    if (!normalized) {
+        fprintf(stderr, "Failed to normalize source\n");
+        return 1;
+    }
+    
     // Create lexer
-    Lexer* lexer = lexer_create(source);
+    Lexer* lexer = lexer_create(normalized);
     if (!lexer) {
         fprintf(stderr, "Failed to create lexer\n");
-        free(source);
+        free(normalized);
         return 1;
     }
     
     // Parse all top-level declarations (imports, structs, enums, functions)
-    FunctionDeclaration* functions = NULL;
     FunctionDeclaration* last_func = NULL;
     StructDef* structs = NULL;
     StructDef* last_struct = NULL;
@@ -285,7 +296,7 @@ int main(int argc, char** argv) {
     
     // Close lexer
     lexer_free(lexer);
-    free(source);
+    free(normalized);
     
     // Open output file
     FILE* output = fopen(output_file, "w");
