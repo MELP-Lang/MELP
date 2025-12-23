@@ -1,0 +1,10 @@
+-- Test: Simple struct with single field
+struct Data
+    numeric value
+end_struct
+
+function main() returns numeric
+    Data d
+    d.value = 42
+    return d.value
+end_function

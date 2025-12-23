@@ -2,6 +2,7 @@
 // Wrapper around llvm_backend module for functions compiler
 // YZ_58 - Phase 13.5 Part 3-5
 // YZ_203.5 - Generic Type Inference
+// modern_YZ_08 - Struct support
 
 #include "functions_codegen_llvm.h"
 #include "../type_system/type_inference.h"
@@ -13,6 +14,7 @@
 #include "../control_flow/control_flow.h"  // YZ_58: Control flow structures
 #include "../for_loop/for_loop.h"  // YZ_60: For loop structures
 #include "../print/print.h"  // YZ_61: Print statement
+#include "../struct/struct.h"  // modern_YZ_08: Struct support
 #include <stdlib.h>
 #include <string.h>
 
@@ -489,6 +491,59 @@ static LLVMValue* generate_expression_llvm(FunctionLLVMContext* ctx, void* expr)
             free(elem_ptr);
             return result;
         }
+    }
+    
+    // modern_YZ_08: Handle struct member access (p.x)
+    if (arith->is_member_access && arith->member_access) {
+        MemberAccess* access = (MemberAccess*)arith->member_access;
+        
+        // Look up struct instance
+        StructInstanceInfo* inst_info = struct_lookup_instance(access->struct_instance);
+        if (!inst_info) {
+            fprintf(stderr, "Error: Struct instance '%s' not found\n", access->struct_instance);
+            return llvm_const_i64(0);
+        }
+        
+        StructDef* def = inst_info->definition;
+        
+        // Find member in struct definition
+        StructMember* member = def->members;
+        while (member) {
+            if (strcmp(member->name, access->member_name) == 0) {
+                break;
+            }
+            member = member->next;
+        }
+        
+        if (!member) {
+            fprintf(stderr, "Error: Member '%s' not found in struct '%s'\n",
+                    access->member_name, def->name);
+            return llvm_const_i64(0);
+        }
+        
+        // Get pointer to struct member using getelementptr
+        // Pattern: getelementptr inbounds [N x i8], [N x i8]* %struct, i64 0, i64 offset
+        char* member_ptr = llvm_new_temp(ctx->llvm_ctx);
+        fprintf(ctx->llvm_ctx->output, 
+                "    %s = getelementptr inbounds [%zu x i8], [%zu x i8]* %%%s, i64 0, i64 %zu\n",
+                member_ptr, def->total_size, def->total_size, access->struct_instance, member->offset);
+        
+        // Cast pointer to appropriate type (i64* for numeric)
+        char* typed_ptr = llvm_new_temp(ctx->llvm_ctx);
+        fprintf(ctx->llvm_ctx->output, "    %s = bitcast i8* %s to i64*\n",
+                typed_ptr, member_ptr);
+        
+        // Load value
+        LLVMValue* result = malloc(sizeof(LLVMValue));
+        result->name = llvm_new_temp(ctx->llvm_ctx);
+        result->is_constant = 0;
+        result->type = LLVM_TYPE_I64;
+        fprintf(ctx->llvm_ctx->output, "    %s = load i64, i64* %s, align 8\n",
+                result->name, typed_ptr);
+        
+        free(member_ptr);
+        free(typed_ptr);
+        return result;
     }
     
     // Handle function calls
@@ -1685,6 +1740,117 @@ static LLVMValue* generate_statement_llvm(FunctionLLVMContext* ctx, Statement* s
             llvm_value_free(value);
             llvm_value_free(index_val);
             free(elem_ptr);
+            return NULL;
+        }
+        
+        // modern_YZ_08: Struct definition
+        case STMT_STRUCT: {
+            StructDef* def = (StructDef*)stmt->data;
+            
+            // Register struct definition globally
+            struct_register_definition(def);
+            
+            // Emit struct type definition as comment
+            fprintf(ctx->llvm_ctx->output, "    ; Struct definition: %s (size: %zu bytes)\n", 
+                    def->name, def->total_size);
+            
+            StructMember* member = def->members;
+            while (member) {
+                fprintf(ctx->llvm_ctx->output, "    ;   %s: %s (offset: %zu, size: %zu)\n",
+                        member->name, member->type, member->offset, member->size);
+                member = member->next;
+            }
+            
+            return NULL;
+        }
+        
+        // modern_YZ_08: Struct instance declaration (Point p)
+        case STMT_STRUCT_INSTANCE: {
+            StructInstance* inst = (StructInstance*)stmt->data;
+            StructDef* def = struct_lookup_definition(inst->struct_name);
+            
+            if (!def) {
+                fprintf(stderr, "Error: Struct type '%s' not found\n", inst->struct_name);
+                return NULL;
+            }
+            
+            // Allocate struct on stack
+            char var_name[256];
+            snprintf(var_name, sizeof(var_name), "%%%s", inst->instance_name);
+            
+            // Emit struct allocation with actual size
+            fprintf(ctx->llvm_ctx->output, "    ; Allocate struct %s (type: %s, size: %zu bytes)\n",
+                    inst->instance_name, inst->struct_name, def->total_size);
+            
+            // Allocate as byte array [N x i8]
+            fprintf(ctx->llvm_ctx->output, "    %s = alloca [%zu x i8], align 8\n",
+                    var_name, def->total_size);
+            
+            // Register instance for later field access
+            struct_register_instance(inst->instance_name, def, 0);
+            
+            return NULL;
+        }
+        
+        // modern_YZ_08: Member assignment (p.x = 10)
+        case STMT_MEMBER_ASSIGNMENT: {
+            MemberAssignment* assign = (MemberAssignment*)stmt->data;
+            
+            // Look up struct instance
+            StructInstanceInfo* inst_info = struct_lookup_instance(assign->instance_name);
+            if (!inst_info) {
+                fprintf(stderr, "Error: Struct instance '%s' not found\n", assign->instance_name);
+                return NULL;
+            }
+            
+            StructDef* def = inst_info->definition;
+            
+            // Find member in struct definition
+            StructMember* member = def->members;
+            while (member) {
+                if (strcmp(member->name, assign->member_name) == 0) {
+                    break;
+                }
+                member = member->next;
+            }
+            
+            if (!member) {
+                fprintf(stderr, "Error: Member '%s' not found in struct '%s'\n",
+                        assign->member_name, def->name);
+                return NULL;
+            }
+            
+            // Generate value expression
+            LLVMValue* value = generate_expression_llvm(ctx, assign->value_expr);
+            if (!value) {
+                fprintf(stderr, "Error: Failed to generate value for member assignment\n");
+                return NULL;
+            }
+            
+            // Get pointer to struct member using getelementptr
+            // Pattern: getelementptr inbounds [N x i8], [N x i8]* %struct, i64 0, i64 offset
+            char* member_ptr = llvm_new_temp(ctx->llvm_ctx);
+            fprintf(ctx->llvm_ctx->output, 
+                    "    %s = getelementptr inbounds [%zu x i8], [%zu x i8]* %%%s, i64 0, i64 %zu\n",
+                    member_ptr, def->total_size, def->total_size, assign->instance_name, member->offset);
+            
+            // Cast pointer to appropriate type (i64* for numeric)
+            char* typed_ptr = llvm_new_temp(ctx->llvm_ctx);
+            fprintf(ctx->llvm_ctx->output, "    %s = bitcast i8* %s to i64*\n",
+                    typed_ptr, member_ptr);
+            
+            // Store value
+            if (value->is_constant) {
+                fprintf(ctx->llvm_ctx->output, "    store i64 %ld, i64* %s, align 8\n",
+                        value->const_value, typed_ptr);
+            } else {
+                fprintf(ctx->llvm_ctx->output, "    store i64 %s, i64* %s, align 8\n",
+                        value->name, typed_ptr);
+            }
+            
+            llvm_value_free(value);
+            free(member_ptr);
+            free(typed_ptr);
             return NULL;
         }
         

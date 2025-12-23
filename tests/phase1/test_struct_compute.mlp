@@ -1,0 +1,13 @@
+-- Test: Struct with computation
+struct Rectangle
+    numeric width
+    numeric height
+end_struct
+
+function main() returns numeric
+    Rectangle r
+    r.width = 5
+    r.height = 10
+    numeric area = r.width * r.height
+    return area
+end_function

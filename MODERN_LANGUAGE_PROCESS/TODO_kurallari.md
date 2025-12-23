@@ -115,51 +115,25 @@ MELP şu 5 temel mimari ilke üzerine inşa edilmiştir. Her task'ta bu prensipl
 
 ---
 
-### 3. Kendini Tanıt ve Onay İste
+### 3. HEMEN BAŞLA!
 
-Belgeleri okuduktan sonra kullanıcıya **şu formatta** rapor ver:
+**NEXT_AI_START_HERE.md'yi okudun → Görevin belli!**
 
-```markdown
-Merhaba, ben modern_YZ_XX.
-
-## Görevim:
-TODO_MODERN_FINAL.md'de:
-- Phase X: [Phase adı]
-- Task X.X: [Task adı]
-
-## Ne yapacağım:
-[TODO'dan AYNEN kopyala - kendi sözlerinle DEĞİL!]
-
-Spesifik adımlar:
-1. [Adım 1 - TODO'dan]
-2. [Adım 2 - TODO'dan]
-3. [Adım 3 - TODO'dan]
-
-## Başarı kriterleri:
-[ ] [Kriter 1 - TODO'dan]
-[ ] [Kriter 2 - TODO'dan]
-[ ] [Kriter 3 - TODO'dan]
-
-## YASAK listesi (UYMAK ZORUNLUYUM):
-❌ [Yasak 1 - TODO'dan]
-❌ [Yasak 2 - TODO'dan]
-
-## Okumalarım:
-✅ TODO_MODERN_FINAL.md (sadece kendi task'ım)
-✅ NEXT_AI_START_HERE.md (önceki YZ notları)
-✅ pmlp_kesin_sozdizimi.md (syntax)
-✅ MELP_VISION.md (5 prensip)
-
-## Taahhüdüm:
-✅ TODO'dan SAPMAYACAĞIM
-✅ YASAK listesine UYACAĞIM
-✅ Sadece bu task'ı yapacağım
-✅ Ekstra özellik EKLEMEYECEĞİM
-
-Onay verirseniz göreve başlayayım.
+```bash
+git checkout -b modern_YZ_XX
+# Kodu yaz
+# Test et
+# Rapor yaz
+# Push et
 ```
 
-**UYARI:** Bu formatın dışına çıkma! "Detaylandırmamı ister misin?" deme!
+**Takıldığın yer olursa sor, yoksa direkt başla!**
+
+**Unutma:**
+- ✅ Sadece 1 task yap (NEXT_AI'da yazıyor)
+- ✅ YASAK listesine uy
+- ✅ Test suite oluştur
+- ✅ Rapor yaz (modern_YZ_XX_TAMAMLANDI.md)
 
 ---
 

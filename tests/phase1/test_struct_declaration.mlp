@@ -1,0 +1,10 @@
+-- Test: Struct definition and simple declaration
+struct Point
+    numeric x
+    numeric y
+end_struct
+
+function main() returns numeric
+    Point p
+    return 5
+end_function
