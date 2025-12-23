@@ -1,23 +1,31 @@
 # 🎯 GÖREVLİ YZ BAŞLANGIÇ NOKTASI
 
 **Son Güncelleme:** 24 Aralık 2025  
-**Durum:** 🟢 YZ_08 Göreve Hazır!  
-**Önceki YZ:** YZ_07 (String return bug fix)  
-**Sen:** selfhosting_YZ_08
+**Durum:** 🟢 YZ_09 Göreve Hazır!  
+**Önceki YZ:** YZ_08 (Syntax Analizi - 77+ hata tespit edildi)  
+**Sen:** selfhosting_YZ_09
 
 ---
 
-## ✅ PHASE 0 TAMAMLANDI!
+## ✅ YZ_08 BAŞARISI!
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  Stage 0 artık self-hosting için %100 HAZIR!               │
+│  SYNTAX ANALİZİ TAMAMLANDI!                                 │
 │                                                             │
-│  Tamamlanan özellikler:                                    │
-│  ✅ YZ_05: While/For Codegen Fix                           │
-│  ✅ YZ_06: char_at() string karakter erişimi               │
-│  ✅ YZ_06: String concat (+) operatörü                     │
-│  ✅ YZ_07: String return bug fix (i8* return type)         │
+│  Tespit edilen hatalar:                                    │
+│  → Virgüllü parametre: 19 dosya                            │
+│  → while...do: 7 dosya                                     │
+│  → Array literal virgül: 51 dosya                          │
+│  → Toplam: 77+ dosyada syntax hatası                       │
+│                                                             │
+│  Düzeltilen dosyalar:                                      │
+│  ✅ functions_codegen.mlp                                   │
+│  ✅ bootstrap_minimal.mlp (test: exit 230 ✅)              │
+│  ✅ string_utils.mlp                                        │
+│  ✅ math_utils.mlp                                          │
+│                                                             │
+│  İlk self-hosting test başarılı! 🎉                        │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -26,95 +34,77 @@
 ## 📍 ŞİMDİKİ DURUM
 
 **Branch:** `TODO_STAGE1_TO_SELFHOSTING_FINAL`  
-**İlerleme:** 4/13 task (%30)
+**İlerleme:** 5/13 task (%38)
 
-**Aktif Görev:** Phase 1 Task 1.1 - Syntax Analizi
+**Aktif Görev:** Phase 1 Task 1.2 - Toplu Syntax Düzeltme
 
 ---
 
-## 🎯 YZ_08 GÖREVİ
+## 🎯 YZ_09 GÖREVİ
 
-**Phase 1, Task 1.1: Syntax Analizi**
+**Phase 1, Task 1.2: Toplu Syntax Düzeltme**
 
 ### ⚠️ DOĞRU SYNTAX (pmlp_kesin_sozdizimi.md'den):
 
 ```
+Parametre: func(a; b; c)                -- noktalı virgül ayırıcı
 Array:     numeric[] arr = [1; 2; 3;]   -- köşeli parantez + trailing ;
 List:      list data = (1; "x"; true;)  -- normal parantez + trailing ;
-Parametre: func(a; b; c)                -- noktalı virgül ayırıcı
 While:     while cond ... end_while     -- "do" YOK!
 If:        if cond then ... end_if      -- "then" ZORUNLU!
 ```
 
-### Ön Analiz (hazır veri):
+### YZ_08'den Kalan İş:
 
-```
-Syntax Hata Özeti:
-- Virgüllü parametre (, yerine ;): 19 dosya
-- while...do (do OLMAMALI): 5 dosya  
-- Array literal virgül ([a,b] yerine [a;b;]): 51 dosya
-- List literal hatası ((a,b) yerine (a;b;)): kontrol edilmeli
-- then eksik olabilecek if'ler: 20+ dosya
-
-Toplam Stage 1 modül sayısı: 107 dosya
-```
+**Henüz düzeltilmedi:**
+- ⏳ **15 dosya** virgüllü parametre (19'dan 4'ü düzeltildi)
+- ⏳ **6 dosya** while...do (7'den 1'i düzeltildi)
+- ⏳ **51 dosya** array literal virgül
 
 ### Yapılacaklar:
 
-1. **Tüm Stage 1 modüllerini tara**
+**1. Öncelikli Modüller (Lexer, Parser, Codegen):**
+   - lexer_mlp/*.mlp
+   - parser_mlp/*.mlp
+   - codegen_mlp/*.mlp
+
+**2. Her Dosya İçin:**
    ```bash
-   find compiler/stage1/modules -name "*.mlp"
+   # Düzelt
+   # Test et
+   ./compiler/stage0/modules/functions/functions_compiler dosya.mlp output.ll
+   # Çalıştır (mümkünse)
+   lli output.ll
    ```
 
-2. **pmlp_kesin_sozdizimi.md'ye göre kontrol et:**
-   - Parametre ayırıcı: `,` → `;`
-   - Array literal: `[a, b]` → `[a; b;]` (trailing ; ile!)
-   - List literal: `(a, b)` → `(a; b;)` (trailing ; ile!)
-   - while: `while cond do` → `while cond` (do YOK!)
-   - if: `then` ZORUNLU!
-
-3. **Düzeltilecek dosya listesi çıkar**
-
-4. **Derleme testi yap:**
-   ```bash
-   ./scripts/run_mlp.sh dosya.mlp
-   ```
+**3. Hedef:**
+   - %50+ modül derleniyor olmalı (~54 dosya)
+   - Kritik modüller (lexer, parser, codegen) %100 düzeltilmiş
 
 ### Başarı Kriteri:
 
-- [ ] Tüm syntax hataları listelenmiş
-- [ ] En az 3 örnek dosya düzeltilmiş ve derlenmiş
-- [ ] Task 1.2 için hazırlık raporu
+- [ ] 15+ dosya daha düzeltilmiş
+- [ ] Lexer, parser, codegen modülleri syntax açısından temiz
+- [ ] En az 5 dosya derlenip test edilmiş
+- [ ] YZ_09_TAMAMLANDI.md raporu
 
 ---
 
-## 📚 ZORUNLU OKUMALAR
+## 📚 OKUMAN GEREKENLER
 
-1. **TODO_STAGE1_TO_SELFHOSTING_FINAL.md** - Ana görev listesi
-2. **TODO_kurallari.md** - YZ kuralları
-3. **pmlp_kesin_sozdizimi.md** - MELP syntax referansı (KRİTİK!)
-
----
-
-## 🛠️ FAYDALI KOMUTLAR
-
-```bash
-# MELP programı derle ve çalıştır
-./scripts/run_mlp.sh dosya.mlp
-
-# Virgüllü parametre bul
-find compiler/stage1/modules -name "*.mlp" -exec grep -l "function.*(.*, " {} \;
-
-# while...do bul (HATALI)
-find compiler/stage1/modules -name "*.mlp" -exec grep -l "while.*do" {} \;
-
-# Array/List virgül bul (HATALI)
-find compiler/stage1/modules -name "*.mlp" -exec grep -l "\[.*,.*\]" {} \;
-
-# Stage 0 compiler
-./compiler/stage0/melp dosya.mlp -o output.ll
-```
+1. **selfhosting_YZ/YZ_08_TAMAMLANDI.md** - **ÖNCE BUNU OKU!**
+2. **pmlp_kesin_sozdizimi.md** - Syntax referansı
+3. **/tmp/syntax_report.txt** - YZ_08'in oluşturduğu hata listesi
 
 ---
 
-**🚀 PHASE 1 BAŞLIYOR!** 🚀
+## ⚠️ KURALLAR
+
+- TODO'da ne yazıyorsa onu yap
+- "Detaylandırmamı ister misin?" YASAK
+- Phase/Task icat etme
+- Raporu `selfhosting_YZ/YZ_09_TAMAMLANDI.md` olarak yaz
+
+---
+
+**🚀 TOPLU DÜZELTMEYİ BAŞLAT!** 🚀
