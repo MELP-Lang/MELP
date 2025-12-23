@@ -9,15 +9,15 @@
 
 ## 🚨 GÜNCEL DURUM (23 Aralık 2025)
 
-**🎉 modern_YZ_07 TAMAMLANDI! Phase 1, Task 1.3 - Arrays Complete!**
+**🎉 modern_YZ_08 TAMAMLANDI! Phase 1, Task 1.4 - Structs Complete!**
 
-**Phase 1, Task 1.3 TAMAMLANDI - Arrays:**
-- ✅ Array declaration: `numeric[5] numbers`
-- ✅ Array literal: `[1; 2; 3; 4; 5]`
-- ✅ Array indexing (read): `numbers[i]`
-- ✅ Array assignment (write): `numbers[i] = value`
-- ✅ Test suite: 4/4 tests passing
-- ✅ LLVM backend: getelementptr pattern
+**Phase 1, Task 1.4 TAMAMLANDI - Structs:**
+- ✅ Struct definition: `struct Point ... end_struct`
+- ✅ Struct instance declaration: `Point p`
+- ✅ Field assignment: `p.x = 10`
+- ✅ Field access: `p.x` (read)
+- ✅ Test suite: 4/4 tests passing (exit codes: 5, 30, 42, 50)
+- ✅ LLVM backend: getelementptr + bitcast pattern
 
 **Phase 0 COMPLETE! All Tasks Finished:**
 - ✅ Task 0.1a: File I/O Infrastructure (modern_YZ_01)
@@ -30,7 +30,8 @@
 - ✅ Task 1.1: String Type & Concatenation (modern_YZ_05)
 - ✅ Task 1.2: For Loops (modern_YZ_06)
 - ✅ Task 1.3: Arrays (modern_YZ_07)
-- ❌ Task 1.4: Structs ← SONRAKİ TASK!
+- ✅ Task 1.4: Structs (modern_YZ_08)
+- ❌ Phase 1 COMPLETE! ← NEXT: Phase 2!
 
 **Tamamlanan Özellikler:**
 - ✅ Function definitions
@@ -47,90 +48,90 @@
 - ✅ **String type (declaration, concat, compare)**
 - ✅ **For loops (range iteration, reverse)**
 - ✅ **Arrays (fixed-size, indexing, literals)**
+- ✅ **Structs (definition, instantiation, field access)**
 
-**Eksikler (yapılacak - Phase 1):**
-- ❌ **Structs** ← Task 1.4 - SONRAKİ TASK!
-- ❌ FFI
+**Eksikler (yapılacak - Phase 2+):**
+- ❌ **FFI (C Interop)** ← Task 2.1 - SONRAKİ TASK!
 - ❌ Module system
 - ❌ Error handling
 
 ---
-## 🎯 SONRAKİ YZ: modern_YZ_08
+## 🎯 SONRAKİ YZ: modern_YZ_09
 
-### Görev: Phase 1, Task 1.4 - Structs
+### Görev: Phase 2, Task 2.1 - C FFI Basics
 
 **Ne yapacaksın:**
 
-Struct definitions ve field access desteği ekle.
+C fonksiyonlarını çağırabilme (FFI - Foreign Function Interface).
 
 **Spesifik adımlar (TODO'dan):**
 
-1. **Struct definition**
-   - `struct Point ... end_struct`
-   - Parser: struct keyword, fields
-   - Field declarations with types
+1. **extern "C" declarations**
+   - `extern "C" function printf(string format) returns numeric`
+   - Parser: extern keyword ve C linkage
 
-2. **Struct instantiation**
-   - `Point p = Point { x: 10; y: 20 }`
-   - Struct literal syntax
+2. **Type mapping**
+   - numeric → i64
+   - string → i8*
+   - boolean → i1
 
-3. **Field access**
-   - `p.x` (read)
-   - `p.x = 30` (write)
-   - LLVM: getelementptr for field offset
+3. **External function calls**
+   - LLVM: declare external functions
+   - Call instruction generation
 
 4. **Test & Validate**
-   - Struct creation and field access
-   - Return struct from function
-   - Struct in arrays
+   - printf çağrısı
+   - C stdlib fonksiyonları
+   - Type mapping doğru
 
 **Başarı kriterleri:**
 ```
-[ ] struct definition çalışıyor
-[ ] Struct instantiation çalışıyor
-[ ] Field access (read/write) çalışıyor
-[ ] Test: struct field values doğru
+[ ] extern "C" syntax çalışıyor
+[ ] C function call çalışıyor
+[ ] Type mapping doğru
+[ ] printf testi geçiyor
 [ ] TODO dışı iş yapılmadı
 ```
 
 **YASAK:**
 ```
-❌ Methods (sonra)
-❌ Struct inheritance (hiç yok - MELP'te class yok)
-❌ Nested structs (sonra)
+❌ Struct ABI (sonra)
+❌ Callbacks (sonra)
+❌ Variadic functions (sonra)
+❌ Complex type mapping (sonra)
+```
 ❌ Generic structs (sonra)
 ```
 
 ---
 
-## 📋 ZORUNLU OKUMALAR (modern_YZ_08 İçin)
+## 📋 ZORUNLU OKUMALAR (modern_YZ_09 İçin)
 
-1. **TODO_MODERN_FINAL.md** → Phase 1, Task 1.4'ü oku (SADECE!)
+1. **TODO_MODERN_FINAL.md** → Phase 2, Task 2.1'i oku (SADECE!)
 2. **TODO_kurallari.md** → YZ kurallarını oku (TAMAMI!)
-3. **modern_YZ/modern_YZ_07_TAMAMLANDI.md** → Önceki YZ'nin yaptıkları
+3. **modern_YZ/modern_YZ_08_TAMAMLANDI.md** → Önceki YZ'nin yaptıkları
 4. **/README.md** → Güncel proje durumu
 5. **/MELP_VISION.md** → 5 prensip
-6. **/pmlp_kesin_sozdizimi.md** → PMPL syntax (struct literals)
+6. **/pmlp_kesin_sozdizimi.md** → PMPL syntax (extern syntax)
 
-**UYARI:** TODO'nun tamamını okuma! Sadece Task 1.4!
+**UYARI:** TODO'nun tamamını okuma! Sadece Task 2.1!
 
 ---
 
-## 🚫 KRİTİK UYARILAR (modern_YZ_08 İçin)
+## 🚫 KRİTİK UYARILAR (modern_YZ_09 İçin)
 
 ### ❌ YAPMA:
-- "Struct eklerken method da ekleyeyim"
-- "Generic struct da ekleyeyim" (YASAK! Sonra)
-- "Task 1.5'i de yapayım" (YASAK! Sadece Task 1.4)
+- "FFI eklerken struct ABI de ekleyeyim"
+- "Callback support da ekleyeyim" (YASAK! Sonra)
+- "Task 2.2'yi de yapayım" (YASAK! Sadece Task 2.1)
 - "Detaylandırmamı ister misin?" deme (pasif kalma!)
 
 ### ✅ YAP:
-- Struct definition net ve spesifik
-- Struct instantiation syntax (`Point { x: 10; y: 20 }`)
-- Field access operators (. operator)
-- Test programları çalıştır ve doğrula
+- extern "C" syntax net ve spesifik
+- Type mapping (numeric→i64, string→i8*)
+- printf çağrısı test et
+- LLVM declare ve call instructions
 - PMPL syntax'a uy
-- getelementptr pattern kullan (array'den öğren)
 ## 📊 ROADMAP ÖZET
 
 ```
@@ -141,13 +142,18 @@ Phase 0: Self-hosting improvements (1 hafta) ← ✅ TAMAMLANDI!
 ├── 0.3: While loops (1.5 gün) ← ✅ TAMAMLANDI (modern_YZ_03)
 └── 0.4: Finalization (0.5 gün) ← ✅ TAMAMLANDI (modern_YZ_04)
 
-Phase 1: Core features (2 hafta) ← ŞİMDİ BURADAYIZ!
-├── 1.1: String type (3 gün) ← SONRAKİ TASK! (modern_YZ_05)
-├── 1.2: For loops (2 gün)
-├── 1.3: Arrays (4 gün)
-└── 1.4: Structs (3 gün)
+Phase 1: Core features (2 hafta) ← ✅ TAMAMLANDI!
+├── 1.1: String type (3 gün) ← ✅ TAMAMLANDI (modern_YZ_05)
+├── 1.2: For loops (2 gün) ← ✅ TAMAMLANDI (modern_YZ_06)
+├── 1.3: Arrays (4 gün) ← ✅ TAMAMLANDI (modern_YZ_07)
+└── 1.4: Structs (3 gün) ← ✅ TAMAMLANDI (modern_YZ_08)
 
-Phase 2-7: FFI, Modules, Error handling, Advanced, Tooling, Finalization
+Phase 2: FFI & Interop (1 hafta) ← ŞİMDİ BURADAYIZ!
+├── 2.1: C FFI Basics (3 gün) ← SONRAKİ TASK! (modern_YZ_09)
+├── 2.2: Struct FFI (2 gün)
+└── 2.3: Callbacks (2 gün)
+
+Phase 3-7: Modules, Error handling, Advanced, Tooling, Finalization
 ```
 
 **Toplam:** 8-10 hafta, 20+ task
@@ -176,12 +182,12 @@ Phase 2-7: FFI, Modules, Error handling, Advanced, Tooling, Finalization
 ## 🔧 GIT WORKFLOW
 
 ```bash
-# modern_YZ_08 için:
-git checkout -b modern_YZ_08
-# Task 1.4'ü yap (Structs)
+# modern_YZ_09 için:
+git checkout -b modern_YZ_09
+# Task 2.1'i yap (FFI - C Interop)
 git add -A
-git commit -m "modern_YZ_08: Phase 1, Task 1.4 - Structs"
-git push origin modern_YZ_08
+git commit -m "modern_YZ_09: Phase 2, Task 2.1 - C FFI Basics"
+git push origin modern_YZ_09
 
 # Merge ETME! Pull request AÇMA!
 ```
@@ -237,34 +243,27 @@ Bonus: Task 0.1b (Real bootstrap) yapıldıysa belirt.
 - ✅ Sıkı TODO takip
 - ✅ YASAK listesine uyma
 - ✅ Başarı kriterlerini zorunlu kılma
-## 💡 modern_YZ_04 İÇİN SON HATIRLATMALAR
+## 💡 modern_YZ_09 İÇİN SON HATIRLATMALAR
 
 **Yapacaksın:**
-1. TODO_MODERN_FINAL.md'de Task 0.4'ü oku
+1. TODO_MODERN_FINAL.md'de Task 2.1'i oku
 2. TODO_kurallari.md'yi oku
-3. modern_YZ_03_TAMAMLANDI.md'yi oku
-## 💡 modern_YZ_05 İÇİN SON HATIRLATMALAR
-
-**Yapacaksın:**
-1. TODO_MODERN_FINAL.md'de Task 1.1'i oku
-2. TODO_kurallari.md'yi oku
-3. modern_YZ_04_TAMAMLANDI.md'yi oku
-4. pmlp_kesin_sozdizimi.md'yi oku (string syntax)
+3. modern_YZ_08_TAMAMLANDI.md'yi oku
+4. pmlp_kesin_sozdizimi.md'yi oku (extern syntax)
 5. Kendini tanıt (format uygun!)
 6. Onay al
-7. String type definition ekle
-8. String concatenation operator ekle
-9. String comparison operators ekle
-10. Test programları çalıştır
+7. extern "C" parsing ekle
+8. Type mapping implementation
+9. LLVM declare/call generation
+10. Test programları çalıştır (printf)
 11. Rapor yaz
 12. NEXT_AI güncelle
 13. Push et
-14. (Opsiyonel) Task 0.1b yap
 
 **Yapmayacaksın:**
 ❌ TODO'dan sapma
-❌ For loop ekleme (Phase 1, Task 1.2!)
-❌ Array ekleme (Phase 1, Task 1.3!)
+❌ Struct ABI ekleme (Phase 2, Task 2.2!)
+❌ Callback support (Phase 2, Task 2.3!)
 ❌ Ekstra özellik
 ❌ Pasif kalma
 ❌ Validation skip
@@ -272,17 +271,20 @@ Bonus: Task 0.1b (Real bootstrap) yapıldıysa belirt.
 **Hazır Altyapı:**
 - ✅ File I/O çalışıyor (modern_YZ_01'den)
 - ✅ Variables çalışıyor (modern_YZ_02'den)
-- ✅ While loops eklendi (modern_YZ_03'ten)
-- ✅ Test framework hazır (modern_YZ_04'ten)
-- ✅ Benchmark framework hazır
-- ⚠️ Known bug: Stage 0 while codegen (documented)
+- ✅ While loops çalışıyor (modern_YZ_03'ten)
+- ✅ String type çalışıyor (modern_YZ_05'ten)
+- ✅ For loops çalışıyor (modern_YZ_06'dan)
+- ✅ Arrays çalışıyor (modern_YZ_07'den)
+- ✅ Structs çalışıyor (modern_YZ_08'den)
+- ✅ Test framework hazır
+- ✅ LLVM backend pattern'leri yerinde
 
 ---
 
-**Son Güncelleme:** 23 Aralık 2025 (modern_YZ_04 tamamlandı)  
-**Durum:** ✅ modern_YZ_05 başlayabilir!  
-**Branch:** `modern_YZ_05` (oluşturulacak)
+**Son Güncelleme:** 23 Aralık 2025 (modern_YZ_08 tamamlandı)  
+**Durum:** ✅ modern_YZ_09 başlayabilir!  
+**Branch:** `modern_YZ_09` (oluşturulacak)
 
 ---
 
-🚀 **MODERN MELP JOURNEY - PHASE 1 BAŞLIYOR!** 🚀
+🚀 **MODERN MELP JOURNEY - PHASE 1 COMPLETE! PHASE 2 BAŞLIYOR!** 🚀
