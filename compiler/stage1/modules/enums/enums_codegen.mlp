@@ -293,7 +293,7 @@ function codegen_enum_comparison(list left_ref; list right_ref; string op; strin
     
     numeric new_reg = reg_counter + 1
     
-    return (result; new_reg]
+    return ((result; new_reg))
 end_function
 
 -- ============================================================================

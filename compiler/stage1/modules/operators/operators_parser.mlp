@@ -294,7 +294,7 @@ end_function
 function parse_primary(list tokens; numeric pos) returns list
     -- Safety check
     if pos >= len(tokens) then
-        return (0; pos]  -- End of tokens
+        return ((0; pos))  -- End of tokens
     end_if
     
     list token = tokens[pos]
@@ -304,29 +304,29 @@ function parse_primary(list tokens; numeric pos) returns list
     -- Number literal
     if token_type == T_NUMBER then
         list expr = [EXPR_LITERAL; token_value; 0; 0; 0]
-        return (expr; pos + 1]
+        return ((expr; pos + 1))
     end_if
     
     -- String literal
     if token_type == T_STRING then
         list expr = [EXPR_LITERAL; token_value; 0; 0; 0]
-        return (expr; pos + 1]
+        return ((expr; pos + 1))
     end_if
     
     -- Boolean literal
     if token_type == T_TRUE then
         list expr = [EXPR_LITERAL; "true"; 0; 0; 0]
-        return (expr; pos + 1]
+        return ((expr; pos + 1))
     end_if
     if token_type == T_FALSE then
         list expr = [EXPR_LITERAL; "false"; 0; 0; 0]
-        return (expr; pos + 1]
+        return ((expr; pos + 1))
     end_if
     
     -- Variable
     if token_type == T_IDENTIFIER then
         list expr = [EXPR_VARIABLE; token_value; 0; 0; 0]
-        return (expr; pos + 1]
+        return ((expr; pos + 1))
     end_if
     
     -- Parenthesized expression: ( expr )
@@ -337,15 +337,15 @@ function parse_primary(list tokens; numeric pos) returns list
         
         -- Expect closing parenthesis
         if new_pos >= len(tokens) then
-            return (0; new_pos]  -- Error: missing )
+            return ((0; new_pos))  -- Error: missing )
         end_if
         
         list next_token = tokens[new_pos]
         if next_token[0] != T_RPAREN then
-            return (0; new_pos]  -- Error: expected )
+            return ((0; new_pos))  -- Error: expected )
         end_if
         
-        return (expr; new_pos + 1]
+        return ((expr; new_pos + 1))
     end_if
     
     -- Unary operator (not, !)
@@ -355,7 +355,7 @@ function parse_primary(list tokens; numeric pos) returns list
         numeric new_pos = result[1]
         
         list expr = [EXPR_UNARY; "not"; operand; 0; OP_NOT]
-        return (expr; new_pos]
+        return ((expr; new_pos))
     end_if
     
     -- Unary minus
@@ -365,10 +365,10 @@ function parse_primary(list tokens; numeric pos) returns list
         numeric new_pos = result[1]
         
         list expr = [EXPR_UNARY; "-"; operand; 0; OP_SUB]
-        return (expr; new_pos]
+        return ((expr; new_pos))
     end_if
     
-    return (0; pos]  -- Unable to parse
+    return ((0; pos))  -- Unable to parse
 end_function
 
 -- Parse expression with precedence climbing
@@ -380,7 +380,7 @@ function parse_expression(list tokens; numeric pos; numeric min_prec) returns li
     numeric current_pos = result[1]
     
     if left == 0 then
-        return (0; current_pos]  -- Error
+        return ((0; current_pos))  -- Error
     end_if
     
     -- Climb precedence for binary operators
@@ -418,7 +418,7 @@ function parse_expression(list tokens; numeric pos; numeric min_prec) returns li
                 current_pos = right_result[1]
                 
                 if right == 0 then
-                    return (0; current_pos]  -- Error
+                    return ((0; current_pos))  -- Error
                 end_if
                 
                 -- Create binary expression node
@@ -429,7 +429,7 @@ function parse_expression(list tokens; numeric pos; numeric min_prec) returns li
         end_if
     end_while
     
-    return (left; current_pos]
+    return ((left; current_pos))
 end_function
 
 -- ============================================================================

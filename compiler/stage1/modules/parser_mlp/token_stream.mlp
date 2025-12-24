@@ -29,9 +29,9 @@ end_function
 function current_token() returns list
     numeric len = 0  -- length(g_tokens)
     -- if g_current_pos >= len then
-    --     return (;)  -- EOF
+    --     return (,)  -- EOF
     -- end_if
-    return (;)  -- g_tokens[g_current_pos]
+    return (,)  -- g_tokens[g_current_pos]
 end_function
 
 -- Bir sonraki token'a bak (ileri görünüm - lookahead)
@@ -40,9 +40,9 @@ function peek_token() returns list
     numeric next_pos = g_current_pos + 1
     numeric len = 0  -- length(g_tokens)
     if next_pos >= len then
-        return (;)  -- EOF
+        return (,)  -- EOF
     end_if
-    return (;)  -- -- g_tokens[next_pos]
+    return (,)  -- -- g_tokens[next_pos]
 end_function
 
 -- İki token ileri bak (2-token lookahead)
@@ -51,9 +51,9 @@ function peek_token_2() returns list
     numeric next_pos = g_current_pos + 2
     numeric len = 0  -- length(g_tokens)
     if next_pos >= len then
-        return (;)  -- EOF
+        return (,)  -- EOF
     end_if
-    return (;)  -- -- g_tokens[next_pos]
+    return (,)  -- -- g_tokens[next_pos]
 end_function
 
 -- Mevcut token'ı atla ve bir sonrakine geç

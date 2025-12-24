@@ -106,7 +106,7 @@ function codegen_struct_definition(list struct_node, string indent, list context
     -- context = [type_registry; variables; ...]
     -- TODO: Add to type registry
     
-    return (code, context]
+    return ((code, context))
 end_function
 
 -- ----------------------------------------------------------------------------
@@ -135,7 +135,7 @@ function codegen_struct_allocation(string struct_type, string instance_name, str
     code = code + struct_type
     code = code + "\n"
     
-    return (code, context]
+    return ((code, context))
 end_function
 
 -- ----------------------------------------------------------------------------
@@ -216,7 +216,7 @@ function codegen_struct_instantiation(list instance_node, string indent, list co
         init_idx = init_idx + 1
     end_while
     
-    return (code, context]
+    return ((code, context))
 end_function
 
 -- ----------------------------------------------------------------------------
@@ -282,7 +282,7 @@ function codegen_member_access(list access_node, string result_var, string inden
     
     code = code + load_code
     
-    return (code, context]
+    return ((code, context))
 end_function
 
 -- ----------------------------------------------------------------------------
@@ -348,7 +348,7 @@ function codegen_member_assignment(list assign_node, string indent, list context
     
     code = code + store_code
     
-    return (code, context]
+    return ((code, context))
 end_function
 
 -- ============================================================================

@@ -182,7 +182,7 @@ end function
 
 -- Creates a token [type, value, line, column]
 function create_token(numeric token_type; string token_value; numeric line_num; numeric col_num) returns list
-    return (token_type; token_value; line_num; col_num;)
+    return (token_type; token_value; line_num; col_num,)
 end function
 
 -- Scan an identifier or keyword
@@ -213,7 +213,7 @@ function scan_identifier(string source; numeric pos; numeric line; numeric col) 
     token_type = get_keyword_type(id_value)
     
     list token = create_token(token_type; id_value; start_line; start_col)
-    return (token; pos; col;)
+    return (token; pos; col,)
 end function
 
 -- ============================================================================

@@ -35,7 +35,7 @@ end_function
 
 -- Create token helper
 function make_token(numeric token_type, string value) returns list
-    return (token_type, value;)
+    return (token_type, value,)
 end_function
 
 -- ============================================================================
@@ -50,12 +50,12 @@ function test_arithmetic_addition()
         make_token(T_NUMBER, "5"),
         make_token(T_PLUS, "+"),
         make_token(T_NUMBER, "3")
-    ;)
+    ,)
     
     -- Parse expression
     list result = parse_operator_expression(tokens, 0)
-    list expr = result[0;)
-    numeric new_pos = result[1;)
+    list expr = result[0,)
+    numeric new_pos = result[1,)
     
     -- Verify parse result
     boolean parse_ok = expr != 0
@@ -111,12 +111,12 @@ function test_arithmetic_precedence()
         make_token(T_NUMBER, "3"),
         make_token(T_STAR, "*"),
         make_token(T_NUMBER, "4")
-    ;)
+    ,)
     
     -- Parse expression
     list result = parse_operator_expression(tokens, 0)
-    list expr = result[0;)
-    numeric new_pos = result[1;)
+    list expr = result[0,)
+    numeric new_pos = result[1,)
     
     boolean parse_ok = expr != 0
     print_test_result(parse_ok, "Expression parsed successfully")
@@ -176,12 +176,12 @@ function test_comparison_expression()
         make_token(T_IDENTIFIER, "x"),
         make_token(T_LT, "<"),
         make_token(T_NUMBER, "10")
-    ;)
+    ,)
     
     -- Parse expression
     list result = parse_operator_expression(tokens, 0)
-    list expr = result[0;)
-    numeric new_pos = result[1;)
+    list expr = result[0,)
+    numeric new_pos = result[1,)
     
     boolean parse_ok = expr != 0
     print_test_result(parse_ok, "Expression parsed successfully")
@@ -234,12 +234,12 @@ function test_logical_and()
         make_token(T_TRUE, "true"),
         make_token(T_AND, "and"),
         make_token(T_FALSE, "false")
-    ;)
+    ,)
     
     -- Parse expression
     list result = parse_operator_expression(tokens, 0)
-    list expr = result[0;)
-    numeric new_pos = result[1;)
+    list expr = result[0,)
+    numeric new_pos = result[1,)
     
     boolean parse_ok = expr != 0
     print_test_result(parse_ok, "Expression parsed successfully")
@@ -283,12 +283,12 @@ function test_unary_not()
     list tokens = [
         make_token(T_NOT, "not"),
         make_token(T_TRUE, "true")
-    ;)
+    ,)
     
     -- Parse expression
     list result = parse_operator_expression(tokens, 0)
-    list expr = result[0;)
-    numeric new_pos = result[1;)
+    list expr = result[0,)
+    numeric new_pos = result[1,)
     
     boolean parse_ok = expr != 0
     print_test_result(parse_ok, "Expression parsed successfully")
@@ -337,12 +337,12 @@ function test_parenthesized_expression()
         make_token(T_RPAREN, ")"),
         make_token(T_STAR, "*"),
         make_token(T_NUMBER, "2")
-    ;)
+    ,)
     
     -- Parse expression
     list result = parse_operator_expression(tokens, 0)
-    list expr = result[0;)
-    numeric new_pos = result[1;)
+    list expr = result[0,)
+    numeric new_pos = result[1,)
     
     boolean parse_ok = expr != 0
     print_test_result(parse_ok, "Expression parsed successfully")
@@ -396,12 +396,12 @@ function test_complex_expression()
         make_token(T_IDENTIFIER, "y"),
         make_token(T_LT, "<"),
         make_token(T_NUMBER, "20")
-    ;)
+    ,)
     
     -- Parse expression
     list result = parse_operator_expression(tokens, 0)
-    list expr = result[0;)
-    numeric new_pos = result[1;)
+    list expr = result[0,)
+    numeric new_pos = result[1,)
     
     boolean parse_ok = expr != 0
     print_test_result(parse_ok, "Expression parsed successfully")

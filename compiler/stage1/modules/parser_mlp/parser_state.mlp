@@ -93,7 +93,7 @@ function state_current_token(list parser_state) returns list
     numeric len = length(tokens)
     
     if pos >= len then
-        return (;)  -- EOF
+        return (,)  -- EOF
     end_if
     return tokens[pos]
 end_function
@@ -108,7 +108,7 @@ function state_peek_token(list parser_state) returns list
     numeric len = length(tokens)
     
     if next_pos >= len then
-        return (;)
+        return (,)
     end_if
     return tokens[next_pos]
 end_function

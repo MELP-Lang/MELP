@@ -164,7 +164,7 @@ function test_parse_simple_function() returns list
     -- Verify
     if func_decl == 0 then
         println("  Error: Parse failed")
-        return (0]
+        return ((0))
     end_if
     
     string func_name = func_decl[0]
@@ -173,18 +173,18 @@ function test_parse_simple_function() returns list
     
     if func_name != "main" then
         println("  Error: Expected func_name='main', got: " + func_name)
-        return (0]
+        return ((0))
     end_if
     
     if return_type != 0 then  -- FUNC_RETURN_NUMERIC
         println("  Error: Expected return_type=0 (numeric)")
-        return (0]
+        return ((0))
     end_if
     
     println("  Function parsed: " + func_name + "()")
     println("  Return type: numeric")
     
-    return (1]
+    return ((1))
 end_function
 
 -- Test 2: Parse function with parameters
@@ -223,7 +223,7 @@ function test_parse_function_with_params() returns list
     -- Verify
     if func_decl == 0 then
         println("  Error: Parse failed")
-        return (0]
+        return ((0))
     end_if
     
     string func_name = func_decl[0]
@@ -232,7 +232,7 @@ function test_parse_function_with_params() returns list
     
     if func_name != "add" then
         println("  Error: Expected func_name='add', got: " + func_name)
-        return (0]
+        return ((0))
     end_if
     
     -- Check parameters
@@ -241,7 +241,7 @@ function test_parse_function_with_params() returns list
     
     if param1 == 0 or param2 == 0 then
         println("  Error: Expected 2 parameters")
-        return (0]
+        return ((0))
     end_if
     
     string param1_name = param1[1]
@@ -249,18 +249,18 @@ function test_parse_function_with_params() returns list
     
     if param1_name != "a" then
         println("  Error: Expected param1='a'")
-        return (0]
+        return ((0))
     end_if
     
     if param2_name != "b" then
         println("  Error: Expected param2='b'")
-        return (0]
+        return ((0))
     end_if
     
     println("  Function parsed: " + func_name + "(a; b)")
     println("  Parameters: 2")
     
-    return (1]
+    return ((1))
 end_function
 
 -- Test 3: Parse function call
@@ -287,7 +287,7 @@ function test_parse_function_call() returns list
     -- Verify
     if func_call == 0 then
         println("  Error: Parse failed")
-        return (0]
+        return ((0))
     end_if
     
     string func_name = func_call[0]
@@ -295,7 +295,7 @@ function test_parse_function_call() returns list
     
     if func_name != "add" then
         println("  Error: Expected func_name='add'")
-        return (0]
+        return ((0))
     end_if
     
     list arg1 = args[0]
@@ -303,13 +303,13 @@ function test_parse_function_call() returns list
     
     if arg1 == 0 or arg2 == 0 then
         println("  Error: Expected 2 arguments")
-        return (0]
+        return ((0))
     end_if
     
     println("  Function call parsed: " + func_name + "(...)")
     println("  Arguments: 2")
     
-    return (1]
+    return ((1))
 end_function
 
 -- Test 4: Parse return statement
@@ -332,26 +332,26 @@ function test_parse_return_statement() returns list
     -- Verify
     if return_stmt == 0 then
         println("  Error: Parse failed")
-        return (0]
+        return ((0))
     end_if
     
     list return_value = return_stmt[0]
     
     if return_value == 0 then
         println("  Error: Expected return value")
-        return (0]
+        return ((0))
     end_if
     
     string value = return_value[1]
     
     if value != "42" then
         println("  Error: Expected value='42', got: " + value)
-        return (0]
+        return ((0))
     end_if
     
     println("  Return statement parsed: return " + value)
     
-    return (1]
+    return ((1))
 end_function
 
 -- Test 5: CodeGen function prologue
@@ -372,7 +372,7 @@ function test_codegen_function_prologue() returns list
     -- Verify
     if ir == "" then
         println("  Error: Generated IR is empty")
-        return (0]
+        return ((0))
     end_if
     
     println("  Generated LLVM IR:")
@@ -383,7 +383,7 @@ function test_codegen_function_prologue() returns list
     -- Should contain: "entry:"
     -- Should contain: ".addr = alloca"
     
-    return (1]
+    return ((1))
 end_function
 
 -- Test 6: CodeGen function call
@@ -406,7 +406,7 @@ function test_codegen_function_call() returns list
     -- Verify
     if ir == "" then
         println("  Error: Generated IR is empty")
-        return (0]
+        return ((0))
     end_if
     
     println("  Generated LLVM IR:")
@@ -415,7 +415,7 @@ function test_codegen_function_call() returns list
     -- Basic checks
     -- Should contain: "call i64 @add"
     
-    return (1]
+    return ((1))
 end_function
 
 -- ============================================================================
