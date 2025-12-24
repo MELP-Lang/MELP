@@ -49,7 +49,7 @@ const numeric ENUM_ASSIGNMENT = 4        -- Enum variable assignment: Status s =
 function parse_enum_definition(list tokens; numeric pos) returns list
     -- Expect TOKEN_ENUM
     if tokens[pos] != TOKEN_ENUM then
-        return [0; pos]  -- Not an enum
+        return (0; pos]  -- Not an enum
     end_if
     
     numeric current_pos = pos + 1  -- Skip 'enum' keyword
@@ -57,7 +57,7 @@ function parse_enum_definition(list tokens; numeric pos) returns list
     -- Get enum name
     if tokens[current_pos] != TOKEN_IDENTIFIER then
         print "Error: Expected enum name after 'enum'"
-        return [0; pos]
+        return (0; pos]
     end_if
     
     string enum_name = tokens[current_pos + 1]  -- Token value
@@ -81,7 +81,7 @@ function parse_enum_definition(list tokens; numeric pos) returns list
         -- Expect identifier (value name)
         if token_type != TOKEN_IDENTIFIER then
             print "Error: Expected enum value name or 'end_enum'"
-            return [0; pos]
+            return (0; pos]
         end_if
         
         string value_name = tokens[current_pos + 1]
@@ -95,7 +95,7 @@ function parse_enum_definition(list tokens; numeric pos) returns list
             -- Get numeric value
             if current_pos >= len(tokens) or tokens[current_pos] != TOKEN_NUMBER then
                 print "Error: Expected numeric value after '=' in enum"
-                return [0; pos]
+                return (0; pos]
             end_if
             
             string value_str = tokens[current_pos + 1]
@@ -117,7 +117,7 @@ function parse_enum_definition(list tokens; numeric pos) returns list
     -- Create enum definition node
     list enum_node = [ENUM_DEFINITION; enum_name; values_list; value_count]
     
-    return [enum_node; current_pos]
+    return (enum_node; current_pos]
 end_function
 
 -- Parse enum value reference (e.g., Status.ACTIVE or just ACTIVE)
@@ -125,7 +125,7 @@ end_function
 function parse_enum_value_reference(list tokens; numeric pos) returns list
     -- Check for identifier (could be enum value)
     if tokens[pos] != TOKEN_IDENTIFIER then
-        return [0; pos]
+        return (0; pos]
     end_if
     
     string first_name = tokens[pos + 1]
@@ -138,7 +138,7 @@ function parse_enum_value_reference(list tokens; numeric pos) returns list
         -- Get value name
         if current_pos >= len(tokens) or tokens[current_pos] != TOKEN_IDENTIFIER then
             print "Error: Expected value name after '.'"
-            return [0; pos]
+            return (0; pos]
         end_if
         
         string value_name = tokens[current_pos + 1]
@@ -146,12 +146,12 @@ function parse_enum_value_reference(list tokens; numeric pos) returns list
         
         -- Create qualified reference node
         list ref_node = [ENUM_VALUE_REF; first_name; value_name]
-        return [ref_node; current_pos]
+        return (ref_node; current_pos]
     else
         -- Unqualified reference (just ACTIVE)
         -- Create unqualified reference node (enum_type = empty)
         list ref_node = [ENUM_VALUE_REF; ""; first_name]
-        return [ref_node; current_pos]
+        return (ref_node; current_pos]
     end_if
 end_function
 
@@ -161,7 +161,7 @@ end_function
 function parse_enum_assignment(list tokens; numeric pos) returns list
     -- Expect: Type identifier = value
     if tokens[pos] != TOKEN_IDENTIFIER then
-        return [0; pos]
+        return (0; pos]
     end_if
     
     string enum_type = tokens[pos + 1]
@@ -169,7 +169,7 @@ function parse_enum_assignment(list tokens; numeric pos) returns list
     
     -- Check if next is identifier (variable name)
     if current_pos >= len(tokens) or tokens[current_pos] != TOKEN_IDENTIFIER then
-        return [0; pos]  -- Not an assignment
+        return (0; pos]  -- Not an assignment
     end_if
     
     string var_name = tokens[current_pos + 1]
@@ -177,7 +177,7 @@ function parse_enum_assignment(list tokens; numeric pos) returns list
     
     -- Expect '='
     if current_pos >= len(tokens) or tokens[current_pos] != TOKEN_ASSIGN then
-        return [0; pos]  -- Not an assignment
+        return (0; pos]  -- Not an assignment
     end_if
     
     current_pos = current_pos + 1  -- Skip '='
@@ -185,7 +185,7 @@ function parse_enum_assignment(list tokens; numeric pos) returns list
     -- Parse value expression (could be enum value reference)
     list value_result = parse_enum_value_reference(tokens; current_pos)
     if value_result[0] == 0 then
-        return [0; pos]  -- Failed to parse value
+        return (0; pos]  -- Failed to parse value
     end_if
     
     list value_expr = value_result[0]
@@ -194,7 +194,7 @@ function parse_enum_assignment(list tokens; numeric pos) returns list
     -- Create assignment node
     list assignment_node = [ENUM_ASSIGNMENT; enum_type; var_name; value_expr]
     
-    return [assignment_node; current_pos]
+    return (assignment_node; current_pos]
 end_function
 
 -- ============================================================================
@@ -212,7 +212,7 @@ end_function
 -- Get enum values list from enum definition node
 function get_enum_values(list enum_node) returns list
     if len(enum_node) < 3 then
-        return []
+        return (]
     end_if
     return enum_node[2]
 end_function

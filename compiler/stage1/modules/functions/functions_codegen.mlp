@@ -278,7 +278,7 @@ function codegen_function_call(list func_call; numeric register_num) returns lis
     
     ir = ir + ")\n"
     
-    return [ir, current_reg]
+    return (ir, current_reg]
 end_function
 
 -- Generate LLVM IR for return statement
@@ -324,7 +324,7 @@ function codegen_param_load(string param_name; numeric param_type; numeric regis
     string ir = "  " + result_reg + " = load " + llvm_type + ", "
     ir = ir + llvm_type + "* %" + param_name + ".addr\n"
     
-    return [ir, next_reg]
+    return (ir, next_reg]
 end_function
 
 -- ============================================================================
