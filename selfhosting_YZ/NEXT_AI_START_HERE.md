@@ -1,35 +1,35 @@
 # 🎯 GÖREVLİ YZ BAŞLANGIÇ NOKTASI
 
 **Son Güncelleme:** 24 Aralık 2025  
-**Durum:** 🟢 YZ_13 Göreve Hazır!  
-**Önceki YZ:** YZ_12 (Toplu Syntax Düzeltme - 328 hata düzeltildi)  
-**Sen:** selfhosting_YZ_13
+**Durum:** 🟢 YZ_14 Göreve Hazır!  
+**Önceki YZ:** YZ_13 (Hata Analizi - 101 dosya test edildi)  
+**Sen:** selfhosting_YZ_14
 
 ---
 
-## ✅ YZ_12 BAŞARISI!
+## ✅ YZ_13 BAŞARISI!
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  TOPLU SYNTAX DÜZELTMESİ TAMAMLANDI!                      │
+│  SİSTEMATİK HATA ANALİZİ TAMAMLANDI!                      │
 │                                                             │
-│  Düzeltilen: 328 syntax hatası (27 dosya)                │
-│  Yöntem: 3 aşamalı sed düzeltme                           │
+│  Test Edilen: 101 dosya                                   │
+│  Başarılı: 63 dosya (%62)                                 │
 │                                                             │
-│  Düzeltme Türleri:                                         │
-│  ✅ Noktalı virgül tuple: 271 düzeltme                    │
-│  ✅ Karışık parantez: 41 düzeltme                         │
-│  ✅ Boş tuple: 16 düzeltme                                │
+│  Hata Kategorileri:                                        │
+│  🟡 Println eksikliği: 27 dosya (non-blocking)            │
+│  🔴 Syntax hatası: 26 dosya (blocking)                    │
 │                                                             │
-│  Test Sonuçları:                                           │
-│  ✅ functions_parser.mlp → 20 functions compiled          │
-│  ✅ parser.mlp → 2 functions, 1 enum compiled             │
+│  Kritik Dosyalar Tespit Edildi:                           │
+│  1. control_flow_codegen.mlp (4 hata)                     │
+│  2. enums_codegen.mlp (4 hata)                            │
+│  3. structs_codegen.mlp (5 hata)                          │
+│  4. operators_codegen.mlp (4 hata)                        │
 │                                                             │
-│  Commit: e37aa0ed                                          │
+│  Rapor: YZ_13_TAMAMLANDI.md                               │
 │  Süre: 5 dakika                                            │
-│  Rapor: YZ_12_TAMAMLANDI.md                               │
 │                                                             │
-│  🎯 SONUÇ: 328 hata düzeltildi, MLP standardına uyumlu!   │
+│  🎯 SONUÇ: 4 kritik dosya manuel düzeltme bekliyor!       │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -38,66 +38,93 @@
 ## 📍 ŞİMDİKİ DURUM
 
 **Branch:** `TODO_STAGE1_TO_SELFHOSTING_FINAL`  
-**İlerleme:** 8/13 task (%62)
+**İlerleme:** 9/13 task (%69)
 
-**Aktif Görev:** Phase 1 Task 1.5 - Geriye Kalan Hataları Analiz Et
+**Aktif Görev:** Phase 1 Task 1.6 - Kritik Dosyaları Manuel Düzelt
 
 ---
 
-## 🎯 YZ_13 GÖREVİ
+## 🎯 YZ_14 GÖREVİ
 
-**Phase 1, Task 1.5: Geriye Kalan Hataları Analiz Et**
+**Phase 1, Task 1.6: Kritik Dosyaları Manuel Düzelt**
 
-### 📊 YZ_12 SONUÇLARI:
+### 📊 YZ_13 SONUÇLARI:
 
-**Toplu Syntax Düzeltme:** ✅ BAŞARILI
+**Sistematik Analiz:** ✅ BAŞARILI
 
-**Düzeltilen:** 328 syntax hatası, 27 dosya, 405 değişiklik
+**Test Edilen:** 101 dosya  
+**Başarılı:** 63 dosya (%62)  
+**Kalan Hatalar:** 26 dosya (gerçek syntax) + 27 dosya (println eksikliği)
 
-**Test Sonuçları:**
-1. **functions_parser.mlp:** ✅ 20 functions compiled
-2. **parser.mlp:** ✅ 2 functions, 1 enum compiled (ama hala bazı parse hataları var)
+**Kritik Tespit:** 4 codegen dosyasında `Expected 'function' keyword` hatası
 
-**Commit:** e37aa0ed
+### 🎯 YZ_14 İÇİN GÖREV:
 
-**Sonuç:** ✅ **328 hata düzeltildi, ama bazı dosyalarda hala hatalar var!**
-
-### 🎯 YZ_13 İÇİN GÖREV:
-
-**Hedef:** Tüm Stage 1 modüllerini compile et, kalan hataları kategorize et
+**Hedef:** 4 kritik codegen dosyasını manuel incele ve düzelt
 
 **Neden ÖNEMLİ?**
-- YZ_12 temel syntax hatalarını düzeltti
-- Ama hala bazı karmaşık hatalar olabilir
-- Tam envanter olmadan ilerleyemeyiz
-- Manuel düzeltme gerekenleri tespit etmeliyiz
+- Bu dosyalar compiler'ın temel code generation işlevselliği
+- YZ_12'nin toplu düzeltmesinden kaçan edge case'ler
+- Control flow, enum, struct, operator desteği için kritik
+- Düzeltilmeden compiler tamamlanamaz
 
-**Strateji: Sistematik Compile ve Hata Analizi**
+**Strateji: Manuel İnceleme ve Pattern Tespiti**
 
 ### Yapılacaklar:
 
-**Adım 1:** Tüm modülleri compile et (sistematik)
+**Adım 1:** İlk kritik dosyayı incele (control_flow_codegen.mlp)
 ```bash
-# Her modül grubunu compile et
-for dir in compiler/stage1/modules/*/; do
-    echo "=== $(basename $dir) ==="
-    for mlp in $dir*.mlp; do
-        [ -f "$mlp" ] || continue
-        echo "Testing: $mlp"
-        compiler/stage0/modules/functions/functions_compiler "$mlp" /tmp/test.s 2>&1 | \
-            grep -E "(Error|✅ Compiled|error \[Parser\])" | head -5
-    done
-done > /tmp/yz13_compile_report.txt
+cd /home/pardus/projeler/MLP/MLP
+
+# Hatayı bul
+grep -n "Expected 'function' keyword" <(compiler/stage0/modules/functions/functions_compiler \
+    compiler/stage1/modules/control_flow/control_flow_codegen.mlp /tmp/test.s 2>&1)
+
+# Hata satırlarını incele (274, 279, 284, 390)
+sed -n '270,280p' compiler/stage1/modules/control_flow/control_flow_codegen.mlp
+sed -n '385,395p' compiler/stage1/modules/control_flow/control_flow_codegen.mlp
 ```
 
-**Adım 2:** Hataları kategorize et
+**Adım 2:** Pattern tespit et
 ```bash
-# Hata türlerini özetle
-grep -E "Error:|error \[Parser\]" /tmp/yz13_compile_report.txt | \
-    sort | uniq -c | sort -rn > /tmp/yz13_error_summary.txt
+# Hatalı satırlardaki ortak yapıyı bul
+for line in 274 279 284 390; do
+    echo "=== Satır $line ==="
+    sed -n "${line}p" compiler/stage1/modules/control_flow/control_flow_codegen.mlp
+done
 ```
 
-**Adım 3:** Başarı/başarısızlık sayısı
+**Adım 3:** Düzeltme uygula
+- Manuel düzeltme (eğer az sayıda)
+- VEYA sed düzeltme (eğer pattern bulunursa)
+
+**Adım 4:** Test et
+```bash
+compiler/stage0/modules/functions/functions_compiler \
+    compiler/stage1/modules/control_flow/control_flow_codegen.mlp /tmp/test.s
+```
+
+**Adım 5:** Diğer 3 dosyayı aynı şekilde düzelt
+- enums_codegen.mlp
+- structs_codegen.mlp
+- operators_codegen.mlp
+
+### Başarı Kriteri:
+
+- [ ] control_flow_codegen.mlp düzeltildi ve compile edildi
+- [ ] enums_codegen.mlp düzeltildi ve compile edildi
+- [ ] structs_codegen.mlp düzeltildi ve compile edildi
+- [ ] operators_codegen.mlp düzeltildi ve compile edildi
+- [ ] Pattern tespit edildi (varsa)
+- [ ] YZ_14_TAMAMLANDI.md raporu
+
+---
+
+## 📚 OKUMAN GEREKENLER
+
+1. **selfhosting_YZ/YZ_13_TAMAMLANDI.md** - **ÖNCE BUNU OKU!**
+2. Kritik dosyaların listesi ve hata satırları
+3. **pmlp_kesin_sozdizimi.md** - Syntax referansı
 ```bash
 echo "=== BAŞARILI ===" 
 grep "✅ Compiled" /tmp/yz13_compile_report.txt | wc -l
@@ -128,97 +155,42 @@ grep "Error:" /tmp/yz13_compile_report.txt | wc -l
 
 ## ⚠️ KURALLAR
 
-- Tüm modülleri sistematik test et (atlama!)
-- Hataları kategorize et (türlerine göre grupla)
-- Başarı oranını hesapla
+- 4 dosyayı birer birer incele (atlama!)
+- Hataların satır numaralarını kontrol et
+- Pattern tespit et (varsa toplu düzelt)
+- Her düzeltmeden sonra test et
 - "Detaylandırmamı ister misin?" YASAK
 - Phase/Task icat etme
-- Raporu `selfhosting_YZ/YZ_13_TAMAMLANDI.md` olarak yaz
+- Raporu `selfhosting_YZ/YZ_14_TAMAMLANDI.md` olarak yaz
 
 ---
 
 ## 🚀 HIZLI BAŞLANGIÇ
 
 ```bash
-# Tüm modülleri compile et
+# İlk dosyayı incele
 cd /home/pardus/projeler/MLP/MLP
-for dir in compiler/stage1/modules/*/; do
-    echo "=== $(basename $dir) ==="
-    for mlp in $dir*.mlp; do
-        [ -f "$mlp" ] || continue
-        echo "Testing: $(basename $mlp)"
-        compiler/stage0/modules/functions/functions_compiler "$mlp" /tmp/test.s 2>&1 | \
-            grep -E "(Error|✅ Compiled|error \[Parser\])" | head -5
-    done
-done | tee /tmp/yz13_compile_report.txt
 
-# Özet çıkar
-echo "=== HATA ÖZETİ ==="
-grep -E "Error:|error \[Parser\]" /tmp/yz13_compile_report.txt | sort | uniq -c | sort -rn
+echo "=== CONTROL_FLOW_CODEGEN HATALARI ==="
+compiler/stage0/modules/functions/functions_compiler \
+    compiler/stage1/modules/control_flow/control_flow_codegen.mlp /tmp/test.s 2>&1 | \
+    grep "error \[Parser\]" | head -10
 
-echo "=== İSTATİSTİKLER ==="
-echo -n "Başarılı: "
-grep "✅ Compiled" /tmp/yz13_compile_report.txt | wc -l
-echo -n "Başarısız: "
-grep -oP "Testing: \K.*" /tmp/yz13_compile_report.txt | wc -l
+echo ""
+echo "=== HATA SATIRLARI ==="
+for line in 274 279 284 390; do
+    echo "--- Satır $line ---"
+    sed -n "${line}p" compiler/stage1/modules/control_flow/control_flow_codegen.mlp
+done
+
+echo ""
+echo "=== CONTEXT (satır 270-280) ==="
+sed -n '270,280p' compiler/stage1/modules/control_flow/control_flow_codegen.mlp
 ```
 
 ---
 
-**🎉 YZ_12 BAŞARIYLA TAMAMLANDI!** 🎉  
-**📋 Sonraki görev: KALAN HATALARI ANALİZ ET!** 📋
+**🎉 YZ_13 BAŞARIYLA TAMAMLANDI!** 🎉  
+**📋 Sonraki görev: 4 KRİTİK DOSYAYI DÜZELT!** 📋
 
-**Hazır mısın YZ_13?** 🚀
----
-
-## 📚 OKUMAN GEREKENLER
-
-1. **selfhosting_YZ/YZ_12_TAMAMLANDI.md** - **ÖNCE BUNU OKU!**
-2. YZ_12'nin düzelttikleri ve kalan sorunlar
-3. **pmlp_kesin_sozdizimi.md** - Syntax referansı
-
----
-
-## ⚠️ KURALLAR
-
-- Tüm modülleri sistematik test et (atlama!)
-- Hataları kategorize et (türlerine göre grupla)
-- Başarı oranını hesapla
-- "Detaylandırmamı ister misin?" YASAK
-- Phase/Task icat etme
-- Raporu `selfhosting_YZ/YZ_13_TAMAMLANDI.md` olarak yaz
-
----
-
-## 🚀 HIZLI BAŞLANGIÇ
-
-```bash
-# Tüm modülleri compile et
-cd /home/pardus/projeler/MLP/MLP
-for dir in compiler/stage1/modules/*/; do
-    echo "=== $(basename $dir) ==="
-    for mlp in $dir*.mlp; do
-        [ -f "$mlp" ] || continue
-        echo "Testing: $(basename $mlp)"
-        compiler/stage0/modules/functions/functions_compiler "$mlp" /tmp/test.s 2>&1 | \
-            grep -E "(Error|✅ Compiled|error \[Parser\])" | head -5
-    done
-done | tee /tmp/yz13_compile_report.txt
-
-# Özet çıkar
-echo "=== HATA ÖZETİ ==="
-grep -E "Error:|error \[Parser\]" /tmp/yz13_compile_report.txt | sort | uniq -c | sort -rn
-
-echo "=== İSTATİSTİKLER ==="
-echo -n "Başarılı: "
-grep "✅ Compiled" /tmp/yz13_compile_report.txt | wc -l
-echo -n "Başarısız: "
-grep -oP "Testing: \K.*" /tmp/yz13_compile_report.txt | wc -l
-```
-
----
-
-**🎉 YZ_12 BAŞARIYLA TAMAMLANDI!** 🎉  
-**📋 Sonraki görev: KALAN HATALARI ANALİZ ET!** 📋
-
-**Hazır mısın YZ_13?** 🚀
+**Hazır mısın YZ_14?** 🚀
