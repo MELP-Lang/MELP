@@ -64,7 +64,7 @@ function codegen_array_literal(list array_node; string result_var; string indent
         llvm_code = indent
         llvm_code = llvm_code + result_var
         llvm_code = llvm_code + " = alloca [0 x i64]  ; empty array\n"
-        return [llvm_code; global_decls; new_context]
+        return (llvm_code; global_decls; new_context]
     end_if
     
     -- Determine element type (assume homogeneous - first element's type)
@@ -136,7 +136,7 @@ function codegen_array_literal(list array_node; string result_var; string indent
         i = i + 1
     end_while
     
-    return [llvm_code; global_decls; new_context]
+    return (llvm_code; global_decls; new_context]
 end_function
 
 -- ----------------------------------------------------------------------------
@@ -163,7 +163,7 @@ function codegen_array_element(list element; string result_var; string indent; l
         code = code + " = add i64 0, "
         code = code + value
         code = code + "  ; integer literal\n"
-        return [code; ""; context]
+        return (code; ""; context]
     else_if elem_type == LIT_STRING then
         -- String literal - use literals_codegen
         list str_result = codegen_string_literal(element; result_var; indent; context)
@@ -180,10 +180,10 @@ function codegen_array_element(list element; string result_var; string indent; l
             code = code + "0"
         end_if
         code = code + "  ; numeric literal\n"
-        return [code; ""; context]
+        return (code; ""; context]
     else
         -- TIER 1: Handle expressions, variables, nested arrays
-        return ["  ; TODO: element codegen\n"; ""; context]
+        return ("  ; TODO: element codegen\n"; ""; context]
     end_if
 end_function
 
@@ -251,7 +251,7 @@ function codegen_array_index(list index_node; string result_var; string indent; 
     llvm_code = llvm_code + ptr_var
     llvm_code = llvm_code + "\n"
     
-    return [llvm_code; global_decls; new_context]
+    return (llvm_code; global_decls; new_context]
 end_function
 
 -- ----------------------------------------------------------------------------
@@ -285,7 +285,7 @@ function codegen_array_length(list length_node; string result_var; string indent
     llvm_code = llvm_code + "LENGTH"
     llvm_code = llvm_code + "  ; array length\n"
     
-    return [llvm_code; ""; context]
+    return (llvm_code; ""; context]
 end_function
 
 -- ----------------------------------------------------------------------------
@@ -404,7 +404,7 @@ function codegen_array(list array_node; string result_var; string indent; list c
         return codegen_array_declaration(array_node; indent; context)
     else
         -- Unknown array node type
-        return ["  ; ERROR: unknown array node type\n"; ""; context]
+        return ("  ; ERROR: unknown array node type\n"; ""; context]
     end_if
 end_function
 

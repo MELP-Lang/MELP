@@ -19,7 +19,7 @@
 -- @return: [token_list, 0] - başlangıç state'i
 function parser_init(numeric dummy) returns list
     -- Dummy function - state will be created externally
-    return [[], 0]
+    return ((;); 0;)
 end_function
 
 -- Mevcut pozisyonu al

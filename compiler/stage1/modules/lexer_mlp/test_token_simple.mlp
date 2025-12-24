@@ -2,7 +2,7 @@
 
 -- Token constructor
 function create_token(numeric token_type; string token_value; numeric line_num; numeric col_num) returns list
-    return [token_type, token_value, line_num, col_num]
+    return [token_type; token_value; line_num; col_num;]
 end function
 
 -- Get token type
@@ -20,7 +20,7 @@ function main() returns numeric
     numeric TOKEN_IDENTIFIER = 32
     
     -- Create a token
-    list tok = create_token(TOKEN_IDENTIFIER, "myVar", 1, 5)
+    list tok = create_token(TOKEN_IDENTIFIER; "myVar"; 1; 5)
     
     -- Get properties
     numeric ttype = get_token_type(tok)
