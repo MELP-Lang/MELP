@@ -1,11 +1,8 @@
--- ============================================================================
 -- MELP Stage 1 - Minimal Bootstrap Test
--- ============================================================================
 -- File: modules/bootstrap_minimal.mlp
 -- Purpose: Minimal test to verify Stage 1 compilation pipeline
 -- Date: 17 December 2025
 -- YZ: YZ_22
--- ============================================================================
 
 function add(numeric a; numeric b) returns numeric
     return a + b

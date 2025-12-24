@@ -1,6 +1,4 @@
--- ============================================================================
 -- MELP Stage 1 - Code Generator: While Loops
--- ============================================================================
 -- Part of: Phase 2 - CodeGen in MELP (YZ_15)
 -- Purpose: Generate LLVM IR for while loop statements
 --
@@ -24,11 +22,8 @@
 --
 -- NOTE: Stage 0 limitation - no global variables!
 -- Label counter is managed through function parameters
--- ============================================================================
 
--- ============================================================================
 -- WHILE LOOP CODE GENERATION
--- ============================================================================
 
 -- Generate IR for simple while loop
 -- Example:
@@ -183,9 +178,7 @@ function codegen_while_nested(outer_var; outer_limit; inner_var; inner_limit; ou
     return 1
 end_function
 
--- ============================================================================
 -- HELPER: Generate loop condition evaluation
--- ============================================================================
 
 -- Generate IR for loop condition evaluation
 -- This is a placeholder that shows the expected interface
@@ -203,9 +196,7 @@ function codegen_loop_condition(var_name; op; limit_val; cond_id) returns string
     return "%cond_" + cond_id
 end_function
 
--- ============================================================================
 -- INTEGRATION DEMO
--- ============================================================================
 
 function main() returns numeric
     println("=== While Loop CodeGen Tests ===")

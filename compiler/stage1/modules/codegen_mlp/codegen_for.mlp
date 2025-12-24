@@ -1,6 +1,4 @@
--- ============================================================================
 -- MELP Stage 1 - Code Generator: For Loops
--- ============================================================================
 -- Part of: Phase 2 - CodeGen in MELP (YZ_16)
 -- Purpose: Generate LLVM IR for for loop statements
 --
@@ -47,11 +45,8 @@
 --
 -- NOTE: Stage 0 limitation - no global variables!
 -- Label counter is managed through function parameters
--- ============================================================================
 
--- ============================================================================
 -- FOR-TO LOOP CODE GENERATION (Ascending)
--- ============================================================================
 
 -- Generate IR for simple for-to loop
 -- Example:
@@ -116,9 +111,7 @@ function codegen_for_to(var_name; start_val; end_val; loop_id) returns numeric
     return 1
 end_function
 
--- ============================================================================
 -- FOR-DOWNTO LOOP CODE GENERATION (Descending)
--- ============================================================================
 
 -- Generate IR for for-downto loop
 -- Example:
@@ -183,9 +176,7 @@ function codegen_for_downto(var_name; start_val; end_val; loop_id) returns numer
     return 1
 end_function
 
--- ============================================================================
 -- NESTED FOR LOOPS
--- ============================================================================
 
 -- Generate IR for nested for loops
 -- Example:
@@ -253,9 +244,7 @@ function codegen_for_nested_to(outer_var; outer_start; outer_end;
     return 1
 end_function
 
--- ============================================================================
 -- MIXED NESTED LOOPS (For-to with For-downto)
--- ============================================================================
 
 -- Generate IR for mixed nested loops
 -- Example:
@@ -317,9 +306,7 @@ function codegen_for_mixed_nested(outer_var; outer_start; outer_end;
     return 1
 end_function
 
--- ============================================================================
 -- FOR LOOP WITH BODY STATEMENTS
--- ============================================================================
 
 -- Generate IR for for-to loop with realistic body
 -- Example:
@@ -367,9 +354,7 @@ function codegen_for_with_body(var_name; start_val; end_val; loop_id) returns nu
     return 1
 end_function
 
--- ============================================================================
 -- INTEGRATION DEMO
--- ============================================================================
 
 function main() returns numeric
     println("=== For Loop CodeGen Tests ===")

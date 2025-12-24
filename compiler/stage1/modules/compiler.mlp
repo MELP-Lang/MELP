@@ -1,12 +1,9 @@
--- ============================================================================
 -- MELP Compiler - Main Entry Point
--- ============================================================================
 -- File: modules/compiler.mlp
 -- Author: YZ_24 Part 2 + ÜA_00
 -- Date: 22 Aralık 2025
 -- Purpose: CLI driver for MELP compiler
 -- Status: Stage 1 Self-Hosting - Main Module
--- ============================================================================
 --
 -- This is the main entry point for the MELP compiler.
 -- It handles:
@@ -19,14 +16,11 @@
 --   melp_compiler <input.mlp> <output.ll>
 --   melp_compiler --help
 --   melp_compiler --version
--- ============================================================================
 
 -- NOTE: Import temporarily disabled for x86 build
 -- import "lexer_mlp/lexer.mlp"
 
--- ============================================================================
 -- VERSION INFORMATION
--- ============================================================================
 
 function get_version() returns string
     return "0.1.0"
@@ -40,9 +34,7 @@ function get_build_date() returns string
     return "17 Aralik 2025"
 end_function
 
--- ============================================================================
 -- HELP & USAGE
--- ============================================================================
 
 function print_usage() returns numeric
     println("")
@@ -83,9 +75,7 @@ function print_version() returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- FILE I/O SIMULATION
--- ============================================================================
 
 -- Note: Stage 0 doesn't have real file I/O
 -- These are placeholder functions for the API
@@ -116,9 +106,7 @@ function file_exists(string filename) returns numeric
     return 1
 end_function
 
--- ============================================================================
 -- ARGUMENT PARSING
--- ============================================================================
 
 -- Parse command line arguments
 -- Returns: status code (0 = success, 1 = error, 2 = help/version shown)
@@ -132,9 +120,7 @@ function parse_arguments() returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- MAIN COMPILATION DRIVER
--- ============================================================================
 
 -- Simple stub for compile_source (from compiler_integration.mlp)
 -- Simple compilation (stub until lexer integration)
@@ -228,9 +214,7 @@ function compile_file(string input_file; string output_file) returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- MAIN ENTRY POINT
--- ============================================================================
 
 function main() returns numeric
     println("")

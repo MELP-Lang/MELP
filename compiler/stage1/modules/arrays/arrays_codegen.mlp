@@ -1,10 +1,7 @@
--- ============================================================================
 -- arrays_codegen.mlp - Array CodeGen for MELP Stage 1
--- ============================================================================
 -- Part of: Stage 1 Arrays Module
 -- Purpose: Generate LLVM IR for array operations
 -- Architecture: Stateless, parameterized design
--- ============================================================================
 
 -- Import dependencies
 -- import "compiler/stage1/modules/core/token_types.mlp"
@@ -12,17 +9,13 @@
 -- import "compiler/stage1/modules/arrays/arrays_parser.mlp"
 -- import "compiler/stage1/modules/literals/literals_codegen.mlp"
 
--- ============================================================================
 -- LLVM TYPE CONSTANTS
--- ============================================================================
 
 const string LLVM_I64 = "i64"           -- Integer type
 const string LLVM_I8_PTR = "i8*"        -- String pointer type
 const string LLVM_I1 = "i1"             -- Boolean type
 
--- ============================================================================
 -- CODE GENERATION FUNCTIONS
--- ============================================================================
 
 -- ----------------------------------------------------------------------------
 -- codegen_array_literal - Generate LLVM IR for array literal [1, 2, 3]
@@ -318,9 +311,7 @@ function codegen_array_declaration(list decl_node; string indent; list context) 
     return literal_result
 end_function
 
--- ============================================================================
 -- HELPER FUNCTIONS
--- ============================================================================
 
 -- ----------------------------------------------------------------------------
 -- infer_element_llvm_type - Infer LLVM type from element node
@@ -384,9 +375,7 @@ function is_homogeneous_array(list elements; numeric count) returns numeric
     return 1  -- All elements have same type
 end_function
 
--- ============================================================================
 -- DISPATCHER FUNCTION
--- ============================================================================
 
 -- ----------------------------------------------------------------------------
 -- codegen_array - Main dispatcher for array code generation
@@ -408,6 +397,4 @@ function codegen_array(list array_node; string result_var; string indent; list c
     end_if
 end_function
 
--- ============================================================================
 -- END OF arrays_codegen.mlp
--- ============================================================================

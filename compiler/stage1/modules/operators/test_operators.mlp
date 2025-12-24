@@ -1,19 +1,14 @@
--- ============================================================================
 -- MELP Stage 1 - Operators Module Test Suite
--- ============================================================================
 -- Purpose: Comprehensive tests for operators parser and codegen
 -- Author: YZ_06
 -- Date: 18 Aralık 2025
 -- Dependencies: operators_parser.mlp, operators_codegen.mlp
--- ============================================================================
 
 import "operators_parser.mlp"
 import "operators_codegen.mlp"
 import "../core/token_types.mlp"
 
--- ============================================================================
 -- TEST UTILITIES
--- ============================================================================
 
 -- Print test header
 function print_test_header(string test_name)
@@ -34,13 +29,11 @@ function print_test_result(boolean passed, string message)
 end_function
 
 -- Create token helper
-function make_token(numeric token_type, string value) returns list
-    return (token_type, value,)
+function make_token(numeric token_type; string value) returns list
+    return (token_type, value;)
 end_function
 
--- ============================================================================
 -- TEST 1: Parse Arithmetic Expression (Addition)
--- ============================================================================
 
 function test_arithmetic_addition()
     print_test_header("Arithmetic Addition: 5 + 3")
@@ -50,12 +43,12 @@ function test_arithmetic_addition()
         make_token(T_NUMBER, "5"),
         make_token(T_PLUS, "+"),
         make_token(T_NUMBER, "3")
-    ,)
+    ;)
     
     -- Parse expression
     list result = parse_operator_expression(tokens, 0)
-    list expr = result[0,)
-    numeric new_pos = result[1,)
+    list expr = result[0;)
+    numeric new_pos = result[1;)
     
     -- Verify parse result
     boolean parse_ok = expr != 0
@@ -96,9 +89,7 @@ function test_arithmetic_addition()
     end_if
 end_function
 
--- ============================================================================
 -- TEST 2: Parse Arithmetic Expression (Multiplication and Addition)
--- ============================================================================
 
 function test_arithmetic_precedence()
     print_test_header("Arithmetic Precedence: 2 + 3 * 4")
@@ -111,12 +102,12 @@ function test_arithmetic_precedence()
         make_token(T_NUMBER, "3"),
         make_token(T_STAR, "*"),
         make_token(T_NUMBER, "4")
-    ,)
+    ;)
     
     -- Parse expression
     list result = parse_operator_expression(tokens, 0)
-    list expr = result[0,)
-    numeric new_pos = result[1,)
+    list expr = result[0;)
+    numeric new_pos = result[1;)
     
     boolean parse_ok = expr != 0
     print_test_result(parse_ok, "Expression parsed successfully")
@@ -164,9 +155,7 @@ function test_arithmetic_precedence()
     end_if
 end_function
 
--- ============================================================================
 -- TEST 3: Parse Comparison Expression
--- ============================================================================
 
 function test_comparison_expression()
     print_test_header("Comparison: x < 10")
@@ -176,12 +165,12 @@ function test_comparison_expression()
         make_token(T_IDENTIFIER, "x"),
         make_token(T_LT, "<"),
         make_token(T_NUMBER, "10")
-    ,)
+    ;)
     
     -- Parse expression
     list result = parse_operator_expression(tokens, 0)
-    list expr = result[0,)
-    numeric new_pos = result[1,)
+    list expr = result[0;)
+    numeric new_pos = result[1;)
     
     boolean parse_ok = expr != 0
     print_test_result(parse_ok, "Expression parsed successfully")
@@ -222,9 +211,7 @@ function test_comparison_expression()
     end_if
 end_function
 
--- ============================================================================
 -- TEST 4: Parse Logical Expression (AND)
--- ============================================================================
 
 function test_logical_and()
     print_test_header("Logical AND: true and false")
@@ -234,12 +221,12 @@ function test_logical_and()
         make_token(T_TRUE, "true"),
         make_token(T_AND, "and"),
         make_token(T_FALSE, "false")
-    ,)
+    ;)
     
     -- Parse expression
     list result = parse_operator_expression(tokens, 0)
-    list expr = result[0,)
-    numeric new_pos = result[1,)
+    list expr = result[0;)
+    numeric new_pos = result[1;)
     
     boolean parse_ok = expr != 0
     print_test_result(parse_ok, "Expression parsed successfully")
@@ -272,9 +259,7 @@ function test_logical_and()
     end_if
 end_function
 
--- ============================================================================
 -- TEST 5: Parse Unary Expression (NOT)
--- ============================================================================
 
 function test_unary_not()
     print_test_header("Unary NOT: not true")
@@ -283,12 +268,12 @@ function test_unary_not()
     list tokens = [
         make_token(T_NOT, "not"),
         make_token(T_TRUE, "true")
-    ,)
+    ;)
     
     -- Parse expression
     list result = parse_operator_expression(tokens, 0)
-    list expr = result[0,)
-    numeric new_pos = result[1,)
+    list expr = result[0;)
+    numeric new_pos = result[1;)
     
     boolean parse_ok = expr != 0
     print_test_result(parse_ok, "Expression parsed successfully")
@@ -320,9 +305,7 @@ function test_unary_not()
     end_if
 end_function
 
--- ============================================================================
 -- TEST 6: Parse Parenthesized Expression
--- ============================================================================
 
 function test_parenthesized_expression()
     print_test_header("Parenthesized: (5 + 3) * 2")
@@ -337,12 +320,12 @@ function test_parenthesized_expression()
         make_token(T_RPAREN, ")"),
         make_token(T_STAR, "*"),
         make_token(T_NUMBER, "2")
-    ,)
+    ;)
     
     -- Parse expression
     list result = parse_operator_expression(tokens, 0)
-    list expr = result[0,)
-    numeric new_pos = result[1,)
+    list expr = result[0;)
+    numeric new_pos = result[1;)
     
     boolean parse_ok = expr != 0
     print_test_result(parse_ok, "Expression parsed successfully")
@@ -378,9 +361,7 @@ function test_parenthesized_expression()
     end_if
 end_function
 
--- ============================================================================
 -- TEST 7: Complex Expression (Mixed Operators)
--- ============================================================================
 
 function test_complex_expression()
     print_test_header("Complex: x + 5 > 10 and y < 20")
@@ -396,12 +377,12 @@ function test_complex_expression()
         make_token(T_IDENTIFIER, "y"),
         make_token(T_LT, "<"),
         make_token(T_NUMBER, "20")
-    ,)
+    ;)
     
     -- Parse expression
     list result = parse_operator_expression(tokens, 0)
-    list expr = result[0,)
-    numeric new_pos = result[1,)
+    list expr = result[0;)
+    numeric new_pos = result[1;)
     
     boolean parse_ok = expr != 0
     print_test_result(parse_ok, "Expression parsed successfully")
@@ -437,9 +418,7 @@ function test_complex_expression()
     end_if
 end_function
 
--- ============================================================================
 -- TEST 8: Operator Helper Functions
--- ============================================================================
 
 function test_operator_helpers()
     print_test_header("Operator Helper Functions")
@@ -481,9 +460,7 @@ function test_operator_helpers()
     print_test_result(not_op, "is_operator(T_IDENTIFIER) = false")
 end_function
 
--- ============================================================================
 -- MAIN TEST RUNNER
--- ============================================================================
 
 function run_all_tests()
     println("============================================================================")
@@ -510,6 +487,4 @@ end_function
 -- Run tests
 run_all_tests()
 
--- ============================================================================
 -- END OF TEST SUITE
--- ============================================================================

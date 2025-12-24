@@ -1,6 +1,4 @@
--- ============================================================================
 -- Test Module - Simple function for import testing
--- ============================================================================
 
 function test_helper() returns numeric
     return 42

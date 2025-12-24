@@ -1,10 +1,7 @@
--- ============================================================================
 -- char_utils.mlp - Character Utility Functions for MELP Lexer
--- ============================================================================
 -- Converted from Stage 0: compiler/stage0/modules/lexer/lexer.c (ctype.h functions)
 -- Part of: Stage 1 Core Utilities Module
 -- Purpose: Character classification and manipulation utilities
--- ============================================================================
 
 -- Check if character is a digit (0-9)
 function is_digit(numeric c) returns numeric

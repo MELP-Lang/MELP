@@ -1,6 +1,4 @@
--- ============================================================================
 -- MELP Stage 1 - Structs Module Test Suite
--- ============================================================================
 -- Author: YZ_10
 -- Date: 18 Aralık 2025
 -- Module: compiler/stage1/modules/structs/test_structs.mlp
@@ -25,15 +23,12 @@
 --   9. Member Assignment CodeGen
 --   10. Helper Functions
 --
--- ============================================================================
 
 import "compiler/stage1/modules/structs/structs_parser.mlp"
 import "compiler/stage1/modules/structs/structs_codegen.mlp"
 import "compiler/stage1/modules/core/token_types.mlp"
 
--- ============================================================================
 -- TEST 1: Parse Struct Definition - Simple
--- ============================================================================
 
 function test_parse_struct_definition_simple() returns numeric
     print "TEST 1: Parse Struct Definition - Simple"
@@ -85,9 +80,7 @@ function test_parse_struct_definition_simple() returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- TEST 2: Parse Struct Member
--- ============================================================================
 
 function test_parse_struct_member() returns numeric
     print "TEST 2: Parse Struct Member"
@@ -129,9 +122,7 @@ function test_parse_struct_member() returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- TEST 3: Parse Struct Instantiation
--- ============================================================================
 
 function test_parse_struct_instantiation() returns numeric
     print "TEST 3: Parse Struct Instantiation"
@@ -183,9 +174,7 @@ function test_parse_struct_instantiation() returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- TEST 4: Parse Member Access
--- ============================================================================
 
 function test_parse_member_access() returns numeric
     print "TEST 4: Parse Member Access"
@@ -228,9 +217,7 @@ function test_parse_member_access() returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- TEST 5: Parse Member Assignment
--- ============================================================================
 
 function test_parse_member_assignment() returns numeric
     print "TEST 5: Parse Member Assignment"
@@ -275,9 +262,7 @@ function test_parse_member_assignment() returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- TEST 6: CodeGen Struct Definition
--- ============================================================================
 
 function test_codegen_struct_definition() returns numeric
     print "TEST 6: CodeGen Struct Definition"
@@ -309,9 +294,7 @@ function test_codegen_struct_definition() returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- TEST 7: CodeGen Struct Allocation
--- ============================================================================
 
 function test_codegen_struct_allocation() returns numeric
     print "TEST 7: CodeGen Struct Allocation"
@@ -333,9 +316,7 @@ function test_codegen_struct_allocation() returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- TEST 8: CodeGen Member Access
--- ============================================================================
 
 function test_codegen_member_access() returns numeric
     print "TEST 8: CodeGen Member Access"
@@ -360,9 +341,7 @@ function test_codegen_member_access() returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- TEST 9: CodeGen Member Assignment
--- ============================================================================
 
 function test_codegen_member_assignment() returns numeric
     print "TEST 9: CodeGen Member Assignment"
@@ -387,9 +366,7 @@ function test_codegen_member_assignment() returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- TEST 10: Helper Functions
--- ============================================================================
 
 function test_helper_functions() returns numeric
     print "TEST 10: Helper Functions"
@@ -431,9 +408,7 @@ function test_helper_functions() returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- TEST 11: Complex Struct with Multiple Members
--- ============================================================================
 
 function test_complex_struct() returns numeric
     print "TEST 11: Complex Struct with Multiple Members"
@@ -485,9 +460,7 @@ function test_complex_struct() returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- TEST 12: Struct with Array Member (Integration with Arrays Module)
--- ============================================================================
 
 function test_struct_with_array_member() returns numeric
     print "TEST 12: Struct with Array Member"
@@ -529,9 +502,7 @@ function test_struct_with_array_member() returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- MAIN TEST RUNNER
--- ============================================================================
 
 function run_all_struct_tests() returns numeric
     print "========================================="
@@ -568,9 +539,7 @@ function run_all_struct_tests() returns numeric
     return failed
 end_function
 
--- ============================================================================
 -- ENTRY POINT
--- ============================================================================
 
 -- Run all tests
 numeric exit_code = run_all_struct_tests()
@@ -578,6 +547,4 @@ numeric exit_code = run_all_struct_tests()
 -- Return exit code (0 = success; non-zero = failure)
 return exit_code
 
--- ============================================================================
 -- END OF TEST SUITE
--- ============================================================================

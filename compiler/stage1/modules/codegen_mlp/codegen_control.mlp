@@ -1,6 +1,4 @@
--- ============================================================================
 -- MELP Stage 1 - Code Generator: Control Flow
--- ============================================================================
 -- Part of: Phase 2 - CodeGen in MELP (YZ_14)
 -- Purpose: Generate LLVM IR for control flow statements
 --
@@ -13,11 +11,8 @@
 --
 -- NOTE: Stage 0 limitation - no global variables!
 -- Label counter is managed through function parameters
--- ============================================================================
 
--- ============================================================================
 -- IF STATEMENT CODE GENERATION
--- ============================================================================
 
 -- Generate IR for simple if statement (no else)
 -- Example:
@@ -146,9 +141,7 @@ function codegen_if_elif_else(cond1; cond2) returns numeric
     return 1
 end_function
 
--- ============================================================================
 -- HELPER: Generate condition evaluation
--- ============================================================================
 
 -- Generate IR for condition evaluation (integrates with codegen_comparison.mlp)
 -- This is a placeholder that shows the expected interface
@@ -163,9 +156,7 @@ function codegen_condition(left_var; op; right_val) returns string
     return "%cond_0"
 end_function
 
--- ============================================================================
 -- INTEGRATION DEMO
--- ============================================================================
 
 function main() returns numeric
     println("=== Control Flow CodeGen Tests ===")

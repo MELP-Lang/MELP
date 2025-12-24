@@ -1,33 +1,27 @@
--- ============================================================================
 -- MELP Self-Hosting: Complete Lexer (Main Tokenization Loop)
 -- File: modules/lexer_mlp/lexer.mlp
 -- Author: YZ_57 (continued)
 -- Date: 13 Aralık 2025
 -- Purpose: Main lexer - coordinates all tokenization modules
 -- Status: PHASE 13 PART 6.6 - COMPLETE LEXER!
--- ============================================================================
 
 -- This file integrates all tokenization modules:
 -- - tokenize_literals.mlp (numbers; strings)
 -- - tokenize_identifiers.mlp (identifiers; keywords)
 -- - tokenize_operators.mlp (operators; symbols; comments)
 
--- ============================================================================
 -- Token Creation
--- ============================================================================
 
 function create_token(numeric token_type; string token_value; numeric line_num; numeric col_num) returns list
-    return (token_type; token_value; line_num; col_num,)
+    return (token_type; token_value; line_num; col_num;)
 end_function
 
--- Helper: Create position result [pos; col; line,)
+-- Helper: Create position result [pos; col; line;)
 function create_position_result(numeric p; numeric c; numeric l) returns list
-    return (p; c; l,)
+    return (p; c; l;)
 end_function
 
--- ============================================================================
 -- Character Classification (from modules)
--- ============================================================================
 
 function is_digit(string ch) returns numeric
     if ch == "0" then return 1 end_if
@@ -107,9 +101,7 @@ function is_whitespace(string ch) returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- Whitespace Handling
--- ============================================================================
 
 function skip_whitespace(string source; numeric pos; numeric line; numeric col) returns list
     numeric source_len = length(source)
@@ -137,9 +129,7 @@ function skip_whitespace(string source; numeric pos; numeric line; numeric col) 
     return create_position_result(pos; col; line)
 end_function
 
--- ============================================================================
 -- Comment Handling
--- ============================================================================
 
 function skip_line_comment(string source; numeric pos; numeric line; numeric col) returns list
     numeric source_len = length(source)
@@ -161,9 +151,7 @@ function skip_line_comment(string source; numeric pos; numeric line; numeric col
     return create_position_result(pos; col; line)
 end_function
 
--- ============================================================================
 -- Check for Start of Token Types
--- ============================================================================
 
 function starts_with_quote(string source; numeric pos) returns numeric
     string ch = ""
@@ -208,12 +196,10 @@ function starts_with_dash_dash(string source; numeric pos) returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- Token Dispatching
--- ============================================================================
 
 -- Determine next token type and dispatch to appropriate scanner
--- Returns: [token_type_hint; 0, 0,)
+-- Returns: [token_type_hint; 0, 0;)
 -- token_type_hint: 1=number; 2=string; 3=identifier; 4=operator; 5=comment; 0=EOF
 function peek_next_token_type(string source; numeric pos) returns numeric
     numeric source_len = length(source)
@@ -257,12 +243,10 @@ function peek_next_token_type(string source; numeric pos) returns numeric
     return 4
 end_function
 
--- ============================================================================
 -- Main Lexer Function (Simplified - Single Token)
--- ============================================================================
 
 -- Tokenize single token from source at position
--- Returns: [token; new_pos; new_col; new_line,)
+-- Returns: [token; new_pos; new_col; new_line;)
 -- This is a simplified version that shows the structure
 -- Full implementation would loop until EOF
 function tokenize_next(string source; numeric pos; numeric line; numeric col) returns list
@@ -276,14 +260,14 @@ function tokenize_next(string source; numeric pos; numeric line; numeric col) re
     
     -- Skip whitespace
     ws_result = skip_whitespace(source; pos; line; col)
-    pos = ws_result[0,)
-    col = ws_result[1,)
-    line = ws_result[2,)
+    pos = ws_result[0;)
+    col = ws_result[1;)
+    line = ws_result[2;)
     
     -- Check for EOF
     if pos >= source_len then
         token = create_token(80; ""; line; col)  -- EOF
-        return (token; pos; col; line,)
+        return (token; pos; col; line;)
     end_if
     
     -- Peek next token type
@@ -292,9 +276,9 @@ function tokenize_next(string source; numeric pos; numeric line; numeric col) re
     -- Handle comment
     if token_hint == 5 then
         ws_result = skip_line_comment(source; pos; line; col)
-        pos = ws_result[0,)
-        col = ws_result[1,)
-        line = ws_result[2,)
+        pos = ws_result[0;)
+        col = ws_result[1;)
+        line = ws_result[2;)
         -- Recursively get next token after comment
         return tokenize_next(source; pos; line; col)
     end_if
@@ -307,12 +291,10 @@ function tokenize_next(string source; numeric pos; numeric line; numeric col) re
     -- - scan_operator() for token_hint == 4
     
     token = create_token(81; "?"; line; col)  -- UNKNOWN placeholder
-    return (token; pos + 1; col + 1; line,)
+    return (token; pos + 1; col + 1; line;)
 end_function
 
--- ============================================================================
 -- Main (for testing)
--- ============================================================================
 
 -- Test function for lexer (renamed from main to avoid conflicts)
 function lexer_test() returns numeric
@@ -335,10 +317,10 @@ function lexer_test() returns numeric
     -- This would be a loop in full implementation:
     -- while pos < source_len
     --   result = tokenize_next(source; pos; line; col)
-    --   token = result[0,)
-    --   pos = result[1,)
-    --   col = result[2,)
-    --   line = result[3,)
+    --   token = result[0;)
+    --   pos = result[1;)
+    --   col = result[2;)
+    --   line = result[3;)
     -- end_while
     
     return 0

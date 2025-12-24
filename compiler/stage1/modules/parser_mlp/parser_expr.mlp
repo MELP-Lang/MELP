@@ -1,6 +1,4 @@
--- ============================================================================
 -- MELP Parser - Expression Parsing (Stage 0 Compatible)
--- ============================================================================
 -- Stage 1 Self-Hosting: Expression Parser in MELP
 -- Created: December 16, 2025 (YZ_01)
 -- 
@@ -8,11 +6,8 @@
 -- - Global variables NOT SUPPORTED
 -- - List parameters NOT SUPPORTED
 -- - Solution: All logic in main(), helper functions only use numeric/string
--- ============================================================================
 
--- ============================================================================
 -- Operator Precedence Helper (numeric only)
--- ============================================================================
 
 function get_operator_precedence(numeric token_type) returns numeric
     -- Multiplicative (highest)
@@ -58,9 +53,7 @@ function is_binary_op(numeric t) returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- Main Function - All Logic Here (Stage 0 workaround)
--- ============================================================================
 
 function main() returns numeric
     print("=== Expression Parser Tests ===")

@@ -1,6 +1,4 @@
--- ============================================================================
 -- MELP Stage 1 - Code Generator: Logical Operations CodeGen
--- ============================================================================
 -- Part of: Phase 2 - CodeGen in MELP (YZ_12)
 -- Purpose: Generate LLVM IR for logical expressions
 --
@@ -10,14 +8,11 @@
 -- - Logical NOT (not)
 -- - Short-circuit evaluation (basic blocks)
 -- - Boolean operations
--- ============================================================================
 
 -- NOTE: This module generates LLVM IR instructions
 -- Temporary register names are generated inline for simplicity
 
--- ============================================================================
 -- LOGICAL OPERATORS (Simple Boolean Arithmetic)
--- ============================================================================
 
 -- Generate IR for logical AND (simple version without short-circuit)
 -- Input: left_val, right_val (i1 numeric values)
@@ -52,9 +47,7 @@ function codegen_not(operand) returns string
     return result_reg
 end_function
 
--- ============================================================================
 -- LOGICAL OPERATORS WITH i64 (MELP Compatibility)
--- ============================================================================
 
 -- Logical AND with i64 operands (MELP uses numeric for boolean)
 -- Input: left_val, right_val (i64 values, 0=false, non-zero=true)
@@ -124,9 +117,7 @@ function codegen_not_i64(operand) returns string
     return result_reg
 end_function
 
--- ============================================================================
 -- LOGICAL OPERATOR DISPATCHER
--- ============================================================================
 
 -- Main dispatcher for logical operators
 -- Input:
@@ -173,9 +164,7 @@ function codegen_logical(operator; left_val; right_val; use_i64) returns string
     end_if
 end_function
 
--- ============================================================================
 -- HELPER FUNCTIONS
--- ============================================================================
 
 -- Check if operator is a logical operator
 function is_logical_op(operator) returns numeric
@@ -191,9 +180,7 @@ function is_logical_op(operator) returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- TEST FUNCTION
--- ============================================================================
 
 function test_codegen_logical() returns numeric
     println("Testing Logical Operators")

@@ -1,10 +1,7 @@
--- ============================================================================
 -- MELP Parser - AST Node Structures
--- ============================================================================
 -- This module defines the base structures for Abstract Syntax Tree (AST) nodes.
 -- Stage 1 Self-Hosting: Parser in MELP
 -- Created: December 16, 2025
--- ============================================================================
 
 -- AST Node Types (Enum)
 -- Each node type has a unique numeric value
@@ -94,13 +91,11 @@ struct FunctionNode
     -- Expandable for parameters and body
 end_struct
 
--- ============================================================================
 -- Helper Functions
--- ============================================================================
 
 -- Create a new ASTNode
 function create_ast_node(numeric ntype; numeric ln; numeric col) returns list
-    return (ntype; ln; col;,)
+    return (ntype; ln; col;;)
 end_function
 
 -- Create a new ExprNode

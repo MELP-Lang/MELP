@@ -1,18 +1,13 @@
--- ============================================================================
 -- MELP Parser - Top-Level Parsing Module
--- ============================================================================
 -- Stage 1 Self-Hosting: Top-level declarations in MELP
 -- Created: December 17, 2025 (YZ_31)
 -- Purpose: Stateless parsing of functions, structs, enums, program
 -- Architecture: Modular + Stateless + LLVM + STO + (Struct + Functions)
--- ============================================================================
 
 -- Note: This module requires TokenType enum and state management functions
 -- from parser_state.mlp when concatenated
 
--- ============================================================================
 -- Top-Level Parsing Functions
--- ============================================================================
 
 -- Parse function (stateless)
 -- Input: parser_state
@@ -58,9 +53,7 @@ function state_parse_program(list parser_state) returns list
     return result
 end_function
 
--- ============================================================================
 -- Test Function
--- ============================================================================
 
 function main() returns numeric
     println("Parser Top-Level Module - Compile Test")

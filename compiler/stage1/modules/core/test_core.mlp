@@ -1,8 +1,5 @@
--- ============================================================================
 -- test_core.mlp - Test Suite for Core Utilities Module
--- ============================================================================
 -- Tests for: token_types.mlp, char_utils.mlp, type_mapper.mlp
--- ============================================================================
 
 import "core/token_types"
 import "core/char_utils"

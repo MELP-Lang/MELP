@@ -1,19 +1,14 @@
--- ============================================================================
 -- MELP Parser - Token Stream Management
--- ============================================================================
 -- Bu modül, parser'ın token listesini yönetir ve token'lar arasında gezinir.
 -- Stage 1 Self-Hosting: Parser in MELP
 -- Created: 16 Aralık 2025
--- ============================================================================
 
 -- Global parser state (Stage 0 doesn't support global variables)
 -- WORKAROUND: Functions will use dummy implementation for now
 -- list g_tokens           -- Token listesi
 -- numeric g_current_pos   -- Mevcut pozisyon (index)
 
--- ============================================================================
 -- Token Stream Functions
--- ============================================================================
 
 -- Parser'ı başlat ve token listesini yükle
 -- @param token_list: Lexer'dan gelen token listesi
@@ -29,9 +24,9 @@ end_function
 function current_token() returns list
     numeric len = 0  -- length(g_tokens)
     -- if g_current_pos >= len then
-    --     return (,)  -- EOF
+    --     return (;)  -- EOF
     -- end_if
-    return (,)  -- g_tokens[g_current_pos]
+    return (;)  -- g_tokens[g_current_pos]
 end_function
 
 -- Bir sonraki token'a bak (ileri görünüm - lookahead)
@@ -40,9 +35,9 @@ function peek_token() returns list
     numeric next_pos = g_current_pos + 1
     numeric len = 0  -- length(g_tokens)
     if next_pos >= len then
-        return (,)  -- EOF
+        return (;)  -- EOF
     end_if
-    return (,)  -- -- g_tokens[next_pos]
+    return (;)  -- -- g_tokens[next_pos]
 end_function
 
 -- İki token ileri bak (2-token lookahead)
@@ -51,9 +46,9 @@ function peek_token_2() returns list
     numeric next_pos = g_current_pos + 2
     numeric len = 0  -- length(g_tokens)
     if next_pos >= len then
-        return (,)  -- EOF
+        return (;)  -- EOF
     end_if
-    return (,)  -- -- g_tokens[next_pos]
+    return (;)  -- -- g_tokens[next_pos]
 end_function
 
 -- Mevcut token'ı atla ve bir sonrakine geç
@@ -169,9 +164,7 @@ function token_column(list tok) returns numeric
     return tok[3]
 end_function
 
--- ============================================================================
 -- Test Functions
--- ============================================================================
 
 -- Test: Token stream functions
 function main() returns numeric

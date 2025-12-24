@@ -1,6 +1,4 @@
--- ============================================================================
 -- MELP Stage 1 - Enums Parser Module
--- ============================================================================
 -- Purpose: Parse enum definitions and enum value usage
 -- Pattern: Stateless, returns [result, new_position]
 -- Author: YZ_11
@@ -17,31 +15,24 @@
 --   if s == PENDING then     -- Compare enum value
 --       ...
 --   end_if
--- ============================================================================
 
 -- Import core utilities
 import "../core/token_types.mlp"
 
--- ============================================================================
 -- Enum Node Type Constants
--- ============================================================================
 
 const numeric ENUM_DEFINITION = 1        -- Enum definition: enum Name { values }
 const numeric ENUM_VALUE = 2             -- Enum value member: NAME = value
 const numeric ENUM_VALUE_REF = 3         -- Enum value reference: Status.ACTIVE
 const numeric ENUM_ASSIGNMENT = 4        -- Enum variable assignment: Status s = ACTIVE
 
--- ============================================================================
 -- Enum Node Structures
--- ============================================================================
 -- Enum Definition: [ENUM_DEFINITION, enum_name, values_list, value_count]
 -- Enum Value: [ENUM_VALUE, value_name, numeric_value]
 -- Enum Value Reference: [ENUM_VALUE_REF, enum_type, value_name]
 -- Enum Assignment: [ENUM_ASSIGNMENT, enum_type, var_name, value_expr]
 
--- ============================================================================
 -- Core Parser Functions (STATELESS!)
--- ============================================================================
 
 -- Parse enum definition
 -- Syntax: enum Status ... end_enum
@@ -197,9 +188,7 @@ function parse_enum_assignment(list tokens; numeric pos) returns list
     return ((assignment_node; current_pos))
 end_function
 
--- ============================================================================
 -- Helper Functions
--- ============================================================================
 
 -- Get enum name from enum definition node
 function get_enum_name(list enum_node) returns string
@@ -212,7 +201,7 @@ end_function
 -- Get enum values list from enum definition node
 function get_enum_values(list enum_node) returns list
     if len(enum_node) < 3 then
-        return (())
+        return ()
     end_if
     return enum_node[2]
 end_function

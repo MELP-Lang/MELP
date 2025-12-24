@@ -1,6 +1,4 @@
--- ============================================================================
 -- MELP Stage 1 - Enums Module Test Suite
--- ============================================================================
 -- Purpose: Comprehensive tests for enum parser and codegen
 -- Author: YZ_11
 -- Date: 18 Aralık 2025
@@ -15,14 +13,11 @@
 --   - Helper functions
 --
 -- NOTE: These tests will be executed when Stage 1 compiler is ready (YZ_12)
--- ============================================================================
 
 import "enums_parser.mlp"
 import "enums_codegen.mlp"
 
--- ============================================================================
 -- Test 1: Parse Simple Enum Definition
--- ============================================================================
 function test_parse_simple_enum() returns numeric
     print "Test 1: Parse simple enum definition"
     
@@ -90,9 +85,7 @@ function test_parse_simple_enum() returns numeric
     return true
 end_function
 
--- ============================================================================
 -- Test 2: Parse Enum with Explicit Values
--- ============================================================================
 function test_parse_enum_explicit_values() returns numeric
     print "Test 2: Parse enum with explicit values"
     
@@ -141,9 +134,7 @@ function test_parse_enum_explicit_values() returns numeric
     return true
 end_function
 
--- ============================================================================
 -- Test 3: Parse Enum Value Reference (Qualified)
--- ============================================================================
 function test_parse_qualified_reference() returns numeric
     print "Test 3: Parse qualified enum value reference"
     
@@ -178,9 +169,7 @@ function test_parse_qualified_reference() returns numeric
     return true
 end_function
 
--- ============================================================================
 -- Test 4: Parse Enum Value Reference (Unqualified)
--- ============================================================================
 function test_parse_unqualified_reference() returns numeric
     print "Test 4: Parse unqualified enum value reference"
     
@@ -213,9 +202,7 @@ function test_parse_unqualified_reference() returns numeric
     return true
 end_function
 
--- ============================================================================
 -- Test 5: Parse Enum Assignment
--- ============================================================================
 function test_parse_enum_assignment() returns numeric
     print "Test 5: Parse enum assignment"
     
@@ -258,9 +245,7 @@ function test_parse_enum_assignment() returns numeric
     return true
 end_function
 
--- ============================================================================
 -- Test 6: CodeGen Enum Definition
--- ============================================================================
 function test_codegen_enum_definition() returns numeric
     print "Test 6: CodeGen enum definition"
     
@@ -299,9 +284,7 @@ function test_codegen_enum_definition() returns numeric
     return true
 end_function
 
--- ============================================================================
 -- Test 7: CodeGen Enum Value Reference
--- ============================================================================
 function test_codegen_enum_value_reference() returns numeric
     print "Test 7: CodeGen enum value reference"
     
@@ -329,9 +312,7 @@ function test_codegen_enum_value_reference() returns numeric
     return true
 end_function
 
--- ============================================================================
 -- Test 8: CodeGen Enum Assignment
--- ============================================================================
 function test_codegen_enum_assignment() returns numeric
     print "Test 8: CodeGen enum assignment"
     
@@ -365,9 +346,7 @@ function test_codegen_enum_assignment() returns numeric
     return true
 end_function
 
--- ============================================================================
 -- Test 9: CodeGen Enum Comparison
--- ============================================================================
 function test_codegen_enum_comparison() returns numeric
     print "Test 9: CodeGen enum comparison"
     
@@ -407,9 +386,7 @@ function test_codegen_enum_comparison() returns numeric
     return true
 end_function
 
--- ============================================================================
 -- Test 10: Helper Functions
--- ============================================================================
 function test_helper_functions() returns numeric
     print "Test 10: Helper functions"
     
@@ -449,9 +426,7 @@ function test_helper_functions() returns numeric
     return true
 end_function
 
--- ============================================================================
 -- Test 11: Enum Registry Lookup
--- ============================================================================
 function test_enum_registry() returns numeric
     print "Test 11: Enum registry lookup"
     
@@ -490,9 +465,7 @@ function test_enum_registry() returns numeric
     return true
 end_function
 
--- ============================================================================
 -- Test 12: Parse Integer Helper
--- ============================================================================
 function test_parse_int_helper() returns numeric
     print "Test 12: parse_int helper function"
     
@@ -518,9 +491,7 @@ function test_parse_int_helper() returns numeric
     return true
 end_function
 
--- ============================================================================
 -- Main Test Runner
--- ============================================================================
 function run_all_tests() returns numeric
     print "========================================"
     print "MELP Stage 1 - Enums Module Test Suite"
@@ -555,9 +526,7 @@ function run_all_tests() returns numeric
     return passed == total
 end_function
 
--- ============================================================================
 -- Helper: Check if string contains substring
--- ============================================================================
 function contains(string haystack; string needle) returns numeric
     -- In real implementation, checks if needle is in haystack
     -- For now, always return true (will be implemented in Stage 1 compiler)

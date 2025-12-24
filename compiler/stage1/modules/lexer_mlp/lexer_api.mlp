@@ -1,6 +1,4 @@
--- ============================================================================
 -- MELP Lexer - Public API Wrapper (Clean Interface)
--- ============================================================================
 -- File: modules/lexer_mlp/lexer_api.mlp
 -- Author: YZ_26 (Part 1)
 -- Date: 17 Aralık 2025
@@ -18,11 +16,8 @@
 --
 -- NOTE: Stage 0 limitation - returns numeric instead of list
 --       Real implementation will return list of tokens
--- ============================================================================
 
--- ============================================================================
 -- PUBLIC API - Single Entry Point
--- ============================================================================
 
 -- Tokenize source code and return token count
 -- Input: source_code (string) - MELP source code to tokenize
@@ -71,9 +66,7 @@ function tokenize_source(string source_code) returns numeric
     return token_estimate
 end_function
 
--- ============================================================================
 -- PRIVATE HELPERS (Optional - for future expansion)
--- ============================================================================
 
 -- Validate token list (future use)
 function validate_tokens(numeric token_count) returns numeric
@@ -91,6 +84,4 @@ function get_token_stats(numeric token_count) returns numeric
     return token_count
 end_function
 
--- ============================================================================
 -- NO MAIN - This is a library module, not executable
--- ============================================================================

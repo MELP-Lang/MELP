@@ -1,6 +1,4 @@
--- ============================================================================
 -- Advanced Module - String utilities  
--- ============================================================================
 
 function string_length(string text) returns numeric
     -- Simple mock implementation for testing

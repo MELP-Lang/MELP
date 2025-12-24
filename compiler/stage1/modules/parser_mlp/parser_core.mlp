@@ -1,10 +1,7 @@
--- ============================================================================
 -- MELP Parser - Parser Core Module
--- ============================================================================
 -- Stage 1 Self-Hosting: Parser in MELP
 -- Created: December 16, 2025 (YZ_06)
 -- Purpose: Core parser functions - integrates expression, statement, control flow
--- ============================================================================
 
 function main() returns numeric
     println("=== MELP Parser Core Integration Test ===")

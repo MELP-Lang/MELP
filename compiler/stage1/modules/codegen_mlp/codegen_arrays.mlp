@@ -1,6 +1,4 @@
--- ============================================================================
 -- MELP Stage 1 - Code Generator: Arrays
--- ============================================================================
 -- Part of: Phase 2 - CodeGen in MELP (YZ_18)
 -- Purpose: Generate LLVM IR for array operations
 --
@@ -13,11 +11,8 @@
 --
 -- NOTE: Stage 0 limitation - no global variables!
 -- All state passed through function parameters
--- ============================================================================
 
--- ============================================================================
 -- ARRAY ALLOCATION CODE GENERATION
--- ============================================================================
 
 -- Generate IR for array allocation (fixed size)
 -- Example:
@@ -49,9 +44,7 @@ function codegen_array_alloc_dynamic(array_name; element_type; size_reg) returns
     return 1
 end_function
 
--- ============================================================================
 -- ARRAY INDEXING CODE GENERATION (GETELEMENTPTR)
--- ============================================================================
 
 -- Generate IR for array element pointer (1D array)
 -- Example:
@@ -87,9 +80,7 @@ function codegen_array_index_ptr_var(result_reg; array_name; array_size; element
     return 1
 end_function
 
--- ============================================================================
 -- ARRAY ELEMENT LOAD CODE GENERATION
--- ============================================================================
 
 -- Generate IR for loading array element (constant index)
 -- Example:
@@ -125,9 +116,7 @@ function codegen_array_load_var(result_reg; ptr_reg; array_name; array_size; ele
     return 1
 end_function
 
--- ============================================================================
 -- ARRAY ELEMENT STORE CODE GENERATION
--- ============================================================================
 
 -- Generate IR for storing to array element (constant index)
 -- Example:
@@ -163,9 +152,7 @@ function codegen_array_store_var(ptr_reg; array_name; array_size; element_type; 
     return 1
 end_function
 
--- ============================================================================
 -- MULTI-DIMENSIONAL ARRAY CODE GENERATION
--- ============================================================================
 
 -- Generate IR for 2D array allocation
 -- Example:
@@ -229,9 +216,7 @@ function codegen_array_2d_store(ptr_reg1; ptr_reg2; array_name; rows; cols; elem
     return 1
 end_function
 
--- ============================================================================
 -- ARRAY INITIALIZATION CODE GENERATION
--- ============================================================================
 
 -- Generate IR for array initialization with values
 -- Example:
@@ -287,9 +272,7 @@ function codegen_array_zero_init(array_name; element_type; size) returns numeric
     return 1
 end_function
 
--- ============================================================================
 -- INTEGRATION DEMO & TESTS
--- ============================================================================
 
 function main() returns numeric
     println("=== Array CodeGen Tests ===")

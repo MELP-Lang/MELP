@@ -1,17 +1,11 @@
--- ============================================================================
 -- MELP Parser - Main Parser Integration
--- ============================================================================
 -- Stage 1 Self-Hosting: Parser in MELP
 -- Created: December 16, 2025 (YZ_06)
 -- Purpose: Integrates all parser modules (expr, stmt, control, func, struct, enum)
--- ============================================================================
 
--- ============================================================================
 -- Token Type Constants (from lexer)
--- ============================================================================
 -- YZ_30: Migrated to enum block (Stage 0 compatible)
 -- Uses YZ_29 unqualified enum support
--- ============================================================================
 
 enum TokenType
     -- Keywords
@@ -66,12 +60,9 @@ enum TokenType
     T_EOF = 0
 end_enum
 
--- ============================================================================
 -- Parser State Management (Stateless Architecture)
--- ============================================================================
 -- YZ_28: Refactored to remove global state (Stage 0 compatibility)
 -- Parser state is passed as list: [tokens; position; error_count]
--- ============================================================================
 
 -- Create initial parser state
 -- Returns: [token_list; 0; 0]
@@ -92,7 +83,7 @@ function state_current_token(list parser_state) returns list
     numeric len = length(tokens)
     
     if pos >= len then
-        return (,)  -- EOF
+        return (;)  -- EOF
     end_if
     return tokens[pos]
 end_function
@@ -107,7 +98,7 @@ function state_peek_token(list parser_state) returns list
     numeric len = length(tokens)
     
     if next_pos >= len then
-        return (,)
+        return (;)
     end_if
     return tokens[next_pos]
 end_function
@@ -168,9 +159,7 @@ function state_expect_token(list parser_state; numeric expected_type) returns li
     return result
 end_function
 
--- ============================================================================
 -- Error Handling (Stateless)
--- ============================================================================
 
 -- Report parser error and increment error count in state
 -- Input: parser_state, error_message
@@ -218,9 +207,7 @@ function state_get_error_count(list parser_state) returns numeric
     return parser_state[2]
 end_function
 
--- ============================================================================
 -- Expression Parsing (Stateless)
--- ============================================================================
 
 function get_operator_precedence(numeric token_type) returns numeric
     -- Multiplicative (highest)
@@ -334,9 +321,7 @@ function state_parse_primary(list parser_state) returns list
     return result
 end_function
 
--- ============================================================================
 -- Expression Parsing (Stateless)
--- ============================================================================
 
 -- Parse expression with operator precedence (stateless)
 -- Input: parser_state
@@ -392,10 +377,8 @@ function state_parse_expression_prec(list parser_state; numeric min_prec) return
     return result
 end_function
 
--- ============================================================================
 -- Stateless Statement Parsing Functions
 -- YZ_30: Refactored from global state to stateless pattern
--- ============================================================================
 
 -- Parse variable declaration: numeric x = 10 (stateless)
 -- Input: parser_state
@@ -713,10 +696,8 @@ function state_parse_statement(list parser_state) returns list
     return result
 end_function
 
--- ============================================================================
 -- Stateless Top-Level Parsing (Functions, Structs, Enums, Program)
 -- YZ_30: Refactored from global state to stateless pattern
--- ============================================================================
 
 -- Parse function (stateless)
 -- Input: parser_state
@@ -1016,9 +997,7 @@ function state_parse_program(list parser_state) returns list
     return result
 end_function
 
--- ============================================================================
 -- Main Entry Point
--- ============================================================================
 
 function main() returns numeric
     println("=== MELP Parser Integration Test (Stateless) ===")

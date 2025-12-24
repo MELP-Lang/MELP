@@ -1,6 +1,4 @@
--- ============================================================================
 -- MELP Stage 1 - Code Generator: Functions
--- ============================================================================
 -- Part of: Phase 2 - CodeGen in MELP (YZ_17)
 -- Purpose: Generate LLVM IR for function declarations, calls, and returns
 --
@@ -13,11 +11,8 @@
 --
 -- NOTE: Stage 0 limitation - no global variables!
 -- All state passed through function parameters
--- ============================================================================
 
--- ============================================================================
 -- FUNCTION DECLARATION CODE GENERATION
--- ============================================================================
 
 -- Generate IR for function declaration(no parameters)
 -- Example:
@@ -171,9 +166,7 @@ function codegen_func_three_params(func_name; ret_type; p1_type; p1_name; p2_typ
     return 1
 end_function
 
--- ============================================================================
 -- RETURN STATEMENT CODE GENERATION
--- ============================================================================
 
 -- Generate IR for return statement (literal value)
 -- Example: return 42
@@ -207,9 +200,7 @@ function codegen_return_expr(return_type; expr_result) returns numeric
     return 1
 end_function
 
--- ============================================================================
 -- FUNCTION CALL CODE GENERATION
--- ============================================================================
 
 -- Generate IR for function call(no arguments)
 -- Example: result = foo()
@@ -247,9 +238,7 @@ function codegen_call_three_args(res_reg; ret_type; func_name; a1_type; a1_val; 
     return 1
 end_function
 
--- ============================================================================
 -- VOID FUNCTION CALL (procedure call)
--- ============================================================================
 
 -- Generate IR for void function call(no return value)
 -- Example: print_message()
@@ -267,9 +256,7 @@ function codegen_call_void_one_arg(func_name; arg_type; arg_value) returns numer
     return 1
 end_function
 
--- ============================================================================
 -- HELPER FUNCTIONS
--- ============================================================================
 
 -- Generate parameter list string for multiple parameters
 -- Used internally for complex function signatures
@@ -282,9 +269,7 @@ function build_arg_list(a1_type; a1_val; a2_type; a2_val) returns string
     return a1_type + " " + a1_val + ", " + a2_type + " " + a2_val
 end_function
 
--- ============================================================================
 -- COMPLETE FUNCTION EXAMPLES
--- ============================================================================
 
 -- Generate complete function with body (simple example)
 -- Example: function get_five() returns numeric return 5 end_function
@@ -312,9 +297,7 @@ function codegen_complete_func_arithmetic(func_name; param_name) returns numeric
     return 1
 end_function
 
--- ============================================================================
 -- INTEGRATION DEMO & TESTS
--- ============================================================================
 
 function main() returns numeric
     println("=== Function CodeGen Tests ===")

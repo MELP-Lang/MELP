@@ -1,6 +1,4 @@
--- ============================================================================
 -- MELP Stage 1 - Code Generator: Comparison Operations CodeGen
--- ============================================================================
 -- Part of: Phase 2 - CodeGen in MELP (YZ_12)
 -- Purpose: Generate LLVM IR for comparison expressions
 --
@@ -9,14 +7,11 @@
 -- - Integer comparisons (icmp)
 -- - Boolean result (i1 type)
 -- - Result extension to i64 if needed
--- ============================================================================
 
 -- NOTE: This module generates LLVM IR instructions
 -- Temporary register names are generated inline for simplicity
 
--- ============================================================================
 -- COMPARISON OPERATORS
--- ============================================================================
 
 -- Generate IR for equality comparison (==)
 -- Input: left_val, right_val (LLVM IR values/registers)
@@ -75,9 +70,7 @@ function codegen_ge(left_val; right_val) returns string
     return result_reg
 end_function
 
--- ============================================================================
 -- BOOLEAN RESULT EXTENSION
--- ============================================================================
 
 -- Extend i1 numeric result to i64 (0 or 1)
 -- Input: bool_val (i1 register)
@@ -101,9 +94,7 @@ function codegen_i64_to_bool(int_val) returns string
     return result_reg
 end_function
 
--- ============================================================================
 -- COMPARISON OPERATOR DISPATCHER
--- ============================================================================
 
 -- Main dispatcher for comparison operators
 -- Input:
@@ -140,9 +131,7 @@ function codegen_comparison(operator; left_val; right_val; extend_to_i64) return
     return result
 end_function
 
--- ============================================================================
 -- HELPER FUNCTIONS
--- ============================================================================
 
 -- Check if operator is a comparison operator
 function is_comparison_op(operator) returns numeric
@@ -167,9 +156,7 @@ function is_comparison_op(operator) returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- TEST FUNCTION
--- ============================================================================
 
 function test_codegen_comparison() returns numeric
     println("Testing Comparison Operators")

@@ -1,6 +1,4 @@
--- ============================================================================
 -- MELP Stage 1 - Enums CodeGen Module
--- ============================================================================
 -- Purpose: Generate LLVM IR for enum definitions and enum operations
 -- Pattern: Stateless, takes enum nodes and generates LLVM IR
 -- Author: YZ_11
@@ -24,20 +22,15 @@
 --   LLVM IR:
 --     %s = alloca i32
 --     store i32 1, i32* %s
--- ============================================================================
 
 -- Import enum parser
 import "enums_parser.mlp"
 
--- ============================================================================
 -- LLVM Type Constants
--- ============================================================================
 
 const string LLVM_ENUM_TYPE = "i32"      -- Enums are 32-bit integers
 
--- ============================================================================
 -- Enum Registry (Compile-Time Symbol Table)
--- ============================================================================
 -- Note: In a real compiler, this would be part of the symbol table
 -- For Stage 1, we use a simple list-based registry
 
@@ -134,9 +127,7 @@ function lookup_enum_value_unqualified(string value_name; list enum_registry) re
     return -1  -- Not found
 end_function
 
--- ============================================================================
 -- CodeGen Functions (STATELESS!)
--- ============================================================================
 
 -- Generate LLVM IR comment for enum definition
 -- Enums are compile-time only, no runtime code needed
@@ -296,9 +287,7 @@ function codegen_enum_comparison(list left_ref; list right_ref; string op; strin
     return ((result; new_reg))
 end_function
 
--- ============================================================================
 -- Helper Functions
--- ============================================================================
 
 -- Convert numeric to string
 function to_string(numeric n) returns string

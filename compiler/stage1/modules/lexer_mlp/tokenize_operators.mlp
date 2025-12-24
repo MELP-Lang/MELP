@@ -1,11 +1,9 @@
--- ============================================================================
 -- MELP Self-Hosting: Operator & Symbol Tokenization
 -- File: modules/lexer_mlp/tokenize_operators.mlp
 -- Author: YZ_57 (continued)
 -- Date: 13 Aralık 2025
 -- Purpose: Scan and tokenize operators, symbols, and skip comments
 -- Status: PHASE 13 PART 6.5
--- ============================================================================
 
 -- Token Type Constants Reference:
 -- Operators: PLUS=40, MINUS=41, MULTIPLY=42, DIVIDE=43, MODULO=44
@@ -17,28 +15,26 @@
 --          COLON=68, SEMICOLON=69, ARROW=70
 -- Special: COMMENT=82
 
--- ============================================================================
 -- Helper Functions
--- ============================================================================
 
--- Creates a token [type, value, line, column,)
+-- Creates a token [type, value, line, column;)
 function create_token(numeric token_type; string token_value; numeric line_num; numeric col_num) returns list
-    return (token_type; token_value; line_num; col_num,)
+    return (token_type; token_value; line_num; col_num;)
 end function
 
 -- Helper: Create empty two-char result
 function create_empty_two_char_result() returns list
-    return (0; 0; "",)
+    return (0; 0; "";)
 end function
 
 -- Helper: Create empty position result
 function create_empty_position_result() returns list
-    return (0; 0; 0,)
+    return (0; 0; 0;)
 end function
 
 -- Helper: Create empty token
 function create_empty_token() returns list
-    return (0; ""; 0; 0,)
+    return (0; ""; 0; 0;)
 end function
 
 -- Check if character is whitespace
@@ -50,12 +46,10 @@ function is_whitespace(string ch) returns boolean
     return 0
 end function
 
--- ============================================================================
 -- Comment Handling
--- ============================================================================
 
 -- Skip a line comment (--) and return new position
--- Returns: [new_pos, new_col, new_line,)
+-- Returns: [new_pos, new_col, new_line;)
 function skip_line_comment(string source; numeric pos; numeric line; numeric col) returns list
     numeric source_len = length(source)
     string ch = ""
@@ -74,12 +68,10 @@ function skip_line_comment(string source; numeric pos; numeric line; numeric col
         end if
     end while
     
-    return (pos; col; line;,)
+    return (pos; col; line;;)
 end function
 
--- ============================================================================
 -- Single-Character Operator/Symbol Detection
--- ============================================================================
 
 -- Get token type for single-character operator/symbol
 -- Returns: token_type, or 0 if not a single-char operator
@@ -118,12 +110,10 @@ function get_single_char_token_type(string ch) returns numeric
     return 0  -- Not a recognized single-char token
 end function
 
--- ============================================================================
 -- Multi-Character Operator Detection
--- ============================================================================
 
 -- Check if current position starts a two-character operator
--- Returns: [is_two_char, token_type, token_value,)
+-- Returns: [is_two_char, token_type, token_value;)
 -- is_two_char: 1 if two-char operator found, 0 otherwise
 function check_two_char_operator(string source; numeric pos) returns list
     numeric source_len = length(source)
@@ -140,48 +130,46 @@ function check_two_char_operator(string source; numeric pos) returns list
         -- ==
         if ch == "=" then
             if next_ch == "=" then
-                return (1; 46; "==",)  -- EQUALS
+                return (1; 46; "==";)  -- EQUALS
             end if
         end if
         
         -- !=
         if ch == "!" then
             if next_ch == "=" then
-                return (1; 47; "!=",)  -- NOT_EQUALS
+                return (1; 47; "!=";)  -- NOT_EQUALS
             end if
         end if
         
         -- <=
         if ch == "<" then
             if next_ch == "=" then
-                return (1; 50; "<=",)  -- LESS_EQUAL
+                return (1; 50; "<=";)  -- LESS_EQUAL
             end if
         end if
         
         -- >=
         if ch == ">" then
             if next_ch == "=" then
-                return (1; 51; ">=",)  -- GREATER_EQUAL
+                return (1; 51; ">=";)  -- GREATER_EQUAL
             end if
         end if
         
         -- -- (comment marker - not a token, but detected here)
         if ch == "-" then
             if next_ch == "-" then
-                return (1; 82; "--",)  -- COMMENT
+                return (1; 82; "--";)  -- COMMENT
             end if
         end if
     end if
     
-    return (0; 0; "",)  -- Not a two-char operator
+    return (0; 0; "";)  -- Not a two-char operator
 end function
 
--- ============================================================================
 -- Main Operator/Symbol Tokenization
--- ============================================================================
 
 -- Scan operator or symbol
--- Returns: [token, new_pos, new_col, new_line,)
+-- Returns: [token, new_pos, new_col, new_line;)
 -- If comment detected, returns special marker token
 function scan_operator(string source; numeric pos; numeric line; numeric col) returns list
     numeric start_col = col
@@ -197,22 +185,22 @@ function scan_operator(string source; numeric pos; numeric line; numeric col) re
     
     -- First, check for two-character operators
     two_char_result = check_two_char_operator(source, pos)
-    is_two_char = two_char_result[0,)
+    is_two_char = two_char_result[0;)
     
     if is_two_char then
-        token_type = two_char_result[1,)
-        token_value = two_char_result[2,)
+        token_type = two_char_result[1;)
+        token_value = two_char_result[2;)
         
         -- Special case: comment marker
         if token_type == 82 then
             -- Return comment marker token (caller should skip it)
             result_token = create_token(82; "--"; start_line; start_col)
-            return (result_token; pos + 2; col + 2; line,)
+            return (result_token; pos + 2; col + 2; line;)
         end if
         
         -- Regular two-char operator
         result_token = create_token(token_type; token_value; start_line; start_col)
-        return (result_token; pos + 2; col + 2; line,)
+        return (result_token; pos + 2; col + 2; line;)
     end if
     
     -- Single-character operator/symbol
@@ -220,20 +208,18 @@ function scan_operator(string source; numeric pos; numeric line; numeric col) re
     
     if token_type > 0 then
         result_token = create_token(token_type; ch; start_line; start_col)
-        return (result_token; pos + 1; col + 1; line,)
+        return (result_token; pos + 1; col + 1; line;)
     end if
     
     -- Unknown character - return UNKNOWN token
     result_token = create_token(81; ch; start_line; start_col)
-    return (result_token; pos + 1; col + 1; line,)
+    return (result_token; pos + 1; col + 1; line;)
 end function
 
--- ============================================================================
 -- Whitespace Skipping
--- ============================================================================
 
 -- Skip whitespace and return new position
--- Returns: [new_pos, new_col, new_line,)
+-- Returns: [new_pos, new_col, new_line;)
 function skip_whitespace(string source; numeric pos; numeric line; numeric col) returns list
     numeric source_len = length(source)
     string ch = ""
@@ -257,12 +243,10 @@ function skip_whitespace(string source; numeric pos; numeric line; numeric col) 
         end if
     end while
     
-    return (pos; col; line,)
+    return (pos; col; line;)
 end function
 
--- ============================================================================
 -- Main (for testing)
--- ============================================================================
 
 function main() returns numeric
     return 0

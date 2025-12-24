@@ -1,10 +1,7 @@
--- ============================================================================
 -- token_types.mlp - Token Type Constants for MELP Lexer
--- ============================================================================
 -- Converted from Stage 0: compiler/stage0/modules/lexer/lexer.h
 -- Part of: Stage 1 Core Utilities Module
 -- Purpose: Define all token type constants used by the lexer
--- ============================================================================
 
 -- Basic types
 const numeric TOKEN_NUMERIC = 0

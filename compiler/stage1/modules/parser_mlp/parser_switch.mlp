@@ -1,10 +1,7 @@
--- ============================================================================
 -- MELP Parser - Switch/Case Statement Parsing
--- ============================================================================
 -- Stage 1 Self-Hosting: Parser in MELP
 -- Created: December 16, 2025 (YZ_07)
 -- Purpose: Parse switch/case statements
--- ============================================================================
 
 function main() returns numeric
     println("=== Switch/Case Parser Tests ===")

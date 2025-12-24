@@ -1,6 +1,4 @@
--- ============================================================================
 -- MELP Stage 1 - Functions CodeGen Module
--- ============================================================================
 -- YZ_04 - December 18, 2025
 -- Purpose: Generate LLVM IR for function declarations, calls, and returns
 --
@@ -17,14 +15,11 @@
 -- - ✅ Stateless (no mutable globals, const OK)
 -- - ✅ Modular (functions feature isolated)
 -- - ✅ Uses core utilities (type_mapper for LLVM type conversion)
--- ============================================================================
 
 -- Import core utilities (YZ_03)
 import "../core/type_mapper.mlp"
 
--- ============================================================================
 -- CONSTANTS - LLVM Type Mappings
--- ============================================================================
 
 -- LLVM types for function returns/params
 const string LLVM_I64 = "i64"
@@ -32,9 +27,7 @@ const string LLVM_I8_PTR = "i8*"
 const string LLVM_I1 = "i1"
 const string LLVM_VOID = "void"
 
--- ============================================================================
 -- HELPER FUNCTIONS - Type Conversion
--- ============================================================================
 
 -- Convert MELP function parameter type to LLVM type
 -- STATELESS: Returns LLVM type string
@@ -90,9 +83,7 @@ function return_type_to_llvm(numeric return_type) returns string
     return LLVM_VOID
 end_function
 
--- ============================================================================
 -- CODE GENERATION FUNCTIONS (STATELESS PATTERN)
--- ============================================================================
 
 -- Generate LLVM IR for function declaration prologue
 -- Input: func_name - function name
@@ -327,9 +318,7 @@ function codegen_param_load(string param_name; numeric param_type; numeric regis
     return ((ir, next_reg))
 end_function
 
--- ============================================================================
 -- UTILITY FUNCTIONS
--- ============================================================================
 
 -- Convert numeric to string (helper)
 -- Stage 0 limitation workaround
@@ -351,6 +340,4 @@ function string(numeric n) returns string
     return "N"
 end_function
 
--- ============================================================================
 -- END OF MODULE
--- ============================================================================

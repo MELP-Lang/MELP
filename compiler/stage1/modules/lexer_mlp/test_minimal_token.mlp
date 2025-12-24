@@ -1,5 +1,5 @@
 function create_token(numeric t; string v; numeric l; numeric c) returns list
-    return (t; v; l; c;,)
+    return (t; v; l; c;;)
 end function
 
 function main() returns numeric

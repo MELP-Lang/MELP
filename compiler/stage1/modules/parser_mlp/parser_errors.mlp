@@ -1,18 +1,13 @@
--- ============================================================================
 -- MELP Parser - Error Handling
--- ============================================================================
 -- Bu modül, parser hatalarını yönetir ve kullanıcıya bildirir.
 -- Stage 1 Self-Hosting: Parser in MELP
 -- Created: 16 Aralık 2025
--- ============================================================================
 
 -- Global error counter (Stage 0 doesn't support global variables)
 -- WORKAROUND: Using dummy implementation for now
 -- numeric -- g_error_count = 0
 
--- ============================================================================
 -- Error Reporting Functions
--- ============================================================================
 
 -- Genel parser hatası
 -- @param message: Hata mesajı
@@ -94,9 +89,7 @@ function semantic_error(string message; numeric line; numeric col) returns numer
     return 0
 end_function
 
--- ============================================================================
 -- Error State Management
--- ============================================================================
 
 -- Hata sayacını sıfırla
 -- @return: 1 (success)
@@ -134,9 +127,7 @@ function print_error_summary() returns numeric
     return 0  -- g_error_count
 end_function
 
--- ============================================================================
 -- Warning Functions (gelecekte kullanılabilir)
--- ============================================================================
 
 -- Global warning counter (Stage 0 limitation: global vars not supported)
 -- numeric g_warning_count = 0
@@ -167,9 +158,7 @@ function reset_warning_count() returns numeric
     return 1
 end_function
 
--- ============================================================================
 -- Test Functions
--- ============================================================================
 
 function main() returns numeric
     println("=== Parser Error Handling Test ===")

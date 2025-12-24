@@ -1,19 +1,14 @@
--- ============================================================================
 -- MELP Stage 1 - Control Flow Module Test Suite
--- ============================================================================
 -- Purpose: Comprehensive tests for control flow parser and codegen
 -- Author: YZ_07
 -- Date: 18 Aralık 2025
 -- Note: These tests are specifications - cannot run until Stage 1 complete
--- ============================================================================
 
 import "control_flow_parser.mlp"
 import "control_flow_codegen.mlp"
 import "../core/token_types.mlp"
 
--- ============================================================================
 -- TEST UTILITIES
--- ============================================================================
 
 -- Test counter
 numeric test_count = 0
@@ -58,9 +53,7 @@ function assert_not_empty(string name; list value) returns numeric
     return test_result(name; 0)
 end_function
 
--- ============================================================================
 -- TEST 1: Parse Simple If Statement (no else)
--- ============================================================================
 
 function test_parse_if_simple() returns numeric
     print "\n=== TEST 1: Parse Simple If Statement ==="
@@ -100,9 +93,7 @@ function test_parse_if_simple() returns numeric
     return passed
 end_function
 
--- ============================================================================
 -- TEST 2: Parse If-Else Statement
--- ============================================================================
 
 function test_parse_if_else() returns numeric
     print "\n=== TEST 2: Parse If-Else Statement ==="
@@ -140,9 +131,7 @@ function test_parse_if_else() returns numeric
     return passed
 end_function
 
--- ============================================================================
 -- TEST 3: Parse While Statement
--- ============================================================================
 
 function test_parse_while() returns numeric
     print "\n=== TEST 3: Parse While Statement ==="
@@ -175,9 +164,7 @@ function test_parse_while() returns numeric
     return passed
 end_function
 
--- ============================================================================
 -- TEST 4: Parse While Without 'do' Keyword
--- ============================================================================
 
 function test_parse_while_no_do() returns numeric
     print "\n=== TEST 4: Parse While Without 'do' ==="
@@ -201,9 +188,7 @@ function test_parse_while_no_do() returns numeric
     return passed
 end_function
 
--- ============================================================================
 -- TEST 5: Parse For Statement
--- ============================================================================
 
 function test_parse_for() returns numeric
     print "\n=== TEST 5: Parse For Statement ==="
@@ -245,9 +230,7 @@ function test_parse_for() returns numeric
     return passed
 end_function
 
--- ============================================================================
 -- TEST 6: CodeGen If Statement
--- ============================================================================
 
 function test_codegen_if() returns numeric
     print "\n=== TEST 6: CodeGen If Statement ==="
@@ -268,9 +251,7 @@ function test_codegen_if() returns numeric
     return test_result("CodeGen if statement"; 0)
 end_function
 
--- ============================================================================
 -- TEST 7: CodeGen If-Else Statement
--- ============================================================================
 
 function test_codegen_if_else() returns numeric
     print "\n=== TEST 7: CodeGen If-Else Statement ==="
@@ -290,9 +271,7 @@ function test_codegen_if_else() returns numeric
     return test_result("CodeGen if-else statement"; 0)
 end_function
 
--- ============================================================================
 -- TEST 8: CodeGen While Statement
--- ============================================================================
 
 function test_codegen_while() returns numeric
     print "\n=== TEST 8: CodeGen While Statement ==="
@@ -313,9 +292,7 @@ function test_codegen_while() returns numeric
     return test_result("CodeGen while statement"; 0)
 end_function
 
--- ============================================================================
 -- TEST 9: CodeGen For Statement
--- ============================================================================
 
 function test_codegen_for() returns numeric
     print "\n=== TEST 9: CodeGen For Statement ==="
@@ -337,9 +314,7 @@ function test_codegen_for() returns numeric
     return test_result("CodeGen for statement"; 0)
 end_function
 
--- ============================================================================
 -- TEST 10: Helper Functions
--- ============================================================================
 
 function test_helper_functions() returns numeric
     print "\n=== TEST 10: Helper Functions ==="
@@ -369,9 +344,7 @@ function test_helper_functions() returns numeric
     return passed
 end_function
 
--- ============================================================================
 -- TEST 11: Break Statement CodeGen
--- ============================================================================
 
 function test_codegen_break() returns numeric
     print "\n=== TEST 11: CodeGen Break Statement ==="
@@ -387,9 +360,7 @@ function test_codegen_break() returns numeric
     return test_result("CodeGen exit statement"; 0)
 end_function
 
--- ============================================================================
 -- TEST 12: Continue Statement CodeGen
--- ============================================================================
 
 function test_codegen_continue() returns numeric
     print "\n=== TEST 12: CodeGen Continue Statement ==="
@@ -405,9 +376,7 @@ function test_codegen_continue() returns numeric
     return test_result("CodeGen continue statement"; 0)
 end_function
 
--- ============================================================================
 -- RUN ALL TESTS
--- ============================================================================
 
 function run_all_tests() returns numeric
     print "============================================================================"
@@ -449,9 +418,7 @@ function run_all_tests() returns numeric
     return 1
 end_function
 
--- ============================================================================
 -- MAIN ENTRY POINT
--- ============================================================================
 
 -- Run tests
 numeric exit_code = run_all_tests()

@@ -1,11 +1,8 @@
--- ============================================================================
 -- MELP Stage 1 - Bootstrap Driver
--- ============================================================================
 -- File: modules/bootstrap_driver.mlp
 -- Purpose: Main entry point for MELP Stage 1 compiler
 -- Date: 17 December 2025
 -- YZ: YZ_22
--- ============================================================================
 
 -- Simple bootstrap driver that demonstrates Stage 1 compilation
 -- This is a minimal viable compiler that can be extended

@@ -1,15 +1,10 @@
--- ============================================================================
 -- MELP Parser - Error Handling (v2 - No Globals)
--- ============================================================================
 -- Bu modül, parser hatalarını yönetir ve kullanıcıya bildirir.
 -- Stage 1 Self-Hosting: Parser in MELP
 -- Created: 16 Aralık 2025
 -- Note: Global variables not supported in Stage 0
--- ============================================================================
 
--- ============================================================================
 -- Error Reporting Functions
--- ============================================================================
 
 -- Genel parser hatası
 -- @param message: Hata mesajı
@@ -73,9 +68,7 @@ function syntax_error(string message; numeric line; numeric col) returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- Test Functions
--- ============================================================================
 
 function main() returns numeric
     println("=== Parser Error Handling Test (v2) ===")

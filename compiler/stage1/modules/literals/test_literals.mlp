@@ -1,25 +1,20 @@
--- ============================================================================
 -- test_literals.mlp - Test Suite for Literals Module
--- ============================================================================
 -- Part of: Stage 1 Literals Module
 -- Purpose: Comprehensive tests for literal parsing and code generation
 -- Note: This file will be executed when Stage 1 compiler is ready
--- ============================================================================
 
 -- Import modules to test
 -- import "compiler/stage1/modules/core/token_types.mlp"
 -- import "compiler/stage1/modules/literals/literals_parser.mlp"
 -- import "compiler/stage1/modules/literals/literals_codegen.mlp"
 
--- ============================================================================
 -- TEST UTILITIES
--- ============================================================================
 
 numeric test_count = 0
 numeric test_passed = 0
 numeric test_failed = 0
 
-function assert_equal(string test_name, string expected, string actual) returns numeric
+function assert_equal(string test_name; string expected; string actual) returns numeric
     test_count = test_count + 1
     
     if expected == actual then
@@ -43,7 +38,7 @@ function assert_equal(string test_name, string expected, string actual) returns 
     return 0
 end_function
 
-function assert_not_empty(string test_name, list result) returns numeric
+function assert_not_empty(string test_name; list result) returns numeric
     test_count = test_count + 1
     
     if result[0] != [] then
@@ -85,9 +80,7 @@ function print_test_summary() returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- TEST 1: Integer Literal Parsing
--- ============================================================================
 
 function test_integer_literal_parsing() returns numeric
     print "\n[TEST 1] Integer Literal Parsing\n"
@@ -157,9 +150,7 @@ function test_integer_literal_parsing() returns numeric
     return 1
 end_function
 
--- ============================================================================
 -- TEST 2: String Literal Parsing
--- ============================================================================
 
 function test_string_literal_parsing() returns numeric
     print "\n[TEST 2] String Literal Parsing\n"
@@ -220,9 +211,7 @@ function test_string_literal_parsing() returns numeric
     return 1
 end_function
 
--- ============================================================================
 -- TEST 3: Boolean Literal Parsing
--- ============================================================================
 
 function test_boolean_literal_parsing() returns numeric
     print "\n[TEST 3] Boolean Literal Parsing\n"
@@ -276,9 +265,7 @@ function test_boolean_literal_parsing() returns numeric
     return 1
 end_function
 
--- ============================================================================
 -- TEST 4: Generic Literal Parsing (Dispatcher)
--- ============================================================================
 
 function test_generic_literal_parsing() returns numeric
     print "\n[TEST 4] Generic Literal Parsing\n"
@@ -334,9 +321,7 @@ function test_generic_literal_parsing() returns numeric
     return 1
 end_function
 
--- ============================================================================
 -- TEST 5: Integer Literal Code Generation
--- ============================================================================
 
 function test_integer_codegen() returns numeric
     print "\n[TEST 5] Integer Literal Code Generation\n"
@@ -367,9 +352,7 @@ function test_integer_codegen() returns numeric
     return 1
 end_function
 
--- ============================================================================
 -- TEST 6: String Literal Code Generation
--- ============================================================================
 
 function test_string_codegen() returns numeric
     print "\n[TEST 6] String Literal Code Generation\n"
@@ -401,9 +384,7 @@ function test_string_codegen() returns numeric
     return 1
 end_function
 
--- ============================================================================
 -- TEST 7: Boolean Literal Code Generation
--- ============================================================================
 
 function test_boolean_codegen() returns numeric
     print "\n[TEST 7] Boolean Literal Code Generation\n"
@@ -442,9 +423,7 @@ function test_boolean_codegen() returns numeric
     return 1
 end_function
 
--- ============================================================================
 -- TEST 8: Helper Functions
--- ============================================================================
 
 function test_helper_functions() returns numeric
     print "\n[TEST 8] Helper Functions\n"
@@ -499,9 +478,7 @@ function test_helper_functions() returns numeric
     return 1
 end_function
 
--- ============================================================================
 -- TEST 9: Type Inference
--- ============================================================================
 
 function test_type_inference() returns numeric
     print "\n[TEST 9] Type Inference\n"
@@ -537,9 +514,7 @@ function test_type_inference() returns numeric
     return 1
 end_function
 
--- ============================================================================
 -- TEST 10: LLVM Type Mapping
--- ============================================================================
 
 function test_llvm_type_mapping() returns numeric
     print "\n[TEST 10] LLVM Type Mapping\n"
@@ -575,9 +550,7 @@ function test_llvm_type_mapping() returns numeric
     return 1
 end_function
 
--- ============================================================================
 -- MAIN TEST RUNNER
--- ============================================================================
 
 function main() returns numeric
     print "\n"
@@ -603,6 +576,4 @@ function main() returns numeric
     return all_passed
 end_function
 
--- ============================================================================
 -- END OF TEST SUITE
--- ============================================================================

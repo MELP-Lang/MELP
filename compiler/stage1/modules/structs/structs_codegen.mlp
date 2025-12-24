@@ -1,6 +1,4 @@
--- ============================================================================
 -- MELP Stage 1 - Structs CodeGen Module
--- ============================================================================
 -- Author: YZ_10
 -- Date: 18 Aralık 2025
 -- Module: compiler/stage1/modules/structs/structs_codegen.mlp
@@ -24,14 +22,11 @@
 --   - compiler/stage1/modules/structs/structs_parser.mlp
 --   - compiler/stage1/modules/core/token_types.mlp
 --
--- ============================================================================
 
 import "compiler/stage1/modules/structs/structs_parser.mlp"
 import "compiler/stage1/modules/core/token_types.mlp"
 
--- ============================================================================
 -- LLVM TYPE MAPPING
--- ============================================================================
 
 -- Map MELP types to LLVM types
 const string LLVM_NUMERIC = "i64"
@@ -39,9 +34,7 @@ const string LLVM_STRING = "i8*"
 const string LLVM_BOOLEAN = "i1"
 const string LLVM_LIST = "[0 x i64]*"  -- Simplified array pointer
 
--- ============================================================================
 -- CODEGEN FUNCTIONS (STATELESS)
--- ============================================================================
 
 -- ----------------------------------------------------------------------------
 -- codegen_struct_definition
@@ -351,9 +344,7 @@ function codegen_member_assignment(list assign_node, string indent, list context
     return ((code, context))
 end_function
 
--- ============================================================================
 -- HELPER FUNCTIONS
--- ============================================================================
 
 -- ----------------------------------------------------------------------------
 -- map_type_to_llvm
@@ -501,6 +492,4 @@ function infer_member_llvm_type(list member_node) returns string
     return map_type_to_llvm(member_type)
 end_function
 
--- ============================================================================
 -- END OF MODULE
--- ============================================================================

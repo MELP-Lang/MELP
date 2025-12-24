@@ -1,6 +1,4 @@
--- ============================================================================
 -- MELP Compiler - Full Standalone Version (Clean API)
--- ============================================================================
 -- File: modules/compiler_full.mlp
 -- Author: YZ_24 (Part 1 + Part 2 Combined) + YZ_26 (API Integration)
 -- Date: 17 Aralık 2025
@@ -16,11 +14,8 @@
 -- ✅ Clean API calls - no implementation details
 -- ✅ No orchestration - just sequential pipeline
 -- ✅ Thin integration - modules are self-contained
--- ============================================================================
 
--- ============================================================================
 -- PART 1: COMPILATION PIPELINE (from compiler_integration.mlp)
--- ============================================================================
 
 function report_error(string phase; string message) returns numeric
     println("[ERROR] Compilation error occurred")
@@ -36,9 +31,7 @@ function report_warning(string phase; string message) returns numeric
     return 1
 end_function
 
--- ============================================================================
 -- PHASE 1: LEXICAL ANALYSIS (TOKENIZATION)
--- ============================================================================
 
 -- NOTE: Real implementation imported from lexer_api.mlp
 -- This is a LOCAL wrapper that will call the imported function
@@ -68,9 +61,7 @@ function validate_tokens() returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- PHASE 2: PARSING (AST CONSTRUCTION)
--- ============================================================================
 
 -- NOTE: Real implementation imported from parser_api.mlp
 -- This is a LOCAL wrapper that will call the imported function
@@ -100,9 +91,7 @@ function validate_ast() returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- PHASE 3: CODE GENERATION (LLVM IR)
--- ============================================================================
 
 -- NOTE: Real implementation imported from codegen_api.mlp
 -- This is a LOCAL wrapper that will call the imported function
@@ -133,9 +122,7 @@ function validate_llvm_ir(string ir_code) returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- PIPELINE ORCHESTRATION
--- ============================================================================
 
 function compile_source(string source_code) returns string
     println("========================================")
@@ -184,9 +171,7 @@ function compile_source(string source_code) returns string
     return llvm_ir
 end_function
 
--- ============================================================================
 -- PART 2: MAIN COMPILER DRIVER (from compiler.mlp)
--- ============================================================================
 
 function get_version() returns string
     return "0.1.0"
@@ -222,9 +207,7 @@ function print_version() returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- FILE I/O (STUB - Stage 0 has no real file I/O)
--- ============================================================================
 
 function read_source_file(string filename) returns string
     println("[INFO] Reading file:")
@@ -258,9 +241,7 @@ function file_exists(string filename) returns numeric
     return 1
 end_function
 
--- ============================================================================
 -- COMMAND-LINE PARSING
--- ============================================================================
 
 function parse_arguments() returns numeric
     println("[INFO] Parsing command-line arguments")
@@ -273,9 +254,7 @@ function parse_arguments() returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- MAIN COMPILATION DRIVER
--- ============================================================================
 
 function compile_file(string input_file; string output_file) returns numeric
     println("")
@@ -320,9 +299,7 @@ function compile_file(string input_file; string output_file) returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- MAIN ENTRY POINT
--- ============================================================================
 
 function main() returns numeric
     println("")

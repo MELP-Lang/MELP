@@ -1,19 +1,14 @@
--- ============================================================================
 -- MELP Stage 1 - Control Flow Parser Module
--- ============================================================================
 -- Purpose: Parse control flow statements (if/else, while, for)
 -- Author: YZ_07
 -- Date: 18 Aralık 2025
 -- Source: Stage 0 control_flow/ module
 -- Dependencies: core/token_types.mlp, operators/operators_parser.mlp
--- ============================================================================
 
 import "../core/token_types.mlp"
 import "../operators/operators_parser.mlp"
 
--- ============================================================================
 -- CONTROL FLOW TYPE CONSTANTS
--- ============================================================================
 
 const numeric CTRL_IF = 1
 const numeric CTRL_IF_ELSE = 2
@@ -22,9 +17,7 @@ const numeric CTRL_FOR = 4
 const numeric CTRL_IF_EXPR = 5       -- TIER 1: let x = if cond then a else b
 const numeric CTRL_LOOP_LABELED = 6  -- TIER 1: 'outer: for ... exit 'outer
 
--- ============================================================================
 -- STATEMENT TYPE CONSTANTS
--- ============================================================================
 
 const numeric STMT_IF = 1
 const numeric STMT_WHILE = 2
@@ -35,9 +28,7 @@ const numeric STMT_CONTINUE = 6
 const numeric STMT_EXPRESSION = 7
 const numeric STMT_VARIABLE_DECL = 8
 
--- ============================================================================
 -- IF STATEMENT STRUCTURE
--- ============================================================================
 -- IfStatement structure fields (stored as list):
 -- [0] = type (CTRL_IF or CTRL_IF_ELSE or CTRL_IF_EXPR)
 -- [1] = condition (expression)
@@ -45,16 +36,12 @@ const numeric STMT_VARIABLE_DECL = 8
 -- [3] = then_body (list of statements)
 -- [4] = else_body (list of statements or empty list)
 
--- ============================================================================
 -- WHILE STATEMENT STRUCTURE
--- ============================================================================
 -- WhileStatement structure fields (stored as list):
 -- [0] = condition (expression)
 -- [1] = body (list of statements)
 
--- ============================================================================
 -- FOR STATEMENT STRUCTURE
--- ============================================================================
 -- ForStatement structure fields (stored as list):
 -- [0] = iterator (variable name - string)
 -- [1] = start (expression)
@@ -62,9 +49,7 @@ const numeric STMT_VARIABLE_DECL = 8
 -- [3] = label (string or empty - TIER 1)
 -- [4] = body (list of statements)
 
--- ============================================================================
 -- PARSER FUNCTIONS (STATELESS!)
--- ============================================================================
 
 -- Parse if statement
 -- Input: tokens (list), pos (numeric) - current position at 'if' token
@@ -76,7 +61,7 @@ function parse_if_statement(list tokens; numeric pos) returns list
     numeric token_type = current_token[0]
     
     if token_type != T_IF
-        return ([; pos,)  -- Not an if statement
+        return ([; pos;)  -- Not an if statement
     end_if
     
     -- Move past 'if' keyword
@@ -89,7 +74,7 @@ function parse_if_statement(list tokens; numeric pos) returns list
     
     if condition == []
         print "Error: Expected condition after 'if'"
-        return ([; pos,)
+        return ([; pos;)
     end_if
     
     -- Expect 'then' keyword
@@ -98,7 +83,7 @@ function parse_if_statement(list tokens; numeric pos) returns list
     
     if token_type != T_THEN
         print "Error: Expected 'then' after if condition"
-        return ([; pos,)
+        return ([; pos;)
     end_if
     
     current_pos = current_pos + 1  -- Move past 'then'
@@ -162,7 +147,7 @@ function parse_if_statement(list tokens; numeric pos) returns list
     
     if token_type != T_END_IF
         print "Error: Expected 'end_if' to close if statement"
-        return ([; pos,)
+        return ([; pos;)
     end_if
     
     current_pos = current_pos + 1  -- Move past 'end_if'
@@ -187,7 +172,7 @@ function parse_while_statement(list tokens; numeric pos) returns list
     numeric token_type = current_token[0]
     
     if token_type != T_WHILE
-        return ([; pos,)  -- Not a while statement
+        return ([; pos;)  -- Not a while statement
     end_if
     
     -- Move past 'while' keyword
@@ -200,7 +185,7 @@ function parse_while_statement(list tokens; numeric pos) returns list
     
     if condition == []
         print "Error: Expected condition after 'while'"
-        return ([; pos,)
+        return ([; pos;)
     end_if
     
     -- Check for optional 'do' keyword
@@ -255,7 +240,7 @@ function parse_for_statement(list tokens; numeric pos) returns list
     numeric token_type = current_token[0]
     
     if token_type != T_FOR
-        return ([; pos,)  -- Not a for statement
+        return ([; pos;)  -- Not a for statement
     end_if
     
     -- Move past 'for' keyword
@@ -267,7 +252,7 @@ function parse_for_statement(list tokens; numeric pos) returns list
     
     if token_type != T_IDENTIFIER
         print "Error: Expected iterator variable after 'for'"
-        return ([; pos,)
+        return ([; pos;)
     end_if
     
     string iterator = current_token[1]  -- Variable name
@@ -279,7 +264,7 @@ function parse_for_statement(list tokens; numeric pos) returns list
     
     if token_type != T_IN
         print "Error: Expected 'in' after iterator variable"
-        return ([; pos,)
+        return ([; pos;)
     end_if
     
     current_pos = current_pos + 1
@@ -291,7 +276,7 @@ function parse_for_statement(list tokens; numeric pos) returns list
     
     if start_expr == []
         print "Error: Expected start expression in for loop"
-        return ([; pos,)
+        return ([; pos;)
     end_if
     
     -- Expect '..' (range operator)
@@ -300,7 +285,7 @@ function parse_for_statement(list tokens; numeric pos) returns list
     
     if token_type != T_RANGE
         print "Error: Expected '..' for range in for loop"
-        return ([; pos,)
+        return ([; pos;)
     end_if
     
     current_pos = current_pos + 1
@@ -312,7 +297,7 @@ function parse_for_statement(list tokens; numeric pos) returns list
     
     if end_expr == []
         print "Error: Expected end expression in for loop"
-        return ([; pos,)
+        return ([; pos;)
     end_if
     
     -- Check for optional 'do' keyword
@@ -380,12 +365,10 @@ function parse_control_flow_statement(list tokens; numeric pos) returns list
     end_if
     
     -- Not a control flow statement
-    return ([; pos,)
+    return ([; pos;)
 end_function
 
--- ============================================================================
 -- HELPER FUNCTIONS
--- ============================================================================
 
 -- Get control flow type name (for debugging/error messages)
 function get_control_flow_type_name(numeric ctrl_type) returns string

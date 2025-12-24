@@ -1,18 +1,13 @@
--- ============================================================================
 -- MELP Stage 1 - Operators Parser Module
--- ============================================================================
 -- Purpose: Parse arithmetic, comparison, and logical operators
 -- Author: YZ_06
 -- Date: 18 Aralık 2025
 -- Source: Stage 0 arithmetic/, comparison/, logical/ modules
 -- Dependencies: core/token_types.mlp
--- ============================================================================
 
 import "../core/token_types.mlp"
 
--- ============================================================================
 -- OPERATOR TYPE CONSTANTS
--- ============================================================================
 
 -- Arithmetic operators
 const numeric OP_ADD = 1        -- +
@@ -40,18 +35,14 @@ const numeric OP_BIT_AND = 30   -- & (bitwise AND)
 const numeric OP_BIT_OR = 31    -- | (bitwise OR)
 const numeric OP_BIT_XOR = 32   -- ^ (bitwise XOR)
 
--- ============================================================================
 -- EXPRESSION NODE TYPES
--- ============================================================================
 
 const numeric EXPR_LITERAL = 1      -- Literal value (number, string, boolean)
 const numeric EXPR_VARIABLE = 2     -- Variable reference
 const numeric EXPR_BINARY = 3       -- Binary operation (left op right)
 const numeric EXPR_UNARY = 4        -- Unary operation (op operand)
 
--- ============================================================================
 -- OPERATOR PRECEDENCE (Higher = Stronger binding)
--- ============================================================================
 
 const numeric PREC_LOWEST = 0
 const numeric PREC_OR = 1           -- or, ||
@@ -67,9 +58,7 @@ const numeric PREC_POWER = 10       -- **
 const numeric PREC_UNARY = 11       -- !, not, - (unary)
 const numeric PREC_HIGHEST = 12
 
--- ============================================================================
 -- HELPER FUNCTIONS
--- ============================================================================
 
 -- Get operator type from token
 function token_to_operator(numeric token_type) returns numeric
@@ -284,9 +273,7 @@ function is_binary_operator(numeric op) returns numeric
     return op != OP_NOT
 end_function
 
--- ============================================================================
 -- EXPRESSION PARSING (Pratt Parser / Precedence Climbing)
--- ============================================================================
 
 -- Parse primary expression (literal, variable, parenthesized expression)
 -- Returns: [expr_node, new_position]
@@ -432,9 +419,7 @@ function parse_expression(list tokens; numeric pos; numeric min_prec) returns li
     return ((left; current_pos))
 end_function
 
--- ============================================================================
 -- PUBLIC API
--- ============================================================================
 
 -- Parse operator expression (entry point)
 -- Returns: [expr_node, new_position]
@@ -482,6 +467,4 @@ function get_expr_operator(list expr) returns numeric
     return expr[4]
 end_function
 
--- ============================================================================
 -- END OF OPERATORS PARSER MODULE
--- ============================================================================

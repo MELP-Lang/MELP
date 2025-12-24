@@ -1,11 +1,8 @@
--- ============================================================================
 -- MELP Parser - Expression Parsing Module
--- ============================================================================
 -- Stage 1 Self-Hosting: Expression parsing in MELP
 -- Created: December 17, 2025 (YZ_31)
 -- Purpose: Stateless expression parsing with operator precedence
 -- Architecture: Modular + Stateless + LLVM + STO + (Struct + Functions)
--- ============================================================================
 
 -- Note: This module requires TokenType enum and state management functions
 -- from parser_state.mlp when concatenated
@@ -13,9 +10,7 @@
 -- STANDALONE MODE: Uses magic numbers for compile test
 -- PRODUCTION MODE: concat script will use enum values from parser_state.mlp
 
--- ============================================================================
 -- Operator Precedence and Binary Operators
--- ============================================================================
 -- NOTE: Magic numbers used for standalone compile
 -- In production (concat), these will reference TokenType enum
 
@@ -63,9 +58,7 @@ function is_binary_op(numeric t) returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- Primary Expression Parsing
--- ============================================================================
 
 -- Parse primary expression (number, string, identifier, parenthesized)
 -- Input: parser_state
@@ -80,9 +73,7 @@ function state_parse_primary(list parser_state) returns list
     return result
 end_function
 
--- ============================================================================
 -- Expression Parsing with Precedence
--- ============================================================================
 
 -- Parse expression with operator precedence (stateless)
 -- Input: parser_state
@@ -103,9 +94,7 @@ function state_parse_expression_prec(list parser_state; numeric min_prec) return
     return result
 end_function
 
--- ============================================================================
 -- Test Function
--- ============================================================================
 
 function main() returns numeric
     println("Parser Expressions Module - Compile Test")

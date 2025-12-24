@@ -1,6 +1,4 @@
--- ============================================================================
 -- MELP CodeGen - Public API Wrapper (Clean Interface)
--- ============================================================================
 -- File: modules/codegen_mlp/codegen_api.mlp
 -- Author: YZ_26 (Part 3 - Real Implementation)
 -- Date: 17 Aralık 2025
@@ -22,11 +20,8 @@
 --
 -- NOTE: Stage 0 limitation - uses example program instead of real AST
 --       Stage 1+ will walk AST and generate real IR
--- ============================================================================
 
--- ============================================================================
 -- PUBLIC API - Single Entry Point
--- ============================================================================
 
 -- Generate LLVM IR from AST
 -- Input: ast_string (string) - AST representation from parser
@@ -74,10 +69,6 @@ function generate_llvm_ir(numeric ast_node_count) returns string
     return ir_stub
 end_function
 
--- ============================================================================
 -- PRIVATE HELPERS (Optional - for future expansion)
--- ============================================================================
 
--- ============================================================================
 -- NO MAIN - This is a library module, not executable
--- ============================================================================

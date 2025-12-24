@@ -1,6 +1,4 @@
--- ============================================================================
 -- MELP Stage 1 - Code Generator: Integration Pipeline
--- ============================================================================
 -- Part of: Phase 2 - CodeGen in MELP (YZ_19)
 -- Purpose: Integrate all codegen modules into unified pipeline
 --
@@ -22,11 +20,8 @@
 -- - codegen_for.mlp
 -- - codegen_functions.mlp
 -- - codegen_arrays.mlp
--- ============================================================================
 
--- ============================================================================
 -- EXPRESSION CODEGEN DISPATCHER
--- ============================================================================
 
 -- Dispatch expression codegen based on expression type
 -- Types: LITERAL, VARIABLE, BINARY_OP, UNARY_OP, CALL, INDEX
@@ -105,9 +100,7 @@ function codegen_expression(expr_type; result_reg; data1; data2; data3) returns 
     return 1
 end_function
 
--- ============================================================================
 -- STATEMENT CODEGEN DISPATCHER
--- ============================================================================
 
 -- Dispatch statement codegen based on statement type
 -- Types: VAR_DECL, ASSIGN, PRINT, RETURN, IF, WHILE, FOR
@@ -197,9 +190,7 @@ function codegen_statement(stmt_type; data1; data2; data3; data4) returns numeri
     return 1
 end_function
 
--- ============================================================================
 -- FUNCTION BODY CODEGEN
--- ============================================================================
 
 -- Generate complete function with body
 function codegen_complete_function(func_name; param_name; has_param) returns numeric
@@ -227,9 +218,7 @@ function codegen_complete_function(func_name; param_name; has_param) returns num
     return 1
 end_function
 
--- ============================================================================
 -- COMPLETE PROGRAM CODEGEN
--- ============================================================================
 
 -- Generate complete LLVM IR program
 function codegen_complete_program() returns numeric
@@ -333,9 +322,7 @@ function codegen_complete_program() returns numeric
     return 1
 end_function
 
--- ============================================================================
 -- INTEGRATION TESTS
--- ============================================================================
 
 function main() returns numeric
     println("=== CodeGen Integration Tests ===")

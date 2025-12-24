@@ -1,22 +1,16 @@
--- ============================================================================
 -- test_arrays.mlp - Test Suite for Arrays Module
--- ============================================================================
 -- Part of: Stage 1 Arrays Module
 -- Purpose: Test array parsing and code generation
 -- Status: SPECIFICATION ONLY - Cannot run until Stage 1 compiler is complete
--- ============================================================================
 
 -- Import arrays module
 -- import "compiler/stage1/modules/arrays/arrays_parser.mlp"
 -- import "compiler/stage1/modules/arrays/arrays_codegen.mlp"
 -- import "compiler/stage1/modules/core/token_types.mlp"
 
--- ============================================================================
 -- TEST 1: Empty Array Literal
--- ============================================================================
 -- Test: Parse and generate code for empty array []
 -- Expected: Valid array node with 0 elements
--- ============================================================================
 function test_empty_array() returns numeric
     -- Input tokens: [LBRACKET; RBRACKET]
     list tokens = [
@@ -61,12 +55,9 @@ function test_empty_array() returns numeric
     return 1  -- PASS
 end_function
 
--- ============================================================================
 -- TEST 2: Integer Array Literal
--- ============================================================================
 -- Test: Parse and generate code for [1; 2; 3]
 -- Expected: Array node with 3 integer elements
--- ============================================================================
 function test_integer_array() returns numeric
     -- Input tokens: [LBRACKET; NUMBER "1"; COMMA; NUMBER "2"; COMMA; NUMBER "3"; RBRACKET]
     list tokens = [
@@ -117,12 +108,9 @@ function test_integer_array() returns numeric
     return 1  -- PASS
 end_function
 
--- ============================================================================
 -- TEST 3: String Array Literal
--- ============================================================================
 -- Test: Parse ["hello"; "world"]
 -- Expected: Array node with 2 string elements
--- ============================================================================
 function test_string_array() returns numeric
     -- Input tokens
     list tokens = [
@@ -156,12 +144,9 @@ function test_string_array() returns numeric
     return 1  -- PASS
 end_function
 
--- ============================================================================
 -- TEST 4: Boolean Array Literal
--- ============================================================================
 -- Test: Parse [true; false; true]
 -- Expected: Array node with 3 numeric elements
--- ============================================================================
 function test_boolean_array() returns numeric
     list tokens = [
         [TOKEN_LBRACKET; "["],
@@ -195,12 +180,9 @@ function test_boolean_array() returns numeric
     return 1  -- PASS
 end_function
 
--- ============================================================================
 -- TEST 5: Array Indexing
--- ============================================================================
 -- Test: Parse arr[0]
 -- Expected: ARRAY_INDEX node with array name and index
--- ============================================================================
 function test_array_indexing() returns numeric
     -- Input tokens: [IDENTIFIER "arr"; LBRACKET; NUMBER "0"; RBRACKET]
     list tokens = [
@@ -250,12 +232,9 @@ function test_array_indexing() returns numeric
     return 1  -- PASS
 end_function
 
--- ============================================================================
 -- TEST 6: Array Length
--- ============================================================================
 -- Test: Parse len(arr)
 -- Expected: ARRAY_LENGTH node with array name
--- ============================================================================
 function test_array_length() returns numeric
     -- Input tokens: [IDENTIFIER "len"; LPAREN; IDENTIFIER "arr"; RPAREN]
     list tokens = [
@@ -300,12 +279,9 @@ function test_array_length() returns numeric
     return 1  -- PASS
 end_function
 
--- ============================================================================
 -- TEST 7: Array Declaration
--- ============================================================================
 -- Test: Parse list numbers = [1; 2; 3]
 -- Expected: ARRAY_DECLARATION node
--- ============================================================================
 function test_array_declaration() returns numeric
     -- Input tokens: [LIST; IDENTIFIER "numbers"; ASSIGN; LBRACKET; ...]
     list tokens = [
@@ -357,12 +333,9 @@ function test_array_declaration() returns numeric
     return 1  -- PASS
 end_function
 
--- ============================================================================
 -- TEST 8: Single Element Array
--- ============================================================================
 -- Test: Parse [42]
 -- Expected: Array with 1 element
--- ============================================================================
 function test_single_element_array() returns numeric
     list tokens = [
         [TOKEN_LBRACKET; "["],
@@ -385,12 +358,9 @@ function test_single_element_array() returns numeric
     return 1  -- PASS
 end_function
 
--- ============================================================================
 -- TEST 9: Array Type Inference
--- ============================================================================
 -- Test: Verify homogeneous array type checking
 -- Expected: Correctly identify array element types
--- ============================================================================
 function test_array_type_inference() returns numeric
     -- Create integer array
     list int_elements = [
@@ -414,11 +384,8 @@ function test_array_type_inference() returns numeric
     return 1  -- PASS
 end_function
 
--- ============================================================================
 -- TEST 10: Helper Functions
--- ============================================================================
 -- Test: Verify helper functions work correctly
--- ============================================================================
 function test_helper_functions() returns numeric
     -- Test get_array_node_type_name
     string type_name = get_array_node_type_name(ARRAY_LITERAL)
@@ -452,9 +419,7 @@ function test_helper_functions() returns numeric
     return 1  -- PASS
 end_function
 
--- ============================================================================
 -- TEST RUNNER
--- ============================================================================
 function run_all_array_tests() returns numeric
     numeric total_tests = 10
     numeric passed = 0
@@ -508,6 +473,4 @@ function run_all_array_tests() returns numeric
     end_if
 end_function
 
--- ============================================================================
 -- END OF test_arrays.mlp
--- ============================================================================

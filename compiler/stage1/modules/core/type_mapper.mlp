@@ -1,10 +1,7 @@
--- ============================================================================
 -- type_mapper.mlp - Type System Constants and Utilities
--- ============================================================================
 -- Converted from Stage 0: compiler/stage0/modules/type_system/type_system.h
 -- Part of: Stage 1 Core Utilities Module
 -- Purpose: Define type kind constants and type mapping utilities
--- ============================================================================
 
 -- Base type kinds (TypeKind enum from C)
 const numeric TYPE_INT = 0           -- int

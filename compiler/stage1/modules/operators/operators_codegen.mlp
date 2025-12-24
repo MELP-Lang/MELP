@@ -1,19 +1,14 @@
--- ============================================================================
 -- MELP Stage 1 - Operators CodeGen Module
--- ============================================================================
 -- Purpose: Generate LLVM IR for arithmetic, comparison, and logical operators
 -- Author: YZ_06
 -- Date: 18 Aralık 2025
 -- Source: Stage 0 arithmetic_codegen.c, comparison_codegen.c
 -- Dependencies: core/type_mapper.mlp, operators_parser.mlp
--- ============================================================================
 
 import "../core/type_mapper.mlp"
 import "operators_parser.mlp"
 
--- ============================================================================
 -- LLVM IR GENERATION - ARITHMETIC OPERATIONS
--- ============================================================================
 
 -- Generate LLVM IR for arithmetic binary operation
 -- expr: Expression node [node_type, value, left, right, operator]
@@ -78,9 +73,7 @@ function codegen_logical_unary(list expr; string result_reg; string indent) retu
     return code
 end_function
 
--- ============================================================================
 -- LLVM IR GENERATION - COMPARISON OPERATIONS
--- ============================================================================
 
 -- Generate LLVM IR for comparison binary operation
 -- Returns i1 (boolean) result
@@ -127,9 +120,7 @@ function codegen_comparison_binary(list expr; string result_reg; string indent) 
     return code
 end_function
 
--- ============================================================================
 -- LLVM IR GENERATION - LOGICAL OPERATIONS
--- ============================================================================
 
 -- Generate LLVM IR for logical binary operation (and, or)
 function codegen_logical_binary(list expr; string result_reg; string indent) returns string
@@ -179,9 +170,7 @@ function codegen_logical_unary(list expr; string result_reg; string indent) retu
     return code
 end_function
 
--- ============================================================================
 -- EXPRESSION CODE GENERATION (Recursive)
--- ============================================================================
 
 -- Generate LLVM IR for any expression
 function codegen_expression(list expr; string result_reg; string indent) returns string
@@ -272,9 +261,7 @@ function codegen_expression(list expr; string result_reg; string indent) returns
     return ""
 end_function
 
--- ============================================================================
 -- COMPLETE OPERATION CODE GENERATION
--- ============================================================================
 
 -- Generate complete LLVM IR for an operator expression
 -- expr: Expression node from parser
@@ -306,9 +293,7 @@ function codegen_operator_expression(list expr; string target_var) returns strin
     return code
 end_function
 
--- ============================================================================
 -- TYPE CONVERSION HELPERS
--- ============================================================================
 
 -- Convert i1 (boolean) to i64 (numeric)
 function codegen_bool_to_i64(string bool_reg; string i64_reg; string indent) returns string
@@ -326,9 +311,7 @@ function codegen_i64_to_bool(string i64_reg; string bool_reg; string indent) ret
     return code
 end_function
 
--- ============================================================================
 -- STRING COMPARISON (Future Enhancement)
--- ============================================================================
 
 -- Generate string comparison (calls runtime function)
 function codegen_string_compare(string left_reg; string right_reg; string result_reg; string op; string indent) returns string
@@ -359,6 +342,4 @@ function codegen_string_compare(string left_reg; string right_reg; string result
     return code
 end_function
 
--- ============================================================================
 -- END OF OPERATORS CODEGEN MODULE
--- ============================================================================

@@ -1,25 +1,20 @@
--- ============================================================================
 -- MELP Parser - Token Stream Management (v2 - No Globals)
--- ============================================================================
 -- Bu modül, parser'ın token listesini yönetir ve token'lar arasında gezinir.
 -- Stage 1 Self-Hosting: Parser in MELP
 -- Created: 16 Aralık 2025
 -- Note: Global variables not supported in Stage 0, using parameter passing
--- ============================================================================
 
 -- Parser state structure: [tokens_list, current_position]
 -- Fonksiyonlar state'i parametre olarak alır ve güncellenmiş state döndürür
 
--- ============================================================================
 -- Token Stream Functions
--- ============================================================================
 
 -- Parser state'i başlat
 -- @param token_list: Lexer'dan gelen token listesi
 -- @return: [token_list, 0] - başlangıç state'i
 function parser_init(numeric dummy) returns list
     -- Dummy function - state will be created externally
-    return ((,); 0,)
+    return ((,); 0;)
 end_function
 
 -- Mevcut pozisyonu al
@@ -36,9 +31,7 @@ function parser_advance(numeric pos) returns numeric
     return pos + 1
 end_function
 
--- ============================================================================
 -- Test Functions
--- ============================================================================
 
 function main() returns numeric
     println("=== Token Stream Management Test (v2) ===")

@@ -1,18 +1,13 @@
--- ============================================================================
 -- MELP Parser - Statement Parsing Module
--- ============================================================================
 -- Stage 1 Self-Hosting: Statement parsing in MELP
 -- Created: December 17, 2025 (YZ_31)
 -- Purpose: Stateless statement parsing (var, assign, return, print, if, while)
 -- Architecture: Modular + Stateless + LLVM + STO + (Struct + Functions)
--- ============================================================================
 
 -- Note: This module requires TokenType enum and state management functions
 -- from parser_state.mlp when concatenated
 
--- ============================================================================
 -- Statement Parsing Functions
--- ============================================================================
 
 -- Parse variable declaration: numeric x = 10 (stateless)
 -- Input: parser_state
@@ -91,9 +86,7 @@ function state_parse_statement(list parser_state) returns list
     return result
 end_function
 
--- ============================================================================
 -- Test Function
--- ============================================================================
 
 function main() returns numeric
     println("Parser Statements Module - Compile Test")

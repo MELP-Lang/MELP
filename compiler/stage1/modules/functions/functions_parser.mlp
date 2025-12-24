@@ -1,6 +1,4 @@
--- ============================================================================
 -- MELP Stage 1 - Functions Parser Module
--- ============================================================================
 -- YZ_04 - December 18, 2025
 -- Purpose: Parse function declarations, calls, and returns (MELP implementation)
 --
@@ -16,16 +14,13 @@
 -- - ✅ Stateless (no mutable globals, const OK)
 -- - ✅ Modular (functions feature isolated)
 -- - ✅ Uses core utilities (token_types, char_utils, type_mapper)
--- ============================================================================
 
 -- Import core utilities (YZ_03)
 import "../core/token_types.mlp"
 import "../core/char_utils.mlp"
 import "../core/type_mapper.mlp"
 
--- ============================================================================
 -- CONSTANTS - Function Parameter & Return Types
--- ============================================================================
 
 -- Parameter types (from Stage 0)
 const numeric FUNC_PARAM_NUMERIC = 0
@@ -43,9 +38,7 @@ const numeric FUNC_RETURN_BOOLEAN = 2
 const numeric FUNC_RETURN_VOID = 3
 const numeric FUNC_RETURN_STRUCT = 4
 
--- ============================================================================
 -- HELPER FUNCTIONS - Type Conversion
--- ============================================================================
 
 -- Convert token type to function parameter type
 -- STATELESS: Returns numeric type ID
@@ -97,12 +90,10 @@ function token_to_return_type(numeric token_type) returns numeric
     return FUNC_RETURN_VOID
 end_function
 
--- ============================================================================
 -- CORE PARSING FUNCTIONS (STATELESS PATTERN)
--- ============================================================================
 
 -- Parse function declaration
--- Syntax: function func_name(param1: type1, param2: type2) returns return_type
+-- Syntax: function func_name(param1: type1; param2: type2) returns return_type
 --         body
 --         end_function
 --
@@ -382,6 +373,4 @@ function parse_return_statement(list tokens; numeric pos) returns list
     return ((return_stmt, current_pos))
 end_function
 
--- ============================================================================
 -- END OF MODULE
--- ============================================================================

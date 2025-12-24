@@ -1,11 +1,9 @@
--- ============================================================================
 -- MELP Self-Hosting: Literal Tokenization (Numbers & Strings)  
 -- File: modules/lexer_mlp/tokenize_literals.mlp
 -- Author: YZ_54
 -- Date: 12 Aralık 2025
 -- Purpose: Scan and tokenize number and string literals
 -- Status: SYNTAX VERIFIED - Compiles successfully with Stage 0 compiler
--- ============================================================================
 
 -- CRITICAL MELP SYNTAX LESSONS LEARNED:
 -- 1. while loops: NO 'do' keyword (YZ_27 removed it)
@@ -24,9 +22,7 @@
 --    WRONG: if not has_decimal then
 --    RIGHT: if has_decimal == 0 then
 
--- ============================================================================
 -- Token Creation (copied from token.mlp for standalone use)
--- ============================================================================
 
 -- Token Type Constants
 -- Literals: NUMBER=30, STRING=31, IDENTIFIER=32
@@ -35,12 +31,10 @@
 -- Creates a new token with the given properties
 -- Returns: list [type, value, line, column]
 function create_token(numeric token_type; string token_value; numeric line_num; numeric col_num) returns list
-    return (token_type; token_value; line_num; col_num,)
+    return (token_type; token_value; line_num; col_num;)
 end_function
 
--- ============================================================================
 -- Helper: Get ASCII code (simplified version for quote detection)
--- ============================================================================
 function char_code(string c) returns numeric
     if c == " " then return 32 end if
     if c == "0" then return 48 end if
@@ -57,9 +51,7 @@ function char_code(string c) returns numeric
     return 34
 end function
 
--- ============================================================================
 -- Number Literal Tokenization
--- ============================================================================
 
 -- Returns: [token, new_pos, new_col]
 -- token = [type=30, value, line, col]
@@ -112,12 +104,10 @@ function scan_number(string source; numeric pos; numeric line; numeric col) retu
     end while
     
     list token = create_token(30; num_value; start_line; start_col)
-    return (token; pos; col,)
+    return (token; pos; col;)
 end function
 
--- ============================================================================
 -- String Literal Tokenization
--- ============================================================================
 
 -- Returns: [token, new_pos, new_col]  
 -- token = [type=31, value, line, col]
@@ -193,16 +183,14 @@ function scan_string(string source; numeric pos; numeric line; numeric col) retu
     end while
     
     if terminated == 0 then
-        return (,)
+        return (;)
     end if
     
     list token = create_token(31; str_value; start_line; start_col)
-    return (token; pos; col,)
+    return (token; pos; col;)
 end function
 
--- ============================================================================
 -- Helper Functions
--- ============================================================================
 
 function is_digit(string ch) returns boolean
     if ch == "0" then

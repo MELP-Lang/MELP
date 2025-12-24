@@ -1,19 +1,14 @@
--- ============================================================================
 -- arrays_parser.mlp - Array Parser for MELP Stage 1
--- ============================================================================
 -- Part of: Stage 1 Arrays Module
 -- Purpose: Parse array literals, indexing, and operations
 -- Architecture: Stateless, parameterized design
--- ============================================================================
 
 -- Import core utilities (token types, type mapper)
 -- import "compiler/stage1/modules/core/token_types.mlp"
 -- import "compiler/stage1/modules/core/type_mapper.mlp"
 -- import "compiler/stage1/modules/literals/literals_parser.mlp"
 
--- ============================================================================
 -- ARRAY NODE TYPE CONSTANTS
--- ============================================================================
 
 const numeric ARRAY_LITERAL = 1         -- Array literal: [1; 2; 3]
 const numeric ARRAY_INDEX = 2           -- Array indexing: arr[i]
@@ -21,9 +16,7 @@ const numeric ARRAY_LENGTH = 3          -- Array length: len(arr)
 const numeric ARRAY_DECLARATION = 4     -- Array declaration: list arr = [...]
 const numeric ARRAY_ASSIGNMENT = 5      -- Array element assignment: arr[i] = value
 
--- ============================================================================
 -- ARRAY NODE STRUCTURE
--- ============================================================================
 -- Array Literal: [ARRAY_LITERAL; element_list; element_count]
 --   element_list: list of literal nodes
 --   element_count: numeric count of elements
@@ -39,11 +32,8 @@ const numeric ARRAY_ASSIGNMENT = 5      -- Array element assignment: arr[i] = va
 --   [1; 2; 3]        → [ARRAY_LITERAL; [lit1; lit2; lit3], 3]
 --   arr[0]           → [ARRAY_INDEX; "arr"; [LIT_INTEGER; "0"; "0"]]
 --   len(arr)         → [ARRAY_LENGTH; "arr"]
--- ============================================================================
 
--- ============================================================================
 -- PARSER FUNCTIONS
--- ============================================================================
 
 -- ----------------------------------------------------------------------------
 -- parse_array_literal - Parse array literal [elem1; elem2; ...]
@@ -69,7 +59,7 @@ function parse_array_literal(list tokens; numeric pos) returns list
     numeric token_type = token[0]
     
     if token_type != TOKEN_LBRACKET then
-        return ([; pos,)  -- Not an array literal
+        return ([; pos;)  -- Not an array literal
     end_if
     
     -- Move past '['
@@ -97,7 +87,7 @@ function parse_array_literal(list tokens; numeric pos) returns list
         
         if element == [] then
             -- Failed to parse element - syntax error
-            return ([; pos,)
+            return ([; pos;)
         end_if
         
         -- Add element to list
@@ -119,7 +109,7 @@ function parse_array_literal(list tokens; numeric pos) returns list
             current_pos = current_pos + 1
         else
             -- Syntax error: expected ',' or ']'
-            return ([; pos,)
+            return ([; pos;)
         end_if
     end_while
     
@@ -157,7 +147,7 @@ function parse_array_element(list tokens; numeric pos) returns list
     -- TIER 1: Try to parse as nested array
     
     -- Failed to parse element
-    return ([; pos,)
+    return ([; pos;)
 end_function
 
 -- ----------------------------------------------------------------------------
@@ -183,7 +173,7 @@ function parse_array_index(list tokens; numeric pos) returns list
     numeric token_type = token[0]
     
     if token_type != TOKEN_IDENTIFIER then
-        return ([; pos,)  -- Not an identifier
+        return ([; pos;)  -- Not an identifier
     end_if
     
     string array_name = token[1]
@@ -193,7 +183,7 @@ function parse_array_index(list tokens; numeric pos) returns list
     list bracket_token = tokens[next_pos]
     
     if bracket_token[0] != TOKEN_LBRACKET then
-        return ([; pos,)  -- Not array indexing
+        return ([; pos;)  -- Not array indexing
     end_if
     
     -- Move past '['
@@ -207,13 +197,13 @@ function parse_array_index(list tokens; numeric pos) returns list
     if index_expr == [] then
         -- TIER 1: Try to parse as variable or expression
         -- For now, fail
-        return ([; pos,)
+        return ([; pos;)
     end_if
     
     -- Check for closing ']'
     list close_bracket = tokens[index_pos]
     if close_bracket[0] != TOKEN_RBRACKET then
-        return ([; pos,)  -- Syntax error
+        return ([; pos;)  -- Syntax error
     end_if
     
     -- Create index node
@@ -246,25 +236,25 @@ function parse_array_length(list tokens; numeric pos) returns list
     string token_value = token[1]
     
     if token_type != TOKEN_IDENTIFIER then
-        return ([; pos,)
+        return ([; pos;)
     end_if
     
     if token_value != "len" then
-        return ([; pos,)  -- Not a len() call
+        return ([; pos;)  -- Not a len() call
     end_if
     
     -- Check for '('
     numeric current_pos = pos + 1
     list lparen = tokens[current_pos]
     if lparen[0] != TOKEN_LPAREN then
-        return ([; pos,)  -- Syntax error
+        return ([; pos;)  -- Syntax error
     end_if
     
     -- Get array identifier
     current_pos = current_pos + 1
     list array_token = tokens[current_pos]
     if array_token[0] != TOKEN_IDENTIFIER then
-        return ([; pos,)  -- Syntax error
+        return ([; pos;)  -- Syntax error
     end_if
     
     string array_name = array_token[1]
@@ -273,7 +263,7 @@ function parse_array_length(list tokens; numeric pos) returns list
     current_pos = current_pos + 1
     list rparen = tokens[current_pos]
     if rparen[0] != TOKEN_RPAREN then
-        return ([; pos,)  -- Syntax error
+        return ([; pos;)  -- Syntax error
     end_if
     
     -- Create length node
@@ -305,14 +295,14 @@ function parse_array_declaration(list tokens; numeric pos) returns list
     numeric token_type = token[0]
     
     if token_type != TOKEN_LIST then
-        return ([; pos,)  -- Not array declaration
+        return ([; pos;)  -- Not array declaration
     end_if
     
     -- Get identifier
     numeric current_pos = pos + 1
     list id_token = tokens[current_pos]
     if id_token[0] != TOKEN_IDENTIFIER then
-        return ([; pos,)  -- Syntax error
+        return ([; pos;)  -- Syntax error
     end_if
     
     string var_name = id_token[1]
@@ -321,7 +311,7 @@ function parse_array_declaration(list tokens; numeric pos) returns list
     current_pos = current_pos + 1
     list assign_token = tokens[current_pos]
     if assign_token[0] != TOKEN_ASSIGN then
-        return ([; pos,)  -- Syntax error
+        return ([; pos;)  -- Syntax error
     end_if
     
     -- Parse array literal
@@ -331,7 +321,7 @@ function parse_array_declaration(list tokens; numeric pos) returns list
     numeric new_pos = array_result[1]
     
     if array_literal == [] then
-        return ([; pos,)  -- Failed to parse array literal
+        return ([; pos;)  -- Failed to parse array literal
     end_if
     
     -- Create declaration node
@@ -340,9 +330,7 @@ function parse_array_declaration(list tokens; numeric pos) returns list
     return ((declaration_node; new_pos))
 end_function
 
--- ============================================================================
 -- HELPER FUNCTIONS
--- ============================================================================
 
 -- ----------------------------------------------------------------------------
 -- get_array_node_type_name - Get string name of array node type
@@ -383,7 +371,7 @@ function get_array_elements(list array_node) returns list
     numeric node_type = array_node[0]
     
     if node_type != ARRAY_LITERAL then
-        return (())  -- Not an array literal
+        return ()  -- Not an array literal
     end_if
     
     return array_node[1]  -- element_list
@@ -431,6 +419,4 @@ function is_array_node(list node) returns numeric
     end_if
 end_function
 
--- ============================================================================
 -- END OF arrays_parser.mlp
--- ============================================================================

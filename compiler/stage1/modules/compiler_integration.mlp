@@ -1,12 +1,9 @@
--- ============================================================================
 -- MELP Compiler - Full Pipeline Integration
--- ============================================================================
 -- File: modules/compiler_integration.mlp
 -- Author: YZ_24 Part 1
 -- Date: 17 Aralık 2025
 -- Purpose: Orchestrate Lexer → Parser → CodeGen pipeline
 -- Status: Stage 1 Self-Hosting - Integration Module
--- ============================================================================
 --
 -- This module connects all compiler phases:
 -- 1. Lexer (tokenization)
@@ -14,11 +11,8 @@
 -- 3. CodeGen (LLVM IR emission)
 --
 -- Entry point: compile_source(string source_code) returns string llvm_ir
--- ============================================================================
 
--- ============================================================================
 -- CONSTANTS & CONFIGURATION
--- ============================================================================
 
 -- Note: Global variables not yet supported in Stage 0
 -- Using function-local state and return codes instead
@@ -29,9 +23,7 @@
 -- PHASE_PARSER_ERROR = 2
 -- PHASE_CODEGEN_ERROR = 3
 
--- ============================================================================
 -- ERROR HANDLING
--- ============================================================================
 
 -- Error counter (stored in function scope)
 -- Returns: 1 (always increments)
@@ -58,9 +50,7 @@ function log_verbose(string message; numeric verbose_mode) returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- PHASE 1: LEXER INTEGRATION
--- ============================================================================
 
 -- Tokenize entire source code
 -- Returns: list of tokens (or empty list on error)
@@ -85,9 +75,7 @@ function tokenize_source(string source) returns list
     return tokens
 end_function
 
--- ============================================================================
 -- PHASE 2: PARSER INTEGRATION
--- ============================================================================
 
 -- Parse token stream into AST
 -- Returns: AST root node (list representation)
@@ -115,9 +103,7 @@ function parse_tokens(list tokens) returns list
     return ast_root
 end_function
 
--- ============================================================================
 -- PHASE 3: CODEGEN INTEGRATION
--- ============================================================================
 
 -- Generate LLVM IR from AST
 -- Returns: LLVM IR string (or empty on error)
@@ -129,9 +115,7 @@ function codegen_ast(list ast) returns string
     return "define i64 @main() { entry: ret i64 0 }"
 end_function
 
--- ============================================================================
 -- MAIN PIPELINE
--- ============================================================================
 
 -- Complete compilation pipeline
 -- Input: source_code (string)
@@ -177,9 +161,7 @@ function compile_source(string source_code) returns string
     return llvm_ir
 end_function
 
--- ============================================================================
 -- UTILITY FUNCTIONS
--- ============================================================================
 
 -- These would manage global state, but Stage 0 doesn't support globals
 -- Kept for API compatibility with future versions
@@ -200,9 +182,7 @@ function reset_compiler() returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- TEST HARNESS
--- ============================================================================
 
 -- Test with minimal program
 function test_minimal_program() returns numeric
@@ -246,9 +226,7 @@ function test_arithmetic_program() returns numeric
     return 0
 end_function
 
--- ============================================================================
 -- MAIN ENTRY POINT
--- ============================================================================
 
 function main() returns numeric
     println("")

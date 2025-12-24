@@ -1,6 +1,4 @@
--- ============================================================================
 -- MELP Parser - Integration Test (All Components)
--- ============================================================================
 -- Stage 1 Self-Hosting: Parser in MELP
 -- Created: December 16; 2025 (YZ_06)
 -- Purpose: Test all parser components together
@@ -13,7 +11,6 @@
 --   - Enums (parser_enum.mlp)
 --   - Imports (parser_import.mlp)
 --   - Switch/Case (parser_switch.mlp)
--- ============================================================================
 
 function main() returns numeric
     println("========================================")

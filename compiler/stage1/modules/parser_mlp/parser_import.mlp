@@ -1,10 +1,7 @@
--- ============================================================================
 -- MELP Parser - Module Import/Include Parsing
--- ============================================================================
 -- Stage 1 Self-Hosting: Parser in MELP
 -- Created: December 16, 2025 (YZ_06)
 -- Purpose: Parse import/include statements
--- ============================================================================
 
 function main() returns numeric
     println("=== Module Import Parser Tests ===")

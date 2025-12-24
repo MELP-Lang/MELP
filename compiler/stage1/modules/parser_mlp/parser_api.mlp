@@ -1,6 +1,4 @@
--- ============================================================================
 -- MELP Parser - Public API Wrapper (Clean Interface)
--- ============================================================================
 -- File: modules/parser_mlp/parser_api.mlp
 -- Author: YZ_26 (Part 2 - Real Implementation)
 -- Date: 17 Aralık 2025
@@ -19,11 +17,8 @@
 -- Real Implementation:
 --   Calls parse_program() from parser.mlp
 --   Returns AST as string (Stage 0 limitation)
--- ============================================================================
 
--- ============================================================================
 -- PUBLIC API - Single Entry Point
--- ============================================================================
 
 -- Parse tokens and build AST
 -- Input: token_list (list) - List of tokens from lexer
@@ -52,6 +47,4 @@ function parser_api_parse(list token_list) returns string
     return ast
 end_function
 
--- ============================================================================
 -- NO MAIN - This is a library module, not executable
--- ============================================================================

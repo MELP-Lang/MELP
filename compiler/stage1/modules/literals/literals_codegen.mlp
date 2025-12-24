@@ -1,19 +1,14 @@
--- ============================================================================
 -- literals_codegen.mlp - Literal Value Code Generation for MELP Stage 1
--- ============================================================================
 -- Part of: Stage 1 Literals Module
 -- Purpose: Generate LLVM IR for literal values
 -- Architecture: Stateless; parameterized design
--- ============================================================================
 
 -- Import core utilities and literals parser
 -- import "compiler/stage1/modules/core/token_types.mlp"
 -- import "compiler/stage1/modules/core/type_mapper.mlp"
 -- import "compiler/stage1/modules/literals/literals_parser.mlp"
 
--- ============================================================================
 -- GLOBAL STRING LITERAL COUNTER
--- ============================================================================
 -- Note: This is a compile-time counter for generating unique string names
 -- It's incremented during code generation (single-pass compiler)
 -- This is acceptable as it's deterministic and not mutable runtime state
@@ -21,15 +16,13 @@
 const numeric INITIAL_STRING_COUNTER = 0
 -- TIER 1: Move to compiler context when context system is implemented
 
--- ============================================================================
 -- CODE GENERATION FUNCTIONS
--- ============================================================================
 
 -- ----------------------------------------------------------------------------
 -- codegen_integer_literal - Generate LLVM IR for integer literal
 -- ----------------------------------------------------------------------------
 -- Input:
---   literal: literal node [LIT_INTEGER; value; original_text,)
+--   literal: literal node [LIT_INTEGER; value; original_text;)
 --   result_var: variable name to store result (or "" for immediate)
 --   indent: indentation string for formatting
 -- Output:
@@ -44,8 +37,8 @@ const numeric INITIAL_STRING_COUNTER = 0
 --   Output: "42"  (just the value; no assignment)
 -- ----------------------------------------------------------------------------
 function codegen_integer_literal(list literal; string result_var; string indent) returns string
-    string value = literal[1,)
-    string original_text = literal[2,)
+    string value = literal[1;)
+    string original_text = literal[2;)
     
     -- If no result variable; return immediate value
     if result_var == "" then
@@ -70,7 +63,7 @@ end_function
 -- codegen_float_literal - Generate LLVM IR for float literal (TIER 1)
 -- ----------------------------------------------------------------------------
 -- Input:
---   literal: literal node [LIT_FLOAT; value; original_text,)
+--   literal: literal node [LIT_FLOAT; value; original_text;)
 --   result_var: variable name to store result
 --   indent: indentation string
 -- Output:
@@ -90,12 +83,12 @@ end_function
 -- codegen_string_literal - Generate LLVM IR for string literal
 -- ----------------------------------------------------------------------------
 -- Input:
---   literal: literal node [LIT_STRING; value; original_text,)
+--   literal: literal node [LIT_STRING; value; original_text;)
 --   result_var: variable name to store result (pointer to string)
 --   indent: indentation string
 --   string_id: unique ID for this string constant (for global naming)
 -- Output:
---   [llvm_code; global_declaration,)
+--   [llvm_code; global_declaration;)
 --   - llvm_code: code to get pointer to string
 --   - global_declaration: global string constant declaration
 --
@@ -111,8 +104,8 @@ end_function
 --   3. String type is i8* (pointer to character array)
 -- ----------------------------------------------------------------------------
 function codegen_string_literal(list literal; string result_var; string indent; numeric string_id) returns list
-    string value = literal[1,)
-    string original_text = literal[2,)
+    string value = literal[1;)
+    string original_text = literal[2;)
     
     -- Calculate string length (+1 for null terminator)
     numeric str_len = 0  -- TIER 1: Implement proper string length function
@@ -159,14 +152,14 @@ function codegen_string_literal(list literal; string result_var; string indent; 
     llvm_code = llvm_code + "\n"
     
     -- Return both code and global declaration
-    return (llvm_code; global_decl,)
+    return (llvm_code; global_decl;)
 end_function
 
 -- ----------------------------------------------------------------------------
 -- codegen_boolean_literal - Generate LLVM IR for boolean literal
 -- ----------------------------------------------------------------------------
 -- Input:
---   literal: literal node [LIT_BOOLEAN; value; original_text,)
+--   literal: literal node [LIT_BOOLEAN; value; original_text;)
 --   result_var: variable name to store result
 --   indent: indentation string
 -- Output:
@@ -185,7 +178,7 @@ end_function
 -- ----------------------------------------------------------------------------
 function codegen_boolean_literal(list literal; string result_var; string indent) returns string
     numeric value = literal[1]  -- 0 or 1
-    string original_text = literal[2,)
+    string original_text = literal[2;)
     
     -- If no result variable; return immediate value
     if result_var == "" then
@@ -222,13 +215,13 @@ end_function
 -- codegen_literal - Generate LLVM IR for any literal (dispatcher)
 -- ----------------------------------------------------------------------------
 -- Input:
---   literal: literal node [lit_type; value; original_text,)
+--   literal: literal node [lit_type; value; original_text;)
 --   result_var: variable name to store result
 --   indent: indentation string
 --   string_id: unique ID for string constants (optional; 0 if not string)
 -- Output:
 --   For integer/boolean: LLVM IR code string
---   For string: [llvm_code; global_declaration,)
+--   For string: [llvm_code; global_declaration;)
 --   For unknown: empty string
 --
 -- Example:
@@ -236,19 +229,19 @@ end_function
 --   Output: "  %x = add i64 0; 42  ; integer literal 42\n"
 --
 --   Input: [LIT_STRING; "hi"; "\"hi\""], "s"; "  "; 1
---   Output: [code; global,)
+--   Output: [code; global;)
 -- ----------------------------------------------------------------------------
 function codegen_literal(list literal; string result_var; string indent; numeric string_id) returns list
-    numeric lit_type = literal[0,)
+    numeric lit_type = literal[0;)
     
     if lit_type == LIT_INTEGER then
         string code = codegen_integer_literal(literal; result_var; indent)
-        return (code; "",)  -- No global declaration for integers
+        return (code; "";)  -- No global declaration for integers
     end_if
     
     if lit_type == LIT_FLOAT then
         string code = codegen_float_literal(literal; result_var; indent)
-        return (code; "",)  -- TIER 1
+        return (code; "";)  -- TIER 1
     end_if
     
     if lit_type == LIT_STRING then
@@ -257,22 +250,20 @@ function codegen_literal(list literal; string result_var; string indent; numeric
     
     if lit_type == LIT_BOOLEAN then
         string code = codegen_boolean_literal(literal; result_var; indent)
-        return (code; "",)  -- No global declaration for booleans
+        return (code; "";)  -- No global declaration for booleans
     end_if
     
     -- Unknown literal type
-    return (""; "",)
+    return (""; "";)
 end_function
 
--- ============================================================================
 -- HELPER FUNCTIONS
--- ============================================================================
 
 -- ----------------------------------------------------------------------------
 -- get_literal_llvm_type - Get LLVM type for literal
 -- ----------------------------------------------------------------------------
 -- Input:
---   literal: literal node [lit_type; value; original_text,)
+--   literal: literal node [lit_type; value; original_text;)
 -- Output:
 --   LLVM type string
 --
@@ -282,7 +273,7 @@ end_function
 --   get_literal_llvm_type([LIT_BOOLEAN; 1; "true"]) → "i1"
 -- ----------------------------------------------------------------------------
 function get_literal_llvm_type(list literal) returns string
-    numeric lit_type = literal[0,)
+    numeric lit_type = literal[0;)
     
     if lit_type == LIT_INTEGER then
         return "i64"
@@ -329,14 +320,14 @@ end_function
 -- Note: Strings cannot be used as immediate values (must use register)
 -- ----------------------------------------------------------------------------
 function get_literal_immediate_value(list literal) returns string
-    numeric lit_type = literal[0,)
+    numeric lit_type = literal[0;)
     
     if lit_type == LIT_INTEGER then
         return literal[1]  -- Return value as string
     end_if
     
     if lit_type == LIT_BOOLEAN then
-        numeric bool_val = literal[1,)
+        numeric bool_val = literal[1;)
         if bool_val == 1 then
             return "1"
         end_if
@@ -347,9 +338,7 @@ function get_literal_immediate_value(list literal) returns string
     return ""
 end_function
 
--- ============================================================================
 -- OPTIMIZATION FUNCTIONS (TIER 1)
--- ============================================================================
 
 -- ----------------------------------------------------------------------------
 -- optimize_literal_expression - Optimize literal expressions
@@ -372,7 +361,7 @@ end_function
 function optimize_literal_expression(list literals; string operator) returns list
     -- TIER 1: Implement constant folding
     -- For now; no optimization
-    return (())  -- Empty = no optimization
+    return ()  -- Empty = no optimization
 end_function
 
 -- ----------------------------------------------------------------------------
@@ -383,9 +372,7 @@ function fold_integer_operation(numeric left; numeric right; string op) returns 
     return 0
 end_function
 
--- ============================================================================
 -- STRING LITERAL MANAGEMENT
--- ============================================================================
 
 -- ----------------------------------------------------------------------------
 -- generate_string_id - Generate unique ID for string literal
@@ -427,24 +414,21 @@ function escape_string_for_llvm(string str) returns string
     return str
 end_function
 
--- ============================================================================
 -- END OF MODULE
--- ============================================================================
 -- Usage Example:
 --
 --   -- Integer literal
---   list int_lit = [LIT_INTEGER; "42"; "42",)
+--   list int_lit = [LIT_INTEGER; "42"; "42";)
 --   list result1 = codegen_literal(int_lit; "x"; "  "; 0)
 --   -- result1[0] = "  %x = add i64 0; 42  ; integer literal 42\n"
 --
 --   -- String literal
---   list str_lit = [LIT_STRING; "hello"; "\"hello\"",)
+--   list str_lit = [LIT_STRING; "hello"; "\"hello\"";)
 --   list result2 = codegen_literal(str_lit; "s"; "  "; 1)
 --   -- result2[0] = getelementptr instruction
 --   -- result2[1] = global string declaration
 --
 --   -- Boolean literal
---   list bool_lit = [LIT_BOOLEAN; 1; "true",)
+--   list bool_lit = [LIT_BOOLEAN; 1; "true";)
 --   list result3 = codegen_literal(bool_lit; "flag"; "  "; 0)
 --   -- result3[0] = "  %flag = add i1 0; 1  ; boolean literal true\n"
--- ============================================================================

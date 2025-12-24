@@ -1,6 +1,4 @@
--- ============================================================================
 -- MELP Stage 1 - Structs Parser Module
--- ============================================================================
 -- Author: YZ_10
 -- Date: 18 Aralık 2025
 -- Module: compiler/stage1/modules/structs/structs_parser.mlp
@@ -23,13 +21,10 @@
 -- Dependencies:
 --   - compiler/stage1/modules/core/token_types.mlp
 --
--- ============================================================================
 
 import "compiler/stage1/modules/core/token_types.mlp"
 
--- ============================================================================
 -- STRUCT NODE TYPE CONSTANTS
--- ============================================================================
 
 const numeric STRUCT_DEFINITION = 1      -- Struct definition (struct Person { ... })
 const numeric STRUCT_MEMBER = 2          -- Struct member (name: string)
@@ -37,9 +32,7 @@ const numeric STRUCT_INSTANTIATION = 3   -- Struct instance creation
 const numeric STRUCT_MEMBER_ACCESS = 4   -- Member access (person.name)
 const numeric STRUCT_MEMBER_ASSIGN = 5   -- Member assignment (person.name = "John")
 
--- ============================================================================
 -- STRUCT NODE STRUCTURES
--- ============================================================================
 
 -- Struct Definition Node:
 -- [STRUCT_DEFINITION; struct_name; member_list; member_count]
@@ -56,9 +49,7 @@ const numeric STRUCT_MEMBER_ASSIGN = 5   -- Member assignment (person.name = "Jo
 -- Struct Member Assignment Node:
 -- [STRUCT_MEMBER_ASSIGN; instance_name; member_name; value_expr]
 
--- ============================================================================
 -- PARSER FUNCTIONS (STATELESS)
--- ============================================================================
 
 -- ----------------------------------------------------------------------------
 -- parse_struct_definition
@@ -86,7 +77,7 @@ const numeric STRUCT_MEMBER_ASSIGN = 5   -- Member assignment (person.name = "Jo
 --   struct_node = result[0]
 --   next_pos = result[1]
 -- ----------------------------------------------------------------------------
-function parse_struct_definition(list tokens, numeric pos) returns list
+function parse_struct_definition(list tokens; numeric pos) returns list
     -- Expect: struct
     token = tokens[pos]
     if token[0] != TOKEN_STRUCT then
@@ -155,7 +146,7 @@ end_function
 --   - member_node: [STRUCT_MEMBER; member_name; member_type]
 --   - new_position: Position after parsing
 -- ----------------------------------------------------------------------------
-function parse_struct_member(list tokens, numeric pos) returns list
+function parse_struct_member(list tokens; numeric pos) returns list
     -- Expect: type (numeric, string, boolean, list, or struct type)
     token = tokens[pos]
     
@@ -216,7 +207,7 @@ end_function
 --
 -- Note: This is called when we detect "StructType identifier =" pattern
 -- ----------------------------------------------------------------------------
-function parse_struct_instantiation(list tokens, numeric pos) returns list
+function parse_struct_instantiation(list tokens; numeric pos) returns list
     -- Expect: struct type (identifier)
     token = tokens[pos]
     if token[0] != TOKEN_IDENTIFIER then
@@ -320,7 +311,7 @@ end_function
 --
 -- Note: For now, single-level access. Nested access in TIER 1.
 -- ----------------------------------------------------------------------------
-function parse_member_access(list tokens, numeric pos) returns list
+function parse_member_access(list tokens; numeric pos) returns list
     -- Expect: instance name (identifier)
     token = tokens[pos]
     if token[0] != TOKEN_IDENTIFIER then
@@ -369,7 +360,7 @@ end_function
 --   - assign_node: [STRUCT_MEMBER_ASSIGN; instance_name; member_name; value_expr]
 --   - new_position: Position after parsing
 -- ----------------------------------------------------------------------------
-function parse_member_assignment(list tokens, numeric pos) returns list
+function parse_member_assignment(list tokens; numeric pos) returns list
     -- Parse member access first
     result = parse_member_access(tokens, pos)
     access_node = result[0]
@@ -401,9 +392,7 @@ function parse_member_assignment(list tokens, numeric pos) returns list
     return ((assign_node, pos))
 end_function
 
--- ============================================================================
 -- HELPER FUNCTIONS
--- ============================================================================
 
 -- ----------------------------------------------------------------------------
 -- get_struct_name
@@ -563,6 +552,4 @@ function get_struct_node_type_name(numeric node_type) returns string
     return "UNKNOWN"
 end_function
 
--- ============================================================================
 -- END OF MODULE
--- ============================================================================

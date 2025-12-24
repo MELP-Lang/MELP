@@ -1,6 +1,4 @@
--- ============================================================================
 -- MELP Stage 1 - Functions Module Test Suite
--- ============================================================================
 -- YZ_04 - December 18; 2025
 -- Purpose: Test function parser and codegen modules
 --
@@ -14,7 +12,6 @@
 --
 -- LOCATION: compiler/stage1/modules/functions/test_functions.mlp
 -- (Following YZ_03 pattern - tests inside module directory)
--- ============================================================================
 
 import "functions_parser.mlp"
 import "functions_codegen.mlp"
@@ -129,9 +126,7 @@ function main() returns numeric
     end_if
 end_function
 
--- ============================================================================
 -- TEST FUNCTIONS
--- ============================================================================
 
 -- Test 1: Parse simple function declaration (no params)
 -- Code: function main() returns numeric
@@ -195,7 +190,7 @@ function test_parse_function_with_params() returns list
     -- Create tokens
     list tokens = []
     
-    -- function add ( numeric a , numeric b ) returns numeric ...
+    -- function add ( numeric a ; numeric b ) returns numeric ...
     list tok1 = [TOKEN_FUNCTION; "function"; 1; 1]
     list tok2 = [TOKEN_IDENTIFIER; "add"; 1; 10]
     list tok3 = [TOKEN_LPAREN; "("; 1; 13]
@@ -418,6 +413,4 @@ function test_codegen_function_call() returns list
     return ((1))
 end_function
 
--- ============================================================================
 -- END OF TESTS
--- ============================================================================
