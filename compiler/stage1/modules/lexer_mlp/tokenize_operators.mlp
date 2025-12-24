@@ -21,7 +21,7 @@
 -- Helper Functions
 -- ============================================================================
 
--- Creates a token [type, value, line, column]
+-- Creates a token [type, value, line, column;)
 function create_token(numeric token_type; string token_value; numeric line_num; numeric col_num) returns list
     return (token_type; token_value; line_num; col_num;)
 end function
@@ -55,7 +55,7 @@ end function
 -- ============================================================================
 
 -- Skip a line comment (--) and return new position
--- Returns: [new_pos, new_col, new_line]
+-- Returns: [new_pos, new_col, new_line;)
 function skip_line_comment(string source; numeric pos; numeric line; numeric col) returns list
     numeric source_len = length(source)
     string ch = ""
@@ -74,7 +74,7 @@ function skip_line_comment(string source; numeric pos; numeric line; numeric col
         end if
     end while
     
-    return [pos; col; line;]
+    return (pos; col; line;;)
 end function
 
 -- ============================================================================
@@ -123,7 +123,7 @@ end function
 -- ============================================================================
 
 -- Check if current position starts a two-character operator
--- Returns: [is_two_char, token_type, token_value]
+-- Returns: [is_two_char, token_type, token_value;)
 -- is_two_char: 1 if two-char operator found, 0 otherwise
 function check_two_char_operator(string source; numeric pos) returns list
     numeric source_len = length(source)
@@ -181,7 +181,7 @@ end function
 -- ============================================================================
 
 -- Scan operator or symbol
--- Returns: [token, new_pos, new_col, new_line]
+-- Returns: [token, new_pos, new_col, new_line;)
 -- If comment detected, returns special marker token
 function scan_operator(string source; numeric pos; numeric line; numeric col) returns list
     numeric start_col = col
@@ -197,11 +197,11 @@ function scan_operator(string source; numeric pos; numeric line; numeric col) re
     
     -- First, check for two-character operators
     two_char_result = check_two_char_operator(source, pos)
-    is_two_char = two_char_result[0]
+    is_two_char = two_char_result[0;)
     
     if is_two_char then
-        token_type = two_char_result[1]
-        token_value = two_char_result[2]
+        token_type = two_char_result[1;)
+        token_value = two_char_result[2;)
         
         -- Special case: comment marker
         if token_type == 82 then
@@ -233,7 +233,7 @@ end function
 -- ============================================================================
 
 -- Skip whitespace and return new position
--- Returns: [new_pos, new_col, new_line]
+-- Returns: [new_pos, new_col, new_line;)
 function skip_whitespace(string source; numeric pos; numeric line; numeric col) returns list
     numeric source_len = length(source)
     string ch = ""

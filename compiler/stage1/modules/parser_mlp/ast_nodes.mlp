@@ -100,17 +100,17 @@ end_struct
 
 -- Create a new ASTNode
 function create_ast_node(numeric ntype; numeric ln; numeric col) returns list
-    return [ntype; ln; col;]
+    return (ntype; ln; col;;)
 end_function
 
 -- Create a new ExprNode
 function create_expr_node(numeric etype; string val; numeric ln; numeric col) returns list
-    return [1; ln; col; etype; val;]  -- NODE_EXPRESSION = 1
+    return (1; ln; col; etype; val;]  -- NODE_EXPRESSION = 1
 end_function
 
 -- Create a new StmtNode
 function create_stmt_node(numeric stype; numeric ln; numeric col) returns list
-    return [2; ln; col; stype;]  -- NODE_STATEMENT = 2
+    return (2; ln; col; stype;]  -- NODE_STATEMENT = 2
 end_function
 
 -- Return AST node type as string (for debugging)
