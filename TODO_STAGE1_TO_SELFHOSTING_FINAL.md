@@ -416,7 +416,7 @@ git push origin v1.0.0-selfhosting
 | **Phase 0** | **String Return Bug Fix** | ✅ | **YZ_07** |
 | **Phase 1** | **Task 1.1-1.6: Syntax Test & Analiz** | ✅ | **YZ_13** |
 | **Phase 1** | **Task 1.7: Geriye Kalan Hataları Düzelt** | ✅ | **YZ_15** |
-| Phase 2 | Task 2.1: Compiler Orchestrator | ⬜ | - |
+| **Phase 2** | **Task 2.1: Build-time Concat Pipeline** | ✅ | **YZ_16** |
 | Phase 2 | Task 2.2: Pipeline Test | ⬜ | - |
 | Phase 3 | Task 3.1: Gen1 → Gen2 | ⬜ | - |
 | Phase 3 | Task 3.2: Convergence | ⬜ | - |
@@ -424,10 +424,11 @@ git push origin v1.0.0-selfhosting
 | Phase 4 | Task 4.2: Dokümantasyon | ⬜ | - |
 | Phase 4 | Task 4.3: Git Tag | ⬜ | - |
 
-**OVERALL:** ✅✅✅✅✅✅⬜⬜⬜⬜⬜⬜⬜ 6/13 tasks (~46%)
+**OVERALL:** ✅✅✅✅✅✅✅⬜⬜⬜⬜⬜⬜ 7/13 tasks (~54%)
 
 **🟢 Phase 0 TAMAMLANDI!**  
-**🟢 Phase 1 TAMAMLANDI!** %93.1 başarı oranı! Artık Phase 2'ye geçildi.
+**🟢 Phase 1 TAMAMLANDI!** %93.1 başarı oranı!  
+**🟡 Phase 2:** Task 2.1 tamamlandı, Task 2.2 devam ediyor
 
 ---
 
