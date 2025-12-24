@@ -49,7 +49,7 @@ function char_code(string c) returns numeric
     if c == "9" then return 57 end if
     if c == "." then return 46 end if
     return 34
-end function
+end_function
 
 -- Number Literal Tokenization
 
@@ -105,7 +105,7 @@ function scan_number(string source; numeric pos; numeric line; numeric col) retu
     
     list token = create_token(30; num_value; start_line; start_col)
     return (token; pos; col;)
-end function
+end_function
 
 -- String Literal Tokenization
 
@@ -188,7 +188,7 @@ function scan_string(string source; numeric pos; numeric line; numeric col) retu
     
     list token = create_token(31; str_value; start_line; start_col)
     return (token; pos; col;)
-end function
+end_function
 
 -- Helper Functions
 
@@ -224,8 +224,8 @@ function is_digit(string ch) returns boolean
         return 1
     end if
     return 0
-end function
+end_function
 
 function main() returns numeric
     return 0
-end function
+end_function

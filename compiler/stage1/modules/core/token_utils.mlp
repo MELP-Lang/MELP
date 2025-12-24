@@ -1,0 +1,24 @@
+-- token_utils.mlp - Token Utility Functions
+-- Part of: Stage 1 Core Utilities Module
+-- Purpose: Shared utility functions for token manipulation
+
+-- Create a token tuple
+-- Returns: (token_type; token_value; line_num; col_num;)
+function create_token(numeric token_type; string token_value; numeric line_num; numeric col_num) returns list
+    return (token_type; token_value; line_num; col_num;)
+end_function
+
+-- Create empty results for two-character operators
+function create_empty_two_char_result() returns list
+    return (0; "";)
+end_function
+
+-- Create empty position result
+function create_empty_position_result() returns list
+    return (0; 0; 0;)
+end_function
+
+-- Create empty token
+function create_empty_token() returns list
+    return (0; ""; 0; 0;)
+end_function

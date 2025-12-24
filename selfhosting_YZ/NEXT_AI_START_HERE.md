@@ -1,44 +1,33 @@
 # 🎯 GÖREVLİ YZ BAŞLANGIÇ NOKTASI
 
 **Son Güncelleme:** 24 Aralık 2025  
-**Durum:** 🟢 YZ_17 Göreve Hazır!  
-**Önceki YZ:** YZ_16 (Build-time Concat Pipeline Oluşturuldu!)  
-**Sen:** selfhosting_YZ_17
+**Durum:** 🟡 YZ_18 Göreve Hazır!  
+**Önceki YZ:** YZ_17 (Pipeline Test - Partial Success)  
+**Sen:** selfhosting_YZ_18
 
 ---
 
-## ✅ YZ_16 BAŞARISI!
+## ✅ YZ_17 SONUÇLARI
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  🎉 BUILD-TIME CONCAT PIPELINE OLUŞTURULDU!                │
+│  ⚠️ PIPELINE ÇALIŞIYOR AMA GEN1 INCOMPLETE                 │
 │                                                             │
-│  Script: scripts/build_compiler.sh                         │
-│  Birleştirilen: 35 modül → 8413 satır                     │
-│  Derleme: Stage 0 → compiler_gen1.ll (6.1KB)              │
+│  Başarılar:                                                  │
+│  ✅ Stage 0 compiler güncellendi                           │
+│  ✅ 24 dosyada syntax hatası düzeltildi                    │
+│  ✅ Duplicate filter eklendi (func/const/main)            │
+│  ✅ Concat dosyası %42 küçüldü (8442→4874 satır)          │
+│  ✅ Gen1.ll üretildi (6 fonksiyon)                        │
 │                                                             │
-│  Avantajlar:                                                │
-│  ✅ Modüler kaynak korundu                                │
-│  ✅ Import olmadan çalışıyor                              │
-│  ✅ Build-time concat (sıfır overhead)                    │
-│  ✅ Stage 0 ile uyumlu                                    │
+│  Sorun:                                                      │
+│  ❌ Stage 0 sadece 6/191 fonksiyon derleyebildi (%3)      │
+│  ❌ Parser/Codegen modülleri derlenemedi                   │
+│  ❌ Gen1 incomplete - compiler çalışamaz                   │
 │                                                             │
-│  Rapor: YZ_16_TAMAMLANDI.md                                │
-│  Süre: ~30 dakika                                          │
-│                                                             │
-│  🎯 SONUÇ: Build pipeline hazır, Gen1 üretiliyor!         │
+│  Rapor: YZ_17_TAMAMLANDI.md                                │
+│  Süre: ~2 saat                                             │
 └─────────────────────────────────────────────────────────────┘
-```
-
----
-
-## ✅ YZ_15 BAŞARISI (Önceki)
-
-```
-🎉 %93.1 BAŞARI ORANI - 95/102 dosya başarıyla compile oluyor!
-✅ 11 dosyada virgül → noktalı virgül
-✅ 841 uzun yorum satırı temizlendi
-✅ 32 tuple syntax: (n,) → <n;>
 ```
 
 ---
@@ -46,138 +35,69 @@
 ## 📍 ŞİMDİKİ DURUM
 
 **Branch:** `TODO_STAGE1_TO_SELFHOSTING_FINAL`  
-**İlerleme:** 7/13 task (%54)
+**İlerleme:** 7.5/13 task (%58)
 
-**Tamamlanan:** Phase 0 ✅ | Phase 1 ✅ | Phase 2 Task 2.1 ✅  
-**Aktif Görev:** Phase 2 Task 2.2 - Pipeline Test
+**Tamamlanan:** Phase 0 ✅ | Phase 1 ✅ | Phase 2 Task 2.1 ✅ | Phase 2 Task 2.2 ⚠️  
+**Aktif Görev:** **KARAR NOKTASI - Stage 0 güçlendirilmeli!**
 
 ---
 
-**Phase 2, Task 2.2: Pipeline Test**
+## 🎯 YZ_18 İÇİN GÖREV: Stage 0'ı Güçlendir
 
-### 📊 MEVCUT DURUM:
+**Gerekçe:**
+- TODO: "Stage 0 %100 tamamlanana kadar geliştir" (Mastermind Kararı)
+- YZ_17: Stage 0 sadece 6/191 fonksiyon derleyebildi
+- **List indexing eksik** - `list[0]` syntax desteklenmiyor
+- **Parser buffer yetersiz** - Çok fonksiyon okuyamıyor
 
-**YZ_16 Başarısı:** Build-time concat pipeline oluşturuldu!
-- ✅ scripts/build_compiler.sh çalışıyor
-- ✅ 35 modül → 8413 satır birleştirildi
-- ✅ compiler_gen1.ll üretildi (6.1KB)
-- ⚠️ Stage 0 sadece 3 fonksiyon derledi (eksiklikler var)
-
-**Sorun:** Stage 0 yetersiz, Stage 1 modüllerinin çoğu derlenmiyor
-- List/Array işlemleri eksik
-- While/For codegen eksik
-- Struct desteği yok (list as array kullanılabilir)
-
-### 🎯 YZ_17 İÇİN GÖREV:
-
-**Hedef:** Basit bir MELP programını Gen1 ile derleyebilmek
-
-**ÖNCE:** Stage 0'ı tamamla (Phase 0 görevleri)
-- Task 0.1: While/For Codegen Fix
-- Task 0.2: String Karakter Erişimi
-- Task 0.3: String Concat
-
-**SONRA:** Pipeline test
-- compiler_gen1.ll → test.mlp → test.ll
-- lli test.ll (42 döndürmeli)
+**Hedef:** Stage 0 ile en az 50 fonksiyon derleyebilmek
 
 ### Yapılacaklar:
 
-**Adım 1:** Stage 0 eksikliklerini tespit et
+1. **List Indexing Ekle**
+   - C kodu: `compiler/stage0/modules/array/array_parser.c`
+   - List literal: `(a; b; c;)` → Index: `my_list[0]`
+   
+2. **Parser Buffer Artır**
+   - Daha fazla fonksiyon okuyabilmeli
+   - Test: 10 → 20 → 50 fonksiyon
+
+3. **Test & Validate**
+   - İlk 10 fonksiyon
+   - İlk 20 fonksiyon  
+   - İlk 50 fonksiyon
+   - Hedef: 100+ fonksiyon
+
+---
+
+## 📋 HIZLI BAŞLANGIÇ
+
 ```bash
 cd /home/pardus/projeler/MLP/MLP
 
-# Hangi fonksiyonlar derlendi?
-grep "^define " build/compiler_gen1.ll
+# Stage 0 modüllerini gör
+ls -la compiler/stage0/modules/
 
-# Hangi fonksiyonlar derlenemedi?
-grep "^function " build/temp/compiler_concat.mlp | wc -l
+# Array/List modülünü bul
+find compiler/stage0/modules -name "*array*" -o -name "*list*"
+
+# Test: İlk 10 fonksiyon derlenebiliyor mu?
+grep -n "^function " build/temp/compiler_concat.mlp | sed -n '1,10p'
+
+# İlk 10 fonksiyonu extract et ve test et
+# ...
 ```
-
-**Adım 2:** Kritik eksiklikleri düzelt (Phase 0)
-- While codegen (test_while.mlp ile test et)
-- String operations (test_string_ops.mlp)
-- List/Array basic operations
-
-**Adım 3:** Concat'i yeniden derle
-```bash
-./scripts/build_compiler.sh --compile
-```
-
-**Adım 4:** Basit program testi
-```bash
-# Basit test
-echo 'function main() returns numeric
-    return 42
-end_function' > test_simple.mlp
-
-# Gen1 ile derle (hedef)
-lli build/compiler_gen1.ll test_simple.mlp test.ll
-lli test.ll
-```
-
-### Başarı Kriteri:
-
-- [ ] Stage 0 while/for/string operasyonları çalışıyor
-- [ ] Concat dosyasından 20+ fonksiyon derleniyor
-- [ ] Basit test programı Gen1 ile derlenebiliyor
-- [ ] test.ll çalıştırılıyor ve 42 döndürüyor
-- [ ] YZ_17_TAMAMLANDI.md raporu
-
 
 ---
 
 ## 📚 OKUMAN GEREKENLER
 
-1. **selfhosting_YZ/YZ_16_TAMAMLANDI.md** - **ÖNCE BUNU OKU!**
-2. Build-time concat pipeline nasıl çalışıyor
-3. **pmlp_kesin_sozdizimi.md** - Syntax referansı (HER ZAMAN)
-4. **TODO_STAGE1_TO_SELFHOSTING_FINAL.md** - Phase 0 görevleri
+1. **selfhosting_YZ/YZ_17_TAMAMLANDI.md** - **ÖNCE BUNU OKU!**
+2. **TODO_STAGE1_TO_SELFHOSTING_FINAL.md** - Mastermind Kararı
+3. **pmlp_kesin_sozdizimi.md** - Syntax referansı
 
 ---
 
-## ⚠️ KURALLAR
+**İlerleme:** %58 tamamlandı  
+**Hedef:** Self-hosting!
 
-- Tüm dosyaları sistematik test et
-- Pattern tespit et ve toplu düzelt
-- Her düzeltmeden sonra test et
-- "Detaylandırmamı ister misin?" YASAK
-- Phase/Task icat etme
-- Raporu `selfhosting_YZ/YZ_15_TAMAMLANDI.md` olarak yaz
-
----
-
-## 🚀 HIZLI BAŞLANGIÇ
-
-```bash
-cd /home/pardus/projeler/MLP/MLP
-
-# Build pipeline'ı test et
-./scripts/build_compiler.sh --compile
-
-# Üretilen Gen1'i kontrol et
-ls -lh build/compiler_gen1.ll
-grep "^define " build/compiler_gen1.ll | wc -l
-
-# Kaç fonksiyon var concat'te?
-grep "^function " build/temp/compiler_concat.mlp | wc -l
-
-# Stage 0 eksikliklerini test et
-echo 'function test() returns numeric
-    numeric i = 0
-    while i < 10
-        i = i + 1
-    end_while
-    return i
-end_function' > test_while_simple.mlp
-
-compiler/stage0/modules/functions/functions_compiler \
-    test_while_simple.mlp test_while.ll && echo "✅ While çalışıyor!" || echo "❌ While eksik!"
-```
-
----
-
-**🎉 YZ_16 BAŞARIYLA TAMAMLANDI!** 🎉  
-**📋 Sonraki görev: STAGE 0 EKSİKLERİNİ TAMAMLA!** 📋
-
-**Hazır mısın YZ_17?** 🚀

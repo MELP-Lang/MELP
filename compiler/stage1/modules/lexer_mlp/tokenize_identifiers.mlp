@@ -67,7 +67,7 @@ function is_alpha(string ch) returns boolean
     if ch == "Y" then return 1 end if
     if ch == "Z" then return 1 end if
     return 0
-end function
+end_function
 
 function is_digit(string ch) returns boolean
     if ch == "0" then return 1 end if
@@ -81,14 +81,14 @@ function is_digit(string ch) returns boolean
     if ch == "8" then return 1 end if
     if ch == "9" then return 1 end if
     return 0
-end function
+end_function
 
 function is_underscore(string ch) returns boolean
     if ch == "_" then
         return 1
     end if
     return 0
-end function
+end_function
 
 function is_identifier_start(string ch) returns boolean
     boolean ch_is_alpha = 0
@@ -105,7 +105,7 @@ function is_identifier_start(string ch) returns boolean
     end if
     
     return 0
-end function
+end_function
 
 function is_identifier_char(string ch) returns boolean
     boolean ch_is_alpha = 0
@@ -128,7 +128,7 @@ function is_identifier_char(string ch) returns boolean
     end if
     
     return 0
-end function
+end_function
 
 -- Keyword Detection
 
@@ -168,14 +168,14 @@ function get_keyword_type(string word) returns numeric
     
     -- Not a keyword - it's an identifier
     return 32
-end function
+end_function
 
 -- Identifier Tokenization
 
 -- Creates a token [type, value, line, column]
 function create_token(numeric token_type; string token_value; numeric line_num; numeric col_num) returns list
     return (token_type; token_value; line_num; col_num;)
-end function
+end_function
 
 -- Scan an identifier or keyword
 -- Returns: [token, new_pos, new_col]
@@ -206,10 +206,10 @@ function scan_identifier(string source; numeric pos; numeric line; numeric col) 
     
     list token = create_token(token_type; id_value; start_line; start_col)
     return (token; pos; col;)
-end function
+end_function
 
 -- Main (for testing)
 
 function main() returns numeric
     return 0
-end function
+end_function

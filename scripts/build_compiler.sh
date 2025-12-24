@@ -28,10 +28,11 @@ mkdir -p "$TEMP_DIR"
 # Define module order for concatenation
 # Order matters: dependencies first
 MODULES=(
-    # Core types and tokens
+    # Core types and tokens  
     "core/token_types.mlp"
+    "core/token_utils.mlp"
     
-    # Lexer
+    # Lexer (SADECE ana modüller, test dosyaları DEĞİL!)
     "lexer_mlp/char_utils.mlp"
     "lexer_mlp/tokenize_literals.mlp"
     "lexer_mlp/tokenize_operators.mlp"
@@ -54,6 +55,10 @@ MODULES=(
     "parser_mlp/parser_import.mlp"
     "parser_mlp/parser.mlp"
     
+    # Arrays (Parser + CodeGen)
+    "arrays/arrays_parser.mlp"
+    "arrays/arrays_codegen.mlp"
+    
     # Code Generator
     "codegen_mlp/type_mapper.mlp"
     "codegen_mlp/symbol_table.mlp"
@@ -66,6 +71,7 @@ MODULES=(
     "codegen_mlp/codegen_while.mlp"
     "codegen_mlp/codegen_for.mlp"
     "codegen_mlp/codegen_control.mlp"
+    "codegen_mlp/codegen_arrays.mlp"
     "codegen_mlp/codegen_functions.mlp"
     "codegen_mlp/codegen_stmt.mlp"
     "codegen_mlp/codegen_api.mlp"
@@ -109,6 +115,54 @@ for MODULE in "${MODULES[@]}"; do
     # Append module content (skip import statements)
     grep -v "^import " "$MODULE_PATH" >> "$OUTPUT_FILE" || true
 done
+
+echo -e "${YELLOW}🔧 Removing duplicate function definitions...${NC}"
+
+# Simple Python script to remove duplicate functions
+cat > "$TEMP_DIR/remove_duplicates.py" << 'PYEOF'
+import sys
+import re
+
+seen_functions = set()
+seen_consts = set()
+skip = False
+
+for line in sys.stdin:
+    # Skip duplicate const declarations
+    if line.startswith('const '):
+        m = re.match(r'const\s+\w+\s+([A-Z_][A-Z0-9_]*)', line)
+        if m:
+            const_name = m.group(1)
+            if const_name in seen_consts:
+                continue  # Skip duplicate const
+            seen_consts.add(const_name)
+    
+    # Handle functions
+    if line.startswith('function '):
+        m = re.match(r'function\s+([a-zA-Z_][a-zA-Z0-9_]*)', line)
+        if m:
+            name = m.group(1)
+            # Skip duplicate functions
+            if name in seen_functions:
+                skip = True
+                continue
+            # Skip main() functions (test functions, not needed in library)
+            if name == 'main':
+                skip = True
+                continue
+            seen_functions.add(name)
+    
+    if line.strip() == 'end_function':
+        if skip:
+            skip = False
+            continue
+    
+    if not skip:
+        sys.stdout.write(line)
+PYEOF
+
+cat "$OUTPUT_FILE" | python3 "$TEMP_DIR/remove_duplicates.py" > "$OUTPUT_FILE.tmp"
+mv "$OUTPUT_FILE.tmp" "$OUTPUT_FILE"
 
 echo -e "${GREEN}✅ Concatenation complete!${NC}"
 echo -e "   Output: $OUTPUT_FILE"

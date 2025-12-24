@@ -1,9 +1,9 @@
 function create_token(numeric t; string v; numeric l; numeric c) returns list
     return (t; v; l; c;;)
-end function
+end_function
 
 function main() returns numeric
     numeric x = 32
     list tok = create_token(x; "var"; 1; 5)
     return 0
-end function
+end_function

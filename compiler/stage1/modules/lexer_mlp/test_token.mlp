@@ -19,4 +19,4 @@ function main() returns numeric
     println("Value: myVar")
     
     return 0
-end function
+end_function

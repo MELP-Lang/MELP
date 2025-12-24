@@ -3,17 +3,17 @@
 -- Token constructor
 function create_token(numeric token_type; string token_value; numeric line_num; numeric col_num) returns list
     return (token_type; token_value; line_num; col_num;;)
-end function
+end_function
 
 -- Get token type
 function get_token_type(list token) returns numeric
     return token(0)
-end function
+end_function
 
 -- Get token value
 function get_token_value(list token) returns string
     return token(1)
-end function
+end_function
 
 function main() returns numeric
     -- Token type constants
@@ -34,4 +34,4 @@ function main() returns numeric
     println("Token test passed!")
     
     return 0
-end function
+end_function

@@ -10,7 +10,7 @@ function is_digit(string c) returns boolean
     if c == "8" then return true end if
     if c == "9" then return true end if
     return false
-end function
+end_function
 
 function main() returns numeric
     boolean result1 = is_digit("5")
@@ -25,4 +25,4 @@ function main() returns numeric
     end if
     
     return 0
-end function
+end_function

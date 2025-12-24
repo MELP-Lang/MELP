@@ -8,8 +8,8 @@ function test() returns numeric
     end while
     
     return i
-end function
+end_function
 
 function main() returns numeric
     return test()
-end function
+end_function

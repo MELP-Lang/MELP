@@ -20,22 +20,22 @@
 -- Creates a token [type, value, line, column;)
 function create_token(numeric token_type; string token_value; numeric line_num; numeric col_num) returns list
     return (token_type; token_value; line_num; col_num;)
-end function
+end_function
 
 -- Helper: Create empty two-char result
 function create_empty_two_char_result() returns list
     return (0; 0; "";)
-end function
+end_function
 
 -- Helper: Create empty position result
 function create_empty_position_result() returns list
     return (0; 0; 0;)
-end function
+end_function
 
 -- Helper: Create empty token
 function create_empty_token() returns list
     return (0; ""; 0; 0;)
-end function
+end_function
 
 -- Check if character is whitespace
 function is_whitespace(string ch) returns boolean
@@ -44,7 +44,7 @@ function is_whitespace(string ch) returns boolean
     if ch == "\n" then return 1 end if
     if ch == "\r" then return 1 end if
     return 0
-end function
+end_function
 
 -- Comment Handling
 
@@ -69,7 +69,7 @@ function skip_line_comment(string source; numeric pos; numeric line; numeric col
     end while
     
     return (pos; col; line;;)
-end function
+end_function
 
 -- Single-Character Operator/Symbol Detection
 
@@ -108,7 +108,7 @@ function get_single_char_token_type(string ch) returns numeric
     if ch == "!" then return 54 end if  -- NOT (may be upgraded to NOT_EQUALS)
     
     return 0  -- Not a recognized single-char token
-end function
+end_function
 
 -- Multi-Character Operator Detection
 
@@ -164,7 +164,7 @@ function check_two_char_operator(string source; numeric pos) returns list
     end if
     
     return (0; 0; "";)  -- Not a two-char operator
-end function
+end_function
 
 -- Main Operator/Symbol Tokenization
 
@@ -214,7 +214,7 @@ function scan_operator(string source; numeric pos; numeric line; numeric col) re
     -- Unknown character - return UNKNOWN token
     result_token = create_token(81; ch; start_line; start_col)
     return (result_token; pos + 1; col + 1; line;)
-end function
+end_function
 
 -- Whitespace Skipping
 
@@ -244,10 +244,10 @@ function skip_whitespace(string source; numeric pos; numeric line; numeric col) 
     end while
     
     return (pos; col; line;)
-end function
+end_function
 
 -- Main (for testing)
 
 function main() returns numeric
     return 0
-end function
+end_function

@@ -3,7 +3,7 @@ function is_digit(string ch) returns boolean
         return 1
     end if
     return 0
-end function
+end_function
 
 function scan_number() returns string
     numeric pos = 0
@@ -25,10 +25,10 @@ function scan_number() returns string
     end while
     
     return num_value
-end function
+end_function
 
 function main() returns numeric
     string result = ""
     result = scan_number()
     return 0
-end function
+end_function
