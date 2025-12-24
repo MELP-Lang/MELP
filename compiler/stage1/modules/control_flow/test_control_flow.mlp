@@ -253,7 +253,7 @@ function test_codegen_if() returns numeric
     print "\n=== TEST 6: CodeGen If Statement ==="
     
     -- Create simple if statement structure
-    -- if_stmt: [CTRL_IF, condition, has_else=0, then_body=[], else_body=[]]
+    -- if_stmt: [CTRL_IF; condition; has_else=0; then_body=[], else_body=[]]
     list condition = [EXPR_LITERAL; "1"]  -- Simple true condition
     list if_stmt = [CTRL_IF; condition; 0; []; []]
     
@@ -298,7 +298,7 @@ function test_codegen_while() returns numeric
     print "\n=== TEST 8: CodeGen While Statement ==="
     
     -- Create while statement structure
-    -- while_stmt: [condition, body]
+    -- while_stmt: [condition; body]
     list condition = [EXPR_LITERAL; "1"]  -- Simple condition
     list while_stmt = [condition; []]
     
@@ -321,7 +321,7 @@ function test_codegen_for() returns numeric
     print "\n=== TEST 9: CodeGen For Statement ==="
     
     -- Create for statement structure
-    -- for_stmt: [iterator, start_expr, end_expr, label, body]
+    -- for_stmt: [iterator; start_expr; end_expr; label; body]
     list start_expr = [EXPR_LITERAL; "0"]
     list end_expr = [EXPR_LITERAL; "10"]
     list for_stmt = ["i"; start_expr; end_expr; ""; []]

@@ -167,8 +167,8 @@ end_function
 function test_parse_numeric_var() returns list
     -- Create tokens: numeric x
     list tokens = [;)
-    tokens = tokens + [[TOKEN_NUMERIC, "numeric"];)
-    tokens = tokens + [[TOKEN_IDENTIFIER, "x"];)
+    tokens = tokens + [[TOKEN_NUMERIC; "numeric"];)
+    tokens = tokens + [[TOKEN_IDENTIFIER; "x"];)
     
     -- Parse
     list result = parse_variable_declaration(tokens, 0)
@@ -207,8 +207,8 @@ end_function
 function test_parse_string_var() returns list
     -- Create tokens: string name
     list tokens = [;)
-    tokens = tokens + [[TOKEN_STRING_TYPE, "string"];)
-    tokens = tokens + [[TOKEN_IDENTIFIER, "name"];)
+    tokens = tokens + [[TOKEN_STRING_TYPE; "string"];)
+    tokens = tokens + [[TOKEN_IDENTIFIER; "name"];)
     
     -- Parse
     list result = parse_variable_declaration(tokens, 0)
@@ -243,8 +243,8 @@ end_function
 function test_parse_boolean_var() returns list
     -- Create tokens: boolean flag
     list tokens = [;)
-    tokens = tokens + [[TOKEN_BOOLEAN, "boolean"];)
-    tokens = tokens + [[TOKEN_IDENTIFIER, "flag"];)
+    tokens = tokens + [[TOKEN_BOOLEAN; "boolean"];)
+    tokens = tokens + [[TOKEN_IDENTIFIER; "flag"];)
     
     -- Parse
     list result = parse_variable_declaration(tokens, 0)
@@ -279,10 +279,10 @@ end_function
 function test_parse_var_with_init() returns list
     -- Create tokens: numeric x = 42
     list tokens = [;)
-    tokens = tokens + [[TOKEN_NUMERIC, "numeric"];)
-    tokens = tokens + [[TOKEN_IDENTIFIER, "x"];)
-    tokens = tokens + [[TOKEN_ASSIGN, "="];)
-    tokens = tokens + [[TOKEN_NUMBER, "42"];)
+    tokens = tokens + [[TOKEN_NUMERIC; "numeric"];)
+    tokens = tokens + [[TOKEN_IDENTIFIER; "x"];)
+    tokens = tokens + [[TOKEN_ASSIGN; "="];)
+    tokens = tokens + [[TOKEN_NUMBER; "42"];)
     
     -- Parse
     list result = parse_variable_declaration(tokens, 0)
@@ -330,9 +330,9 @@ end_function
 function test_parse_assignment() returns list
     -- Create tokens: x = 100
     list tokens = [;)
-    tokens = tokens + [[TOKEN_IDENTIFIER, "x"];)
-    tokens = tokens + [[TOKEN_ASSIGN, "="];)
-    tokens = tokens + [[TOKEN_NUMBER, "100"];)
+    tokens = tokens + [[TOKEN_IDENTIFIER; "x"];)
+    tokens = tokens + [[TOKEN_ASSIGN; "="];)
+    tokens = tokens + [[TOKEN_NUMBER; "100"];)
     
     -- Parse
     list result = parse_variable_assignment(tokens, 0)

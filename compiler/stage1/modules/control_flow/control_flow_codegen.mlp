@@ -26,7 +26,7 @@ import "../operators/operators_codegen.mlp"
 -- Returns: string (LLVM IR code)
 -- Note: Stateless - no global state
 function codegen_if_statement(list if_stmt; string result_var; string indent) returns string
-    -- if_stmt structure: [ctrl_type, condition, has_else, then_body, else_body]
+    -- if_stmt structure: [ctrl_type; condition; has_else; then_body; else_body]
     numeric ctrl_type = if_stmt[0]
     list condition = if_stmt[1]
     numeric has_else = if_stmt[2]
@@ -107,7 +107,7 @@ end_function
 -- Input: while_stmt (list), result_var (string), indent (string)
 -- Returns: string (LLVM IR code)
 function codegen_while_statement(list while_stmt; string result_var; string indent) returns string
-    -- while_stmt structure: [condition, body]
+    -- while_stmt structure: [condition; body]
     list condition = while_stmt[0]
     list body = while_stmt[1]
     
@@ -155,7 +155,7 @@ end_function
 -- Input: for_stmt (list), result_var (string), indent (string)
 -- Returns: string (LLVM IR code)
 function codegen_for_statement(list for_stmt; string result_var; string indent) returns string
-    -- for_stmt structure: [iterator, start_expr, end_expr, label, body]
+    -- for_stmt structure: [iterator; start_expr; end_expr; label; body]
     string iterator = for_stmt[0]
     list start_expr = for_stmt[1]
     list end_expr = for_stmt[2]

@@ -68,7 +68,7 @@ const numeric STMT_VARIABLE_DECL = 8
 
 -- Parse if statement
 -- Input: tokens (list), pos (numeric) - current position at 'if' token
--- Returns: [if_statement, new_position] or [empty_list, pos] on error
+-- Returns: [if_statement; new_position] or [empty_list; pos] on error
 -- Note: Stateless - no global state, all state passed as parameters
 function parse_if_statement(list tokens; numeric pos) returns list
     -- Check if current token is 'if'
@@ -180,7 +180,7 @@ end_function
 
 -- Parse while statement
 -- Input: tokens (list), pos (numeric) - current position at 'while' token
--- Returns: [while_statement, new_position] or [empty_list, pos] on error
+-- Returns: [while_statement; new_position] or [empty_list; pos] on error
 function parse_while_statement(list tokens; numeric pos) returns list
     -- Check if current token is 'while'
     list current_token = tokens[pos]
@@ -248,7 +248,7 @@ end_function
 
 -- Parse for statement (future implementation)
 -- Input: tokens (list), pos (numeric) - current position at 'for' token
--- Returns: [for_statement, new_position] or [empty_list, pos] on error
+-- Returns: [for_statement; new_position] or [empty_list; pos] on error
 function parse_for_statement(list tokens; numeric pos) returns list
     -- Check if current token is 'for'
     list current_token = tokens[pos]
@@ -361,7 +361,7 @@ end_function
 
 -- Parse control flow statement (dispatcher)
 -- Input: tokens (list), pos (numeric)
--- Returns: [statement, new_position] or [empty_list, pos] on error
+-- Returns: [statement; new_position] or [empty_list; pos] on error
 function parse_control_flow_statement(list tokens; numeric pos) returns list
     list current_token = tokens[pos]
     numeric token_type = current_token[0]
@@ -432,7 +432,7 @@ function is_control_flow_statement(list stmt) returns numeric
         return 0
     end_if
     
-    -- If statement: [ctrl_type, ...]
+    -- If statement: [ctrl_type; ...]
     if stmt[0] == CTRL_IF
         return 1
     end_if

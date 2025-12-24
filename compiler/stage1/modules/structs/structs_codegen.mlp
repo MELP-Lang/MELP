@@ -17,7 +17,7 @@
 --
 -- Architecture:
 --   - STATELESS: All state passed as parameters
---   - Returns: [llvm_code, updated_context] pattern
+--   - Returns: [llvm_code; updated_context] pattern
 --   - No mutable globals (const OK - Rust model)
 --
 -- Dependencies:
@@ -58,7 +58,7 @@ const string LLVM_LIST = "[0 x i64]*"  -- Simplified array pointer
 --   context (list): Codegen context (type registry, variables, etc.)
 --
 -- Returns:
---   list: [llvm_code, updated_context]
+--   list: [llvm_code; updated_context]
 --   - llvm_code (string): Generated LLVM IR
 --   - updated_context (list): Updated context with registered type
 -- ----------------------------------------------------------------------------
@@ -103,7 +103,7 @@ function codegen_struct_definition(list struct_node, string indent, list context
     code = code + " }\n"
     
     -- Register struct type in context (for later use)
-    -- context = [type_registry, variables, ...]
+    -- context = [type_registry; variables; ...]
     -- TODO: Add to type registry
     
     return (code, context]
@@ -125,7 +125,7 @@ end_function
 --   context (list): Codegen context
 --
 -- Returns:
---   list: [llvm_code, updated_context]
+--   list: [llvm_code; updated_context]
 -- ----------------------------------------------------------------------------
 function codegen_struct_allocation(string struct_type, string instance_name, string indent, list context) returns list
     code = indent
@@ -157,7 +157,7 @@ end_function
 --   context (list): Codegen context
 --
 -- Returns:
---   list: [llvm_code, updated_context]
+--   list: [llvm_code; updated_context]
 -- ----------------------------------------------------------------------------
 function codegen_struct_instantiation(list instance_node, string indent, list context) returns list
     struct_type = instance_node[1]
@@ -236,7 +236,7 @@ end_function
 --   context (list): Codegen context
 --
 -- Returns:
---   list: [llvm_code, updated_context]
+--   list: [llvm_code; updated_context]
 -- ----------------------------------------------------------------------------
 function codegen_member_access(list access_node, string result_var, string indent, list context) returns list
     instance_name = access_node[1]
@@ -301,7 +301,7 @@ end_function
 --   context (list): Codegen context
 --
 -- Returns:
---   list: [llvm_code, updated_context]
+--   list: [llvm_code; updated_context]
 -- ----------------------------------------------------------------------------
 function codegen_member_assignment(list assign_node, string indent, list context) returns list
     instance_name = assign_node[1]

@@ -35,9 +35,9 @@ function main() returns numeric
     println("")
     
     -- Tokens: foo()
-    list tok1_1 = [T_ID, "foo", 1, 1]
-    list tok1_2 = [T_LPAREN; "(", 1, 4]
-    list tok1_3 = [T_RPAREN; ")", 1, 5]
+    list tok1_1 = [T_ID; "foo"; 1; 1]
+    list tok1_2 = [T_LPAREN; "("; 1; 4]
+    list tok1_3 = [T_RPAREN; ")"; 1; 5]
     
     -- Parse: function name
     current_tok = tok1_1
@@ -74,10 +74,10 @@ function main() returns numeric
     println("")
     
     -- Tokens: print(42)
-    list tok2_1 = [T_ID, "print", 1, 1]
-    list tok2_2 = [T_LPAREN; "(", 1, 6]
+    list tok2_1 = [T_ID; "print"; 1; 1]
+    list tok2_2 = [T_LPAREN; "("; 1; 6]
     list tok2_3 = [T_NUMBER; "42"; 1; 7]
-    list tok2_4 = [T_RPAREN; ")", 1, 9]
+    list tok2_4 = [T_RPAREN; ")"; 1; 9]
     
     -- Parse function call
     current_tok = tok2_1
@@ -114,12 +114,12 @@ function main() returns numeric
     println("")
     
     -- Tokens: add(10, 20)
-    list tok3_1 = [T_ID, "add", 1, 1]
-    list tok3_2 = [T_LPAREN; "(", 1, 4]
+    list tok3_1 = [T_ID; "add"; 1; 1]
+    list tok3_2 = [T_LPAREN; "("; 1; 4]
     list tok3_3 = [T_NUMBER; "10"; 1; 5]
-    list tok3_4 = [T_COMMA; ",", 1, 7]
+    list tok3_4 = [T_COMMA; ";"; 1; 7]
     list tok3_5 = [T_NUMBER; "20"; 1; 9]
-    list tok3_6 = [T_RPAREN; ")", 1, 11]
+    list tok3_6 = [T_RPAREN; ")"; 1; 11]
     
     -- Parse function call
     current_tok = tok3_1
@@ -167,14 +167,14 @@ function main() returns numeric
     println("")
     
     -- Tokens: substr(text, 5, 10)
-    list tok4_1 = [T_ID, "substr", 1, 1]
-    list tok4_2 = [T_LPAREN; "(", 1, 7]
-    list tok4_3 = [T_ID, "text", 1, 8]
-    list tok4_4 = [T_COMMA; ",", 1, 12]
+    list tok4_1 = [T_ID; "substr"; 1; 1]
+    list tok4_2 = [T_LPAREN; "("; 1; 7]
+    list tok4_3 = [T_ID; "text"; 1; 8]
+    list tok4_4 = [T_COMMA; ";"; 1; 12]
     list tok4_5 = [T_NUMBER; "5"; 1; 14]
-    list tok4_6 = [T_COMMA; ",", 1, 15]
+    list tok4_6 = [T_COMMA; ";"; 1; 15]
     list tok4_7 = [T_NUMBER; "10"; 1; 17]
-    list tok4_8 = [T_RPAREN; ")", 1, 19]
+    list tok4_8 = [T_RPAREN; ")"; 1; 19]
     
     -- Parse function call
     current_tok = tok4_1
@@ -233,15 +233,15 @@ function main() returns numeric
     println("")
     
     -- Tokens: print(add(5, 3))
-    list tok5_1 = [T_ID, "print", 1, 1]
-    list tok5_2 = [T_LPAREN; "(", 1, 6]
-    list tok5_3 = [T_ID, "add", 1, 7]
-    list tok5_4 = [T_LPAREN; "(", 1, 10]
+    list tok5_1 = [T_ID; "print"; 1; 1]
+    list tok5_2 = [T_LPAREN; "("; 1; 6]
+    list tok5_3 = [T_ID; "add"; 1; 7]
+    list tok5_4 = [T_LPAREN; "("; 1; 10]
     list tok5_5 = [T_NUMBER; "5"; 1; 11]
-    list tok5_6 = [T_COMMA; ",", 1, 12]
+    list tok5_6 = [T_COMMA; ";"; 1; 12]
     list tok5_7 = [T_NUMBER; "3"; 1; 14]
-    list tok5_8 = [T_RPAREN; ")", 1, 15]
-    list tok5_9 = [T_RPAREN; ")", 1, 16]
+    list tok5_8 = [T_RPAREN; ")"; 1; 15]
+    list tok5_9 = [T_RPAREN; ")"; 1; 16]
     
     -- Parse outer function call
     current_tok = tok5_1

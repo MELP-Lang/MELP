@@ -94,7 +94,7 @@ function test_integer_literal_parsing() returns numeric
     print "================================\n"
     
     -- Test case 1: Simple positive integer
-    list tokens1 = [[TOKEN_NUMBER, "42"]]
+    list tokens1 = [[TOKEN_NUMBER; "42"]]
     list result1 = parse_integer_literal(tokens1, 0)
     list literal1 = result1[0]
     numeric new_pos1 = result1[1]
@@ -120,7 +120,7 @@ function test_integer_literal_parsing() returns numeric
     print "✓ PASS: Integer literal '42' parsed correctly\n"
     
     -- Test case 2: Zero
-    list tokens2 = [[TOKEN_NUMBER, "0"]]
+    list tokens2 = [[TOKEN_NUMBER; "0"]]
     list result2 = parse_integer_literal(tokens2, 0)
     list literal2 = result2[0]
     
@@ -132,7 +132,7 @@ function test_integer_literal_parsing() returns numeric
     print "✓ PASS: Integer literal '0' parsed correctly\n"
     
     -- Test case 3: Large number
-    list tokens3 = [[TOKEN_NUMBER, "123456789"]]
+    list tokens3 = [[TOKEN_NUMBER; "123456789"]]
     list result3 = parse_integer_literal(tokens3, 0)
     list literal3 = result3[0]
     
@@ -144,7 +144,7 @@ function test_integer_literal_parsing() returns numeric
     print "✓ PASS: Integer literal '123456789' parsed correctly\n"
     
     -- Test case 4: Non-number token (should fail gracefully)
-    list tokens4 = [[TOKEN_IDENTIFIER, "abc"]]
+    list tokens4 = [[TOKEN_IDENTIFIER; "abc"]]
     list result4 = parse_integer_literal(tokens4, 0)
     
     if result4[0] != [] then
@@ -166,7 +166,7 @@ function test_string_literal_parsing() returns numeric
     print "================================\n"
     
     -- Test case 1: Simple string
-    list tokens1 = [[TOKEN_STRING, "hello"]]
+    list tokens1 = [[TOKEN_STRING; "hello"]]
     list result1 = parse_string_literal(tokens1, 0)
     list literal1 = result1[0]
     
@@ -183,7 +183,7 @@ function test_string_literal_parsing() returns numeric
     print "✓ PASS: String literal 'hello' parsed correctly\n"
     
     -- Test case 2: Empty string
-    list tokens2 = [[TOKEN_STRING, ""]]
+    list tokens2 = [[TOKEN_STRING; ""]]
     list result2 = parse_string_literal(tokens2, 0)
     list literal2 = result2[0]
     
@@ -195,7 +195,7 @@ function test_string_literal_parsing() returns numeric
     print "✓ PASS: Empty string literal parsed correctly\n"
     
     -- Test case 3: String with spaces
-    list tokens3 = [[TOKEN_STRING, "hello world"]]
+    list tokens3 = [[TOKEN_STRING; "hello world"]]
     list result3 = parse_string_literal(tokens3, 0)
     list literal3 = result3[0]
     
@@ -207,7 +207,7 @@ function test_string_literal_parsing() returns numeric
     print "✓ PASS: String literal with spaces parsed correctly\n"
     
     -- Test case 4: Non-string token (should fail gracefully)
-    list tokens4 = [[TOKEN_NUMBER, "42"]]
+    list tokens4 = [[TOKEN_NUMBER; "42"]]
     list result4 = parse_string_literal(tokens4, 0)
     
     if result4[0] != [] then
@@ -229,7 +229,7 @@ function test_boolean_literal_parsing() returns numeric
     print "=================================\n"
     
     -- Test case 1: true
-    list tokens1 = [[TOKEN_TRUE, "true"]]
+    list tokens1 = [[TOKEN_TRUE; "true"]]
     list result1 = parse_boolean_literal(tokens1, 0)
     list literal1 = result1[0]
     
@@ -246,7 +246,7 @@ function test_boolean_literal_parsing() returns numeric
     print "✓ PASS: Boolean literal 'true' parsed correctly\n"
     
     -- Test case 2: false
-    list tokens2 = [[TOKEN_FALSE, "false"]]
+    list tokens2 = [[TOKEN_FALSE; "false"]]
     list result2 = parse_boolean_literal(tokens2, 0)
     list literal2 = result2[0]
     
@@ -263,7 +263,7 @@ function test_boolean_literal_parsing() returns numeric
     print "✓ PASS: Boolean literal 'false' parsed correctly\n"
     
     -- Test case 3: Non-boolean token (should fail gracefully)
-    list tokens3 = [[TOKEN_NUMBER, "42"]]
+    list tokens3 = [[TOKEN_NUMBER; "42"]]
     list result3 = parse_boolean_literal(tokens3, 0)
     
     if result3[0] != [] then
@@ -285,7 +285,7 @@ function test_generic_literal_parsing() returns numeric
     print "=================================\n"
     
     -- Test case 1: Parse integer
-    list tokens1 = [[TOKEN_NUMBER, "100"]]
+    list tokens1 = [[TOKEN_NUMBER; "100"]]
     list result1 = parse_literal(tokens1, 0)
     list literal1 = result1[0]
     
@@ -297,7 +297,7 @@ function test_generic_literal_parsing() returns numeric
     print "✓ PASS: parse_literal correctly identified integer\n"
     
     -- Test case 2: Parse string
-    list tokens2 = [[TOKEN_STRING, "test"]]
+    list tokens2 = [[TOKEN_STRING; "test"]]
     list result2 = parse_literal(tokens2, 0)
     list literal2 = result2[0]
     
@@ -309,7 +309,7 @@ function test_generic_literal_parsing() returns numeric
     print "✓ PASS: parse_literal correctly identified string\n"
     
     -- Test case 3: Parse boolean
-    list tokens3 = [[TOKEN_TRUE, "true"]]
+    list tokens3 = [[TOKEN_TRUE; "true"]]
     list result3 = parse_literal(tokens3, 0)
     list literal3 = result3[0]
     
@@ -321,7 +321,7 @@ function test_generic_literal_parsing() returns numeric
     print "✓ PASS: parse_literal correctly identified boolean\n"
     
     -- Test case 4: Non-literal token
-    list tokens4 = [[TOKEN_IDENTIFIER, "variable"]]
+    list tokens4 = [[TOKEN_IDENTIFIER; "variable"]]
     list result4 = parse_literal(tokens4, 0)
     
     if result4[0] != [] then
@@ -343,7 +343,7 @@ function test_integer_codegen() returns numeric
     print "=========================================\n"
     
     -- Test case 1: Generate code for integer literal
-    list literal1 = [LIT_INTEGER, "42", "42"]
+    list literal1 = [LIT_INTEGER; "42"; "42"]
     list result1 = codegen_literal(literal1, "x", "  ", 0)
     string code1 = result1[0]
     
@@ -376,7 +376,7 @@ function test_string_codegen() returns numeric
     print "========================================\n"
     
     -- Test case 1: Generate code for string literal
-    list literal1 = [LIT_STRING, "hello", "\"hello\""]
+    list literal1 = [LIT_STRING; "hello"; "\"hello\""]
     list result1 = codegen_literal(literal1, "str", "  ", 1)
     string code1 = result1[0]
     string global1 = result1[1]
@@ -410,7 +410,7 @@ function test_boolean_codegen() returns numeric
     print "=========================================\n"
     
     -- Test case 1: true
-    list literal1 = [LIT_BOOLEAN, 1, "true"]
+    list literal1 = [LIT_BOOLEAN; 1; "true"]
     list result1 = codegen_literal(literal1, "flag", "  ", 0)
     string code1 = result1[0]
     
@@ -420,7 +420,7 @@ function test_boolean_codegen() returns numeric
     print "✓ PASS: Boolean true codegen executed\n"
     
     -- Test case 2: false
-    list literal2 = [LIT_BOOLEAN, 0, "false"]
+    list literal2 = [LIT_BOOLEAN; 0; "false"]
     list result2 = codegen_literal(literal2, "flag", "  ", 0)
     string code2 = result2[0]
     
@@ -488,7 +488,7 @@ function test_helper_functions() returns numeric
     print "✓ PASS: is_literal_token(TOKEN_IDENTIFIER) = 0\n"
     
     -- Test is_constant_literal
-    list literal = [LIT_INTEGER, "42", "42"]
+    list literal = [LIT_INTEGER; "42"; "42"]
     numeric is_const = is_constant_literal(literal)
     if is_const != 1 then
         print "✗ FAIL: All literals should be constant\n"
@@ -508,7 +508,7 @@ function test_type_inference() returns numeric
     print "========================\n"
     
     -- Test integer type inference
-    list int_lit = [LIT_INTEGER, "42", "42"]
+    list int_lit = [LIT_INTEGER; "42"; "42"]
     numeric inferred_type1 = infer_literal_type(int_lit)
     if inferred_type1 != TYPE_NUMERIC then
         print "✗ FAIL: Integer should infer to TYPE_NUMERIC\n"
@@ -517,7 +517,7 @@ function test_type_inference() returns numeric
     print "✓ PASS: Integer literal infers to TYPE_NUMERIC\n"
     
     -- Test string type inference
-    list str_lit = [LIT_STRING, "hello", "\"hello\""]
+    list str_lit = [LIT_STRING; "hello"; "\"hello\""]
     numeric inferred_type2 = infer_literal_type(str_lit)
     if inferred_type2 != TYPE_STRING then
         print "✗ FAIL: String should infer to TYPE_STRING\n"
@@ -526,7 +526,7 @@ function test_type_inference() returns numeric
     print "✓ PASS: String literal infers to TYPE_STRING\n"
     
     -- Test boolean type inference
-    list bool_lit = [LIT_BOOLEAN, 1, "true"]
+    list bool_lit = [LIT_BOOLEAN; 1; "true"]
     numeric inferred_type3 = infer_literal_type(bool_lit)
     if inferred_type3 != TYPE_BOOLEAN then
         print "✗ FAIL: Boolean should infer to TYPE_BOOLEAN\n"
@@ -546,7 +546,7 @@ function test_llvm_type_mapping() returns numeric
     print "============================\n"
     
     -- Test integer → i64
-    list int_lit = [LIT_INTEGER, "42", "42"]
+    list int_lit = [LIT_INTEGER; "42"; "42"]
     string llvm_type1 = get_literal_llvm_type(int_lit)
     if llvm_type1 != "i64" then
         print "✗ FAIL: Integer should map to 'i64'\n"
@@ -555,7 +555,7 @@ function test_llvm_type_mapping() returns numeric
     print "✓ PASS: Integer → i64\n"
     
     -- Test string → i8*
-    list str_lit = [LIT_STRING, "hi", "\"hi\""]
+    list str_lit = [LIT_STRING; "hi"; "\"hi\""]
     string llvm_type2 = get_literal_llvm_type(str_lit)
     if llvm_type2 != "i8*" then
         print "✗ FAIL: String should map to 'i8*'\n"
@@ -564,7 +564,7 @@ function test_llvm_type_mapping() returns numeric
     print "✓ PASS: String → i8*\n"
     
     -- Test boolean → i1
-    list bool_lit = [LIT_BOOLEAN, 1, "true"]
+    list bool_lit = [LIT_BOOLEAN; 1; "true"]
     string llvm_type3 = get_literal_llvm_type(bool_lit)
     if llvm_type3 != "i1" then
         print "✗ FAIL: Boolean should map to 'i1'\n"

@@ -84,7 +84,7 @@ function main() returns numeric
     -- Test 2: Binary expression (2 + 3)
     println("Test 2: Binary (2 + 3)")
     list t2a = [12; "2"; 1; 1]
-    list t2b = [16; "+", 1, 3]
+    list t2b = [16; "+"; 1; 3]
     list t2c = [12; "3"; 1; 5]
     list toks2 = [t2a; t2b; t2c]
     list left = toks2[0]
@@ -107,11 +107,11 @@ function main() returns numeric
     -- Test 3: Precedence (2 + 3 * 4)
     println("Test 3: Precedence (2 + 3 * 4)")
     list t3a = [12; "2"; 1; 1]
-    list t3b = [16; "+", 1, 3]
+    list t3b = [16; "+"; 1; 3]
     list t3c = [12; "3"; 1; 5]
-    list t3d = [18; "*", 1, 7]
+    list t3d = [18; "*"; 1; 7]
     list t3e = [12; "4"; 1; 9]
-    list toks3 = [t3a; t3b; t3c; t3d, t3e]
+    list toks3 = [t3a; t3b; t3c; t3d; t3e]
     list op1 = toks3[1]
     numeric op1type = op1[0]
     numeric op1prec = get_operator_precedence(op1type)
@@ -142,7 +142,7 @@ function main() returns numeric
     
     -- Test 5: Unary minus (-42)
     println("Test 5: Unary minus (-42)")
-    list t5a = [17; "-", 1, 1]
+    list t5a = [17; "-"; 1; 1]
     list t5b = [12; "42"; 1; 2]
     list toks5 = [t5a; t5b]
     list unary_op = toks5[0]
@@ -159,14 +159,14 @@ function main() returns numeric
     
     -- Test 6: Parentheses ((2 + 3) * 4)
     println("Test 6: Parentheses ((2 + 3) * 4)")
-    list t6a = [73; "(", 1, 1]
+    list t6a = [73; "("; 1; 1]
     list t6b = [12; "2"; 1; 2]
-    list t6c = [16; "+", 1, 4]
+    list t6c = [16; "+"; 1; 4]
     list t6d = [12; "3"; 1; 6]
-    list t6e = [74; ")", 1, 7]
-    list t6f = [18; "*", 1, 9]
+    list t6e = [74; ")"; 1; 7]
+    list t6f = [18; "*"; 1; 9]
     list t6g = [12; "4"; 1; 11]
-    list toks6 = [t6a; t6b; t6c; t6d, t6e, t6f, t6g]
+    list toks6 = [t6a; t6b; t6c; t6d; t6e; t6f; t6g]
     list paren = toks6[0]
     numeric paren_type = paren[0]
     if paren_type == 73 then
@@ -178,7 +178,7 @@ function main() returns numeric
     -- Test 7: Comparison (a < b)
     println("Test 7: Comparison (a < b)")
     list t7a = [10; "a"; 1; 1]
-    list t7b = [25; "<", 1, 3]
+    list t7b = [25; "<"; 1; 3]
     list t7c = [10; "b"; 1; 5]
     list toks7 = [t7a; t7b; t7c]
     list cmp_left = toks7[0]

@@ -15,7 +15,7 @@
 -- ARRAY NODE TYPE CONSTANTS
 -- ============================================================================
 
-const numeric ARRAY_LITERAL = 1         -- Array literal: [1, 2, 3]
+const numeric ARRAY_LITERAL = 1         -- Array literal: [1; 2; 3]
 const numeric ARRAY_INDEX = 2           -- Array indexing: arr[i]
 const numeric ARRAY_LENGTH = 3          -- Array length: len(arr)
 const numeric ARRAY_DECLARATION = 4     -- Array declaration: list arr = [...]
@@ -24,21 +24,21 @@ const numeric ARRAY_ASSIGNMENT = 5      -- Array element assignment: arr[i] = va
 -- ============================================================================
 -- ARRAY NODE STRUCTURE
 -- ============================================================================
--- Array Literal: [ARRAY_LITERAL, element_list, element_count]
+-- Array Literal: [ARRAY_LITERAL; element_list; element_count]
 --   element_list: list of literal nodes
 --   element_count: numeric count of elements
 --
--- Array Index: [ARRAY_INDEX, array_name, index_expr]
+-- Array Index: [ARRAY_INDEX; array_name; index_expr]
 --   array_name: string identifier
 --   index_expr: expression node (literal, variable, or expression)
 --
--- Array Length: [ARRAY_LENGTH, array_name]
+-- Array Length: [ARRAY_LENGTH; array_name]
 --   array_name: string identifier
 --
 -- Examples:
---   [1, 2, 3]        → [ARRAY_LITERAL, [lit1, lit2, lit3], 3]
---   arr[0]           → [ARRAY_INDEX, "arr", [LIT_INTEGER, "0", "0"]]
---   len(arr)         → [ARRAY_LENGTH, "arr"]
+--   [1; 2; 3]        → [ARRAY_LITERAL; [lit1; lit2; lit3], 3]
+--   arr[0]           → [ARRAY_INDEX; "arr"; [LIT_INTEGER; "0"; "0"]]
+--   len(arr)         → [ARRAY_LENGTH; "arr"]
 -- ============================================================================
 
 -- ============================================================================
@@ -46,22 +46,22 @@ const numeric ARRAY_ASSIGNMENT = 5      -- Array element assignment: arr[i] = va
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
--- parse_array_literal - Parse array literal [elem1, elem2, ...]
+-- parse_array_literal - Parse array literal [elem1; elem2; ...]
 -- ----------------------------------------------------------------------------
 -- Input:
 --   tokens: list of tokens
 --   pos: current position
 -- Output:
---   [array_node, new_pos] on success
+--   [array_node; new_pos] on success
 --   [[], pos] on failure (not an array literal)
 --
 -- Syntax:
---   array_literal = '[' [ element (',' element)* ] ']'
+--   array_literal = '[' [ element (';' element)* ] ']'
 --   element = literal | identifier | expression
 --
 -- Example:
---   Input: tokens starting with '[', '42', ',', '43', ']'
---   Output: [[ARRAY_LITERAL, [lit1, lit2], 2], new_pos]
+--   Input: tokens starting with '['; '42'; ';'; '43'; ']'
+--   Output: [[ARRAY_LITERAL; [lit1; lit2], 2], new_pos]
 -- ----------------------------------------------------------------------------
 function parse_array_literal(list tokens; numeric pos) returns list
     -- Check if current token is '['
@@ -136,7 +136,7 @@ end_function
 --   tokens: list of tokens
 --   pos: current position
 -- Output:
---   [element_node, new_pos] on success
+--   [element_node; new_pos] on success
 --   [[], pos] on failure
 --
 -- Note: Currently only supports literals (integers, strings, booleans)
@@ -167,15 +167,15 @@ end_function
 --   tokens: list of tokens
 --   pos: current position (should be on identifier)
 -- Output:
---   [index_node, new_pos] on success
+--   [index_node; new_pos] on success
 --   [[], pos] on failure (not array indexing)
 --
 -- Syntax:
 --   array_index = identifier '[' expression ']'
 --
 -- Example:
---   Input: tokens: [IDENTIFIER "arr", LBRACKET, NUMBER "0", RBRACKET]
---   Output: [[ARRAY_INDEX, "arr", [LIT_INTEGER, "0", "0"]], new_pos]
+--   Input: tokens: [IDENTIFIER "arr"; LBRACKET; NUMBER "0"; RBRACKET]
+--   Output: [[ARRAY_INDEX; "arr"; [LIT_INTEGER; "0"; "0"]], new_pos]
 -- ----------------------------------------------------------------------------
 function parse_array_index(list tokens; numeric pos) returns list
     -- Check if current token is identifier
@@ -229,15 +229,15 @@ end_function
 --   tokens: list of tokens
 --   pos: current position (should be on 'len' keyword)
 -- Output:
---   [length_node, new_pos] on success
+--   [length_node; new_pos] on success
 --   [[], pos] on failure
 --
 -- Syntax:
 --   array_length = 'len' '(' identifier ')'
 --
 -- Example:
---   Input: tokens: [IDENTIFIER "len", LPAREN, IDENTIFIER "arr", RPAREN]
---   Output: [[ARRAY_LENGTH, "arr"], new_pos]
+--   Input: tokens: [IDENTIFIER "len"; LPAREN; IDENTIFIER "arr"; RPAREN]
+--   Output: [[ARRAY_LENGTH; "arr"], new_pos]
 -- ----------------------------------------------------------------------------
 function parse_array_length(list tokens; numeric pos) returns list
     -- Check if current token is 'len' identifier
@@ -289,15 +289,15 @@ end_function
 --   tokens: list of tokens
 --   pos: current position (should be on 'list' keyword)
 -- Output:
---   [declaration_node, new_pos] on success
+--   [declaration_node; new_pos] on success
 --   [[], pos] on failure
 --
 -- Syntax:
 --   array_declaration = 'list' identifier '=' array_literal
 --
 -- Example:
---   Input: tokens: [LIST, IDENTIFIER "arr", ASSIGN, LBRACKET, ...]
---   Output: [[ARRAY_DECLARATION, "arr", array_literal], new_pos]
+--   Input: tokens: [LIST; IDENTIFIER "arr"; ASSIGN; LBRACKET; ...]
+--   Output: [[ARRAY_DECLARATION; "arr"; array_literal], new_pos]
 -- ----------------------------------------------------------------------------
 function parse_array_declaration(list tokens; numeric pos) returns list
     -- Check if current token is 'list'

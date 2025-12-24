@@ -19,9 +19,9 @@ function main() returns numeric
     
     -- Test 1: Variable declaration
     println("Test 1: numeric x = 42")
-    list t1 = [T_NUM; "numeric", 1, 1]
-    list t2 = [T_ID, "x", 1, 9]
-    list t3 = [T_EQ; "=", 1, 11]
+    list t1 = [T_NUM; "numeric"; 1; 1]
+    list t2 = [T_ID; "x"; 1; 9]
+    list t3 = [T_EQ; "="; 1; 11]
     list t4 = [T_NUMBER; "42"; 1; 13]
     
     numeric type1 = t1[0]
@@ -37,8 +37,8 @@ function main() returns numeric
     
     -- Test 2: Assignment
     println("Test 2: y = 100")
-    list t5 = [T_ID, "y", 2, 1]
-    list t6 = [T_EQ; "=", 2, 3]
+    list t5 = [T_ID; "y"; 2; 1]
+    list t6 = [T_EQ; "="; 2; 3]
     list t7 = [T_NUMBER; "100"; 2; 5]
     
     string name2 = t5[1]
@@ -65,10 +65,10 @@ function main() returns numeric
     
     -- Test 4: Print
     println("Test 4: print(hello)")
-    list t10 = [T_PRINT, "print", 4, 1]
-    list t11 = [T_LPAREN; "(", 4, 6]
-    list t12 = [T_STR_LIT, "hello", 4, 7]
-    list t13 = [T_RPAREN; ")", 4, 14]
+    list t10 = [T_PRINT; "print"; 4; 1]
+    list t11 = [T_LPAREN; "("; 4; 6]
+    list t12 = [T_STR_LIT; "hello"; 4; 7]
+    list t13 = [T_RPAREN; ")"; 4; 14]
     
     string arg1 = t12[1]
     
@@ -80,10 +80,10 @@ function main() returns numeric
     
     -- Test 5: Println
     println("Test 5: println(x)")
-    list t14 = [T_PRINTLN, "println", 5, 1]
-    list t15 = [T_LPAREN; "(", 5, 8]
-    list t16 = [T_ID, "x", 5, 9]
-    list t17 = [T_RPAREN; ")", 5, 10]
+    list t14 = [T_PRINTLN; "println"; 5; 1]
+    list t15 = [T_LPAREN; "("; 5; 8]
+    list t16 = [T_ID; "x"; 5; 9]
+    list t17 = [T_RPAREN; ")"; 5; 10]
     
     string arg2 = t16[1]
     

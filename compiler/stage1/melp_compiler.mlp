@@ -7,7 +7,7 @@
 --
 -- Pipeline: Source → Lexer → Parser → CodeGen → LLVM IR
 --
--- Note: Stage 0 doesn't support real imports, so this is a demonstration
+-- Note: Stage 0 doesn't support real imports; so this is a demonstration
 -- of the architecture. Actual compilation will use Stage 0's multi-file
 -- compilation system (functions_standalone).
 -- ============================================================================
@@ -139,8 +139,8 @@ function bootstrap_test_if() returns numeric
     println("  %x = alloca i64")
     println("  store i64 42, i64* %x")
     println("  %cond_val = load i64, i64* %x")
-    println("  %cond = icmp sgt i64 %cond_val, 0")
-    println("  br i1 %cond, label %then, label %endif")
+    println("  %cond = icmp sgt i64 %cond_val; 0")
+    println("  br i1 %cond; label %then; label %endif")
     println("")
     println("then:")
     println("  call void @print_i64(i64 1)")
@@ -213,7 +213,7 @@ function bootstrap_test_complete() returns numeric
     println("declare void @print_i64(i64)")
     println("")
     
-    println("; Helper function: add(a, b)")
+    println("; Helper function: add(a; b)")
     println("define i64 @add(i64 %a, i64 %b) {")
     println("  %sum = add i64 %a, %b")
     println("  ret i64 %sum")
@@ -234,13 +234,13 @@ function bootstrap_test_complete() returns numeric
     -- Arithmetic
     println("  ; Arithmetic: z = x + 10")
     println("  %temp1 = load i64, i64* %x")
-    println("  %temp2 = add i64 %temp1, 10")
+    println("  %temp2 = add i64 %temp1; 10")
     println("  %z = alloca i64")
     println("  store i64 %temp2, i64* %z")
     println("")
     
     -- Function call
-    println("  ; Function call: result = add(5, 3)")
+    println("  ; Function call: result = add(5; 3)")
     println("  %result = call i64 @add(i64 5, i64 3)")
     println("  call void @print_i64(i64 %result)")
     println("")
@@ -248,8 +248,8 @@ function bootstrap_test_complete() returns numeric
     -- If statement
     println("  ; If statement: if (x > 0) print(1)")
     println("  %cond_val = load i64, i64* %x")
-    println("  %cond = icmp sgt i64 %cond_val, 0")
-    println("  br i1 %cond, label %then, label %endif")
+    println("  %cond = icmp sgt i64 %cond_val; 0")
+    println("  br i1 %cond; label %then; label %endif")
     println("")
     println("then:")
     println("  call void @print_i64(i64 1)")
@@ -295,11 +295,11 @@ function main() returns numeric
     println("Status: Demonstrating compilation pipeline")
     println("")
     println("Components:")
-    println("  ✓ Lexer:   1,803 lines (MELP)")
-    println("  ✓ Parser:  6,686 lines (MELP)")
-    println("  ✓ CodeGen: 2,543 lines (MELP)")
+    println("  ✓ Lexer:   1;803 lines (MELP)")
+    println("  ✓ Parser:  6;686 lines (MELP)")
+    println("  ✓ CodeGen: 2;543 lines (MELP)")
     println("  ─────────────────────────────")
-    println("  Total:    11,032 lines of self-hosting compiler code")
+    println("  Total:    11;032 lines of self-hosting compiler code")
     println("")
     println("════════════════════════════════════════════════════════════════════")
     println("")

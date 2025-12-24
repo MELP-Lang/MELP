@@ -11,7 +11,7 @@
 --
 -- Note:
 --   These tests will be executed when Stage 1 compiler is complete.
---   For now, they serve as specification and validation of syntax.
+--   For now; they serve as specification and validation of syntax.
 --
 -- Test Categories:
 --   1. Struct Definition Parsing
@@ -45,16 +45,16 @@ function test_parse_struct_definition_simple() returns numeric
     -- end_struct
     
     list tokens = [
-        [TOKEN_STRUCT, "struct"],
-        [TOKEN_IDENTIFIER, "Person"],
-        [TOKEN_STRING, "string"],
-        [TOKEN_IDENTIFIER, "name"],
-        [TOKEN_NUMERIC, "numeric"],
-        [TOKEN_IDENTIFIER, "age"],
-        [TOKEN_END_STRUCT, "end_struct"]
+        [TOKEN_STRUCT; "struct"],
+        [TOKEN_IDENTIFIER; "Person"],
+        [TOKEN_STRING; "string"],
+        [TOKEN_IDENTIFIER; "name"],
+        [TOKEN_NUMERIC; "numeric"],
+        [TOKEN_IDENTIFIER; "age"],
+        [TOKEN_END_STRUCT; "end_struct"]
     ]
     
-    result = parse_struct_definition(tokens, 0)
+    result = parse_struct_definition(tokens; 0)
     struct_node = result[0]
     pos = result[1]
     
@@ -94,11 +94,11 @@ function test_parse_struct_member() returns numeric
     
     -- Tokens: string name
     list tokens = [
-        [TOKEN_STRING, "string"],
-        [TOKEN_IDENTIFIER, "name"]
+        [TOKEN_STRING; "string"],
+        [TOKEN_IDENTIFIER; "name"]
     ]
     
-    result = parse_struct_member(tokens, 0)
+    result = parse_struct_member(tokens; 0)
     member_node = result[0]
     pos = result[1]
     
@@ -136,23 +136,23 @@ end_function
 function test_parse_struct_instantiation() returns numeric
     print "TEST 3: Parse Struct Instantiation"
     
-    -- Tokens: Person john = { name = "John", age = 30 }
+    -- Tokens: Person john = { name = "John"; age = 30 }
     list tokens = [
-        [TOKEN_IDENTIFIER, "Person"],
-        [TOKEN_IDENTIFIER, "john"],
-        [TOKEN_ASSIGN, "="],
-        [TOKEN_LBRACE, "{"],
-        [TOKEN_IDENTIFIER, "name"],
-        [TOKEN_ASSIGN, "="],
-        [TOKEN_STRING, "John"],
-        [TOKEN_COMMA, ","],
-        [TOKEN_IDENTIFIER, "age"],
-        [TOKEN_ASSIGN, "="],
-        [TOKEN_NUMBER, "30"],
-        [TOKEN_RBRACE, "}"]
+        [TOKEN_IDENTIFIER; "Person"],
+        [TOKEN_IDENTIFIER; "john"],
+        [TOKEN_ASSIGN; "="],
+        [TOKEN_LBRACE; "{"],
+        [TOKEN_IDENTIFIER; "name"],
+        [TOKEN_ASSIGN; "="],
+        [TOKEN_STRING; "John"],
+        [TOKEN_COMMA; ";"],
+        [TOKEN_IDENTIFIER; "age"],
+        [TOKEN_ASSIGN; "="],
+        [TOKEN_NUMBER; "30"],
+        [TOKEN_RBRACE; "}"]
     ]
     
-    result = parse_struct_instantiation(tokens, 0)
+    result = parse_struct_instantiation(tokens; 0)
     instance_node = result[0]
     pos = result[1]
     
@@ -192,12 +192,12 @@ function test_parse_member_access() returns numeric
     
     -- Tokens: person.name
     list tokens = [
-        [TOKEN_IDENTIFIER, "person"],
-        [TOKEN_DOT, "."],
-        [TOKEN_IDENTIFIER, "name"]
+        [TOKEN_IDENTIFIER; "person"],
+        [TOKEN_DOT; "."],
+        [TOKEN_IDENTIFIER; "name"]
     ]
     
-    result = parse_member_access(tokens, 0)
+    result = parse_member_access(tokens; 0)
     access_node = result[0]
     pos = result[1]
     
@@ -237,14 +237,14 @@ function test_parse_member_assignment() returns numeric
     
     -- Tokens: person.age = 25
     list tokens = [
-        [TOKEN_IDENTIFIER, "person"],
-        [TOKEN_DOT, "."],
-        [TOKEN_IDENTIFIER, "age"],
-        [TOKEN_ASSIGN, "="],
-        [TOKEN_NUMBER, "25"]
+        [TOKEN_IDENTIFIER; "person"],
+        [TOKEN_DOT; "."],
+        [TOKEN_IDENTIFIER; "age"],
+        [TOKEN_ASSIGN; "="],
+        [TOKEN_NUMBER; "25"]
     ]
     
-    result = parse_member_assignment(tokens, 0)
+    result = parse_member_assignment(tokens; 0)
     assign_node = result[0]
     pos = result[1]
     
@@ -283,14 +283,14 @@ function test_codegen_struct_definition() returns numeric
     print "TEST 6: CodeGen Struct Definition"
     
     -- Create a struct definition node
-    list member1 = [STRUCT_MEMBER, "name", "string"]
-    list member2 = [STRUCT_MEMBER, "age", "numeric"]
-    list members = [member1, member2]
-    list struct_node = [STRUCT_DEFINITION, "Person", members, 2]
+    list member1 = [STRUCT_MEMBER; "name"; "string"]
+    list member2 = [STRUCT_MEMBER; "age"; "numeric"]
+    list members = [member1; member2]
+    list struct_node = [STRUCT_DEFINITION; "Person"; members; 2]
     
     -- Generate LLVM IR
     list context = []
-    result = codegen_struct_definition(struct_node, "", context)
+    result = codegen_struct_definition(struct_node; ""; context)
     llvm_code = result[0]
     
     -- Validate (basic check)
@@ -317,7 +317,7 @@ function test_codegen_struct_allocation() returns numeric
     print "TEST 7: CodeGen Struct Allocation"
     
     list context = []
-    result = codegen_struct_allocation("Person", "john", "  ", context)
+    result = codegen_struct_allocation("Person"; "john"; "  "; context)
     llvm_code = result[0]
     
     -- Validate
@@ -341,10 +341,10 @@ function test_codegen_member_access() returns numeric
     print "TEST 8: CodeGen Member Access"
     
     -- Member access node: person.name
-    list access_node = [STRUCT_MEMBER_ACCESS, "person", "name"]
+    list access_node = [STRUCT_MEMBER_ACCESS; "person"; "name"]
     
     list context = []
-    result = codegen_member_access(access_node, "temp_name", "  ", context)
+    result = codegen_member_access(access_node; "temp_name"; "  "; context)
     llvm_code = result[0]
     
     -- Validate
@@ -368,10 +368,10 @@ function test_codegen_member_assignment() returns numeric
     print "TEST 9: CodeGen Member Assignment"
     
     -- Assignment node: person.age = 25
-    list assign_node = [STRUCT_MEMBER_ASSIGN, "person", "age", "25"]
+    list assign_node = [STRUCT_MEMBER_ASSIGN; "person"; "age"; "25"]
     
     list context = []
-    result = codegen_member_assignment(assign_node, "  ", context)
+    result = codegen_member_assignment(assign_node; "  "; context)
     llvm_code = result[0]
     
     -- Validate
@@ -414,7 +414,7 @@ function test_helper_functions() returns numeric
     end_if
     
     -- Test is_struct_node
-    list struct_node = [STRUCT_DEFINITION, "Person", [], 0]
+    list struct_node = [STRUCT_DEFINITION; "Person"; [], 0]
     if is_struct_node(struct_node) == false then
         print "  FAIL: is_struct_node failed"
         return 1
@@ -447,20 +447,20 @@ function test_complex_struct() returns numeric
     -- end_struct
     
     list tokens = [
-        [TOKEN_STRUCT, "struct"],
-        [TOKEN_IDENTIFIER, "Employee"],
-        [TOKEN_STRING, "string"],
-        [TOKEN_IDENTIFIER, "name"],
-        [TOKEN_NUMERIC, "numeric"],
-        [TOKEN_IDENTIFIER, "age"],
-        [TOKEN_NUMERIC, "numeric"],
-        [TOKEN_IDENTIFIER, "salary"],
-        [TOKEN_BOOLEAN, "boolean"],
-        [TOKEN_IDENTIFIER, "active"],
-        [TOKEN_END_STRUCT, "end_struct"]
+        [TOKEN_STRUCT; "struct"],
+        [TOKEN_IDENTIFIER; "Employee"],
+        [TOKEN_STRING; "string"],
+        [TOKEN_IDENTIFIER; "name"],
+        [TOKEN_NUMERIC; "numeric"],
+        [TOKEN_IDENTIFIER; "age"],
+        [TOKEN_NUMERIC; "numeric"],
+        [TOKEN_IDENTIFIER; "salary"],
+        [TOKEN_BOOLEAN; "boolean"],
+        [TOKEN_IDENTIFIER; "active"],
+        [TOKEN_END_STRUCT; "end_struct"]
     ]
     
-    result = parse_struct_definition(tokens, 0)
+    result = parse_struct_definition(tokens; 0)
     struct_node = result[0]
     
     if struct_node == 0 then
@@ -476,7 +476,7 @@ function test_complex_struct() returns numeric
     
     -- Generate LLVM
     list context = []
-    result = codegen_struct_definition(struct_node, "", context)
+    result = codegen_struct_definition(struct_node; ""; context)
     llvm_code = result[0]
     
     print "  Generated LLVM:"
@@ -499,16 +499,16 @@ function test_struct_with_array_member() returns numeric
     -- end_struct
     
     list tokens = [
-        [TOKEN_STRUCT, "struct"],
-        [TOKEN_IDENTIFIER, "Person"],
-        [TOKEN_STRING, "string"],
-        [TOKEN_IDENTIFIER, "name"],
-        [TOKEN_LIST, "list"],
-        [TOKEN_IDENTIFIER, "hobbies"],
-        [TOKEN_END_STRUCT, "end_struct"]
+        [TOKEN_STRUCT; "struct"],
+        [TOKEN_IDENTIFIER; "Person"],
+        [TOKEN_STRING; "string"],
+        [TOKEN_IDENTIFIER; "name"],
+        [TOKEN_LIST; "list"],
+        [TOKEN_IDENTIFIER; "hobbies"],
+        [TOKEN_END_STRUCT; "end_struct"]
     ]
     
-    result = parse_struct_definition(tokens, 0)
+    result = parse_struct_definition(tokens; 0)
     struct_node = result[0]
     
     if struct_node == 0 then
@@ -575,7 +575,7 @@ end_function
 -- Run all tests
 numeric exit_code = run_all_struct_tests()
 
--- Return exit code (0 = success, non-zero = failure)
+-- Return exit code (0 = success; non-zero = failure)
 return exit_code
 
 -- ============================================================================

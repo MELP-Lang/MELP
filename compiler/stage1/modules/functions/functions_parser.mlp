@@ -108,9 +108,9 @@ end_function
 --
 -- Input: tokens - list of tokens to parse
 --        pos - current position in token list
--- Output: list [function_decl, new_pos]
---         function_decl = [name, params, return_type, body]
---         params = [[type, name], [type, name], ...]
+-- Output: list [function_decl; new_pos]
+--         function_decl = [name; params; return_type; body]
+--         params = [[type; name], [type; name], ...]
 --
 -- STATELESS: Takes tokens + position, returns result + new position
 function parse_function_declaration(list tokens; numeric pos) returns list
@@ -183,7 +183,7 @@ function parse_function_declaration(list tokens; numeric pos) returns list
             current_pos = current_pos + 1
             
             -- Add parameter to list
-            list param = [param_type, param_name]
+            list param = [param_type; param_name]
             params = params + [param]
             
             -- Check for comma (more parameters) or ')' (end)
@@ -258,7 +258,7 @@ function parse_function_declaration(list tokens; numeric pos) returns list
     end_while
     
     -- Build function declaration result
-    list func_decl = [func_name, params, return_type, body_start, current_pos - 2]
+    list func_decl = [func_name; params; return_type; body_start; current_pos - 2]
     
     return (func_decl, current_pos]
 end_function
@@ -269,9 +269,9 @@ end_function
 -- Input: tokens - list of tokens
 --        pos - current position
 --        func_name - function name (already parsed)
--- Output: list [function_call, new_pos]
---         function_call = [func_name, args]
---         args = [arg1, arg2, ...]
+-- Output: list [function_call; new_pos]
+--         function_call = [func_name; args]
+--         args = [arg1; arg2; ...]
 --
 -- STATELESS: Takes tokens + position, returns result + new position
 function parse_function_call(list tokens; numeric pos; string func_name) returns list
@@ -333,7 +333,7 @@ function parse_function_call(list tokens; numeric pos; string func_name) returns
     current_pos = current_pos + 1
     
     -- Build function call result
-    list func_call = [func_name, args]
+    list func_call = [func_name; args]
     
     return (func_call, current_pos]
 end_function
@@ -343,7 +343,7 @@ end_function
 --
 -- Input: tokens - list of tokens
 --        pos - current position
--- Output: list [return_stmt, new_pos]
+-- Output: list [return_stmt; new_pos]
 --         return_stmt = [return_value]
 --         return_value = expression or 0 for void
 --

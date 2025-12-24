@@ -44,10 +44,10 @@ function main() returns numeric
     -- Current approach: x = x + 5 (expanded form)
     -- Future: Single += token
     
-    list tok1_1 = [T_ID, "x", 1, 1]
-    list tok1_2 = [T_ASSIGN, "=", 1, 3]
-    list tok1_3 = [T_ID, "x", 1, 5]
-    list tok1_4 = [T_PLUS; "+", 1, 7]
+    list tok1_1 = [T_ID; "x"; 1; 1]
+    list tok1_2 = [T_ASSIGN; "="; 1; 3]
+    list tok1_3 = [T_ID; "x"; 1; 5]
+    list tok1_4 = [T_PLUS; "+"; 1; 7]
     list tok1_5 = [T_NUMBER; "5"; 1; 9]
     
     current_tok = tok1_1
@@ -81,10 +81,10 @@ function main() returns numeric
     println("Equivalent to: count = count - 1")
     println("")
     
-    list tok2_1 = [T_ID, "count", 1, 1]
-    list tok2_2 = [T_ASSIGN, "=", 1, 7]
-    list tok2_3 = [T_ID, "count", 1, 9]
-    list tok2_4 = [T_MINUS, "-", 1, 15]
+    list tok2_1 = [T_ID; "count"; 1; 1]
+    list tok2_2 = [T_ASSIGN; "="; 1; 7]
+    list tok2_3 = [T_ID; "count"; 1; 9]
+    list tok2_4 = [T_MINUS; "-"; 1; 15]
     list tok2_5 = [T_NUMBER; "1"; 1; 17]
     
     current_tok = tok2_1
@@ -212,7 +212,7 @@ function main() returns numeric
     println("Compound assignment parsing structure verified!")
     println("")
     println("IMPLEMENTATION NOTE:")
-    println("  Current lexer tokenizes: x += 5 as [ID, =, ID, +, NUM]")
+    println("  Current lexer tokenizes: x += 5 as [ID; =; ID; +; NUM]")
     println("  Future enhancement: Add dedicated tokens:")
     println("    TOKEN_PLUS_ASSIGN (+=)")
     println("    TOKEN_MINUS_ASSIGN (-=)")

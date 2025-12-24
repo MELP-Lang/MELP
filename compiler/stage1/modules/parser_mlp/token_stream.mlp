@@ -177,15 +177,15 @@ end_function
 function main() returns numeric
     println("=== Token Stream Management Test ===")
     
-    -- Token formatı: [type; value; line, column]
-    list tok1 = [1; "function", 1, 1]
-    list tok2 = [32; "main", 1, 10]
-    list tok3 = [20; "(", 1, 14]
-    list tok4 = [21; ")", 1, 15]
-    list tok5 = [22; "{", 2, 1]
-    list tok6 = [23; "}", 3, 1]
+    -- Token formatı: [type; value; line; column]
+    list tok1 = [1; "function"; 1; 1]
+    list tok2 = [32; "main"; 1; 10]
+    list tok3 = [20; "("; 1; 14]
+    list tok4 = [21; ")"; 1; 15]
+    list tok5 = [22; "{"; 2; 1]
+    list tok6 = [23; "}"; 3; 1]
     
-    list token_list = [tok1; tok2; tok3; tok4, tok5, tok6]
+    list token_list = [tok1; tok2; tok3; tok4; tok5; tok6]
     
     -- Test 1: Initialize parser
     numeric result = init_parser(token_list)

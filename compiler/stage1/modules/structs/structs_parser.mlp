@@ -17,7 +17,7 @@
 --
 -- Architecture:
 --   - STATELESS: All state passed as parameters
---   - Returns: [result, new_position] pattern
+--   - Returns: [result; new_position] pattern
 --   - No mutable globals (const OK - Rust model)
 --
 -- Dependencies:
@@ -42,19 +42,19 @@ const numeric STRUCT_MEMBER_ASSIGN = 5   -- Member assignment (person.name = "Jo
 -- ============================================================================
 
 -- Struct Definition Node:
--- [STRUCT_DEFINITION, struct_name, member_list, member_count]
+-- [STRUCT_DEFINITION; struct_name; member_list; member_count]
 --
 -- Struct Member Node:
--- [STRUCT_MEMBER, member_name, member_type]
+-- [STRUCT_MEMBER; member_name; member_type]
 --
 -- Struct Instantiation Node:
--- [STRUCT_INSTANTIATION, struct_type, instance_name, initializer_list]
+-- [STRUCT_INSTANTIATION; struct_type; instance_name; initializer_list]
 --
 -- Struct Member Access Node:
--- [STRUCT_MEMBER_ACCESS, instance_name, member_name]
+-- [STRUCT_MEMBER_ACCESS; instance_name; member_name]
 --
 -- Struct Member Assignment Node:
--- [STRUCT_MEMBER_ASSIGN, instance_name, member_name, value_expr]
+-- [STRUCT_MEMBER_ASSIGN; instance_name; member_name; value_expr]
 
 -- ============================================================================
 -- PARSER FUNCTIONS (STATELESS)
@@ -77,8 +77,8 @@ const numeric STRUCT_MEMBER_ASSIGN = 5   -- Member assignment (person.name = "Jo
 --   pos (numeric): Current position in token list
 --
 -- Returns:
---   list: [struct_node, new_position]
---   - struct_node: [STRUCT_DEFINITION, struct_name, member_list, member_count]
+--   list: [struct_node; new_position]
+--   - struct_node: [STRUCT_DEFINITION; struct_name; member_list; member_count]
 --   - new_position: Position after parsing
 --
 -- Example:
@@ -130,7 +130,7 @@ function parse_struct_definition(list tokens, numeric pos) returns list
     end_while
     
     -- Create struct definition node
-    list struct_node = [STRUCT_DEFINITION, struct_name, member_list, member_count]
+    list struct_node = [STRUCT_DEFINITION; struct_name; member_list; member_count]
     
     return (struct_node, pos]
 end_function
@@ -151,8 +151,8 @@ end_function
 --   pos (numeric): Current position in token list
 --
 -- Returns:
---   list: [member_node, new_position]
---   - member_node: [STRUCT_MEMBER, member_name, member_type]
+--   list: [member_node; new_position]
+--   - member_node: [STRUCT_MEMBER; member_name; member_type]
 --   - new_position: Position after parsing
 -- ----------------------------------------------------------------------------
 function parse_struct_member(list tokens, numeric pos) returns list
@@ -191,7 +191,7 @@ function parse_struct_member(list tokens, numeric pos) returns list
     pos = pos + 1
     
     -- Create member node
-    list member_node = [STRUCT_MEMBER, member_name, member_type]
+    list member_node = [STRUCT_MEMBER; member_name; member_type]
     
     return (member_node, pos]
 end_function
@@ -210,8 +210,8 @@ end_function
 --   pos (numeric): Current position in token list
 --
 -- Returns:
---   list: [instance_node, new_position]
---   - instance_node: [STRUCT_INSTANTIATION, struct_type, instance_name, initializer_list]
+--   list: [instance_node; new_position]
+--   - instance_node: [STRUCT_INSTANTIATION; struct_type; instance_name; initializer_list]
 --   - new_position: Position after parsing
 --
 -- Note: This is called when we detect "StructType identifier =" pattern
@@ -282,8 +282,8 @@ function parse_struct_instantiation(list tokens, numeric pos) returns list
         value = token[1]  -- Simplified: just get token value
         pos = pos + 1
         
-        -- Store initializer: [member_name, value]
-        initializer_list[init_count] = [member_name, value]
+        -- Store initializer: [member_name; value]
+        initializer_list[init_count] = [member_name; value]
         init_count = init_count + 1
         
         -- Check for comma (optional)
@@ -294,7 +294,7 @@ function parse_struct_instantiation(list tokens, numeric pos) returns list
     end_while
     
     -- Create instantiation node
-    list instance_node = [STRUCT_INSTANTIATION, struct_type, instance_name, initializer_list]
+    list instance_node = [STRUCT_INSTANTIATION; struct_type; instance_name; initializer_list]
     
     return (instance_node, pos]
 end_function
@@ -314,8 +314,8 @@ end_function
 --   pos (numeric): Current position in token list
 --
 -- Returns:
---   list: [access_node, new_position]
---   - access_node: [STRUCT_MEMBER_ACCESS, instance_name, member_name]
+--   list: [access_node; new_position]
+--   - access_node: [STRUCT_MEMBER_ACCESS; instance_name; member_name]
 --   - new_position: Position after parsing
 --
 -- Note: For now, single-level access. Nested access in TIER 1.
@@ -345,7 +345,7 @@ function parse_member_access(list tokens, numeric pos) returns list
     pos = pos + 1
     
     -- Create member access node
-    list access_node = [STRUCT_MEMBER_ACCESS, instance_name, member_name]
+    list access_node = [STRUCT_MEMBER_ACCESS; instance_name; member_name]
     
     return (access_node, pos]
 end_function
@@ -365,8 +365,8 @@ end_function
 --   pos (numeric): Current position in token list
 --
 -- Returns:
---   list: [assign_node, new_position]
---   - assign_node: [STRUCT_MEMBER_ASSIGN, instance_name, member_name, value_expr]
+--   list: [assign_node; new_position]
+--   - assign_node: [STRUCT_MEMBER_ASSIGN; instance_name; member_name; value_expr]
 --   - new_position: Position after parsing
 -- ----------------------------------------------------------------------------
 function parse_member_assignment(list tokens, numeric pos) returns list
@@ -396,7 +396,7 @@ function parse_member_assignment(list tokens, numeric pos) returns list
     pos = pos + 1
     
     -- Create assignment node
-    list assign_node = [STRUCT_MEMBER_ASSIGN, instance_name, member_name, value_expr]
+    list assign_node = [STRUCT_MEMBER_ASSIGN; instance_name; member_name; value_expr]
     
     return (assign_node, pos]
 end_function

@@ -18,7 +18,7 @@
 -- Expected: Valid array node with 0 elements
 -- ============================================================================
 function test_empty_array() returns numeric
-    -- Input tokens: [LBRACKET, RBRACKET]
+    -- Input tokens: [LBRACKET; RBRACKET]
     list tokens = [
         [TOKEN_LBRACKET; "["],
         [TOKEN_RBRACKET; "]"]
@@ -64,17 +64,17 @@ end_function
 -- ============================================================================
 -- TEST 2: Integer Array Literal
 -- ============================================================================
--- Test: Parse and generate code for [1, 2, 3]
+-- Test: Parse and generate code for [1; 2; 3]
 -- Expected: Array node with 3 integer elements
 -- ============================================================================
 function test_integer_array() returns numeric
-    -- Input tokens: [LBRACKET, NUMBER "1", COMMA, NUMBER "2", COMMA, NUMBER "3", RBRACKET]
+    -- Input tokens: [LBRACKET; NUMBER "1"; COMMA; NUMBER "2"; COMMA; NUMBER "3"; RBRACKET]
     list tokens = [
         [TOKEN_LBRACKET; "["],
         [TOKEN_NUMBER; "1"],
-        [TOKEN_COMMA; ","],
+        [TOKEN_COMMA; ";"],
         [TOKEN_NUMBER; "2"],
-        [TOKEN_COMMA; ","],
+        [TOKEN_COMMA; ";"],
         [TOKEN_NUMBER; "3"],
         [TOKEN_RBRACKET; "]"]
     ]
@@ -120,7 +120,7 @@ end_function
 -- ============================================================================
 -- TEST 3: String Array Literal
 -- ============================================================================
--- Test: Parse ["hello", "world"]
+-- Test: Parse ["hello"; "world"]
 -- Expected: Array node with 2 string elements
 -- ============================================================================
 function test_string_array() returns numeric
@@ -128,7 +128,7 @@ function test_string_array() returns numeric
     list tokens = [
         [TOKEN_LBRACKET; "["],
         [TOKEN_STRING; "hello"],
-        [TOKEN_COMMA; ","],
+        [TOKEN_COMMA; ";"],
         [TOKEN_STRING; "world"],
         [TOKEN_RBRACKET; "]"]
     ]
@@ -159,16 +159,16 @@ end_function
 -- ============================================================================
 -- TEST 4: Boolean Array Literal
 -- ============================================================================
--- Test: Parse [true, false, true]
+-- Test: Parse [true; false; true]
 -- Expected: Array node with 3 numeric elements
 -- ============================================================================
 function test_boolean_array() returns numeric
     list tokens = [
         [TOKEN_LBRACKET; "["],
         [TOKEN_TRUE; "true"],
-        [TOKEN_COMMA; ","],
+        [TOKEN_COMMA; ";"],
         [TOKEN_FALSE; "false"],
-        [TOKEN_COMMA; ","],
+        [TOKEN_COMMA; ";"],
         [TOKEN_TRUE; "true"],
         [TOKEN_RBRACKET; "]"]
     ]
@@ -202,7 +202,7 @@ end_function
 -- Expected: ARRAY_INDEX node with array name and index
 -- ============================================================================
 function test_array_indexing() returns numeric
-    -- Input tokens: [IDENTIFIER "arr", LBRACKET, NUMBER "0", RBRACKET]
+    -- Input tokens: [IDENTIFIER "arr"; LBRACKET; NUMBER "0"; RBRACKET]
     list tokens = [
         [TOKEN_IDENTIFIER; "arr"],
         [TOKEN_LBRACKET; "["],
@@ -257,7 +257,7 @@ end_function
 -- Expected: ARRAY_LENGTH node with array name
 -- ============================================================================
 function test_array_length() returns numeric
-    -- Input tokens: [IDENTIFIER "len", LPAREN, IDENTIFIER "arr", RPAREN]
+    -- Input tokens: [IDENTIFIER "len"; LPAREN; IDENTIFIER "arr"; RPAREN]
     list tokens = [
         [TOKEN_IDENTIFIER; "len"],
         [TOKEN_LPAREN; "("],
@@ -303,20 +303,20 @@ end_function
 -- ============================================================================
 -- TEST 7: Array Declaration
 -- ============================================================================
--- Test: Parse list numbers = [1, 2, 3]
+-- Test: Parse list numbers = [1; 2; 3]
 -- Expected: ARRAY_DECLARATION node
 -- ============================================================================
 function test_array_declaration() returns numeric
-    -- Input tokens: [LIST, IDENTIFIER "numbers", ASSIGN, LBRACKET, ...]
+    -- Input tokens: [LIST; IDENTIFIER "numbers"; ASSIGN; LBRACKET; ...]
     list tokens = [
         [TOKEN_LIST; "list"],
         [TOKEN_IDENTIFIER; "numbers"],
         [TOKEN_ASSIGN; "="],
         [TOKEN_LBRACKET; "["],
         [TOKEN_NUMBER; "1"],
-        [TOKEN_COMMA; ","],
+        [TOKEN_COMMA; ";"],
         [TOKEN_NUMBER; "2"],
-        [TOKEN_COMMA; ","],
+        [TOKEN_COMMA; ";"],
         [TOKEN_NUMBER; "3"],
         [TOKEN_RBRACKET; "]"]
     ]

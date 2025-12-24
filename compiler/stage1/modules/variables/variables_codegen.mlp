@@ -345,7 +345,7 @@ end_function
 
 -- Generate simple variable assignment (non-expression)
 function codegen_simple_assignment(text var_name, numeric var_type, text value) returns text
-    list assign_info = [var_name, value, false]
+    list assign_info = [var_name; value; false]
     text indent = "  "
     return codegen_variable_assignment(assign_info, var_type, indent)
 end_function

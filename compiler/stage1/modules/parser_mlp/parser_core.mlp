@@ -50,21 +50,21 @@ function main() returns numeric
     -- Tokens for: function add(numeric a; numeric b) returns numeric
     --                return a + b
     --              end_function
-    list tok1 = [T_FUNCTION, "function", 1, 1]
-    list tok2 = [T_ID, "add", 1, 10]
-    list tok3 = [T_LPAREN; "(", 1, 13]
-    list tok4 = [T_NUMERIC, "numeric", 1, 14]
-    list tok5 = [T_ID, "a", 1, 22]
-    list tok6 = [T_COMMA; ",", 1, 23]
-    list tok7 = [T_NUMERIC, "numeric", 1, 25]
-    list tok8 = [T_ID, "b", 1, 33]
-    list tok9 = [T_RPAREN; ")", 1, 34]
+    list tok1 = [T_FUNCTION; "function"; 1; 1]
+    list tok2 = [T_ID; "add"; 1; 10]
+    list tok3 = [T_LPAREN; "("; 1; 13]
+    list tok4 = [T_NUMERIC; "numeric"; 1; 14]
+    list tok5 = [T_ID; "a"; 1; 22]
+    list tok6 = [T_COMMA; ";"; 1; 23]
+    list tok7 = [T_NUMERIC; "numeric"; 1; 25]
+    list tok8 = [T_ID; "b"; 1; 33]
+    list tok9 = [T_RPAREN; ")"; 1; 34]
     list tok10 = [T_RETURNS; "returns"; 1; 36]
-    list tok11 = [T_NUMERIC, "numeric", 1, 44]
+    list tok11 = [T_NUMERIC; "numeric"; 1; 44]
     list tok12 = [T_RETURN; "return"; 2; 5]
-    list tok13 = [T_ID, "a", 2, 12]
-    list tok14 = [T_PLUS; "+", 2, 14]
-    list tok15 = [T_ID, "b", 2, 16]
+    list tok13 = [T_ID; "a"; 2; 12]
+    list tok14 = [T_PLUS; "+"; 2; 14]
+    list tok15 = [T_ID; "b"; 2; 16]
     list tok16 = [T_END; "end"; 3; 1]
     
     list tokens = [tok1; tok2; tok3; tok4, tok5, tok6, tok7, tok8, tok9,
@@ -168,9 +168,9 @@ function main() returns numeric
     
     numeric T_GT = 45
     
-    list tok2_1 = [T_IF, "if", 1, 1]
-    list tok2_2 = [T_ID, "x", 1, 4]
-    list tok2_3 = [T_GT; ">", 1, 6]
+    list tok2_1 = [T_IF; "if"; 1; 1]
+    list tok2_2 = [T_ID; "x"; 1; 4]
+    list tok2_3 = [T_GT; ">"; 1; 6]
     list tok2_4 = [T_NUMBER; "0"; 1; 8]
     list tok2_5 = [T_THEN; "then"; 1; 10]
     list tok2_6 = [T_RETURN; "return"; 2; 5]

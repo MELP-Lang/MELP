@@ -45,17 +45,17 @@ function main() returns numeric
     println("")
     
     -- Tokens: if x > 0 then print("positive") end_if
-    list tok1_1 = [T_IF, "if", 1, 1]
-    list tok1_2 = [T_ID, "x", 1, 4]
-    list tok1_3 = [T_GT; ">", 1, 6]
+    list tok1_1 = [T_IF; "if"; 1; 1]
+    list tok1_2 = [T_ID; "x"; 1; 4]
+    list tok1_3 = [T_GT; ">"; 1; 6]
     list tok1_4 = [T_NUMBER; "0"; 1; 8]
     list tok1_5 = [T_THEN; "then"; 1; 10]
-    list tok1_6 = [T_PRINT, "print", 2, 5]
-    list tok1_7 = [T_LPAREN; "(", 2, 10]
-    list tok1_8 = [T_STR_LIT, "positive", 2, 11]
-    list tok1_9 = [T_RPAREN; ")", 2, 20]
+    list tok1_6 = [T_PRINT; "print"; 2; 5]
+    list tok1_7 = [T_LPAREN; "("; 2; 10]
+    list tok1_8 = [T_STR_LIT; "positive"; 2; 11]
+    list tok1_9 = [T_RPAREN; ")"; 2; 20]
     list tok1_10 = [T_END; "end"; 3; 1]
-    list tok1_11 = [T_IF, "if", 3, 5]
+    list tok1_11 = [T_IF; "if"; 3; 5]
     
     -- Parse: if
     current_tok = tok1_1
@@ -104,22 +104,22 @@ function main() returns numeric
     println("")
     
     -- Tokens: if x > 0 then print("positive") else print("non-positive") end_if
-    list tok2_1 = [T_IF, "if", 1, 1]
-    list tok2_2 = [T_ID, "x", 1, 4]
-    list tok2_3 = [T_GT; ">", 1, 6]
+    list tok2_1 = [T_IF; "if"; 1; 1]
+    list tok2_2 = [T_ID; "x"; 1; 4]
+    list tok2_3 = [T_GT; ">"; 1; 6]
     list tok2_4 = [T_NUMBER; "0"; 1; 8]
     list tok2_5 = [T_THEN; "then"; 1; 10]
-    list tok2_6 = [T_PRINT, "print", 2, 5]
-    list tok2_7 = [T_LPAREN; "(", 2, 10]
-    list tok2_8 = [T_STR_LIT, "positive", 2, 11]
-    list tok2_9 = [T_RPAREN; ")", 2, 20]
+    list tok2_6 = [T_PRINT; "print"; 2; 5]
+    list tok2_7 = [T_LPAREN; "("; 2; 10]
+    list tok2_8 = [T_STR_LIT; "positive"; 2; 11]
+    list tok2_9 = [T_RPAREN; ")"; 2; 20]
     list tok2_10 = [T_ELSE; "else"; 3; 1]
-    list tok2_11 = [T_PRINT, "print", 4, 5]
-    list tok2_12 = [T_LPAREN; "(", 4, 10]
-    list tok2_13 = [T_STR_LIT, "non-positive", 4, 11]
-    list tok2_14 = [T_RPAREN; ")", 4, 24]
+    list tok2_11 = [T_PRINT; "print"; 4; 5]
+    list tok2_12 = [T_LPAREN; "("; 4; 10]
+    list tok2_13 = [T_STR_LIT; "non-positive"; 4; 11]
+    list tok2_14 = [T_RPAREN; ")"; 4; 24]
     list tok2_15 = [T_END; "end"; 5; 1]
-    list tok2_16 = [T_IF, "if", 5, 5]
+    list tok2_16 = [T_IF; "if"; 5; 5]
     
     -- Parse if condition
     current_tok = tok2_1
@@ -171,17 +171,17 @@ function main() returns numeric
     println("")
     
     -- Tokens: while i < 10 do println(i) end_while
-    list tok3_1 = [T_WHILE, "while", 1, 1]
-    list tok3_2 = [T_ID, "i", 1, 7]
-    list tok3_3 = [T_LT; "<", 1, 9]
+    list tok3_1 = [T_WHILE; "while"; 1; 1]
+    list tok3_2 = [T_ID; "i"; 1; 7]
+    list tok3_3 = [T_LT; "<"; 1; 9]
     list tok3_4 = [T_NUMBER; "10"; 1; 11]
-    list tok3_5 = [T_ID, "do", 1, 14]     -- 'do' might be keyword
-    list tok3_6 = [T_PRINTLN, "println", 2, 5]
-    list tok3_7 = [T_LPAREN; "(", 2, 12]
-    list tok3_8 = [T_ID, "i", 2, 13]
-    list tok3_9 = [T_RPAREN; ")", 2, 14]
+    list tok3_5 = [T_ID; "do"; 1; 14]     -- 'do' might be keyword
+    list tok3_6 = [T_PRINTLN; "println"; 2; 5]
+    list tok3_7 = [T_LPAREN; "("; 2; 12]
+    list tok3_8 = [T_ID; "i"; 2; 13]
+    list tok3_9 = [T_RPAREN; ")"; 2; 14]
     list tok3_10 = [T_END; "end"; 3; 1]
-    list tok3_11 = [T_WHILE, "while", 3, 5]
+    list tok3_11 = [T_WHILE; "while"; 3; 5]
     
     -- Parse while
     current_tok = tok3_1

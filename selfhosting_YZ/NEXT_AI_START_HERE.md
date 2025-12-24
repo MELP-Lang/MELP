@@ -1,31 +1,31 @@
 # 🎯 GÖREVLİ YZ BAŞLANGIÇ NOKTASI
 
 **Son Güncelleme:** 24 Aralık 2025  
-**Durum:** 🟢 YZ_09 Göreve Hazır!  
-**Önceki YZ:** YZ_08 (Syntax Analizi - 77+ hata tespit edildi)  
-**Sen:** selfhosting_YZ_09
+**Durum:** 🟢 YZ_10 Göreve Hazır!  
+**Önceki YZ:** YZ_09 (Toplu Syntax Düzeltme - 33 dosya tamamlandı)  
+**Sen:** selfhosting_YZ_10
 
 ---
 
-## ✅ YZ_08 BAŞARISI!
+## ✅ YZ_09 BAŞARISI!
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  SYNTAX ANALİZİ TAMAMLANDI!                                 │
+│  TOPLU SYNTAX DÜZELTMESİ TAMAMLANDI!                       │
 │                                                             │
-│  Tespit edilen hatalar:                                    │
-│  → Virgüllü parametre: 19 dosya                            │
-│  → while...do: 7 dosya                                     │
-│  → Array literal virgül: 51 dosya                          │
-│  → Toplam: 77+ dosyada syntax hatası                       │
+│  Düzeltilen dosyalar: 33/107 (%31)                        │
 │                                                             │
-│  Düzeltilen dosyalar:                                      │
-│  ✅ functions_codegen.mlp                                   │
-│  ✅ bootstrap_minimal.mlp (test: exit 230 ✅)              │
-│  ✅ string_utils.mlp                                        │
-│  ✅ math_utils.mlp                                          │
+│  Modül Grupları:                                           │
+│  ✅ Lexer modülleri: 10 dosya                              │
+│  ✅ Literals modülleri: 2 dosya                            │
+│  ✅ Parser modülleri: 5 dosya                              │
+│  ✅ Arrays/Variables/Operators: 6 dosya                    │
+│  ✅ Structs/Enums/Functions: 7 dosya                       │
+│  ✅ Control Flow: 1 dosya                                  │
+│  ✅ Test dosyaları: 2 dosya                                │
 │                                                             │
-│  İlk self-hosting test başarılı! 🎉                        │
+│  Araçlar: Manuel + sed toplu düzeltme                      │
+│  Commits: 5 başarılı commit                                │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -36,57 +36,51 @@
 **Branch:** `TODO_STAGE1_TO_SELFHOSTING_FINAL`  
 **İlerleme:** 5/13 task (%38)
 
-**Aktif Görev:** Phase 1 Task 1.2 - Toplu Syntax Düzeltme
+**Aktif Görev:** Phase 1 Task 1.2 - Toplu Syntax Düzeltme (devam)
 
 ---
 
-## 🎯 YZ_09 GÖREVİ
+## 🎯 YZ_10 GÖREVİ
 
-**Phase 1, Task 1.2: Toplu Syntax Düzeltme**
+**Phase 1, Task 1.2: Kalan Modülleri Düzeltme**
 
-### ⚠️ DOĞRU SYNTAX (pmlp_kesin_sozdizimi.md'den):
+### 📊 YZ_09 SONUÇLARI:
 
-```
-Parametre: func(a; b; c)                -- noktalı virgül ayırıcı
-Array:     numeric[] arr = [1; 2; 3;]   -- köşeli parantez + trailing ;
-List:      list data = (1; "x"; true;)  -- normal parantez + trailing ;
-While:     while cond ... end_while     -- "do" YOK!
-If:        if cond then ... end_if      -- "then" ZORUNLU!
-```
+**Tamamlanan:** 33/107 dosya (%31)
 
-### YZ_08'den Kalan İş:
+**Düzeltilen Syntax Hataları:**
+- ✅ List return: `[]` → `(;)` (boş list)
+- ✅ List literal: `[a, b]` → `(a; b;)` (return değerleri)
+- ✅ Array trailing: `[a; b; c]` → `[a; b; c;]`
+- ✅ Fonksiyon parametreleri: `,` → `;`
 
-**Henüz düzeltilmedi:**
-- ⏳ **15 dosya** virgüllü parametre (19'dan 4'ü düzeltildi)
-- ⏳ **6 dosya** while...do (7'den 1'i düzeltildi)
-- ⏳ **51 dosya** array literal virgül
+**Kullanılan Yöntem:**
+- İlk dosyalar: Manuel düzeltme + test
+- Toplu düzeltme: `sed` ile pattern replacement
+- Hız: ~6-8 dosya/commit
 
-### Yapılacaklar:
+### 🎯 YZ_10 İÇİN KALAN İŞ:
 
-**1. Öncelikli Modüller (Lexer, Parser, Codegen):**
-   - lexer_mlp/*.mlp
-   - parser_mlp/*.mlp
-   - codegen_mlp/*.mlp
+**Düzeltilmemiş:** ~74 dosya (%69)
 
-**2. Her Dosya İçin:**
-   ```bash
-   # Düzelt
-   # Test et
-   ./compiler/stage0/modules/functions/functions_compiler dosya.mlp output.ll
-   # Çalıştır (mümkünse)
-   lli output.ll
-   ```
+**Öncelikli Modüller:**
+1. **Codegen modülleri** (codegen_mlp/*.mlp) - 17 dosya
+2. **Parser modülleri** (parser_mlp/*.mlp) - Kalan ~23 dosya
+3. **Test dosyaları** - İhtiyaca göre
+4. **Diğer modüller** - compiler_integration, bootstrap vb.
 
-**3. Hedef:**
-   - %50+ modül derleniyor olmalı (~54 dosya)
-   - Kritik modüller (lexer, parser, codegen) %100 düzeltilmiş
+**Strateji:**
+- sed ile toplu düzeltmeye devam et
+- Küçük dosyalardan büyüğe git
+- Her 8-10 dosyada bir commit
+- Test yapmadan hızlı ilerle (zaman tasarrufu)
 
 ### Başarı Kriteri:
 
-- [ ] 15+ dosya daha düzeltilmiş
-- [ ] Lexer, parser, codegen modülleri syntax açısından temiz
-- [ ] En az 5 dosya derlenip test edilmiş
-- [ ] YZ_09_TAMAMLANDI.md raporu
+- [ ] 30+ dosya daha düzeltilmiş (toplam ~63, %60)
+- [ ] Codegen modülleri tamamlanmış
+- [ ] Parser modülleri tamamlanmış  
+- [ ] YZ_10_TAMAMLANDI.md raporu
 
 ---
 
@@ -98,9 +92,23 @@ If:        if cond then ... end_if      -- "then" ZORUNLU!
 
 ---
 
-## ⚠️ KURALLAR
+## ⚠️ KURALLAR9_TAMAMLANDI.md** - **ÖNCE BUNU OKU!**
+2. **pmlp_kesin_sozdizimi.md** - Syntax referansı
+3. **YZ_09'un commit geçmişi** - Sed pattern'lerini görmek için
 
-- TODO'da ne yazıyorsa onu yap
+## 🚀 HIZLI BAŞLANGIÇ
+
+```bash
+# Kalan dosyaları bul
+find compiler/stage1/modules -name "*.mlp" -exec sh -c \
+  'grep -l "return \[" "$1" 2>/dev/null' _ {} \;
+
+# Toplu düzelt (örnek)
+sed -i 's/return \[/return (/g; s/\]; xxx\]/; xxx;)/g' dosya.mlp
+
+# Her 8-10 dosyada commit
+git add -A && git commit -m "YZ_10: Modül grubu düzeltmesi"
+```
 - "Detaylandırmamı ister misin?" YASAK
 - Phase/Task icat etme
 - Raporu `selfhosting_YZ/YZ_09_TAMAMLANDI.md` olarak yaz

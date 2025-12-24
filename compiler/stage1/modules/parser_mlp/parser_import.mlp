@@ -25,7 +25,7 @@ function main() returns numeric
     println("")
     
     -- Tokens: import lexer
-    list tok1_1 = [22; "import", 1, 1]    -- T_IMPORT
+    list tok1_1 = [22; "import"; 1; 1]    -- T_IMPORT
     list tok1_2 = [32; "lexer"; 1; 8]     -- T_ID
     
     -- Parse: import keyword
@@ -51,9 +51,9 @@ function main() returns numeric
     println("")
     
     -- Tokens: import parser.expr
-    list tok2_1 = [22; "import", 1, 1]    -- T_IMPORT
+    list tok2_1 = [22; "import"; 1; 1]    -- T_IMPORT
     list tok2_2 = [32; "parser"; 1; 8]    -- T_ID
-    list tok2_3 = [55; ".", 1, 14]        -- T_DOT
+    list tok2_3 = [55; "."; 1; 14]        -- T_DOT
     list tok2_4 = [32; "expr"; 1; 15]     -- T_ID
     
     list tokens2 = [tok2_1; tok2_2; tok2_3; tok2_4]
@@ -94,8 +94,8 @@ function main() returns numeric
     println("")
     
     -- Tokens: include "stdlib.mlp"
-    list tok3_1 = [23; "include", 1, 1]        -- T_INCLUDE
-    list tok3_2 = [62; "stdlib.mlp", 1, 9]     -- T_STR_LIT
+    list tok3_1 = [23; "include"; 1; 1]        -- T_INCLUDE
+    list tok3_2 = [62; "stdlib.mlp"; 1; 9]     -- T_STR_LIT
     
     list tokens3 = [tok3_1; tok3_2]
     
@@ -124,12 +124,12 @@ function main() returns numeric
     -- Tokens: from parser import expr, stmt
     list tok4_1 = [24; "from"; 1; 1]      -- T_FROM
     list tok4_2 = [32; "parser"; 1; 6]    -- T_ID
-    list tok4_3 = [22; "import", 1, 13]   -- T_IMPORT
+    list tok4_3 = [22; "import"; 1; 13]   -- T_IMPORT
     list tok4_4 = [32; "expr"; 1; 20]     -- T_ID
-    list tok4_5 = [52; ",", 1, 24]        -- T_COMMA
+    list tok4_5 = [52; ";"; 1; 24]        -- T_COMMA
     list tok4_6 = [32; "stmt"; 1; 26]     -- T_ID
     
-    list tokens4 = [tok4_1; tok4_2; tok4_3; tok4_4, tok4_5, tok4_6]
+    list tokens4 = [tok4_1; tok4_2; tok4_3; tok4_4; tok4_5; tok4_6]
     
     -- Parse: from keyword
     cur = tok4_1
@@ -180,9 +180,9 @@ function main() returns numeric
     println("      import parser")
     println("")
     
-    list tok5_1 = [22; "import", 1, 1]
+    list tok5_1 = [22; "import"; 1; 1]
     list tok5_2 = [32; "lexer"; 1; 8]
-    list tok5_3 = [22; "import", 2, 1]
+    list tok5_3 = [22; "import"; 2; 1]
     list tok5_4 = [32; "parser"; 2; 8]
     
     println("  Parsed imports:")

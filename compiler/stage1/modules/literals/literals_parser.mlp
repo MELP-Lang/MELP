@@ -2,11 +2,11 @@
 -- literals_parser.mlp - Literal Value Parser for MELP Stage 1
 -- ============================================================================
 -- Part of: Stage 1 Literals Module
--- Purpose: Parse literal values (numeric, string, boolean)
--- Architecture: Stateless, parameterized design
+-- Purpose: Parse literal values (numeric; string; boolean)
+-- Architecture: Stateless; parameterized design
 -- ============================================================================
 
--- Import core utilities (token types, type mapper)
+-- Import core utilities (token types; type mapper)
 -- import "compiler/stage1/modules/core/token_types.mlp"
 -- import "compiler/stage1/modules/core/type_mapper.mlp"
 
@@ -17,21 +17,21 @@
 const numeric LIT_INTEGER = 1        -- Integer literal (42, -10)
 const numeric LIT_FLOAT = 2          -- Float literal (3.14, -2.5) - TIER 1
 const numeric LIT_STRING = 3         -- String literal ("hello")
-const numeric LIT_BOOLEAN = 4        -- Boolean literal (true, false)
+const numeric LIT_BOOLEAN = 4        -- Boolean literal (true; false)
 const numeric LIT_NULL = 5           -- Null literal (null) - TIER 1
 const numeric LIT_CHAR = 6           -- Character literal ('a') - TIER 1
 
 -- ============================================================================
 -- LITERAL VALUE STRUCTURE
 -- ============================================================================
--- Literal representation: [lit_type, value, original_text;)
+-- Literal representation: [lit_type; value; original_text;)
 --
 -- Examples:
---   Integer:  [LIT_INTEGER, 42, "42";)
---   Float:    [LIT_FLOAT, 3.14, "3.14";)
---   String:   [LIT_STRING, "hello", "\"hello\"";)
---   Boolean:  [LIT_BOOLEAN, 1, "true";)
---   Boolean:  [LIT_BOOLEAN, 0, "false";)
+--   Integer:  [LIT_INTEGER; 42; "42";)
+--   Float:    [LIT_FLOAT; 3.14; "3.14";)
+--   String:   [LIT_STRING; "hello"; "\"hello\"";)
+--   Boolean:  [LIT_BOOLEAN; 1; "true";)
+--   Boolean:  [LIT_BOOLEAN; 0; "false";)
 -- ============================================================================
 
 -- ============================================================================
@@ -45,12 +45,12 @@ const numeric LIT_CHAR = 6           -- Character literal ('a') - TIER 1
 --   tokens: list of tokens
 --   pos: current position
 -- Output:
---   [literal_node, new_pos] on success
+--   [literal_node; new_pos] on success
 --   [[], pos] on failure (not an integer literal)
 --
 -- Example:
---   Input: tokens[pos] = [TOKEN_NUMBER, "42";)
---   Output: [[LIT_INTEGER, 42, "42"], pos+1;)
+--   Input: tokens[pos] = [TOKEN_NUMBER; "42";)
+--   Output: [[LIT_INTEGER; 42; "42"], pos+1;)
 -- ----------------------------------------------------------------------------
 function parse_integer_literal(list tokens; numeric pos) returns list
     -- Check bounds
@@ -64,16 +64,16 @@ function parse_integer_literal(list tokens; numeric pos) returns list
     
     -- Check if it's a number token
     if token_type != TOKEN_NUMBER then
-        return ([], pos]  -- Not a number literal
+        return ((;), pos)  -- Not a number literal
     end_if
     
     -- Check if it contains a decimal point (would be float)
     -- TIER 1: Implement proper float detection
-    -- For now, treat all TOKEN_NUMBER as integers
+    -- For now; treat all TOKEN_NUMBER as integers
     
     -- Convert string to numeric value
     -- TIER 1: Implement proper string to number conversion
-    -- For now, store as string (will be handled by codegen)
+    -- For now; store as string (will be handled by codegen)
     numeric value = 0  -- Placeholder
     
     -- Create literal node
@@ -89,16 +89,16 @@ end_function
 --   tokens: list of tokens
 --   pos: current position
 -- Output:
---   [literal_node, new_pos] on success
+--   [literal_node; new_pos] on success
 --   [[], pos] on failure
 --
 -- Example:
---   Input: tokens[pos] = [TOKEN_NUMBER, "3.14";)
---   Output: [[LIT_FLOAT, 3.14, "3.14"], pos+1;)
+--   Input: tokens[pos] = [TOKEN_NUMBER; "3.14";)
+--   Output: [[LIT_FLOAT; 3.14; "3.14"], pos+1;)
 -- ----------------------------------------------------------------------------
 function parse_float_literal(list tokens; numeric pos) returns list
     -- TIER 1: Implement float literal parsing
-    -- For now, return empty (not implemented)
+    -- For now; return empty (not implemented)
     return ((;); pos;)
 end_function
 
@@ -109,12 +109,12 @@ end_function
 --   tokens: list of tokens
 --   pos: current position
 -- Output:
---   [literal_node, new_pos] on success
+--   [literal_node; new_pos] on success
 --   [[], pos] on failure
 --
 -- Example:
---   Input: tokens[pos] = [TOKEN_STRING, "hello";)
---   Output: [[LIT_STRING, "hello", "\"hello\""], pos+1;)
+--   Input: tokens[pos] = [TOKEN_STRING; "hello";)
+--   Output: [[LIT_STRING; "hello"; "\"hello\""], pos+1;)
 -- ----------------------------------------------------------------------------
 function parse_string_literal(list tokens; numeric pos) returns list
     -- Check bounds
@@ -146,15 +146,15 @@ end_function
 --   tokens: list of tokens
 --   pos: current position
 -- Output:
---   [literal_node, new_pos] on success
+--   [literal_node; new_pos] on success
 --   [[], pos] on failure
 --
 -- Example:
---   Input: tokens[pos] = [TOKEN_TRUE, "true";)
---   Output: [[LIT_BOOLEAN, 1, "true"], pos+1;)
+--   Input: tokens[pos] = [TOKEN_TRUE; "true";)
+--   Output: [[LIT_BOOLEAN; 1; "true"], pos+1;)
 --
---   Input: tokens[pos] = [TOKEN_FALSE, "false";)
---   Output: [[LIT_BOOLEAN, 0, "false"], pos+1;)
+--   Input: tokens[pos] = [TOKEN_FALSE; "false";)
+--   Output: [[LIT_BOOLEAN; 0; "false"], pos+1;)
 -- ----------------------------------------------------------------------------
 function parse_boolean_literal(list tokens; numeric pos) returns list
     -- Check bounds
@@ -187,18 +187,18 @@ end_function
 --   tokens: list of tokens
 --   pos: current position
 -- Output:
---   [literal_node, new_pos] on success
+--   [literal_node; new_pos] on success
 --   [[], pos] on failure
 --
 -- Tries to parse:
---   1. Boolean literals (true, false)
+--   1. Boolean literals (true; false)
 --   2. String literals ("...")
 --   3. Integer literals (42, -10)
 --   4. Float literals (3.14) - TIER 1
 --
 -- Example:
---   Input: tokens[pos] = [TOKEN_NUMBER, "42";)
---   Output: [[LIT_INTEGER, 42, "42"], pos+1;)
+--   Input: tokens[pos] = [TOKEN_NUMBER; "42";)
+--   Output: [[LIT_INTEGER; 42; "42"], pos+1;)
 -- ----------------------------------------------------------------------------
 function parse_literal(list tokens; numeric pos) returns list
     -- Try boolean first (most specific)
@@ -220,7 +220,7 @@ function parse_literal(list tokens; numeric pos) returns list
     end_if
     
     -- Try float literal (TIER 1)
-    list result4 = parse_float_literal(tokens, pos)
+    list result4 = parse_float_literal(tokens; pos)
     if result4[0] != [] then
         return result4
     end_if
@@ -273,7 +273,7 @@ end_function
 -- Input:
 --   token_type: token type from lexer
 -- Output:
---   1 if token is a literal type, 0 otherwise
+--   1 if token is a literal type; 0 otherwise
 --
 -- Example:
 --   is_literal_token(TOKEN_NUMBER) → 1
@@ -301,13 +301,13 @@ end_function
 -- get_literal_value - Extract value from literal node
 -- ----------------------------------------------------------------------------
 -- Input:
---   literal: literal node [lit_type, value, original_text;)
+--   literal: literal node [lit_type; value; original_text;)
 -- Output:
---   value component (can be numeric, string, etc.)
+--   value component (can be numeric; string; etc.)
 --
 -- Example:
---   get_literal_value([LIT_INTEGER, 42, "42"]) → 42
---   get_literal_value([LIT_STRING, "hello", "\"hello\""]) → "hello"
+--   get_literal_value([LIT_INTEGER; 42; "42"]) → 42
+--   get_literal_value([LIT_STRING; "hello"; "\"hello\""]) → "hello"
 -- ----------------------------------------------------------------------------
 function get_literal_value(list literal) returns string
     -- Return the value component (index 1)
@@ -318,13 +318,13 @@ end_function
 -- get_literal_text - Extract original text from literal node
 -- ----------------------------------------------------------------------------
 -- Input:
---   literal: literal node [lit_type, value, original_text;)
+--   literal: literal node [lit_type; value; original_text;)
 -- Output:
 --   original text as it appeared in source code
 --
 -- Example:
---   get_literal_text([LIT_INTEGER, 42, "42"]) → "42"
---   get_literal_text([LIT_STRING, "hello", "\"hello\""]) → "\"hello\""
+--   get_literal_text([LIT_INTEGER; 42; "42"]) → "42"
+--   get_literal_text([LIT_STRING; "hello"; "\"hello\""]) → "\"hello\""
 -- ----------------------------------------------------------------------------
 function get_literal_text(list literal) returns string
     -- Return the original text component (index 2)
@@ -341,16 +341,16 @@ end_function
 -- Input:
 --   value: string representation of integer
 -- Output:
---   1 if valid, 0 if invalid
+--   1 if valid; 0 if invalid
 --
 -- TIER 1: Implement proper validation
 --   - Check for overflow
 --   - Check for invalid characters
---   - Support different bases (hex, binary, octal)
+--   - Support different bases (hex; binary; octal)
 -- ----------------------------------------------------------------------------
 function validate_integer_literal(string value) returns numeric
     -- TIER 1: Implement validation
-    -- For now, assume all integers from lexer are valid
+    -- For now; assume all integers from lexer are valid
     return 1
 end_function
 
@@ -368,7 +368,7 @@ end_function
 -- Input:
 --   value: string content (without quotes)
 -- Output:
---   1 if valid, 0 if invalid
+--   1 if valid; 0 if invalid
 --
 -- TIER 1: Implement proper validation
 --   - Check for invalid escape sequences
@@ -377,7 +377,7 @@ end_function
 -- ----------------------------------------------------------------------------
 function validate_string_literal(string value) returns numeric
     -- TIER 1: Implement validation
-    -- For now, assume all strings from lexer are valid
+    -- For now; assume all strings from lexer are valid
     return 1
 end_function
 
@@ -389,13 +389,13 @@ end_function
 -- infer_literal_type - Infer MELP type from literal
 -- ----------------------------------------------------------------------------
 -- Input:
---   literal: literal node [lit_type, value, original_text;)
+--   literal: literal node [lit_type; value; original_text;)
 -- Output:
 --   MELP type kind (from type_mapper.mlp)
 --
 -- Example:
---   infer_literal_type([LIT_INTEGER, 42, "42"]) → TYPE_NUMERIC
---   infer_literal_type([LIT_STRING, "hi", "\"hi\""]) → TYPE_STRING
+--   infer_literal_type([LIT_INTEGER; 42; "42"]) → TYPE_NUMERIC
+--   infer_literal_type([LIT_STRING; "hi"; "\"hi\""]) → TYPE_STRING
 -- ----------------------------------------------------------------------------
 function infer_literal_type(list literal) returns numeric
     numeric lit_type = literal[0;)
@@ -422,17 +422,17 @@ end_function
 -- Usage Example:
 --
 --   list tokens = [
---       [TOKEN_NUMBER, "42"],
---       [TOKEN_STRING, "hello"],
---       [TOKEN_TRUE, "true";)
+--       [TOKEN_NUMBER; "42"],
+--       [TOKEN_STRING; "hello"],
+--       [TOKEN_TRUE; "true";)
 --   ;)
 --
---   list result1 = parse_literal(tokens, 0)
---   -- result1 = [[LIT_INTEGER, "42", "42"], 1;)
+--   list result1 = parse_literal(tokens; 0)
+--   -- result1 = [[LIT_INTEGER; "42"; "42"], 1;)
 --
---   list result2 = parse_literal(tokens, 1)
---   -- result2 = [[LIT_STRING, "hello", "\"hello\""], 2;)
+--   list result2 = parse_literal(tokens; 1)
+--   -- result2 = [[LIT_STRING; "hello"; "\"hello\""], 2;)
 --
---   list result3 = parse_literal(tokens, 2)
---   -- result3 = [[LIT_BOOLEAN, 1, "true"], 3;)
+--   list result3 = parse_literal(tokens; 2)
+--   -- result3 = [[LIT_BOOLEAN; 1; "true"], 3;)
 -- ============================================================================
