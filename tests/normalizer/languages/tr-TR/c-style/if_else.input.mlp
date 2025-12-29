@@ -1,0 +1,9 @@
+-- lang: tr-TR
+-- syntax: c-style
+-- test: if_else block conversion
+
+eğer (x > 5) {
+    yazdır("büyük");
+} değilse {
+    yazdır("küçük");
+}

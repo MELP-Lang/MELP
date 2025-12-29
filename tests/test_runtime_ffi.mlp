@@ -1,0 +1,170 @@
+-- ===========================================================================
+-- MLP Runtime FFI Test - Simple Integration Test
+-- ===========================================================================
+-- Tests basic C runtime functions through FFI bindings
+-- Created: 27 Aralık 2025 (CRUNTIME_YZ_05)
+-- ===========================================================================
+
+import "lib/runtime_bindings.mlp"
+
+-- ===========================================================================
+-- Main Test Function
+-- ===========================================================================
+
+function main()
+    mlp_println_string("=================================")
+    mlp_println_string("MLP Runtime FFI Test")
+    mlp_println_string("=================================")
+    mlp_println_string("")
+    
+    -- Test 1: File I/O
+    mlp_println_string("Test 1: File I/O")
+    mlp_println_string("---------------------------------")
+    
+    let test_file = "test_ffi_output.txt"
+    let test_content = "Hello from MLP FFI!"
+    
+    -- Write file
+    mlp_print_string("Writing to ")
+    mlp_print_string(test_file)
+    mlp_println_string("...")
+    let write_result = mlp_write_file(test_file; test_content)
+    
+    if write_result == 0 then
+        mlp_println_string("✓ File write: SUCCESS")
+    else
+        mlp_println_string("✗ File write: FAILED")
+    end_if
+    
+    -- Check if file exists
+    let exists = mlp_file_exists(test_file)
+    if exists == 1 then
+        mlp_println_string("✓ File exists: SUCCESS")
+    else
+        mlp_println_string("✗ File exists: FAILED")
+    end_if
+    
+    -- Read file
+    let content = mlp_read_file(test_file)
+    mlp_print_string("File content: ")
+    mlp_println_string(content)
+    
+    -- Get file size
+    let size = mlp_file_size(test_file)
+    mlp_print_string("File size: ")
+    mlp_print_numeric(size; INTERNAL_TYPE_INT64)
+    mlp_println_string(" bytes")
+    
+    mlp_println_string("")
+    
+    -- Test 2: List Operations
+    mlp_println_string("Test 2: List Operations")
+    mlp_println_string("---------------------------------")
+    
+    -- Create a list
+    let list = melp_list_create(8)
+    mlp_println_string("✓ List created")
+    
+    -- Add elements
+    let item1 = 100
+    let item2 = 200
+    let item3 = 300
+    
+    melp_list_append(list; item1)
+    melp_list_append(list; item2)
+    melp_list_append(list; item3)
+    mlp_println_string("✓ Added 3 items to list")
+    
+    -- Get list length
+    let list_len = melp_list_length(list)
+    mlp_print_string("List length: ")
+    mlp_println_numeric(list_len; INTERNAL_TYPE_INT64)
+    
+    -- Get elements
+    mlp_println_string("List contents:")
+    let elem0 = melp_list_get(list; 0)
+    let elem1 = melp_list_get(list; 1)
+    let elem2 = melp_list_get(list; 2)
+    
+    mlp_print_string("  [0] = ")
+    mlp_println_numeric(elem0; INTERNAL_TYPE_INT64)
+    mlp_print_string("  [1] = ")
+    mlp_println_numeric(elem1; INTERNAL_TYPE_INT64)
+    mlp_print_string("  [2] = ")
+    mlp_println_numeric(elem2; INTERNAL_TYPE_INT64)
+    
+    -- Free list
+    melp_list_free(list)
+    mlp_println_string("✓ List freed")
+    
+    mlp_println_string("")
+    
+    -- Test 3: Map Operations
+    mlp_println_string("Test 3: Map Operations")
+    mlp_println_string("---------------------------------")
+    
+    -- Create a map
+    let map = melp_map_create(8)
+    mlp_println_string("✓ Map created")
+    
+    -- Insert key-value pairs
+    let val1 = 42
+    let val2 = 99
+    
+    melp_map_insert(map; "answer"; val1)
+    melp_map_insert(map; "lucky"; val2)
+    mlp_println_string("✓ Added 2 items to map")
+    
+    -- Get map size
+    let map_size = melp_map_size(map)
+    mlp_print_string("Map size: ")
+    mlp_println_numeric(map_size; INTERNAL_TYPE_INT64)
+    
+    -- Check if key exists
+    let has_answer = melp_map_contains(map; "answer")
+    if has_answer == 1 then
+        mlp_println_string("✓ Map contains 'answer' key")
+    end_if
+    
+    -- Get value
+    let answer_val = melp_map_get(map; "answer")
+    mlp_print_string("Value for 'answer': ")
+    mlp_println_numeric(answer_val; INTERNAL_TYPE_INT64)
+    
+    -- Free map
+    melp_map_free(map)
+    mlp_println_string("✓ Map freed")
+    
+    mlp_println_string("")
+    
+    -- Test 4: String Operations
+    mlp_println_string("Test 4: String Operations")
+    mlp_println_string("---------------------------------")
+    
+    let str1 = "Hello"
+    let str2 = " World"
+    
+    -- Concatenate strings
+    let concat_result = mlp_string_concat(str1; str2)
+    mlp_print_string("Concatenation: ")
+    mlp_println_string(concat_result)
+    
+    -- Get string length
+    let str_len = mlp_string_length(concat_result)
+    mlp_print_string("Length: ")
+    mlp_println_numeric(str_len; INTERNAL_TYPE_INT64)
+    
+    -- Substring
+    let substr = mlp_string_substring(concat_result; 0; 5)
+    mlp_print_string("Substring(0,5): ")
+    mlp_println_string(substr)
+    
+    mlp_println_string("")
+    
+    -- Final summary
+    mlp_println_string("=================================")
+    mlp_println_string("✓ All FFI tests completed!")
+    mlp_println_string("=================================")
+    
+    return 0
+end_function

@@ -1,0 +1,84 @@
+-- ============================================================================
+-- gc_integration.mlp - Memory Management Stubs (MELP Stateless Pattern)
+-- ============================================================================
+-- 
+-- MELP BELLEK STRATEJİSİ:
+-- ========================
+-- MELP stateless bir dildir. Mark-and-Sweep GC KULLANILMAZ.
+-- Bunun yerine RAII benzeri deterministik bellek yönetimi uygulanır:
+--
+-- 1. Stack değişkenler → C scope otomatik temizler
+-- 2. Heap değişkenler → Scope çıkışında free() enjeksiyonu
+-- 3. String literal'lar → .rodata (hiç free edilmez)
+--
+-- Bu dosya sadece interface stub'ları içerir.
+-- Gerçek bellek yönetimi C backend tarafından yapılır.
+--
+-- Referans: ARCHITECTURE_AND_MEMORY_STRATEGY.md
+-- Orijinal GC kodu: archive/gc_integration_original.mlp
+-- ============================================================================
+
+-- ============================================================================
+-- STUB FUNCTIONS - No-op implementations
+-- ============================================================================
+
+-- GC initialization stub
+-- Gerçek implementasyon: C backend scope tracking
+function generate_gc_init(state)
+    -- MELP uses RAII pattern; no GC initialization needed
+    -- C backend handles scope-based memory management
+    state.code = state.code + "    ; MELP: RAII memory model (no GC)\n"
+    return state
+end_function
+
+-- GC shutdown stub
+-- Gerçek implementasyon: Yok (scope-based cleanup)
+function generate_gc_shutdown(state)
+    -- MELP uses RAII pattern; no GC shutdown needed
+    -- All allocations freed at scope exit
+    state.code = state.code + "    ; MELP: Scope-based cleanup complete\n"
+    return state
+end_function
+
+-- Memory allocation tracking stub
+-- Gerçek implementasyon: Codegen scope-exit free() enjeksiyonu
+function track_heap_allocation(state; var_name)
+    -- Codegen will insert free() at scope exit for heap allocations
+    -- This stub just adds a comment for debugging
+    state.code = state.code + "    ; TRACK: " + var_name + " - will free at scope exit\n"
+    return state
+end_function
+
+-- Scope entry marker
+-- Codegen uses this to track variables for cleanup
+function mark_scope_entry(state; scope_name)
+    state.code = state.code + "    ; SCOPE ENTER: " + scope_name + "\n"
+    return state
+end_function
+
+-- Scope exit cleanup
+-- Codegen inserts free() calls here for heap variables
+function generate_scope_cleanup(state; scope_name)
+    state.code = state.code + "    ; SCOPE EXIT: " + scope_name + " (auto-cleanup)\n"
+    -- Actual free() calls are inserted by codegen based on tracked allocations
+    return state
+end_function
+
+-- ============================================================================
+-- HELPER FUNCTIONS
+-- ============================================================================
+
+-- Note: numeric_to_string is a placeholder
+-- Real implementation uses runtime mlp_int_to_string()
+
+-- ============================================================================
+-- NOTES FOR FUTURE DEVELOPMENT
+-- ============================================================================
+--
+-- Eğer async/promise memory leak sorunu ortaya çıkarsa:
+-- 1. Bu dosyayı genişlet (reference counting ekle)
+-- 2. Sadece uzun ömürlü objeler için (Promise; Channel)
+-- 3. archive/gc_integration_original.mlp referans olarak kullanılabilir
+--
+-- ŞU AN İÇİN: RAII pattern yeterli; GC gereksiz.
+-- ============================================================================

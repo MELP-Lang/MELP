@@ -1,0 +1,383 @@
+-- ===========================================================================
+-- MLP Runtime Bindings Test Program
+-- ===========================================================================
+-- Tests all C runtime functions through FFI bindings
+-- Created: 26 Aralık 2025 (CRUNTIME_YZ_05)
+-- ===========================================================================
+
+-- Import runtime bindings
+-- Note: In actual implementation, this would be a proper import
+-- For now, we rely on external declarations in runtime_bindings.mlp
+
+-- ===========================================================================
+-- Test Counter
+-- ===========================================================================
+
+let tests_passed = 0
+let tests_total = 0
+
+function test_start(string test_name)
+    mlp_println_string("=================================")
+    mlp_print_string("TEST: ")
+    mlp_println_string(test_name)
+    mlp_println_string("=================================")
+end_function
+
+function test_result(numeric passed)
+    tests_total = tests_total + 1
+    if passed == 1 then
+        tests_passed = tests_passed + 1
+        mlp_println_string("✓ PASS")
+    else
+        mlp_println_string("✗ FAIL")
+    end_if
+    mlp_println_string("")
+end_function
+
+-- ===========================================================================
+-- Test 1: List Operations
+-- ===========================================================================
+
+function test_list_operations()
+    test_start("List Operations")
+    
+    -- Create a list
+    let list = melp_list_create(8)  -- 8 bytes per element (int64_t)
+    mlp_print_string("Created list: ")
+    mlp_println_numeric(list; INTERNAL_TYPE_INT64)
+    
+    -- Check if empty
+    let is_empty = melp_list_is_empty(list)
+    mlp_print_string("Is empty? ")
+    mlp_println_numeric(is_empty; INTERNAL_TYPE_INT64)
+    
+    -- Append elements
+    let val1 = 10
+    let val2 = 20
+    let val3 = 30
+    
+    mlp_println_string("Appending 10, 20, 30...")
+    melp_list_append(list; val1)
+    melp_list_append(list; val2)
+    melp_list_append(list; val3)
+    
+    -- Check length
+    let length = melp_list_length(list)
+    mlp_print_string("Length: ")
+    mlp_println_numeric(length; INTERNAL_TYPE_INT64)
+    
+    -- Get elements
+    mlp_println_string("Getting elements:")
+    let elem0 = melp_list_get(list; 0)
+    let elem1 = melp_list_get(list; 1)
+    let elem2 = melp_list_get(list; 2)
+    
+    mlp_print_string("  [0] = ")
+    mlp_println_numeric(elem0; INTERNAL_TYPE_INT64)
+    mlp_print_string("  [1] = ")
+    mlp_println_numeric(elem1; INTERNAL_TYPE_INT64)
+    mlp_print_string("  [2] = ")
+    mlp_println_numeric(elem2; INTERNAL_TYPE_INT64)
+    
+    -- Test passed if length is 3
+    let passed = 0
+    if length == 3 then
+        passed = 1
+    end_if
+    
+    -- Free list
+    melp_list_free(list)
+    
+    test_result(passed)
+end_function
+
+-- ===========================================================================
+-- Test 2: Map Operations
+-- ===========================================================================
+
+function test_map_operations()
+    test_start("Map Operations")
+    
+    -- Create a map
+    let map = melp_map_create(8)  -- 8 bytes per value
+    mlp_print_string("Created map: ")
+    mlp_println_numeric(map; INTERNAL_TYPE_INT64)
+    
+    -- Check if empty
+    let is_empty = melp_map_is_empty(map)
+    mlp_print_string("Is empty? ")
+    mlp_println_numeric(is_empty; INTERNAL_TYPE_INT64)
+    
+    -- Insert key-value pairs
+    mlp_println_string("Inserting key-value pairs...")
+    let val_alice = 25
+    let val_bob = 30
+    let val_carol = 35
+    
+    melp_map_insert(map; "alice"; val_alice)
+    melp_map_insert(map; "bob"; val_bob)
+    melp_map_insert(map; "carol"; val_carol)
+    
+    -- Check size
+    let size = melp_map_size(map)
+    mlp_print_string("Size: ")
+    mlp_println_numeric(size; INTERNAL_TYPE_INT64)
+    
+    -- Get values
+    mlp_println_string("Getting values:")
+    let val1 = melp_map_get(map; "alice")
+    let val2 = melp_map_get(map; "bob")
+    let val3 = melp_map_get(map; "carol")
+    
+    mlp_print_string("  alice = ")
+    mlp_println_numeric(val1; INTERNAL_TYPE_INT64)
+    mlp_print_string("  bob = ")
+    mlp_println_numeric(val2; INTERNAL_TYPE_INT64)
+    mlp_print_string("  carol = ")
+    mlp_println_numeric(val3; INTERNAL_TYPE_INT64)
+    
+    -- Check if keys exist
+    let has_alice = melp_map_contains(map; "alice")
+    let has_dave = melp_map_contains(map; "dave")
+    
+    mlp_print_string("Contains 'alice'? ")
+    mlp_println_numeric(has_alice; INTERNAL_TYPE_INT64)
+    mlp_print_string("Contains 'dave'? ")
+    mlp_println_numeric(has_dave; INTERNAL_TYPE_INT64)
+    
+    -- Test passed if size is 3
+    let passed = 0
+    if size == 3 then
+        passed = 1
+    end_if
+    
+    -- Free map
+    melp_map_free(map)
+    
+    test_result(passed)
+end_function
+
+-- ===========================================================================
+-- Test 3: String Operations
+-- ===========================================================================
+
+function test_string_operations()
+    test_start("String Operations")
+    
+    let str1 = "Hello"
+    let str2 = " World"
+    
+    -- String concatenation
+    mlp_println_string("Testing string concatenation...")
+    let result = mlp_string_concat(str1; str2)
+    mlp_print_string("Result: ")
+    mlp_println_string(result)
+    
+    -- String length
+    let len = mlp_string_length(result)
+    mlp_print_string("Length: ")
+    mlp_println_numeric(len; INTERNAL_TYPE_INT64)
+    
+    -- Substring
+    let sub = mlp_string_substring(result; 0; 5)
+    mlp_print_string("Substring(0, 5): ")
+    mlp_println_string(sub)
+    
+    -- Index of
+    let idx = mlp_string_indexOf(result; "World")
+    mlp_print_string("IndexOf('World'): ")
+    mlp_println_numeric(idx; INTERNAL_TYPE_INT64)
+    
+    -- Case conversion
+    let upper = mlp_string_toUpperCase(str1)
+    let lower = mlp_string_toLowerCase(upper)
+    mlp_print_string("Upper: ")
+    mlp_println_string(upper)
+    mlp_print_string("Lower: ")
+    mlp_println_string(lower)
+    
+    -- Test passed if length is 11
+    let passed = 0
+    if len == 11 then
+        passed = 1
+    end_if
+    
+    test_result(passed)
+end_function
+
+-- ===========================================================================
+-- Test 4: Math Operations
+-- ===========================================================================
+
+function test_math_operations()
+    test_start("Math Operations")
+    
+    let a = 42
+    let b = 17
+    let c = -25
+    
+    -- Min/Max
+    let min_val = min(a; b)
+    let max_val = max(a; b)
+    
+    mlp_print_string("min(42, 17) = ")
+    mlp_println_numeric(min_val; INTERNAL_TYPE_INT64)
+    mlp_print_string("max(42, 17) = ")
+    mlp_println_numeric(max_val; INTERNAL_TYPE_INT64)
+    
+    -- Absolute value
+    let abs_val = mlp_abs(c)
+    mlp_print_string("abs(-25) = ")
+    mlp_println_numeric(abs_val; INTERNAL_TYPE_INT64)
+    
+    -- Test passed if calculations are correct
+    let passed = 0
+    if min_val == 17 then
+        if max_val == 42 then
+            if abs_val == 25 then
+                passed = 1
+            end_if
+        end_if
+    end_if
+    
+    test_result(passed)
+end_function
+
+-- ===========================================================================
+-- Test 5: BigDecimal Operations
+-- ===========================================================================
+
+function test_bigdecimal_operations()
+    test_start("BigDecimal Operations")
+    
+    -- Create BigDecimal from int64
+    let bd1 = sto_bigdec_from_int64(123456789)
+    let bd2 = sto_bigdec_from_int64(987654321)
+    
+    mlp_println_string("Created BigDecimals:")
+    let str1 = sto_bigdec_to_string(bd1)
+    let str2 = sto_bigdec_to_string(bd2)
+    mlp_print_string("  BD1: ")
+    mlp_println_string(str1)
+    mlp_print_string("  BD2: ")
+    mlp_println_string(str2)
+    
+    -- BigDecimal addition
+    mlp_println_string("Testing addition...")
+    let bd_sum = sto_bigdec_add(bd1; bd2)
+    let sum_str = sto_bigdec_to_string(bd_sum)
+    mlp_print_string("  Sum: ")
+    mlp_println_string(sum_str)
+    
+    -- BigDecimal subtraction
+    mlp_println_string("Testing subtraction...")
+    let bd_diff = sto_bigdec_sub(bd2; bd1)
+    let diff_str = sto_bigdec_to_string(bd_diff)
+    mlp_print_string("  Diff: ")
+    mlp_println_string(diff_str)
+    
+    -- BigDecimal comparison
+    let cmp = sto_bigdec_compare(bd1; bd2)
+    mlp_print_string("Compare(BD1, BD2): ")
+    mlp_println_numeric(cmp; INTERNAL_TYPE_INT64)
+    
+    -- Free BigDecimals
+    sto_bigdec_free(bd1)
+    sto_bigdec_free(bd2)
+    sto_bigdec_free(bd_sum)
+    sto_bigdec_free(bd_diff)
+    
+    -- Test passed if comparison is -1 (bd1 < bd2)
+    let passed = 0
+    if cmp == -1 then
+        passed = 1
+    end_if
+    
+    test_result(passed)
+end_function
+
+-- ===========================================================================
+-- Test 6: File I/O Operations
+-- ===========================================================================
+
+function test_file_io_operations()
+    test_start("File I/O Operations")
+    
+    let test_file = "/tmp/mlp_test_runtime_bindings.txt"
+    let content = "Hello from MLP Runtime Test!"
+    
+    -- Write file
+    mlp_println_string("Writing to file...")
+    let write_result = mlp_write_file(test_file; content)
+    mlp_print_string("Write result: ")
+    mlp_println_numeric(write_result; INTERNAL_TYPE_INT64)
+    
+    -- Check if file exists
+    let exists = mlp_file_exists(test_file)
+    mlp_print_string("File exists? ")
+    mlp_println_numeric(exists; INTERNAL_TYPE_INT64)
+    
+    -- Get file size
+    let size = mlp_file_size(test_file)
+    mlp_print_string("File size: ")
+    mlp_println_numeric(size; INTERNAL_TYPE_INT64)
+    
+    -- Read file
+    mlp_println_string("Reading from file...")
+    let read_content = mlp_read_file(test_file)
+    mlp_print_string("Content: ")
+    mlp_println_string(read_content)
+    
+    -- Test passed if file exists and has content
+    let passed = 0
+    if exists == 1 then
+        if size > 0 then
+            passed = 1
+        end_if
+    end_if
+    
+    test_result(passed)
+end_function
+
+-- ===========================================================================
+-- Main Test Runner
+-- ===========================================================================
+
+function main()
+    mlp_println_string("")
+    mlp_println_string("###############################################")
+    mlp_println_string("# MLP Runtime Bindings Test Suite")
+    mlp_println_string("###############################################")
+    mlp_println_string("")
+    
+    -- Run all tests
+    test_list_operations()
+    test_map_operations()
+    test_string_operations()
+    test_math_operations()
+    test_bigdecimal_operations()
+    test_file_io_operations()
+    
+    -- Print summary
+    mlp_println_string("")
+    mlp_println_string("###############################################")
+    mlp_println_string("# Test Summary")
+    mlp_println_string("###############################################")
+    mlp_print_string("Tests passed: ")
+    mlp_println_numeric(tests_passed; INTERNAL_TYPE_INT64)
+    mlp_print_string("Tests total:  ")
+    mlp_println_numeric(tests_total; INTERNAL_TYPE_INT64)
+    
+    if tests_passed == tests_total then
+        mlp_println_string("")
+        mlp_println_string("✓ ALL TESTS PASSED!")
+    else
+        mlp_println_string("")
+        mlp_println_string("✗ SOME TESTS FAILED!")
+    end_if
+    
+    mlp_println_string("")
+end_function
+
+-- Run main
+main()

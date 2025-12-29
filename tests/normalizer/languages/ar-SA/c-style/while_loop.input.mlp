@@ -1,0 +1,8 @@
+-- lang: ar-SA
+-- syntax: c-style
+-- test: while loop
+
+بينما (x < 10) {
+    طباعة(x);
+    x = x + 1;
+}

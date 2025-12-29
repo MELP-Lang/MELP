@@ -1,0 +1,22 @@
+-- examples/user_modules/main.mlp
+-- User modül test
+
+import mymath
+
+function main()
+    print("PI = ")
+    print(PI)
+    print("\n")
+    
+    print("sqrt(16) = ")
+    print(sqrt(16))
+    print("\n")
+    
+    print("abs(-5) = ")
+    print(abs(-5))
+    print("\n")
+    
+    print("factorial(5) = ")
+    print(factorial(5))
+    print("\n")
+end_function

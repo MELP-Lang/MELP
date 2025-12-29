@@ -1,0 +1,14 @@
+-- EXPECTED OUTPUT
+-- Her } doğru end_X ile kapanmalı
+
+function outer()
+    if x > 0 then
+        while y < 10
+            for i = 0 to 5
+                if z == 1 then
+                    print("deep")
+                end_if
+            end_for
+        end_while
+    end_if
+end_function

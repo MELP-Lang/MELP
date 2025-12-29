@@ -1,0 +1,8 @@
+-- test: decimal number format conversion
+-- syntax: c-style
+
+pi = 3.14159;
+e = 2.71828;
+big_num = 1000000;
+formatted = 1_000_000;
+small = 0.001;

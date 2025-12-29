@@ -1,0 +1,5 @@
+-- EXPECTED OUTPUT
+function calculate_sum(a; b)
+    result = a + b
+    return result
+end_function

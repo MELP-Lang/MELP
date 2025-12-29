@@ -1,0 +1,5 @@
+-- EXPECTED OUTPUT
+-- String içindeki virgüller korunmalı, parametre virgülleri ; olmalı
+
+print("Hello, World!"; x; y)
+call_func("item1, item2, item3"; a; b; c)

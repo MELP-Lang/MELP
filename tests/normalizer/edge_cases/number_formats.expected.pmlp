@@ -1,0 +1,8 @@
+-- EXPECTED OUTPUT
+-- Ondalık nokta virgüle dönmeli (Türk formatı)
+
+pi = 3,14159
+e = 2,71828
+big_num = 1000000
+formatted = 1.000.000
+small = 0,001

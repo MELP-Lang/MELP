@@ -1,0 +1,14 @@
+-- test: deeply nested blocks
+-- syntax: c-style
+
+function outer() {
+    if (x > 0) {
+        while (y < 10) {
+            for (i = 0; i < 5; i++) {
+                if (z == 1) {
+                    print("deep");
+                }
+            }
+        }
+    }
+}

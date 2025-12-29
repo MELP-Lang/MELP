@@ -1,0 +1,7 @@
+-- lang: en-US
+-- syntax: python-style
+-- test: function with parameters
+
+def calculate_sum(a, b):
+    result = a + b
+    return result

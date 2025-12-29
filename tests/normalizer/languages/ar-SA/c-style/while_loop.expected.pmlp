@@ -1,0 +1,5 @@
+-- EXPECTED OUTPUT
+while x < 10
+    print(x)
+    x = x + 1
+end_while

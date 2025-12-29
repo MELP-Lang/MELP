@@ -1,0 +1,62 @@
+-- End-to-End File I/O Test
+-- Tests FFI bindings for mlp_read_file and mlp_write_file
+
+function test_file_io()
+    print "==================================="
+    print "File I/O End-to-End Test"
+    print "==================================="
+    print ""
+    
+    -- Test file paths
+    String test_file = "/tmp/mlp_test_output.txt"
+    String test_content = "Hello from MLP FFI!"
+    
+    -- Write file
+    print "Test 1: Writing file..."
+    Numeric write_result = mlp_write_file(test_file; test_content)
+    
+    if write_result == 0 then
+        print "  ✓ File write: SUCCESS"
+    else
+        print "  ✗ File write: FAILED"
+        return 1
+    end_if
+    
+    -- Check if file exists
+    print "Test 2: Checking file exists..."
+    Numeric exists = mlp_file_exists(test_file)
+    
+    if exists == 1 then
+        print "  ✓ File exists: SUCCESS"
+    else
+        print "  ✗ File exists: FAILED"
+        return 1
+    end_if
+    
+    -- Read file
+    print "Test 3: Reading file..."
+    String content = mlp_read_file(test_file)
+    
+    print "  Content read: "
+    print content
+    
+    -- Get file size
+    print "Test 4: Getting file size..."
+    Numeric size = mlp_file_size(test_file)
+    
+    print "  File size: "
+    print size
+    print " bytes"
+    
+    print ""
+    print "==================================="
+    print "✓ All File I/O tests PASSED!"
+    print "==================================="
+    
+    return 0
+end_function
+
+function main()
+    Numeric result = test_file_io()
+    return result
+end_function

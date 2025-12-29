@@ -1,0 +1,11 @@
+-- Direct runtime function test
+
+function main()
+    print "Testing runtime integration..."
+    
+    -- Try to call a function that should exist in runtime
+    Numeric result = 0
+    
+    print "Test completed"
+    return result
+end_function

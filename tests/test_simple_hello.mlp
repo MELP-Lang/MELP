@@ -1,0 +1,7 @@
+-- Simple test program
+
+function main()
+    print "Hello from MLP!"
+    print "Testing compiler..."
+    return 0
+end_function

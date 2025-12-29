@@ -1,0 +1,6 @@
+-- EXPECTED OUTPUT
+if x > 5 then
+    print("büyük")
+else
+    print("küçük")
+end_if

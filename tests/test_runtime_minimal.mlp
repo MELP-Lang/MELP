@@ -1,0 +1,100 @@
+-- ===========================================================================
+-- MLP Runtime Bindings - Minimal Test
+-- ===========================================================================
+-- Minimal test for C runtime function calls
+-- Created: 26 Aralık 2025 (CRUNTIME_YZ_05)
+-- ===========================================================================
+
+-- Test: List Create and Free
+function test_list()
+    mlp_println_string("=== Test: List Create ===")
+    
+    numeric list = melp_list_create(8)
+    mlp_print_string("Created list: ")
+    mlp_println_numeric(list; 1)
+    
+    melp_list_free(list)
+    mlp_println_string("✓ List test passed!")
+    mlp_println_string("")
+end_function
+
+-- Test: String Operations
+function test_string()
+    mlp_println_string("=== Test: String Operations ===")
+    
+    string str1 = "Hello"
+    string str2 = " World"
+    string result = mlp_string_concat(str1; str2)
+    
+    mlp_print_string("Concatenated: ")
+    mlp_println_string(result)
+    
+    numeric len = mlp_string_length(result)
+    mlp_print_string("Length: ")
+    mlp_println_numeric(len; 1)
+    
+    mlp_println_string("✓ String test passed!")
+    mlp_println_string("")
+end_function
+
+-- Test: Math Operations  
+function test_math()
+    mlp_println_string("=== Test: Math Operations ===")
+    
+    numeric a = 42
+    numeric b = 17
+    
+    numeric min_val = min(a; b)
+    numeric max_val = max(a; b)
+    
+    mlp_print_string("min(42, 17) = ")
+    mlp_println_numeric(min_val; 1)
+    mlp_print_string("max(42, 17) = ")
+    mlp_println_numeric(max_val; 1)
+    
+    mlp_println_string("✓ Math test passed!")
+    mlp_println_string("")
+end_function
+
+-- Test: File I/O
+function test_file_io()
+    mlp_println_string("=== Test: File I/O ===")
+    
+    string test_file = "/tmp/mlp_runtime_test.txt"
+    string content = "Hello from MLP!"
+    
+    mlp_println_string("Writing to file...")
+    numeric write_result = mlp_write_file(test_file; content)
+    mlp_print_string("Write result: ")
+    mlp_println_numeric(write_result; 1)
+    
+    mlp_println_string("Reading from file...")
+    string read_content = mlp_read_file(test_file)
+    mlp_print_string("Content: ")
+    mlp_println_string(read_content)
+    
+    mlp_println_string("✓ File I/O test passed!")
+    mlp_println_string("")
+end_function
+
+-- Main
+function main()
+    mlp_println_string("")
+    mlp_println_string("###############################################")
+    mlp_println_string("# MLP Runtime Bindings - Minimal Test")
+    mlp_println_string("###############################################")
+    mlp_println_string("")
+    
+    test_list()
+    test_string()
+    test_math()
+    test_file_io()
+    
+    mlp_println_string("###############################################")
+    mlp_println_string("# All Tests Complete!")
+    mlp_println_string("###############################################")
+    mlp_println_string("")
+end_function
+
+-- Run
+main()

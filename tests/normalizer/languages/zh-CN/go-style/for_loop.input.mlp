@@ -1,0 +1,7 @@
+-- lang: zh-CN
+-- syntax: go-style
+-- test: for loop
+
+为了 i := 0; i < 10; i++ {
+    打印(i)
+}
