@@ -1,0 +1,7 @@
+function add(numeric a, numeric b) returns numeric
+    return a + b
+end function
+
+function multiply(numeric a, numeric b) returns numeric
+    return a * b
+end function

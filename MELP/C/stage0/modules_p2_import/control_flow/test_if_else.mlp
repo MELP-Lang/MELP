@@ -1,0 +1,7 @@
+numeric x = 5
+
+if x > 3 then
+    numeric y = 10
+else
+    numeric y = 1
+end if

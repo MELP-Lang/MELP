@@ -1,0 +1,6 @@
+import math_cache_test
+
+function square(numeric x) returns numeric
+    numeric result = multiply(x, x)
+    return result
+end function

@@ -1,0 +1,5 @@
+import module_b
+
+function func_a() returns numeric
+    return 10
+end function

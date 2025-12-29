@@ -1,0 +1,5 @@
+function test() returns numeric
+    numeric x = 10
+    this_is_an_error  # Syntax error!
+    return x
+end function

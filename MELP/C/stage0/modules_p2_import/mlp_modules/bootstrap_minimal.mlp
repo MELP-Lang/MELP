@@ -1,0 +1,34 @@
+-- ============================================================================
+-- MELP Stage 1 - Minimal Bootstrap Test
+-- ============================================================================
+-- File: modules/bootstrap_minimal.mlp
+-- Purpose: Minimal test to verify Stage 1 compilation pipeline
+-- Date: 17 December 2025
+-- YZ: YZ_22
+-- ============================================================================
+
+function add(numeric a; numeric b) returns numeric
+    return a + b
+end_function
+
+function multiply(numeric x; numeric y) returns numeric
+    return x * y
+end_function
+
+function calculate() returns numeric
+    numeric a = 10
+    numeric b = 20
+    numeric sum = 0
+    numeric product = 0
+    
+    sum = add(a, b)
+    product = multiply(a, b)
+    
+    return sum + product
+end_function
+
+function main() returns numeric
+    numeric result = 0
+    result = calculate()
+    return result
+end_function

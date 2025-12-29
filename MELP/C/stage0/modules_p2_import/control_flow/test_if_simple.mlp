@@ -1,0 +1,5 @@
+if x > 3 then
+    x = 10
+else
+    x = 1
+end if

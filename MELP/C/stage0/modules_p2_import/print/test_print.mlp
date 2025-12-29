@@ -1,0 +1,5 @@
+numeric x = 42
+text name = "Hello"
+print "Hello, World!"
+print "MLP Print Module Test"
+print x

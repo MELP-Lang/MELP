@@ -1,0 +1,18 @@
+# Array Module - Simple Standalone
+CC = gcc
+CFLAGS = -Wall -Wextra -g -I../..
+
+SOURCES = array_standalone.c array.c array_parser.c array_codegen.c ../lexer/lexer.c ../arithmetic/arithmetic.c ../arithmetic/arithmetic_parser.c ../error/error.c
+OBJECTS = $(SOURCES:.c=.o)
+TARGET = array_standalone
+
+all: $(TARGET)
+
+$(TARGET): $(OBJECTS)
+$(CC) $(OBJECTS) -o $(TARGET)
+@echo "✅ Done!"
+
+clean:
+rm -f $(OBJECTS) $(TARGET)
+
+.PHONY: all clean

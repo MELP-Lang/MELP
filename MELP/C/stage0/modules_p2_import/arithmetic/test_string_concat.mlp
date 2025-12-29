@@ -1,0 +1,5 @@
+// Test: String concatenation
+function main() returns numeric
+    text msg = "Hello" + " " + "World"
+    return 0
+end function

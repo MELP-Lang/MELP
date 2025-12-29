@@ -1,0 +1,2 @@
+DEBUG stmt_parser: Transferring token 'x' from cfp to parser
+DEBUG stmt_parser: Starting then body parse

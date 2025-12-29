@@ -1,6 +1,7 @@
 # P2 (MLP-LLVM) Modül Entegrasyon Yönergesi
 
 **Tarih:** 29 Aralık 2025  
+**Güncelleme:** 29 Aralık 2025  
 **Hazırlayan:** Proje Danışmanı (YZ)  
 **Yetkili:** Sonraki YZ veya Kullanıcı onayı ile
 
@@ -8,16 +9,55 @@
 
 ## 📦 Bu Dizindeki Modüller
 
-P2 projesinden (MLP-LLVM) alınan, henüz entegre EDİLMEMİŞ modüller:
+P2 projesinden (MLP-LLVM) alınan **36 modül/dizin**, henüz entegre EDİLMEMİŞ:
 
-| Modül | Kaynak | Açıklama | P1'de Var mı? |
-|-------|--------|----------|---------------|
-| `import/` | P2 | Modül import sistemi | ❌ Yok |
-| `for_loop/` | P2 | For döngüsü (ayrı modül) | ❌ Yok |
-| `switch/` | P2 | Switch-case yapısı | ❌ Yok |
-| `error/` | P2 | Hata yönetimi | ❌ Yok |
-| `lexer/` | P2 | Lexer modülü | ✅ Var (karşılaştır) |
-| `debug/` | P2 | Debug desteği | ✅ Var (debug_features) |
+### Compiler Modülleri (32)
+| Modül | Açıklama | P1'de Var mı? |
+|-------|----------|---------------|
+| `arithmetic/` | Aritmetik işlemler | ✅ Var |
+| `array/` | Dizi işlemleri | ✅ Var |
+| `async/` | Async/await | ✅ Var |
+| `bitwise_operations/` | Bit işlemleri | ✅ Var |
+| `codegen_context/` | Codegen context pattern | ✅ Var |
+| `comments/` | Yorum işleme | ✅ Var |
+| `comparison/` | Karşılaştırma | ✅ Var |
+| `control_flow/` | Kontrol akışı | ✅ Var |
+| `debug/` | Debug desteği | ✅ Var (debug_features) |
+| `enum/` | Enum yapısı | ✅ Var |
+| `error/` | Hata yönetimi | ❌ Yok |
+| `expression/` | İfade işleme | ✅ Var |
+| `file_io/` | Dosya I/O | ✅ Var |
+| `for_loop/` | For döngüsü | ❌ Yok (ayrı modül) |
+| `functions/` | Fonksiyon işleme | ✅ Var |
+| `import/` | Modül import sistemi | ❌ Yok |
+| `lambda/` | Lambda fonksiyonlar | ✅ Var |
+| `lexer/` | Lexer modülü | ✅ Var (karşılaştır) |
+| `logical/` | Mantıksal işlemler | ✅ Var |
+| `memory/` | Bellek yönetimi | ✅ Var |
+| `null_safety/` | Null güvenliği | ✅ Var |
+| `optimization_pass/` | Optimizasyon | ✅ Var |
+| `parser_core/` | Parser çekirdeği | ✅ Var |
+| `print/` | Print işlemi | ✅ Var |
+| `runtime_sto/` | Runtime STO | ✅ Var |
+| `statement/` | Statement işleme | ✅ Var |
+| `sto_runtime/` | STO runtime | ✅ Var |
+| `string_operations/` | String işlemleri | ✅ Var |
+| `struct/` | Struct yapısı | ✅ Var |
+| `switch/` | Switch-case | ❌ Yok (ayrı modül) |
+| `type_system/` | Tip sistemi | ✅ Var |
+| `variable/` | Değişken işleme | ✅ Var |
+
+### Runtime Modülleri (3)
+| Modül | Açıklama |
+|-------|----------|
+| `runtime_stdlib/` | Standard kütüphane |
+| `runtime_memory/` | Bellek yönetimi |
+| `runtime_wrapper/` | Wrapper fonksiyonlar |
+
+### MLP Modülleri (1 dizin, 9 dosya)
+| Modül | Açıklama |
+|-------|----------|
+| `mlp_modules/` | MLP ile yazılmış compiler modülleri |
 
 ---
 

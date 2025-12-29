@@ -1,0 +1,7 @@
+-- Print Module Test with TTO
+numeric x = 42
+numeric y = 100
+print("Hello, World!")
+print("Variable values:")
+print(x)
+print(y)

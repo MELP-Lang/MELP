@@ -1,0 +1,186 @@
+#include "enum.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// ============================================================================
+// YZ_96: Enum Implementation
+// ============================================================================
+
+// Global enum registry
+static EnumDefinition* enum_registry = NULL;
+
+// ============================================================================
+// Enum Value Functions
+// ============================================================================
+
+EnumValue* enum_value_create(const char* name, int64_t value) {
+    EnumValue* val = malloc(sizeof(EnumValue));
+    if (!val) return NULL;
+    
+    val->name = strdup(name);
+    val->value = value;
+    val->next = NULL;
+    
+    return val;
+}
+
+void enum_value_free(EnumValue* val) {
+    if (!val) return;
+    
+    if (val->name) free(val->name);
+    free(val);
+}
+
+// ============================================================================
+// Enum Definition Functions
+// ============================================================================
+
+EnumDefinition* enum_definition_create(const char* name) {
+    EnumDefinition* def = malloc(sizeof(EnumDefinition));
+    if (!def) return NULL;
+    
+    def->name = strdup(name);
+    def->values = NULL;
+    def->value_count = 0;
+    def->next = NULL;
+    
+    return def;
+}
+
+void enum_definition_free(EnumDefinition* def) {
+    if (!def) return;
+    
+    // Free all values
+    EnumValue* val = def->values;
+    while (val) {
+        EnumValue* next = val->next;
+        enum_value_free(val);
+        val = next;
+    }
+    
+    if (def->name) free(def->name);
+    free(def);
+}
+
+void enum_definition_add_value(EnumDefinition* def, EnumValue* val) {
+    if (!def || !val) return;
+    
+    // Add to end of list
+    if (!def->values) {
+        def->values = val;
+    } else {
+        EnumValue* current = def->values;
+        while (current->next) {
+            current = current->next;
+        }
+        current->next = val;
+    }
+    
+    def->value_count++;
+}
+
+// ============================================================================
+// Enum Registry Functions
+// ============================================================================
+
+void enum_register(EnumDefinition* def) {
+    if (!def) return;
+    
+    // Add to front of registry
+    def->next = enum_registry;
+    enum_registry = def;
+    
+    // Debug
+    // printf("[ENUM] Registered: %s with %d values\n", def->name, def->value_count);
+}
+
+EnumDefinition* enum_lookup(const char* name) {
+    if (!name) return NULL;
+    
+    EnumDefinition* def = enum_registry;
+    while (def) {
+        if (strcmp(def->name, name) == 0) {
+            return def;
+        }
+        def = def->next;
+    }
+    
+    return NULL;
+}
+
+int64_t enum_lookup_value(const char* enum_name, const char* value_name) {
+    EnumDefinition* def = enum_lookup(enum_name);
+    if (!def) return -1;
+    
+    EnumValue* val = def->values;
+    while (val) {
+        if (strcmp(val->name, value_name) == 0) {
+            return val->value;
+        }
+        val = val->next;
+    }
+    
+    return -1;
+}
+
+int enum_is_type(const char* name) {
+    return enum_lookup(name) != NULL ? 1 : 0;
+}
+
+// YZ_29: Lookup enum value without enum name (unqualified)
+// Searches all registered enums for a matching value name
+// Returns first match (like C enums - collision = first wins)
+int64_t enum_lookup_value_unqualified(const char* value_name) {
+    if (!value_name) return -1;
+    
+    // Search all registered enums
+    EnumDefinition* def = enum_registry;
+    while (def) {
+        EnumValue* val = def->values;
+        while (val) {
+            if (strcmp(val->name, value_name) == 0) {
+                return val->value;  // Found!
+            }
+            val = val->next;
+        }
+        def = def->next;
+    }
+    
+    return -1;  // Not found
+}
+
+void enum_registry_free(void) {
+    EnumDefinition* def = enum_registry;
+    while (def) {
+        EnumDefinition* next = def->next;
+        enum_definition_free(def);
+        def = next;
+    }
+    enum_registry = NULL;
+}
+
+// ============================================================================
+// YZ_101: Enum Variable Functions
+// ============================================================================
+
+EnumVariable* enum_variable_create(const char* enum_type, const char* var_name, 
+                                    int64_t init_value, int has_initializer) {
+    EnumVariable* var = malloc(sizeof(EnumVariable));
+    if (!var) return NULL;
+    
+    var->enum_type = strdup(enum_type);
+    var->var_name = strdup(var_name);
+    var->init_value = init_value;
+    var->has_initializer = has_initializer;
+    
+    return var;
+}
+
+void enum_variable_free(EnumVariable* var) {
+    if (!var) return;
+    
+    if (var->enum_type) free(var->enum_type);
+    if (var->var_name) free(var->var_name);
+    free(var);
+}

@@ -1,0 +1,3 @@
+function test() returns numeric
+    return 42
+end function

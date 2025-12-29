@@ -1,0 +1,17 @@
+-- Test Print Module with TTO Support
+-- Tests: String literals, BigDecimal, SSO strings
+
+-- Test 1: String literal
+print "Hello, MLP with TTO!"
+
+-- Test 2: Simple arithmetic (INT64 range)
+numeric x = 42
+print x
+
+-- Test 3: Large number (BigDecimal promotion)
+numeric big = 9223372036854775807
+print big
+
+-- Test 4: Overflow case (INT64_MAX + 1)
+numeric overflow = 9223372036854775807 + 1
+print overflow

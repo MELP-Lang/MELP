@@ -1,0 +1,5 @@
+-- Simple variable test
+numeric x = 42
+numeric y = 100
+numeric z = 200
+print("Done!")
