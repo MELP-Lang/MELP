@@ -316,26 +316,167 @@ md5sum melpc_stage2 melpc_stage3  # Hash aynı!
 
 ---
 
-## 📋 SONRAKİ GÖREVLER (YZ_21):
+## 📋 SONRAKİ GÖREVLER (YZ_21 veya YZ_22):
 
-**TODO #3 IN PROGRESS! 🚀**
+**TODO #3 IN PROGRESS! 🚀 (Commit: 50960f6)**
 
+**Önceki Session (YZ_21 - 30 Ara 2025, 21:00):**
+- ✅ Task 3.1: Stage1 Source Analysis (%80 complete - 1 saat)
+  - 18 modules, 7842 lines, 234 functions, 26 structs analyzed
+  - Lambda/match usage confirmed
+  - Control flow patterns mapped (515 return, 499 if, 79 for, 38 while)
+  - Stage0 test yapıldı, bug'lar tespit edildi
+  
 **Mevcut Görev:** TODO #3 (PARSER_CODEGEN_FULL) - MVP Scope
-- Phase 1: Analiz (1-2 gün) ← **ŞU AN BURADAYIZ!**
+- Phase 1: Analiz (1-2 gün) ← **DEVAM EDİYORUZ!**
+  - Task 3.1: ✅ %80 done
+  - **Task 3.2: ⏳ NEXT - Stage0 Gap Analysis (3-4 saat)**
+  - Task 3.3: ⏳ Implementation Plan (2-3 saat)
 - Phase 2: Parser/Codegen Extension (3-4 gün)
 - Phase 3: Stage2 + Self-hosting (2-3 gün)
 
-**Task 3.1 Progress:**
-- ✅ Stage1 source analysis complete (234 functions, 26 structs, 7842 lines)
-- ✅ Stage0 capabilities test (basic function codegen working)
-- 🔄 Gap analysis in progress (Stage1 needs vs Stage0 has)
-- ⏳ Next: Task 3.2 (Stage0 gap analysis)
+---
 
-**Notlar YZ_21 için:**
-- Runtime library READY (88KB, 15 modül)
-- Test suite hazır (7/7 PASS)
-- Stage0 derleyici: Basic codegen var, extensions gerekli
-- Stage1 source: 18 modules, 7842 lines, ready to compile
+## 🎯 ŞU AN YAPILACAK: Task 3.2 (Stage0 Gap Analysis)
+
+**Hedef:** Stage0 neyi destekliyor, neyi desteklemiyor? (Detaylı module-by-module analiz)
+
+### Adım 1: Parser Modules Analizi (1.5 saat)
+
+```bash
+cd /home/pardus/projeler/MLP/MLP-GCC/MELP/C/stage0/modules
+
+# Her kritik parser'ı incele
+cat expression/expression_parser.c       # 8 satır - STUB!
+cat control_flow/control_flow_parser.c   # 150 satır - Partial
+cat functions/functions_parser.c         # ?
+cat lambda/lambda_parser.c               # ?
+cat switch_match/switch_match_parser.c   # ?
+```
+
+**Çıktı:** Parser capabilities matrix
+- ✅ Supported: Hangi parse features var?
+- ❌ Missing: Hangi parse features yok?
+- ⚠️ Partial: Hangi features yarım?
+
+### Adım 2: Codegen Modules Analizi (1.5 saat)
+
+```bash
+# Her kritik codegen'i incele
+cat expression/expression_codegen.c      # ?
+cat control_flow/control_flow_codegen.c  # ?
+cat functions/functions_codegen.c        # 113 satır - Stubs!
+cat variable/variable_codegen.c          # Bug var! (Numeric = 10)
+cat lambda/lambda_codegen.c              # 161 satır - ASM (C'ye çevir)
+cat switch_match/switch_match_codegen.c  # 203 satır - ASM (C'ye çevir)
+```
+
+**Çıktı:** Codegen capabilities matrix + bug list
+
+### Adım 3: Gap Matrix Oluştur (30 dakika)
+
+```markdown
+| Feature | Stage1 Needs | Stage0 Has | Gap | Priority |
+|---------|--------------|------------|-----|----------|
+| Function declarations | ✅ Yes | ✅ Yes | None | - |
+| Variable declarations | ✅ Yes | ⚠️ Buggy | Fix needed | 🔴 HIGH |
+| Nested expressions | ✅ Yes | ❌ Stub | Implement | 🔴 HIGH |
+| Nested control flow | ✅ Yes | ⚠️ Partial | Extend | 🟡 MED |
+| Function calls | ✅ Yes | ❌ Missing | Implement | 🔴 HIGH |
+| Basic lambda | ⚠️ Simple | ✅ ASM only | Convert to C | 🟡 MED |
+| Basic match | ⚠️ Simple | ✅ ASM only | Convert to C | 🟡 MED |
+```
+
+### Adım 4: 0-TODO_SELFHOSTING.md Update (30 dakika)
+
+Task 3.2'yi complete olarak işaretle, bulgularını özetle.
+
+---
+
+## 🔍 YZ_21'DEN ÖNEMLİ BULGULAR
+
+### Stage0 Kritik Bug'lar:
+1. **Variable Codegen Bug** (variable_codegen.c):
+   ```c
+   // ❌ YANLIŞ:
+   Numeric = 10;
+   
+   // ✅ DOĞRU:
+   int64_t y = 10;
+   ```
+   **Fix gerekli!** (Priority: 🔴 HIGH)
+
+2. **Expression Parser STUB** (expression_parser.c - 8 lines):
+   ```c
+   Expression* expression_parse(Parser* parser) {
+       return expression_create(EXPR_NUMBER);  // Stub!
+   }
+   ```
+   **Full implementation gerekli!** (Priority: 🔴 HIGH)
+
+3. **Function Call Codegen Missing**:
+   - `yazdir("text")` → C kodu üretilmiyor
+   - `mlp_list_*` calls → missing
+   **Implement gerekli!** (Priority: 🔴 HIGH)
+
+### Stage0 Mevcut Durum:
+- ✅ Function signatures oluşturuyor
+- ✅ Basic if parsing var (ama body boş!)
+- ✅ Lambda/match modülleri var (ASM üretiyor, C'ye çevrilmeli)
+- ❌ Expression parsing stub
+- ❌ Variable codegen buggy
+- ❌ Function call codegen missing
+
+---
+
+## 📚 REFERANS DOSYALAR
+
+**Zorunlu Okuma:**
+1. [YZ_21_Gorev_Plani.md](TODO_TODO_SELFHOSTING/SELFHOSTING_YZ/YZ_21_Gorev_Plani.md) - MVP scope (568 lines)
+2. [0-TODO_SELFHOSTING.md](0-TODO_SELFHOSTING.md) - Task 3.2 details
+3. Stage0 test: `/tmp/test_simple.mlp` + `/tmp/test_out.c` (bug example)
+
+**Stage0 Source:**
+- `MELP/C/stage0/modules/*/` - Tüm parser/codegen modüller
+- Kritik: expression, control_flow, functions, variable, lambda, switch_match
+
+---
+
+## 🚀 BAŞLARKEN (YZ_21 Devamı veya YZ_22)
+
+### Hızlı Başlangıç:
+```bash
+cd /home/pardus/projeler/MLP/MLP-GCC
+
+# Son commit kontrol
+git log --oneline -3
+# 50960f6: Task 3.1 başlatıldı
+
+# Task 3.2'ye başla
+cd MELP/C/stage0/modules
+ls -la expression/ control_flow/ functions/
+
+# Parser modüllerini incele
+cat expression/expression_parser.c
+cat control_flow/control_flow_parser.c
+```
+
+### Checklist:
+- [ ] Expression parser incelendi
+- [ ] Control flow parser incelendi  
+- [ ] Functions parser incelendi
+- [ ] Variable codegen bug analizi
+- [ ] Lambda/match ASM→C conversion analizi
+- [ ] Gap matrix oluşturuldu
+- [ ] 0-TODO_SELFHOSTING.md updated
+- [ ] Commit: "YZ_21/22: Task 3.2 complete - Gap analysis"
+
+**Tahmini Süre:** 3-4 saat  
+**Hedef:** Task 3.2 complete → Task 3.3'e geçiş
+
+---
+
+**İyi çalışmalar! Detaylı analiz yapın, acele etmeyin. Gap'leri net belirleyin! 🔍**
 
 ---
 
