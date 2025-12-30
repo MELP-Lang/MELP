@@ -1,0 +1,4 @@
+print("Hello World")
+print("Test complete")
+numeric x = 42
+print("Value processed")

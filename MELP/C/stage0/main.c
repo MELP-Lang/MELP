@@ -563,12 +563,28 @@ int main(int argc, char** argv) {
                 has_main = 1;
             }
             token_free(token);
-            token = lexer_next_token(lexer);
+            token = lexer_next_token(lexer);  // Get next token (should be LPAREN)
             
+            // Skip LPAREN if present
+            if (token && token->type == TOKEN_LPAREN) {
+                token_free(token);
+                token = lexer_next_token(lexer);
+            }
+            
+            // Get string argument
             if (token && token->type == TOKEN_STRING) {
                 emit_c("    printf(\"%s\\n\");\n", token->value);
                 stmt_count++;
+                token_free(token);
+                token = lexer_next_token(lexer);
+                
+                // Skip RPAREN if present
+                if (token && token->type == TOKEN_RPAREN) {
+                    token_free(token);
+                    token = lexer_next_token(lexer);
+                }
             }
+            continue;
         }
         // Handle variable declarations (numeric type)
         else if (token->type == TOKEN_NUMERIC) {
@@ -590,11 +606,18 @@ int main(int argc, char** argv) {
                     
                     if (token && token->type == TOKEN_NUMBER) {
                         strncpy(var_value, token->value, sizeof(var_value) - 1);
+                        
+                        if (!has_main) {
+                            emit_c("int main(void) {\n");
+                            has_main = 1;
+                        }
+                        
                         emit_c("    int64_t %s = %s;\n", var_name, var_value);
                         stmt_count++;
                     }
                 }
             }
+            continue;
         }
         
         if (token) {
