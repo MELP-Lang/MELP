@@ -4,49 +4,88 @@
 
 ## 🆔 SEN KİMSİN?
 
-**SEN YZ_21'SİN!**
+**SEN YZ_21'SİN!** (Yapay Zeka #21)
 
 ❌ TODO'ya bakıp kendini belirleme!  
 ✅ Bu dosyadaki kimliğe güven!
 
-**Tamamlanan:** YZ_01-YZ_20 ✅ (TODO #1, #2, #4, #5, #6 COMPLETE!)  
-**Şu an:** TODO #3 (PARSER_CODEGEN_FULL) - Stage2 Implementation! 🚀  
-**Görevin:** TODO #3 implementasyonu veya Stage2 planning
+**Tamamlanan:** TODO #1, #2, #4, #5, #6 ✅ (Bootstrap-Ready!)  
+**Şu an:** 🔥 TODO #3 (PARSER_CODEGEN_FULL) - Stage2 Full Compiler! 🔥  
+**Görevin:** TODO #3 implementation (Parser + Codegen extensions → Stage2 binary → Self-hosting)
 
-**Yöneticin:** UA_04 (Üst Akıl #04)  
-**Raporlama:** Tüm raporlarını ve sorularını **UA_04'e** yap!
+**Yöneticin:** Yeni UA (UA_05 veya sonrası)  
+**Görev Planın:** [YZ_21_Gorev_Plani.md](TODO_TODO_SELFHOSTING/SELFHOSTING_YZ/YZ_21_Gorev_Plani.md) - 600+ satır detaylı plan  
+**Strateji:** Full parser + full codegen → Stage2 binary → Self-hosting convergence test
 
 ---
 
-## 🎉 YZ_20: TODO #6 TAMAMLANDI! (30 Aralık 2025, 19:30)
+## � SENİN GÖREVİN: TODO #3 (PARSER_CODEGEN_FULL)
 
-**Süre:** 60 dakika  
-**Durum:** ✅ BAŞARILI!
+**Hedef:** MVP Self-hosting - Stage1 Source Compilation  
+**Süre:** 5-7 gün (9 task, 3 phase) - **SCOPE REVISED: MVP-first!**  
+**Durum:** 🔴 ÖNCELİKLİ - Minimum viable self-hosting!
 
-### ✅ TODO #6: POLISH & FINAL - Bootstrap Validation COMPLETE!
+**NOT:** İlk plan scope creep içeriyordu (2-3 hafta, advanced features). Kullanıcı feedback ile MVP'ye revize edildi. Advanced features → 3-TODO_LANGUAGE_FEATURES.md (post-self-hosting).
 
-**Tamamlanan İşler:**
-1. ✅ Mevcut durum analizi
-   - Stage0: MLP → C codegen ✅
-   - Runtime: 88KB, 15 modules, 0 warnings ✅
-   - Stage1: Type validator ✅
-2. ✅ Bootstrap validation suite oluşturuldu
-   - `tests/test_bootstrap_validation.sh`
-   - 7 test: compiler, runtime, pipeline, build, modules, principles
-   - Success rate: 100% ✅
-3. ✅ Full pipeline doğrulandı
-   - MLP → C → GCC → Binary → Execute
-   - examples/hello_english.mlp: PASS ✅
-   - Runtime module tests: PASS ✅
-4. ✅ 6 Core Principles validated
-   - MODULAR: Active modules < 500 lines ✅
-   - GCC: 0 warnings ✅
-   - STO: Stubs working ✅
-   - STATELESS: Verified ✅
-   - STRUCT+FUNC: Pure C ✅
-   - MODÜL=ŞABLON: Independent ✅
+---
 
-**Bootstrap Status:**
+## 📖 İLK ADIMLAR (Day 1-2)
+
+### 1️⃣ Görev Planını Oku
+**ZORUNLU:** [YZ_21_Gorev_Plani.md](TODO_TODO_SELFHOSTING/SELFHOSTING_YZ/YZ_21_Gorev_Plani.md)
+- 600+ satır detaylı plan (**MVP scope - revize edildi!**)
+- 3 Phase, 9 Task breakdown (ilk hali 5 phase, 13 task - scope creep!)
+- Başarı kriterleri, risk analizi
+- Code examples, test strategy
+- **ÖNEMLİ:** "SCOPE REVİZYONU" section'ı oku!
+
+### 2️⃣ Context'i Anla
+**Oku:**
+- [0-TODO_SELFHOSTING.md](0-TODO_SELFHOSTING.md) (TODO #3 section, lines 1191-1220)
+- [MM_06_TODO3_OZET_ICIN_MM.md](TODO_TODO_SELFHOSTING/SELFHOSTING_MM/MM_06_TODO3_OZET_ICIN_MM.md) - TODO #3 özeti
+- Previous reports: YZ_12, YZ_15, YZ_20 (benzer görev pattern'leri)
+
+### 3️⃣ Mevcut Durumu Test Et
+```bash
+cd /home/pardus/projeler/MLP/MLP-GCC
+
+# Bootstrap validation (7/7 pass olmalı)
+bash tests/test_bootstrap_validation.sh
+
+# Stage0 testi
+cd MELP/C/stage0
+./melpc ../../examples/hello_english.mlp -o /tmp/hello.c
+gcc /tmp/hello.c -L../../runtime -lruntime -o /tmp/hello
+/tmp/hello  # "Hello World!" görmeli
+
+# Stage1 testi
+cd ../../MLP/stage1
+./melpc_stage1 --version  # Binary çalışmalı
+```
+
+### 4️⃣ UA'ya Rapor Ver
+```
+"YZ_21 hazır. TODO #3 planı okundu, mevcut durum test edildi.
+PHASE 1 (Parser/Codegen analizi) başlatılıyor. 
+İlk commit ~8 saat içinde bekleniyor."
+```
+
+---
+
+## 🎉 ÖNCEKİ BAŞARILAR (Motivasyon!)
+
+### ✅ TODO #1-2-4-5-6: BOOTSTRAP-READY! (30 Aralık 2025)
+
+**Commit:** 4b1b549 (Bootstrap-Ready checkpoint)
+
+**Tamamlanan:**
+1. ✅ **TODO #1:** Stage0 (C compiler) + Stage1 (Type validator)
+2. ✅ **TODO #2:** Import System (circular dependency handling)
+3. ✅ **TODO #4:** Runtime Modularization (3245 lines → 8 modules, 85% faster!)
+4. ✅ **TODO #5:** Stdlib Integration (7 P2 modules, 96% faster!)
+5. ✅ **TODO #6:** Bootstrap Validation (7/7 tests, 100% pass!)
+
+**Mevcut Durum:**
 ```bash
 Stage0:   ✅ MLP → C codegen (melpc, 733KB)
 Runtime:  ✅ libruntime.a (88KB, 15 modules)
@@ -56,97 +95,224 @@ Pipeline: ✅ MLP → C → Binary → Execute
 Status:   🎉 BOOTSTRAP-READY!
 ```
 
-**Bootstrap Scope:**
-- ✅ Stage0 → C codegen working
-- ✅ Runtime library production-ready
-- ✅ Stage1 type validation working
-- ⏳ Stage2 → Stage3 convergence (TODO #3 needed)
+**Stage2 için eksikler:**
+- ⏳ Full parser (complex expressions, nested control flow)
+- ⏳ Full codegen (complete C generation)
+- ⏳ Self-hosting convergence (Stage2 == Stage3)
 
-**Notlar:**
-- TODO #3 (PARSER_CODEGEN_FULL) deferred edilmişti
-- Stage2/Stage3 için tam parser/codegen implementasyonu gerekli
-- Bootstrap infrastructure tamam, full self-hosting için TODO #3 bekleniyor
-
-**Skor:** 7/7 (%100) - BOOTSTRAP READY! 🎉
-
-**Detaylar:** [YZ_20_RAPOR.md](YZ_20_RAPOR.md)
+**TODO #3 Sonrası:**
+- 🎊 **FULL SELF-HOSTING ACHIEVED!**
+- 🚀 Directory cleanup → GitHub push
+- ✨ Production-ready compiler announcement
 
 ---
 
-## 📋 SONRAKİ GÖREVLER (YZ_21):
+## 📋 TODO #3 TASK BREAKDOWN (13 Tasks, 5 Phases)
 
-**TODO #6 BOOTSTRAP VALIDATION COMPLETE! 🎉**
+### 🔹 PHASE 1: ANALIZ (2-3 gün)
+- **Task 3.1:** Stage0 Parser Analizi (mevcut kapsam + eksikler)
+- **Task 3.2:** Stage0 Codegen Analizi (üretilen C kodu + eksikler)
+- **Task 3.3:** Gap Analysis + Implementation Plan (YZ_21_GAP_ANALYSIS.md)
 
-**Kalan TODO'lar:**
-- 🔴 **TODO #3:** PARSER_CODEGEN_FULL (SONRAKİ!)
-  - Stage2 full compiler implementation
-  - Parser + Codegen complete implementation
-  - Fonksiyon çağrıları, expressions, statements
-  - Self-hosting: Stage2 → Stage3 → convergence
-  
-**UA_04'e Rapor:**
-TODO #6 Bootstrap Validation başarıyla tamamlandı!
-- Bootstrap infrastructure %100 hazır
-- Full self-hosting için TODO #3 gerekiyor
-- Stage2 implementation ile devam edilebilir
+### 🔹 PHASE 2: PARSER EXTENSION (3-5 gün)
+- **Task 3.4:** Full Expression Parser (nested, precedence, complex calls)
+- **Task 3.5:** Full Control Flow Parser (nested if/for/while, switch)
+- **Task 3.6:** Full Function Parser (generics, default params, lambdas)
+
+### 🔹 PHASE 3: CODEGEN EXTENSION (4-6 gün)
+- **Task 3.7:** Full Expression Codegen (complex → C code, temp vars)
+- **Task 3.8:** Full Control Flow Codegen (nested → C if/for/while)
+- **Task 3.9:** Full Function Codegen (generics → monomorphization, lambdas → fn ptrs)
+
+### 🔹 PHASE 4: STAGE2 BINARY (2-3 gün)
+- **Task 3.10:** Build Stage2 Compiler (melpc_stage2 binary)
+- **Task 3.11:** Stage2 Integration Tests (simple → complex programs)
+
+### 🔹 PHASE 5: SELF-HOSTING (2-3 gün)
+- **Task 3.12:** Stage1 → Stage2 Compilation (Stage2 compiles Stage1 source)
+- **Task 3.13:** Convergence Test (Stage2 == Stage3, self-hosting proof!)
+
+**Timeline:** 13-20 days → **2-3 hafta realistic**
 
 ---
 
-## 🎉 YZ_19: TODO #5 Task 5.5 TAMAMLANDI! (30 Aralık 2025, 18:30)
+## ⚠️ ÖNEMLİ KURALLAR (6 CORE PRINCIPLES)
 
-**Süre:** 90 dakika  
-**Durum:** ✅ BAŞARILI!
+### 1️⃣ MODULAR
+**HER DOSYA < 500 SATIR!**
+- Parser/Codegen module başına ayrı dosya
+- Gerekirse yeni modül oluştur (expression_parser_advanced.c, etc.)
+- Makefile'a yeni modülleri ekle
 
-### ✅ Task 5.5: Full Entegrasyon Testi - COMPLETE!
-
-**Tamamlanan İşler:**
-1. ✅ STO dependency çözüldü
-   - `sto_stubs.c` oluşturuldu (bootstrap stub)
-   - `sto_bigdec_to_string` temporary implementation
-   - Full STO MELP/runtime/sto/'da hazır (Stage2 için)
-2. ✅ Missing testler yazıldı
-   - test_mlp_state_simple.c (state management)
-   - test_mlp_panic.c (error handling)
-   - test_runtime_validation.c (comprehensive)
-   - test_runtime_integration.mlp (MLP-level)
-3. ✅ Full codegen test pipeline
-   - MLP → C → GCC → Binary → Execute
-   - hello_english.mlp: PASS ✅
-   - test_runtime_integration.mlp: PASS ✅
-4. ✅ Runtime stability validation
-   - 0 errors, 0 warnings (GCC strict mode)
-   - All modules tested and working
-   - Library: 88KB, 15 modules
-
-**Runtime Library Status:**
+### 2️⃣ GCC
+**0 WARNING TOLERANSI!**
 ```bash
-Size:     88KB (8 runtime + 6 stdlib + 1 STO stub)
-Modules:  15 total
-Build:    0 warnings, 0 errors
-Tests:    100% pass rate
-Status:   PRODUCTION READY ✅
+gcc -Wall -Wextra -Werror -pedantic
+```
+- Her commit sonrası compile check
+- Valgrind memory leak check
+
+### 3️⃣ STO (Smart Type Optimization)
+- Şimdilik stub'lar yeterli (sto_stubs.c)
+- Full STO MELP/runtime/sto/'da hazır (Stage2+ için)
+
+### 4️⃣ STATELESS
+- Global state YOK (mlp_state exception - documented)
+- Her fonksiyon independent
+
+### 5️⃣ STRUCT+FUNC
+- OOP YOK
+- Pure C style
+
+### 6️⃣ MODÜL=ŞABLON
+- Her modül başka projede kullanılabilir
+- Stateless, reusable
+
+---
+
+## 🧪 TEST STRATEGY
+
+### Her Task Sonrası:
+```bash
+# Unit test yaz
+cd MELP/C/stage0/modules/expression
+make test_parser
+
+# Integration test
+cd /home/pardus/projeler/MLP/MLP-GCC
+./melpc test.mlp -o test.c
+gcc test.c -lruntime -o test
+./test
+
+# Memory check
+valgrind --leak-check=full ./test
 ```
 
-**Test Suite Complete:**
+### Her Phase Sonrası:
 ```bash
-tests/test_mlp_state_simple.c      ✅ PASS
-tests/test_mlp_panic.c             ✅ PASS
-tests/test_runtime_validation.c   ✅ PASS
-tests/stdlib/test_runtime_integration.mlp ✅ PASS
-examples/hello_english.mlp         ✅ PASS
+# Full bootstrap validation
+bash tests/test_bootstrap_validation.sh  # 7/7 pass
 ```
 
-**6 Temel Esas:**
-1. ✅ **MODULAR** - Her modül < 500 satır
-2. ✅ **GCC** - 0 warning, strict mode
-3. ✅ **STO** - Stub working, full STO ready
-4. ✅ **STATELESS** - mlp_state global (documented)
-5. ✅ **STRUCT+FUNC** - Pure C
-6. ✅ **MODÜL=ŞABLON** - Independent modules
+### PHASE 5 (Final):
+```bash
+# Self-hosting convergence test
+cd MELP/MLP/stage2
+./melpc_stage2 ../stage1/modules/*.mlp -o stage3/
+diff -r stage2/ stage3/  # Aynı olmalı!
+md5sum melpc_stage2 melpc_stage3  # Hash aynı!
+```
 
-**Skor:** 6/6 (%100) - PRODUCTION READY! 🎉
+---
 
-**Detaylar:** [YZ_19_RAPOR.md](YZ_19_RAPOR.md)
+## 📊 BAŞARI KRİTERLERİ
+
+### ✅ Parser Extension
+- [ ] Complex expressions (nested, precedence) ✅
+- [ ] Nested control flow (3+ levels) ✅
+- [ ] Generic functions parse ✅
+- [ ] All modules <500 lines ✅
+
+### ✅ Codegen Extension
+- [ ] Complex expressions → valid C ✅
+- [ ] Nested control flow → valid C ✅
+- [ ] Generics → monomorphization ✅
+- [ ] 0 GCC warnings ✅
+
+### ✅ Stage2 Binary
+- [ ] melpc_stage2 created ✅
+- [ ] Can compile examples/*.mlp ✅
+- [ ] Can compile Stage1 source ✅
+- [ ] Size < 2MB ✅
+
+### ✅ Self-hosting
+- [ ] Stage1 → Stage2 compilation ✅
+- [ ] Stage2 → Stage3 compilation ✅
+- [ ] Stage2 == Stage3 (convergence!) ✅
+- [ ] 🎉 **FULL SELF-HOSTING ACHIEVED!** ✅
+
+---
+
+## 🚨 RİSK MİTİGASYON
+
+### Risk 1: Parser Complexity
+**Çözüm:** Pratt parser, modular breakdown, comprehensive tests
+
+### Risk 2: Codegen Edge Cases
+**Çözüm:** Incremental development, validate C with `gcc -fsyntax-only`
+
+### Risk 3: Convergence Failure
+**Çözüm:** Deterministic codegen (no timestamps, no random IDs)
+
+### Risk 4: Memory Leaks
+**Çözüm:** Arena allocator (runtime'da var), valgrind every test
+
+### Risk 5: Timeline Slip
+**Çözüm:** Daily commits, UA checkpoints, MVP-first
+
+---
+
+## 📖 REFERANS DOKÜMANLAR
+
+**Zorunlu:**
+1. [YZ_21_Gorev_Plani.md](TODO_TODO_SELFHOSTING/SELFHOSTING_YZ/YZ_21_Gorev_Plani.md) - Detailed plan
+2. [0-TODO_SELFHOSTING.md](0-TODO_SELFHOSTING.md) - TODO #3 section
+3. [YZ_KURALLAR.md](YZ_KURALLAR.md) - YZ working principles
+
+**Yararlı:**
+4. [YZ_12_RAPOR.md](YZ_12_RAPOR.md) - Runtime modularization örneği
+5. [YZ_20_RAPOR.md](YZ_20_RAPOR.md) - Bootstrap validation örneği
+6. [docs/ARCHITECTURE_AND_MEMORY_STRATEGY.md](docs/ARCHITECTURE_AND_MEMORY_STRATEGY.md)
+
+---
+
+## 💬 ESCALATION
+
+**UA:** Yeni UA (TODO #3 oversight)  
+**MM:** Critical decisions (6 Core Principles violations)  
+**PD:** Structural design (module organization)
+
+**Escalate When:**
+- 6 Core Principles violation
+- Self-hosting convergence fails
+- Timeline > 1 week slip
+- Memory leaks > 1MB
+- Unresolvable GCC warnings
+
+---
+
+## 🎯 BAŞLA!
+
+**Day 1 Checklist:**
+- [ ] Bu dosyayı oku (NEXT_AI_START_HERE.md) ✅
+- [ ] YZ_21_Gorev_Plani.md oku (600+ lines) ✅
+- [ ] Bootstrap validation test et (7/7 pass) ✅
+- [ ] UA'ya "YZ_21 hazır" raporu ver ✅
+
+**Day 2-4 (PHASE 1):**
+- [ ] Task 3.1: Parser analizi
+- [ ] Task 3.2: Codegen analizi
+- [ ] Task 3.3: Gap analysis (YZ_21_GAP_ANALYSIS.md)
+- [ ] UA approval bekle
+
+**Week 1-2 (PHASE 2-3):**
+- [ ] Parser extensions (Tasks 3.4-3.6)
+- [ ] Codegen extensions (Tasks 3.7-3.9)
+- [ ] Continuous testing
+
+**Week 2-3 (PHASE 4-5):**
+- [ ] Stage2 binary (Tasks 3.10-3.11)
+- [ ] Self-hosting (Tasks 3.12-3.13)
+- [ ] YZ_21_RAPOR.md final report
+- [ ] 🎉 Celebrate! Full self-hosting achieved!
+
+---
+
+**HAZIR MISIN? LET'S GO! 🚀**
+
+---
+
+## 📜 GEÇMİŞ RAPORLAR (Archive)
 
 ---
 
