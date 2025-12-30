@@ -1,0 +1,45 @@
+-- lang: en-US
+-- Stage1-Simple Main (Stage0-friendly syntax)
+-- Orchestrator for MLP bootstrap compiler
+
+-- Main compiler pipeline
+function compile_mlp_file(filename)
+    Numeric tokens
+    Numeric token_count
+    Numeric ast_nodes
+    Numeric node_count
+    
+    -- Step 1: Lex
+    token_count = lex_source(filename)
+    
+    if token_count == 0 then
+        return 1
+    end_if
+    
+    -- Step 2: Parse
+    node_count = parse_tokens(tokens; token_count)
+    
+    if node_count == 0 then
+        return 2
+    end_if
+    
+    -- Step 3: Generate C code
+    generate_c_code(ast_nodes; node_count)
+    
+    return 0
+end_function
+
+-- Simple entry point
+function main()
+    Numeric result
+    Numeric test_mode
+    
+    test_mode = 1
+    
+    if test_mode == 1 then
+        result = compile_mlp_file(1)
+        return result
+    end_if
+    
+    return 0
+end_function

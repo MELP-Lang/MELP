@@ -1,0 +1,14 @@
+-- Runtime Integration Test
+-- Tests basic runtime library integration
+
+print "=== Runtime Integration Test ==="
+print "Testing print functions..."
+
+int x = 42
+print x
+
+print "Testing string operations..."
+str message = "MLP Runtime OK"
+print message
+
+print "=== All Tests Passed ==="

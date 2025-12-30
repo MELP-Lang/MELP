@@ -1,0 +1,186 @@
+# TODO: [BURAYA_KISACA_GÖREV]
+
+**Proje**: {{PROJECT_NAME}}  
+**TODO ID**: {{TODO_ID}}  
+**Oluşturulma**: {{CREATION_DATE}}  
+**Süre Limiti**: 30-60 dakika  
+**Atanan**: YZ (Görevli YZ)
+
+---
+
+## 🎯 GÖREV TANIMI (1-2 cümle)
+
+[Kısa ve net görev tanımı. Örnek: "codegen_emit.c dosyasına emit_c() fonksiyonu ekle"]
+
+---
+
+## 📁 İZİN VERİLEN DOSYALAR
+
+**ÖNEMLİ**: SADECE bu dosyalara dokunabilirsin!
+
+```
+MELP/C/stage0/modules/[modul_adi]/[dosya1.c]
+MELP/C/stage0/modules/[modul_adi]/[dosya2.h]
+```
+
+**Maksimum**: 1-2 dosya (3'ten fazla = TODO'yu böl!)
+
+---
+
+## ✅ BEKLENTİLER (Ne yapılacak?)
+
+### 1. Fonksiyon/Özellik Ekle
+
+```c
+// Örnek: emit_c() fonksiyonu
+void emit_c(const char* c_code) {
+    // C kodunu stdout'a yaz
+    printf("%s\n", c_code);
+}
+```
+
+### 2. Header Güncelle
+
+```c
+// codegen_emit.h
+void emit_c(const char* c_code);
+```
+
+### 3. Entegrasyon
+
+```c
+// Kullanım örneği
+emit_c("printf(\"hello\");");
+```
+
+---
+
+## 🧪 TEST YÖNTEMİ
+
+### Manuel Test
+
+```bash
+cd MELP/C/stage0
+make clean && make
+
+# Test:
+echo "printf(\"test\");" | ./melpc --emit-c
+
+# Beklenen çıktı:
+# printf("test");
+```
+
+### Otomatik Test
+
+```bash
+# Eğer test suite varsa:
+./run_tests.sh
+
+# veya
+make test
+```
+
+**ÖNEMLİ**: Testler PASS olmadan commit YASAK!
+
+---
+
+## 🚫 YASAKLAR (KESINLIKLE YAPMA!)
+
+### ❌ Scope Dışına Çıkma
+- TODO'da olmayan özellik ekleme
+- İlgisiz refactor yapma
+- "İyileştirme" bahanesiyle başka dosyalara dokunma
+
+### ❌ İzinsiz Dosyalara Dokunma
+- Sadece "İZİN VERİLEN DOSYALAR" bölümündeki dosyalar
+- Başka modüllere dokunma
+- Global değişkenler değiştirme
+
+### ❌ Büyük Değişiklikler
+- 500 satırdan fazla kod yazma
+- Mimari değişiklik yapma
+- Yeni modül ekleme
+
+### ❌ Testleri Kırma
+- Mevcut testleri bozma
+- Test olmadan commit
+- "Sonra düzeltirim" deme
+
+---
+
+## 📋 TAMAMLANMA KRİTERLERİ
+
+Commit yapmadan önce kontrol et:
+
+- [ ] TODO'da belirtilen iş yapıldı
+- [ ] SADECE izin verilen dosyalar değişti
+- [ ] Kod temiz ve anlaşılır
+- [ ] Yorumlar Türkçe
+- [ ] PMLP syntax kurallarına uyuldu
+- [ ] Testler PASS
+- [ ] YZ_RAPOR.md yazıldı
+- [ ] pre-commit-check.sh geçti
+- [ ] Süre 60 dakikadan az
+
+---
+
+## 📝 RAPOR ŞABLONU
+
+Commit öncesi `YZ_RAPOR.md` oluştur:
+
+```markdown
+# YZ RAPOR: [TODO BAŞLIĞI]
+
+## ✅ YAPILAN
+- codegen_emit.c'ye emit_c() fonksiyonu eklendi
+- codegen_emit.h'ye fonksiyon prototipi eklendi
+- Fonksiyon C kodu stdout'a yazıyor
+
+## 🧪 TEST
+```bash
+make clean && make
+echo "test" | ./melpc --emit-c
+# Çıktı: test
+```
+
+## 📁 DEĞİŞEN DOSYALAR
+- codegen_emit.c (+15 satır)
+- codegen_emit.h (+1 satır)
+
+## 🚫 SCOPE CONTROL
+- SADECE izin verilen dosyalara dokundum: [✅]
+- Başka modül değişmedi: [✅]
+- Refactor yapılmadı: [✅]
+
+## ⏱️ SÜRE
+45 dakika
+```
+
+---
+
+## 🔄 WORKFLOW
+
+1. **TODO oku** (5 dakika)
+2. **YZ_HIZLI_REFERANS.md oku** (5 dakika)
+3. **Kodu yaz** (30-40 dakika)
+4. **Test et** (10 dakika)
+5. **Rapor yaz** (5 dakika)
+6. **./pre-commit-check.sh** (otomatik)
+7. **Commit yap**
+
+**TOPLAM**: 60 dakika MAX!
+
+---
+
+## 🎯 BAŞARI = SCOPE İÇİNDE + TESTLER PASS + 60 DAKİKA
+
+Başarılar! 🚀
+
+---
+
+## 🔗 KAYNAKLAR
+
+- [YZ_HIZLI_REFERANS.md](../../YZ_HIZLI_REFERANS.md)
+- [YZ_WORKFLOW.md](../../YZ_WORKFLOW.md)
+- [NEXT_AI_START_HERE.md](./NEXT_AI_START_HERE.md)
+- [pre-commit-check.sh](../../pre-commit-check.sh)

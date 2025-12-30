@@ -1,0 +1,34 @@
+-- lang: en-US
+-- Stage1-Simple: 4-Function with While Loop Test
+
+function count_loop(max)
+    Numeric i
+    Numeric sum
+    i = 0
+    sum = 0
+    while i < max
+        sum = sum + 1
+        i = i + 1
+    end
+    return sum
+end_function
+
+function tokenize(size)
+    Numeric count
+    count = count_loop(size)
+    return count
+end_function
+
+function parse(tokens)
+    Numeric nodes
+    nodes = tokens + 3
+    return nodes
+end_function
+
+function main()
+    Numeric t
+    Numeric n
+    t = tokenize(5)
+    n = parse(t)
+    return n
+end_function

@@ -1,0 +1,10 @@
+-- YZ_18: Optional Type Test
+-- Test: Create optional numeric and get value
+
+func test_optional() as i64
+    -- Create optional with value
+    i64? x = 42
+    
+    -- Get value (should return 42)
+    return x
+end_func

@@ -11,6 +11,7 @@ SOURCES = print_standalone.c \
           print.c \
           print_parser.c \
           print_codegen.c \
+          ../codegen_emit/codegen_emit.c \
           ../variable/variable.c \
           ../variable/variable_parser.c \
           ../variable/variable_codegen.c \
@@ -38,6 +39,7 @@ OBJECTS = print_standalone.o \
           print.o \
           print_parser.o \
           print_codegen.o \
+          ../codegen_emit/codegen_emit.o \
           ../variable/variable.o \
           ../variable/variable_parser.o \
           ../variable/variable_codegen.o \

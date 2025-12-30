@@ -1,0 +1,27 @@
+// MLP-GCC Generated C Code
+// Target: GCC C99
+// STO: Smart Type Optimization enabled
+
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
+// STO Runtime types
+typedef struct { /* bigdecimal */ } mlp_bigdecimal_t;
+typedef struct { char* data; size_t len; } mlp_string_t;
+
+typedef struct {
+    const char* source_code;
+    int64_t position;
+    int64_t length;
+    int64_t line;
+    int64_t column;
+    int64_t eof_reached;
+} LexerState;
+
+void lexer_state_create() {
+    /* function body */
+}
+

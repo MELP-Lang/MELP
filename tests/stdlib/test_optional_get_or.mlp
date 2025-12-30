@@ -1,0 +1,12 @@
+-- YZ_18: Optional Type - Get or Default Test
+-- Test: Get value or return default
+
+func test_get_or() as i64
+    i64? empty = null
+    i64? filled = 55
+    
+    i64 a = empty ?? 10  -- Should return 10
+    i64 b = filled ?? 99  -- Should return 55
+    
+    return a + b  -- Should return 65
+end_func

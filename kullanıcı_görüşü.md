@@ -1,0 +1,1 @@
+Aranızda yorulan var mı?

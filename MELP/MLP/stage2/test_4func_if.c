@@ -1,0 +1,42 @@
+// MLP-GCC Generated C Code
+// Target: GCC C99
+// STO: Smart Type Optimization enabled
+
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
+// STO Runtime types
+typedef struct { /* bigdecimal */ } mlp_bigdecimal_t;
+typedef struct { char* data; size_t len; } mlp_string_t;
+
+int64_t check_size(int64_t size) {
+    int64_t result;
+    result = 0;
+    if (size > 5) {
+        result = 10;
+    }
+    return result;
+}
+
+int64_t tokenize(int64_t size) {
+    int64_t count;
+    count = check_size ( size );
+    return count;
+}
+
+int64_t parse(int64_t tokens) {
+    int64_t nodes;
+    nodes = tokens + 3;
+    return nodes;
+}
+
+int64_t main(void) {
+    int64_t t;
+    int64_t n;
+    t = tokenize ( 7 ) n = parse ( t );
+    return n;
+}
+

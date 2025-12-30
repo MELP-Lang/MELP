@@ -1,0 +1,16 @@
+-- YZ_18 Test: Basic List Creation
+-- Test list literal allocation and return
+
+func test_empty_list() as list
+    list numbers = ()
+    return numbers
+end_func
+
+func test_list_with_elements() as list
+    list numbers = (1; 2; 3;)
+    return numbers
+end_func
+
+func main() as i32
+    return 0
+end_func

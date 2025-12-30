@@ -1,0 +1,14 @@
+-- lang: en-US
+-- Simple test file
+
+function hello()
+    Numeric x
+    x = 42
+    return x
+end_function
+
+function main()
+    Numeric result
+    result = hello()
+    return result
+end_function

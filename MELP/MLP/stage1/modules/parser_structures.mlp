@@ -8,9 +8,9 @@
 -- List literals, HashMap literals, Set literals, Struct definitions.
 -- -----------------------------------------------------------------------------
 
-import "compiler_core/token_types.mlp"
-import "compiler_core/ast/ast_nodes.mlp"
-import "compiler_core/parser.mlp"
+import "modules/token_types.mlp"
+import "modules/ast_nodes.mlp"
+import "modules/parser.mlp"
 
 -- -----------------------------------------------------------------------------
 -- List literal parsing

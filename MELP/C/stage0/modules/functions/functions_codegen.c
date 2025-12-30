@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "functions_codegen.h"
 #include "functions.h"
+#include "../codegen_emit/codegen_emit.h"
 
 // Forward declaration for expression (Module #9, not yet available)
 // Using stub for now until expression module is integrated
@@ -9,56 +10,57 @@ typedef struct Expression Expression;
 
 void expression_generate_code_stub(FILE* output, Expression* expr) {
     (void)expr;  // Unused parameter
-    fprintf(output, "    # Expression code generation (stub - Module #9 not integrated yet)\n");
-    fprintf(output, "    movq $0, %%rax  # Placeholder: return 0\n");
+    emit_c("        // Expression code generation (stub - Module #9 not integrated yet)\n");
+    emit_c("        return 0;  // Placeholder\n");
 }
 
 #define expression_generate_code expression_generate_code_stub
 
+// Map MLP types to C types
+static const char* get_c_type(FunctionParamType type) {
+    switch (type) {
+        case FUNC_PARAM_NUMERIC: return "int64_t";
+        case FUNC_PARAM_TEXT: return "const char*";
+        case FUNC_PARAM_BOOLEAN: return "bool";
+        case FUNC_PARAM_POINTER: return "void*";
+        case FUNC_PARAM_ARRAY: return "void*";
+        default: return "void*";
+    }
+}
+
+static const char* get_c_return_type(FunctionReturnType type) {
+    switch (type) {
+        case FUNC_RETURN_NUMERIC: return "int64_t";
+        case FUNC_RETURN_TEXT: return "const char*";
+        case FUNC_RETURN_BOOLEAN: return "bool";
+        case FUNC_RETURN_VOID: return "void";
+        default: return "void";
+    }
+}
+
 // Generate function prologue
 void function_generate_prologue(FILE* output, FunctionDeclaration* func) {
-    fprintf(output, "\n# Function: %s\n", func->name);
-    fprintf(output, ".global %s\n", func->name);
-    fprintf(output, "%s:\n", func->name);
+    emit_c("\n// Function: %s\n", func->name);
     
-    // Save frame pointer
-    fprintf(output, "    pushq %%rbp\n");
-    fprintf(output, "    movq %%rsp, %%rbp\n");
+    // Function signature
+    emit_c("%s %s(", get_c_return_type(func->return_type), func->name);
     
-    // Allocate space for local variables (if any)
-    if (func->local_var_count > 0) {
-        int stack_space = func->local_var_count * 8;  // 8 bytes per variable
-        fprintf(output, "    subq $%d, %%rsp\n", stack_space);
-    }
-    
-    // Parameters are passed via registers (x86-64 calling convention):
-    // rdi, rsi, rdx, rcx, r8, r9 for first 6 parameters
-    // Additional parameters on stack
-    
-    // For now, save register parameters to stack if needed
-    int param_index = 0;
+    // Parameters
     FunctionParam* param = func->params;
-    const char* param_regs[] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
-    
-    while (param && param_index < 6) {
-        fprintf(output, "    # Parameter %d: %s\n", param_index, param->name);
-        // Save parameter to stack location: -8*(param_index+1)(%rbp)
-        fprintf(output, "    movq %s, -%d(%%rbp)\n", 
-                param_regs[param_index], 
-                8 * (param_index + 1));
+    int param_index = 0;
+    while (param) {
+        if (param_index > 0) emit_c(", ");
+        emit_c("%s %s", get_c_type(param->type), param->name);
         param = param->next;
         param_index++;
     }
+    
+    emit_c(") {\n");
 }
 
 // Generate function epilogue
 void function_generate_epilogue(FILE* output, FunctionDeclaration* func) {
-    fprintf(output, "\n.L%s_return:\n", func->name);
-    
-    // Restore stack pointer
-    fprintf(output, "    movq %%rbp, %%rsp\n");
-    fprintf(output, "    popq %%rbp\n");
-    fprintf(output, "    ret\n");
+    emit_c("}\n");
 }
 
 // Generate function declaration
@@ -69,7 +71,7 @@ void function_generate_declaration(FILE* output, FunctionDeclaration* func) {
     
     // Function body code generation would go here
     // This is handled by statement codegen in main compilation loop
-    fprintf(output, "    # Function body goes here\n");
+    emit_c("    // Function body goes here\n");
     
     function_generate_epilogue(output, func);
 }
@@ -78,53 +80,21 @@ void function_generate_declaration(FILE* output, FunctionDeclaration* func) {
 void function_generate_call(FILE* output, FunctionCall* call) {
     if (!call) return;
     
-    fprintf(output, "    # Call function: %s\n", call->function_name);
+    emit_c("    %s(", call->function_name);
     
-    // Evaluate arguments and place in registers/stack
-    // x86-64 calling convention: rdi, rsi, rdx, rcx, r8, r9
-    const char* arg_regs[] = {"%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9"};
-    
-    for (int i = 0; i < call->arg_count && i < 6; i++) {
-        fprintf(output, "    # Argument %d\n", i);
-        // Evaluate argument expression and result will be in %rax
+    // Arguments
+    for (int i = 0; i < call->arg_count; i++) {
+        if (i > 0) emit_c(", ");
         if (call->arguments && call->arguments[i]) {
-            expression_generate_code(output, call->arguments[i]);
-            // Move result from %rax to appropriate argument register
-            fprintf(output, "    movq %%rax, %s\n", arg_regs[i]);
+            // For now, just emit a placeholder
+            // Real expression codegen will handle this
+            emit_c("arg%d", i);
         } else {
-            fprintf(output, "    movq $0, %s  # Default: null argument\n", arg_regs[i]);
+            emit_c("0");
         }
     }
     
-    // Handle arguments beyond 6 (push to stack in reverse order)
-    if (call->arg_count > 6) {
-        for (int i = call->arg_count - 1; i >= 6; i--) {
-            fprintf(output, "    # Stack argument %d\n", i);
-            // Evaluate argument expression
-            if (call->arguments && call->arguments[i]) {
-                expression_generate_code(output, call->arguments[i]);
-                fprintf(output, "    pushq %%rax\n");
-            } else {
-                fprintf(output, "    pushq $0  # Default: null argument\n");
-            }
-        }
-    }
-    
-    // Align stack to 16 bytes if needed
-    fprintf(output, "    # Align stack\n");
-    fprintf(output, "    andq $-16, %%rsp\n");
-    
-    // Call the function
-    fprintf(output, "    call %s\n", call->function_name);
-    
-    // Clean up stack arguments if any
-    if (call->arg_count > 6) {
-        int stack_cleanup = (call->arg_count - 6) * 8;
-        fprintf(output, "    addq $%d, %%rsp\n", stack_cleanup);
-    }
-    
-    // Return value is in %rax
-    fprintf(output, "    # Return value in %%rax\n");
+    emit_c(");\n");
 }
 
 // Generate return statement
@@ -132,11 +102,12 @@ void function_generate_return(FILE* output, ReturnStatement* ret) {
     if (!ret) return;
     
     if (ret->return_value) {
-        fprintf(output, "    # Evaluate return value\n");
-        // Evaluate return expression and result will be in %rax
-        expression_generate_code(output, ret->return_value);
+        emit_c("    return ");
+        // Evaluate return expression
+        // Real expression codegen will handle this
+        emit_c("0");  // Placeholder
+        emit_c(";\n");
+    } else {
+        emit_c("    return;\n");
     }
-    
-    // Jump to function epilogue (no label needed, fall through to epilogue)
-    fprintf(output, "    # Return from function\n");
 }

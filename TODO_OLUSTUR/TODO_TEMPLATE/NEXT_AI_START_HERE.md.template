@@ -1,0 +1,65 @@
+# 🚀 BAŞLA!
+
+Merhaba **YZ_01**,
+
+## 🎯 GÖREVİN
+
+`{{TODO_FILE}}` dosyasında **Phase 1** görevlerini tamamla.
+
+---
+
+## 📖 ZORUNLU OKUMA
+
+**YZ_KURALLAR.md** dosyasını oku (10 dakika).
+
+Bu belgede **HER ŞEY** var:
+- Kurallar
+- Workflow
+- Syntax
+- Yasaklar
+- Testler
+
+**Bu belgeyi okumadan işe başlama!**
+
+---
+
+## ⚠️ ÖNCEKİ YZ'DEN NOT
+
+_(Henüz ilk YZ'sin, not yok)_
+
+---
+
+**Başarılar! 🚀**
+
+---
+
+## 📝 Commit Sonrası Bu Dosyayı Güncelle
+
+**Template:**
+```markdown
+# 🚀 BAŞLA!
+
+Merhaba **YZ_02**,
+
+## 🎯 GÖREVİN
+
+`{{TODO_FILE}}` dosyasında **Phase 2** görevlerini tamamla.
+
+---
+
+## 📖 ZORUNLU OKUMA
+
+**YZ_KURALLAR.md** dosyasını oku (10 dakika).
+
+**Bu belgeyi okumadan işe başlama!**
+
+---
+
+## ⚠️ ÖNCEKİ YZ'DEN NOT
+
+**YZ_01:** Phase 1 tamamlandı. [Kritik not varsa buraya yaz]
+
+---
+
+**Başarılar! 🚀**
+```

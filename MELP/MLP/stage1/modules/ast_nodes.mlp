@@ -1,0 +1,467 @@
+-- lang: en-US
+-- syntax: mlp
+
+-- ============================================================================
+-- MELP AST (Abstract Syntax Tree) Module
+-- ============================================================================
+-- Date: 30 Aralık 2025
+-- Purpose: Define AST node types, structures, and arena memory management
+-- Strategy: MODÜL=ŞABLON (stateless, struct-based)
+-- ============================================================================
+
+-- ========== AST Node Types ==========
+
+enum ASTNodeType
+    -- Literals
+    AST_SAYI
+    AST_METIN
+    AST_INTERPOLATED_STRING
+    AST_DEGISKEN
+    
+    -- Literal Kinds (for data.kind field)
+    AST_LITERAL_NUMBER
+    AST_LITERAL_STRING
+    AST_LITERAL_INTERPOLATED
+    
+    -- Expressions
+    AST_IKILI_ISLEM
+    AST_AWAIT_EXPR
+    AST_ISLEC_CAGIRMA
+    
+    -- Statements
+    AST_PRINT_STATEMENT
+    AST_RETURN_STATEMENT_KOMUTU
+    AST_VARIABLE_DECLARATION
+    AST_ASSIGNMENT_KOMUTU
+    AST_IF_STATEMENT_KOMUTU
+    AST_WHILE_LOOP_KOMUTU
+    AST_FOR_LOOP_KOMUTU
+    AST_BLOK
+    
+    -- Functions
+    AST_FUNCTION_DECLARATION
+    AST_FUNCTION_CALL
+    AST_LAMBDA
+    
+    -- Structures
+    AST_STRUCT_DECLARATION
+    AST_STRUCT_FIELD
+    AST_ENUM_DECLARATION
+    AST_ENUM_VALUE
+    
+    -- Imports
+    AST_IMPORT
+    
+    -- Control Flow
+    AST_BREAK
+    AST_CONTINUE
+    
+    -- Advanced
+    AST_ASYNC_FUNCTION
+    AST_YIELD_EXPR
+    AST_LIST_LITERAL
+    AST_DICT_LITERAL
+    AST_INDEX_ACCESS
+    AST_MEMBER_ACCESS
+    AST_UNARY_OP
+    AST_TERNARY_OP
+    
+    -- Root
+    AST_PROGRAM
+    AST_EMPTY
+end_enum
+
+-- ========== AST Location ==========
+
+struct ASTLocation
+    Numeric line
+    Numeric column
+    String file_path
+end_struct
+
+function ast_location(line; column; file_path)
+    ASTLocation loc
+    loc.line = line
+    loc.column = column
+    loc.file_path = file_path
+    return loc
+end_function
+
+-- ========== AST Node Data ==========
+-- Union-like structure (different fields used depending on node type)
+
+struct ASTNodeData
+    -- Common
+    ASTNodeType kind
+    String value
+    
+    -- For binary operations
+    String operator
+    Numeric left_id
+    Numeric right_id
+    
+    -- For function calls/declarations
+    String name
+    list parameters
+    Numeric body_id
+    Numeric return_type_id
+    
+    -- For blocks
+    list statements
+    
+    -- For conditionals
+    Numeric condition_id
+    Numeric then_branch_id
+    Numeric else_branch_id
+    
+    -- For loops
+    Numeric init_id
+    Numeric test_id
+    Numeric update_id
+    Numeric loop_body_id
+    
+    -- For variables
+    String var_name
+    Numeric var_type_id
+    Numeric initializer_id
+    
+    -- For literals
+    Numeric numeric_value
+    String string_value
+    
+    -- For structs
+    list fields
+    String struct_name
+    
+    -- For enums
+    list enum_values
+    String enum_name
+    
+    -- For imports
+    String import_path
+    
+    -- For member access
+    Numeric object_id
+    String member_name
+    
+    -- For index access
+    Numeric array_id
+    Numeric index_id
+    
+    -- Flags
+    Numeric is_async
+    Numeric is_exported
+    Numeric is_mutable
+end_struct
+
+function ast_node_data_create()
+    ASTNodeData data
+    data.kind = AST_EMPTY
+    data.value = ""
+    data.operator = ""
+    data.left_id = -1
+    data.right_id = -1
+    data.name = ""
+    data.parameters = list()
+    data.body_id = -1
+    data.return_type_id = -1
+    data.statements = list()
+    data.condition_id = -1
+    data.then_branch_id = -1
+    data.else_branch_id = -1
+    data.init_id = -1
+    data.test_id = -1
+    data.update_id = -1
+    data.loop_body_id = -1
+    data.var_name = ""
+    data.var_type_id = -1
+    data.initializer_id = -1
+    data.numeric_value = 0
+    data.string_value = ""
+    data.fields = list()
+    data.struct_name = ""
+    data.enum_values = list()
+    data.enum_name = ""
+    data.import_path = ""
+    data.object_id = -1
+    data.member_name = ""
+    data.array_id = -1
+    data.index_id = -1
+    data.is_async = 0
+    data.is_exported = 0
+    data.is_mutable = 0
+    return data
+end_function
+
+-- ========== AST Node ==========
+
+struct ASTNode
+    Numeric id
+    ASTNodeType type
+    ASTLocation location
+    ASTNodeData data
+    String debug_label
+end_struct
+
+function ast_node_create(node_type; location; debug_label)
+    ASTNode node
+    node.id = -1  -- Will be set by arena
+    node.type = node_type
+    node.location = location
+    node.data = ast_node_data_create()
+    node.debug_label = debug_label
+    return node
+end_function
+
+-- ========== AST Function Parameter ==========
+
+struct ASTFunctionParameter
+    String name
+    String type_name
+    Numeric default_value_id
+    Numeric is_array
+end_struct
+
+function ast_function_parameter_create(param_name; type_name)
+    ASTFunctionParameter param
+    param.name = param_name
+    param.type_name = type_name
+    param.default_value_id = -1
+    param.is_array = 0
+    return param
+end_function
+
+-- ========== AST Arena (Memory Management) ==========
+
+struct ASTArena
+    list nodes
+    Numeric next_id
+    Numeric capacity
+end_struct
+
+function ast_arena_init()
+    ASTArena arena
+    arena.nodes = list()
+    arena.next_id = 0
+    arena.capacity = 1000  -- Initial capacity hint
+    return arena
+end_function
+
+function ast_arena_insert(arena; node)
+    -- Assign ID to node
+    node.id = arena.next_id
+    arena.next_id = arena.next_id + 1
+    
+    -- Add to nodes list
+    mlp_list_add(arena.nodes; node)
+    
+    -- Return node ID
+    return node.id
+end_function
+
+function ast_arena_get(arena; node_id)
+    if node_id < 0 then
+        -- Invalid ID, return empty node
+        ASTNode empty_node
+        empty_node.id = -1
+        empty_node.type = AST_EMPTY
+        return empty_node
+    end_if
+    
+    if node_id >= mlp_list_length(arena.nodes) then
+        -- Out of bounds, return empty node
+        ASTNode empty_node
+        empty_node.id = -1
+        empty_node.type = AST_EMPTY
+        return empty_node
+    end_if
+    
+    return mlp_list_get(arena.nodes; node_id)
+end_function
+
+function ast_arena_set_data(arena; node_id; data)
+    if node_id < 0 then
+        return arena
+    end_if
+    
+    if node_id >= mlp_list_length(arena.nodes) then
+        return arena
+    end_if
+    
+    -- Get node, update data, set back
+    ASTNode node
+    node = mlp_list_get(arena.nodes; node_id)
+    node.data = data
+    mlp_list_set(arena.nodes; node_id; node)
+    
+    return arena
+end_function
+
+function ast_arena_size(arena)
+    return mlp_list_length(arena.nodes)
+end_function
+
+function ast_arena_dump(arena)
+    Numeric size = ast_arena_size(arena)
+    print "AST Arena Dump ("
+    print size
+    print " nodes):"
+    
+    for i = 0 to size - 1 do
+        ASTNode node
+        node = ast_arena_get(arena; i)
+        
+        print "  Node #"
+        print i
+        print ": type="
+        print node.type
+        print " label="
+        print node.debug_label
+        print " line="
+        print node.location.line
+    end
+end_function
+
+-- ========== AST Import Node Data ==========
+
+struct ASTImportNode
+    String path
+    Numeric line
+    Numeric column
+end_struct
+
+function ast_import_node_create(path; line; column)
+    ASTImportNode import_node
+    import_node.path = path
+    import_node.line = line
+    import_node.column = column
+    return import_node
+end_function
+
+-- ========== Helper Functions ==========
+
+function ast_is_literal(node_type)
+    if node_type == AST_SAYI then
+        return 1
+    end_if
+    if node_type == AST_METIN then
+        return 1
+    end_if
+    if node_type == AST_INTERPOLATED_STRING then
+        return 1
+    end_if
+    return 0
+end_function
+
+function ast_is_expression(node_type)
+    if ast_is_literal(node_type) == 1 then
+        return 1
+    end_if
+    if node_type == AST_IKILI_ISLEM then
+        return 1
+    end_if
+    if node_type == AST_DEGISKEN then
+        return 1
+    end_if
+    if node_type == AST_FUNCTION_CALL then
+        return 1
+    end_if
+    if node_type == AST_LAMBDA then
+        return 1
+    end_if
+    return 0
+end_function
+
+function ast_is_statement(node_type)
+    if node_type == AST_PRINT_STATEMENT then
+        return 1
+    end_if
+    if node_type == AST_RETURN_STATEMENT_KOMUTU then
+        return 1
+    end_if
+    if node_type == AST_VARIABLE_DECLARATION then
+        return 1
+    end_if
+    if node_type == AST_ASSIGNMENT_KOMUTU then
+        return 1
+    end_if
+    if node_type == AST_IF_STATEMENT_KOMUTU then
+        return 1
+    end_if
+    if node_type == AST_WHILE_LOOP_KOMUTU then
+        return 1
+    end_if
+    if node_type == AST_FOR_LOOP_KOMUTU then
+        return 1
+    end_if
+    if node_type == AST_BLOK then
+        return 1
+    end_if
+    return 0
+end_function
+
+function ast_type_to_string(node_type)
+    if node_type == AST_SAYI then
+        return "AST_SAYI"
+    end_if
+    if node_type == AST_METIN then
+        return "AST_METIN"
+    end_if
+    if node_type == AST_INTERPOLATED_STRING then
+        return "AST_INTERPOLATED_STRING"
+    end_if
+    if node_type == AST_DEGISKEN then
+        return "AST_DEGISKEN"
+    end_if
+    if node_type == AST_IKILI_ISLEM then
+        return "AST_IKILI_ISLEM"
+    end_if
+    if node_type == AST_PRINT_STATEMENT then
+        return "AST_PRINT_STATEMENT"
+    end_if
+    if node_type == AST_RETURN_STATEMENT_KOMUTU then
+        return "AST_RETURN_STATEMENT_KOMUTU"
+    end_if
+    if node_type == AST_VARIABLE_DECLARATION then
+        return "AST_VARIABLE_DECLARATION"
+    end_if
+    if node_type == AST_ASSIGNMENT_KOMUTU then
+        return "AST_ASSIGNMENT_KOMUTU"
+    end_if
+    if node_type == AST_IF_STATEMENT_KOMUTU then
+        return "AST_IF_STATEMENT_KOMUTU"
+    end_if
+    if node_type == AST_WHILE_LOOP_KOMUTU then
+        return "AST_WHILE_LOOP_KOMUTU"
+    end_if
+    if node_type == AST_FOR_LOOP_KOMUTU then
+        return "AST_FOR_LOOP_KOMUTU"
+    end_if
+    if node_type == AST_BLOK then
+        return "AST_BLOK"
+    end_if
+    if node_type == AST_FUNCTION_DECLARATION then
+        return "AST_FUNCTION_DECLARATION"
+    end_if
+    if node_type == AST_FUNCTION_CALL then
+        return "AST_FUNCTION_CALL"
+    end_if
+    if node_type == AST_STRUCT_DECLARATION then
+        return "AST_STRUCT_DECLARATION"
+    end_if
+    if node_type == AST_ENUM_DECLARATION then
+        return "AST_ENUM_DECLARATION"
+    end_if
+    if node_type == AST_IMPORT then
+        return "AST_IMPORT"
+    end_if
+    if node_type == AST_AWAIT_EXPR then
+        return "AST_AWAIT_EXPR"
+    end_if
+    if node_type == AST_ASYNC_FUNCTION then
+        return "AST_ASYNC_FUNCTION"
+    end_if
+    return "AST_UNKNOWN"
+end_function
+
+-- ========== End of AST Nodes Module ==========

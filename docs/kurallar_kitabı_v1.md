@@ -614,6 +614,29 @@ end match
 
 ### State Management (Phase 18)
 
+**⚠️ ÖNEMLİ FELSEFİ NOT:**
+
+MELP **varsayılan olarak stateless** bir dildir (4. Temel Esas: STATELESS).  
+Ancak, bir yazılımcı **bilinçli bir karar** olarak ve **maliyetine katlanarak** `state` keyword'ünü kullanabilir.
+
+**Kullanım Senaryoları:**
+- ✅ **Çok kullanıcılı terminal uygulamaları** (user session tracking)
+- ✅ **Oyun geliştirme** (game state, score, level)
+- ✅ **Long-running servisler** (connection pool, cache)
+- ❌ **Stdlib modülleri** (file, math, string) → Stateless olmalı!
+- ❌ **Pure fonksiyonlar** → State kullanmamalı!
+
+**Maliyet:**
+- ⚠️ Test edilebilirlik azalır (side effects)
+- ⚠️ Race condition riski (multi-threading)
+- ⚠️ Debug zorlaşır (global state)
+- ⚠️ Functional paradigm bozulur
+
+**Varsayılan davranış:** Her modül stateless, her çağrı independent (MODÜL=ŞABLON felsefesi)  
+**Exception:** Kullanıcı bilinçli olarak `state` kullanabilir (opt-in)
+
+---
+
 ```mlp
 -- State değişken tanımlama
 state numeric counter = 100
@@ -645,17 +668,22 @@ print(sum)  -- 10 yazdırır (1+2+3+4)
 ```
 
 **State Türleri:**
-- **state:** Modül/dosya kapsamında global değişken
-- **shared state:** Çoklu dosyalar arasında paylaşılan global değişken
+- **state:** Modül/dosya kapsamında global değişken (opt-in, maliyetli)
+- **shared state:** Çoklu dosyalar arasında paylaşılan global değişken (opt-in, maliyetli)
 
 **Desteklenen Tipler:**
 - `state numeric name = value` - Sayısal state
 - `state string name = "value"` - Metin state
 
-**Notlar:**
+**Teknik Notlar:**
 - State değişkenler .bss section'da saklanır
 - State değişkenler programın tüm fonksiyonlarından erişilebilir
 - State değişkenler aritmetik, koşul ve döngü ifadelerinde kullanılabilir
+
+**Mimari Kurallar:**
+- ✅ User applications: `state` kullanılabilir (bilinçli karar)
+- ❌ Stdlib modules: `state` kullanılmamalı (stateless olmalı)
+- ✅ Default: Her çağrı independent, modül state tutmaz
 
 ---
 

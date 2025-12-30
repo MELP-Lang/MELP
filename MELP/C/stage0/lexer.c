@@ -71,7 +71,12 @@ static Token* read_string(Lexer* lexer) {
     lexer->pos++; // skip opening "
     int start = lexer->pos;
     while (lexer->source[lexer->pos] != '"' && lexer->source[lexer->pos] != '\0') {
-        lexer->pos++;
+        // Handle escape sequences
+        if (lexer->source[lexer->pos] == '\\' && lexer->source[lexer->pos + 1] != '\0') {
+            lexer->pos += 2; // skip backslash and next char
+        } else {
+            lexer->pos++;
+        }
     }
     int len = lexer->pos - start;
     char* value = malloc(len + 1);
@@ -105,7 +110,10 @@ static Token* read_identifier(Lexer* lexer) {
     else if (strcmp(value, "if") == 0) type = TOKEN_IF;
     else if (strcmp(value, "then") == 0) type = TOKEN_THEN;
     else if (strcmp(value, "else") == 0) type = TOKEN_ELSE;
-    else if (strcmp(value, "end") == 0) type = TOKEN_END;
+    else if (strcmp(value, "end") == 0) type = TOKEN_END;           // Generic
+    else if (strcmp(value, "end_if") == 0) type = TOKEN_END_IF;     // Specific (Stage1)
+    else if (strcmp(value, "end_while") == 0) type = TOKEN_END_WHILE;
+    else if (strcmp(value, "end_function") == 0) type = TOKEN_END_FUNCTION;
     else if (strcmp(value, "while") == 0) type = TOKEN_WHILE;
     else if (strcmp(value, "do") == 0) type = TOKEN_DO;
     else if (strcmp(value, "for") == 0) type = TOKEN_FOR;
@@ -115,8 +123,20 @@ static Token* read_identifier(Lexer* lexer) {
     // Function keywords
     else if (strcmp(value, "function") == 0) type = TOKEN_FUNCTION;
     else if (strcmp(value, "return") == 0) type = TOKEN_RETURN;
+    else if (strcmp(value, "import") == 0) type = TOKEN_IMPORT;
     // Struct keywords
     else if (strcmp(value, "struct") == 0) type = TOKEN_STRUCT;
+    // Enum keywords
+    else if (strcmp(value, "enum") == 0) type = TOKEN_ENUM;
+    // Match keywords
+    else if (strcmp(value, "match") == 0) type = TOKEN_MATCH;
+    else if (strcmp(value, "case") == 0) type = TOKEN_CASE;
+    else if (strcmp(value, "default") == 0) type = TOKEN_DEFAULT;
+    // End keywords
+    else if (strcmp(value, "end_if") == 0) type = TOKEN_END_IF;
+    else if (strcmp(value, "end_while") == 0) type = TOKEN_END_WHILE;
+    else if (strcmp(value, "end_for") == 0) type = TOKEN_END_FOR;
+    else if (strcmp(value, "end_function") == 0) type = TOKEN_END_FUNCTION;
     // Logical keywords (also bitwise for integers - VB.NET style)
     else if (strcasecmp(value, "and") == 0) type = TOKEN_AND;
     else if (strcasecmp(value, "or") == 0) type = TOKEN_OR;

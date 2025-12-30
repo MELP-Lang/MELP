@@ -1,6 +1,7 @@
 #include "control_flow_codegen.h"
 #include "../comparison/comparison.h"
 #include "../comparison/comparison_codegen.h"
+#include "../codegen_emit/codegen_emit.h"
 #include <stdio.h>
 
 static int label_counter = 0;
@@ -8,60 +9,71 @@ static int label_counter = 0;
 void control_flow_generate_if(FILE* output, IfStatement* stmt) {
     if (!output || !stmt) return;
     
-    int label_else = label_counter++;
-    int label_end = label_counter++;
+    emit_c("\n    // If statement\n");
     
-    fprintf(output, "\n    ; If statement\n");
-    
-    // Load and compare condition
+    // Generate condition
     ComparisonExpr* cond = (ComparisonExpr*)stmt->condition;
-    comparison_generate_code(output, cond);
     
-    // Test result
-    fprintf(output, "    test rax, rax\n");
-    if (stmt->has_else) {
-        fprintf(output, "    jz .if_else_%d\n", label_else);
-    } else {
-        fprintf(output, "    jz .if_end_%d\n", label_end);
+    // Build condition expression
+    const char* op_str = "";
+    switch (cond->op) {
+        case CMP_EQUAL: op_str = "=="; break;
+        case CMP_NOT_EQUAL: op_str = "!="; break;
+        case CMP_LESS: op_str = "<"; break;
+        case CMP_LESS_EQUAL: op_str = "<="; break;
+        case CMP_GREATER: op_str = ">"; break;
+        case CMP_GREATER_EQUAL: op_str = ">="; break;
     }
     
-    // Then body
-    fprintf(output, "    ; Then body\n");
+    emit_c("    if (%s %s %s) {\n", 
+           cond->left_value, op_str, cond->right_value);
+    emit_c("        // Then body\n");
     
     if (stmt->has_else) {
-        fprintf(output, "    jmp .if_end_%d\n", label_end);
-        fprintf(output, ".if_else_%d:\n", label_else);
-        fprintf(output, "    ; Else body\n");
+        emit_c("    } else {\n");
+        emit_c("        // Else body\n");
     }
     
-    fprintf(output, ".if_end_%d:\n", label_end);
+    emit_c("    }\n");
 }
 
 void control_flow_generate_while(FILE* output, WhileStatement* stmt) {
     if (!output || !stmt) return;
     
-    int label_start = label_counter++;
-    int label_end = label_counter++;
+    emit_c("\n    // While loop\n");
     
-    fprintf(output, "\n    ; While loop\n");
-    fprintf(output, ".while_start_%d:\n", label_start);
-    
-    // Condition
+    // Generate condition
     ComparisonExpr* cond = (ComparisonExpr*)stmt->condition;
-    comparison_generate_code(output, cond);
     
-    fprintf(output, "    test rax, rax\n");
-    fprintf(output, "    jz .while_end_%d\n", label_end);
+    // Build condition expression
+    const char* op_str = "";
+    switch (cond->op) {
+        case CMP_EQUAL: op_str = "=="; break;
+        case CMP_NOT_EQUAL: op_str = "!="; break;
+        case CMP_LESS: op_str = "<"; break;
+        case CMP_LESS_EQUAL: op_str = "<="; break;
+        case CMP_GREATER: op_str = ">"; break;
+        case CMP_GREATER_EQUAL: op_str = ">="; break;
+    }
     
-    // Body
-    fprintf(output, "    ; Loop body\n");
-    fprintf(output, "    jmp .while_start_%d\n", label_start);
-    fprintf(output, ".while_end_%d:\n", label_end);
+    emit_c("    while (%s %s %s) {\n", 
+           cond->left_value, op_str, cond->right_value);
+    emit_c("        // Loop body\n");
+    emit_c("    }\n");
 }
 
 void control_flow_generate_for(FILE* output, ForStatement* stmt) {
     if (!output || !stmt) return;
     
-    fprintf(output, "\n    ; For loop\n");
-    fprintf(output, "    ; Iterator: %s\n", stmt->iterator ? stmt->iterator : "none");
+    emit_c("\n    // For loop\n");
+    
+    // Generate for loop: for (int64_t i = start; i <= end; i++)
+    emit_c("    for (int64_t %s = %s; %s <= %s; %s++) {\n",
+           stmt->iterator ? stmt->iterator : "i",
+           stmt->start ? (char*)stmt->start : "0",
+           stmt->iterator ? stmt->iterator : "i",
+           stmt->end ? (char*)stmt->end : "10",
+           stmt->iterator ? stmt->iterator : "i");
+    emit_c("        // Loop body\n");
+    emit_c("    }\n");
 }

@@ -1,0 +1,5 @@
+-- Test: Basic print statements
+
+print "Test 1: Simple print"
+print "Test 2: Multiple prints"
+print "Test 3: Print works!"

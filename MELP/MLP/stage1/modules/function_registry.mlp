@@ -9,7 +9,7 @@
 -- çağrılarda bu kayıtlara bakarak default parametre değerlerini uygular.
 -- -----------------------------------------------------------------------------
 
-import "compiler_core/ast/ast_nodes.mlp"
+import "modules/ast_nodes.mlp"
 
 -- -----------------------------------------------------------------------------
 -- Parametre bilgileri

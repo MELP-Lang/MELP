@@ -4,12 +4,13 @@
  * Dependencies: runtime_memory.h, runtime_error.h
  */
 
+#define _GNU_SOURCE  // For strdup
 #include "runtime_string.h"
 #include "runtime_memory.h" 
 #include "runtime_error.h"
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
 #include <ctype.h>
 
 char* string_birlestir(const char* str1, const char* str2) {

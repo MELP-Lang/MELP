@@ -1,0 +1,14 @@
+-- lang: en-US
+-- Simple test file for self-compile
+
+function add(a; b)
+    Numeric result
+    result = a + b
+    return result
+end_function
+
+function main()
+    Numeric val
+    val = add(2; 3)
+    return val
+end_function

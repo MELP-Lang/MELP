@@ -1,0 +1,178 @@
+-- lang: en-US
+-- Stage1-Simple Code Generator (Stage0-friendly syntax)
+-- Basic C code emission for MLP bootstrap
+
+-- Emit helpers
+function emit_indent(level)
+    Numeric i
+    i = 0
+    while i < level
+        i = i + 1
+    end
+    return 0
+end_function
+
+function emit_newline()
+    return 0
+end_function
+
+-- Emit C types
+function emit_type_numeric()
+    return 0
+end_function
+
+function emit_type_string()
+    return 0
+end_function
+
+-- Emit variable declaration
+function emit_variable(ast_node; indent_level)
+    emit_indent(indent_level)
+    emit_type_numeric()
+    emit_newline()
+    return 0
+end_function
+
+-- Emit binary operation
+function emit_binary_op(ast_node; indent_level; op_type)
+    emit_indent(indent_level)
+    
+    if op_type == 1 then
+        return 0
+    end_if
+    
+    if op_type == 2 then
+        return 0
+    end_if
+    
+    if op_type == 3 then
+        return 0
+    end_if
+    
+    return 0
+end_function
+
+-- Emit expression
+function emit_expression(ast_node; indent_level)
+    Numeric node_type
+    node_type = 7
+    
+    if node_type == 7 then
+        emit_binary_op(ast_node; indent_level; 1)
+        return 0
+    end_if
+    
+    if node_type == 8 then
+        emit_indent(indent_level)
+        return 0
+    end_if
+    
+    if node_type == 9 then
+        emit_indent(indent_level)
+        return 0
+    end_if
+    
+    return 0
+end_function
+
+-- Emit if statement
+function emit_if(ast_node; indent_level)
+    emit_indent(indent_level)
+    emit_newline()
+    
+    emit_expression(ast_node; indent_level + 1)
+    
+    emit_indent(indent_level)
+    emit_newline()
+    
+    emit_indent(indent_level)
+    emit_newline()
+    
+    return 0
+end_function
+
+-- Emit while loop
+function emit_while(ast_node; indent_level)
+    emit_indent(indent_level)
+    emit_newline()
+    
+    emit_expression(ast_node; indent_level + 1)
+    
+    emit_indent(indent_level)
+    emit_newline()
+    
+    return 0
+end_function
+
+-- Emit return statement
+function emit_return(ast_node; indent_level)
+    emit_indent(indent_level)
+    emit_expression(ast_node; indent_level)
+    emit_newline()
+    return 0
+end_function
+
+-- Emit function declaration
+function emit_function(ast_node; indent_level)
+    emit_indent(indent_level)
+    emit_newline()
+    
+    emit_indent(indent_level)
+    emit_newline()
+    
+    emit_indent(indent_level)
+    emit_newline()
+    
+    return 0
+end_function
+
+-- Emit statement
+function emit_statement(ast_node; indent_level; node_type)
+    if node_type == 1 then
+        emit_function(ast_node; indent_level)
+        return 0
+    end_if
+    
+    if node_type == 2 then
+        emit_variable(ast_node; indent_level)
+        return 0
+    end_if
+    
+    if node_type == 3 then
+        emit_if(ast_node; indent_level)
+        return 0
+    end_if
+    
+    if node_type == 4 then
+        emit_while(ast_node; indent_level)
+        return 0
+    end_if
+    
+    if node_type == 5 then
+        emit_return(ast_node; indent_level)
+        return 0
+    end_if
+    
+    emit_expression(ast_node; indent_level)
+    return 0
+end_function
+
+-- Main codegen function
+function generate_c_code(ast_nodes; node_count)
+    Numeric pos
+    Numeric indent
+    
+    pos = 0
+    indent = 0
+    
+    while pos < node_count
+        Numeric node_type
+        node_type = 1
+        
+        emit_statement(ast_nodes; indent; node_type)
+        
+        pos = pos + 1
+    end
+    
+    return 0
+end_function

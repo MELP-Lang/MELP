@@ -8,8 +8,8 @@
 -- Variable tracking, scope levels, symbol resolution, offset calculation.
 -- -----------------------------------------------------------------------------
 
-import "compiler_core/token_types.mlp"
-import "compiler_core/ast/ast_nodes.mlp"
+import "modules/token_types.mlp"
+import "modules/ast_nodes.mlp"
 
 -- -----------------------------------------------------------------------------
 -- Variable information

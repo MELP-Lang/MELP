@@ -1,0 +1,7 @@
+-- YZ_18 Test: Simplified List Test
+-- Just test list creation
+
+func main() as i32
+    list numbers = ()
+    return 0
+end_func

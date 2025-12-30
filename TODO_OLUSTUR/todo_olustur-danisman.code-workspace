@@ -1,0 +1,10 @@
+{
+    "folders": [{ "path": "/home/pardus/projeler/MLP/MLP-GCC" }],
+    "settings": {
+        "window.title": "📚 TODO_OLUSTUR - DANIŞMAN",
+        "workbench.colorCustomizations": {
+            "titleBar.activeBackground": "#1E90FF",
+            "titleBar.activeForeground": "#FFFFFF"
+        }
+    }
+}

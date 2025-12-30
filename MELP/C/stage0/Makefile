@@ -12,11 +12,16 @@ MODULE_DIRS = parser_core expression statement \
               pointer memory lambda generator exception_handling pattern_matching \
               module_system generic_types enum interface_trait async array collections
 
+# Special modules (no parser/codegen split)
+SPECIAL_MODULES = codegen_emit
+
 # Generate object file lists  
 MODULE_OBJS = $(foreach dir,$(MODULE_DIRS),modules/$(dir)/$(dir).o \
               modules/$(dir)/$(dir)_parser.o modules/$(dir)/$(dir)_codegen.o)
 
-OBJS = main.o lexer.o $(MODULE_OBJS)
+SPECIAL_OBJS = $(foreach dir,$(SPECIAL_MODULES),modules/$(dir)/$(dir).o)
+
+OBJS = main.o lexer.o $(MODULE_OBJS) $(SPECIAL_OBJS)
 
 all: $(TARGET)
 

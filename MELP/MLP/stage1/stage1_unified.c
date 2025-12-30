@@ -1,0 +1,617 @@
+// MLP-GCC Stage1 Unified Compiler
+// Generated: $(date)
+// Build: Single-file compilation (Bootstrap pattern)
+
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
+// STO Runtime types
+typedef struct { /* bigdecimal */ } mlp_bigdecimal_t;
+typedef struct { char* data; size_t len; } mlp_string_t;
+
+// Forward declarations (Stage0 simple translator - missing types)
+typedef int Boolean;
+typedef void* HashMap;
+typedef void* ASTArena;
+typedef void* FunctionRegistry;
+
+
+
+
+typedef enum {
+    TOKEN_EOF,
+    TOKEN_NUMBER,
+    TOKEN_STRING,
+    TOKEN_INTERPOLATED_STRING,
+    TOKEN_IDENTIFIER,
+    TOKEN_TRUE,
+    TOKEN_FALSE,
+    TOKEN_NULL,
+    TOKEN_TYPE_NUMERIC,
+    TOKEN_TYPE_STRING,
+    TOKEN_TYPE_BOOLEAN,
+    TOKEN_PRINT,
+    TOKEN_IF,
+    TOKEN_THEN,
+    TOKEN_ELSE,
+    TOKEN_WITH,
+    TOKEN_FUNCTION,
+    TOKEN_ASYNC,
+    TOKEN_AWAIT,
+    TOKEN_YIELD,
+    TOKEN_RETURN,
+    TOKEN_WHILE,
+    TOKEN_YAPI_DO,
+    TOKEN_WHILE_BITIR,
+    TOKEN_WHILE_DEVAM,
+    TOKEN_FOR,
+    TOKEN_TO,
+    TOKEN_STEP,
+    TOKEN_END,
+    TOKEN_END_IF,
+    TOKEN_END_WHILE,
+    TOKEN_END_FOR,
+    TOKEN_END_FUNCTION,
+    TOKEN_END_STRUCT,
+    TOKEN_END_ENUM,
+    TOKEN_END_SWITCH,
+    TOKEN_YAPI_STRUCT,
+    TOKEN_LIST,
+    TOKEN_OPTIONAL,
+    TOKEN_MAP,
+    TOKEN_YAPI_ENUM,
+    TOKEN_YAPI_SWITCH,
+    TOKEN_YAPI_CASE,
+    TOKEN_YAPI_DEFAULT,
+    TOKEN_MATCH,
+    TOKEN_TRY,
+    TOKEN_CATCH,
+    TOKEN_THROW,
+    TOKEN_DEFER,
+    TOKEN_PANIC,
+    TOKEN_CONST,
+    TOKEN_TYPEOF,
+    TOKEN_TYPE,
+    TOKEN_AS,
+    TOKEN_IMPORT,
+    TOKEN_LAMBDA,
+    TOKEN_ARROW,
+    TOKEN_IN,
+    TOKEN_RANGE,
+    TOKEN_BUILTIN_READ_FILE,
+    TOKEN_BUILTIN_WRITE_FILE,
+    TOKEN_BUILTIN_APPEND_FILE,
+    TOKEN_BUILTIN_FILE_EXISTS,
+    TOKEN_BUILTIN_FILE_SIZE,
+    TOKEN_BUILTIN_READ_LINES,
+    TOKEN_BUILTIN_STRING_SPLIT,
+    TOKEN_BUILTIN_STRING_JOIN,
+    TOKEN_BUILTIN_STRING_REPLACE,
+    TOKEN_BUILTIN_STRING_TRIM,
+    TOKEN_BUILTIN_STRING_UPPER,
+    TOKEN_BUILTIN_STRING_LOWER,
+    TOKEN_BUILTIN_STRING_FIND,
+    TOKEN_BUILTIN_STRING_STARTS_WITH,
+    TOKEN_BUILTIN_STRING_ENDS_WITH,
+    TOKEN_BUILTIN_INT_TO_STRING,
+    TOKEN_BUILTIN_STRING_TO_INT,
+    TOKEN_BUILTIN_CHAR_TO_STRING,
+    TOKEN_BUILTIN_STRING_CONCAT,
+    TOKEN_BUILTIN_NUM,
+    TOKEN_BUILTIN_STR,
+    TOKEN_BUILTIN_READ_INPUT,
+    TOKEN_BUILTIN_READ_LINE,
+    TOKEN_BUILTIN_READ_INT,
+    TOKEN_BUILTIN_MATH_ABS,
+    TOKEN_BUILTIN_MATH_MIN,
+    TOKEN_BUILTIN_MATH_MAX,
+    TOKEN_BUILTIN_MATH_POW,
+    TOKEN_BUILTIN_STRING_LENGTH,
+    TOKEN_BUILTIN_STRING_SUBSTRING,
+    TOKEN_BUILTIN_STRING_INDEX_OF,
+    TOKEN_BUILTIN_STRING_LAST_INDEX_OF,
+    TOKEN_BUILTIN_LEN,
+    TOKEN_BUILTIN_ORD,
+    TOKEN_BUILTIN_CHR,
+    TOKEN_BUILTIN_CHAR_CODE,
+    TOKEN_BUILTIN_CHAR_AT,
+    TOKEN_BUILTIN_SUBSTRING,
+    TOKEN_BUILTIN_CONTAINS,
+    TOKEN_BUILTIN_STARTSWITH,
+    TOKEN_BUILTIN_ENDSWITH,
+    TOKEN_BUILTIN_LEFT,
+    TOKEN_BUILTIN_RIGHT,
+    TOKEN_BUILTIN_MID,
+    TOKEN_BUILTIN_EXIT_WITH_CODE,
+    TOKEN_BUILTIN_PANIC,
+    TOKEN_BUILTIN_ASSERT,
+    TOKEN_BUILTIN_GET_ERROR_CODE,
+    TOKEN_BUILTIN_SET_ERROR_CODE,
+    TOKEN_BUILTIN_MLP_MALLOC,
+    TOKEN_BUILTIN_MLP_FREE,
+    TOKEN_BUILTIN_MLP_REALLOC,
+    TOKEN_BUILTIN_MLP_CALLOC,
+    TOKEN_BUILTIN_GET_ALLOCATED_BYTES,
+    TOKEN_BUILTIN_CHECK_MEMORY_LEAKS,
+    TOKEN_BUILTIN_GET_ENV,
+    TOKEN_BUILTIN_CURRENT_TIMESTAMP,
+    TOKEN_BUILTIN_SLEEP_MS,
+    TOKEN_BUILTIN_READ_BINARY,
+    TOKEN_BUILTIN_WRITE_BINARY,
+    TOKEN_BUILTIN_GET_FILE_INFO,
+    TOKEN_BUILTIN_COPY_FILE,
+    TOKEN_BUILTIN_LIST_DIRECTORY,
+    TOKEN_BUILTIN_CREATE_DIRECTORY,
+    TOKEN_BUILTIN_REMOVE_DIRECTORY,
+    TOKEN_BUILTIN_DIRECTORY_EXISTS,
+    TOKEN_BUILTIN_GET_CURRENT_DIR,
+    TOKEN_BUILTIN_CHANGE_DIRECTORY,
+    TOKEN_BUILTIN_EXECUTE_COMMAND,
+    TOKEN_BUILTIN_GET_COMMAND_OUTPUT,
+    TOKEN_BUILTIN_GET_PROCESS_ID,
+    TOKEN_BUILTIN_GET_PARENT_PROCESS_ID,
+    TOKEN_BUILTIN_FORMAT_TIMESTAMP,
+    TOKEN_BUILTIN_PARSE_TIMESTAMP,
+    TOKEN_BUILTIN_GET_MILLISECONDS,
+    TOKEN_BUILTIN_GET_TIME_STRING,
+    TOKEN_BUILTIN_JOIN_PATH,
+    TOKEN_BUILTIN_GET_FILE_EXTENSION,
+    TOKEN_BUILTIN_GET_FILE_NAME,
+    TOKEN_BUILTIN_GET_DIRECTORY,
+    TOKEN_LEFT_PAREN,
+    TOKEN_RIGHT_PAREN,
+    TOKEN_LEFT_BRACKET,
+    TOKEN_RIGHT_BRACKET,
+    TOKEN_LEFT_BRACE,
+    TOKEN_RIGHT_BRACE,
+    TOKEN_COMMA,
+    TOKEN_ASSIGN,
+    TOKEN_SEMICOLON,
+    TOKEN_DOT,
+    TOKEN_COLON,
+    TOKEN_PLUS,
+    TOKEN_MINUS,
+    TOKEN_MUL,
+    TOKEN_DIV,
+    TOKEN_GT,
+    TOKEN_LT,
+    TOKEN_OP_ESIT_KARSILASTIRMA,
+    TOKEN_NOT_ESIT,
+    TOKEN_GTE,
+    TOKEN_LTE,
+    TOKEN_MOD,
+    TOKEN_AND,
+    TOKEN_OR,
+    TOKEN_NOT,
+    TOKEN_BITWISE_AND,
+    TOKEN_BITWISE_OR,
+    TOKEN_BITWISE_XOR,
+    TOKEN_BITWISE_NOT,
+    TOKEN_LSHIFT,
+    TOKEN_RSHIFT,
+    TOKEN_PLUS_ASSIGN,
+    TOKEN_MINUS_ASSIGN,
+    TOKEN_MUL_ASSIGN,
+    TOKEN_DIV_ASSIGN,
+    TOKEN_INCREMENT,
+    TOKEN_DECREMENT,
+    TOKEN_TERNARY_QUESTION,
+    TOKEN_STOP,
+    TOKEN_GOTO,
+    TOKEN_LABEL,
+    end_enum
+} TokenType;
+
+typedef struct {
+    TokenType type;
+    const char* lexeme;
+    int64_t line;
+    int64_t column;
+    void* interpolation_parts;  /* list */
+} Token;
+
+typedef struct {
+    void* tokens;  /* list */
+    int64_t index;
+} TokenStream;
+
+typedef struct {
+    Token token;
+    TokenStream stream;
+} TokenStreamTakeResult;
+
+void make_token() {
+    /* function body */
+}
+
+
+
+
+void generate_gc_init() {
+    /* function body */
+}
+
+
+
+
+typedef struct {
+    const char* name;
+    int64_t default_value_node_id;
+    int64_t is_array;
+} ParameterInfo;
+
+void parameter_info_create() {
+    /* function body */
+}
+
+
+
+
+typedef struct {
+    const char* name;
+    const char* type_name;
+    int64_t scope_level;
+    int64_t stack_offset;
+    int64_t is_parameter;
+    int64_t is_captured;
+    int64_t size_bytes;
+    const char* asm_address;
+} VariableInfo;
+
+typedef struct {
+    const char* name;
+    const char* type_name;
+    int64_t scope_level;
+    int64_t stack_offset;
+    int64_t is_parameter;
+    int64_t is_captured;
+    int64_t size_bytes;
+    const char* asm_address;
+} Variable;
+
+typedef struct {
+    int64_t level;
+    int64_t parent_scope;
+    void* variable_names;  /* list */
+    int64_t stack_frame_size;
+} ScopeInfo;
+
+typedef struct {
+    HashMap variable_map;
+    void* scope_stack;  /* list */
+    int64_t current_level;
+    int64_t next_offset;
+    int64_t label_counter;
+} ScopeManager;
+
+void scope_manager_create() {
+    /* function body */
+}
+
+void scope_register_variable() {
+    /* function body */
+}
+
+void scope_mark_captured() {
+    /* function body */
+}
+
+void scope_dump_variables() {
+    /* function body */
+}
+
+
+
+
+typedef struct {
+    void* imported_functions;  /* list */
+    int64_t imported_count;
+    void* imported_enums;  /* list */
+    int64_t enum_count;
+    void* imported_structs;  /* list */
+    int64_t struct_count;
+    void* imported_files;  /* list */
+    int64_t file_count;
+    const char* base_dir;
+} ImportContext;
+
+void create_import_context() {
+    /* function body */
+}
+
+void mark_file_imported() {
+    /* function body */
+}
+
+void get_imported_functions() {
+    /* function body */
+}
+
+
+
+
+typedef struct {
+    TokenStream stream;
+    int64_t current_index;
+    Token current_token;
+    ASTArena arena;
+    FunctionRegistry registry;
+    int64_t scope_level;
+    void* scope_stack_offsets;  /* list */
+} ParserState;
+
+void parser_state_create() {
+    /* function body */
+}
+
+void parse_print_statement() {
+    /* function body */
+}
+
+void parse() {
+    /* function body */
+}
+
+
+
+
+void parse_parameter() {
+    /* function body */
+}
+
+void parse_function_declaration() {
+    /* function body */
+}
+
+void parse_function_call() {
+    /* function body */
+}
+
+void parse_lambda_expression() {
+    /* function body */
+}
+
+
+
+
+void parse_list_literal() {
+    /* function body */
+}
+
+void parse_hashmap_literal() {
+    /* function body */
+}
+
+void parse_set_literal() {
+    /* function body */
+}
+
+typedef struct {
+    const char* type_name;
+    const char* field_name;
+    int64_t default_value_id;
+    bool is_method;
+    int64_t method_body_id;
+} ASTStructField;
+
+void parse_struct_field() {
+    /* function body */
+}
+
+void parse_enum_definition() {
+    /* function body */
+}
+
+void parse_struct_instantiation() {
+    /* function body */
+}
+
+void parse_member_access() {
+    /* function body */
+}
+
+
+
+
+void parse_import_statement() {
+    /* function body */
+}
+
+void parse_try_catch() {
+    /* function body */
+}
+
+void parse_throw_statement() {
+    /* function body */
+}
+
+void parse_defer_statement() {
+    /* function body */
+}
+
+void parse_type_alias() {
+    /* function body */
+}
+
+void parse_switch_statement() {
+    /* function body */
+}
+
+void resolve_enum_value() {
+    /* function body */
+}
+
+void parse_async_function() {
+    /* function body */
+}
+
+void parse_await_expression() {
+    /* function body */
+}
+
+
+
+
+typedef struct {
+    void* data_section;  /* list */
+    void* text_section;  /* list */
+    void* lambda_section;  /* list */
+    void* imports;  /* list */
+} AsmCode;
+
+void asm_code_create() {
+    /* function body */
+}
+
+
+
+
+void visit_try_catch() {
+    /* function body */
+}
+
+void visit_throw() {
+    /* function body */
+}
+
+void visit_defer() {
+    /* function body */
+}
+
+void visit_panic() {
+    /* function body */
+}
+
+void visit_switch_statement() {
+    /* function body */
+}
+
+
+
+
+void visit_function_declaration() {
+    /* function body */
+}
+
+void visit_function_call() {
+    /* function body */
+}
+
+void visit_lambda() {
+    /* function body */
+}
+
+void visit_block_in_lambda() {
+    /* function body */
+}
+
+void visit_method_call() {
+    /* function body */
+}
+
+void visit_closure_with_captures() {
+    /* function body */
+}
+
+void visit_async_function() {
+    /* function body */
+}
+
+
+
+
+void visit_lambda_expression() {
+    /* function body */
+}
+
+void visit_lambda_call() {
+    /* function body */
+}
+
+void finalize_lambda_section() {
+    /* function body */
+}
+
+
+
+
+typedef struct {
+    const char* field_name;
+    const char* field_type;
+    int64_t offset;
+    Boolean is_method;
+    const char* method_label;
+} StructFieldMetadata;
+
+typedef struct {
+    const char* struct_name;
+    void* fields;  /* list */
+    int64_t field_count;
+    int64_t total_size;
+} StructMetadata;
+
+void register_struct_metadata() {
+    /* function body */
+}
+
+void find_struct_metadata() {
+    /* function body */
+}
+
+void find_field_in_struct() {
+    /* function body */
+}
+
+void visit_list_literal() {
+    /* function body */
+}
+
+void visit_array_access() {
+    /* function body */
+}
+
+void visit_hashmap_get() {
+    /* function body */
+}
+
+void visit_struct_instantiation() {
+    /* function body */
+}
+
+void visit_member_access() {
+    /* function body */
+}
+
+
+
+
+typedef struct {
+    const char* input_file;
+    const char* output_file;
+    int64_t verbose;
+    int64_t debug_tokens;
+    int64_t debug_ast;
+    int64_t debug_scope;
+    int64_t optimize;
+} CompilerOptions;
+
+void compiler_options_default() {
+    /* function body */
+}
+
+int main(void) {
+    printf("Goodbye!\n");
+void parse_args() {
+    /* function body */
+}
+
+void main() {
+    /* function body */
+}
+
+    return 0;
+}
+

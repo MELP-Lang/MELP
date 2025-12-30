@@ -2,6 +2,7 @@
 #include "runtime_memory.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 void yazdir_sayi(int64_t sayi) {
     printf("%ld\n", sayi);

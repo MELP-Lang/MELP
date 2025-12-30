@@ -71,12 +71,16 @@ CONTROL_FLOW_SOURCES = \
 # Lexer (merkezi)
 LEXER_SOURCES = ../../lexer.c
 
+# Codegen emit (YZ_01)
+CODEGEN_EMIT_SOURCES = ../codegen_emit/codegen_emit.c
+
 # Tüm kaynak dosyalar
 SOURCES = \
 	$(MAIN_SRC) \
 	$(FUNCTIONS_SOURCES) \
 	$(VARIABLE_SOURCES) \
 	$(COMMENTS_SOURCES) \
+	$(CODEGEN_EMIT_SOURCES) \
 	$(ARITHMETIC_SOURCES) \
 	$(COMPARISON_SOURCES) \
 	$(LOGICAL_SOURCES) \

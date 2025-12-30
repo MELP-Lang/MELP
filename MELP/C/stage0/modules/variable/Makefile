@@ -6,7 +6,7 @@ CFLAGS = -Wall -g -I../..
 LDFLAGS = 
 
 # Source files
-SOURCES = variable_standalone.c variable.c variable_parser.c variable_codegen.c ../../lexer.c ../comments/comments.c
+SOURCES = variable_standalone.c variable.c variable_parser.c variable_codegen.c ../codegen_emit/codegen_emit.c ../../lexer.c ../comments/comments.c
 OBJECTS = $(SOURCES:.c=.o)
 TARGET = variable_compiler
 

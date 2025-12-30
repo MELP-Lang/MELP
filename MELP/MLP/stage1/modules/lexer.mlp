@@ -8,7 +8,7 @@
 -- UTF-8, string interpolation, multi-line strings, line continuation desteği.
 -- -----------------------------------------------------------------------------
 
-import "compiler_core/token_types.mlp"
+import "modules/token_types.mlp"
 
 -- -----------------------------------------------------------------------------
 -- Lexer durumu
@@ -648,7 +648,7 @@ function tokenize(source_code)
         if token.type == TOKEN_EOF then
             break
         end_if
-    end
+    end_while
     
     return stream
 end_function

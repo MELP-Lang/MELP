@@ -7,9 +7,9 @@
 -- Function declaration, call, lambda, closure code generation
 -- -----------------------------------------------------------------------------
 
-import "compiler_core/token_types.mlp"
-import "compiler_core/ast/ast_nodes.mlp"
-import "compiler_core/scope_manager.mlp"
+import "modules/token_types.mlp"
+import "modules/ast_nodes.mlp"
+import "modules/scope_manager.mlp"
 
 -- -----------------------------------------------------------------------------
 -- Function declaration code generation (Phase 5.10: Typed Parameters)

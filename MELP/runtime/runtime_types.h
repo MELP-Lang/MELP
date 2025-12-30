@@ -52,36 +52,80 @@ typedef struct {
 } SozlukGirdisi;
 
 /**
+ * Sozluk - Dictionary context (STATELESS compliant)
+ */
+typedef struct {
+    SozlukGirdisi* tablo;
+    int boyut;
+    int kullanim;
+} Sozluk;
+
+/**
  * hash_fonksiyonu - Hash function for strings
  * @param str: Input string
  * @return: Hash value
  */
 unsigned long hash_fonksiyonu(const char *str);
 
+// ===== NEW STATELESS API (struct-based) =====
+
 /**
- * sozluk_olustur - Create/initialize dictionary
+ * sozluk_yeni - Create new dictionary (STATELESS)
  * @param boyut: Dictionary size
- * 
- * NOTE: Original global implementation - needs refactor to struct
+ * @return: Dictionary pointer (caller must free with sozluk_sil)
+ */
+Sozluk* sozluk_yeni(int boyut);
+
+/**
+ * sozluk_sil - Destroy dictionary and free memory (STATELESS)
+ * @param s: Dictionary pointer
+ */
+void sozluk_sil(Sozluk* s);
+
+/**
+ * sozluk_koy - Add key-value pair to dictionary (STATELESS)
+ * @param s: Dictionary pointer
+ * @param anahtar: Key (string)
+ * @param deger: Value (int64)
+ */
+void sozluk_koy(Sozluk* s, const char* anahtar, int64_t deger);
+
+/**
+ * sozluk_al - Get value from dictionary (STATELESS)
+ * @param s: Dictionary pointer
+ * @param anahtar: Key (string)
+ * @return: Value (int64), or 0 if not found
+ */
+int64_t sozluk_al(Sozluk* s, const char* anahtar);
+
+// ===== LEGACY GLOBAL API (deprecated, kept for compatibility) =====
+
+/**
+ * sozluk_olustur - Create/initialize dictionary (LEGACY - uses global state)
+ * @param boyut: Dictionary size
+ * @deprecated Use sozluk_yeni() instead
  */
 void sozluk_olustur(int boyut);
 
 /**
- * sozluk_ekle - Add key-value pair to dictionary
+ * sozluk_ekle - Add key-value pair to dictionary (LEGACY)
  * @param anahtar: Key (string)
  * @param deger: Value (int64)
+ * @deprecated Use sozluk_koy() instead
  */
 void sozluk_ekle(const char* anahtar, int64_t deger);
 
 /**
- * sozluk_getir - Get value from dictionary
+ * sozluk_getir - Get value from dictionary (LEGACY)
  * @param anahtar: Key (string)
  * @return: Value (int64), or 0 if not found
+ * @deprecated Use sozluk_al() instead
  */
 int64_t sozluk_getir(const char* anahtar);
 
 /**
- * sozluk_yok_et - Destroy dictionary and free memory
+ * sozluk_yok_et - Destroy dictionary and free memory (LEGACY)
+ * @deprecated Use sozluk_sil() instead
  */
 void sozluk_yok_et(void);
 

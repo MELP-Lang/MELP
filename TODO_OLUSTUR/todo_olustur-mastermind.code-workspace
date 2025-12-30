@@ -1,0 +1,10 @@
+{
+    "folders": [{ "path": "/home/pardus/projeler/MLP/MLP-GCC" }],
+    "settings": {
+        "window.title": "🧠 TODO_OLUSTUR - MASTERMIND",
+        "workbench.colorCustomizations": {
+            "titleBar.activeBackground": "#4B0082",
+            "titleBar.activeForeground": "#FFFFFF"
+        }
+    }
+}

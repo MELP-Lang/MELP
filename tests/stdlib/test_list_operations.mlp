@@ -1,0 +1,35 @@
+-- YZ_18 Test: Complete List Operations
+-- Tests: creation, append, indexing, length
+
+func test_list_append() as i64
+    list numbers = ()
+    append(numbers; 10)
+    append(numbers; 20)
+    append(numbers; 30)
+    return length(numbers)  -- Should return 3
+end_func
+
+func test_list_indexing() as i64
+    list numbers = (1; 2; 3; 4; 5;)
+    i64 sum = 0
+    sum = sum + numbers(0)  -- 1
+    sum = sum + numbers(2)  -- 3
+    sum = sum + numbers(4)  -- 5
+    return sum  -- Should return 9
+end_func
+
+func test_list_with_variables() as i64
+    list data = (100; 200;)
+    i64 x = 1
+    i64 result = data(x)  -- data(1) = 200
+    return result
+end_func
+
+func main() as i32
+    i64 result1 = test_list_append()
+    i64 result2 = test_list_indexing()
+    i64 result3 = test_list_with_variables()
+    
+    -- Sum results: 3 + 9 + 200 = 212
+    return result1 + result2 + result3
+end_func

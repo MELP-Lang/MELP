@@ -1,0 +1,15 @@
+-- lang: en-US
+-- Stage1-Simple: Absolute Minimal Compiler
+-- Extreme minimal version (2 functions only)
+
+function simple_compile(size)
+    Numeric result
+    result = size + 10
+    return result
+end_function
+
+function main()
+    Numeric output
+    output = simple_compile(42)
+    return output
+end_function

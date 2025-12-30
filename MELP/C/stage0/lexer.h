@@ -34,7 +34,6 @@ typedef enum {
     TOKEN_IF,
     TOKEN_THEN,
     TOKEN_ELSE,
-    TOKEN_END,
     TOKEN_WHILE,
     TOKEN_DO,
     TOKEN_FOR,
@@ -44,8 +43,21 @@ typedef enum {
     // Function keywords
     TOKEN_FUNCTION,
     TOKEN_RETURN,
+    TOKEN_IMPORT,
     // Struct keywords
     TOKEN_STRUCT,
+    // Enum keywords
+    TOKEN_ENUM,
+    // Match keywords
+    TOKEN_MATCH,
+    TOKEN_CASE,
+    TOKEN_DEFAULT,
+    // End keywords
+    TOKEN_END,
+    TOKEN_END_IF,
+    TOKEN_END_WHILE,
+    TOKEN_END_FOR,
+    TOKEN_END_FUNCTION,
     // I/O keywords
     TOKEN_PRINT,
     // Delimiters

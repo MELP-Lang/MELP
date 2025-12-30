@@ -175,7 +175,43 @@ int write_binary(const char* path, const void* data, long size) {
 
 char** read_lines(const char* path, int* line_count) {
     *line_count = 0;
-    return NULL; // TODO: Implement
+    
+    char* content = read_file(path);
+    if (!content) return NULL;
+    
+    // Count lines
+    int count = 1;
+    for (const char* p = content; *p; p++) {
+        if (*p == '\n') count++;
+    }
+    
+    // Allocate array
+    char** lines = (char**)mlp_malloc(sizeof(char*) * count);
+    if (!lines) {
+        mlp_free(content);
+        return NULL;
+    }
+    
+    // Split by newline
+    int idx = 0;
+    char* line_start = content;
+    for (char* p = content; *p; p++) {
+        if (*p == '\n') {
+            *p = '\0';
+            lines[idx] = string_concat("", line_start); // Copy line
+            idx++;
+            line_start = p + 1;
+        }
+    }
+    // Last line (no trailing newline)
+    if (*line_start) {
+        lines[idx] = string_concat("", line_start);
+        idx++;
+    }
+    
+    mlp_free(content);
+    *line_count = idx;
+    return lines;
 }
 
 int copy_file(const char* source, const char* dest) {

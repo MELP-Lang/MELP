@@ -1,0 +1,7 @@
+-- Test: Mixed statements
+
+print "Variable test starting..."
+numeric count = 10
+print "Count set!"
+numeric value = 42
+print "All done!"

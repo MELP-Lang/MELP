@@ -1,0 +1,31 @@
+-- lang: en-US
+-- Stage1-Simple: 4-Function with If Test
+
+function check_size(size)
+    Numeric result
+    result = 0
+    if size > 5 then
+        result = 10
+    end_if
+    return result
+end_function
+
+function tokenize(size)
+    Numeric count
+    count = check_size(size)
+    return count
+end_function
+
+function parse(tokens)
+    Numeric nodes
+    nodes = tokens + 3
+    return nodes
+end_function
+
+function main()
+    Numeric t
+    Numeric n
+    t = tokenize(7)
+    n = parse(t)
+    return n
+end_function

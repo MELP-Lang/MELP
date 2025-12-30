@@ -12,6 +12,7 @@ SOURCES = control_flow_standalone.c \
           control_flow_codegen.c \
           ../../lexer.c \
           ../comments/comments.c \
+          ../codegen_emit/codegen_emit.c \
           ../variable/variable.c \
           ../variable/variable_parser.c \
           ../variable/variable_codegen.c \

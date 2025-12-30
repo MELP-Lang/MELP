@@ -1,0 +1,165 @@
+-- lang: en-US
+-- Stage1-Simple Parser (Stage0-friendly syntax)
+-- Basic AST building for MLP bootstrap
+
+-- AST node types
+function ast_type_function()
+    return 1
+end_function
+
+function ast_type_variable()
+    return 2
+end_function
+
+function ast_type_if()
+    return 3
+end_function
+
+function ast_type_while()
+    return 4
+end_function
+
+function ast_type_return()
+    return 5
+end_function
+
+function ast_type_expression()
+    return 6
+end_function
+
+function ast_type_binary_op()
+    return 7
+end_function
+
+function ast_type_number()
+    return 8
+end_function
+
+function ast_type_identifier()
+    return 9
+end_function
+
+-- Parse expression (simple binary ops)
+function parse_expression(tokens; pos)
+    Numeric left
+    Numeric op
+    Numeric right
+    
+    left = pos
+    op = pos + 1
+    right = pos + 2
+    
+    return ast_type_binary_op()
+end_function
+
+-- Parse variable declaration
+function parse_variable(tokens; pos)
+    Numeric type_token
+    Numeric name_token
+    
+    type_token = pos
+    name_token = pos + 1
+    
+    return ast_type_variable()
+end_function
+
+-- Parse if statement
+function parse_if(tokens; pos)
+    Numeric condition
+    Numeric then_branch
+    
+    condition = parse_expression(tokens; pos)
+    then_branch = pos + 2
+    
+    return ast_type_if()
+end_function
+
+-- Parse while loop
+function parse_while(tokens; pos)
+    Numeric condition
+    Numeric body
+    
+    condition = parse_expression(tokens; pos)
+    body = pos + 2
+    
+    return ast_type_while()
+end_function
+
+-- Parse return statement
+function parse_return(tokens; pos)
+    Numeric value
+    
+    value = parse_expression(tokens; pos)
+    
+    return ast_type_return()
+end_function
+
+-- Parse function declaration
+function parse_function(tokens; pos)
+    Numeric name_token
+    Numeric params
+    Numeric body
+    
+    name_token = pos + 1
+    params = pos + 2
+    body = pos + 3
+    
+    return ast_type_function()
+end_function
+
+-- Parse statement
+function parse_statement(tokens; pos; token_type)
+    Numeric result
+    
+    if token_type == 1 then
+        result = parse_function(tokens; pos)
+        return result
+    end_if
+    
+    if token_type == 2 then
+        result = parse_variable(tokens; pos)
+        return result
+    end_if
+    
+    if token_type == 3 then
+        result = parse_if(tokens; pos)
+        return result
+    end_if
+    
+    if token_type == 4 then
+        result = parse_while(tokens; pos)
+        return result
+    end_if
+    
+    if token_type == 5 then
+        result = parse_return(tokens; pos)
+        return result
+    end_if
+    
+    result = parse_expression(tokens; pos)
+    return result
+end_function
+
+-- Main parse function
+function parse_tokens(tokens; token_count)
+    Numeric pos
+    Numeric ast_nodes
+    Numeric node_count
+    
+    pos = 0
+    ast_nodes = 0
+    node_count = 0
+    
+    while pos < token_count
+        Numeric token_type
+        Numeric ast_node
+        
+        token_type = 1
+        ast_node = parse_statement(tokens; pos; token_type)
+        
+        node_count = node_count + 1
+        pos = pos + 1
+    end
+    
+    return node_count
+end_function

@@ -103,21 +103,14 @@ void* mlp_realloc(void* ptr, long size) {
         return mlp_malloc(size);
     }
 
-    // Find old size for tracking
-    size_t old_size = 0;
-    MemoryBlock* current = memory_list_head;
-    while (current) {
-        if (current->ptr == ptr) {
-            old_size = current->size;
-            break;
-        }
-        current = current->next;
-    }
-
+    // Untrack before realloc to avoid use-after-free warning
+    untrack_allocation(ptr);
     void* new_ptr = realloc(ptr, (size_t)size);
     if (new_ptr) {
-        untrack_allocation(ptr);
         track_allocation(new_ptr, (size_t)size);
+    } else {
+        // Realloc failed, re-track original pointer
+        track_allocation(ptr, 0);
     }
     return new_ptr;
 }

@@ -1,0 +1,8 @@
+-- YZ_18: Optional Type - Null Coalescing Test
+-- Test: ?? operator (value ?? default)
+
+func test_coalesce() as i64
+    i64? x = null
+    i64 result = x ?? 100
+    return result  -- Should return 100
+end_func

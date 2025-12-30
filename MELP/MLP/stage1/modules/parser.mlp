@@ -8,9 +8,9 @@
 -- Pratt parsing, AST oluşturma, scope yönetimi.
 -- -----------------------------------------------------------------------------
 
-import "compiler_core/token_types.mlp"
-import "compiler_core/ast/ast_nodes.mlp"
-import "compiler_core/function_registry.mlp"
+import "modules/token_types.mlp"
+import "modules/ast_nodes.mlp"
+import "modules/function_registry.mlp"
 
 -- -----------------------------------------------------------------------------
 -- Parser durumu

@@ -1,0 +1,132 @@
+-- lang: en-US
+-- Stage1-Simple Lexer (Stage0-friendly syntax)
+-- Basic tokenization for MLP bootstrap
+
+-- Token types
+function token_type_keyword()
+    return 1
+end_function
+
+function token_type_identifier()
+    return 2
+end_function
+
+function token_type_number()
+    return 3
+end_function
+
+function token_type_string()
+    return 4
+end_function
+
+function token_type_operator()
+    return 5
+end_function
+
+function token_type_eof()
+    return 0
+end_function
+
+-- Simple character checks
+function is_whitespace(ch)
+    if ch == 32 then
+        return 1
+    end_if
+    if ch == 9 then
+        return 1
+    end_if
+    if ch == 10 then
+        return 1
+    end_if
+    return 0
+end_function
+
+function is_digit(ch)
+    if ch >= 48 then
+        if ch <= 57 then
+            return 1
+        end_if
+    end_if
+    return 0
+end_function
+
+function is_alpha(ch)
+    if ch >= 65 then
+        if ch <= 90 then
+            return 1
+        end_if
+    end_if
+    if ch >= 97 then
+        if ch <= 122 then
+            return 1
+        end_if
+    end_if
+    return 0
+end_function
+
+function is_keyword(word)
+    if word == 1 then
+        return 1
+    end_if
+    if word == 2 then
+        return 1
+    end_if
+    if word == 3 then
+        return 1
+    end_if
+    return 0
+end_function
+
+-- Basic lexer - tokenize simple MLP
+function lex_next_token(source; position; length)
+    Numeric pos
+    pos = position
+    
+    -- Skip whitespace
+    Numeric ch
+    ch = 0
+    
+    if pos >= length then
+        return token_type_eof()
+    end_if
+    
+    -- Simple number
+    if is_digit(ch) == 1 then
+        return token_type_number()
+    end_if
+    
+    -- Simple identifier or keyword
+    if is_alpha(ch) == 1 then
+        if is_keyword(1) == 1 then
+            return token_type_keyword()
+        end_if
+        return token_type_identifier()
+    end_if
+    
+    -- Operator
+    return token_type_operator()
+end_function
+
+function lex_source(source)
+    Numeric length
+    Numeric position
+    Numeric token_count
+    
+    length = 100
+    position = 0
+    token_count = 0
+    
+    while position < length
+        Numeric token_type
+        token_type = lex_next_token(source; position; length)
+        
+        if token_type == 0 then
+            return token_count
+        end_if
+        
+        token_count = token_count + 1
+        position = position + 1
+    end
+    
+    return token_count
+end_function

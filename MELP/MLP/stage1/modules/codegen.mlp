@@ -8,13 +8,13 @@
 -- AST traversal, assembly generation, register allocation.
 -- -----------------------------------------------------------------------------
 
-import "compiler_core/token_types.mlp"
-import "compiler_core/ast/ast_nodes.mlp"
-import "compiler_core/scope_manager.mlp"
-import "compiler_core/codegen_functions.mlp"
-import "compiler_core/codegen_structures.mlp"
-import "compiler_core/codegen_control.mlp"
-import "compiler_core/import_handler.mlp"
+import "modules/token_types.mlp"
+import "modules/ast_nodes.mlp"
+import "modules/scope_manager.mlp"
+import "modules/codegen_functions.mlp"
+import "modules/codegen_structures.mlp"
+import "modules/codegen_control.mlp"
+import "modules/import_handler.mlp"
 
 -- Import runtime helpers
 -- import "runtime/bigdecimal.mlp" -- TEMP DISABLED

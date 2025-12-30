@@ -7,9 +7,9 @@
 -- Async functions, await expressions, promise-based concurrency
 -- -----------------------------------------------------------------------------
 
-import "compiler_core/token_types.mlp"
-import "compiler_core/ast/ast_nodes.mlp"
-import "compiler_core/scope_manager.mlp"
+import "modules/token_types.mlp"
+import "modules/ast_nodes.mlp"
+import "modules/scope_manager.mlp"
 -- Note: codegen.mlp imports this file, avoid circular dependency
 
 -- Async context globals

@@ -2,7 +2,120 @@
 
 **Tarih:** 27 Aralık 2025  
 **Durum:** 🎯 Stratejik Karar Belgesi  
-**Son Güncelleme:** TODO 5 Phase 1-4 (RAII implementasyonu tamamlandı)
+**Son Güncelleme:** 30 Aralık 2025 (Module Registry Pattern eklendi)
+
+---
+
+## 🏗️ MİMARİ KARAR: MODULE REGISTRY PATTERN (30 Aralık 2025)
+
+**Karar Tarihi:** 30 Aralık 2025  
+**Kapsam:** Stage1+ compiler orchestration  
+**Durum:** ✅ Onaylandı - Bu model üzerinden devam edilecek
+
+### Motivasyon
+
+**Sorun:** `melpc.mlp` (compiler orchestrator) naive yaklaşımda her yeni TODO ile büyüyecekti:
+
+```mlp
+// ❌ NAİVE YAKLAŞIM - Monolitik büyüme!
+func compile_file(input: string, output: string) -> i32 {
+    let ast = run_parser(run_lexer(input));
+    
+    // Her TODO yeni satırlar ekler:
+    ast = run_async_transformer(ast);        // TODO #8
+    ast = run_macro_expander(ast);           // TODO #3
+    ast = run_generic_instantiator(ast);     // TODO #3
+    ast = run_trait_resolver(ast);           // TODO #4
+    // ... 100+ pass eklenebilir!
+    
+    return run_codegen(ast, output);
+}
+```
+
+**Sonuç:** 6 Temel Esas ihlali (500 satır limiti aşımı), monolitik orchestrator.
+
+### Çözüm: Module Registry + Auto-Dispatch
+
+**melpc.mlp asla büyümez (20 satır sabit):**
+
+```mlp
+// ✅ THIN ORCHESTRATOR - Asla büyümez!
+func compile_file(input: string, output: string) -> i32 {
+    let ast = run_parser(run_lexer(input));
+    
+    // Tek satır - tüm pass'ler otomatik çalışır
+    ast = CompilerPipeline.run_all_passes(ast);
+    
+    return run_codegen(ast, output);
+}
+```
+
+**CompilerPipeline Module (Core):**
+
+```mlp
+// modules/compiler_pipeline/compiler_pipeline.mlp
+module CompilerPipeline {
+    // Pass registry - modüller buraya kayıt eder
+    let pass_registry: HashMap<string, PassHandler> = {}
+    
+    struct PassHandler {
+        name: string
+        pass_type: PassType      // Transform, Optimize, etc.
+        priority: i32            // Execution order
+        handler: func(ASTNode) -> ASTNode
+    }
+    
+    func register_pass(name, type, priority, handler) {
+        pass_registry[name] = PassHandler { ... }
+    }
+    
+    func run_all_passes(ast: ASTNode) -> ASTNode {
+        let passes = pass_registry.values().sort_by_priority()
+        for pass in passes {
+            ast = pass.handler(ast)
+        }
+        return ast
+    }
+}
+```
+
+**Her modül kendini kayıt eder:**
+
+```mlp
+// modules/async/async.mlp (TODO #8)
+init {
+    CompilerPipeline.register_pass("async_transform",
+                                   PassType.AST_TRANSFORM,
+                                   priority: 10,
+                                   handler: async_transform_ast)
+}
+
+// modules/generics/generics.mlp (TODO #3)
+init {
+    CompilerPipeline.register_pass("generic_instantiate",
+                                   PassType.AST_TRANSFORM,
+                                   priority: 20,
+                                   handler: instantiate_generics)
+}
+```
+
+### Karşılaştırma
+
+| Özellik | Naive | Module Registry |
+|---------|-------|------------------|
+| melpc.mlp boyutu | ❌ Büyür (TODO başına +5 satır) | ✅ Sabit (20 satır) |
+| Yeni modül eklemek | ❌ melpc.mlp düzenle | ✅ init() çağır |
+| Pass sırası | ❌ Manuel hardcode | ✅ Priority ile otomatik |
+| Modül aktif/pasif | ❌ Kod değişikliği | ✅ Registry operasyonu |
+| 6 Temel Esas | ❌ İhlal riski | ✅ Uyumlu |
+
+### Referanslar
+
+- **GCC:** Plugin Architecture (callback registration)
+- **LLVM:** Pass Manager (dynamic pass registration)
+- **Rust:** Compiler plugins (deprecated but similar idea)
+
+**Bu mimari model üzerinden devam edilecek!** ✅
 
 ---
 

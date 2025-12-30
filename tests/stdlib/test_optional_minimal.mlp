@@ -1,0 +1,6 @@
+-- YZ_18: Minimal Optional Test
+-- Test: Return 0 (sanity check)
+
+func main() as i32
+    return 0
+end_func

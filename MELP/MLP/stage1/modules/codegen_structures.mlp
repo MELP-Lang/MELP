@@ -7,9 +7,9 @@
 -- List, HashMap, Set, Struct operations code generation
 -- -----------------------------------------------------------------------------
 
-import "compiler_core/token_types.mlp"
-import "compiler_core/ast/ast_nodes.mlp"
-import "compiler_core/scope_manager.mlp"
+import "modules/token_types.mlp"
+import "modules/ast_nodes.mlp"
+import "modules/scope_manager.mlp"
 -- Note: codegen.mlp imports this file, so we don't import it back (circular dependency)
 
 -- -----------------------------------------------------------------------------
