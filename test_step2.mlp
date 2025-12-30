@@ -1,0 +1,2 @@
+print("=== Test ===")
+numeric a = 10

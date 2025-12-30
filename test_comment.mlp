@@ -1,0 +1,3 @@
+// Test comment
+numeric x = 5
+print("After comment")

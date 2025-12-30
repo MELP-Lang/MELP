@@ -1,0 +1,13 @@
+print("=== MLP Integration Test ===")
+
+numeric a = 10
+numeric b = 20
+numeric sum = 30
+
+print("Test 1: Variables declared")
+
+if a < b then
+    print("Test 2: If condition works")
+end if
+
+print("=== All Tests Complete ===")
