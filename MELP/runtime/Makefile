@@ -1,43 +1,41 @@
-# Makefile for GC Runtime
-
+# Makefile for MLP Runtime Library (8 modules)
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c11 -O2 -g
-LDFLAGS =
+CFLAGS = -Wall -Wextra -O2 -std=c11
+LDFLAGS = -lm
 
-# Targets
-GC_LIB = libgc.a
-GC_TEST = gc_test
+OBJS = runtime_error.o runtime_memory.o runtime_string.o runtime_types.o \
+       runtime_array.o runtime_print.o runtime_io.o runtime_system.o
 
-# Source files
-GC_SRC = gc.c
-GC_OBJ = gc.o
-GC_HDR = gc.h
+all: libruntime.a
 
-TEST_SRC = gc_test.c
-TEST_OBJ = gc_test.o
+libruntime.a: $(OBJS)
+ar rcs $@ $^
 
-.PHONY: all clean test
+runtime_error.o: runtime_error.c runtime_error.h
+$(CC) $(CFLAGS) -c $<
 
-all: $(GC_LIB)
+runtime_memory.o: runtime_memory.c runtime_memory.h runtime_error.h
+$(CC) $(CFLAGS) -c $<
 
-$(GC_LIB): $(GC_OBJ)
-	ar rcs $@ $<
+runtime_string.o: runtime_string.c runtime_string.h runtime_memory.h
+$(CC) $(CFLAGS) -c $<
 
-$(GC_OBJ): $(GC_SRC) $(GC_HDR)
-	$(CC) $(CFLAGS) -c $< -o $@
+runtime_types.o: runtime_types.c runtime_types.h runtime_memory.h
+$(CC) $(CFLAGS) -c $<
 
-test: $(GC_TEST)
-	./$(GC_TEST)
+runtime_array.o: runtime_array.c runtime_array.h runtime_memory.h
+$(CC) $(CFLAGS) -c $<
 
-$(GC_TEST): $(TEST_OBJ) $(GC_LIB)
-	$(CC) $(LDFLAGS) $^ -o $@
+runtime_print.o: runtime_print.c runtime_print.h runtime_memory.h
+$(CC) $(CFLAGS) -c $<
 
-$(TEST_OBJ): $(TEST_SRC) $(GC_HDR)
-	$(CC) $(CFLAGS) -c $< -o $@
+runtime_io.o: runtime_io.c runtime_io.h runtime_memory.h
+$(CC) $(CFLAGS) -c $<
+
+runtime_system.o: runtime_system.c runtime_system.h runtime_memory.h
+$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -f $(GC_OBJ) $(TEST_OBJ) $(GC_LIB) $(GC_TEST)
+rm -f *.o libruntime.a
 
-# Install library
-install: $(GC_LIB)
-	@echo "GC library ready: $(GC_LIB)"
+.PHONY: all clean
