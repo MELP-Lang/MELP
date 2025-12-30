@@ -1189,12 +1189,102 @@ cd /home/pardus/projeler/MLP/MLP-GCC
 
 ---
 
-## ⏳ TODO #3: PARSER_CODEGEN_FULL (HAFTA 3) - DEFERRED
+## 🔄 TODO #3: PARSER_CODEGEN_FULL (HAFTA 3) - IN PROGRESS! (YZ_21)
 
-**Durum:** ⚠️ **DEFERRED** - Stage2 için gerekli, sıra TODO #5'e geçti  
-**Hedef:** Stage0'ı extend et, Stage2 binary oluştur  
-**Süre:** 1 hafta tahmini  
-**Neden Ertelendi:** Stage1 = Type Infrastructure (MM_05 kararı, 30 Ara 2025)
+**Durum:** 🔄 **IN PROGRESS** - MVP Scope (5-7 gün)  
+**YZ:** YZ_21  
+**Hedef:** Stage1 source'u derleyebilecek minimum features  
+**Süre:** 5-7 gün (1 hafta) - MVP-first approach  
+**Başlangıç:** 30 Aralık 2025, 20:00
+
+**Scope Revize:** Advanced features deferred (generics, closures → 3-TODO_LANGUAGE_FEATURES.md)
+
+### PHASE 1: Analiz (1-2 gün) - IN PROGRESS
+
+#### 3.1: Stage1 Source Analysis - IN PROGRESS ✅
+
+**YZ_21 tarafından analiz ediliyor**
+
+**Stage1 Source Stats:**
+```bash
+cd MELP/MLP/stage1/modules
+wc -l *.mlp  # 7842 lines total (18 modules)
+```
+
+- [x] 18 MLP modules identified
+- [x] 234 functions counted
+- [x] 26 struct definitions
+- [x] Control flow usage: 515 return, 499 if, 79 for, 38 while
+- [x] Lambda usage: visit_lambda functions found (codegen_functions.mlp, codegen_lambda.mlp)
+- [x] Match usage: visit_match function found (codegen_control.mlp)
+- [x] Feature checklist created
+- [ ] Frequency analysis (in progress)
+- [ ] Priority matrix (next)
+
+**Stage1 Uses (Confirmed):**
+- ✅ Function declarations (234 functions)
+- ✅ Struct definitions (26 structs)
+- ✅ Variable assignments (x = 5 pattern)
+- ✅ Simple expressions (a + b)
+- ✅ Function calls
+- ✅ If/else statements (499 usages)
+- ✅ For loops (79 usages)
+- ✅ While loops (38 usages)
+- ✅ Return statements (515 usages)
+- ✅ String operations
+- ✅ List operations (mlp_list_*)
+- ✅ Imports (already working ✅)
+- ⚠️ Basic lambda (simple anonymous functions)
+- ⚠️ Basic match (simple pattern matching)
+
+**Stage1 NOT Using:**
+- ❌ Advanced generics
+- ❌ Operator overloading
+- ❌ Compile-time macros
+- ❌ Advanced closures (capture by ref/value)
+- ❌ Advanced pattern matching (destructuring)
+
+**Tahmini Süre:** 3-4 saat → **Task 3.1 tamamlanma yolunda!**
+
+#### 3.2: Stage0 Parser/Codegen Gap Analysis - NEXT
+
+**Hedef:** Stage0 neyi destekliyor, neyi desteklemiyor?
+
+**Stage0 Test Results (Initial):**
+```bash
+./melpc /tmp/test_simple.mlp /tmp/test_out.c
+# ✅ Function signature oluşturuyor
+# ❌ Variable declarations hatalı (Numeric = 10)
+# ❌ If body boş
+# ❌ Function call (yazdir) üretilmemiş
+```
+
+**Mevcut Modüller (Stage0):**
+- ✅ expression/expression_parser.c (8 lines) - STUB!
+- ✅ control_flow/control_flow_parser.c (150 lines) - Partial
+- ✅ functions/functions_codegen.c (113 lines) - Partial
+- ✅ lambda/lambda_codegen.c (161 lines) - Basic ASM
+- ✅ switch_match/switch_match_codegen.c (203 lines) - Basic ASM
+
+**Çıktı Beklentisi:**
+- Desteklenen features listesi
+- Eksik olan features listesi
+- Gap matrix (Stage1 needs vs Stage0 has)
+
+**Başarı Kriterleri:**
+- [ ] Mevcut parser capabilities dokümente edildi
+- [ ] Mevcut codegen capabilities dokümente edildi
+- [ ] Gap list oluşturuldu
+
+**Tahmini Süre:** 3-4 saat
+
+#### 3.3: Implementation Plan (YZ_21_MVP_PLAN.md) - NEXT
+
+**Hedef:** Hangi modülleri extend edeceğiz?
+
+**Tahmini Süre:** 2-3 saat
+
+---
 
 **Stage2'de Yapılacak (TODO #3):**
 - Full parser implementation (function bodies)

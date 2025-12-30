@@ -316,35 +316,26 @@ md5sum melpc_stage2 melpc_stage3  # Hash aynı!
 
 ---
 
-## 📋 SONRAKİ GÖREVLER (YZ_20):
+## 📋 SONRAKİ GÖREVLER (YZ_21):
 
-**TODO #5 COMPLETE! 🎉**
+**TODO #3 IN PROGRESS! 🚀**
 
-**Kalan TODO'lar:**
-- ⏳ **TODO #3:** PARSER_CODEGEN_FULL (Deferred)
-  - Stage2 full compiler implementation
-  - Parser + Codegen complete implementation
-  - Fonksiyon çağrıları, expressions, statements
-  
-- 🔄 **TODO #6:** POLISH & FINAL (SONRAKİ!)
-  - [ ] Self-hosting convergence test
-  - [ ] Full STO integration (stubs → real)
-  - [ ] mlp_abs duplicate çözümü
-  - [ ] Stage2 + Stage3 convergence validation
-  - [ ] Production-ready final tests
+**Mevcut Görev:** TODO #3 (PARSER_CODEGEN_FULL) - MVP Scope
+- Phase 1: Analiz (1-2 gün) ← **ŞU AN BURADAYIZ!**
+- Phase 2: Parser/Codegen Extension (3-4 gün)
+- Phase 3: Stage2 + Self-hosting (2-3 gün)
 
-**Strateji Seçenekleri:**
-1. **Option A:** TODO #6'ya doğrudan geç (Stage2 skip, bootstrap first)
-2. **Option B:** TODO #3'ü tamamla (Stage2 full implementation)
+**Task 3.1 Progress:**
+- ✅ Stage1 source analysis complete (234 functions, 26 structs, 7842 lines)
+- ✅ Stage0 capabilities test (basic function codegen working)
+- 🔄 Gap analysis in progress (Stage1 needs vs Stage0 has)
+- ⏳ Next: Task 3.2 (Stage0 gap analysis)
 
-**UA_04'e Soru:** TODO #6 mı yoksa TODO #3 mü öncelikli?
-
-**Notlar YZ_20 için:**
+**Notlar YZ_21 için:**
 - Runtime library READY (88KB, 15 modül)
-- Test suite hazır (12 test dosyası)
-- STO stub çalışıyor (full STO: MELP/runtime/sto/)
-- Stage0 derleyici hazır (MLP → C)
-- Stage1 type system hazır (18 modül)
+- Test suite hazır (7/7 PASS)
+- Stage0 derleyici: Basic codegen var, extensions gerekli
+- Stage1 source: 18 modules, 7842 lines, ready to compile
 
 ---
 
