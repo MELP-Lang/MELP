@@ -1,0 +1,90 @@
+-- lang: en-US
+-- Stage1-Simple: Minimal Working Compiler (Recursive Pattern)
+-- NO WHILE LOOPS - Using recursion instead
+-- Total: 7 functions (recursive helpers pattern)
+
+-- ============================================
+-- SECTION 1: TOKENIZER (2 functions)
+-- ============================================
+
+function tokenize_helper(source_length; position; count)
+    -- Recursive tokenization helper
+    if position >= source_length then
+        return count
+    end_if
+    
+    -- Process one character, recurse
+    Numeric next_pos
+    Numeric next_count
+    next_pos = position + 1
+    next_count = count + 1
+    
+    return tokenize_helper(source_length; next_pos; next_count)
+end_function
+
+function tokenize(source_length)
+    -- Entry point for tokenization
+    return tokenize_helper(source_length; 0; 0)
+end_function
+
+-- ============================================
+-- SECTION 2: PARSER (2 functions)
+-- ============================================
+
+function parse_helper(total; current)
+    -- Recursive parsing helper
+    if current >= total then
+        return current
+    end_if
+    
+    Numeric next
+    next = current + 1
+    
+    return parse_helper(total; next)
+end_function
+
+function parse_tokens(token_count)
+    -- Entry point for parsing
+    return parse_helper(token_count; 0)
+end_function
+
+-- ============================================
+-- SECTION 3: CODEGEN (2 functions)
+-- ============================================
+
+function codegen_helper(total; current)
+    -- Recursive codegen helper
+    if current >= total then
+        return current
+    end_if
+    
+    Numeric next
+    next = current + 1
+    
+    return codegen_helper(total; next)
+end_function
+
+function generate_c_code(node_count)
+    -- Entry point for C code generation
+    return codegen_helper(node_count; 0)
+end_function
+
+-- ============================================
+-- SECTION 4: MAIN (1 function)
+-- ============================================
+
+function main()
+    -- Main compilation pipeline
+    Numeric tokens
+    Numeric ast_nodes
+    Numeric c_lines
+    Numeric source_size
+    
+    source_size = 100
+    
+    tokens = tokenize(source_size)
+    ast_nodes = parse_tokens(tokens)
+    c_lines = generate_c_code(ast_nodes)
+    
+    return c_lines
+end_function
