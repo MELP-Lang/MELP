@@ -1,0 +1,32 @@
+-- lang: en-US
+-- syntax: mlp
+
+-- Test: Basic AST enum definitions (no imports)
+
+enum TestASTType
+    TEST_NODE_1
+    TEST_NODE_2
+    TEST_NODE_3
+end_enum
+
+struct TestNode
+    TestASTType type
+    String label
+end_struct
+
+function create_test_node(node_type; label)
+    TestNode node
+    node.type = node_type
+    node.label = label
+    return node
+end_function
+
+function test_ast_basic()
+    TestNode n1
+    n1 = create_test_node(TEST_NODE_1; "first")
+    
+    yaz("Node created: type=")
+    yaz(n1.type)
+    yaz(" label=")
+    yaz(n1.label)
+end_function

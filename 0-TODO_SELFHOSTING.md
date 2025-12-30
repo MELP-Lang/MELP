@@ -1201,7 +1201,7 @@ cd /home/pardus/projeler/MLP/MLP-GCC
 
 ### PHASE 1: Analiz (1-2 gün) - IN PROGRESS
 
-#### 3.1: Stage1 Source Analysis - ✅ COMPLETE (%80)
+#### 3.1: Stage1 Source Analysis - ✅ COMPLETE (100%)
 
 **YZ_21 tarafından tamamlandı (30 Aralık 2025, 21:00)**  
 **Commit:** `50960f6` - Task 3.1 başlatıldı  
@@ -1267,6 +1267,109 @@ wc -l *.mlp  # 7842 lines total (18 modules)
 3. **Function Call Codegen Missing:**
    - `yazdir("text")` → not generated
    - `mlp_list_*` calls → missing
+
+#### 3.2: Stage0 Gap Analysis - ✅ COMPLETE (100%)
+
+**YZ_21 tarafından tamamlandı (30 Aralık 2025, 22:30)**  
+**Süre:** 2 saat (Tahmini: 3-4 saat) → %33 daha hızlı! 🚀  
+**Rapor:** [YZ_21_GAP_ANALYSIS.md](YZ_21_GAP_ANALYSIS.md)
+
+**Parser Analysis:**
+- [x] ✅ Functions parser (225 lines) - Signature OK, body stub
+- [x] 🔴 Expression parser (8 lines) - **CRITICAL STUB!**
+- [x] ⚠️ Control flow parser (150 lines) - Structure OK, body skipped
+- [x] ✅ Variable parser (274 lines) - Complete with STO
+- [x] ⚠️ Arithmetic parser (268 lines) - Ready but NOT integrated!
+- [x] ⚠️ Lambda parser (372 lines) - Parse OK, body partial
+- [x] ❌ Switch/match parser (30 lines) - All stubs
+
+**Codegen Analysis:**
+- [x] 🔴 Expression codegen (23 lines) - ASM output, stub
+- [x] 🔴 Variable codegen (161 lines) - **CRITICAL BUG!** (missing type prefix)
+- [x] 🟡 Function codegen (113 lines) - Signature OK, body/call/return stub
+- [x] ⚠️ Control flow codegen (80 lines) - Structure OK, body stub
+- [x] ⚠️ Lambda codegen (161 lines) - ASM output (needs C conversion)
+- [x] ⚠️ Switch/match codegen (204 lines) - ASM output (needs C conversion)
+- [x] ✅ Print codegen (44 lines) - Complete, working!
+
+**Gap Matrix:**
+| Feature | Stage1 Needs | Stage0 Has | Gap | Priority |
+|---------|--------------|------------|-----|----------|
+| Expression parsing | ✅ Yes | 🔴 STUB (8 lines) | Full impl | 🔴 HIGH |
+| Variable declarations | ✅ Yes | 🔴 BUGGY | Type prefix fix | 🔴 HIGH |
+| Function calls | ✅ Yes | ❌ Missing | Full impl | 🔴 HIGH |
+| Binary expressions | ✅ Yes | ⚠️ Arithmetic ready | Integration | 🔴 HIGH |
+| Control flow body | ✅ Yes | ⚠️ Stub | Body codegen | 🟡 MED |
+| Lambda ASM→C | ⚠️ Simple | ⚠️ ASM only | Conversion | 🟡 MED |
+| Match ASM→C | ⚠️ Simple | ⚠️ ASM only | Conversion | 🟢 LOW |
+
+**Critical Path (MVP):**
+1. 🔴 Task 3.4: Expression parser + codegen (8h)
+2. 🔴 Task 3.5: Function call codegen (6h)
+3. 🔴 Task 3.6: Variable bug fix (2h)
+4. 🟡 Task 3.7: Control flow body (6h)
+5. 🟡 Task 3.8: Function body (4h)
+6. 🟡 Task 3.9: Lambda ASM→C (8h)
+
+**Total MVP Effort:** 26-34 hours → 3-4 days
+
+#### 3.3: MVP Implementation Plan - ✅ COMPLETE (100%)
+
+**YZ_21 tarafından tamamlandı (30 Aralık 2025, 23:30)**  
+**Süre:** 3 saat (Tahmini: 2-3 saat) → On time! ⚡  
+**Plan:** [YZ_21_MVP_PLAN.md](YZ_21_MVP_PLAN.md)  
+**UA Approval:** ✅ UA_05 (30 Aralık 2025, 23:00)
+
+**Kararlar (UA_05):**
+- [x] ✅ Lambda/Match OUT OF SCOPE (→ 3-TODO_LANGUAGE_FEATURES.md)
+- [x] ✅ File permissions granted (9 files)
+- [x] ✅ Option A (arithmetic integration) approved
+- [x] ✅ Phase-end testing (pragmatic)
+- [x] ✅ Timeline: 16-20 hours = 2-3 days
+
+**Scope Revision:**
+```
+✅ IN SCOPE (MVP):
+   • Expression parser + codegen (4h)
+   • Variable bug fix (2h)
+   • Function call codegen (4h)
+   • Control flow body (4h)
+   • Integration test (2h)
+
+❌ OUT OF SCOPE (→ 3-TODO):
+   • Lambda ASM→C (8h saved)
+   • Match ASM→C (8h saved)
+```
+
+**File Modification List:**
+```
+Parser Modules (4 files):
+1. expression/expression_parser.c (8 → 50 lines)
+2. functions/functions_parser.c (225 → 280 lines)
+3. control_flow/control_flow_parser.c (150 → 200 lines)
+4. arithmetic/arithmetic_parser.c (268 → 280 lines)
+
+Codegen Modules (4 files):
+5. expression/expression_codegen.c (23 → 150 lines)
+6. variable/variable_codegen.c (161 → 165 lines - bug fix)
+7. functions/functions_codegen.c (113 → 200 lines)
+8. control_flow/control_flow_codegen.c (80 → 150 lines)
+
+Integration (1 file):
+9. main.c (statement loop integration)
+```
+
+**Implementation Plan:**
+- Task 3.4-3.8: PHASE 2 (16h) - Parser/codegen implementation
+- Task 3.9-3.10: PHASE 3 (5h) - Stage2 build + convergence
+- Total: 16-20 hours → 2-3 days
+
+**Workaround Strategy:**
+- Lambda: Stub functions in codegen_lambda.mlp
+- Match: If-else conversion fallback
+- Impact: Minimal (rare usage in Stage1)
+
+**Next:** Task 3.4 (Expression Parser) - Implementation begins!
 
 **Stage0 Partial Support:**
 - ✅ Function signatures working

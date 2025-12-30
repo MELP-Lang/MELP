@@ -1,0 +1,5 @@
+numeric x = 10
+numeric y = 20
+numeric sum = x + y
+numeric product = (x + y) * 2
+yazdir("Test complete")

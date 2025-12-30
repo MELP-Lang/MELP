@@ -34,6 +34,7 @@ SOURCES = expression_standalone.c \
           ../print/print.c \
           ../print/print_parser.c \
           ../print/print_codegen.c \
+          ../codegen_emit/codegen_emit.c \
           ../../lexer.c
 
 # Object files
@@ -64,6 +65,7 @@ OBJECTS = expression_standalone.o \
           ../print/print.o \
           ../print/print_parser.o \
           ../print/print_codegen.o \
+          ../codegen_emit/codegen_emit.o \
           ../../lexer.o
 
 TARGET = expression_compiler
