@@ -27,11 +27,27 @@ void control_flow_generate_if(FILE* output, IfStatement* stmt) {
     
     emit_c("    if (%s %s %s) {\n", 
            cond->left_value, op_str, cond->right_value);
-    emit_c("        // Then body\n");
+    
+    // Generate then body
+    BodyStatement* body = stmt->then_body;
+    while (body) {
+        if (body->code) {
+            emit_c("%s\n", body->code);
+        }
+        body = body->next;
+    }
     
     if (stmt->has_else) {
         emit_c("    } else {\n");
-        emit_c("        // Else body\n");
+        
+        // Generate else body
+        body = stmt->else_body;
+        while (body) {
+            if (body->code) {
+                emit_c("%s\n", body->code);
+            }
+            body = body->next;
+        }
     }
     
     emit_c("    }\n");
@@ -58,7 +74,16 @@ void control_flow_generate_while(FILE* output, WhileStatement* stmt) {
     
     emit_c("    while (%s %s %s) {\n", 
            cond->left_value, op_str, cond->right_value);
-    emit_c("        // Loop body\n");
+    
+    // Generate loop body
+    BodyStatement* body = stmt->body;
+    while (body) {
+        if (body->code) {
+            emit_c("%s\n", body->code);
+        }
+        body = body->next;
+    }
+    
     emit_c("    }\n");
 }
 
@@ -74,6 +99,15 @@ void control_flow_generate_for(FILE* output, ForStatement* stmt) {
            stmt->iterator ? stmt->iterator : "i",
            stmt->end ? (char*)stmt->end : "10",
            stmt->iterator ? stmt->iterator : "i");
-    emit_c("        // Loop body\n");
+    
+    // Generate loop body
+    BodyStatement* body = stmt->body;
+    while (body) {
+        if (body->code) {
+            emit_c("%s\n", body->code);
+        }
+        body = body->next;
+    }
+    
     emit_c("    }\n");
 }

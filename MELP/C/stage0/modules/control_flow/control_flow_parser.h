@@ -9,7 +9,7 @@ typedef struct {
     Token* current_token;
 } ControlFlowParser;
 
-ControlFlowParser* control_flow_parser_create(Lexer* lexer);
+ControlFlowParser* control_flow_parser_create(Lexer* lexer, Token* initial_token);
 void control_flow_parser_free(ControlFlowParser* parser);
 
 IfStatement* control_flow_parse_if(ControlFlowParser* parser);

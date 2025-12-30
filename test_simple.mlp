@@ -1,0 +1,4 @@
+numeric x = 5
+print("First")
+numeric y = 10
+print("Second")

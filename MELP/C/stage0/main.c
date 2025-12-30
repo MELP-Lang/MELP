@@ -493,48 +493,52 @@ int main(int argc, char** argv) {
                 continue;
             }
         }
-//         // Handle if statements
-//         else if (token->type == TOKEN_IF) {
-//             if (!has_main) {
-//                 emit_c("int main(void) {\n");
-//                 has_main = 1;
-//             }
-//             
-//             ControlFlowParser* ctrl_parser = control_flow_parser_create(lexer);
-//             ctrl_parser->current_token = token;
-//             
-//             IfStatement* if_stmt = control_flow_parse_if(ctrl_parser);
-//             if (if_stmt) {
-//                 control_flow_generate_if(out, if_stmt);
-//                 stmt_count++;
-//             }
-//             
-//             control_flow_parser_free(ctrl_parser);
-//             
-//             token = lexer_next_token(lexer);
-//             continue;
-//         }
-//         // Handle while loops
-//         else if (token->type == TOKEN_WHILE) {
-//             if (!has_main) {
-//                 emit_c("int main(void) {\n");
-//                 has_main = 1;
-//             }
-//             
-//             ControlFlowParser* ctrl_parser = control_flow_parser_create(lexer);
-//             ctrl_parser->current_token = token;
-//             
-//             WhileStatement* while_stmt = control_flow_parse_while(ctrl_parser);
-//             if (while_stmt) {
-//                 control_flow_generate_while(out, while_stmt);
-//                 stmt_count++;
-//             }
-//             
-//             control_flow_parser_free(ctrl_parser);
-//             
-//             token = lexer_next_token(lexer);
-//             continue;
-//         }
+        // Handle if statements
+        else if (token->type == TOKEN_IF) {
+            if (!has_main) {
+                emit_c("int main(void) {\n");
+                has_main = 1;
+            }
+            
+            ControlFlowParser* ctrl_parser = control_flow_parser_create(lexer, token);
+            
+            IfStatement* if_stmt = control_flow_parse_if(ctrl_parser);
+            if (if_stmt) {
+                control_flow_generate_if(out, if_stmt);
+                stmt_count++;
+            } else {
+                fprintf(stderr, "Warning: if statement parsing returned NULL\n");
+            }
+            
+            // Sync token from parser
+            token = ctrl_parser->current_token;
+            ctrl_parser->current_token = NULL;
+            control_flow_parser_free(ctrl_parser);
+            
+            continue;
+        }
+        // Handle while loops
+        else if (token->type == TOKEN_WHILE) {
+            if (!has_main) {
+                emit_c("int main(void) {\n");
+                has_main = 1;
+            }
+            
+            ControlFlowParser* ctrl_parser = control_flow_parser_create(lexer, token);
+            
+            WhileStatement* while_stmt = control_flow_parse_while(ctrl_parser);
+            if (while_stmt) {
+                control_flow_generate_while(out, while_stmt);
+                stmt_count++;
+            }
+            
+            // Sync token from parser
+            token = ctrl_parser->current_token;
+            ctrl_parser->current_token = NULL;
+            control_flow_parser_free(ctrl_parser);
+            
+            continue;
+        }
         // Handle for loops
         else if (token->type == TOKEN_FOR) {
             if (!has_main) {
@@ -542,8 +546,7 @@ int main(int argc, char** argv) {
                 has_main = 1;
             }
             
-            ControlFlowParser* ctrl_parser = control_flow_parser_create(lexer);
-            ctrl_parser->current_token = token;
+            ControlFlowParser* ctrl_parser = control_flow_parser_create(lexer, token);
             
             ForStatement* for_stmt = control_flow_parse_for(ctrl_parser);
             if (for_stmt) {
@@ -551,9 +554,11 @@ int main(int argc, char** argv) {
                 stmt_count++;
             }
             
+            // Sync token from parser
+            token = ctrl_parser->current_token;
+            ctrl_parser->current_token = NULL;
             control_flow_parser_free(ctrl_parser);
             
-            token = lexer_next_token(lexer);
             continue;
         }
         // Handle print statements (inside main)
