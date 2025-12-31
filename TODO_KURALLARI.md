@@ -1,10 +1,10 @@
 # TODO KURALLARI - Görevli YZ İçin
 
-**İzlenecek TODO:** [`TODO_PMLP_MIGRATION.md`](TODO_PMLP_MIGRATION.md)
+**İzlenecek TODO:** [`3-TODO_LANGUAGE_FEATURES.md`](3-TODO_LANGUAGE_FEATURES.md)
 
 ---
 
-**Tarih:** 25 Aralık 2025  
+**Tarih:** 31 Aralık 2025  
 **Amaç:** Tüm görevli YZ'lerin uyması gereken genel kurallar  
 **Not:** Bu kurallar tüm TODO projeleri için ortaktır. Sadece "İzlenecek TODO" değişir.
 
