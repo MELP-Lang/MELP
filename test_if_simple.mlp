@@ -1,4 +1,0 @@
-if true then
-    print("Inside if")
-end if
-print("After if")

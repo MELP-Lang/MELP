@@ -1,8 +1,0 @@
-numeric version = 2
-
-print("Stage2 Compiler")
-print("Version 2")
-
-if version < 3 then
-    print("This is Stage2")
-end if
