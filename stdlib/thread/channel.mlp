@@ -1,0 +1,554 @@
+// ============================================
+// MELP STANDARD LIBRARY - Channel (Message Passing)
+// ============================================
+// Thread communication with functional message passing pattern
+// Module: stdlib/thread/channel.mlp
+// Runtime: MELP/runtime/thread/channel.c
+//
+// ⚠️ DESIGN PRINCIPLE (6th FUNDAMENTAL):
+// MODÜL=ŞABLON: Each send/receive is independent
+// Pattern: create → send/receive → process → cleanup
+// NO persistent channels! Use functional message passing.
+
+// ============================================
+// CHANNEL TYPES & CONSTANTS
+// ============================================
+
+// Channel handle (opaque pointer from C runtime)
+type channel_handle = numeric
+
+// Message structure
+type channel_message = {
+    value: numeric,
+    sender_id: numeric,
+    timestamp: numeric
+}
+
+// Channel operation result
+type channel_result = {
+    success: boolean,
+    message: channel_message,
+    error_message: string
+}
+
+// Error codes
+numeric CHANNEL_ERROR_CREATE = -1
+numeric CHANNEL_ERROR_SEND = -2
+numeric CHANNEL_ERROR_RECEIVE = -3
+numeric CHANNEL_ERROR_TIMEOUT = -4
+numeric CHANNEL_ERROR_CLOSED = -5
+
+// Channel capacity (buffer size)
+numeric CHANNEL_UNBUFFERED = 0      // Synchronous (blocking)
+numeric CHANNEL_BUFFERED_SMALL = 10 // Small buffer
+numeric CHANNEL_BUFFERED_LARGE = 100 // Large buffer
+
+// ============================================
+// EXTERNAL C RUNTIME FUNCTIONS
+// ============================================
+
+// Create channel with given key and capacity
+// Same key = same channel (for multi-thread communication)
+// Returns: channel handle (>0) on success, CHANNEL_ERROR_CREATE on error
+external fn mlp_channel_create(key: string, capacity: numeric) -> numeric
+
+// Send message to channel (blocks if buffer full)
+// Returns: 0 on success, CHANNEL_ERROR_SEND on error
+external fn mlp_channel_send(handle: numeric, value: numeric, sender_id: numeric) -> numeric
+
+// Receive message from channel (blocks if buffer empty)
+// Returns: message value on success, CHANNEL_ERROR_RECEIVE on error
+external fn mlp_channel_receive(handle: numeric) -> numeric
+
+// Try to receive without blocking
+// Returns: message value on success, CHANNEL_ERROR_TIMEOUT if empty
+external fn mlp_channel_try_receive(handle: numeric) -> numeric
+
+// Get current number of messages in channel
+// Returns: count (>=0) on success, -1 on error
+external fn mlp_channel_count(handle: numeric) -> numeric
+
+// Close and destroy channel
+// Returns: 0 on success, error code on failure
+external fn mlp_channel_destroy(handle: numeric) -> numeric
+
+// ============================================
+// HIGH-LEVEL FUNCTIONAL ŞABLON (MODULE TEMPLATE)
+// ============================================
+
+// Send a message and receive processed response (request-response pattern)
+// This is a complete lifecycle: create → send → receive → cleanup
+//
+// ✅ CORRECT USAGE (Functional Pattern):
+//     result = channel.send_receive("work_queue", 42, lambda(msg) =>
+//         return msg * 2
+//     )
+//     # Channel: born → sent → received → processed → died
+//
+// ❌ WRONG USAGE (Persistent State - FORBIDDEN):
+//     ch = channel.create("my_channel")  # NO! Long-lived state
+//     channel.send(ch, 42)
+//     val = channel.receive(ch)
+//     channel.close(ch)
+//
+// Args:
+//   key: Unique channel identifier (shared across threads)
+//   message_value: Numeric value to send
+//   processor: Lambda that processes received message and returns result
+//
+// Returns:
+//   channel_result with success flag and processed value
+//
+// Example:
+//   # Thread 1 (sender):
+//   result = channel.send_receive("work", 10, lambda(response) =>
+//       print("Got response: " + string(response))
+//       return response
+//   )
+//
+//   # Thread 2 (receiver):
+//   result = channel.receive_process("work", lambda(msg) =>
+//       # Process message and send back
+//       return msg * 2
+//   )
+//
+fn send_receive(key: string, message_value: numeric, processor: fn(numeric) -> numeric) -> channel_result
+    // Step 1: Create channel (born)
+    numeric handle = mlp_channel_create(key, CHANNEL_BUFFERED_SMALL)
+    
+    if handle == CHANNEL_ERROR_CREATE then
+        channel_message empty_msg = {
+            value: 0,
+            sender_id: 0,
+            timestamp: 0
+        }
+        channel_result error = {
+            success: false,
+            message: empty_msg,
+            error_message: "Failed to create channel: " + key
+        }
+        return error
+    end_if
+    
+    // Step 2: Send message
+    numeric sender_id = thread.current_id()
+    numeric send_status = mlp_channel_send(handle, message_value, sender_id)
+    
+    if send_status == CHANNEL_ERROR_SEND then
+        mlp_channel_destroy(handle)  // Cleanup
+        channel_message empty_msg = {
+            value: 0,
+            sender_id: 0,
+            timestamp: 0
+        }
+        channel_result send_error = {
+            success: false,
+            message: empty_msg,
+            error_message: "Failed to send message"
+        }
+        return send_error
+    end_if
+    
+    // Step 3: Receive response (blocks until response available)
+    numeric response_value = mlp_channel_receive(handle)
+    
+    if response_value == CHANNEL_ERROR_RECEIVE then
+        mlp_channel_destroy(handle)  // Cleanup
+        channel_message empty_msg = {
+            value: 0,
+            sender_id: 0,
+            timestamp: 0
+        }
+        channel_result recv_error = {
+            success: false,
+            message: empty_msg,
+            error_message: "Failed to receive response"
+        }
+        return recv_error
+    end_if
+    
+    // Step 4: Process response
+    numeric processed_value = processor(response_value)
+    
+    // Step 5: Cleanup (died)
+    mlp_channel_destroy(handle)
+    
+    // Return success
+    channel_message result_msg = {
+        value: processed_value,
+        sender_id: sender_id,
+        timestamp: 0  // TODO: Add timestamp support in C runtime
+    }
+    channel_result success = {
+        success: true,
+        message: result_msg,
+        error_message: ""
+    }
+    return success
+end_fn
+
+// Receive message and process it (worker pattern)
+// Blocks until message arrives, processes it, returns result
+//
+// ✅ Functional pattern: receive → process → respond → cleanup
+//
+// Args:
+//   key: Channel identifier (must match sender's key)
+//   worker: Lambda that processes incoming message
+//
+// Returns:
+//   channel_result with processed value
+//
+// Example:
+//   # Worker thread:
+//   result = channel.receive_process("tasks", lambda(task) =>
+//       print("Processing task: " + string(task))
+//       # Do work...
+//       return task * task  # Send result back
+//   )
+//
+fn receive_process(key: string, worker: fn(numeric) -> numeric) -> channel_result
+    // Step 1: Create/get channel (born)
+    numeric handle = mlp_channel_create(key, CHANNEL_BUFFERED_SMALL)
+    
+    if handle == CHANNEL_ERROR_CREATE then
+        channel_message empty_msg = {
+            value: 0,
+            sender_id: 0,
+            timestamp: 0
+        }
+        channel_result error = {
+            success: false,
+            message: empty_msg,
+            error_message: "Failed to create channel"
+        }
+        return error
+    end_if
+    
+    // Step 2: Receive message (blocks until available)
+    numeric incoming_value = mlp_channel_receive(handle)
+    
+    if incoming_value == CHANNEL_ERROR_RECEIVE then
+        mlp_channel_destroy(handle)
+        channel_message empty_msg = {
+            value: 0,
+            sender_id: 0,
+            timestamp: 0
+        }
+        channel_result recv_error = {
+            success: false,
+            message: empty_msg,
+            error_message: "Failed to receive message"
+        }
+        return recv_error
+    end_if
+    
+    // Step 3: Process message
+    numeric result_value = worker(incoming_value)
+    
+    // Step 4: Send response back
+    numeric sender_id = thread.current_id()
+    numeric send_status = mlp_channel_send(handle, result_value, sender_id)
+    
+    // Step 5: Cleanup (died)
+    mlp_channel_destroy(handle)
+    
+    // Return result (even if send failed, worker executed successfully)
+    channel_message result_msg = {
+        value: result_value,
+        sender_id: sender_id,
+        timestamp: 0
+    }
+    channel_result success = {
+        success: true,
+        message: result_msg,
+        error_message: ""
+    }
+    return success
+end_fn
+
+// Broadcast message to multiple workers and collect results
+// Sends same message to N workers, waits for all responses
+//
+// ✅ Functional pattern: one-to-many communication
+//
+// Args:
+//   base_key: Base channel name (will create base_key_0, base_key_1, ...)
+//   message_value: Value to broadcast
+//   worker_count: Number of workers to send to
+//   collector: Lambda to process each worker's response
+//
+// Returns:
+//   List of channel_result, one per worker
+//
+// Example:
+//   # Broadcast task to 5 workers
+//   results = channel.broadcast("compute", 100, 5, lambda(response) =>
+//       return response  # Just collect
+//   )
+//
+//   # Each worker does: channel.receive_process("compute_X", ...)
+//
+fn broadcast(base_key: string, message_value: numeric, worker_count: numeric, collector: fn(numeric) -> numeric) -> list
+    list results = []
+    list handles = []
+    
+    // Step 1: Create channels for each worker
+    for i = 0 to worker_count - 1 do
+        string worker_key = base_key + "_" + string(i)
+        numeric handle = mlp_channel_create(worker_key, CHANNEL_BUFFERED_SMALL)
+        
+        if handle == CHANNEL_ERROR_CREATE then
+            channel_message empty_msg = {
+                value: 0,
+                sender_id: 0,
+                timestamp: 0
+            }
+            channel_result error = {
+                success: false,
+                message: empty_msg,
+                error_message: "Failed to create channel for worker " + string(i)
+            }
+            list.append(results, error)
+        else
+            list.append(handles, handle)
+        end_if
+    end_for
+    
+    // Step 2: Send message to all workers
+    numeric sender_id = thread.current_id()
+    for i = 0 to list.length(handles) - 1 do
+        numeric handle = handles[i]
+        mlp_channel_send(handle, message_value, sender_id)
+    end_for
+    
+    // Step 3: Receive responses from all workers
+    for i = 0 to list.length(handles) - 1 do
+        numeric handle = handles[i]
+        numeric response = mlp_channel_receive(handle)
+        
+        if response == CHANNEL_ERROR_RECEIVE then
+            channel_message empty_msg = {
+                value: 0,
+                sender_id: 0,
+                timestamp: 0
+            }
+            channel_result recv_error = {
+                success: false,
+                message: empty_msg,
+                error_message: "Failed to receive from worker " + string(i)
+            }
+            list.append(results, recv_error)
+        else
+            // Process response
+            numeric collected = collector(response)
+            channel_message result_msg = {
+                value: collected,
+                sender_id: sender_id,
+                timestamp: 0
+            }
+            channel_result success = {
+                success: true,
+                message: result_msg,
+                error_message: ""
+            }
+            list.append(results, success)
+        end_if
+    end_for
+    
+    // Step 4: Cleanup all channels
+    for i = 0 to list.length(handles) - 1 do
+        numeric handle = handles[i]
+        mlp_channel_destroy(handle)
+    end_for
+    
+    return results
+end_fn
+
+// Try to send message without blocking
+// Returns immediately if channel buffer is full
+//
+// ✅ Non-blocking variant for fire-and-forget scenarios
+//
+fn try_send(key: string, message_value: numeric) -> channel_result
+    numeric handle = mlp_channel_create(key, CHANNEL_BUFFERED_SMALL)
+    
+    if handle == CHANNEL_ERROR_CREATE then
+        channel_message empty_msg = {
+            value: 0,
+            sender_id: 0,
+            timestamp: 0
+        }
+        channel_result error = {
+            success: false,
+            message: empty_msg,
+            error_message: "Failed to create channel"
+        }
+        return error
+    end_if
+    
+    numeric sender_id = thread.current_id()
+    numeric status = mlp_channel_send(handle, message_value, sender_id)
+    
+    mlp_channel_destroy(handle)  // Always cleanup
+    
+    channel_message msg = {
+        value: message_value,
+        sender_id: sender_id,
+        timestamp: 0
+    }
+    
+    if status == CHANNEL_ERROR_SEND then
+        channel_result error = {
+            success: false,
+            message: msg,
+            error_message: "Channel full or error"
+        }
+        return error
+    else
+        channel_result success = {
+            success: true,
+            message: msg,
+            error_message: ""
+        }
+        return success
+    end_if
+end_fn
+
+// Try to receive message without blocking
+// Returns immediately if no message available
+//
+fn try_receive(key: string) -> channel_result
+    numeric handle = mlp_channel_create(key, CHANNEL_BUFFERED_SMALL)
+    
+    if handle == CHANNEL_ERROR_CREATE then
+        channel_message empty_msg = {
+            value: 0,
+            sender_id: 0,
+            timestamp: 0
+        }
+        channel_result error = {
+            success: false,
+            message: empty_msg,
+            error_message: "Failed to create channel"
+        }
+        return error
+    end_if
+    
+    numeric value = mlp_channel_try_receive(handle)
+    
+    mlp_channel_destroy(handle)
+    
+    if value == CHANNEL_ERROR_TIMEOUT then
+        channel_message empty_msg = {
+            value: 0,
+            sender_id: 0,
+            timestamp: 0
+        }
+        channel_result timeout = {
+            success: false,
+            message: empty_msg,
+            error_message: "No message available"
+        }
+        return timeout
+    else
+        channel_message msg = {
+            value: value,
+            sender_id: 0,
+            timestamp: 0
+        }
+        channel_result success = {
+            success: true,
+            message: msg,
+            error_message: ""
+        }
+        return success
+    end_if
+end_fn
+
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
+
+fn is_success(result: channel_result) -> boolean
+    return result.success
+end_fn
+
+fn is_error(result: channel_result) -> boolean
+    return not result.success
+end_fn
+
+fn get_value(result: channel_result) -> numeric
+    return result.message.value
+end_fn
+
+fn get_or_default(result: channel_result, default_value: numeric) -> numeric
+    if result.success then
+        return result.message.value
+    else
+        return default_value
+    end_if
+end_fn
+
+// ============================================
+// USAGE EXAMPLES (in comments)
+// ============================================
+
+// Example 1: Simple message passing
+// ----------------------------------
+// # Sender thread:
+// result = channel.send_receive("work", 42, lambda(resp) =>
+//     print("Got: " + string(resp))
+//     return resp
+// )
+//
+// # Receiver thread:
+// result = channel.receive_process("work", lambda(msg) =>
+//     print("Processing: " + string(msg))
+//     return msg * 2  # Send back doubled value
+// )
+
+// Example 2: Producer-Consumer pattern
+// -------------------------------------
+// # Producer:
+// fn produce_items() -> void
+//     for i = 1 to 10 do
+//         result = channel.try_send("queue", i)
+//         if not result.success then
+//             print("Queue full, waiting...")
+//             thread.sleep(100)
+//         end_if
+//     end_for
+// end_fn
+//
+// # Consumer:
+// fn consume_items() -> void
+//     loop while true do
+//         result = channel.try_receive("queue")
+//         if result.success then
+//             numeric item = channel.get_value(result)
+//             print("Consumed: " + string(item))
+//         else
+//             thread.sleep(50)  # Wait for items
+//         end_if
+//     end_loop
+// end_fn
+
+// Example 3: Broadcast to workers
+// --------------------------------
+// # Master broadcasts task
+// results = channel.broadcast("task", 1000, 5, lambda(result) =>
+//     return result  # Collect worker results
+// )
+//
+// for i = 0 to list.length(results) - 1 do
+//     channel_result res = results[i]
+//     if res.success then
+//         print("Worker " + string(i) + ": " + string(res.message.value))
+//     end_if
+// end_for
+//
+// # Each worker listens
+// # Worker 0: channel.receive_process("task_0", lambda(x) => x * x)
+// # Worker 1: channel.receive_process("task_1", lambda(x) => x * x)
+// # ...

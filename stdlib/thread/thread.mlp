@@ -1,0 +1,299 @@
+// ============================================
+// MELP STANDARD LIBRARY - Threading
+// ============================================
+// Basic multi-threading support with functional pattern
+// Module: stdlib/thread/thread.mlp
+// Runtime: MELP/runtime/thread/thread.c
+//
+// ⚠️ DESIGN PRINCIPLE (6th FUNDAMENTAL):
+// MODÜL=ŞABLON: Each call is independent
+// Pattern: spawn → execute → join → cleanup
+// NO persistent state! Each thread.run() is a complete lifecycle.
+
+// ============================================
+// THREAD TYPES & CONSTANTS
+// ============================================
+
+// Thread handle (opaque pointer from C runtime)
+type thread_handle = numeric
+
+// Thread execution result
+type thread_result = {
+    success: boolean,
+    return_value: numeric,
+    error_message: string
+}
+
+// Thread states (informational only)
+numeric THREAD_STATE_READY = 0
+numeric THREAD_STATE_RUNNING = 1
+numeric THREAD_STATE_FINISHED = 2
+numeric THREAD_STATE_ERROR = 3
+
+// Error codes
+numeric THREAD_ERROR_CREATE = -1
+numeric THREAD_ERROR_JOIN = -2
+numeric THREAD_ERROR_INVALID = -3
+
+// ============================================
+// EXTERNAL C RUNTIME FUNCTIONS
+// ============================================
+
+// Create and start a thread with a worker function
+// This function spawns a new thread, executes worker, and returns handle
+// Returns: thread handle (>0) on success, THREAD_ERROR_CREATE on error
+external fn mlp_thread_create(worker_id: numeric) -> numeric
+
+// Wait for thread to complete and get result
+// This blocks until thread finishes
+// Returns: result value from thread, THREAD_ERROR_JOIN on error
+external fn mlp_thread_join(handle: numeric) -> numeric
+
+// Get current thread ID (for debugging)
+external fn mlp_thread_current_id() -> numeric
+
+// Sleep current thread for milliseconds
+external fn mlp_thread_sleep(milliseconds: numeric) -> void
+
+// ============================================
+// HIGH-LEVEL FUNCTIONAL ŞABLON (MODULE TEMPLATE)
+// ============================================
+
+// Run a worker function in a separate thread and wait for completion
+// This is a complete lifecycle: spawn → execute → join → cleanup
+//
+// ✅ CORRECT USAGE (Functional Pattern):
+//     result = thread.run(worker_function, worker_id)
+//     # Thread: born → executed → died
+//
+// ❌ WRONG USAGE (Persistent State - FORBIDDEN):
+//     handle = thread.create()  # NO! This creates long-lived state
+//     thread.start(handle)
+//     thread.join(handle)
+//
+// Args:
+//   worker_function: A function that takes numeric id and returns numeric
+//   worker_id: Unique ID passed to worker function
+//
+// Returns:
+//   thread_result with success flag and return value
+//
+// Example:
+//   fn my_worker(id: numeric) -> numeric
+//       print("Worker " + string(id) + " running")
+//       return id * 2
+//   end_fn
+//
+//   result = thread.run(my_worker, 42)
+//   if result.success then
+//       print("Result: " + string(result.return_value))  # 84
+//   end_if
+//
+fn run(worker_function: fn(numeric) -> numeric, worker_id: numeric) -> thread_result
+    // Step 1: Spawn thread (born)
+    numeric handle = mlp_thread_create(worker_id)
+    
+    // Check for creation error
+    if handle == THREAD_ERROR_CREATE then
+        thread_result error_result = {
+            success: false,
+            return_value: 0,
+            error_message: "Failed to create thread"
+        }
+        return error_result
+    end_if
+    
+    // Step 2: Thread is running (worker_function executes in parallel)
+    // Note: The actual worker execution is handled by C runtime
+    // which calls back into MLP worker_function
+    
+    // Step 3: Join thread (wait for completion)
+    numeric return_val = mlp_thread_join(handle)
+    
+    // Check for join error
+    if return_val == THREAD_ERROR_JOIN then
+        thread_result join_error = {
+            success: false,
+            return_value: 0,
+            error_message: "Failed to join thread"
+        }
+        return join_error
+    end_if
+    
+    // Step 4: Cleanup (died)
+    // C runtime automatically cleans up resources after join
+    
+    // Return success result
+    thread_result success_result = {
+        success: true,
+        return_value: return_val,
+        error_message: ""
+    }
+    return success_result
+end_fn
+
+// Run multiple threads in parallel and wait for all to complete
+// This spawns N threads, runs them concurrently, then joins all
+//
+// ✅ Functional Pattern: all threads born → executed → died together
+//
+// Args:
+//   worker_function: Function to run in each thread
+//   worker_ids: List of IDs, one per thread
+//
+// Returns:
+//   List of thread_result, one per thread (in same order as worker_ids)
+//
+// Example:
+//   fn worker(id: numeric) -> numeric
+//       return id * id
+//   end_fn
+//
+//   list ids = [1, 2, 3, 4, 5]
+//   list results = thread.run_parallel(worker, ids)
+//   # All 5 threads: born → executed → died
+//   # results[0].return_value = 1
+//   # results[1].return_value = 4
+//   # results[2].return_value = 9
+//   # ...
+//
+fn run_parallel(worker_function: fn(numeric) -> numeric, worker_ids: list) -> list
+    list results = []
+    list handles = []
+    
+    // Step 1: Spawn all threads (born phase)
+    for i = 0 to list.length(worker_ids) - 1 do
+        numeric worker_id = worker_ids[i]
+        numeric handle = mlp_thread_create(worker_id)
+        
+        if handle == THREAD_ERROR_CREATE then
+            // Error creating thread - add error result
+            thread_result error = {
+                success: false,
+                return_value: 0,
+                error_message: "Failed to create thread " + string(i)
+            }
+            list.append(results, error)
+        else
+            list.append(handles, handle)
+        end_if
+    end_for
+    
+    // Step 2: All threads are running (execute phase)
+    // They run in parallel while we wait
+    
+    // Step 3: Join all threads (wait for completion)
+    for i = 0 to list.length(handles) - 1 do
+        numeric handle = handles[i]
+        numeric return_val = mlp_thread_join(handle)
+        
+        if return_val == THREAD_ERROR_JOIN then
+            thread_result join_error = {
+                success: false,
+                return_value: 0,
+                error_message: "Failed to join thread " + string(i)
+            }
+            list.append(results, join_error)
+        else
+            thread_result success = {
+                success: true,
+                return_value: return_val,
+                error_message: ""
+            }
+            list.append(results, success)
+        end_if
+    end_for
+    
+    // Step 4: Cleanup (died phase)
+    // C runtime automatically cleans up all resources
+    
+    return results
+end_fn
+
+// Get current thread's unique identifier
+// Useful for debugging and logging
+//
+// Returns:
+//   Numeric thread ID (platform-specific)
+//
+fn current_id() -> numeric
+    return mlp_thread_current_id()
+end_fn
+
+// Pause current thread execution for specified time
+// Does NOT create a new thread, just sleeps the calling thread
+//
+// Args:
+//   milliseconds: Time to sleep in milliseconds
+//
+// Example:
+//   thread.sleep(1000)  # Sleep for 1 second
+//
+fn sleep(milliseconds: numeric) -> void
+    mlp_thread_sleep(milliseconds)
+end_fn
+
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
+
+// Check if a thread_result indicates success
+fn is_success(result: thread_result) -> boolean
+    return result.success
+end_fn
+
+// Check if a thread_result indicates error
+fn is_error(result: thread_result) -> boolean
+    return not result.success
+end_fn
+
+// Get return value from successful result, or default on error
+fn get_or_default(result: thread_result, default_value: numeric) -> numeric
+    if result.success then
+        return result.return_value
+    else
+        return default_value
+    end_if
+end_fn
+
+// ============================================
+// USAGE EXAMPLES (in comments)
+// ============================================
+
+// Example 1: Simple thread execution
+// -----------------------------------
+// fn worker(id: numeric) -> numeric
+//     print("Worker " + string(id) + " started")
+//     thread.sleep(100)  # Simulate work
+//     print("Worker " + string(id) + " finished")
+//     return id * 10
+// end_fn
+//
+// result = thread.run(worker, 5)
+// if thread.is_success(result) then
+//     print("Result: " + string(result.return_value))  # 50
+// end_if
+
+// Example 2: Parallel execution
+// ------------------------------
+// fn square(id: numeric) -> numeric
+//     return id * id
+// end_fn
+//
+// list ids = [1, 2, 3, 4, 5]
+// list results = thread.run_parallel(square, ids)
+//
+// for i = 0 to list.length(results) - 1 do
+//     thread_result res = results[i]
+//     if res.success then
+//         print("Thread " + string(i) + ": " + string(res.return_value))
+//     end_if
+// end_for
+
+// Example 3: Error handling
+// --------------------------
+// result = thread.run(some_worker, 999)
+// if thread.is_error(result) then
+//     print("Error: " + result.error_message)
+//     numeric fallback = thread.get_or_default(result, -1)
+// end_if

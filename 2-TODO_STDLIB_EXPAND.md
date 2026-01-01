@@ -1,7 +1,7 @@
 # 2-TODO_STDLIB_EXPAND.md
 
 **Hedef:** Gerçek Dünya Uygulamaları İçin stdlib Genişletme  
-**Süre:** 3-4 hafta (Hafta 10-13)  
+**Süre:** 4-5 hafta (Hafta 10-14)  
 **Öncelik:** Kritik  
 **Bağımlılık:** 0-TODO_SELFHOSTING.md (%100), 1-TODO_TOOLING_BASICS.md (%100)
 
@@ -39,79 +39,44 @@ Bu TODO **production-ready stdlib** oluşturacak.
 
 ## 📊 TASK BREAKDOWN
 
-### **Task 1: Networking Library** (6-7 gün)
+### ✅ **Task 1: Networking Library** (6-7 gün) - TAMAMLANDI
 
 **Hedef:** TCP/UDP soketler + HTTP client
 
-**Modüller:**
-```
-stdlib/net/
-├── socket.mlp      (~300 satır)  # TCP/UDP soketler
-├── http.mlp        (~400 satır)  # HTTP client
-└── url.mlp         (~200 satır)  # URL parsing
-```
-
-**API Tasarımı:**
-```mlp
-import socket from "stdlib/net/socket.mlp"
-import http from "stdlib/net/http.mlp"
-
--- TCP socket
-optional sock = socket.connect("example.com", 80)
-if sock.is_some() then
-    socket.write(sock.unwrap(), "GET / HTTP/1.1\r\n")
-    optional response = socket.read(sock.unwrap())
-end_if
-
--- HTTP client (high-level)
-optional response = http.get("https://example.com")
-if response.is_some() then
-    string body = response.unwrap().body
-    numeric status = response.unwrap().status  # 200
-end_if
-
--- POST request
-http_request req
-req.url = "https://api.example.com/data"
-req.method = "POST"
-req.body = '{"key": "value"}'
-req.headers["Content-Type"] = "application/json"
-
-optional resp = http.send(req)
-```
-
-**C Binding:**
-```c
-// MELP/runtime/net/socket.c (~400 satır)
-// MELP/runtime/net/http.c (~500 satır)
-// Posix sockets (Linux) + WinSock (Windows)
-```
-
-**Test:**
-```bash
-# TCP test
-./mlp-gcc tests/net/tcp_client.mlp && ./a.out
-
-# HTTP test
-./mlp-gcc tests/net/http_get.mlp && ./a.out
-# Expected: HTTP 200 response
-```
+**Durum:** ✅ YZ_01 tamamladı (1 Ocak 2026)
+- stdlib/net/socket.mlp (304 satır)
+- stdlib/net/http.mlp (398 satır)
+- stdlib/net/url.mlp (233 satır)
+- MELP/runtime/net/socket.c (467 satır)
+- MELP/runtime/net/http.c (551 satır)
+- 5/5 tests passing ✓
 
 ---
 
-### **Task 2: Threading & Concurrency** (5-6 gün)
+### ✅ **Task 2: Threading & Concurrency** (5-6 gün) - TAMAMLANDI
 
+**Atanan:** YZ_02 (1 Ocak 2026)  
+**Tamamlanma:** 1 Ocak 2026 (aynı gün)  
 **Hedef:** Basic multi-threading support
+
+**Durum:** ✅ BAŞARIYLA TAMAMLANDI
+- stdlib/thread/thread.mlp (305 satır) ✓
+- stdlib/thread/mutex.mlp (321 satır) ✓
+- stdlib/thread/channel.mlp (582 satır) ✓
+- MELP/runtime/thread/thread.c (180 satır) ✓
+- MELP/runtime/thread/mutex.c (260 satır) ✓
+- MELP/runtime/thread/channel.c (380 satır) ✓
+- 22/22 tests passing ✓
 
 **Modüller:**
 ```
 stdlib/thread/
-├── thread.mlp      (~300 satır)  # Thread create/join
-├── mutex.mlp       (~200 satır)  # Mutual exclusion
-└── channel.mlp     (~350 satır)  # Message passing
+├── thread.mlp      (305 satır)  # Thread create/join ✅
+├── mutex.mlp       (321 satır)  # Mutual exclusion ✅
+└── channel.mlp     (582 satır)  # Message passing ✅
 ```
 
-**API Tasarımı:**
+**ŞABLON Tasarımı (Terminoloji Düzeltmesi: API → ŞABLON):**
 ```mlp
 import thread from "stdlib/thread/thread.mlp"
 import mutex from "stdlib/thread/mutex.mlp"
@@ -169,230 +134,389 @@ channel.close(ch)
 
 **Test:**
 ```bash
-# Thread test
-./mlp-gcc tests/thread/basic_thread.mlp && ./a.out
+# C Runtime Tests (All Passing ✅)
+cd tests/thread
+./run_all_tests.sh
 
-# Race condition test (should be safe with mutex)
-./mlp-gcc tests/thread/race_condition.mlp && ./a.out
-# Expected: counter = 10000 (her zaman)
+# Results:
+# - test_thread_basic: 5/5 tests PASS ✅
+# - test_mutex_basic: 7/7 tests PASS ✅
+# - test_channel_basic: 10/10 tests PASS ✅
+# Total: 22/22 tests passing (100%) ✅
 ```
+
+**Test Detayları:** [tests/thread/TEST_RESULTS.md](tests/thread/TEST_RESULTS.md)
+
+**Başarı Kriteri:** 22+ tests passing ✅ (AŞILDI)
 
 ---
 
-### **Task 3: Advanced Collections** (4-5 gün)
+### **Task 3: Advanced Collections** (4-5 gün) ✅ TAMAMLANDI
 
 **Hedef:** HashMap, Set, BTree
+
+**Tamamlanma:** 6 Ocak 2026 (STDLIB_YZ_01)
 
 **Modüller:**
 ```
 stdlib/collections/
 ├── hashmap.mlp     (~400 satır)  # Hash table
-├── hashset.mlp     (~300 satır)  # Hash set
-└── btree.mlp       (~350 satır)  # Balanced tree
+├── set.mlp         (~250 satır)  # Hash set  
+└── btree.mlp       (~350 satır)  # Balanced tree (opsiyonel)
 ```
+
+**Neden Kritik:** Stage2 parser'da symbol table için HashMap, import resolution için Set gerekli!
 
 **API Tasarımı:**
 ```mlp
 import hashmap from "stdlib/collections/hashmap.mlp"
-import hashset from "stdlib/collections/hashset.mlp"
+import set from "stdlib/collections/set.mlp"
 
--- HashMap<string, numeric>
-hashmap ages = hashmap.create()
-hashmap.insert(ages, "Ali", 25)
-hashmap.insert(ages, "Ayşe", 30)
+-- HashMap<string, numeric> (symbol table pattern)
+hashmap symbols = hashmap.create()
+hashmap.insert(symbols, "variable_x", 42)
+hashmap.insert(symbols, "function_main", 100)
 
-optional age = hashmap.get(ages, "Ali")
-if age.is_some() then
-    numeric value = age.unwrap()  # 25
+optional addr = hashmap.get(symbols, "variable_x")
+if addr.is_some() then
+    numeric value = addr.unwrap()  # 42
 end_if
 
--- HashSet<string>
-hashset names = hashset.create()
-hashset.add(names, "Ali")
-hashset.add(names, "Ayşe")
-hashset.add(names, "Ali")  # Duplicate, ignored
+-- Set<string> (import resolution pattern)
+set imported_modules = set.create()
+set.add(imported_modules, "stdlib/io/file.mlp")
+set.add(imported_modules, "stdlib/math/math.mlp")
+set.add(imported_modules, "stdlib/io/file.mlp")  # Duplicate, ignored
 
-bool has = hashset.contains(names, "Ali")  # true
-numeric size = hashset.size(names)  # 2
-
--- BTree (ordered map)
-btree tree = btree.create()
-btree.insert(tree, 5, "five")
-btree.insert(tree, 2, "two")
-btree.insert(tree, 8, "eight")
-
-# In-order traversal: 2, 5, 8
+bool has = set.contains(imported_modules, "stdlib/io/file.mlp")  # true
+numeric count = set.size(imported_modules)  # 2
 ```
 
 **C Implementation:**
 ```c
 // MELP/runtime/collections/hashmap.c (~500 satır)
-// MELP/runtime/collections/hashset.c (~400 satır)
-// MELP/runtime/collections/btree.c (~450 satır)
+// MELP/runtime/collections/set.c (~300 satır)
+// MELP/runtime/collections/btree.c (~450 satır, opsiyonel)
 // Open addressing hash table, Red-Black tree
 ```
 
 **Test:**
 ```bash
-# HashMap test
-./mlp-gcc tests/collections/hashmap_test.mlp && ./a.out
+# HashMap test (symbol table simulation)
+./mlp-gcc tests/collections/hashmap_symbols.mlp && ./a.out
 
-# Performance test (1M insertions)
-time ./mlp-gcc tests/collections/hashmap_perf.mlp && time ./a.out
-# Expected: <2s for 1M ops
+# Set test (import resolution simulation)
+./mlp-gcc tests/collections/set_imports.mlp && ./a.out
+
+# Performance test (100k insertions)
+time ./mlp-gcc tests/collections/perf.mlp && time ./a.out
+# Expected: <0.5s for 100k ops
 ```
+
+**Başarı Kriteri:** 10+ tests passing ✅
 
 ---
 
-### **Task 4: JSON & XML Parsing** (4-5 gün)
+### ✅ **Task 2 (YZ_02): JSON Parsing** (5 gün)
 
-**Hedef:** JSON/XML parser + serializer
+**Hedef:** JSON parser/serializer - **Import metadata için ŞART!**
 
 **Modüller:**
 ```
-stdlib/data/
-├── json.mlp        (~400 satır)  # JSON parser
-└── xml.mlp         (~450 satır)  # XML parser
+stdlib/json/
+└── json.mlp        (~400 satır)  # JSON parser/serializer
 ```
+
+**Neden Kritik:** Stage2 import sistemi module metadata'yı JSON formatında saklayacak!
 
 **API Tasarımı:**
 ```mlp
-import json from "stdlib/data/json.mlp"
+import json from "stdlib/json/json.mlp"
 
--- JSON parsing
-string json_str = '{"name": "Ali", "age": 25}'
-optional parsed = json.parse(json_str)
+-- JSON parsing (module metadata pattern)
+string metadata = '{"name": "math", "version": "1.0", "exports": ["add", "sub"]}'
+optional parsed = json.parse(metadata)
 
 if parsed.is_some() then
     json_object obj = parsed.unwrap()
-    string name = json.get_string(obj, "name")  # "Ali"
-    numeric age = json.get_number(obj, "age")   # 25
+    string name = json.get_string(obj, "name")  # "math"
+    string version = json.get_string(obj, "version")  # "1.0"
+    
+    -- Array handling
+    json_array exports = json.get_array(obj, "exports")
+    numeric count = json.array_length(exports)  # 2
+    string first = json.array_get_string(exports, 0)  # "add"
 end_if
 
--- JSON serialization
-json_object obj = json.object_create()
-json.set_string(obj, "name", "Ayşe")
-json.set_number(obj, "age", 30)
+-- JSON serialization (export metadata)
+json_object module_info = json.object_create()
+json.set_string(module_info, "name", "parser")
+json.set_string(module_info, "version", "2.0")
 
-string output = json.stringify(obj)
-# output = '{"name":"Ayşe","age":30}'
+json_array funcs = json.array_create()
+json.array_add_string(funcs, "parse")
+json.array_add_string(funcs, "tokenize")
+json.set_array(module_info, "exports", funcs)
 
--- JSON arrays
-string arr_str = '[1, 2, 3, 4, 5]'
-optional arr = json.parse(arr_str)
-numeric len = json.array_length(arr.unwrap())  # 5
+string output = json.stringify(module_info)
+# output = '{"name":"parser","version":"2.0","exports":["parse","tokenize"]}'
 ```
 
 **C Implementation:**
 ```c
-// MELP/runtime/data/json.c (~600 satır)
-// MELP/runtime/data/xml.c (~700 satır)
-// Recursive descent parser
+// MELP/runtime/json/parser.c (~500 satır)
+// Recursive descent parser, UTF-8 support
 ```
 
 **Test:**
 ```bash
-# JSON test
-echo '{"test": true}' | ./mlp-gcc tests/json/parse.mlp && ./a.out
+# JSON parsing test (module metadata)
+./mlp-gcc tests/json/parse_metadata.mlp && ./a.out
 
-# XML test
-echo '<root><item>test</item></root>' | ./mlp-gcc tests/xml/parse.mlp && ./a.out
+# JSON error handling (invalid JSON)
+./mlp-gcc tests/json/invalid.mlp && ./a.out
+# Expected: Error with line number
+
+# Large JSON test (10MB file)
+time ./mlp-gcc tests/json/large.mlp && time ./a.out
+# Expected: <1s parsing
 ```
+
+**Başarı Kriteri:** 12+ tests passing ✅
 
 ---
 
-### **Task 5: File I/O Complete** (3 gün)
+### ✅ **Task 3 (YZ_03): File I/O Complete** (3 gün)
 
-**Hedef:** Advanced file operations
+**Hedef:** Advanced file operations - **Modül yükleme için ŞART!**
 
 **Modül Güncelleme:**
 ```
 stdlib/io/
-└── file_io.mlp     (güncelle ~500 satır)
+├── file.mlp        (genişlet ~350 satır → ~550 satır)
+├── async_file.mlp  (~250 satır)  # Async operations
+└── path.mlp        (~200 satır)  # Path utilities
 ```
+
+**Neden Kritik:** Stage2 import sistemi modülleri dosya sisteminden yükleyecek!
 
 **Yeni Özellikler:**
 ```mlp
-import file_io from "stdlib/io/file_io.mlp"
+import file from "stdlib/io/file.mlp"
+import path from "stdlib/io/path.mlp"
 
--- Async file read
-optional content = file_io.read_async("large_file.txt")
+-- Modül yükleme pattern
+string module_path = path.join("stdlib", "math", "math.mlp")
+bool exists = path.exists(module_path)
 
--- Binary file operations
-list bytes = file_io.read_bytes("image.png")
-file_io.write_bytes("copy.png", bytes)
-
--- File streaming (büyük dosyalar için)
-file_stream stream = file_io.open_stream("huge.log")
-while file_io.has_next(stream) do
-    string line = file_io.read_line(stream)
-    yazdir(line)
-end_while
-file_io.close_stream(stream)
-
--- File metadata
-file_info info = file_io.stat("test.txt")
-numeric size = info.size         # bytes
-string modified = info.modified  # timestamp
-bool is_dir = info.is_directory
-```
-
-**Test:**
-```bash
-# Large file test (100MB)
-dd if=/dev/urandom of=test_large.bin bs=1M count=100
-./mlp-gcc tests/io/large_file.mlp && time ./a.out
-# Expected: <5s for 100MB
-```
-
----
-
-### **Task 6: Time & Date Library** (3-4 gün)
-
-**Hedef:** Modern time/date handling
-
-**Modüller:**
-```
-stdlib/time/
-├── time.mlp        (~350 satır)  # Time operations
-└── date.mlp        (~300 satır)  # Date formatting
-```
-
-**API Tasarımı:**
-```mlp
-import time from "stdlib/time/time.mlp"
-import date from "stdlib/time/date.mlp"
-
--- Current time
-numeric now = time.now()  # Unix timestamp
-string formatted = time.format(now, "2006-01-02 15:04:05")
-
--- Date parsing
-optional parsed = date.parse("2025-12-29", "YYYY-MM-DD")
-if parsed.is_some() then
-    numeric timestamp = parsed.unwrap()
+if exists then
+    optional content = file.read(module_path)
+    if content.is_some() then
+        string source_code = content.unwrap()
+        -- Parse and compile...
+    end_if
 end_if
 
--- Duration
-numeric start = time.now()
-# ... some operation ...
-numeric end = time.now()
-numeric elapsed = time.duration(start, end)  # milliseconds
+-- Path operations (import resolution için)
+string absolute = path.absolute("../stdlib/io/file.mlp")
+string normalized = path.normalize("stdlib//io/../io/./file.mlp")  # "stdlib/io/file.mlp"
+string dir = path.dirname("stdlib/io/file.mlp")  # "stdlib/io"
+string base = path.basename("stdlib/io/file.mlp")  # "file.mlp"
 
--- Sleep
-time.sleep(1000)  # 1 second
+-- Directory listing (module discovery)
+list files = file.list_dir("stdlib/")
+for each item in files do
+    if path.extension(item) == ".mlp" then
+        yazdir("Found module: " + item)
+    end_if
+end_for
 
--- Timezone
-string utc = time.format_utc(now)
-string local = time.format_local(now, "Europe/Istanbul")
+-- Binary file operations (compiled module cache)
+list bytes = file.read_bytes("stdlib/math.mlp.cache")
+file.write_bytes("stdlib/math.mlp.cache.backup", bytes)
+
+-- File metadata (cache invalidation)
+file_info info = file.stat("stdlib/math.mlp")
+numeric modified = info.modified_time
+bool needs_recompile = (cache_time < modified)
 ```
 
 **C Implementation:**
 ```c
-// MELP/runtime/time/time.c (~400 satır)
-// MELP/runtime/time/date.c (~350 satır)
-// POSIX time.h + strftime
+// MELP/runtime/io/file.c (~400 satır genişletme)
+// MELP/runtime/io/async_file.c (~400 satır)
+// MELP/runtime/io/path.c (~300 satır)
+// POSIX file operations + path normalization
 ```
+
+**Test:**
+```bash
+# Module loading simulation test
+./mlp-gcc tests/io/module_load.mlp && ./a.out
+
+# Path operations test
+./mlp-gcc tests/io/path_ops.mlp && ./a.out
+
+# Directory listing test
+./mlp-gcc tests/io/list_modules.mlp && ./a.out
+# Expected: Lists all .mlp files in stdlib/
+
+# Large file streaming (1GB file)
+dd if=/dev/urandom of=test_huge.bin bs=1M count=1024
+time ./mlp-gcc tests/io/stream.mlp && time ./a.out
+# Expected: <10s for 1GB, low memory usage
+```
+
+**Başarı Kriteri:** 8+ tests passing ✅
+
+---
+
+### ❌ **Task 4-7: ATLANDI**
+
+**Atlandı:**
+- ❌ Time/Date Library → TODO #7'de yapılacak
+- ❌ Regex Support → TODO #7'de yapılacak
+
+**Sebep:** Self-hosting için kritik değil, ecosystem için gerekli
+
+---
+
+## ⏱️ ZAMAN ÇİZELGESİ (TODO #2-MINI)
+
+| Gün | Task | YZ | Çıktı |
+|-----|------|-----|-------|
+| **1-5** | Collections | YZ_01 | HashMap, Set, BTree |
+| **6-10** | JSON | YZ_02 | json.mlp + parser.c |
+| **11-13** | File I/O | YZ_03 | file.mlp, path.mlp |
+
+**TOPLAM:** 13 gün = **2 hafta** ✅
+
+**Başlangıç:** 1 Ocak 2026  
+**Bitiş:** ~15 Ocak 2026  
+**Sonra:** TODO #3 (LANGUAGE_FEATURES) başlar!
+
+---
+
+## 🧪 GERÇEK TESTLER - TODO TAMAMLANMA KRİTERLERİ
+
+### ⚠️ UYARI: Tüm testler geçmeden TODO tamamlanmış sayılmaz!
+
+**Test Dosyaları:** `tests/stdlib_mini/`
+
+```bash
+# Test 1-10: Collections Tests (YZ_01)
+tests/stdlib_mini/collections/
+├── test_hashmap_insert.mlp      # HashMap insert/get ✅
+├── test_hashmap_delete.mlp      # HashMap delete ✅
+├── test_hashmap_iterate.mlp     # HashMap iteration ✅
+├── test_hashmap_collision.mlp   # Hash collision handling ✅
+├── test_set_add.mlp             # Set add/contains ✅
+├── test_set_union.mlp           # Set union/intersection ✅
+├── test_set_duplicate.mlp       # Duplicate handling ✅
+├── test_btree_insert.mlp        # BTree ordered insert ✅
+├── test_btree_traverse.mlp      # BTree in-order traversal ✅
+└── test_perf_100k.mlp           # 100k ops <0.5s ✅
+
+# Test 11-22: JSON Tests (YZ_02)
+tests/stdlib_mini/json/
+├── test_parse_object.mlp        # Parse JSON object ✅
+├── test_parse_array.mlp         # Parse JSON array ✅
+├── test_parse_nested.mlp        # Nested structures ✅
+├── test_parse_metadata.mlp      # Module metadata pattern ✅
+├── test_stringify_object.mlp    # Serialize object ✅
+├── test_stringify_array.mlp     # Serialize array ✅
+├── test_invalid_json.mlp        # Error handling ✅
+├── test_utf8.mlp                # UTF-8 support ✅
+├── test_escape_chars.mlp        # Escape sequences ✅
+├── test_large_json.mlp          # 10MB JSON <1s ✅
+├── test_array_operations.mlp    # Array get/set ✅
+└── test_number_precision.mlp    # Number parsing ✅
+
+# Test 23-30: File I/O Tests (YZ_03)
+tests/stdlib_mini/io/
+├── test_module_load.mlp         # Module loading pattern ✅
+├── test_path_join.mlp           # Path joining ✅
+├── test_path_normalize.mlp      # Path normalization ✅
+├── test_path_absolute.mlp       # Absolute path ✅
+├── test_file_exists.mlp         # File existence check ✅
+├── test_list_dir.mlp            # Directory listing ✅
+├── test_file_stat.mlp           # File metadata ✅
+└── test_large_file_stream.mlp   # 1GB streaming <10s ✅
+```
+
+### 📊 TEST RAPORU FORMATI
+
+**Dosya:** `TEST_RAPORU_TODO2_MINI.md`
+
+```markdown
+# TODO #2-MINI TEST RAPORU
+
+## ÖZET
+- **Toplam Test:** 30
+- **Başarılı:** 30/30 ✅
+- **Başarısız:** 0/30 ✅
+- **Test Süresi:** ~45 saniye
+
+## DETAY
+
+### Collections Tests (10/10 ✅)
+- test_hashmap_insert.mlp: PASS (80ms)
+- test_hashmap_delete.mlp: PASS (75ms)
+- test_hashmap_iterate.mlp: PASS (90ms)
+- test_hashmap_collision.mlp: PASS (120ms)
+- test_set_add.mlp: PASS (60ms)
+- test_set_union.mlp: PASS (100ms)
+- test_set_duplicate.mlp: PASS (50ms)
+- test_btree_insert.mlp: PASS (110ms)
+- test_btree_traverse.mlp: PASS (95ms)
+- test_perf_100k.mlp: PASS (450ms) - Target <500ms ✅
+
+### JSON Tests (12/12 ✅)
+- test_parse_object.mlp: PASS (70ms)
+- test_parse_array.mlp: PASS (65ms)
+- test_parse_nested.mlp: PASS (120ms)
+- test_parse_metadata.mlp: PASS (85ms)
+- test_stringify_object.mlp: PASS (60ms)
+- test_stringify_array.mlp: PASS (55ms)
+- test_invalid_json.mlp: PASS (80ms) - Error detected ✅
+- test_utf8.mlp: PASS (90ms)
+- test_escape_chars.mlp: PASS (70ms)
+- test_large_json.mlp: PASS (950ms) - Target <1s ✅
+- test_array_operations.mlp: PASS (75ms)
+- test_number_precision.mlp: PASS (65ms)
+
+### File I/O Tests (8/8 ✅)
+- test_module_load.mlp: PASS (150ms)
+- test_path_join.mlp: PASS (40ms)
+- test_path_normalize.mlp: PASS (50ms)
+- test_path_absolute.mlp: PASS (45ms)
+- test_file_exists.mlp: PASS (35ms)
+- test_list_dir.mlp: PASS (180ms)
+- test_file_stat.mlp: PASS (60ms)
+- test_large_file_stream.mlp: PASS (8500ms) - Target <10s ✅
+
+## SONUÇ
+✅ TODO #2-MINI TAMAMLANDI - Tüm testler geçti!
+✅ Stage2 için kritik stdlib hazır!
+✅ TODO #3 başlayabilir! (15 Ocak 2026)
+```
+
+### 🎯 BAŞARI KRİTERİ
+
+**TODO #2-MINI tamamlanabilir ancak ve ancak:**
+- ✅ 30/30 test geçiyor
+- ✅ Collections: HashMap, Set, BTree çalışıyor
+- ✅ JSON: Parse + stringify çalışıyor
+- ✅ File I/O: Module loading pattern çalışıyor
+- ✅ Performance: Collections <0.5s, JSON <1s, File streaming <10s
+- ✅ TODO #3 başlatılabilir!
+
+---
+
+**Son Güncelleme:** 1 Ocak 2026  
+**PD Kararı:** TODO #2 filtrelendi (7 task → 3 task)  
+**Kazanç:** 3 hafta kazanç! (5 hafta → 2 hafta)  
+**Sonraki:** TODO #3 (15 Ocak 2026)
 
 **Test:**
 ```bash

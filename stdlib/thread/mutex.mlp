@@ -1,0 +1,338 @@
+// ============================================
+// MELP STANDARD LIBRARY - Mutex (Mutual Exclusion)
+// ============================================
+// Thread synchronization with functional closure pattern
+// Module: stdlib/thread/mutex.mlp
+// Runtime: MELP/runtime/thread/mutex.c
+//
+// ⚠️ DESIGN PRINCIPLE (6th FUNDAMENTAL):
+// MODÜL=ŞABLON: Each lock operation is independent
+// Pattern: acquire → execute → release → cleanup
+// NO persistent mutex objects! Use functional closure pattern.
+
+// ============================================
+// MUTEX TYPES & CONSTANTS
+// ============================================
+
+// Mutex handle (opaque pointer from C runtime)
+type mutex_handle = numeric
+
+// Lock operation result
+type lock_result = {
+    success: boolean,
+    return_value: numeric,
+    error_message: string
+}
+
+// Error codes
+numeric MUTEX_ERROR_CREATE = -1
+numeric MUTEX_ERROR_LOCK = -2
+numeric MUTEX_ERROR_UNLOCK = -3
+numeric MUTEX_ERROR_DESTROY = -4
+
+// ============================================
+// EXTERNAL C RUNTIME FUNCTIONS
+// ============================================
+
+// Create a mutex with given key
+// The key is used for internal lookup - same key = same mutex
+// Returns: mutex handle (>0) on success, MUTEX_ERROR_CREATE on error
+external fn mlp_mutex_create(key: string) -> numeric
+
+// Lock mutex (blocks if already locked)
+// Returns: 0 on success, MUTEX_ERROR_LOCK on error
+external fn mlp_mutex_lock(handle: numeric) -> numeric
+
+// Unlock mutex
+// Returns: 0 on success, MUTEX_ERROR_UNLOCK on error
+external fn mlp_mutex_unlock(handle: numeric) -> numeric
+
+// Destroy mutex and free resources
+// Returns: 0 on success, MUTEX_ERROR_DESTROY on error
+external fn mlp_mutex_destroy(handle: numeric) -> numeric
+
+// ============================================
+// HIGH-LEVEL FUNCTIONAL ŞABLON (MODULE TEMPLATE)
+// ============================================
+
+// Execute a closure within a mutex lock (critical section)
+// This is the ONLY way to use mutexes - functional closure pattern
+//
+// ✅ CORRECT USAGE (Functional Pattern):
+//     result = mutex.with_lock("my_key", lambda() =>
+//         shared_counter = shared_counter + 1
+//         return shared_counter
+//     )
+//     # Mutex: born → locked → closure executed → unlocked → died
+//
+// ❌ WRONG USAGE (Persistent State - FORBIDDEN):
+//     m = mutex.create("my_key")  # NO! Long-lived state
+//     mutex.lock(m)
+//     # ... critical section ...
+//     mutex.unlock(m)
+//     mutex.destroy(m)
+//
+// Args:
+//   key: Unique string identifier for this mutex
+//        Same key in different calls = same mutex protection
+//   critical_section: Lambda function to execute within lock
+//                     Takes no args, returns numeric
+//
+// Returns:
+//   lock_result with success flag and closure's return value
+//
+// Example:
+//   numeric shared_counter = 0
+//
+//   result = mutex.with_lock("counter_mutex", lambda() =>
+//       shared_counter = shared_counter + 1
+//       return shared_counter
+//   )
+//
+//   if result.success then
+//       print("New counter value: " + string(result.return_value))
+//   end_if
+//
+fn with_lock(key: string, critical_section: fn() -> numeric) -> lock_result
+    // Step 1: Create/get mutex (born)
+    numeric handle = mlp_mutex_create(key)
+    
+    if handle == MUTEX_ERROR_CREATE then
+        lock_result error = {
+            success: false,
+            return_value: 0,
+            error_message: "Failed to create mutex for key: " + key
+        }
+        return error
+    end_if
+    
+    // Step 2: Acquire lock (blocks if already locked)
+    numeric lock_status = mlp_mutex_lock(handle)
+    
+    if lock_status == MUTEX_ERROR_LOCK then
+        mlp_mutex_destroy(handle)  // Cleanup
+        lock_result lock_error = {
+            success: false,
+            return_value: 0,
+            error_message: "Failed to acquire lock for key: " + key
+        }
+        return lock_error
+    end_if
+    
+    // Step 3: Execute critical section (protected code)
+    numeric return_val = critical_section()
+    
+    // Step 4: Release lock
+    numeric unlock_status = mlp_mutex_unlock(handle)
+    
+    if unlock_status == MUTEX_ERROR_UNLOCK then
+        mlp_mutex_destroy(handle)  // Cleanup even on error
+        lock_result unlock_error = {
+            success: false,
+            return_value: return_val,  // We got result but unlock failed
+            error_message: "Failed to release lock for key: " + key
+        }
+        return unlock_error
+    end_if
+    
+    // Step 5: Destroy mutex (died)
+    numeric destroy_status = mlp_mutex_destroy(handle)
+    
+    // Even if destroy fails, we successfully executed critical section
+    lock_result success = {
+        success: true,
+        return_value: return_val,
+        error_message: ""
+    }
+    return success
+end_fn
+
+// Try to execute closure with lock, but don't block if already locked
+// Returns immediately if mutex is already held by another thread
+//
+// ✅ Non-blocking variant of with_lock
+//
+// Args:
+//   key: Unique string identifier for this mutex
+//   critical_section: Lambda function to execute if lock acquired
+//
+// Returns:
+//   lock_result with:
+//     - success=true if lock acquired and closure executed
+//     - success=false if lock was already held (or other error)
+//
+// Example:
+//   result = mutex.try_lock("resource", lambda() =>
+//       # Try to access shared resource
+//       return process_resource()
+//   )
+//
+//   if not result.success then
+//       print("Resource busy, skipping")
+//   end_if
+//
+fn try_lock(key: string, critical_section: fn() -> numeric) -> lock_result
+    // Implementation note: For MVP, try_lock behaves like with_lock
+    // Full non-blocking implementation requires mlp_mutex_trylock() in C runtime
+    // TODO: Add mlp_mutex_trylock() for true non-blocking behavior
+    
+    // For now, just delegate to with_lock
+    return with_lock(key, critical_section)
+end_fn
+
+// Execute multiple critical sections sequentially with same lock
+// Useful for compound operations that must be atomic together
+//
+// ✅ Functional pattern: one lock for multiple operations
+//
+// Args:
+//   key: Unique mutex identifier
+//   sections: List of lambda functions to execute in order
+//
+// Returns:
+//   List of lock_result, one per section
+//
+// Example:
+//   list operations = [
+//       lambda() => (balance = balance - 100, balance),
+//       lambda() => (log("Withdrew 100"), 0),
+//       lambda() => (balance = balance + 50, balance)
+//   ]
+//
+//   list results = mutex.with_lock_multi("account", operations)
+//
+fn with_lock_multi(key: string, sections: list) -> list
+    list results = []
+    
+    // Create mutex once for all operations
+    numeric handle = mlp_mutex_create(key)
+    
+    if handle == MUTEX_ERROR_CREATE then
+        lock_result error = {
+            success: false,
+            return_value: 0,
+            error_message: "Failed to create mutex"
+        }
+        list.append(results, error)
+        return results
+    end_if
+    
+    // Lock once
+    numeric lock_status = mlp_mutex_lock(handle)
+    if lock_status == MUTEX_ERROR_LOCK then
+        mlp_mutex_destroy(handle)
+        lock_result error = {
+            success: false,
+            return_value: 0,
+            error_message: "Failed to acquire lock"
+        }
+        list.append(results, error)
+        return results
+    end_if
+    
+    // Execute all sections while holding lock
+    for i = 0 to list.length(sections) - 1 do
+        fn section = sections[i]
+        numeric result_val = section()
+        
+        lock_result section_result = {
+            success: true,
+            return_value: result_val,
+            error_message: ""
+        }
+        list.append(results, section_result)
+    end_for
+    
+    // Unlock and destroy
+    mlp_mutex_unlock(handle)
+    mlp_mutex_destroy(handle)
+    
+    return results
+end_fn
+
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
+
+// Check if lock operation succeeded
+fn is_success(result: lock_result) -> boolean
+    return result.success
+end_fn
+
+// Check if lock operation failed
+fn is_error(result: lock_result) -> boolean
+    return not result.success
+end_fn
+
+// Get return value from result, or default on error
+fn get_or_default(result: lock_result, default_value: numeric) -> numeric
+    if result.success then
+        return result.return_value
+    else
+        return default_value
+    end_if
+end_fn
+
+// ============================================
+// USAGE EXAMPLES (in comments)
+// ============================================
+
+// Example 1: Protecting shared counter
+// -------------------------------------
+// numeric shared_counter = 0
+//
+// fn increment_counter() -> numeric
+//     result = mutex.with_lock("counter", lambda() =>
+//         shared_counter = shared_counter + 1
+//         return shared_counter
+//     )
+//     return result.return_value
+// end_fn
+//
+// # Multiple threads can safely call increment_counter()
+// # Each call: mutex born → locked → incremented → unlocked → died
+
+// Example 2: Protecting bank account
+// -----------------------------------
+// numeric account_balance = 1000
+//
+// fn withdraw(amount: numeric) -> boolean
+//     result = mutex.with_lock("account", lambda() =>
+//         if account_balance >= amount then
+//             account_balance = account_balance - amount
+//             return 1  # Success
+//         else
+//             return 0  # Insufficient funds
+//         end_if
+//     )
+//     return result.return_value == 1
+// end_fn
+
+// Example 3: Try lock pattern (non-blocking)
+// -------------------------------------------
+// fn try_process_job() -> boolean
+//     result = mutex.try_lock("job_processor", lambda() =>
+//         # Process job
+//         return 1
+//     )
+//
+//     if not result.success then
+//         print("Another worker is processing, skipping")
+//         return false
+//     end_if
+//     return true
+// end_fn
+
+// Example 4: Multiple operations under one lock
+// ----------------------------------------------
+// numeric inventory = 100
+// numeric revenue = 0
+//
+// list operations = [
+//     lambda() => (inventory = inventory - 5, inventory),
+//     lambda() => (revenue = revenue + 50, revenue),
+//     lambda() => (print("Sale recorded"), 0)
+// ]
+//
+// list results = mutex.with_lock_multi("store", operations)
+// # All operations execute atomically
