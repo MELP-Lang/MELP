@@ -1,0 +1,321 @@
+// ============================================
+// MELP STANDARD LIBRARY - Time/Date Operations
+// ============================================
+// Time and date operations with timezone support
+// Module: stdlib/time/time.mlp
+// Runtime: MELP/runtime/time/time.c
+//
+// ⚠️ DESIGN PRINCIPLE (6th FUNDAMENTAL):
+// MODÜL=ŞABLON: Each time operation is independent
+// Pattern: query → calculate → return value
+// NO persistent state! Each call is a complete lifecycle.
+
+// ============================================
+// TIME TYPES & CONSTANTS
+// ============================================
+
+// Unix timestamp (seconds since 1970-01-01 00:00:00 UTC)
+type timestamp = numeric
+
+// Time structure representing broken-down time
+type datetime = {
+    year: numeric,       // Year (e.g., 2026)
+    month: numeric,      // Month (1-12)
+    day: numeric,        // Day (1-31)
+    hour: numeric,       // Hour (0-23)
+    minute: numeric,     // Minute (0-59)
+    second: numeric,     // Second (0-59)
+    weekday: numeric,    // Day of week (0=Sunday, 6=Saturday)
+    yearday: numeric,    // Day of year (1-366)
+    is_dst: boolean      // Daylight Saving Time flag
+}
+
+// Duration in various units
+type duration = {
+    seconds: numeric,
+    milliseconds: numeric,
+    microseconds: numeric,
+    nanoseconds: numeric
+}
+
+// Timezone offset in seconds from UTC
+type timezone_offset = numeric
+
+// ============================================
+// EXTERNAL C RUNTIME FUNCTIONS
+// ============================================
+
+// Get current Unix timestamp (seconds since epoch)
+external fn mlp_time_now() -> numeric
+
+// Get current timestamp in milliseconds
+external fn mlp_time_now_millis() -> numeric
+
+// Get current timestamp in microseconds
+external fn mlp_time_now_micros() -> numeric
+
+// Sleep for specified seconds
+external fn mlp_time_sleep(seconds: numeric) -> numeric
+
+// Sleep for specified milliseconds
+external fn mlp_time_sleep_millis(milliseconds: numeric) -> numeric
+
+// Convert timestamp to datetime struct (UTC)
+external fn mlp_time_to_datetime_utc(timestamp: numeric) -> datetime
+
+// Convert timestamp to datetime struct (local timezone)
+external fn mlp_time_to_datetime_local(timestamp: numeric) -> datetime
+
+// Convert datetime struct to timestamp
+external fn mlp_time_from_datetime(dt: datetime) -> numeric
+
+// Format datetime as string (ISO 8601: YYYY-MM-DD HH:MM:SS)
+external fn mlp_time_format_iso(timestamp: numeric) -> string
+
+// Format datetime with custom format string
+external fn mlp_time_format(timestamp: numeric, format: string) -> string
+
+// Parse ISO 8601 datetime string to timestamp
+external fn mlp_time_parse_iso(datetime_str: string) -> numeric
+
+// Parse datetime string with custom format
+external fn mlp_time_parse(datetime_str: string, format: string) -> numeric
+
+// Get local timezone offset in seconds from UTC
+external fn mlp_time_get_timezone_offset() -> numeric
+
+// ============================================
+// PUBLIC API - CLOCK OPERATIONS
+// ============================================
+
+// Get current timestamp in seconds
+// Returns: Unix timestamp (seconds since epoch)
+// Example: 1704067200 (2024-01-01 00:00:00 UTC)
+fn now() -> numeric {
+    return mlp_time_now()
+}
+
+// Get current timestamp in milliseconds
+// Returns: Milliseconds since epoch
+// Example: 1704067200000
+fn now_millis() -> numeric {
+    return mlp_time_now_millis()
+}
+
+// Get current timestamp in microseconds
+// Returns: Microseconds since epoch
+// Example: 1704067200000000
+fn now_micros() -> numeric {
+    return mlp_time_now_micros()
+}
+
+// Sleep for specified duration in seconds
+// Args: seconds - Duration to sleep
+// Example: time.sleep(2)  // Sleep for 2 seconds
+fn sleep(seconds: numeric) -> numeric {
+    return mlp_time_sleep(seconds)
+}
+
+// Sleep for specified duration in milliseconds
+// Args: milliseconds - Duration to sleep
+// Example: time.sleep_millis(500)  // Sleep for 500ms
+fn sleep_millis(milliseconds: numeric) -> numeric {
+    return mlp_time_sleep_millis(milliseconds)
+}
+
+// ============================================
+// PUBLIC API - DATETIME CONVERSION
+// ============================================
+
+// Convert timestamp to datetime struct (UTC timezone)
+// Args: timestamp - Unix timestamp in seconds
+// Returns: datetime struct with UTC time
+// Example: dt = time.to_datetime_utc(1704067200)
+fn to_datetime_utc(timestamp: numeric) -> datetime {
+    return mlp_time_to_datetime_utc(timestamp)
+}
+
+// Convert timestamp to datetime struct (local timezone)
+// Args: timestamp - Unix timestamp in seconds
+// Returns: datetime struct with local time
+// Example: dt = time.to_datetime_local(1704067200)
+fn to_datetime_local(timestamp: numeric) -> datetime {
+    return mlp_time_to_datetime_local(timestamp)
+}
+
+// Convert datetime struct to Unix timestamp
+// Args: dt - datetime struct
+// Returns: Unix timestamp in seconds
+// Example: ts = time.from_datetime(dt)
+fn from_datetime(dt: datetime) -> numeric {
+    return mlp_time_from_datetime(dt)
+}
+
+// ============================================
+// PUBLIC API - DATE FORMATTING
+// ============================================
+
+// Format timestamp as ISO 8601 string (YYYY-MM-DD HH:MM:SS)
+// Args: timestamp - Unix timestamp in seconds
+// Returns: ISO 8601 formatted string
+// Example: "2026-01-01 12:30:45"
+fn format_iso(timestamp: numeric) -> string {
+    return mlp_time_format_iso(timestamp)
+}
+
+// Format timestamp with custom format string
+// Args: 
+//   timestamp - Unix timestamp in seconds
+//   format - Format string (strftime compatible)
+//     %Y = 4-digit year (2026)
+//     %m = month (01-12)
+//     %d = day (01-31)
+//     %H = hour (00-23)
+//     %M = minute (00-59)
+//     %S = second (00-59)
+//     %A = weekday name (Monday)
+//     %B = month name (January)
+// Returns: Formatted string
+// Example: time.format(ts, "%Y-%m-%d") → "2026-01-01"
+fn format(timestamp: numeric, format_str: string) -> string {
+    return mlp_time_format(timestamp, format_str)
+}
+
+// ============================================
+// PUBLIC API - DATE PARSING
+// ============================================
+
+// Parse ISO 8601 datetime string to timestamp
+// Args: datetime_str - ISO 8601 string (YYYY-MM-DD HH:MM:SS)
+// Returns: Unix timestamp in seconds, or -1 on error
+// Example: ts = time.parse_iso("2026-01-01 12:30:45")
+fn parse_iso(datetime_str: string) -> numeric {
+    return mlp_time_parse_iso(datetime_str)
+}
+
+// Parse datetime string with custom format
+// Args:
+//   datetime_str - Date/time string to parse
+//   format_str - Format string (strptime compatible)
+// Returns: Unix timestamp in seconds, or -1 on error
+// Example: ts = time.parse("01/01/2026", "%m/%d/%Y")
+fn parse(datetime_str: string, format_str: string) -> numeric {
+    return mlp_time_parse(datetime_str, format_str)
+}
+
+// ============================================
+// PUBLIC API - TIMEZONE OPERATIONS
+// ============================================
+
+// Get local timezone offset from UTC in seconds
+// Returns: Offset in seconds (e.g., 10800 for UTC+3)
+// Example: offset = time.get_timezone_offset()
+fn get_timezone_offset() -> numeric {
+    return mlp_time_get_timezone_offset()
+}
+
+// Convert UTC timestamp to local timestamp
+// Args: utc_timestamp - Unix timestamp in UTC
+// Returns: Adjusted timestamp for local timezone
+// Example: local = time.utc_to_local(utc_ts)
+fn utc_to_local(utc_timestamp: numeric) -> numeric {
+    numeric offset = get_timezone_offset()
+    return utc_timestamp + offset
+}
+
+// Convert local timestamp to UTC timestamp
+// Args: local_timestamp - Unix timestamp in local timezone
+// Returns: UTC timestamp
+// Example: utc = time.local_to_utc(local_ts)
+fn local_to_utc(local_timestamp: numeric) -> numeric {
+    numeric offset = get_timezone_offset()
+    return local_timestamp - offset
+}
+
+// ============================================
+// PUBLIC API - UTILITY FUNCTIONS
+// ============================================
+
+// Calculate difference between two timestamps
+// Args: 
+//   start - Start timestamp
+//   end - End timestamp
+// Returns: Duration in seconds (end - start)
+// Example: elapsed = time.diff(start_time, end_time)
+fn diff(start: numeric, end: numeric) -> numeric {
+    return end - start
+}
+
+// Check if a year is a leap year
+// Args: year - Year to check
+// Returns: true if leap year, false otherwise
+// Example: is_leap = time.is_leap_year(2024)  // true
+fn is_leap_year(year: numeric) -> boolean {
+    if year % 400 == 0 {
+        return true
+    }
+    if year % 100 == 0 {
+        return false
+    }
+    if year % 4 == 0 {
+        return true
+    }
+    return false
+}
+
+// Get number of days in a month
+// Args:
+//   year - Year
+//   month - Month (1-12)
+// Returns: Number of days in the month
+// Example: days = time.days_in_month(2026, 2)  // 28
+fn days_in_month(year: numeric, month: numeric) -> numeric {
+    if month == 2 {
+        if is_leap_year(year) {
+            return 29
+        }
+        return 28
+    }
+    if month == 4 or month == 6 or month == 9 or month == 11 {
+        return 30
+    }
+    return 31
+}
+
+// ============================================
+// USAGE EXAMPLES (COMMENTED OUT)
+// ============================================
+
+// Example 1: Get current time
+// import time from "stdlib/time/time.mlp"
+// numeric current = time.now()
+// string formatted = time.format_iso(current)
+// print(formatted)  // "2026-01-01 12:30:45"
+
+// Example 2: Sleep
+// time.sleep(2)  // Sleep for 2 seconds
+// time.sleep_millis(500)  // Sleep for 500 milliseconds
+
+// Example 3: Datetime conversion
+// numeric ts = time.now()
+// datetime dt = time.to_datetime_utc(ts)
+// print("Year: " + string(dt.year))
+// print("Month: " + string(dt.month))
+
+// Example 4: Format custom date
+// numeric ts = time.parse_iso("2026-01-01 00:00:00")
+// string custom = time.format(ts, "%A, %B %d, %Y")
+// print(custom)  // "Wednesday, January 01, 2026"
+
+// Example 5: Calculate duration
+// numeric start = time.now()
+// time.sleep(1)
+// numeric end = time.now()
+// numeric elapsed = time.diff(start, end)
+// print("Elapsed: " + string(elapsed) + " seconds")
+
+// Example 6: Timezone conversion
+// numeric utc_now = time.now()
+// numeric local_now = time.utc_to_local(utc_now)
+// print("UTC: " + time.format_iso(utc_now))
+// print("Local: " + time.format_iso(local_now))
