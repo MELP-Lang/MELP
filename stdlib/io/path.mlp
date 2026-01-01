@@ -1,0 +1,263 @@
+// ============================================
+// MELP STANDARD LIBRARY - Path Utilities
+// ============================================
+// Path manipulation for module loading and file system operations
+// Module: stdlib/io/path.mlp
+// Runtime: MELP/runtime/io/path.c
+//
+// ⚠️ DESIGN PRINCIPLE (6th FUNDAMENTAL):
+// MODÜL=ŞABLON: Each path operation is independent
+// Pattern: input → process → output → return
+// NO persistent state! All operations are pure functions.
+
+// ============================================
+// EXTERNAL C RUNTIME FUNCTIONS
+// ============================================
+
+// Path joining
+external fn mlp_path_join(part1: string, part2: string) -> string
+external fn mlp_path_join3(part1: string, part2: string, part3: string) -> string
+
+// Path normalization
+external fn mlp_path_normalize(path: string) -> string
+
+// Absolute path
+external fn mlp_path_absolute(path: string) -> string
+
+// Path components
+external fn mlp_path_dirname(path: string) -> string
+external fn mlp_path_basename(path: string) -> string
+external fn mlp_path_extension(path: string) -> string
+
+// Path checks
+external fn mlp_path_is_absolute(path: string) -> numeric
+external fn mlp_path_exists(path: string) -> numeric
+external fn mlp_path_is_directory(path: string) -> numeric
+external fn mlp_path_is_file(path: string) -> numeric
+
+// Directory operations
+external fn mlp_list_directory(path: string, count_ptr: numeric) -> numeric
+external fn mlp_free_directory_listing(entries: numeric, count: numeric) -> void
+
+// File metadata
+external fn mlp_file_stat(path: string, info_ptr: numeric) -> numeric
+
+// ============================================
+// HIGH-LEVEL FUNCTIONAL ŞABLON
+// ============================================
+
+// Join path components with platform separator
+// ✅ CORRECT USAGE (Functional Pattern - Module Loading):
+//    string module_path = path.join("stdlib", "io", "file.mlp")
+//    // Returns: "stdlib/io/file.mlp"
+//
+// Example (import resolution):
+//    string base_dir = "stdlib"
+//    string module_name = "json"
+//    string file_name = "json.mlp"
+//    string full_path = path.join3(base_dir, module_name, file_name)
+//    // Returns: "stdlib/json/json.mlp"
+function join(string part1, string part2) -> string
+    return mlp_path_join(part1, part2)
+end_function
+
+function join3(string part1, string part2, string part3) -> string
+    return mlp_path_join3(part1, part2, part3)
+end_function
+
+// Normalize path (resolve . and .., remove duplicate separators)
+// ✅ CORRECT USAGE (Import Resolution):
+//    string normalized = path.normalize("stdlib//io/../io/./file.mlp")
+//    // Returns: "stdlib/io/file.mlp"
+//
+// Critical for module discovery - ensures canonical paths for caching
+function normalize(string path_str) -> string
+    return mlp_path_normalize(path_str)
+end_function
+
+// Get absolute path
+// ✅ CORRECT USAGE (Module Cache Key):
+//    string abs_path = path.absolute("../stdlib/io/file.mlp")
+//    // Returns: "/home/user/project/stdlib/io/file.mlp"
+//
+// Used for module cache keys to avoid duplicate loading
+function absolute(string path_str) -> string
+    return mlp_path_absolute(path_str)
+end_function
+
+// Get directory name (parent directory)
+// ✅ CORRECT USAGE (Relative Import Resolution):
+//    string dir = path.dirname("stdlib/io/file.mlp")
+//    // Returns: "stdlib/io"
+//
+// Used for resolving relative imports from current module's directory
+function dirname(string path_str) -> string
+    return mlp_path_dirname(path_str)
+end_function
+
+// Get base name (filename)
+// ✅ CORRECT USAGE (Module Name Extraction):
+//    string name = path.basename("stdlib/io/file.mlp")
+//    // Returns: "file.mlp"
+function basename(string path_str) -> string
+    return mlp_path_basename(path_str)
+end_function
+
+// Get file extension
+// ✅ CORRECT USAGE (File Type Check):
+//    string ext = path.extension("file.mlp")
+//    // Returns: ".mlp"
+//    if ext == ".mlp" then
+//        // Process MLP module
+//    end_if
+function extension(string path_str) -> string
+    return mlp_path_extension(path_str)
+end_function
+
+// Check if path is absolute
+// ✅ CORRECT USAGE (Import Type Detection):
+//    if path.is_absolute(import_path) then
+//        // Absolute import: "/usr/local/lib/mlp/module.mlp"
+//    else
+//        // Relative import: "./local_module.mlp"
+//    end_if
+function is_absolute(string path_str) -> boolean
+    numeric result = mlp_path_is_absolute(path_str)
+    return result != 0
+end_function
+
+// Check if path exists (file or directory)
+// ✅ CORRECT USAGE (Module Existence Check):
+//    string module_path = path.join("stdlib", "io", "file.mlp")
+//    if path.exists(module_path) then
+//        // Load module
+//    else
+//        // Module not found error
+//    end_if
+function exists(string path_str) -> boolean
+    numeric result = mlp_path_exists(path_str)
+    return result != 0
+end_function
+
+// Check if path is a directory
+// ✅ CORRECT USAGE (Directory vs File):
+//    if path.is_directory("stdlib/io") then
+//        // List modules in directory
+//    end_if
+function is_directory(string path_str) -> boolean
+    numeric result = mlp_path_is_directory(path_str)
+    return result != 0
+end_function
+
+// Check if path is a regular file
+// ✅ CORRECT USAGE (File Validation):
+//    if path.is_file("stdlib/io/file.mlp") then
+//        // Read and compile module
+//    end_if
+function is_file(string path_str) -> boolean
+    numeric result = mlp_path_is_file(path_str)
+    return result != 0
+end_function
+
+// ============================================
+// MODULE METADATA HELPERS
+// ============================================
+
+// Check if path has .mlp extension
+// ✅ CORRECT USAGE (Module Discovery):
+//    list files = file.list_dir("stdlib/")
+//    for each item in files do
+//        if path.is_mlp_module(item) then
+//            yazdir("Found module: " + item)
+//        end_if
+//    end_for
+function is_mlp_module(string path_str) -> boolean
+    string ext = extension(path_str)
+    return ext == ".mlp"
+end_function
+
+// Get module name from path (without extension)
+// ✅ CORRECT USAGE (Module Name Extraction):
+//    string mod_name = path.module_name("stdlib/io/file.mlp")
+//    // Returns: "file"
+function module_name(string path_str) -> string
+    string base = basename(path_str)
+    string ext = extension(base)
+    
+    if ext == "" then
+        return base
+    end_if
+    
+    // Remove extension
+    numeric ext_len = string_length(ext)
+    numeric base_len = string_length(base)
+    numeric name_len = base_len - ext_len
+    
+    // TODO: Need string_substring function
+    // For now, return basename
+    return base
+end_function
+
+// ============================================
+// PATH CONSTANTS
+// ============================================
+
+// Platform-specific path separator
+// Note: In actual use, C runtime handles this automatically
+string PATH_SEPARATOR = "/"
+
+// ============================================
+// USAGE EXAMPLES (Documentation Only)
+// ============================================
+
+// Example 1: Module Loading Pattern
+// ----------------------------------
+// string base_path = "stdlib"
+// string module_dir = "io"
+// string module_file = "file.mlp"
+//
+// string full_path = path.join3(base_path, module_dir, module_file)
+// // "stdlib/io/file.mlp"
+//
+// if path.exists(full_path) and path.is_mlp_module(full_path) then
+//     string abs_path = path.absolute(full_path)
+//     // Use abs_path as cache key
+//     string source = file.read(abs_path)
+//     // Compile module...
+// end_if
+
+// Example 2: Import Resolution
+// -----------------------------
+// string current_module = "/home/user/project/stdlib/io/file.mlp"
+// string import_path = "../json/json.mlp"
+//
+// string current_dir = path.dirname(current_module)
+// // "/home/user/project/stdlib/io"
+//
+// string joined = path.join(current_dir, import_path)
+// // "/home/user/project/stdlib/io/../json/json.mlp"
+//
+// string normalized = path.normalize(joined)
+// // "/home/user/project/stdlib/json/json.mlp"
+//
+// string abs_path = path.absolute(normalized)
+// // Canonical path for module cache
+
+// Example 3: Module Discovery
+// ----------------------------
+// list modules = file.list_dir("stdlib/")
+// for each entry in modules do
+//     string full_path = path.join("stdlib", entry)
+//     
+//     if path.is_directory(full_path) then
+//         // Recursively search subdirectory
+//         list sub_modules = file.list_dir(full_path)
+//         for each sub in sub_modules do
+//             if path.is_mlp_module(sub) then
+//                 yazdir("Found: " + path.join(full_path, sub))
+//             end_if
+//         end_for
+//     elif path.is_mlp_module(entry) then
+//         yazdir("Found: " + full_path)
+//     end_if
+// end_for

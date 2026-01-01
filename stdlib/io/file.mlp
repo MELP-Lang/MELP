@@ -1,0 +1,364 @@
+// ============================================
+// MELP STANDARD LIBRARY - File I/O
+// ============================================
+// File operations for reading, writing, and metadata
+// Module: stdlib/io/file.mlp
+// Runtime: MELP/runtime/file_io.c, MELP/runtime/io/path.c
+//
+// ⚠️ DESIGN PRINCIPLE (6th FUNDAMENTAL):
+// MODÜL=ŞABLON: Each file operation is independent
+// Pattern: path → open → read/write → close → return
+// NO persistent file handles! Each operation is atomic.
+
+// Import optional for error handling
+import optional from "stdlib/core/optional.mlp"
+
+// ============================================
+// FILE INFO TYPE
+// ============================================
+
+// File metadata structure (matches C mlp_file_info)
+type file_info = {
+    size: numeric,           // File size in bytes
+    modified_time: numeric,  // Last modified time (Unix timestamp)
+    created_time: numeric,   // Creation time (Unix timestamp)
+    is_directory: boolean,   // Is directory?
+    is_file: boolean,        // Is regular file?
+    is_readable: boolean,    // Is readable?
+    is_writable: boolean     // Is writable?
+}
+
+// ============================================
+// EXTERNAL C RUNTIME FUNCTIONS
+// ============================================
+
+// Basic file operations (from file_io.c)
+external fn mlp_read_file(path: string) -> string
+external fn mlp_write_file(path: string, content: string) -> numeric
+external fn mlp_append_file(path: string, content: string) -> numeric
+external fn mlp_file_exists(path: string) -> numeric
+external fn mlp_file_size(path: string) -> numeric
+
+// Advanced operations (from io/path.c)
+external fn mlp_list_directory(path: string, count_ptr: numeric) -> numeric
+external fn mlp_free_directory_listing(entries: numeric, count: numeric) -> void
+external fn mlp_file_stat(path: string, info_ptr: numeric) -> numeric
+
+// ============================================
+// HIGH-LEVEL FUNCTIONAL ŞABLON
+// ============================================
+
+// Read entire file into string
+// ✅ CORRECT USAGE (Module Loading Pattern):
+//    optional content = file.read("stdlib/io/file.mlp")
+//    if content.is_some() then
+//        string source_code = content.unwrap()
+//        // Parse and compile...
+//    else
+//        // File not found or read error
+//    end_if
+//
+// Pattern: path → open → read → close → return string
+// File lifecycle: born → read → died (no persistent handle)
+function read(string path_str) -> optional
+    string content = mlp_read_file(path_str)
+    
+    // Check if read succeeded (NULL returns as empty string)
+    if content == "" then
+        // Try to check if file actually exists
+        numeric exists = mlp_file_exists(path_str)
+        if exists == 0 then
+            return optional_none()
+        end_if
+        // File exists but is empty - valid case
+        return optional_some(content)
+    end_if
+    
+    return optional_some(content)
+end_function
+
+// Write content to file (overwrites existing)
+// ✅ CORRECT USAGE (Module Cache Write):
+//    boolean success = file.write("cache/module.mlp.cache", compiled_data)
+//    if success then
+//        yazdir("Cache written")
+//    end_if
+//
+// Pattern: path + content → open → write → close → return success
+function write(string path_str, string content) -> boolean
+    numeric result = mlp_write_file(path_str, content)
+    return result == 0
+end_function
+
+// Append content to file
+// ✅ CORRECT USAGE (Log File):
+//    file.append("compiler.log", "Compiled module: " + module_name + "\n")
+function append(string path_str, string content) -> boolean
+    numeric result = mlp_append_file(path_str, content)
+    return result == 0
+end_function
+
+// Check if file exists
+// ✅ CORRECT USAGE (Module Existence Check):
+//    if file.exists("stdlib/io/file.mlp") then
+//        // Load module
+//    end_if
+function exists(string path_str) -> boolean
+    numeric result = mlp_file_exists(path_str)
+    return result != 0
+end_function
+
+// Get file size in bytes
+// ✅ CORRECT USAGE (Memory Allocation Planning):
+//    numeric size = file.size("data/large_file.json")
+//    if size > 10000000 then
+//        // Use streaming parser for files > 10MB
+//    end_if
+function size(string path_str) -> numeric
+    return mlp_file_size(path_str)
+end_function
+
+// Get file metadata
+// ✅ CORRECT USAGE (Cache Invalidation):
+//    optional info_opt = file.stat("stdlib/math.mlp")
+//    if info_opt.is_some() then
+//        file_info info = info_opt.unwrap()
+//        if info.modified_time > cache_time then
+//            // Recompile module
+//        end_if
+//    end_if
+//
+// Note: This uses a workaround since we can't directly pass struct pointers
+// In production, this should be implemented in C runtime wrapper
+function stat(string path_str) -> optional
+    // TODO: Implement struct pointer passing
+    // For now, return None - will be implemented in Stage2
+    return optional_none()
+end_function
+
+// ============================================
+// DIRECTORY OPERATIONS
+// ============================================
+
+// List directory contents
+// ✅ CORRECT USAGE (Module Discovery):
+//    optional entries_opt = file.list_dir("stdlib/")
+//    if entries_opt.is_some() then
+//        list entries = entries_opt.unwrap()
+//        for each entry in entries do
+//            yazdir("Found: " + entry)
+//        end_for
+//    end_if
+//
+// Returns: Optional<list<string>> - list of filenames (not full paths)
+//
+// Note: Filters out "." and ".." automatically
+function list_dir(string path_str) -> optional
+    // TODO: Implement directory listing with proper list type
+    // This requires:
+    // 1. C runtime to return array of strings
+    // 2. MLP to convert to list type
+    // 3. Memory management for array cleanup
+    //
+    // For Stage2 implementation, this will be:
+    // numeric count = 0
+    // numeric entries_ptr = mlp_list_directory(path_str, &count)
+    // if entries_ptr == 0 then return optional_none()
+    // 
+    // list result = list_create()
+    // for i = 0 to count - 1 do
+    //     string entry = C_get_string_from_array(entries_ptr, i)
+    //     list_append(result, entry)
+    // end_for
+    // mlp_free_directory_listing(entries_ptr, count)
+    // return optional_some(result)
+    
+    return optional_none()  // Placeholder for Stage2
+end_function
+
+// ============================================
+// CONVENIENCE FUNCTIONS
+// ============================================
+
+// Read file with default content on error
+// ✅ CORRECT USAGE (Config File):
+//    string config = file.read_or_default("config.json", "{}")
+function read_or_default(string path_str, string default_val) -> string
+    optional content = read(path_str)
+    if content.is_some() then
+        return content.unwrap()
+    end_if
+    return default_val
+end_function
+
+// Check if path is readable
+// ✅ CORRECT USAGE (Permission Check):
+//    if file.is_readable("private/secrets.txt") then
+//        // Access granted
+//    end_if
+function is_readable(string path_str) -> boolean
+    // Try to read first byte
+    optional content = read(path_str)
+    return content.is_some()
+end_function
+
+// ============================================
+// BINARY FILE OPERATIONS (Future)
+// ============================================
+
+// Read binary file as byte array
+// TODO: Implement when byte array type is available
+// function read_bytes(string path_str) -> optional
+//     return optional_none()
+// end_function
+
+// Write binary file from byte array
+// TODO: Implement when byte array type is available
+// function write_bytes(string path_str, list bytes) -> boolean
+//     return false
+// end_function
+
+// ============================================
+// USAGE EXAMPLES (Documentation Only)
+// ============================================
+
+// Example 1: Module Loading (Critical for Import System)
+// -------------------------------------------------------
+// string module_path = "stdlib/io/file.mlp"
+//
+// // Check if module exists
+// if not file.exists(module_path) then
+//     yazdir("Module not found: " + module_path)
+//     exit(1)
+// end_if
+//
+// // Read module source
+// optional source_opt = file.read(module_path)
+// if not source_opt.is_some() then
+//     yazdir("Failed to read module: " + module_path)
+//     exit(1)
+// end_if
+//
+// string source = source_opt.unwrap()
+// // Parse and compile source...
+
+// Example 2: Module Cache Management
+// -----------------------------------
+// string cache_path = "cache/stdlib_io_file.mlp.cache"
+//
+// // Check if cache exists and is valid
+// if file.exists(cache_path) then
+//     optional cache_info = file.stat(cache_path)
+//     optional source_info = file.stat("stdlib/io/file.mlp")
+//     
+//     if cache_info.is_some() and source_info.is_some() then
+//         file_info cache = cache_info.unwrap()
+//         file_info source = source_info.unwrap()
+//         
+//         if cache.modified_time >= source.modified_time then
+//             // Cache is valid, load compiled module
+//             optional cached = file.read(cache_path)
+//             // ...
+//         else
+//             // Cache is stale, recompile
+//         end_if
+//     end_if
+// else
+//     // No cache, compile from source
+// end_if
+
+// Example 3: Module Discovery
+// ----------------------------
+// optional entries_opt = file.list_dir("stdlib/")
+// if entries_opt.is_some() then
+//     list entries = entries_opt.unwrap()
+//     
+//     for each entry in entries do
+//         string full_path = path.join("stdlib", entry)
+//         
+//         if path.is_directory(full_path) then
+//             // Recursively search for modules
+//             optional sub_entries = file.list_dir(full_path)
+//             // Process subdirectory...
+//         elif path.extension(entry) == ".mlp" then
+//             yazdir("Found module: " + entry)
+//             // Load module...
+//         end_if
+//     end_for
+// end_if
+
+// Example 4: Log File Pattern
+// ----------------------------
+// function log_message(string message) -> void
+//     string timestamp = time.now_string()  // Future: time module
+//     string log_entry = timestamp + " - " + message + "\n"
+//     
+//     boolean success = file.append("compiler.log", log_entry)
+//     if not success then
+//         // Fallback to stdout
+//         yazdir("[LOG ERROR] " + message)
+//     end_if
+// end_function
+
+// Example 5: Config File with Defaults
+// -------------------------------------
+// string config_json = file.read_or_default("config.json", 
+//     '{"module_path": "stdlib", "cache_enabled": true}')
+//
+// parse_result config = json.parse(config_json)
+// if config.success then
+//     json_object obj = json.get_object(config.value)
+//     string module_path = json.object_get_string(obj, "module_path", "stdlib")
+//     boolean cache_enabled = json.object_get_boolean(obj, "cache_enabled", true)
+//     // Use configuration...
+// end_if
+
+// ============================================
+// STAGE2 IMPLEMENTATION NOTES
+// ============================================
+
+// The following features need Stage2 compiler support:
+//
+// 1. Directory Listing:
+//    - Requires proper list<string> type handling
+//    - C runtime returns char**, need to convert to MLP list
+//    - Memory management for C array cleanup
+//
+// 2. File Metadata:
+//    - Requires struct pointer passing to C
+//    - Or C runtime wrapper that returns struct by value
+//    - Current implementation returns optional_none as placeholder
+//
+// 3. Binary Operations:
+//    - Requires byte array / list<numeric> type
+//    - For compiled module cache in Stage2
+//
+// 4. Async Operations:
+//    - Future: stdlib/io/async_file.mlp
+//    - Non-blocking file I/O for large files
+//    - Requires threading/async runtime support
+//
+// Current Implementation (Stage1):
+// - ✅ read() - working
+// - ✅ write() - working
+// - ✅ append() - working
+// - ✅ exists() - working
+// - ✅ size() - working
+// - ⏳ stat() - placeholder (needs struct passing)
+// - ⏳ list_dir() - placeholder (needs list type)
+// - ⏳ binary operations - future
+
+// ============================================
+// MODULE EXPORTS
+// ============================================
+
+// This module exports the following functions:
+// - read(path) -> optional<string>
+// - write(path, content) -> boolean
+// - append(path, content) -> boolean
+// - exists(path) -> boolean
+// - size(path) -> numeric
+// - stat(path) -> optional<file_info>  [Stage2]
+// - list_dir(path) -> optional<list<string>>  [Stage2]
+// - read_or_default(path, default) -> string
+// - is_readable(path) -> boolean
