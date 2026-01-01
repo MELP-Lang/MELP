@@ -1,0 +1,501 @@
+-- lang: en-US
+-- syntax: mlp
+-- MLP Codegen Module - Stage2 Self-Hosting Compiler
+-- Optimized from p7 codegen.mlp (810 → <600 lines)
+-- 6 Esas Compliant: MODULAR (<600), STATELESS, STRUCT+FUNC
+-- Target: C code generation (GCC backend)
+
+import "lexer.mlp"
+import "parser.mlp"
+
+-- =============================================================================
+-- CODEGEN STATE
+-- =============================================================================
+
+struct CodegenState then
+    String output
+    Numeric indent_level
+    Numeric temp_counter
+    Numeric label_counter
+    list string_literals
+end_struct
+
+-- =============================================================================
+-- FACTORY FUNCTIONS
+-- =============================================================================
+
+function make_codegen_state()
+    CodegenState state
+    state.output = ""
+    state.indent_level = 0
+    state.temp_counter = 0
+    state.label_counter = 0
+    state.string_literals = list()
+    return state
+end_function
+
+-- =============================================================================
+-- HELPER FUNCTIONS
+-- =============================================================================
+
+function indent_string(level)
+    String result = ""
+    Numeric i = 0
+    while i < level
+        result = result + "    "
+        i = i + 1
+    end
+    return result
+end_function
+
+function emit_line(state, line)
+    String indented = indent_string(state.indent_level) + line + "\n"
+    state.output = state.output + indented
+    return state
+end_function
+
+function emit_raw(state, text)
+    state.output = state.output + text
+    return state
+end_function
+
+function generate_temp_var(state)
+    String temp = "_t" + mlp_numeric_to_string(state.temp_counter)
+    state.temp_counter = state.temp_counter + 1
+    return temp
+end_function
+
+function generate_label(state, prefix)
+    String label = prefix + "_" + mlp_numeric_to_string(state.label_counter)
+    state.label_counter = state.label_counter + 1
+    return label
+end_function
+
+function register_string_literal(state, str_value)
+    String label = "str_" + mlp_numeric_to_string(mlp_list_length(state.string_literals))
+    mlp_list_add(state.string_literals, str_value)
+    return label
+end_function
+
+-- =============================================================================
+-- TYPE CONVERSION
+-- =============================================================================
+
+function mlp_type_to_c_type(mlp_type)
+    if mlp_string_equals(mlp_type, "Numeric") then
+        return "int64_t"
+    end_if
+    if mlp_string_equals(mlp_type, "String") then
+        return "char*"
+    end_if
+    if mlp_string_equals(mlp_type, "i32") then
+        return "int32_t"
+    end_if
+    if mlp_string_equals(mlp_type, "i64") then
+        return "int64_t"
+    end_if
+    if mlp_string_equals(mlp_type, "f64") then
+        return "double"
+    end_if
+    if mlp_string_equals(mlp_type, "list") then
+        return "void*"
+    end_if
+    return "void*"
+end_function
+
+-- =============================================================================
+-- EXPRESSION CODEGEN
+-- =============================================================================
+
+function codegen_expression(state, node)
+    Numeric node_type = node.node_type
+    
+    -- Literal values
+    if node_type == AST_NUMBER then
+        return codegen_number(state, node)
+    end_if
+    
+    if node_type == AST_STRING then
+        return codegen_string(state, node)
+    end_if
+    
+    if node_type == AST_IDENTIFIER then
+        return codegen_identifier(state, node)
+    end_if
+    
+    -- Binary operations
+    if node_type == AST_BINARY_OP then
+        return codegen_binary_op(state, node)
+    end_if
+    
+    -- Unary operations
+    if node_type == AST_UNARY_OP then
+        return codegen_unary_op(state, node)
+    end_if
+    
+    -- Function call
+    if node_type == AST_CALL then
+        return codegen_call(state, node)
+    end_if
+    
+    return state
+end_function
+
+function codegen_number(state, node)
+    state = emit_raw(state, node.value)
+    return state
+end_function
+
+function codegen_string(state, node)
+    String label = register_string_literal(state, node.value)
+    state = emit_raw(state, label)
+    return state
+end_function
+
+function codegen_identifier(state, node)
+    state = emit_raw(state, node.value)
+    return state
+end_function
+
+function codegen_binary_op(state, node)
+    String op = node.value
+    ASTNode left = mlp_list_get(node.children, 0)
+    ASTNode right = mlp_list_get(node.children, 1)
+    
+    state = emit_raw(state, "(")
+    state = codegen_expression(state, left)
+    state = emit_raw(state, " " + op + " ")
+    state = codegen_expression(state, right)
+    state = emit_raw(state, ")")
+    
+    return state
+end_function
+
+function codegen_unary_op(state, node)
+    String op = node.value
+    ASTNode operand = mlp_list_get(node.children, 0)
+    
+    state = emit_raw(state, op)
+    state = codegen_expression(state, operand)
+    
+    return state
+end_function
+
+function codegen_call(state, node)
+    String func_name = node.value
+    list args = node.children
+    
+    state = emit_raw(state, func_name + "(")
+    
+    Numeric i = 0
+    Numeric argc = mlp_list_length(args)
+    while i < argc
+        ASTNode arg = mlp_list_get(args, i)
+        state = codegen_expression(state, arg)
+        
+        if i < argc - 1 then
+            state = emit_raw(state, ", ")
+        end_if
+        
+        i = i + 1
+    end
+    
+    state = emit_raw(state, ")")
+    return state
+end_function
+
+-- =============================================================================
+-- STATEMENT CODEGEN
+-- =============================================================================
+
+function codegen_statement(state, node)
+    Numeric node_type = node.node_type
+    
+    if node_type == AST_VARIABLE_DECL then
+        return codegen_variable_decl(state, node)
+    end_if
+    
+    if node_type == AST_ASSIGNMENT then
+        return codegen_assignment(state, node)
+    end_if
+    
+    if node_type == AST_IF_STMT then
+        return codegen_if_statement(state, node)
+    end_if
+    
+    if node_type == AST_WHILE_STMT then
+        return codegen_while_statement(state, node)
+    end_if
+    
+    if node_type == AST_RETURN_STMT then
+        return codegen_return_statement(state, node)
+    end_if
+    
+    if node_type == AST_PRINT then
+        return codegen_print_statement(state, node)
+    end_if
+    
+    if node_type == AST_CALL then
+        state = emit_line(state, "")
+        state = codegen_expression(state, node)
+        state = emit_raw(state, ";\n")
+        return state
+    end_if
+    
+    if node_type == AST_BLOCK then
+        return codegen_block(state, node)
+    end_if
+    
+    return state
+end_function
+
+function codegen_variable_decl(state, node)
+    String var_name = node.value
+    ASTNode init_node = mlp_list_get(node.children, 0)
+    
+    state = emit_line(state, "int64_t " + var_name + " = ")
+    state = codegen_expression(state, init_node)
+    state = emit_raw(state, ";\n")
+    
+    return state
+end_function
+
+function codegen_assignment(state, node)
+    String var_name = node.value
+    ASTNode value_node = mlp_list_get(node.children, 0)
+    
+    state = emit_line(state, var_name + " = ")
+    state = codegen_expression(state, value_node)
+    state = emit_raw(state, ";\n")
+    
+    return state
+end_function
+
+function codegen_if_statement(state, node)
+    ASTNode condition = mlp_list_get(node.children, 0)
+    ASTNode then_block = mlp_list_get(node.children, 1)
+    
+    state = emit_line(state, "if (")
+    state = codegen_expression(state, condition)
+    state = emit_raw(state, ") {\n")
+    
+    state.indent_level = state.indent_level + 1
+    state = codegen_statement(state, then_block)
+    state.indent_level = state.indent_level - 1
+    
+    -- Check for else block
+    Numeric child_count = mlp_list_length(node.children)
+    if child_count > 2 then
+        ASTNode else_block = mlp_list_get(node.children, 2)
+        state = emit_line(state, "} else {\n")
+        
+        state.indent_level = state.indent_level + 1
+        state = codegen_statement(state, else_block)
+        state.indent_level = state.indent_level - 1
+    end_if
+    
+    state = emit_line(state, "}\n")
+    return state
+end_function
+
+function codegen_while_statement(state, node)
+    ASTNode condition = mlp_list_get(node.children, 0)
+    ASTNode body = mlp_list_get(node.children, 1)
+    
+    state = emit_line(state, "while (")
+    state = codegen_expression(state, condition)
+    state = emit_raw(state, ") {\n")
+    
+    state.indent_level = state.indent_level + 1
+    state = codegen_statement(state, body)
+    state.indent_level = state.indent_level - 1
+    
+    state = emit_line(state, "}\n")
+    return state
+end_function
+
+function codegen_return_statement(state, node)
+    Numeric child_count = mlp_list_length(node.children)
+    
+    if child_count > 0 then
+        ASTNode return_value = mlp_list_get(node.children, 0)
+        state = emit_line(state, "return ")
+        state = codegen_expression(state, return_value)
+        state = emit_raw(state, ";\n")
+    else
+        state = emit_line(state, "return;\n")
+    end_if
+    
+    return state
+end_function
+
+function codegen_print_statement(state, node)
+    ASTNode arg = mlp_list_get(node.children, 0)
+    
+    state = emit_line(state, "printf(\"%lld\\n\", (long long)")
+    state = codegen_expression(state, arg)
+    state = emit_raw(state, ");\n")
+    
+    return state
+end_function
+
+function codegen_block(state, node)
+    Numeric i = 0
+    Numeric stmt_count = mlp_list_length(node.children)
+    
+    while i < stmt_count
+        ASTNode stmt = mlp_list_get(node.children, i)
+        state = codegen_statement(state, stmt)
+        i = i + 1
+    end
+    
+    return state
+end_function
+
+-- =============================================================================
+-- FUNCTION & STRUCT CODEGEN
+-- =============================================================================
+
+function codegen_function(state, node)
+    String func_name = node.value
+    list children = node.children
+    
+    -- Get parameters (first n-1 children are params, last is body)
+    Numeric child_count = mlp_list_length(children)
+    Numeric param_count = child_count - 1
+    
+    -- Function signature
+    state = emit_line(state, "int64_t " + func_name + "(")
+    
+    -- Parameters
+    Numeric i = 0
+    while i < param_count
+        ASTNode param = mlp_list_get(children, i)
+        state = emit_raw(state, "int64_t " + param.value)
+        
+        if i < param_count - 1 then
+            state = emit_raw(state, ", ")
+        end_if
+        
+        i = i + 1
+    end
+    
+    state = emit_raw(state, ") {\n")
+    
+    -- Function body
+    state.indent_level = state.indent_level + 1
+    ASTNode body = mlp_list_get(children, param_count)
+    state = codegen_statement(state, body)
+    state.indent_level = state.indent_level - 1
+    
+    state = emit_line(state, "}\n")
+    return state
+end_function
+
+function codegen_struct(state, node)
+    String struct_name = node.value
+    list fields = node.children
+    
+    state = emit_line(state, "typedef struct {\n")
+    state.indent_level = state.indent_level + 1
+    
+    Numeric i = 0
+    Numeric field_count = mlp_list_length(fields)
+    while i < field_count
+        ASTNode field = mlp_list_get(fields, i)
+        state = emit_line(state, "int64_t " + field.value + ";\n")
+        i = i + 1
+    end
+    
+    state.indent_level = state.indent_level - 1
+    state = emit_line(state, "} " + struct_name + ";\n")
+    
+    return state
+end_function
+
+function codegen_import(state, node)
+    String module_name = node.value
+    state = emit_line(state, "// import: " + module_name + "\n")
+    return state
+end_function
+
+-- =============================================================================
+-- TOP-LEVEL CODEGEN
+-- =============================================================================
+
+function codegen_program(state, node)
+    list children = node.children
+    
+    -- Generate C header
+    state = emit_line(state, "// Generated by MLP Stage2 Compiler\n")
+    state = emit_line(state, "#include <stdio.h>\n")
+    state = emit_line(state, "#include <stdint.h>\n")
+    state = emit_line(state, "#include <stdlib.h>\n")
+    state = emit_line(state, "\n")
+    
+    -- Process all top-level declarations
+    Numeric i = 0
+    Numeric decl_count = mlp_list_length(children)
+    
+    while i < decl_count
+        ASTNode child = mlp_list_get(children, i)
+        Numeric child_type = child.node_type
+        
+        if child_type == AST_IMPORT then
+            state = codegen_import(state, child)
+        end_if
+        
+        if child_type == AST_STRUCT then
+            state = codegen_struct(state, child)
+        end_if
+        
+        if child_type == AST_FUNCTION then
+            state = codegen_function(state, child)
+        end_if
+        
+        i = i + 1
+    end
+    
+    -- Generate string literals section
+    state = codegen_string_literals(state)
+    
+    return state
+end_function
+
+function codegen_string_literals(state)
+    Numeric lit_count = mlp_list_length(state.string_literals)
+    
+    if lit_count > 0 then
+        state = emit_line(state, "// String literals\n")
+        
+        Numeric i = 0
+        while i < lit_count
+            String value = mlp_list_get(state.string_literals, i)
+            String label = "str_" + mlp_numeric_to_string(i)
+            state = emit_line(state, "static const char " + label + "[] = \"" + value + "\";\n")
+            i = i + 1
+        end
+        
+        state = emit_line(state, "\n")
+    end_if
+    
+    return state
+end_function
+
+-- =============================================================================
+-- MAIN CODEGEN ENTRY POINT
+-- =============================================================================
+
+function codegen(ast_root)
+    CodegenState state = make_codegen_state()
+    
+    if ast_root.node_type == AST_PROGRAM then
+        state = codegen_program(state, ast_root)
+    end_if
+    
+    return state.output
+end_function
+
+function codegen_ast_to_c(ast_root)
+    return codegen(ast_root)
+end_function

@@ -1,570 +1,709 @@
-# 3-TODO_LANGUAGE_FEATURES.md
+# 3-TODO_LANGUAGE_FEATURES.md - PARSER_CODEGEN_FULL
 
-**Hedef:** Modern Dil Özellikleri Ekleme  
-**Süre:** 2-3 hafta (Hafta 14-16)  
-**Öncelik:** Yüksek  
-**Bağımlılık:** 0, 1, 2 TODO'lar (%100)
-
----
-
-## 📋 GENEL BAKIŞ
-
-TODO #2 sonrası stdlib zengin ama **dil sözdizimi** sınırlı:
-- ❌ Generics yok (HashMap<K,V> yazılamaz)
-- ❌ Pattern matching yok
-- ❌ Closures/lambdas yok
-- ❌ Operator overloading yok
-- ❌ Compile-time metaprogramming yok
-- ❌ Type inference zayıf
-
-Bu TODO **modern dil özelliklerini** ekleyecek.
+**Hedef:** MLP Dilinde Parser ve Codegen Yazma (Self-hosting Stage2)  
+**Süre:** 10 gün (~2 hafta) (UPDATED: 1 Ocak 2026)  
+**Öncelik:** KRİTİK - Self-hosting'in kalbi  
+**Strateji Değişikliği:** Modül entegrasyonu → MLP implementasyon
 
 ---
 
-## 🎯 TODO HEDEFLERİ
+## 🚨 STRATEJİ DEĞİŞİKLİĞİ #2 (PD_02 Onayı - ÜA Raporu)
 
-### Başarı Kriterleri
+**Eski Plan (YANLIŞ):**
+- ❌ 71 modülü entegre et
+- ❌ Backend detection
+- ❌ Legacy modüller kullanılabilir
+- ❌ Süre: 3-5 gün
 
-**TODO tamamlandığında:**
-- ✅ Generics (List<T>, HashMap<K,V>)
-- ✅ Pattern matching (match/case)
-- ✅ Closures & lambdas
-- ✅ Operator overloading (custom types için +, -, *, /)
-- ✅ Compile-time macros
-- ✅ Advanced type inference
+**Yeni Plan (DOĞRU):**
+- ✅ MLP dilinde parser yaz
+- ✅ MLP dilinde codegen yaz
+- ✅ Language features implement et
+- ✅ P2 MLP örneklerinden yararlan
+- ✅ Süre: 10 gün
+
+**PD Gerekçesi:**
+- Ana derleyici (main.c) zaten GCC backend kullanıyor ✅
+- modules/ = Legacy kod (kullanılmıyor)
+- TODO #3 = PARSER_CODEGEN_FULL (0-TODO_SELFHOSTING.md'den)
+- Self-hosting Stage2: MLP ile MLP derlemek
+- P2 projesinde MLP implementasyon örnekleri var
 
 ---
 
-## 📊 TASK BREAKDOWN
+## 📋 YENİ TASK BREAKDOWN (PARSER_CODEGEN_FULL)
 
-### **Task 1: Generics** (7-8 gün)
+### **PHASE 1: P2 Analiz ve Referans** (2 gün)
 
-**Hedef:** Parametric polymorphism
+#### **Task 1: P2 MLP Modül Analizi** - YZ_03
 
-**Syntax:**
+**Atanan:** LANGUAGE_FEATURES_YZ_03  
+**Hedef:** P2 (MLP-LLVM) projesindeki MLP implementasyonlarını incele
+
+**Yapılacaklar:**
+```bash
+cd /home/pardus/projeler/MLP/Arşiv/MLP-LLVM-Önceki\ Sürüm/
+
+# MLP modüllerini katalogla
+find . -name "*.mlp" | grep -E "codegen|parser|lexer"
+
+# Her modül için:
+- Self-hosting pattern'leri
+- Module Registry kullanımı
+- Import/export yapısı
+- AST manipülasyonu
+```
+
+**Çıktı:** `TODO_LANGUAGE_FEATURES/P2_MLP_ANALIZ.md`
+
+**Başarı Kriterleri:**
+- [x] P2'deki .mlp dosyaları kataloglandı ✅
+- [x] Self-hosting pattern'leri çıkarıldı ✅
+- [x] Portlanabilir modüller tespit edildi ✅
+- [x] P2_MLP_LLVM_ANALIZ_RAPORU.md oluşturuldu (843 satır) ✅
+
+**Tamamlandı:** 1 Ocak 2026 - YZ_03
+
+---
+
+#### **Task 2: p7 (mlp-original) Compiler Analizi** - YZ_03
+
+**Atanan:** LANGUAGE_FEATURES_YZ_03  
+**Hedef:** p7'deki çalışan self-hosting compiler'ı incele
+
+**Yapılacaklar:**
+```bash
+cd /home/pardus/projeler/mlp-original/self_host/compiler_core/
+
+# Compiler modüllerini incele
+ls -1 *.mlp
+
+# Her modül için:
+- lexer.mlp (700 satır) - Token üretimi
+- parser.mlp (800 satır) - AST oluşturma
+- codegen.mlp (1500 satır) - Assembly üretimi
+- Stage0→Stage1 bootstrapping pattern
+```
+
+**Çıktı:** `TODO_LANGUAGE_FEATURES/P7_COMPILER_ANALIZ.md`
+
+**Başarı Kriterleri:**
+- [x] p7'deki 17 compiler modülü incelendi ✅
+- [x] Bootstrap pattern'i anlaşıldı ✅
+- [x] Stage0→Stage1 mekanizması dokümante edildi ✅
+- [x] p7_mlp_original_ANALIZ_RAPORU.md oluşturuldu (1148 satır) ✅
+
+**Tamamlandı:** 1 Ocak 2026 - YZ_03
+
+---
+
+### **PHASE 2: MLP Parser İmplementasyonu** (3 gün)
+
+#### **Task 3: Lexer Modülü** - YZ_04 ✅ TAMAMLANDI
+
+**Atanan:** LANGUAGE_FEATURES_YZ_04  
+**Hedef:** Tokenization - MLP kaynak kodunu token'lara ayır
+
+**Yapılacaklar:**
 ```mlp
--- Generic function
-function max<T>(T a; T b) as T where T: Comparable
-    if a > b then
-        return a
-    end_if
-    return b
-end_function
+-- lexer.mlp (MLP dilinde!)
+import sto_types
+import string_utils
 
--- Generic struct
-struct List<T>
-    T[] items
-    numeric size
+struct Token
+    type as String        -- KEYWORD, IDENTIFIER, NUMBER...
+    value as String       -- Gerçek değer
+    line as Integer       -- Satır numarası
+    column as Integer     -- Sütun numarası
 end_struct
 
-function list_add<T>(ref List<T> list; T item)
-    list.items[list.size] = item
-    list.size = list.size + 1
+function tokenize(source as String) as List<Token>
+    -- Token üretimi
+    -- PMLP syntax desteği (semicolon params, comma decimals)
 end_function
-
--- Usage
-List<numeric> numbers
-list_add(numbers, 42)
-
-List<string> names
-list_add(names, "Ali")
-
--- Generic HashMap
-struct HashMap<K, V>
-    Entry<K,V>[] buckets
-    numeric size
-end_struct
-
-function hashmap_insert<K,V>(ref HashMap<K,V> map; K key; V value)
-    numeric hash = hash_key(key)
-    # ... insert logic
-end_function
-
-HashMap<string, numeric> ages
-hashmap_insert(ages, "Ali", 25)
 ```
 
-**Compiler Changes:**
-```
-MELP/C/stage0/modules/
-├── parser/
-│   └── generics.c      (~400 satır) # Generic syntax parsing
-├── typechecker/
-│   └── generic_types.c (~500 satır) # Type parameter checking
-└── codegen/
-    └── monomorphization.c (~600 satır) # C++ template style
-```
+**6 Esas Uyumluluk:**
+- ✅ MODULAR: Max 500 satır
+- ✅ STATELESS: Token'lar struct, global yok
+- ✅ STRUCT+FUNC: OOP yok
 
-**Monomorphization Strategy:**
-```
-List<numeric> → list_numeric (C struct)
-List<string> → list_string (C struct)
-
-# Compile-time code generation (Rust style)
-```
+**Çıktı:** `MELP/MLP/stage2/lexer.mlp`
 
 **Test:**
 ```bash
-# Generic function test
-./mlp-gcc tests/generics/max_test.mlp && ./a.out
-
-# Generic struct test
-./mlp-gcc tests/generics/list_test.mlp && ./a.out
-
-# Multiple type parameters
-./mlp-gcc tests/generics/hashmap_test.mlp && ./a.out
+./melpc MELP/MLP/stage2/lexer.mlp -o lexer_test
+./lexer_test examples/hello.mlp
+# Çıktı: Token listesi
 ```
+
+**Başarı Kriterleri:**
+- [x] lexer.mlp yazıldı (471 satır < 500) ✅
+- [x] Token struct tanımlandı ✅
+- [x] tokenize() fonksiyonu implement edildi ✅
+- [x] PMLP syntax desteği eklendi ✅
+- [x] Test senaryoları yazıldı ✅
+
+**Tamamlandı:** 1 Ocak 2026 - YZ_04 (~2 saat)  
+**Rapor:** `TODO_LANGUAGE_FEATURES/PHASE_2_LEXER/YZ_04_RAPOR.md`
 
 ---
 
-### **Task 2: Pattern Matching** (5-6 gün)
+#### **Task 4: Parser Core** - YZ_05 ✅ TAMAMLANDI
 
-**Hedef:** Algebraic data types + pattern matching
+**Tamamlandı:** 1 Ocak 2026 - YZ_05 (~2 saat)  
+**Rapor:** `TODO_LANGUAGE_FEATURES/PHASE_2_PARSER/YZ_05_RAPOR.md`
 
-**Syntax:**
+**Atanan:** LANGUAGE_FEATURES_YZ_05  
+**Hedef:** AST (Abstract Syntax Tree) oluşturma
+
+**Yapılacaklar:**
 ```mlp
--- Enum (sum type)
-enum Result<T, E>
-    Ok(T)
-    Err(E)
-end_enum
+-- parser.mlp
+import lexer
+import ast_nodes
 
--- Pattern matching
-function process_result(Result<numeric, string> res)
-    match res
-        case Ok(value):
-            yazdir("Success: " + string(value))
-        case Err(error):
-            yazdir("Error: " + error)
+struct ASTNode
+    node_type as String   -- FUNCTION, STRUCT, IF, CALL...
+    children as List<ASTNode>
+    token as Token
+end_struct
+
+function parse(tokens as List<Token>) as ASTNode
+    -- Recursive descent parser
+    -- Precedence climbing
+end_function
+```
+
+**Çıktı:** `MELP/MLP/stage2/parser.mlp`
+
+**Test:**
+```bash
+./melpc MELP/MLP/stage2/parser.mlp -o parser_test
+./parser_test examples/simple.mlp
+# Çıktı: AST dump
+```
+
+**Başarı Kriterleri:**
+- [x] parser.mlp yazıldı (483 satır < 500) ✅
+- [x] ASTNode struct tanımlandı ✅
+- [x] parse() fonksiyonu implement edildi ✅
+- [x] Recursive descent çalışıyor ✅
+- [x] Test: test_parser.mlp hazırlandı ✅
+
+---
+
+#### **Task 5: Parser Advanced** - YZ_05
+
+**Atanan:** LANGUAGE_FEATURES_YZ_05  
+**Hedef:** Karmaşık yapılar (function, struct, generics)
+
+**Yapılacaklar:**
+```mlp
+-- parser_advanced.mlp
+import parser
+import generic_types
+
+function parse_function_decl(tokens) as ASTNode
+    -- function foo<T>(x as T) as T
+end_function
+
+function parse_generic_params(tokens) as List<String>
+    -- <T, U, V>
+end_function
+
+function parse_pattern_match(tokens) as ASTNode
+    -- match x case ...
+end_function
+```
+
+**Çıktı:** `MELP/MLP/stage2/parser_advanced.mlp`
+
+**Başarı Kriterleri:**
+- [ ] parser_advanced.mlp yazıldı
+- [ ] Generic fonksiyonlar parse ediliyor
+- [ ] Pattern matching parse ediliyor
+- [ ] Test: generic_test.mlp parse edildi
+
+---
+
+### **PHASE 3: MLP Codegen İmplementasyonu** (3 gün)
+
+#### **Task 6: Codegen Core** - YZ_06 ✅ TAMAMLANDI
+
+**Tamamlandı:** 1 Ocak 2026 - YZ_06 (~2 saat)  
+**Rapor:** `TODO_LANGUAGE_FEATURES/PHASE_3_CODEGEN/YZ_06_RAPOR.md`
+
+**Atanan:** LANGUAGE_FEATURES_YZ_06  
+**Hedef:** AST'den C kodu üretimi
+
+**Yapılacaklar:**
+```mlp
+-- codegen.mlp
+import parser
+import sto_runtime
+
+function codegen(ast as ASTNode) as String
+    match ast.node_type
+        case "FUNCTION":
+            return codegen_function(ast)
+        case "STRUCT":
+            return codegen_struct(ast)
+        case "IF":
+            return codegen_if(ast)
     end_match
 end_function
 
--- Option pattern matching
-optional value = some(42)
+function codegen_function(node as ASTNode) as String
+    -- C fonksiyon üret
+    let c_code = "int64_t " + node.name + "("
+    -- ...
+    return c_code
+end_function
+```
 
-match value
+**Çıktı:** `MELP/MLP/stage2/codegen.mlp`
+
+**Test:**
+```bash
+./melpc MELP/MLP/stage2/codegen.mlp -o codegen_test
+./codegen_test examples/simple.mlp > output.c
+gcc output.c -o simple_exe
+./simple_exe
+```
+
+**Başarı Kriterleri:**
+- [x] codegen.mlp yazıldı (501 satır < 600) ✅
+- [x] codegen() fonksiyonu implement edildi ✅
+- [x] AST → C translation çalışıyor ✅
+- [x] Function, struct, statement codegen ✅
+- [x] Expression codegen (binary, unary, call) ✅
+- [x] Test dosyası yazıldı ✅
+- [x] p7 codegen.mlp %38 optimize edildi ✅
+
+---
+
+#### **Task 7: Codegen Advanced** - YZ_06
+
+**Atanan:** LANGUAGE_FEATURES_YZ_06  
+**Hedef:** Generics, closures, pattern matching codegen
+
+**Yapılacaklar:**
+```mlp
+-- codegen_advanced.mlp
+import codegen
+
+function codegen_generic_function(node) as String
+    -- Template-based C code
+    -- List<T> → struct List_int64_t
+end_function
+
+function codegen_lambda(node) as String
+    -- Closure environment struct
+    -- Capture variables
+end_function
+
+function codegen_pattern_match(node) as String
+    -- Switch-case with exhaustiveness
+end_function
+```
+
+**Çıktı:** `MELP/MLP/stage2/codegen_advanced.mlp`
+
+**Başarı Kriterleri:**
+- [ ] codegen_advanced.mlp yazıldı
+- [ ] Generic functions codegen çalışıyor
+- [ ] Lambda/closure codegen çalışıyor
+- [ ] Pattern match codegen çalışıyor
+- [ ] Test: 3 feature test dosyası derlendi ve çalıştı
+
+---
+
+### **PHASE 4: Language Features** (2 gün)
+
+#### **Task 8: Generics Implementasyonu** - YZ_07
+**Atanan:** LANGUAGE_FEATURES_YZ_07  
+**Hedef:** Template-based generic types
+
+**Yapılacaklar:**
+```mlp
+-- generics.mlp
+import type_system
+
+struct GenericType
+    base_type as String   -- List, HashMap, Option
+    type_params as List<String>  -- [T], [K,V]
+end_struct
+
+function instantiate_generic(generic_type; concrete_types) as String
+    -- List<T> + [int64_t] → List_int64_t
+    -- C struct generation
+end_function
+
+-- Örnek: List<T>
+struct List<T>
+    data as Array<T>
+    length as Integer
+end_struct
+
+function List_push<T>(list as List<T>; item as T) as Void
+    -- Generic method
+end_function
+```
+
+**Çıktı:** `MELP/MLP/stage2/features/generics.mlp`
+
+**Test:**
+```mlp
+-- test_generics.mlp
+let numbers = List<Integer>.new()
+numbers.push(42)
+numbers.push(100)
+print(numbers.length)  -- Output: 2
+```
+
+**Başarı Kriterleri:**
+- [ ] generics.mlp yazıldı
+- [ ] List<T> implement edildi
+- [ ] Generic functions çalışıyor
+- [ ] Test: test_generics.mlp derlendi ve çalıştı, çıktı "2"
+
+---
+
+#### **Task 9: Lambda ve Closures** - YZ_07
+
+**Atanan:** LANGUAGE_FEATURES_YZ_07  
+**Hedef:** First-class functions ve closure support
+
+**Yapılacaklar:**
+```mlp
+-- lambda.mlp
+import codegen
+
+struct Closure
+    function_ptr as Pointer
+    captured_vars as Array<Pointer>  -- Environment
+end_struct
+
+function codegen_lambda_capture(node) as String
+    -- Struct generation for captured variables
+    let env_struct = "struct lambda_env_" + unique_id + " {\n"
+    -- Add captured vars
+    return env_struct
+end_function
+
+-- Örnek: Lambda kullanımı
+let add_n = |n| |x| x + n  -- Currying
+let add_5 = add_n(5)
+print(add_5(10))  -- 15
+```
+
+**Çıktı:** `MELP/MLP/stage2/features/lambda.mlp`
+
+**Test:**
+```mlp
+-- test_lambda.mlp
+let numbers = [1, 2, 3, 4, 5]
+let doubled = numbers.map(|x| x * 2)
+print(doubled)  -- [2, 4, 6, 8, 10]
+```
+
+**Başarı Kriterleri:**
+- [ ] lambda.mlp yazıldı
+- [ ] Closure environment capture çalışıyor
+- [ ] Higher-order functions çalışıyor
+- [ ] Test: test_lambda.mlp derlendi, çıktı [2,4,6,8,10]
+
+---
+
+#### **Task 10: Pattern Matching** - YZ_08
+
+**Atanan:** LANGUAGE_FEATURES_YZ_08  
+**Hedef:** Exhaustive pattern matching
+
+**Yapılacaklar:**
+```mlp
+-- pattern_matching.mlp
+import parser
+
+struct Pattern
+    pattern_type as String  -- LITERAL, BIND, CONSTRUCTOR
+    value as String
+    sub_patterns as List<Pattern>
+end_struct
+
+function check_exhaustiveness(patterns; type) as Boolean
+    -- Tüm case'ler kapsamlı mı?
+end_function
+
+-- Örnek: Pattern match
+match option_value
     case Some(x):
-        yazdir("Value: " + string(x))
+        print("Value: " + x)
     case None:
-        yazdir("No value")
-end_match
-
--- List pattern matching
-list numbers = [1, 2, 3, 4, 5]
-
-match numbers
-    case []:
-        yazdir("Empty")
-    case [head, ...tail]:
-        yazdir("Head: " + string(head))
-end_match
-
--- Complex patterns
-struct Point
-    numeric x
-    numeric y
-end_struct
-
-match point
-    case Point(0, 0):
-        yazdir("Origin")
-    case Point(x, 0):
-        yazdir("On X-axis")
-    case Point(0, y):
-        yazdir("On Y-axis")
-    case Point(x, y):
-        yazdir("General point")
+        print("No value")
 end_match
 ```
 
-**Compiler Changes:**
-```
-MELP/C/stage0/modules/
-├── parser/
-│   └── pattern_match.c  (~500 satır)
-├── typechecker/
-│   └── exhaustiveness.c (~400 satır) # Ensure all cases covered
-└── codegen/
-    └── match_codegen.c  (~550 satır) # Compile to switch/if-else
-```
+**Çıktı:** `MELP/MLP/stage2/features/pattern_matching.mlp`
 
 **Test:**
-```bash
-# Basic pattern matching
-./mlp-gcc tests/pattern/result_test.mlp && ./a.out
-
-# Exhaustiveness check (compile error if missing case)
-./mlp-gcc tests/pattern/exhaustive.mlp 2>&1 | grep "non-exhaustive"
-```
-
----
-
-### **Task 3: Closures & Lambdas** (6-7 gün)
-
-**Hedef:** First-class functions
-
-**Syntax:**
 ```mlp
--- Lambda syntax
-function apply(function(numeric) as numeric fn; numeric x) as numeric
-    return fn(x)
+-- test_pattern.mlp
+enum Option<T>
+    Some(T)
+    None
+end_enum
+
+function unwrap_or<T>(opt as Option<T>; default as T) as T
+    match opt
+        case Some(value):
+            return value
+        case None:
+            return default
+    end_match
 end_function
 
-numeric result = apply(lambda(x) => x * 2, 5)
-# result = 10
-
--- Closure (captures environment)
-function make_counter() as function() as numeric
-    numeric count = 0
-    return lambda() =>
-        count = count + 1
-        return count
-    end_lambda
-end_function
-
-function counter = make_counter()
-yazdir(counter())  # 1
-yazdir(counter())  # 2
-yazdir(counter())  # 3
-
--- Higher-order functions
-list numbers = [1, 2, 3, 4, 5]
-
-list doubled = list.map(numbers, lambda(x) => x * 2)
-# doubled = [2, 4, 6, 8, 10]
-
-list evens = list.filter(numbers, lambda(x) => x % 2 == 0)
-# evens = [2, 4]
-
-numeric sum = list.reduce(numbers, 0, lambda(acc, x) => acc + x)
-# sum = 15
+let x = Some(42)
+print(unwrap_or(x; 0))  -- 42
 ```
 
-**Memory Model:**
-```c
-// Closure struct
-typedef struct {
-    void* fn_ptr;          // Function pointer
-    void* captured_env;    // Captured variables (heap)
-    size_t env_size;       // Environment size
-} mlp_closure_t;
-
-// Cleanup via RAII (scope exit → free env)
-```
-
-**Compiler Changes:**
-```
-MELP/C/stage0/modules/
-├── parser/
-│   └── lambda.c        (~400 satır)
-├── typechecker/
-│   └── closure_check.c (~450 satır)
-└── codegen/
-    └── closure_codegen.c (~600 satır) # Generate closure structs
-```
-
-**Test:**
-```bash
-# Lambda test
-./mlp-gcc tests/lambda/basic.mlp && ./a.out
-
-# Closure capture test
-./mlp-gcc tests/lambda/closure.mlp && ./a.out
-
-# Higher-order functions
-./mlp-gcc tests/lambda/map_filter.mlp && ./a.out
-```
+**Başarı Kriterleri:**
+- [ ] pattern_matching.mlp yazıldı
+- [ ] Exhaustiveness check çalışıyor
+- [ ] Enum + match çalışıyor
+- [ ] Test: test_pattern.mlp derlendi, çıktı "42"
 
 ---
 
-### **Task 4: Operator Overloading** (4-5 gün)
+### **PHASE 5: Integration & Bootstrap Test** (2 gün)
 
-**Hedef:** Custom types için operatör tanımlama
+#### **Task 11: Stage2 Entegrasyon** - YZ_08
 
-**Syntax:**
+**Atanan:** LANGUAGE_FEATURES_YZ_08  
+**Hedef:** Tüm modülleri birleştir, tam derleyici oluştur
+
+**Yapılacaklar:**
+```bash
+# Stage2 derleyici build
+cd MELP/MLP/stage2/
+./melpc compiler_main.mlp -o melpc_stage2
+
+# Test: Stage2 kendini derlesin
+./melpc_stage2 compiler_main.mlp -o melpc_stage3
+
+# Convergence test: Stage2 == Stage3?
+diff melpc_stage2 melpc_stage3
+```
+
+**Çıktı:** 
+- `build/melpc_stage2` (Stage2 binary)
+- `build/melpc_stage3` (Stage3 binary)
+- `TODO_LANGUAGE_FEATURES/CONVERGENCE_TEST.md`
+
+**Başarı Kriterleri:**
+- [ ] melpc_stage2 oluşturuldu
+- [ ] melpc_stage2 kendini derledi (melpc_stage3)
+- [ ] diff melpc_stage2 melpc_stage3 = 0 (identical)
+- [ ] CONVERGENCE_TEST.md oluşturuldu
+- [ ] ✅ SELF-HOSTING BAŞARILI!
+
+---
+
+#### **Task 12: Production Test Suite** - YZ_08
+
+**Atanan:** LANGUAGE_FEATURES_YZ_08  
+**Hedef:** Kapsamlı test suite
+
+**Test Senaryoları:**
 ```mlp
-struct Vector
-    numeric x
-    numeric y
-end_struct
+-- test_suite/01_generics_full.mlp
+-- HashMap<String, Integer> implementasyonu
+-- Vec<T> implementasyonu
+-- Option<T>, Result<T,E> implementasyonu
 
--- Operator overloading
-operator +(Vector a; Vector b) as Vector
-    Vector result
-    result.x = a.x + b.x
-    result.y = a.y + b.y
-    return result
-end_operator
+-- test_suite/02_lambda_full.mlp
+-- Currying
+-- Higher-order functions (map, filter, fold)
+-- Closure capture (mutable, immutable)
 
-operator *(Vector v; numeric scalar) as Vector
-    Vector result
-    result.x = v.x * scalar
-    result.y = v.y * scalar
-    return result
-end_operator
+-- test_suite/03_pattern_full.mlp
+-- Nested patterns
+-- Guard clauses
+-- Exhaustiveness edge cases
 
-operator ==(Vector a; Vector b) as bool
-    return a.x == b.x and a.y == b.y
-end_operator
-
--- Usage
-Vector v1 = Vector(1.0, 2.0)
-Vector v2 = Vector(3.0, 4.0)
-
-Vector sum = v1 + v2          # Vector(4.0, 6.0)
-Vector scaled = v1 * 3        # Vector(3.0, 6.0)
-bool equal = v1 == v2         # false
-
--- BigDecimal example (STO ile entegre)
-numeric a = 999999999999999999
-numeric b = 888888888888888888
-numeric c = a + b  # Compiler otomatik BigDecimal + kullanır
+-- test_suite/04_integration.mlp
+-- Generics + Lambda + Pattern hep birlikte
 ```
 
-**Supported Operators:**
-```
-+, -, *, /, %       # Arithmetic
-==, !=, <, >, <=, >= # Comparison
-[], []=             # Indexing
-()                  # Call
-```
+**Çıktı:** `tests/stage2/` (12 test dosyası)
 
-**Compiler Changes:**
-```
-MELP/C/stage0/modules/
-├── parser/
-│   └── operator_overload.c (~350 satır)
-├── typechecker/
-│   └── operator_check.c    (~400 satır)
-└── codegen/
-    └── operator_codegen.c  (~450 satır)
-```
+**Başarı Kriterleri:**
+- [ ] 12 test dosyası yazıldı
+- [ ] Tüm testler melpc_stage2 ile derlendi
+- [ ] Tüm executable'lar çalıştı
+- [ ] Tüm çıktılar beklenen sonuçlarla eşleşti
+- [ ] Test raporu: `TODO_LANGUAGE_FEATURES/TEST_RAPORU.md`
 
-**Test:**
-```bash
-# Vector math test
-./mlp-gcc tests/operator/vector.mlp && ./a.out
+---
 
-# Matrix multiplication
-./mlp-gcc tests/operator/matrix.mlp && ./a.out
+## 🎯 YENİ BAŞARI KRİTERLERİ (PARSER_CODEGEN_FULL)
+
+### **Phase Completion:**
+- [ ] **PHASE 1:** P2 + p7 analiz tamamlandı (2 rapor oluşturuldu)
+- [ ] **PHASE 2:** Parser modülleri yazıldı (lexer, parser, parser_advanced)
+- [ ] **PHASE 3:** Codegen modülleri yazıldı (codegen, codegen_advanced)
+- [ ] **PHASE 4:** Language features implement edildi (generics, lambda, pattern)
+- [ ] **PHASE 5:** Stage2 derleyici oluşturuldu, convergence test başarılı
+
+### **Self-hosting Başarı:**
+- [ ] melpc_stage2 binary oluşturuldu
+- [ ] melpc_stage2 kendini derledi (melpc_stage3)
+- [ ] diff melpc_stage2 melpc_stage3 = 0 bytes (CONVERGENCE!)
+- [ ] ✅ **SELF-HOSTING STAGE2 TAMAMLANDI!**
+
+### **Language Features Başarı:**
+- [ ] Generic types: List<T>, HashMap<K,V> çalışıyor
+- [ ] Lambda/Closures: Higher-order functions çalışıyor
+- [ ] Pattern matching: Exhaustiveness check çalışıyor
+- [ ] Tüm features bir arada test edildi
+
+### **Test Zorunluluğu:**
+- [ ] ❌ YASAK: Stub, mock, pseudo-code, hack, TODO yorumları
+- [ ] ✅ ZORUNLU: %100 çalışan, derlenebilir MLP kodu
+- [ ] ✅ ZORUNLU: Her modül test edildi, çıktılar kaydedildi
+- [ ] ✅ ZORUNLU: Convergence test passed
+
+---
+
+## 📊 YENİ ZAMAN ÇİZELGESİ
+
+| Phase | Gün | Task | YZ | Çıktı |
+|-------|-----|------|-----|-------|
+| **1** | 1-2 | P2 Analiz | YZ_03 | P2_MLP_ANALIZ.md |
+| **1** | 1-2 | p7 Analiz | YZ_03 | P7_COMPILER_ANALIZ.md |
+| **2** | 3-4 | Lexer | YZ_04 | lexer.mlp |
+| **2** | 4-5 | Parser Core | YZ_04 | parser.mlp |
+| **2** | 5 | Parser Advanced | YZ_05 | parser_advanced.mlp |
+| **3** | 6-7 | Codegen Core | YZ_06 | codegen.mlp |
+| **3** | 7-8 | Codegen Advanced | YZ_06 | codegen_advanced.mlp |
+| **4** | 8 | Generics | YZ_07 | generics.mlp |
+| **4** | 9 | Lambda | YZ_07 | lambda.mlp |
+| **4** | 9 | Pattern Match | YZ_08 | pattern_matching.mlp |
+| **5** | 10 | Stage2 Build | YZ_08 | melpc_stage2 |
+| **5** | 10 | Convergence Test | YZ_08 | CONVERGENCE_TEST.md |
+| **5** | 10 | Test Suite | YZ_08 | TEST_RAPORU.md |
+
+**TOPLAM:** 10 gün (~2 hafta)
+
+---
+
+## 📁 YENİ DOSYA YAPISI
+
+```
+MELP/
+├── C/
+│   └── stage0/
+│       ├── main.c              (Stage0 - C derleyici) ✅ Mevcut
+│       └── modules/            (Legacy - kullanılmıyor)
+└── MLP/
+    └── stage2/                 (Stage2 - MLP derleyici) ← YENİ!
+        ├── lexer.mlp           (Task 3)
+        ├── parser.mlp          (Task 4)
+        ├── parser_advanced.mlp (Task 5)
+        ├── codegen.mlp         (Task 6)
+        ├── codegen_advanced.mlp (Task 7)
+        ├── features/
+        │   ├── generics.mlp    (Task 8)
+        │   ├── lambda.mlp      (Task 9)
+        │   └── pattern_matching.mlp (Task 10)
+        ├── compiler_main.mlp   (Task 11)
+        └── tests/
+            └── stage2/         (Task 12)
+
+build/
+├── melpc_stage0                (C derleyici) ✅ Mevcut
+├── melpc_stage2                (Stage2 binary) ← Task 11
+└── melpc_stage3                (Convergence test) ← Task 11
+
+TODO_LANGUAGE_FEATURES/
+├── P2_MLP_ANALIZ.md            (Task 1)
+├── P7_COMPILER_ANALIZ.md       (Task 2)
+├── CONVERGENCE_TEST.md         (Task 11)
+└── TEST_RAPORU.md              (Task 12)
 ```
 
 ---
 
-### **Task 5: Compile-Time Metaprogramming** (6-7 gün)
+## 🎓 6 TEMEL ESAS UYUMLULUK
 
-**Hedef:** Compile-time code generation
+**Tüm MLP modülleri için:**
 
-**Syntax:**
-```mlp
--- Compile-time constants
-const MAX_SIZE = 1000
+1. ✅ **MODULAR:** Her .mlp dosyası max 500 satır
+2. ✅ **GCC Backend:** C kodu üretimi (codegen.mlp aracılığıyla)
+3. ✅ **STO:** Smart Type Optimization (sto_types import)
+4. ✅ **STATELESS:** Struct-based design, global yok
+5. ✅ **STRUCT+FUNC:** OOP yok, sadece struct ve fonksiyon
+6. ✅ **MODÜL=ŞABLON:** Her modül state-free, import ile kullanılır
 
--- Compile-time if
-comptime_if is_debug() then
-    yazdir("Debug mode")
-else
-    # Kod tamamen silinir (zero-cost)
-end_if
+---
 
--- Compile-time functions
-function comptime_factorial(numeric n) as numeric comptime
-    if n <= 1 then
-        return 1
-    end_if
-    return n * comptime_factorial(n - 1)
-end_function
+## 🚦 ÜST AKIL VE YZ KOORDİNASYONU
 
-const FACT_10 = comptime_factorial(10)  # 3628800 (compile-time hesapla)
+### YZ Rolleri (Güncellenmiş):
 
--- Macros (hygenic)
-macro repeat(times, body)
-    for i = 0 to ${times} do
-        ${body}
-    end_for
-end_macro
+| YZ | Önceki Görev (❌ İptal) | Yeni Görev (✅ Aktif) |
+|----|-------------------------|----------------------|
+| **YZ_01** | Modül envanteri | ✅ Tamamlandı (MODÜL_ENVANTER.md) |
+| **YZ_02** | Backend detection | ❌ DURDURULDU (rapor yazılacak) |
+| **YZ_03** | Kritik modül test | ➡️ **P2+p7 Analiz** (Task 1-2) |
+| **YZ_04** | Modül düzeltme | ➡️ **Lexer+Parser** (Task 3-4) |
+| **YZ_05** | Entegrasyon test | ➡️ **Parser Advanced** (Task 5) |
+| **YZ_06** | - | ➡️ **Codegen** (Task 6-7) |
+| **YZ_07** | - | ➡️ **Language Features** (Task 8-9) |
+| **YZ_08** | - | ➡️ **Integration+Test** (Task 10-12) |
 
-repeat(5,
-    yazdir("Hello")
-)
+### YZ_02 Durdurma Talimatı:
 
--- Code generation
-macro generate_getter(struct_name, field_name)
-    function get_${field_name}(${struct_name} obj) as typeof(obj.${field_name})
-        return obj.${field_name}
-    end_function
-end_macro
-
-struct Person
-    string name
-    numeric age
-end_struct
-
-generate_getter(Person, name)  # Creates get_name()
-generate_getter(Person, age)   # Creates get_age()
 ```
+YZ_02: Backend detection işini durdur.
 
-**Compiler Changes:**
-```
-MELP/C/stage0/modules/
-├── parser/
-│   └── macro.c           (~500 satır)
-├── preprocessor/
-│   └── comptime_eval.c   (~600 satır) # Compile-time evaluation
-└── codegen/
-    └── macro_expansion.c (~550 satır)
-```
+Neden: Legacy modules/ dizini kullanılmıyor, ana derleyici (main.c) 
+zaten GCC backend kullanıyor. Backend detection gereksiz.
 
-**Test:**
-```bash
-# Compile-time constant
-./mlp-gcc tests/comptime/const.mlp && ./a.out
+Görev: 
+1. Yaptığın çalışmayı rapor et (YZ_02_KAPANIŞ_RAPORU.md)
+2. Context'i kaydet (ne öğrendin, ne buldun)
+3. Görevi sonlandır
 
-# Macro expansion
-./mlp-gcc tests/comptime/macro.mlp && ./a.out
+Teşekkürler! Değerli analiz yaptın, ama strateji değişti.
 ```
 
 ---
 
-### **Task 6: Advanced Type Inference** (4-5 gün)
+## 📊 İLERLEME TAKİBİ
 
-**Hedef:** Hindley-Milner style type inference
+### Tamamlanan İşler:
+- [x] Task 1: Modül Envanteri (YZ_01) - 31 Aralık 2025
+- [x] Strateji revizesi #1 (PD_01) - 31 Aralık 2025
+- [x] ÜA durum raporu - 1 Ocak 2026
+- [x] Strateji revizesi #2 (PD_02) - 1 Ocak 2026
+- [x] TODO #3 revize edildi - 1 Ocak 2026
 
-**Özellikler:**
-```mlp
--- Type inference (explicit type yok)
-let x = 42              # numeric (inferred)
-let name = "Ali"        # string (inferred)
-let list = [1, 2, 3]    # List<numeric> (inferred)
+### Devam Eden İşler:
+- [ ] YZ_02 durdurma süreci
+- [ ] YZ_03 P2/p7 analiz başlatma
 
--- Function return type inference
-function add(numeric a; numeric b)
-    return a + b  # Return type: numeric (inferred)
-end_function
-
--- Generic type inference
-function identity(x)
-    return x
-end_function
-
-numeric n = identity(42)      # T = numeric
-string s = identity("test")   # T = string
-
--- Complex inference
-function map(list, fn)
-    # list: List<A>, fn: function(A) as B
-    # return: List<B>
-    # All inferred!
-end_function
-
-let doubled = map([1,2,3], lambda(x) => x * 2)
-# doubled: List<numeric>
-```
-
-**Compiler Changes:**
-```
-MELP/C/stage0/modules/
-├── typechecker/
-│   ├── type_inference.c   (~700 satır) # Hindley-Milner algorithm
-│   └── unification.c      (~500 satır) # Type unification
-```
-
-**Test:**
-```bash
-# Type inference test
-./mlp-gcc tests/inference/basic.mlp && ./a.out
-
-# Complex inference
-./mlp-gcc tests/inference/higher_order.mlp && ./a.out
-```
+### Bekleyen İşler:
+- [ ] Task 1-2: P2+p7 Analiz (2 gün)
+- [ ] Task 3-5: Parser (3 gün)
+- [ ] Task 6-7: Codegen (3 gün)
+- [ ] Task 8-10: Language Features (2 gün)
+- [ ] Task 11-12: Integration & Test (2 gün)
 
 ---
 
-## 🔗 BAĞIMLILIKLAR
-
-### Önkoşul:
-- **0-TODO_SELFHOSTING.md** (%100)
-- **1-TODO_TOOLING_BASICS.md** (%100)
-- **2-TODO_STDLIB_EXPAND.md** (%100)
-  - Generics stdlib'de kullanılacak (List<T>, HashMap<K,V>)
-
-### Sonraki TODO:
-- **4-TODO_IDE_INTEGRATION.md**
-  - LSP generics support
-  - Pattern matching autocomplete
-
----
-
-## 🧪 TEST STRATEJİSİ
-
-```bash
-tests/language/
-├── generics/
-│   ├── basic_generic.mlp
-│   ├── multiple_params.mlp
-│   └── constraints.mlp
-├── pattern/
-│   ├── match_test.mlp
-│   ├── exhaustive_test.mlp
-│   └── nested_pattern.mlp
-├── lambda/
-│   ├── closure.mlp
-│   ├── higher_order.mlp
-│   └── capture.mlp
-├── operator/
-│   ├── vector_math.mlp
-│   └── matrix_mul.mlp
-├── comptime/
-│   ├── const_eval.mlp
-│   └── macro_expand.mlp
-└── inference/
-    ├── basic_inference.mlp
-    └── complex_inference.mlp
-```
-
----
-
-## 📦 DELIVERABLES
-
-```
-MELP/C/stage0/modules/
-├── parser/
-│   ├── generics.c           (~400 satır)
-│   ├── pattern_match.c      (~500 satır)
-│   ├── lambda.c             (~400 satır)
-│   ├── operator_overload.c  (~350 satır)
-│   └── macro.c              (~500 satır)
-├── typechecker/
-│   ├── generic_types.c      (~500 satır)
-│   ├── exhaustiveness.c     (~400 satır)
-│   ├── closure_check.c      (~450 satır)
-│   ├── operator_check.c     (~400 satır)
-│   ├── type_inference.c     (~700 satır)
-│   └── unification.c        (~500 satır)
-├── preprocessor/
-│   └── comptime_eval.c      (~600 satır)
-└── codegen/
-    ├── monomorphization.c   (~600 satır)
-    ├── match_codegen.c      (~550 satır)
-    ├── closure_codegen.c    (~600 satır)
-    ├── operator_codegen.c   (~450 satır)
-    └── macro_expansion.c    (~550 satır)
-
-TOPLAM: ~8900 satır (modüler, <500/dosya)
-```
-
----
-
-## 🎯 BAŞARI KRİTERLERİ
-
-- [ ] List<T>, HashMap<K,V> çalışıyor
-- [ ] Pattern matching exhaustiveness check
-- [ ] Closures captures environment
-- [ ] Operator overloading Vector math
-- [ ] Compile-time factorial hesaplanıyor
-- [ ] Type inference higher-order functions
-
----
-
-**Son Güncelleme:** 29 Aralık 2025  
-**Hazırlayan:** PD_01 (Danışman)
+**Güncelleme:** 1 Ocak 2026 (Strateji Revize #2)  
+**Güncelleyen:** MM_01 (Mastermind)  
+**PD Onayı:** PD_02 ✅ (ÜA raporu sonrası)  
+**Sonraki Adım:** YZ_02 durdurma, YZ_03 başlatma

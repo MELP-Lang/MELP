@@ -1,0 +1,119 @@
+-- lang: en-US
+-- syntax: mlp
+-- Test file for codegen.mlp
+-- Tests C code generation from AST
+
+import "lexer.mlp"
+import "parser.mlp"
+import "codegen.mlp"
+
+function test_simple_function()
+    -- Simple function: function add(a, b) return a + b end_function
+    
+    String source = "function add(a, b)\n    return a + b\nend_function"
+    
+    print "=== Test: Simple Function ==="
+    print "Source:"
+    print source
+    print ""
+    
+    -- Tokenize
+    list tokens = tokenize(source)
+    print "Tokens created"
+    
+    -- Parse
+    ASTNode ast = parse(tokens)
+    print "AST created"
+    print ""
+    
+    -- Generate C code
+    String c_code = codegen(ast)
+    print "Generated C code:"
+    print c_code
+    print ""
+end_function
+
+function test_variable_and_operations()
+    String source = "function calculate(x)\n    Numeric y = x + 10\n    Numeric z = y * 2\n    return z\nend_function"
+    
+    print "=== Test: Variables and Operations ==="
+    print "Source:"
+    print source
+    print ""
+    
+    list tokens = tokenize(source)
+    ASTNode ast = parse(tokens)
+    String c_code = codegen(ast)
+    
+    print "Generated C code:"
+    print c_code
+    print ""
+end_function
+
+function test_if_statement()
+    String source = "function max(a, b)\n    if a > b then\n        return a\n    else\n        return b\n    end_if\nend_function"
+    
+    print "=== Test: If Statement ==="
+    print "Source:"
+    print source
+    print ""
+    
+    list tokens = tokenize(source)
+    ASTNode ast = parse(tokens)
+    String c_code = codegen(ast)
+    
+    print "Generated C code:"
+    print c_code
+    print ""
+end_function
+
+function test_while_loop()
+    String source = "function factorial(n)\n    Numeric result = 1\n    while n > 0\n        result = result * n\n        n = n - 1\n    end\n    return result\nend_function"
+    
+    print "=== Test: While Loop ==="
+    print "Source:"
+    print source
+    print ""
+    
+    list tokens = tokenize(source)
+    ASTNode ast = parse(tokens)
+    String c_code = codegen(ast)
+    
+    print "Generated C code:"
+    print c_code
+    print ""
+end_function
+
+function test_multiple_functions()
+    String source = "function add(a, b)\n    return a + b\nend_function\n\nfunction multiply(x, y)\n    return x * y\nend_function"
+    
+    print "=== Test: Multiple Functions ==="
+    print "Source:"
+    print source
+    print ""
+    
+    list tokens = tokenize(source)
+    ASTNode ast = parse(tokens)
+    String c_code = codegen(ast)
+    
+    print "Generated C code:"
+    print c_code
+    print ""
+end_function
+
+function main()
+    print "===================================="
+    print "MLP Stage2 Codegen Tests"
+    print "===================================="
+    print ""
+    
+    test_simple_function()
+    test_variable_and_operations()
+    test_if_statement()
+    test_while_loop()
+    test_multiple_functions()
+    
+    print "===================================="
+    print "All tests completed!"
+    print "===================================="
+end_function
