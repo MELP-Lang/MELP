@@ -1,0 +1,150 @@
+-- lang: en-US
+-- MLP Stage1 Lexer - Simplified for Stage0 Bootstrap
+-- Purpose: Tokenize MLP source, output list of tokens
+-- Constraint: NO imports, but CAN use list() (Stage0 will pass through to C)
+-- Lines: < 300
+
+-- =============================================================================
+-- TOKEN TYPE CONSTANTS
+-- =============================================================================
+
+Numeric TOKEN_EOF = 0
+Numeric TOKEN_IDENTIFIER = 1
+Numeric TOKEN_NUMBER = 2
+Numeric TOKEN_STRING = 3
+
+Numeric TOKEN_FUNCTION = 10
+Numeric TOKEN_END_FUNCTION = 11
+Numeric TOKEN_STRUCT = 12
+Numeric TOKEN_END_STRUCT = 13
+Numeric TOKEN_IF = 14
+Numeric TOKEN_THEN = 15
+Numeric TOKEN_ELSE = 16
+Numeric TOKEN_END_IF = 17
+Numeric TOKEN_WHILE = 18
+Numeric TOKEN_END_WHILE = 19
+Numeric TOKEN_RETURN = 20
+Numeric TOKEN_IMPORT = 21
+
+Numeric TOKEN_NUMERIC = 30
+Numeric TOKEN_STRING_TYPE = 31
+Numeric TOKEN_BOOLEAN = 32
+Numeric TOKEN_LIST = 33
+
+Numeric TOKEN_PLUS = 40
+Numeric TOKEN_MINUS = 41
+Numeric TOKEN_STAR = 42
+Numeric TOKEN_SLASH = 43
+Numeric TOKEN_ASSIGN = 45
+Numeric TOKEN_EQ = 46
+Numeric TOKEN_NEQ = 47
+Numeric TOKEN_LT = 48
+Numeric TOKEN_GT = 49
+
+Numeric TOKEN_LPAREN = 60
+Numeric TOKEN_RPAREN = 61
+Numeric TOKEN_COMMA = 64
+Numeric TOKEN_DOT = 65
+
+-- =============================================================================
+-- DATA STRUCTURES
+-- =============================================================================
+
+struct Token then
+    Numeric type
+    String value
+    Numeric line
+end_struct
+
+struct LexerState then
+    String source
+    Numeric pos
+    Numeric line
+end_struct
+
+-- =============================================================================
+-- FACTORIES
+-- =============================================================================
+
+function make_token(ttype, val, ln)
+    Token t
+    t.type = ttype
+    t.value = val
+    t.line = ln
+    return t
+end_function
+
+function make_lexer_state(src)
+    LexerState ls
+    ls.source = src
+    ls.pos = 0
+    ls.line = 1
+    return ls
+end_function
+
+-- =============================================================================
+-- KEYWORD LOOKUP
+-- =============================================================================
+
+function get_keyword_type(word)
+    Numeric ttype
+    
+    if word == "function" then
+        ttype = TOKEN_FUNCTION
+    else if word == "end_function" then
+        ttype = TOKEN_END_FUNCTION
+    else if word == "struct" then
+        ttype = TOKEN_STRUCT
+    else if word == "end_struct" then
+        ttype = TOKEN_END_STRUCT
+    else if word == "if" then
+        ttype = TOKEN_IF
+    else if word == "then" then
+        ttype = TOKEN_THEN
+    else if word == "else" then
+        ttype = TOKEN_ELSE
+    else if word == "end_if" then
+        ttype = TOKEN_END_IF
+    else if word == "while" then
+        ttype = TOKEN_WHILE
+    else if word == "end_while" then
+        ttype = TOKEN_END_WHILE
+    else if word == "return" then
+        ttype = TOKEN_RETURN
+    else if word == "import" then
+        ttype = TOKEN_IMPORT
+    else if word == "Numeric" then
+        ttype = TOKEN_NUMERIC
+    else if word == "String" then
+        ttype = TOKEN_STRING_TYPE
+    else if word == "Boolean" then
+        ttype = TOKEN_BOOLEAN
+    else if word == "list" then
+        ttype = TOKEN_LIST
+    else
+        ttype = TOKEN_IDENTIFIER
+    end_if
+    
+    return ttype
+end_function
+
+-- =============================================================================
+-- TOKENIZATION
+-- =============================================================================
+
+function tokenize(source)
+    LexerState state
+    state = make_lexer_state(source)
+    
+    list tokens
+    tokens = list()
+    
+    -- TODO: Implement full tokenization loop
+    -- For now, return empty list with EOF token
+    
+    Token eof_token
+    eof_token = make_token(TOKEN_EOF, "", 1)
+    tokens.append(eof_token)
+    
+    return tokens
+end_function

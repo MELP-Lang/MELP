@@ -1,0 +1,55 @@
+{
+  "name": "mlp-language",
+  "displayName": "MLP Language Support",
+  "description": "Language support for MLP (Modern Language Project)",
+  "version": "0.1.0",
+  "publisher": "mlp-team",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/mlp"
+  },
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onLanguage:mlp"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "mlp",
+        "aliases": ["MLP", "mlp"],
+        "extensions": [".mlp"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "mlp",
+        "scopeName": "source.mlp",
+        "path": "./syntaxes/mlp.tmLanguage.json"
+      }
+    ],
+    "configuration": {
+      "title": "MLP",
+      "properties": {
+        "mlp.lspPath": {
+          "type": "string",
+          "default": "mlp-lsp",
+          "description": "Path to the MLP LSP server executable"
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "vscode-languageclient": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.60.0",
+    "@types/node": "^14.0.0"
+  }
+}

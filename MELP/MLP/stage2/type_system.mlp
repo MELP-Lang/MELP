@@ -1,0 +1,481 @@
+-- lang: en-US
+-- syntax: mlp
+-- MLP Type System Module - Stage2 Self-Hosting Compiler
+-- Generic types, constraints, and type checking
+-- 6 Esas Compliant: MODULAR (<500), STATELESS, STRUCT+FUNC
+-- Target: Generic type instantiation and validation
+
+import "lexer.mlp"
+import "parser.mlp"
+
+-- =============================================================================
+-- TYPE DEFINITIONS
+-- =============================================================================
+
+-- Basic type kinds
+struct TypeKind then
+    String name  -- "PRIMITIVE", "GENERIC", "STRUCT", "FUNCTION", "POINTER"
+end_struct
+
+-- Type representation
+struct Type then
+    String kind        -- TypeKind name
+    String name        -- Type name: "Integer", "String", "List"
+    list type_params   -- For generics: ["T"], ["K", "V"]
+    list constraints   -- Generic constraints: ["T: Numeric"]
+    Type return_type   -- For functions
+    list param_types   -- For functions
+    Boolean is_pointer
+end_struct
+
+-- Generic constraint (trait bound)
+struct Constraint then
+    String type_param  -- "T"
+    String trait_name  -- "Numeric", "Comparable", "Printable"
+end_struct
+
+-- Generic instantiation record
+struct GenericInstance then
+    String base_type      -- "List", "HashMap"
+    list type_args        -- ["Integer"], ["String", "Integer"]
+    String concrete_name  -- "List_Integer", "HashMap_String_Integer"
+    Type concrete_type    -- Instantiated type
+end_struct
+
+-- Type system state
+struct TypeSystem then
+    list primitive_types    -- Built-in types
+    list generic_types      -- Generic type definitions
+    list instances          -- Instantiated generics
+    list struct_types       -- User-defined structs
+    list function_types     -- Function signatures
+    Numeric instance_counter
+end_struct
+
+-- =============================================================================
+-- PRIMITIVE TYPES
+-- =============================================================================
+
+function make_primitive_type(name)
+    Type t
+    t.kind = "PRIMITIVE"
+    t.name = name
+    t.type_params = list()
+    t.constraints = list()
+    t.return_type = null
+    t.param_types = list()
+    t.is_pointer = false
+    return t
+end_function
+
+function init_primitive_types()
+    list primitives = list()
+    mlp_list_append(primitives, make_primitive_type("Integer"))
+    mlp_list_append(primitives, make_primitive_type("String"))
+    mlp_list_append(primitives, make_primitive_type("Boolean"))
+    mlp_list_append(primitives, make_primitive_type("Float"))
+    mlp_list_append(primitives, make_primitive_type("Void"))
+    mlp_list_append(primitives, make_primitive_type("Numeric"))
+    return primitives
+end_function
+
+-- =============================================================================
+-- TYPE SYSTEM INITIALIZATION
+-- =============================================================================
+
+function make_type_system()
+    TypeSystem ts
+    ts.primitive_types = init_primitive_types()
+    ts.generic_types = list()
+    ts.instances = list()
+    ts.struct_types = list()
+    ts.function_types = list()
+    ts.instance_counter = 0
+    return ts
+end_function
+
+-- =============================================================================
+-- GENERIC TYPE OPERATIONS
+-- =============================================================================
+
+-- Create a generic type definition
+function make_generic_type(name, type_params, constraints)
+    Type t
+    t.kind = "GENERIC"
+    t.name = name
+    t.type_params = type_params
+    t.constraints = constraints
+    t.return_type = null
+    t.param_types = list()
+    t.is_pointer = false
+    return t
+end_function
+
+-- Generate concrete name from generic: List<Integer> → List_Integer
+function generate_concrete_name(base_name, type_args)
+    String result = base_name
+    Numeric i = 0
+    while i < mlp_list_length(type_args)
+        Type arg = mlp_list_get(type_args, i)
+        result = result + "_" + arg.name
+        i = i + 1
+    end
+    return result
+end_function
+
+-- Check if generic instance already exists
+function find_generic_instance(ts, base_name, type_args)
+    Numeric i = 0
+    while i < mlp_list_length(ts.instances)
+        GenericInstance inst = mlp_list_get(ts.instances, i)
+        if inst.base_type == base_name then
+            -- Check if type_args match
+            if mlp_list_length(inst.type_args) == mlp_list_length(type_args) then
+                Boolean match = true
+                Numeric j = 0
+                while j < mlp_list_length(type_args)
+                    Type arg1 = mlp_list_get(inst.type_args, j)
+                    Type arg2 = mlp_list_get(type_args, j)
+                    if arg1.name != arg2.name then
+                        match = false
+                    end
+                    j = j + 1
+                end
+                if match then
+                    return inst
+                end
+            end
+        end
+        i = i + 1
+    end
+    return null
+end_function
+
+-- Instantiate a generic type
+function instantiate_generic(ts, base_name, type_args)
+    -- Check if already instantiated
+    GenericInstance existing = find_generic_instance(ts, base_name, type_args)
+    if existing != null then
+        return existing
+    end
+    
+    -- Find generic type definition
+    Type generic_type = null
+    Numeric i = 0
+    while i < mlp_list_length(ts.generic_types)
+        Type t = mlp_list_get(ts.generic_types, i)
+        if t.name == base_name then
+            generic_type = t
+        end
+        i = i + 1
+    end
+    
+    if generic_type == null then
+        print("Error: Generic type not found: " + base_name)
+        return null
+    end
+    
+    -- Validate type arguments count
+    Numeric expected = mlp_list_length(generic_type.type_params)
+    Numeric provided = mlp_list_length(type_args)
+    if expected != provided then
+        print("Error: Generic " + base_name + " expects " + mlp_to_string(expected) + " type arguments, got " + mlp_to_string(provided))
+        return null
+    end
+    
+    -- Check constraints
+    Boolean constraints_ok = check_constraints(generic_type.constraints, type_args)
+    if not constraints_ok then
+        return null
+    end
+    
+    -- Create new instance
+    GenericInstance inst
+    inst.base_type = base_name
+    inst.type_args = type_args
+    inst.concrete_name = generate_concrete_name(base_name, type_args)
+    
+    -- Create concrete type
+    Type concrete
+    concrete.kind = "STRUCT"
+    concrete.name = inst.concrete_name
+    concrete.type_params = list()
+    concrete.constraints = list()
+    concrete.return_type = null
+    concrete.param_types = list()
+    concrete.is_pointer = false
+    inst.concrete_type = concrete
+    
+    -- Register instance
+    mlp_list_append(ts.instances, inst)
+    ts.instance_counter = ts.instance_counter + 1
+    
+    return inst
+end_function
+
+-- =============================================================================
+-- CONSTRAINT CHECKING
+-- =============================================================================
+
+-- Check if a type satisfies a constraint
+function type_satisfies_constraint(type_arg, constraint)
+    -- Built-in trait checks
+    if constraint.trait_name == "Numeric" then
+        if type_arg.name == "Integer" or type_arg.name == "Float" then
+            return true
+        end
+        return false
+    end
+    
+    if constraint.trait_name == "Comparable" then
+        if type_arg.name == "Integer" or type_arg.name == "Float" or type_arg.name == "String" then
+            return true
+        end
+        return false
+    end
+    
+    if constraint.trait_name == "Printable" then
+        -- All types are printable by default
+        return true
+    end
+    
+    -- Unknown trait - default to true for now
+    return true
+end_function
+
+-- Check all constraints for generic instantiation
+function check_constraints(constraints, type_args)
+    Numeric i = 0
+    while i < mlp_list_length(constraints)
+        Constraint c = mlp_list_get(constraints, i)
+        
+        -- Find type argument for this constraint
+        Numeric j = 0
+        Boolean found = false
+        while j < mlp_list_length(type_args)
+            Type arg = mlp_list_get(type_args, j)
+            -- Match type param name (simplified - assumes positional)
+            if j == i then
+                if not type_satisfies_constraint(arg, c) then
+                    print("Error: Type " + arg.name + " does not satisfy constraint " + c.trait_name)
+                    return false
+                end
+                found = true
+            end
+            j = j + 1
+        end
+        
+        i = i + 1
+    end
+    return true
+end_function
+
+-- =============================================================================
+-- TYPE CHECKING UTILITIES
+-- =============================================================================
+
+-- Check if two types are equal
+function types_equal(t1, t2)
+    if t1.name != t2.name then
+        return false
+    end
+    if t1.kind != t2.kind then
+        return false
+    end
+    -- Check generic parameters if any
+    if mlp_list_length(t1.type_params) != mlp_list_length(t2.type_params) then
+        return false
+    end
+    return true
+end_function
+
+-- Check if type is primitive
+function is_primitive_type(ts, type_name)
+    Numeric i = 0
+    while i < mlp_list_length(ts.primitive_types)
+        Type t = mlp_list_get(ts.primitive_types, i)
+        if t.name == type_name then
+            return true
+        end
+        i = i + 1
+    end
+    return false
+end_function
+
+-- Lookup type by name
+function lookup_type(ts, type_name)
+    -- Check primitives
+    Numeric i = 0
+    while i < mlp_list_length(ts.primitive_types)
+        Type t = mlp_list_get(ts.primitive_types, i)
+        if t.name == type_name then
+            return t
+        end
+        i = i + 1
+    end
+    
+    -- Check generic types
+    i = 0
+    while i < mlp_list_length(ts.generic_types)
+        Type t = mlp_list_get(ts.generic_types, i)
+        if t.name == type_name then
+            return t
+        end
+        i = i + 1
+    end
+    
+    -- Check struct types
+    i = 0
+    while i < mlp_list_length(ts.struct_types)
+        Type t = mlp_list_get(ts.struct_types, i)
+        if t.name == type_name then
+            return t
+        end
+        i = i + 1
+    end
+    
+    return null
+end_function
+
+-- =============================================================================
+-- FUNCTION TYPE OPERATIONS
+-- =============================================================================
+
+-- Create function type
+function make_function_type(return_type, param_types)
+    Type t
+    t.kind = "FUNCTION"
+    t.name = "function"
+    t.type_params = list()
+    t.constraints = list()
+    t.return_type = return_type
+    t.param_types = param_types
+    t.is_pointer = false
+    return t
+end_function
+
+-- Register function type
+function register_function_type(ts, func_name, return_type, param_types)
+    Type func_type = make_function_type(return_type, param_types)
+    mlp_list_append(ts.function_types, func_type)
+    return func_type
+end_function
+
+-- =============================================================================
+-- STRUCT TYPE OPERATIONS
+-- =============================================================================
+
+-- Create struct type
+function make_struct_type(name)
+    Type t
+    t.kind = "STRUCT"
+    t.name = name
+    t.type_params = list()
+    t.constraints = list()
+    t.return_type = null
+    t.param_types = list()
+    t.is_pointer = false
+    return t
+end_function
+
+-- Register struct type
+function register_struct_type(ts, struct_name)
+    Type struct_type = make_struct_type(struct_name)
+    mlp_list_append(ts.struct_types, struct_type)
+    return struct_type
+end_function
+
+-- =============================================================================
+-- GENERIC REGISTRATION
+-- =============================================================================
+
+-- Register a generic type definition
+function register_generic_type(ts, name, type_params, constraints)
+    Type generic = make_generic_type(name, type_params, constraints)
+    mlp_list_append(ts.generic_types, generic)
+    return generic
+end_function
+
+-- =============================================================================
+-- TYPE TO STRING (for debugging)
+-- =============================================================================
+
+function type_to_string(t)
+    String result = t.name
+    if mlp_list_length(t.type_params) > 0 then
+        result = result + "<"
+        Numeric i = 0
+        while i < mlp_list_length(t.type_params)
+            String param = mlp_list_get(t.type_params, i)
+            if i > 0 then
+                result = result + ", "
+            end
+            result = result + param
+            i = i + 1
+        end
+        result = result + ">"
+    end
+    return result
+end_function
+
+-- =============================================================================
+-- BUILT-IN GENERIC TYPES
+-- =============================================================================
+
+-- Initialize common generic types
+function init_builtin_generics(ts)
+    -- List<T>
+    list list_params = list()
+    mlp_list_append(list_params, "T")
+    list list_constraints = list()
+    register_generic_type(ts, "List", list_params, list_constraints)
+    
+    -- HashMap<K, V>
+    list map_params = list()
+    mlp_list_append(map_params, "K")
+    mlp_list_append(map_params, "V")
+    list map_constraints = list()
+    register_generic_type(ts, "HashMap", map_params, map_constraints)
+    
+    -- Option<T>
+    list option_params = list()
+    mlp_list_append(option_params, "T")
+    list option_constraints = list()
+    register_generic_type(ts, "Option", option_params, option_constraints)
+    
+    -- Result<T, E>
+    list result_params = list()
+    mlp_list_append(result_params, "T")
+    mlp_list_append(result_params, "E")
+    list result_constraints = list()
+    register_generic_type(ts, "Result", result_params, result_constraints)
+    
+    return ts
+end_function
+
+-- =============================================================================
+-- MAIN API FUNCTIONS
+-- =============================================================================
+
+-- Initialize type system with built-in types
+function init_type_system()
+    TypeSystem ts = make_type_system()
+    ts = init_builtin_generics(ts)
+    return ts
+end_function
+
+-- Main entry point for type checking
+function type_check(ast)
+    TypeSystem ts = init_type_system()
+    -- Type checking logic would go here
+    -- For now, just return the type system
+    return ts
+end_function
+
+-- Main entry point for generic instantiation
+function instantiate_generics(ast)
+    TypeSystem ts = init_type_system()
+    -- Parse AST and instantiate all generic types
+    -- This integrates with codegen_advanced.mlp
+    return ts
+end_function

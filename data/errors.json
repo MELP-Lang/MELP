@@ -1,0 +1,866 @@
+{
+  "E0001": {
+    "tr": {
+      "title": "Tanımlanmamış Değişken",
+      "message": "'{var}' değişkeni bu kapsamda bulunamadı",
+      "help": "Değişkeni kullanmadan önce tanımlamayı deneyin:\n  let {var} = değer;",
+      "example": "let x = 42;\nprint(x);  // ✅ Doğru\nprint(y);  // ❌ Tanımsız",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Undefined Variable",
+      "message": "Cannot find value '{var}' in this scope",
+      "help": "Try defining the variable before use:\n  let {var} = value;",
+      "example": "let x = 42;\nprint(x);  // ✅ Correct\nprint(y);  // ❌ Undefined",
+      "severity": "error"
+    }
+  },
+  "E0002": {
+    "tr": {
+      "title": "Tip Uyuşmazlığı",
+      "message": "'{expected}' tipi beklenirken '{found}' tipi bulundu",
+      "help": "Değişkenin tipini kontrol edin veya tip dönüşümü yapın",
+      "example": "let x: int = 42;\nlet y: int = \"merhaba\";  // ❌ String int'e atanamaz",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Type Mismatch",
+      "message": "Expected type '{expected}' but found '{found}'",
+      "help": "Check the variable type or perform type conversion",
+      "example": "let x: int = 42;\nlet y: int = \"hello\";  // ❌ Cannot assign string to int",
+      "severity": "error"
+    }
+  },
+  "E0003": {
+    "tr": {
+      "title": "Sözdizimi Hatası",
+      "message": "Beklenmeyen token: '{token}'",
+      "help": "Sözdizimini kontrol edin. Parantezler ve noktalı virgüller dengeli mi?",
+      "example": "let x = (5 + 3;  // ❌ Eksik kapanış parantezi\nlet x = (5 + 3);  // ✅ Doğru",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Syntax Error",
+      "message": "Unexpected token: '{token}'",
+      "help": "Check syntax. Are parentheses and semicolons balanced?",
+      "example": "let x = (5 + 3;  // ❌ Missing closing parenthesis\nlet x = (5 + 3);  // ✅ Correct",
+      "severity": "error"
+    }
+  },
+  "E0004": {
+    "tr": {
+      "title": "Fonksiyon Bulunamadı",
+      "message": "'{func}' fonksiyonu tanımlı değil",
+      "help": "Fonksiyonu import etmeyi veya tanımlamayı deneyin",
+      "example": "import { math } from \"std/math\";\nmath.sqrt(16);  // ✅ Doğru",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Function Not Found",
+      "message": "Function '{func}' is not defined",
+      "help": "Try importing or defining the function",
+      "example": "import { math } from \"std/math\";\nmath.sqrt(16);  // ✅ Correct",
+      "severity": "error"
+    }
+  },
+  "E0005": {
+    "tr": {
+      "title": "Yanlış Argüman Sayısı",
+      "message": "'{func}' fonksiyonu {expected} argüman bekliyor, {found} verildi",
+      "help": "Fonksiyon tanımını kontrol edin ve doğru sayıda argüman verin",
+      "example": "func add(a: int, b: int) -> int { return a + b; }\nadd(5);  // ❌ 2 argüman gerekli\nadd(5, 3);  // ✅ Doğru",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Wrong Number of Arguments",
+      "message": "Function '{func}' expects {expected} arguments, but {found} were given",
+      "help": "Check function definition and provide correct number of arguments",
+      "example": "func add(a: int, b: int) -> int { return a + b; }\nadd(5);  // ❌ Requires 2 arguments\nadd(5, 3);  // ✅ Correct",
+      "severity": "error"
+    }
+  },
+  "E0006": {
+    "tr": {
+      "title": "Null Pointer Erişimi",
+      "message": "Null değere erişim yapılamaz",
+      "help": "Değişkenin null olup olmadığını kontrol edin",
+      "example": "let x = null;\nif (x != null) {\n  print(x);\n}  // ✅ Güvenli",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Null Pointer Access",
+      "message": "Cannot access null value",
+      "help": "Check if the variable is null before accessing",
+      "example": "let x = null;\nif (x != null) {\n  print(x);\n}  // ✅ Safe",
+      "severity": "error"
+    }
+  },
+  "E0007": {
+    "tr": {
+      "title": "Dizin Sınır Dışı",
+      "message": "Dizin {index} geçersiz. Dizin aralığı: 0-{max}",
+      "help": "Dizin değerini kontrol edin ve sınırlar içinde tutun",
+      "example": "let arr = [1, 2, 3];\nprint(arr[5]);  // ❌ Sınır dışı\nprint(arr[0]);  // ✅ Doğru",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Index Out of Bounds",
+      "message": "Index {index} is invalid. Valid range: 0-{max}",
+      "help": "Check index value and keep it within bounds",
+      "example": "let arr = [1, 2, 3];\nprint(arr[5]);  // ❌ Out of bounds\nprint(arr[0]);  // ✅ Correct",
+      "severity": "error"
+    }
+  },
+  "E0008": {
+    "tr": {
+      "title": "Bölme Hatası",
+      "message": "Sıfıra bölme hatası",
+      "help": "Bölen değerin sıfır olmadığından emin olun",
+      "example": "let x = 10 / 0;  // ❌ Sıfıra bölme\nlet x = 10 / 2;  // ✅ Doğru",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Division Error",
+      "message": "Division by zero",
+      "help": "Ensure divisor is not zero",
+      "example": "let x = 10 / 0;  // ❌ Division by zero\nlet x = 10 / 2;  // ✅ Correct",
+      "severity": "error"
+    }
+  },
+  "E0009": {
+    "tr": {
+      "title": "Return Eksik",
+      "message": "Fonksiyon '{func}' bir değer döndürmeli",
+      "help": "Tüm yollarda return ifadesi ekleyin",
+      "example": "func getValue() -> int {\n  if (true) { return 5; }\n  // ❌ Eksik return\n}",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Missing Return",
+      "message": "Function '{func}' must return a value",
+      "help": "Add return statement in all paths",
+      "example": "func getValue() -> int {\n  if (true) { return 5; }\n  // ❌ Missing return\n}",
+      "severity": "error"
+    }
+  },
+  "E0010": {
+    "tr": {
+      "title": "Çoklu Tanımlama",
+      "message": "'{var}' zaten bu kapsamda tanımlanmış",
+      "help": "Farklı bir değişken ismi kullanın veya mevcut değişkeni güncelleyin",
+      "example": "let x = 5;\nlet x = 10;  // ❌ Çoklu tanımlama\nx = 10;  // ✅ Güncelleme",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Duplicate Definition",
+      "message": "'{var}' is already defined in this scope",
+      "help": "Use a different variable name or update existing variable",
+      "example": "let x = 5;\nlet x = 10;  // ❌ Duplicate definition\nx = 10;  // ✅ Update",
+      "severity": "error"
+    }
+  },
+  "E0100": {
+    "tr": {
+      "title": "Geçersiz Tip Dönüşümü",
+      "message": "'{from}' tipinden '{to}' tipine dönüşüm yapılamaz",
+      "help": "Uyumlu tipleri kullanın veya explicit cast yapın",
+      "example": "let x: string = \"42\";\nlet y: int = int(x);  // ✅ Explicit cast",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Invalid Type Conversion",
+      "message": "Cannot convert from type '{from}' to '{to}'",
+      "help": "Use compatible types or perform explicit cast",
+      "example": "let x: string = \"42\";\nlet y: int = int(x);  // ✅ Explicit cast",
+      "severity": "error"
+    }
+  },
+  "E0101": {
+    "tr": {
+      "title": "Tip Çıkarımı Başarısız",
+      "message": "'{var}' değişkeninin tipi çıkarılamadı",
+      "help": "Explicit tip annotation kullanın: let {var}: tip = değer;",
+      "example": "let x;  // ❌ Tip belirtilmedi\nlet x: int = 5;  // ✅ Doğru",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Type Inference Failed",
+      "message": "Cannot infer type of variable '{var}'",
+      "help": "Use explicit type annotation: let {var}: type = value;",
+      "example": "let x;  // ❌ No type specified\nlet x: int = 5;  // ✅ Correct",
+      "severity": "error"
+    }
+  },
+  "E0102": {
+    "tr": {
+      "title": "Geçersiz İşlem",
+      "message": "'{op}' işlemi '{type}' tipi için tanımlı değil",
+      "help": "Bu tip için desteklenen işlemleri kontrol edin",
+      "example": "let x = \"hello\" / 2;  // ❌ String bölünemez",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Invalid Operation",
+      "message": "Operation '{op}' is not defined for type '{type}'",
+      "help": "Check supported operations for this type",
+      "example": "let x = \"hello\" / 2;  // ❌ Cannot divide string",
+      "severity": "error"
+    }
+  },
+  "E0103": {
+    "tr": {
+      "title": "Uyumsuz Tipler",
+      "message": "'{op}' işlemi için '{left}' ve '{right}' tipleri uyumsuz",
+      "help": "Her iki tarafı da aynı tipe dönüştürün",
+      "example": "let x = 5 + \"10\";  // ❌ int + string\nlet x = 5 + int(\"10\");  // ✅ Doğru",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Incompatible Types",
+      "message": "Types '{left}' and '{right}' are incompatible for operation '{op}'",
+      "help": "Convert both sides to the same type",
+      "example": "let x = 5 + \"10\";  // ❌ int + string\nlet x = 5 + int(\"10\");  // ✅ Correct",
+      "severity": "error"
+    }
+  },
+  "E0104": {
+    "tr": {
+      "title": "Struct Alan Bulunamadı",
+      "message": "'{struct}' struct'ında '{field}' alanı yok",
+      "help": "Struct tanımını kontrol edin ve geçerli alan adı kullanın",
+      "example": "struct Point { x: int, y: int }\nlet p = Point{x: 1, y: 2};\nprint(p.z);  // ❌ z alanı yok",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Struct Field Not Found",
+      "message": "Struct '{struct}' has no field '{field}'",
+      "help": "Check struct definition and use valid field name",
+      "example": "struct Point { x: int, y: int }\nlet p = Point{x: 1, y: 2};\nprint(p.z);  // ❌ No field z",
+      "severity": "error"
+    }
+  },
+  "E0105": {
+    "tr": {
+      "title": "Geçersiz Dönüş Tipi",
+      "message": "Fonksiyon '{expected}' dönmeli ama '{found}' döndürüyor",
+      "help": "Return ifadesini fonksiyon imzasıyla eşleştirin",
+      "example": "func getAge() -> int {\n  return \"25\";  // ❌ String döndürüyor\n}",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Invalid Return Type",
+      "message": "Function should return '{expected}' but returns '{found}'",
+      "help": "Match return statement with function signature",
+      "example": "func getAge() -> int {\n  return \"25\";  // ❌ Returning string\n}",
+      "severity": "error"
+    }
+  },
+  "E0200": {
+    "tr": {
+      "title": "Modül Bulunamadı",
+      "message": "'{module}' modülü import edilemedi",
+      "help": "Modül yolunu kontrol edin ve modülün var olduğundan emin olun",
+      "example": "import { utils } from \"std/utils\";  // Doğru yol kullanın",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Module Not Found",
+      "message": "Cannot import module '{module}'",
+      "help": "Check module path and ensure module exists",
+      "example": "import { utils } from \"std/utils\";  // Use correct path",
+      "severity": "error"
+    }
+  },
+  "E0201": {
+    "tr": {
+      "title": "İsim Çakışması",
+      "message": "'{name}' ismi zaten kullanılıyor",
+      "help": "Farklı bir isim seçin veya qualified import kullanın",
+      "example": "import { log } from \"std/debug\";\nimport { log } from \"std/file\";  // ❌ Çakışma",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Name Collision",
+      "message": "Name '{name}' is already in use",
+      "help": "Choose a different name or use qualified import",
+      "example": "import { log } from \"std/debug\";\nimport { log } from \"std/file\";  // ❌ Collision",
+      "severity": "error"
+    }
+  },
+  "E0202": {
+    "tr": {
+      "title": "Private Erişim",
+      "message": "'{name}' private'dır ve erişilemez",
+      "help": "Public bir alternatif kullanın veya kapsam içinde erişin",
+      "example": "// module.mlp\nlet _private = 5;  // _ ile private\nexport let public = 10;",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Private Access",
+      "message": "'{name}' is private and cannot be accessed",
+      "help": "Use public alternative or access within scope",
+      "example": "// module.mlp\nlet _private = 5;  // _ makes it private\nexport let public = 10;",
+      "severity": "error"
+    }
+  },
+  "E0203": {
+    "tr": {
+      "title": "Export Hatası",
+      "message": "'{name}' export edilemiyor - tanımlı değil",
+      "help": "Export etmeden önce tanımlayın",
+      "example": "let value = 42;\nexport { value };  // ✅ Doğru",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Export Error",
+      "message": "Cannot export '{name}' - not defined",
+      "help": "Define before exporting",
+      "example": "let value = 42;\nexport { value };  // ✅ Correct",
+      "severity": "error"
+    }
+  },
+  "E0204": {
+    "tr": {
+      "title": "Döngüsel Import",
+      "message": "Döngüsel import tespit edildi: {cycle}",
+      "help": "Modül bağımlılıklarını yeniden yapılandırın",
+      "example": "// a.mlp imports b.mlp\n// b.mlp imports a.mlp  // ❌ Döngü",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Circular Import",
+      "message": "Circular import detected: {cycle}",
+      "help": "Restructure module dependencies",
+      "example": "// a.mlp imports b.mlp\n// b.mlp imports a.mlp  // ❌ Cycle",
+      "severity": "error"
+    }
+  },
+  "E0300": {
+    "tr": {
+      "title": "Dosya Bulunamadı",
+      "message": "'{file}' dosyası bulunamadı",
+      "help": "Dosya yolunu kontrol edin",
+      "example": "import { data } from \"./data.mlp\";  // Yolu kontrol edin",
+      "severity": "error"
+    },
+    "en": {
+      "title": "File Not Found",
+      "message": "File '{file}' not found",
+      "help": "Check file path",
+      "example": "import { data } from \"./data.mlp\";  // Check path",
+      "severity": "error"
+    }
+  },
+  "E0301": {
+    "tr": {
+      "title": "Okuma Hatası",
+      "message": "'{file}' dosyası okunamadı: {reason}",
+      "help": "Dosya izinlerini ve erişilebilirliğini kontrol edin",
+      "example": "// Dosya var mı? İzinler doğru mu?",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Read Error",
+      "message": "Cannot read file '{file}': {reason}",
+      "help": "Check file permissions and accessibility",
+      "example": "// Does file exist? Are permissions correct?",
+      "severity": "error"
+    }
+  },
+  "E0302": {
+    "tr": {
+      "title": "Yazma Hatası",
+      "message": "'{file}' dosyasına yazılamadı: {reason}",
+      "help": "Yazma izinlerini ve disk alanını kontrol edin",
+      "example": "// Yazma izni var mı? Disk dolu mu?",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Write Error",
+      "message": "Cannot write to file '{file}': {reason}",
+      "help": "Check write permissions and disk space",
+      "example": "// Have write permission? Is disk full?",
+      "severity": "error"
+    }
+  },
+  "E0400": {
+    "tr": {
+      "title": "Ulaşılamaz Kod",
+      "message": "Bu kod hiçbir zaman çalışmayacak",
+      "help": "Return, break veya continue'dan sonraki kodu kaldırın",
+      "example": "func test() {\n  return 5;\n  print(\"merhaba\");  // ❌ Ulaşılamaz\n}",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Unreachable Code",
+      "message": "This code will never be executed",
+      "help": "Remove code after return, break, or continue",
+      "example": "func test() {\n  return 5;\n  print(\"hello\");  // ❌ Unreachable\n}",
+      "severity": "error"
+    }
+  },
+  "E0401": {
+    "tr": {
+      "title": "Break Yanlış Kullanım",
+      "message": "Break ifadesi döngü dışında kullanılamaz",
+      "help": "Break'i sadece while, for veya loop içinde kullanın",
+      "example": "while (true) {\n  break;  // ✅ Doğru\n}\nbreak;  // ❌ Döngü dışında",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Break Misuse",
+      "message": "Break statement cannot be used outside loops",
+      "help": "Use break only inside while, for, or loop",
+      "example": "while (true) {\n  break;  // ✅ Correct\n}\nbreak;  // ❌ Outside loop",
+      "severity": "error"
+    }
+  },
+  "E0402": {
+    "tr": {
+      "title": "Continue Yanlış Kullanım",
+      "message": "Continue ifadesi döngü dışında kullanılamaz",
+      "help": "Continue'yu sadece while, for veya loop içinde kullanın",
+      "example": "for i in 0..10 {\n  continue;  // ✅ Doğru\n}\ncontinue;  // ❌ Döngü dışında",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Continue Misuse",
+      "message": "Continue statement cannot be used outside loops",
+      "help": "Use continue only inside while, for, or loop",
+      "example": "for i in 0..10 {\n  continue;  // ✅ Correct\n}\ncontinue;  // ❌ Outside loop",
+      "severity": "error"
+    }
+  },
+  "E0403": {
+    "tr": {
+      "title": "Sonsuz Döngü",
+      "message": "Potansiyel sonsuz döngü tespit edildi",
+      "help": "Döngüden çıkış koşulu ekleyin veya break kullanın",
+      "example": "while (true) {  // ❌ Çıkış yok\n  // kod\n}",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Infinite Loop",
+      "message": "Potential infinite loop detected",
+      "help": "Add exit condition or use break",
+      "example": "while (true) {  // ❌ No exit\n  // code\n}",
+      "severity": "error"
+    }
+  },
+  "E0404": {
+    "tr": {
+      "title": "If Koşul Hatası",
+      "message": "If koşulu boolean olmalı, '{found}' bulundu",
+      "help": "Karşılaştırma operatörü kullanın (==, !=, <, >, <=, >=)",
+      "example": "if (5) { }  // ❌ Boolean değil\nif (5 > 3) { }  // ✅ Doğru",
+      "severity": "error"
+    },
+    "en": {
+      "title": "If Condition Error",
+      "message": "If condition must be boolean, found '{found}'",
+      "help": "Use comparison operator (==, !=, <, >, <=, >=)",
+      "example": "if (5) { }  // ❌ Not boolean\nif (5 > 3) { }  // ✅ Correct",
+      "severity": "error"
+    }
+  },
+  "E0405": {
+    "tr": {
+      "title": "While Koşul Hatası",
+      "message": "While koşulu boolean olmalı, '{found}' bulundu",
+      "help": "Karşılaştırma operatörü kullanın",
+      "example": "while (count) { }  // ❌\nwhile (count > 0) { }  // ✅",
+      "severity": "error"
+    },
+    "en": {
+      "title": "While Condition Error",
+      "message": "While condition must be boolean, found '{found}'",
+      "help": "Use comparison operator",
+      "example": "while (count) { }  // ❌\nwhile (count > 0) { }  // ✅",
+      "severity": "error"
+    }
+  },
+  "E0500": {
+    "tr": {
+      "title": "Bellek Hatası",
+      "message": "Bellek tahsis edilemedi",
+      "help": "Sistem kaynaklarını kontrol edin",
+      "example": "// Çok büyük array tanımlamaya çalışıyorsunuz?",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Memory Error",
+      "message": "Cannot allocate memory",
+      "help": "Check system resources",
+      "example": "// Trying to allocate very large array?",
+      "severity": "error"
+    }
+  },
+  "E0501": {
+    "tr": {
+      "title": "Stack Overflow",
+      "message": "Stack taşması - çok derin rekürsyon",
+      "help": "Rekürsif çağrı derinliğini azaltın veya iteratif yaklaşım kullanın",
+      "example": "func loop(n: int) {\n  loop(n + 1);  // ❌ Sonsuz rekürsyon\n}",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Stack Overflow",
+      "message": "Stack overflow - too deep recursion",
+      "help": "Reduce recursive call depth or use iterative approach",
+      "example": "func loop(n: int) {\n  loop(n + 1);  // ❌ Infinite recursion\n}",
+      "severity": "error"
+    }
+  },
+  "E0502": {
+    "tr": {
+      "title": "Geçersiz Pointer",
+      "message": "Geçersiz pointer erişimi",
+      "help": "Pointer'ın geçerli bir adresi gösterdiğinden emin olun",
+      "example": "// Pointer kullanımını kontrol edin",
+      "severity": "error"
+    },
+    "en": {
+      "title": "Invalid Pointer",
+      "message": "Invalid pointer access",
+      "help": "Ensure pointer points to valid address",
+      "example": "// Check pointer usage",
+      "severity": "error"
+    }
+  },
+  "W0001": {
+    "tr": {
+      "title": "Kullanılmayan Değişken",
+      "message": "'{var}' değişkeni tanımlandı ama kullanılmadı",
+      "help": "Kullanılmayan değişkeni kaldırın veya '_' ile başlatın (private)",
+      "example": "let unused = 5;  // ⚠️ Kullanılmıyor\nlet _private = 5;  // ✅ _ ile başlarsa uyarı yok",
+      "severity": "warning"
+    },
+    "en": {
+      "title": "Unused Variable",
+      "message": "Variable '{var}' is defined but never used",
+      "help": "Remove unused variable or prefix with '_' (private)",
+      "example": "let unused = 5;  // ⚠️ Not used\nlet _private = 5;  // ✅ No warning with _",
+      "severity": "warning"
+    }
+  },
+  "W0002": {
+    "tr": {
+      "title": "Kullanılmayan Import",
+      "message": "'{import}' import edildi ama kullanılmadı",
+      "help": "Gereksiz import'u kaldırın",
+      "example": "import { math } from \"std/math\";  // ⚠️ Kullanılmıyor",
+      "severity": "warning"
+    },
+    "en": {
+      "title": "Unused Import",
+      "message": "Import '{import}' is imported but never used",
+      "help": "Remove unnecessary import",
+      "example": "import { math } from \"std/math\";  // ⚠️ Not used",
+      "severity": "warning"
+    }
+  },
+  "W0003": {
+    "tr": {
+      "title": "Kullanılmayan Fonksiyon",
+      "message": "'{func}' fonksiyonu tanımlandı ama kullanılmadı",
+      "help": "Kullanılmayan fonksiyonu kaldırın veya export edin",
+      "example": "func helper() { }  // ⚠️ Kullanılmıyor\nexport func helper() { }  // ✅ Export edildi",
+      "severity": "warning"
+    },
+    "en": {
+      "title": "Unused Function",
+      "message": "Function '{func}' is defined but never used",
+      "help": "Remove unused function or export it",
+      "example": "func helper() { }  // ⚠️ Not used\nexport func helper() { }  // ✅ Exported",
+      "severity": "warning"
+    }
+  },
+  "W0004": {
+    "tr": {
+      "title": "Shadowing",
+      "message": "'{var}' değişkeni dış kapsamdaki değişkeni gölgeliyor",
+      "help": "Farklı bir isim kullanmayı düşünün",
+      "example": "let x = 5;\nfunc test() {\n  let x = 10;  // ⚠️ Gölgeleme\n}",
+      "severity": "warning"
+    },
+    "en": {
+      "title": "Shadowing",
+      "message": "Variable '{var}' shadows variable from outer scope",
+      "help": "Consider using a different name",
+      "example": "let x = 5;\nfunc test() {\n  let x = 10;  // ⚠️ Shadowing\n}",
+      "severity": "warning"
+    }
+  },
+  "W0005": {
+    "tr": {
+      "title": "Potansiyel Null",
+      "message": "'{var}' null olabilir",
+      "help": "Null kontrolü ekleyin",
+      "example": "let x = getValue();  // null dönebilir\nif (x != null) { print(x); }  // ✅ Güvenli",
+      "severity": "warning"
+    },
+    "en": {
+      "title": "Potential Null",
+      "message": "'{var}' might be null",
+      "help": "Add null check",
+      "example": "let x = getValue();  // might return null\nif (x != null) { print(x); }  // ✅ Safe",
+      "severity": "warning"
+    }
+  },
+  "W0006": {
+    "tr": {
+      "title": "Tip Annotation Önerilir",
+      "message": "'{var}' için explicit tip annotation önerilir",
+      "help": "Tip ekleyin: let {var}: tip = değer;",
+      "example": "let value = getData();  // ⚠️ Tip belirsiz\nlet value: int = getData();  // ✅ Açık",
+      "severity": "warning"
+    },
+    "en": {
+      "title": "Type Annotation Recommended",
+      "message": "Explicit type annotation recommended for '{var}'",
+      "help": "Add type: let {var}: type = value;",
+      "example": "let value = getData();  // ⚠️ Type unclear\nlet value: int = getData();  // ✅ Clear",
+      "severity": "warning"
+    }
+  },
+  "W0007": {
+    "tr": {
+      "title": "Boş Catch Bloğu",
+      "message": "Catch bloğu boş - hata sessizce yutulacak",
+      "help": "En azından hata log'layın veya yeniden throw edin",
+      "example": "try {\n  // kod\n} catch (e) {\n  // ⚠️ Boş - en azından log'layın\n  log(e);\n}",
+      "severity": "warning"
+    },
+    "en": {
+      "title": "Empty Catch Block",
+      "message": "Catch block is empty - error will be silently swallowed",
+      "help": "At least log the error or rethrow",
+      "example": "try {\n  // code\n} catch (e) {\n  // ⚠️ Empty - at least log\n  log(e);\n}",
+      "severity": "warning"
+    }
+  },
+  "W0008": {
+    "tr": {
+      "title": "Magic Number",
+      "message": "Magic number '{value}' kullanılıyor",
+      "help": "Anlamlı bir sabit tanımlayın",
+      "example": "if (status == 404) { }  // ⚠️ Magic number\nconst NOT_FOUND = 404;\nif (status == NOT_FOUND) { }  // ✅ Daha iyi",
+      "severity": "warning"
+    },
+    "en": {
+      "title": "Magic Number",
+      "message": "Magic number '{value}' is used",
+      "help": "Define a meaningful constant",
+      "example": "if (status == 404) { }  // ⚠️ Magic number\nconst NOT_FOUND = 404;\nif (status == NOT_FOUND) { }  // ✅ Better",
+      "severity": "warning"
+    }
+  },
+  "W0009": {
+    "tr": {
+      "title": "Karmaşık İfade",
+      "message": "Bu ifade çok karmaşık - okunabilirlik düşük",
+      "help": "İfadeyi daha küçük parçalara bölün",
+      "example": "let result = a && b || c && d || e && f;  // ⚠️ Karmaşık\n// Ara değişkenler kullanın",
+      "severity": "warning"
+    },
+    "en": {
+      "title": "Complex Expression",
+      "message": "This expression is too complex - low readability",
+      "help": "Break expression into smaller parts",
+      "example": "let result = a && b || c && d || e && f;  // ⚠️ Complex\n// Use intermediate variables",
+      "severity": "warning"
+    }
+  },
+  "W0010": {
+    "tr": {
+      "title": "Uzun Fonksiyon",
+      "message": "Fonksiyon '{func}' çok uzun ({lines} satır)",
+      "help": "Fonksiyonu daha küçük fonksiyonlara bölün",
+      "example": "// Bir fonksiyon 50 satırdan uzunsa, bölmeyi düşünün",
+      "severity": "warning"
+    },
+    "en": {
+      "title": "Long Function",
+      "message": "Function '{func}' is too long ({lines} lines)",
+      "help": "Split function into smaller functions",
+      "example": "// Consider splitting if function exceeds 50 lines",
+      "severity": "warning"
+    }
+  },
+  "W0100": {
+    "tr": {
+      "title": "İsimlendirme Uyarısı",
+      "message": "'{name}' ismi naming convention'a uymuyor",
+      "help": "camelCase (değişkenler/fonksiyonlar) veya PascalCase (tipler) kullanın",
+      "example": "let user_name = \"Ali\";  // ⚠️ snake_case\nlet userName = \"Ali\";  // ✅ camelCase",
+      "severity": "warning"
+    },
+    "en": {
+      "title": "Naming Convention",
+      "message": "'{name}' doesn't follow naming convention",
+      "help": "Use camelCase (variables/functions) or PascalCase (types)",
+      "example": "let user_name = \"Ali\";  // ⚠️ snake_case\nlet userName = \"Ali\";  // ✅ camelCase",
+      "severity": "warning"
+    }
+  },
+  "W0101": {
+    "tr": {
+      "title": "TODO Yorumu",
+      "message": "TODO yorumu bulundu: {comment}",
+      "help": "TODO'yu tamamlayın veya issue olarak kaydedin",
+      "example": "// TODO: Bu özelliği implement et  // ⚠️ Unutulabilir",
+      "severity": "warning"
+    },
+    "en": {
+      "title": "TODO Comment",
+      "message": "TODO comment found: {comment}",
+      "help": "Complete TODO or track as issue",
+      "example": "// TODO: Implement this feature  // ⚠️ Might be forgotten",
+      "severity": "warning"
+    }
+  },
+  "W0102": {
+    "tr": {
+      "title": "Console Log",
+      "message": "Console log ifadesi production kod'unda",
+      "help": "Debug için proper logging kullanın veya log'u kaldırın",
+      "example": "print(\"Debug: x =\", x);  // ⚠️ Production'da\n// Proper logger kullanın",
+      "severity": "warning"
+    },
+    "en": {
+      "title": "Console Log",
+      "message": "Console log statement in production code",
+      "help": "Use proper logging or remove log",
+      "example": "print(\"Debug: x =\", x);  // ⚠️ In production\n// Use proper logger",
+      "severity": "warning"
+    }
+  },
+  "W0103": {
+    "tr": {
+      "title": "Deprecated Kullanımı",
+      "message": "'{name}' deprecated - kullanmayın",
+      "help": "Alternatif: {alternative}",
+      "example": "// Deprecated fonksiyon yerine yeni API kullanın",
+      "severity": "warning"
+    },
+    "en": {
+      "title": "Deprecated Usage",
+      "message": "'{name}' is deprecated - avoid using",
+      "help": "Alternative: {alternative}",
+      "example": "// Use new API instead of deprecated function",
+      "severity": "warning"
+    }
+  },
+  "W0104": {
+    "tr": {
+      "title": "Performans Uyarısı",
+      "message": "'{operation}' işlemi yavaş olabilir",
+      "help": "Alternatif yaklaşım düşünün: {suggestion}",
+      "example": "// Döngü içinde string concatenation yerine StringBuilder kullanın",
+      "severity": "warning"
+    },
+    "en": {
+      "title": "Performance Warning",
+      "message": "Operation '{operation}' might be slow",
+      "help": "Consider alternative approach: {suggestion}",
+      "example": "// Use StringBuilder instead of string concatenation in loop",
+      "severity": "warning"
+    }
+  },
+  "W0105": {
+    "tr": {
+      "title": "Güvenlik Uyarısı",
+      "message": "Potansiyel güvenlik riski: {issue}",
+      "help": "Güvenlik best practice'leri uygulayın",
+      "example": "// SQL injection, XSS gibi riskler için input validation yapın",
+      "severity": "warning"
+    },
+    "en": {
+      "title": "Security Warning",
+      "message": "Potential security risk: {issue}",
+      "help": "Apply security best practices",
+      "example": "// Input validation for SQL injection, XSS risks",
+      "severity": "warning"
+    }
+  },
+  "W0106": {
+    "tr": {
+      "title": "Büyük Dosya",
+      "message": "Dosya çok büyük ({lines} satır)",
+      "help": "Dosyayı modüllere bölün",
+      "example": "// 500+ satırlık dosyaları bölmeyi düşünün",
+      "severity": "warning"
+    },
+    "en": {
+      "title": "Large File",
+      "message": "File is too large ({lines} lines)",
+      "help": "Split file into modules",
+      "example": "// Consider splitting files with 500+ lines",
+      "severity": "warning"
+    }
+  },
+  "W0107": {
+    "tr": {
+      "title": "Çok Fazla Parametre",
+      "message": "Fonksiyon '{func}' {count} parametre alıyor",
+      "help": "Parametreleri bir struct'ta gruplandırın",
+      "example": "// 5+ parametre yerine options struct kullanın",
+      "severity": "warning"
+    },
+    "en": {
+      "title": "Too Many Parameters",
+      "message": "Function '{func}' takes {count} parameters",
+      "help": "Group parameters in a struct",
+      "example": "// Use options struct instead of 5+ parameters",
+      "severity": "warning"
+    }
+  },
+  "W0108": {
+    "tr": {
+      "title": "Deep Nesting",
+      "message": "Çok fazla iç içe blok ({depth} seviye)",
+      "help": "Kodu düzleştirin - early return kullanın",
+      "example": "// Guard clause kullanarak iç içe if'leri azaltın",
+      "severity": "warning"
+    },
+    "en": {
+      "title": "Deep Nesting",
+      "message": "Too many nested blocks ({depth} levels)",
+      "help": "Flatten code - use early returns",
+      "example": "// Reduce nested ifs using guard clauses",
+      "severity": "warning"
+    }
+  },
+  "W0109": {
+    "tr": {
+      "title": "Duplicate Code",
+      "message": "Tekrarlanan kod tespit edildi",
+      "help": "Ortak kodu bir fonksiyona çıkarın",
+      "example": "// Aynı kod bloğunu birden fazla yerde kullanıyorsanız, fonksiyon yapın",
+      "severity": "warning"
+    },
+    "en": {
+      "title": "Duplicate Code",
+      "message": "Duplicate code detected",
+      "help": "Extract common code into function",
+      "example": "// If using same code block multiple times, make it a function",
+      "severity": "warning"
+    }
+  },
+  "W0110": {
+    "tr": {
+      "title": "Implicit Type Coercion",
+      "message": "Implicit tip dönüşümü gerçekleşiyor",
+      "help": "Explicit cast kullanın",
+      "example": "let x = \"5\" + 3;  // ⚠️ Implicit\nlet x = int(\"5\") + 3;  // ✅ Explicit",
+      "severity": "warning"
+    },
+    "en": {
+      "title": "Implicit Type Coercion",
+      "message": "Implicit type conversion is happening",
+      "help": "Use explicit cast",
+      "example": "let x = \"5\" + 3;  // ⚠️ Implicit\nlet x = int(\"5\") + 3;  // ✅ Explicit",
+      "severity": "warning"
+    }
+  }
+}

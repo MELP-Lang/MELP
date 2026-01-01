@@ -6,7 +6,7 @@ CC = gcc
 CFLAGS = -Wall -Wextra -g -I../..
 
 # Source files
-SRCS = codegen_emit.c
+SRCS = codegen_emit.c debug_info.c
 OBJS = $(SRCS:.c=.o)
 
 # Default target
@@ -14,7 +14,10 @@ all: $(OBJS)
 	@echo "✅ codegen_emit module compiled"
 
 # Compile object files
-%.o: %.c codegen_emit.h
+codegen_emit.o: codegen_emit.c codegen_emit.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+debug_info.o: debug_info.c debug_info.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Clean

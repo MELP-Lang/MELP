@@ -19,7 +19,8 @@ SPECIAL_MODULES = codegen_emit
 MODULE_OBJS = $(foreach dir,$(MODULE_DIRS),modules/$(dir)/$(dir).o \
               modules/$(dir)/$(dir)_parser.o modules/$(dir)/$(dir)_codegen.o)
 
-SPECIAL_OBJS = $(foreach dir,$(SPECIAL_MODULES),modules/$(dir)/$(dir).o)
+SPECIAL_OBJS = $(foreach dir,$(SPECIAL_MODULES),modules/$(dir)/$(dir).o) \
+               modules/codegen_emit/debug_info.o
 
 OBJS = main.o lexer.o $(MODULE_OBJS) $(SPECIAL_OBJS)
 

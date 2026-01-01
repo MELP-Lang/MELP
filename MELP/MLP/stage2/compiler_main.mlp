@@ -1,0 +1,285 @@
+-- lang: en-US
+-- syntax: mlp
+-- MLP Stage2 Compiler - Main Entry Point
+-- Integration of all Stage2 modules: lexer, parser, codegen, codegen_advanced, type_system
+-- 6 Esas Compliant: MODULAR (<300), STATELESS, STRUCT+FUNC
+-- Target: Self-hosting MLP compiler (MLP → C → Binary)
+
+import "lexer.mlp"
+import "parser.mlp"
+import "codegen.mlp"
+import "codegen_advanced.mlp"
+import "type_system.mlp"
+
+-- =============================================================================
+-- COMPILER CONFIGURATION
+-- =============================================================================
+
+struct CompilerConfig then
+    String input_file
+    String output_file
+    Boolean verbose
+    Boolean type_check_enabled
+    Boolean optimization_enabled
+end_struct
+
+function make_compiler_config()
+    CompilerConfig config
+    config.input_file = ""
+    config.output_file = "output.c"
+    config.verbose = false
+    config.type_check_enabled = true
+    config.optimization_enabled = false
+    return config
+end_function
+
+-- =============================================================================
+-- COMMAND LINE ARGUMENT PARSING
+-- =============================================================================
+
+function parse_arguments(args, config)
+    Numeric i = 1  -- Skip argv[0] (program name)
+    while i < mlp_list_length(args)
+        String arg = mlp_list_get(args, i)
+        
+        if mlp_string_equals(arg, "-o") then
+            i = i + 1
+            if i < mlp_list_length(args) then
+                config.output_file = mlp_list_get(args, i)
+            end_if
+        else if mlp_string_equals(arg, "-v") then
+            config.verbose = true
+        else if mlp_string_equals(arg, "--no-type-check") then
+            config.type_check_enabled = false
+        else if mlp_string_equals(arg, "-O") then
+            config.optimization_enabled = true
+        else
+            -- Input file (first non-flag argument)
+            if mlp_string_equals(config.input_file, "") then
+                config.input_file = arg
+            end_if
+        end_if
+        
+        i = i + 1
+    end
+    
+    return config
+end_function
+
+-- =============================================================================
+-- FILE I/O OPERATIONS
+-- =============================================================================
+
+function read_source_file(filename)
+    -- Read file content
+    String content = mlp_file_read(filename)
+    if mlp_string_equals(content, "") then
+        mlp_print("Error: Cannot read file: ")
+        mlp_print(filename)
+        mlp_print("\n")
+        return ""
+    end_if
+    return content
+end_function
+
+function write_output_file(filename, content)
+    Numeric result = mlp_file_write(filename, content)
+    if result == 0 then
+        mlp_print("Error: Cannot write file: ")
+        mlp_print(filename)
+        mlp_print("\n")
+        return false
+    end_if
+    return true
+end_function
+
+-- =============================================================================
+-- COMPILER PIPELINE
+-- =============================================================================
+
+function compile_stage1_lexing(source_code, config)
+    if config.verbose then
+        mlp_print("[STAGE 1] Lexical Analysis...\n")
+    end_if
+    
+    -- Initialize lexer state
+    LexerState lexer = make_lexer_state(source_code)
+    
+    -- Tokenize source code
+    list tokens = tokenize(lexer)
+    
+    if config.verbose then
+        Numeric token_count = mlp_list_length(tokens)
+        mlp_print("  Tokens: ")
+        mlp_print(mlp_numeric_to_string(token_count))
+        mlp_print("\n")
+    end_if
+    
+    return tokens
+end_function
+
+function compile_stage2_parsing(tokens, config)
+    if config.verbose then
+        mlp_print("[STAGE 2] Syntax Analysis...\n")
+    end_if
+    
+    -- Initialize parser state
+    ParserState parser = make_parser_state(tokens)
+    
+    -- Parse tokens into AST
+    ASTNode ast = parse_program(parser)
+    
+    if config.verbose then
+        mlp_print("  AST nodes: ")
+        Numeric node_count = mlp_list_length(ast.children)
+        mlp_print(mlp_numeric_to_string(node_count))
+        mlp_print("\n")
+    end_if
+    
+    return ast
+end_function
+
+function compile_stage3_type_checking(ast, config)
+    if config.verbose then
+        mlp_print("[STAGE 3] Type Checking...\n")
+    end_if
+    
+    if not config.type_check_enabled then
+        if config.verbose then
+            mlp_print("  Type checking disabled\n")
+        end_if
+        return true
+    end_if
+    
+    -- Initialize type system
+    TypeSystem ts = make_type_system()
+    
+    -- Type check AST
+    Boolean type_check_result = type_check_program(ts, ast)
+    
+    if not type_check_result then
+        mlp_print("Error: Type checking failed\n")
+        return false
+    end_if
+    
+    if config.verbose then
+        mlp_print("  Type checking: OK\n")
+    end_if
+    
+    return true
+end_function
+
+function compile_stage4_codegen(ast, config)
+    if config.verbose then
+        mlp_print("[STAGE 4] Code Generation...\n")
+    end_if
+    
+    -- Initialize codegen state
+    CodegenState codegen = make_codegen_state()
+    
+    -- Generate C code from AST
+    CodegenState result = codegen_program(codegen, ast)
+    
+    -- Get generated code
+    String c_code = result.output
+    
+    if config.verbose then
+        Numeric code_length = mlp_string_length(c_code)
+        mlp_print("  Generated C code: ")
+        mlp_print(mlp_numeric_to_string(code_length))
+        mlp_print(" bytes\n")
+    end_if
+    
+    return c_code
+end_function
+
+-- =============================================================================
+-- MAIN COMPILER FUNCTION
+-- =============================================================================
+
+function compile_mlp_file(config)
+    -- Validate input
+    if mlp_string_equals(config.input_file, "") then
+        mlp_print("Error: No input file specified\n")
+        mlp_print("Usage: melpc <input.mlp> [-o output.c] [-v] [--no-type-check] [-O]\n")
+        return 1
+    end_if
+    
+    if config.verbose then
+        mlp_print("MLP Stage2 Compiler\n")
+        mlp_print("===================\n")
+        mlp_print("Input:  ")
+        mlp_print(config.input_file)
+        mlp_print("\n")
+        mlp_print("Output: ")
+        mlp_print(config.output_file)
+        mlp_print("\n\n")
+    end_if
+    
+    -- Read source file
+    String source_code = read_source_file(config.input_file)
+    if mlp_string_equals(source_code, "") then
+        return 1
+    end_if
+    
+    -- Stage 1: Lexical Analysis
+    list tokens = compile_stage1_lexing(source_code, config)
+    if mlp_list_length(tokens) == 0 then
+        mlp_print("Error: Lexing failed\n")
+        return 1
+    end_if
+    
+    -- Stage 2: Syntax Analysis
+    ASTNode ast = compile_stage2_parsing(tokens, config)
+    if ast == null then
+        mlp_print("Error: Parsing failed\n")
+        return 1
+    end_if
+    
+    -- Stage 3: Type Checking
+    Boolean type_check_ok = compile_stage3_type_checking(ast, config)
+    if not type_check_ok then
+        return 1
+    end_if
+    
+    -- Stage 4: Code Generation
+    String c_code = compile_stage4_codegen(ast, config)
+    if mlp_string_equals(c_code, "") then
+        mlp_print("Error: Code generation failed\n")
+        return 1
+    end_if
+    
+    -- Write output file
+    Boolean write_ok = write_output_file(config.output_file, c_code)
+    if not write_ok then
+        return 1
+    end_if
+    
+    if config.verbose then
+        mlp_print("\n[SUCCESS] Compilation complete!\n")
+    end_if
+    
+    return 0
+end_function
+
+-- =============================================================================
+-- ENTRY POINT
+-- =============================================================================
+
+function main()
+    -- Get command line arguments
+    list args = mlp_get_args()
+    
+    -- Parse arguments
+    CompilerConfig config = make_compiler_config()
+    config = parse_arguments(args, config)
+    
+    -- Compile
+    Numeric exit_code = compile_mlp_file(config)
+    
+    -- Exit
+    mlp_exit(exit_code)
+end_function
+
+-- Run main
+main()

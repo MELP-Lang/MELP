@@ -1,0 +1,112 @@
+# 🚀 {TODO_KISA} YZ - BURADAN BAŞLA
+
+**Son Session:** İlk YZ henüz atanmadı  
+**Tarih:** {CURRENT_DATE}  
+**TODO:** {TODO_TAM}  
+**Status:** ⏳ Başlangıç
+
+---
+
+## 👋 YENİ YZ? ÖNCELİKLE TODO_KURALLARI.MD OKU!
+
+**⚠️ İLK ADIM:** [`TODO_KURALLARI.md`](../../TODO_KURALLARI.md) dosyasını oku!
+
+Oradan:
+1. YZ kurallarını öğreneceksin
+2. Kendini tanıtma template'ini göreceksin
+3. Sonra buraya döneceksin
+
+---
+
+## 📋 OKUMA SIRASI
+
+1. **TODO_KURALLARI.md** → Kurallar ve template'ler
+2. **Bu dosya** → Görev detayları
+3. **[{TODO_BELGE}](../../{TODO_BELGE})** → Detaylı task listesi
+4. **Önceki YZ raporları** → `completed/{TODO_KISA}_YZ_XX_TAMAMLANDI.md`
+
+---
+
+## 📊 PROJE DURUMU
+
+| Phase | Durum | Sorumlu |
+|-------|-------|---------|
+| Phase 1 | ⏳ Başlamadı | {TODO_KISA}_YZ_01 |
+| Phase 2 | ⏸️ Bekliyor | {TODO_KISA}_YZ_02 |
+| Phase 3 | ⏸️ Bekliyor | {TODO_KISA}_YZ_03 |
+
+---
+
+## 🎯 AKTİF GÖREV
+
+**Phase 1:** {PHASE1_NAME}  
+**Süre:** {PHASE1_TIME}  
+**Sorumlu:** {TODO_KISA}_YZ_01
+
+### Yapılacaklar:
+- [ ] {TASK1_NAME}
+- [ ] {TASK2_NAME}
+- [ ] {TASK3_NAME}
+
+### Test Komutu:
+```bash
+{TEST_COMMAND}
+```
+
+---
+
+## 🔧 GIT WORKFLOW
+
+```bash
+# Commit formatı
+git add [dosyalar]
+git commit -m "{TODO_KISA}_YZ_XX: [dosya] - [açıklama]"
+
+# Push (MERGE YAPMA!)
+git push origin [branch]
+```
+
+---
+
+## ⚠️ KURALLAR
+
+### ✅ İZİN VERİLEN:
+- Manuel kod düzenleme
+- multi_replace_string_in_file
+- replace_string_in_file
+
+### ❌ YASAK:
+- sed/awk/python script ile toplu değişiklik
+- Backup dosyaları (.backup)
+- Merge yapma (ÜA yapar)
+
+---
+
+## 📝 SESSION BİTİRME
+
+1. **TODO güncelle** → `{TODO_BELGE}` dosyasında [x] işaretle
+2. **Bu dosyayı güncelle** → Status, Son Session
+3. **Rapor yaz** → `completed/{TODO_KISA}_YZ_XX_TAMAMLANDI.md`
+4. **Commit + Push**
+
+---
+
+## 📞 YARDIM
+
+**Takıldığında:**
+1. Üst Akıl'e sor
+2. Belgeleri tekrar oku
+3. 3 deneme hakkın var
+
+**Context dolarsa:**
+1. Yarım kalan işi commit et
+2. Rapor yaz
+3. Sonraki YZ'ye devret
+
+---
+
+**{TODO_KISA}_YZ_01 başlasın!** 🚀
+
+---
+
+*Son Güncelleme: {CURRENT_DATE}*

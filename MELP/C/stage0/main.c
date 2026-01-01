@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "lexer.h"
 
 // Codegen module
 #include "modules/codegen_emit/codegen_emit.h"
+#include "modules/codegen_emit/debug_info.h"
 
 // Modules
 #include "modules/comments/comments.h"
@@ -25,14 +27,32 @@
 #include "modules/functions/functions_parser.h"
 #include "modules/functions/functions_codegen.h"
 
+// Error reporting helper (uses external mlp-errors tool)
+void report_mlp_error(const char* code, const char* file, int line, int col, const char* arg1) {
+    char cmd[512];
+    snprintf(cmd, sizeof(cmd), "mlp-errors %s %s %d %d %s 2>&1", 
+             code, file, line, col, arg1 ? arg1 : "");
+    system(cmd);
+}
+
 int main(int argc, char** argv) {
-    if (argc != 3) {
-        fprintf(stderr, "Usage: %s <input.mlp> <output.c>\n", argv[0]);
+    bool debug_mode = false;
+    int arg_offset = 1;
+    
+    // Check for -g flag
+    if (argc > 1 && strcmp(argv[1], "-g") == 0) {
+        debug_mode = true;
+        arg_offset = 2;
+    }
+    
+    if (argc < arg_offset + 2) {
+        fprintf(stderr, "Usage: %s [-g] <input.mlp> <output.c>\n", argv[0]);
+        fprintf(stderr, "  -g    Enable debug info (DWARF symbols)\n");
         return 1;
     }
     
     // Read source file
-    FILE* f = fopen(argv[1], "r");
+    FILE* f = fopen(argv[arg_offset], "r");
     if (!f) {
         fprintf(stderr, "Error: Cannot open input file\n");
         return 1;
@@ -51,7 +71,7 @@ int main(int argc, char** argv) {
     Lexer* lexer = lexer_create(source);
     
     // Open output file
-    FILE* out = fopen(argv[2], "w");
+    FILE* out = fopen(argv[arg_offset + 1], "w");
     if (!out) {
         fprintf(stderr, "Error: Cannot create output file\n");
         return 1;
@@ -59,6 +79,14 @@ int main(int argc, char** argv) {
     
     // Initialize C code generator
     emit_c_init(out);
+    
+    // Initialize debug context if -g flag is set
+    DebugContext debug_ctx;
+    debug_init(&debug_ctx, out, argv[arg_offset], debug_mode);
+    if (debug_mode) {
+        emit_dwarf_file_info(&debug_ctx);
+        printf("Debug mode enabled: DWARF info will be generated\n");
+    }
     
     // Parse and generate code
     printf("=== MLP-GCC C CODE GENERATION ===\n");
@@ -637,12 +665,20 @@ int main(int argc, char** argv) {
         emit_c("}\n");
     }
     
+    // Finalize debug context
+    if (debug_mode) {
+        debug_finalize(&debug_ctx);
+    }
+    
     // Finalize C code generator
     emit_c_finalize();
     
     printf("\n✅ C code generation successful!\n");
     printf("Generated %d statements.\n", stmt_count);
-    printf("C code output: %s\n", argv[2]);
+    printf("C code output: %s\n", argv[arg_offset + 1]);
+    if (debug_mode) {
+        printf("Debug info: enabled (compile with: gcc -g %s)\n", argv[arg_offset + 1]);
+    }
     
     fclose(out);
     free(source);
