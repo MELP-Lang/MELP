@@ -1,0 +1,290 @@
+// ============================================
+// MELP STANDARD LIBRARY - URL Utilities
+// ============================================
+// URL parsing and manipulation utilities
+// Module: stdlib/net/url.mlp
+// Runtime: MELP/runtime/net/http.c (shared)
+
+// ============================================
+// EXTERNAL C RUNTIME FUNCTIONS
+// ============================================
+
+// Parse URL (from http.c)
+external fn mlp_http_parse_url(url: string) -> string
+
+// URL encode/decode (from http.c)
+external fn mlp_http_url_encode(str: string) -> string
+external fn mlp_http_url_decode(str: string) -> string
+
+// ============================================
+// URL PARSING API
+// ============================================
+
+// Parse URL into components
+// Returns: Optional<string> with JSON-formatted components
+// Example: {"scheme":"http","host":"example.com","port":80,"path":"/api","query":"k=v"}
+function url_parse(string url) -> optional
+    string parsed = mlp_http_parse_url(url)
+    if string_length(parsed) > 0 then
+        return optional_some(parsed)
+    end_if
+    return optional_none()
+end_function
+
+// Extract scheme from URL (http, https, ftp, etc.)
+function url_get_scheme(string url) -> optional
+    // Find "://"
+    numeric pos = 0
+    numeric url_len = string_length(url)
+    
+    while pos < url_len - 2
+        if url[pos] == ':' and url[pos + 1] == '/' and url[pos + 2] == '/' then
+            // Found scheme separator
+            if pos > 0 then
+                return optional_some(string_substring(url, 0, pos))
+            end_if
+        end_if
+        pos = pos + 1
+    end_while
+    
+    return optional_none()
+end_function
+
+// Extract host from URL
+function url_get_host(string url) -> optional
+    // Skip scheme
+    numeric pos = 0
+    numeric url_len = string_length(url)
+    
+    // Find "://"
+    while pos < url_len - 2
+        if url[pos] == ':' and url[pos + 1] == '/' and url[pos + 2] == '/' then
+            pos = pos + 3
+            break
+        end_if
+        pos = pos + 1
+    end_while
+    
+    // Extract host (until ':', '/', '?' or end)
+    numeric host_start = pos
+    while pos < url_len
+        if url[pos] == ':' or url[pos] == '/' or url[pos] == '?' then
+            if pos > host_start then
+                return optional_some(string_substring(url, host_start, pos))
+            end_if
+            return optional_none()
+        end_if
+        pos = pos + 1
+    end_while
+    
+    // Host is rest of URL
+    if pos > host_start then
+        return optional_some(string_substring(url, host_start, pos))
+    end_if
+    
+    return optional_none()
+end_function
+
+// Extract path from URL
+function url_get_path(string url) -> optional
+    // Find first '/' after "://"
+    numeric pos = 0
+    numeric url_len = string_length(url)
+    boolean found_scheme = false
+    
+    // Skip scheme and host
+    while pos < url_len - 2
+        if url[pos] == ':' and url[pos + 1] == '/' and url[pos + 2] == '/' then
+            pos = pos + 3
+            found_scheme = true
+            break
+        end_if
+        pos = pos + 1
+    end_while
+    
+    if not found_scheme then
+        return optional_none()
+    end_if
+    
+    // Find path start (first '/')
+    while pos < url_len
+        if url[pos] == '/' then
+            // Find path end ('?' or end of string)
+            numeric path_start = pos
+            while pos < url_len
+                if url[pos] == '?' then
+                    return optional_some(string_substring(url, path_start, pos))
+                end_if
+                pos = pos + 1
+            end_while
+            
+            // Path is rest of URL
+            return optional_some(string_substring(url, path_start, pos))
+        end_if
+        pos = pos + 1
+    end_while
+    
+    // No path found, return "/"
+    return optional_some("/")
+end_function
+
+// ============================================
+// URL ENCODING API
+// ============================================
+
+// URL encode string (percent encoding for query parameters)
+// Example: "hello world" -> "hello+world"
+//          "a&b=c" -> "a%26b%3Dc"
+function url_encode(string str) -> string
+    return mlp_http_url_encode(str)
+end_function
+
+// URL decode string (percent decoding)
+// Example: "hello+world" -> "hello world"
+//          "a%26b%3Dc" -> "a&b=c"
+function url_decode(string str) -> string
+    return mlp_http_url_decode(str)
+end_function
+
+// ============================================
+// URL BUILDING API
+// ============================================
+
+// Build URL from components
+function url_build(string scheme, string host, numeric port, string path) -> string
+    string result = scheme
+    result = string_concat(result, "://")
+    result = string_concat(result, host)
+    
+    // Add port if not default
+    if (scheme == "http" and port != 80) or (scheme == "https" and port != 443) then
+        result = string_concat(result, ":")
+        result = string_concat(result, string(port))
+    end_if
+    
+    // Add path
+    if string_length(path) > 0 then
+        if path[0] != '/' then
+            result = string_concat(result, "/")
+        end_if
+        result = string_concat(result, path)
+    else
+        result = string_concat(result, "/")
+    end_if
+    
+    return result
+end_function
+
+// Build query string from key-value pairs
+// Note: Without proper data structures, this is simplified
+// Example usage: url_build_query("key1", "value1", "key2", "value2")
+function url_build_query(string key1, string value1) -> string
+    string encoded_key = url_encode(key1)
+    string encoded_value = url_encode(value1)
+    string result = string_concat(encoded_key, "=")
+    result = string_concat(result, encoded_value)
+    return result
+end_function
+
+// Add query parameter to URL
+function url_add_query(string url, string key, string value) -> string
+    string query = url_build_query(key, value)
+    
+    // Check if URL already has query
+    numeric has_query = false
+    numeric pos = 0
+    numeric url_len = string_length(url)
+    
+    while pos < url_len
+        if url[pos] == '?' then
+            has_query = true
+            break
+        end_if
+        pos = pos + 1
+    end_while
+    
+    string result = url
+    if has_query then
+        result = string_concat(result, "&")
+    else
+        result = string_concat(result, "?")
+    end_if
+    result = string_concat(result, query)
+    
+    return result
+end_function
+
+// ============================================
+// URL VALIDATION
+// ============================================
+
+// Check if URL is valid
+function url_is_valid(string url) -> boolean
+    // Basic validation: must have scheme and host
+    optional parsed = url_parse(url)
+    return optional_has_value(parsed)
+end_function
+
+// Check if URL is absolute (has scheme)
+function url_is_absolute(string url) -> boolean
+    optional scheme = url_get_scheme(url)
+    return optional_has_value(scheme)
+end_function
+
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
+
+function string_length(string s) -> numeric
+    numeric len = 0
+    while s[len] != '\0'
+        len = len + 1
+    end_while
+    return len
+end_function
+
+function string_concat(string a, string b) -> string
+    // Placeholder - needs runtime support
+    return a
+end_function
+
+function string_substring(string s, numeric start, numeric end_pos) -> string
+    // Placeholder - needs runtime support
+    return s
+end_function
+
+function optional_some(string value) -> optional
+    return value
+end_function
+
+function optional_none() -> optional
+    return ""
+end_function
+
+function optional_has_value(optional opt) -> boolean
+    return string_length(opt) > 0
+end_function
+
+// ============================================
+// USAGE EXAMPLES
+// ============================================
+
+// Parse URL:
+// optional parsed = url_parse("http://example.com:8080/api/data?key=value")
+// string scheme = url_get_scheme(url).unwrap()  // "http"
+// string host = url_get_host(url).unwrap()      // "example.com"
+// string path = url_get_path(url).unwrap()      // "/api/data"
+
+// Encode/decode:
+// string encoded = url_encode("hello world & test")  // "hello+world+%26+test"
+// string decoded = url_decode(encoded)               // "hello world & test"
+
+// Build URL:
+// string url = url_build("https", "api.example.com", 443, "/v1/users")
+// url = url_add_query(url, "limit", "10")
+// url = url_add_query(url, "offset", "20")
+// Result: "https://api.example.com/v1/users?limit=10&offset=20"
+
+// Validate:
+// boolean valid = url_is_valid("http://example.com")     // true
+// boolean absolute = url_is_absolute("/relative/path")   // false

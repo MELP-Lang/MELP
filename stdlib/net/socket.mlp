@@ -1,0 +1,259 @@
+// ============================================
+// MELP STANDARD LIBRARY - Network Sockets
+// ============================================
+// TCP/UDP socket operations with Optional error handling
+// Module: stdlib/net/socket.mlp
+// Runtime: MELP/runtime/net/socket.c
+
+// ============================================
+// SOCKET TYPE DEFINITIONS
+// ============================================
+
+// Socket handle (opaque pointer from C runtime)
+// Internal: int file descriptor on POSIX systems
+type socket = numeric
+
+// Socket domain (address family)
+numeric SOCKET_AF_INET = 2      // IPv4
+numeric SOCKET_AF_INET6 = 10    // IPv6
+
+// Socket type
+numeric SOCKET_STREAM = 1       // TCP (stream)
+numeric SOCKET_DGRAM = 2        // UDP (datagram)
+
+// Socket protocol
+numeric SOCKET_TCP = 6
+numeric SOCKET_UDP = 17
+
+// Error codes
+numeric SOCKET_ERROR = -1
+numeric SOCKET_INVALID = -1
+
+// ============================================
+// EXTERNAL C RUNTIME FUNCTIONS
+// ============================================
+
+// Create TCP socket connection
+// Returns: socket descriptor (>0) on success, -1 on error
+external fn mlp_socket_connect(host: string, port: numeric) -> numeric
+
+// Send data through socket
+// Returns: bytes sent on success, -1 on error
+external fn mlp_socket_send(sock: numeric, data: string, len: numeric) -> numeric
+
+// Receive data from socket
+// Returns: string with received data, empty string on error
+external fn mlp_socket_recv(sock: numeric, max_bytes: numeric) -> string
+
+// Close socket connection
+// Returns: 0 on success, -1 on error
+external fn mlp_socket_close(sock: numeric) -> numeric
+
+// Create UDP socket
+// Returns: socket descriptor (>0) on success, -1 on error
+external fn mlp_socket_udp_create() -> numeric
+
+// Send UDP datagram
+// Returns: bytes sent on success, -1 on error
+external fn mlp_socket_udp_send(sock: numeric, host: string, port: numeric, data: string, len: numeric) -> numeric
+
+// Receive UDP datagram
+// Returns: string with received data, empty string on error
+external fn mlp_socket_udp_recv(sock: numeric, max_bytes: numeric) -> string
+
+// Bind socket to address and port (for servers)
+// Returns: 0 on success, -1 on error
+external fn mlp_socket_bind(sock: numeric, port: numeric) -> numeric
+
+// Listen for connections (TCP servers)
+// Returns: 0 on success, -1 on error
+external fn mlp_socket_listen(sock: numeric, backlog: numeric) -> numeric
+
+// Accept incoming connection (TCP servers)
+// Returns: new socket descriptor (>0) on success, -1 on error
+external fn mlp_socket_accept(sock: numeric) -> numeric
+
+// ============================================
+// HIGH-LEVEL API (Optional-based)
+// ============================================
+
+// Connect to TCP server
+// Returns: Optional<socket> - Some(socket) on success, None on error
+function socket_connect(string host, numeric port) -> optional
+    numeric sock = mlp_socket_connect(host, port)
+    if sock > 0 then
+        return optional_some(sock)
+    end_if
+    return optional_none()
+end_function
+
+// Write data to socket
+// Returns: Optional<numeric> - Some(bytes_sent) on success, None on error
+function socket_write(numeric sock, string data) -> optional
+    numeric len = string_length(data)
+    numeric sent = mlp_socket_send(sock, data, len)
+    if sent >= 0 then
+        return optional_some(sent)
+    end_if
+    return optional_none()
+end_function
+
+// Read data from socket
+// Returns: Optional<string> - Some(data) on success, None on error
+function socket_read(numeric sock, numeric max_bytes) -> optional
+    string data = mlp_socket_recv(sock, max_bytes)
+    if string_length(data) > 0 then
+        return optional_some(data)
+    end_if
+    return optional_none()
+end_function
+
+// Read with default buffer size (4096 bytes)
+function socket_read_default(numeric sock) -> optional
+    return socket_read(sock, 4096)
+end_function
+
+// Close socket connection
+// Returns: boolean - true on success, false on error
+function socket_close(numeric sock) -> boolean
+    numeric result = mlp_socket_close(sock)
+    if result == 0 then
+        return true
+    end_if
+    return false
+end_function
+
+// ============================================
+// UDP FUNCTIONS
+// ============================================
+
+// Create UDP socket
+// Returns: Optional<socket> - Some(socket) on success, None on error
+function socket_udp_create() -> optional
+    numeric sock = mlp_socket_udp_create()
+    if sock > 0 then
+        return optional_some(sock)
+    end_if
+    return optional_none()
+end_function
+
+// Send UDP datagram
+// Returns: Optional<numeric> - Some(bytes_sent) on success, None on error
+function socket_udp_send(numeric sock, string host, numeric port, string data) -> optional
+    numeric len = string_length(data)
+    numeric sent = mlp_socket_udp_send(sock, host, port, data, len)
+    if sent >= 0 then
+        return optional_some(sent)
+    end_if
+    return optional_none()
+end_function
+
+// Receive UDP datagram
+// Returns: Optional<string> - Some(data) on success, None on error
+function socket_udp_recv(numeric sock, numeric max_bytes) -> optional
+    string data = mlp_socket_udp_recv(sock, max_bytes)
+    if string_length(data) > 0 then
+        return optional_some(data)
+    end_if
+    return optional_none()
+end_function
+
+// ============================================
+// SERVER FUNCTIONS (TCP)
+// ============================================
+
+// Create and bind TCP server socket
+// Returns: Optional<socket> - Some(socket) on success, None on error
+function socket_server_create(numeric port) -> optional
+    // Create socket
+    numeric sock = mlp_socket_connect("", 0)  // Server socket creation
+    if sock <= 0 then
+        return optional_none()
+    end_if
+    
+    // Bind to port
+    numeric bind_result = mlp_socket_bind(sock, port)
+    if bind_result < 0 then
+        mlp_socket_close(sock)
+        return optional_none()
+    end_if
+    
+    // Listen for connections
+    numeric listen_result = mlp_socket_listen(sock, 10)
+    if listen_result < 0 then
+        mlp_socket_close(sock)
+        return optional_none()
+    end_if
+    
+    return optional_some(sock)
+end_function
+
+// Accept incoming connection
+// Returns: Optional<socket> - Some(client_socket) on success, None on error
+function socket_accept(numeric server_sock) -> optional
+    numeric client_sock = mlp_socket_accept(server_sock)
+    if client_sock > 0 then
+        return optional_some(client_sock)
+    end_if
+    return optional_none()
+end_function
+
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
+
+// Get string length (imported from stdlib)
+function string_length(string s) -> numeric
+    numeric len = 0
+    while s[len] != '\0'
+        len = len + 1
+    end_while
+    return len
+end_function
+
+// Create Some optional
+function optional_some(numeric value) -> optional
+    // This will be replaced with proper Optional implementation
+    return value
+end_function
+
+// Create None optional
+function optional_none() -> optional
+    // This will be replaced with proper Optional implementation
+    return -1
+end_function
+
+// ============================================
+// USAGE EXAMPLES
+// ============================================
+
+// TCP Client Example:
+// optional sock = socket_connect("example.com", 80)
+// if sock.is_some() then
+//     socket_write(sock.unwrap(), "GET / HTTP/1.1\r\n\r\n")
+//     optional response = socket_read_default(sock.unwrap())
+//     if response.is_some() then
+//         yazdir(response.unwrap())
+//     end_if
+//     socket_close(sock.unwrap())
+// end_if
+
+// UDP Example:
+// optional sock = socket_udp_create()
+// if sock.is_some() then
+//     socket_udp_send(sock.unwrap(), "localhost", 9000, "Hello UDP")
+//     optional response = socket_udp_recv(sock.unwrap(), 1024)
+//     socket_close(sock.unwrap())
+// end_if
+
+// TCP Server Example:
+// optional server = socket_server_create(8080)
+// if server.is_some() then
+//     optional client = socket_accept(server.unwrap())
+//     if client.is_some() then
+//         optional data = socket_read_default(client.unwrap())
+//         socket_write(client.unwrap(), "HTTP/1.1 200 OK\r\n\r\nHello!")
+//         socket_close(client.unwrap())
+//     end_if
+//     socket_close(server.unwrap())
+// end_if

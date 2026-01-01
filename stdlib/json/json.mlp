@@ -1,0 +1,406 @@
+// ============================================
+// MELP STANDARD LIBRARY - JSON Parser/Serializer
+// ============================================
+// General-purpose JSON parsing and serialization
+// Module: stdlib/json/json.mlp
+// Runtime: MELP/runtime/json/parser.c, stringify.c
+//
+// ⚠️ DESIGN PRINCIPLE (6th FUNDAMENTAL):
+// MODÜL=ŞABLON: Each parse/stringify call is independent
+// Pattern: input → process → output → cleanup
+// NO persistent state! Each call is a complete lifecycle.
+
+// ============================================
+// JSON TYPES & CONSTANTS
+// ============================================
+
+// JSON value types (enum from C runtime)
+numeric JSON_NULL = 0
+numeric JSON_BOOLEAN = 1
+numeric JSON_NUMBER = 2
+numeric JSON_STRING = 3
+numeric JSON_ARRAY = 4
+numeric JSON_OBJECT = 5
+
+// JSON value handle (opaque pointer from C runtime)
+type json_value = numeric
+
+// JSON object handle
+type json_object = numeric
+
+// JSON array handle
+type json_array = numeric
+
+// Parse result with error tracking
+type parse_result = {
+    success: boolean,
+    value: json_value,
+    error_line: numeric,
+    error_column: numeric,
+    error_message: string
+}
+
+// ============================================
+// EXTERNAL C RUNTIME FUNCTIONS
+// ============================================
+
+// Core parsing
+external fn mlp_json_parse(json_string: string) -> parse_result
+
+// Memory management
+external fn mlp_json_free(value: json_value) -> void
+
+// Value creation
+external fn mlp_json_create_null() -> json_value
+external fn mlp_json_create_boolean(value: boolean) -> json_value
+external fn mlp_json_create_number(value: numeric) -> json_value
+external fn mlp_json_create_string(value: string) -> json_value
+external fn mlp_json_create_array() -> json_value
+external fn mlp_json_create_object() -> json_value
+
+// Type checking
+external fn mlp_json_is_null(value: json_value) -> boolean
+external fn mlp_json_is_boolean(value: json_value) -> boolean
+external fn mlp_json_is_number(value: json_value) -> boolean
+external fn mlp_json_is_string(value: json_value) -> boolean
+external fn mlp_json_is_array(value: json_value) -> boolean
+external fn mlp_json_is_object(value: json_value) -> boolean
+
+// Value extraction
+external fn mlp_json_get_boolean(value: json_value, default_val: boolean) -> boolean
+external fn mlp_json_get_number(value: json_value, default_val: numeric) -> numeric
+external fn mlp_json_get_string(value: json_value, default_val: string) -> string
+external fn mlp_json_get_array(value: json_value) -> json_array
+external fn mlp_json_get_object(value: json_value) -> json_object
+
+// Object operations
+external fn mlp_json_object_set(obj: json_object, key: string, value: json_value) -> void
+external fn mlp_json_object_get(obj: json_object, key: string) -> json_value
+external fn mlp_json_object_has(obj: json_object, key: string) -> boolean
+external fn mlp_json_object_size(obj: json_object) -> numeric
+
+// Array operations
+external fn mlp_json_array_append(arr: json_array, value: json_value) -> void
+external fn mlp_json_array_get(arr: json_array, index: numeric) -> json_value
+external fn mlp_json_array_length(arr: json_array) -> numeric
+
+// Serialization
+external fn mlp_json_stringify(value: json_value, pretty: boolean) -> string
+
+// Utility
+external fn mlp_json_clone(value: json_value) -> json_value
+
+// ============================================
+// HIGH-LEVEL FUNCTIONAL ŞABLON (MODULE TEMPLATE)
+// ============================================
+
+// Parse JSON string into structured data
+// This is a complete lifecycle: text → parse → structure → return
+//
+// ✅ CORRECT USAGE (Functional Pattern):
+//     result = json.parse('{"name": "math"}')
+//     # JSON: born → parsed → returned → (caller manages lifetime)
+//
+// ❌ WRONG USAGE (Persistent Parser - FORBIDDEN):
+//     parser = json.create_parser()  # NO! This creates long-lived state
+//     parser.parse(text)
+//
+// Args:
+//   json_string: JSON text to parse
+//
+// Returns:
+//   parse_result with success flag and parsed value tree
+//
+// Example:
+//   result = json.parse('{"name":"math","version":1.0}')
+//   if result.success then
+//       obj = json.get_object(result.value)
+//       name = json.object_get_string(obj, "name", "unknown")
+//       print(name)  # "math"
+//       json.free(result.value)  # Cleanup
+//   else
+//       print("Parse error at line " + string(result.error_line))
+//   end_if
+//
+fn parse(json_string: string) -> parse_result
+    // Call C runtime parser (born → parse → structure → return)
+    parse_result result = mlp_json_parse(json_string)
+    return result
+end_fn
+
+// Convert structured JSON data to string
+// This is a complete lifecycle: structure → stringify → text → return
+//
+// ✅ CORRECT USAGE (Functional Pattern):
+//     text = json.stringify(json_value, true)
+//     # Stringify: born → process → return string → died
+//
+// Args:
+//   value: JSON value tree
+//   pretty: true for pretty-print, false for compact
+//
+// Returns:
+//   JSON string
+//
+// Example:
+//   obj = json.create_object()
+//   json.object_set_string(obj, "name", "math")
+//   json.object_set_number(obj, "version", 1.0)
+//   
+//   text = json.stringify(obj, true)
+//   print(text)  # Pretty-printed JSON
+//   json.free(obj)
+//
+fn stringify(value: json_value, pretty: boolean) -> string
+    // Call C runtime stringifier (born → stringify → return text → died)
+    string result = mlp_json_stringify(value, pretty)
+    return result
+end_fn
+
+// Free JSON value tree (recursive cleanup)
+// IMPORTANT: Caller must call this after done with parsed/created JSON
+//
+fn free(value: json_value) -> void
+    mlp_json_free(value)
+end_fn
+
+// ============================================
+// VALUE CREATION WRAPPERS
+// ============================================
+
+fn create_null() -> json_value
+    return mlp_json_create_null()
+end_fn
+
+fn create_boolean(value: boolean) -> json_value
+    return mlp_json_create_boolean(value)
+end_fn
+
+fn create_number(value: numeric) -> json_value
+    return mlp_json_create_number(value)
+end_fn
+
+fn create_string(value: string) -> json_value
+    return mlp_json_create_string(value)
+end_fn
+
+fn create_array() -> json_value
+    return mlp_json_create_array()
+end_fn
+
+fn create_object() -> json_value
+    return mlp_json_create_object()
+end_fn
+
+// ============================================
+// TYPE CHECKING WRAPPERS
+// ============================================
+
+fn is_null(value: json_value) -> boolean
+    return mlp_json_is_null(value)
+end_fn
+
+fn is_boolean(value: json_value) -> boolean
+    return mlp_json_is_boolean(value)
+end_fn
+
+fn is_number(value: json_value) -> boolean
+    return mlp_json_is_number(value)
+end_fn
+
+fn is_string(value: json_value) -> boolean
+    return mlp_json_is_string(value)
+end_fn
+
+fn is_array(value: json_value) -> boolean
+    return mlp_json_is_array(value)
+end_fn
+
+fn is_object(value: json_value) -> boolean
+    return mlp_json_is_object(value)
+end_fn
+
+// ============================================
+// VALUE EXTRACTION WRAPPERS
+// ============================================
+
+fn get_boolean(value: json_value, default_val: boolean) -> boolean
+    return mlp_json_get_boolean(value, default_val)
+end_fn
+
+fn get_number(value: json_value, default_val: numeric) -> numeric
+    return mlp_json_get_number(value, default_val)
+end_fn
+
+fn get_string(value: json_value, default_val: string) -> string
+    return mlp_json_get_string(value, default_val)
+end_fn
+
+fn get_array(value: json_value) -> json_array
+    return mlp_json_get_array(value)
+end_fn
+
+fn get_object(value: json_value) -> json_object
+    return mlp_json_get_object(value)
+end_fn
+
+// ============================================
+// OBJECT OPERATIONS
+// ============================================
+
+fn object_set(obj: json_object, key: string, value: json_value) -> void
+    mlp_json_object_set(obj, key, value)
+end_fn
+
+fn object_get(obj: json_object, key: string) -> json_value
+    return mlp_json_object_get(obj, key)
+end_fn
+
+fn object_has(obj: json_object, key: string) -> boolean
+    return mlp_json_object_has(obj, key)
+end_fn
+
+fn object_size(obj: json_object) -> numeric
+    return mlp_json_object_size(obj)
+end_fn
+
+// Helper: Get string value from object by key
+fn object_get_string(obj: json_object, key: string, default_val: string) -> string
+    json_value val = mlp_json_object_get(obj, key)
+    if val == 0 then
+        return default_val
+    end_if
+    return mlp_json_get_string(val, default_val)
+end_fn
+
+// Helper: Get number value from object by key
+fn object_get_number(obj: json_object, key: string, default_val: numeric) -> numeric
+    json_value val = mlp_json_object_get(obj, key)
+    if val == 0 then
+        return default_val
+    end_if
+    return mlp_json_get_number(val, default_val)
+end_fn
+
+// Helper: Get boolean value from object by key
+fn object_get_boolean(obj: json_object, key: string, default_val: boolean) -> boolean
+    json_value val = mlp_json_object_get(obj, key)
+    if val == 0 then
+        return default_val
+    end_if
+    return mlp_json_get_boolean(val, default_val)
+end_fn
+
+// Helper: Set string value in object
+fn object_set_string(obj: json_object, key: string, value: string) -> void
+    json_value json_val = mlp_json_create_string(value)
+    mlp_json_object_set(obj, key, json_val)
+end_fn
+
+// Helper: Set number value in object
+fn object_set_number(obj: json_object, key: string, value: numeric) -> void
+    json_value json_val = mlp_json_create_number(value)
+    mlp_json_object_set(obj, key, json_val)
+end_fn
+
+// Helper: Set boolean value in object
+fn object_set_boolean(obj: json_object, key: string, value: boolean) -> void
+    json_value json_val = mlp_json_create_boolean(value)
+    mlp_json_object_set(obj, key, json_val)
+end_fn
+
+// ============================================
+// ARRAY OPERATIONS
+// ============================================
+
+fn array_append(arr: json_array, value: json_value) -> void
+    mlp_json_array_append(arr, value)
+end_fn
+
+fn array_get(arr: json_array, index: numeric) -> json_value
+    return mlp_json_array_get(arr, index)
+end_fn
+
+fn array_length(arr: json_array) -> numeric
+    return mlp_json_array_length(arr)
+end_fn
+
+// Helper: Get string from array at index
+fn array_get_string(arr: json_array, index: numeric, default_val: string) -> string
+    json_value val = mlp_json_array_get(arr, index)
+    if val == 0 then
+        return default_val
+    end_if
+    return mlp_json_get_string(val, default_val)
+end_fn
+
+// Helper: Get number from array at index
+fn array_get_number(arr: json_array, index: numeric, default_val: numeric) -> numeric
+    json_value val = mlp_json_array_get(arr, index)
+    if val == 0 then
+        return default_val
+    end_if
+    return mlp_json_get_number(val, default_val)
+end_fn
+
+// Helper: Append string to array
+fn array_append_string(arr: json_array, value: string) -> void
+    json_value json_val = mlp_json_create_string(value)
+    mlp_json_array_append(arr, json_val)
+end_fn
+
+// Helper: Append number to array
+fn array_append_number(arr: json_array, value: numeric) -> void
+    json_value json_val = mlp_json_create_number(value)
+    mlp_json_array_append(arr, json_val)
+end_fn
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+fn clone(value: json_value) -> json_value
+    return mlp_json_clone(value)
+end_fn
+
+// ============================================
+// MODULE METADATA PATTERN (Critical for Import System!)
+// ============================================
+// This is the PRIMARY use case for JSON in MELP!
+//
+// Example module metadata JSON:
+// {
+//   "name": "math",
+//   "version": "1.0.0",
+//   "exports": ["add", "sub", "mul", "div"],
+//   "dependencies": ["stdlib/core/numeric"]
+// }
+//
+// Parse metadata:
+//   result = json.parse(metadata_string)
+//   if result.success then
+//       obj = json.get_object(result.value)
+//       name = json.object_get_string(obj, "name", "unknown")
+//       
+//       exports_arr = json.object_get(obj, "exports")
+//       if json.is_array(exports_arr) then
+//           arr = json.get_array(exports_arr)
+//           count = json.array_length(arr)
+//           # Process exports...
+//       end_if
+//       
+//       json.free(result.value)
+//   end_if
+//
+// Create metadata:
+//   obj = json.create_object()
+//   json.object_set_string(obj, "name", "math")
+//   json.object_set_string(obj, "version", "1.0.0")
+//   
+//   exports = json.create_array()
+//   json.array_append_string(exports, "add")
+//   json.array_append_string(exports, "sub")
+//   json.object_set(obj, "exports", exports)
+//   
+//   metadata_string = json.stringify(obj, true)
+//   json.free(obj)

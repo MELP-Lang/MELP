@@ -40,6 +40,7 @@ Bu TODO **full multi-language support** ve **normalization pipeline** ekleyecek!
 
 ### **Task 1: PMLP (Pure Mathematical MLP) Specification** (3-4 gün)
 
+**Atanan:** NORM_YZ_01  
 **Hedef:** Language-agnostic internal representation
 
 **PMLP Design:**
@@ -107,6 +108,7 @@ MELP/normalizer/
 
 ### **Task 2: Normalizer Implementation** (6-7 gün)
 
+**Atanan:** NORM_YZ_02  
 **Hedef:** MLP-TR/EN → PMLP transformer
 
 **Current Status (Identity):**
@@ -213,6 +215,7 @@ cat test.pmlp  # Same PMLP output!
 
 ### **Task 3: Compiler PMLP Integration** (4-5 gün)
 
+**Atanan:** NORM_YZ_03  
 **Hedef:** Compiler PMLP'yi input olarak almalı
 
 **Current Compiler Pipeline:**
@@ -284,6 +287,7 @@ gcc test.c -o test
 
 ### **Task 4: Multi-Language Stdlib** (5-6 gün)
 
+**Atanan:** NORM_YZ_04  
 **Hedef:** stdlib her dilde (tr/, en/, pmlp/)
 
 **Current Structure:**
@@ -373,6 +377,7 @@ stdlib/pmlp/     (~20 modules, 2500+ lines total - more compact!)
 
 ### **Task 5: Cross-Language Import** (3-4 gün)
 
+**Atanan:** NORM_YZ_05  
 **Hedef:** TR file can import EN file (and vice versa)
 
 **Scenario:**
@@ -424,6 +429,7 @@ gcc main.c -o main
 
 ### **Task 6: Documentation & Migration Guide** (2-3 gün)
 
+**Atanan:** NORM_YZ_06  
 **Hedef:** Help users choose/migrate between languages
 
 **Documents:**
@@ -550,6 +556,164 @@ With normalization:     120ms (+20ms overhead)
 
 ---
 
+## 🧪 GERÇEK TESTLER - TODO TAMAMLANMA KRİTERLERİ
+
+### ⚠️ UYARI: Tüm testler geçmeden TODO tamamlanmış sayılmaz!
+
+**Test Dosyaları:** `tests/normalization/`
+
+```bash
+# Test 1-5: PMLP Specification Tests
+tests/normalization/pmlp/
+├── test_symbols.mlp            # Mathematical symbols ✅
+├── test_function_def.mlp       # ∀ add(a:ℕ,b:ℕ)→ℕ ✅
+├── test_control_flow.mlp       # if/while PMLP syntax ✅
+├── test_types.mlp              # ℕ, ℤ, ℝ, 𝔹, String ✅
+└── test_operators.mlp          # ∧, ∨, ¬, ⊕, ⊗ operators ✅
+
+# Test 6-10: TR → PMLP Normalization Tests
+tests/normalization/tr_to_pmlp/
+├── test_function.mlp           # fonksiyon → ∀ ✅
+├── test_keywords.mlp           # eğer/iken → if/while ✅
+├── test_types.mlp              # sayı/metin → ℕ/String ✅
+├── test_operators.mlp          # ve/veya → ∧/∨ ✅
+└── test_comments.mlp           # Turkish comments preserved ✅
+
+# Test 11-15: EN → PMLP Normalization Tests
+tests/normalization/en_to_pmlp/
+├── test_function.mlp           # function → ∀ ✅
+├── test_keywords.mlp           # if/while → symbols ✅
+├── test_types.mlp              # int/string → ℕ/String ✅
+├── test_operators.mlp          # and/or → ∧/∨ ✅
+└── test_comments.mlp           # English comments preserved ✅
+
+# Test 16-20: Auto-Detection Tests
+tests/normalization/detection/
+├── test_detect_tr.mlp          # Auto-detect Turkish ✅
+├── test_detect_en.mlp          # Auto-detect English ✅
+├── test_detect_pmlp.mlp        # Auto-detect PMLP ✅
+├── test_mixed_file.mlp         # TR + EN mixed error ✅
+└── test_confidence.mlp         # Detection confidence ✅
+
+# Test 21-25: Cross-Language Import Tests
+tests/normalization/cross_import/
+├── test_tr_imports_en.mlp      # TR file imports EN module ✅
+├── test_en_imports_tr.mlp      # EN file imports TR module ✅
+├── test_pmlp_imports_tr.mlp    # PMLP imports TR ✅
+├── test_pmlp_imports_en.mlp    # PMLP imports EN ✅
+└── test_circular.mlp           # Circular imports detection ✅
+
+# Test 26-30: Multi-Language Stdlib Tests
+tests/normalization/stdlib/
+├── test_tr_stdlib.mlp          # stdlib/tr/ usage ✅
+├── test_en_stdlib.mlp          # stdlib/en/ usage ✅
+├── test_pmlp_stdlib.mlp        # stdlib/pmlp/ usage ✅
+├── test_stdlib_equiv.mlp       # TR/EN/PMLP equivalence ✅
+└── test_stdlib_api.mlp         # API consistency check ✅
+
+# Test 31-35: Performance & Cache Tests
+tests/normalization/performance/
+├── test_normalize_speed.mlp    # Normalization <25ms ✅
+├── test_cache_hit.mlp          # Cache hit performance ✅
+├── test_cache_invalidate.mlp   # Cache invalidation ✅
+├── test_large_file.mlp         # 10000 line file <500ms ✅
+└── test_memory_usage.mlp       # Memory overhead check ✅
+```
+
+### 📊 TEST RAPORU FORMATI
+
+**Dosya:** `TEST_RAPORU_TODO8.md`
+
+```markdown
+# TODO #8 TEST RAPORU
+
+## ÖZET
+- **Toplam Test:** 35
+- **Başarılı:** 35/35 ✅
+- **Başarısız:** 0/35 ✅
+- **Test Süresi:** ~90 saniye
+
+## DETAY
+
+### PMLP Specification Tests (5/5 ✅)
+- test_symbols.mlp: PASS (100ms)
+- test_function_def.mlp: PASS (120ms)
+- test_control_flow.mlp: PASS (150ms)
+- test_types.mlp: PASS (110ms)
+- test_operators.mlp: PASS (130ms)
+
+### TR → PMLP Normalization Tests (5/5 ✅)
+- test_function.mlp: PASS (180ms)
+- test_keywords.mlp: PASS (200ms)
+- test_types.mlp: PASS (160ms)
+- test_operators.mlp: PASS (170ms)
+- test_comments.mlp: PASS (140ms)
+
+### EN → PMLP Normalization Tests (5/5 ✅)
+- test_function.mlp: PASS (180ms)
+- test_keywords.mlp: PASS (190ms)
+- test_types.mlp: PASS (160ms)
+- test_operators.mlp: PASS (170ms)
+- test_comments.mlp: PASS (140ms)
+
+### Auto-Detection Tests (5/5 ✅)
+- test_detect_tr.mlp: PASS (80ms)
+- test_detect_en.mlp: PASS (75ms)
+- test_detect_pmlp.mlp: PASS (70ms)
+- test_mixed_file.mlp: PASS (90ms) - Error detected ✅
+- test_confidence.mlp: PASS (100ms) - >95% accuracy ✅
+
+### Cross-Language Import Tests (5/5 ✅)
+- test_tr_imports_en.mlp: PASS (300ms)
+- test_en_imports_tr.mlp: PASS (310ms)
+- test_pmlp_imports_tr.mlp: PASS (280ms)
+- test_pmlp_imports_en.mlp: PASS (290ms)
+- test_circular.mlp: PASS (200ms) - Detected ✅
+
+### Multi-Language Stdlib Tests (5/5 ✅)
+- test_tr_stdlib.mlp: PASS (250ms)
+- test_en_stdlib.mlp: PASS (240ms)
+- test_pmlp_stdlib.mlp: PASS (230ms)
+- test_stdlib_equiv.mlp: PASS (400ms) - 100% equiv ✅
+- test_stdlib_api.mlp: PASS (350ms)
+
+### Performance & Cache Tests (5/5 ✅)
+- test_normalize_speed.mlp: PASS (18ms) - Target <25ms ✅
+- test_cache_hit.mlp: PASS (5ms) - Cache working ✅
+- test_cache_invalidate.mlp: PASS (120ms)
+- test_large_file.mlp: PASS (420ms) - Target <500ms ✅
+- test_memory_usage.mlp: PASS (80ms) - <10MB overhead ✅
+
+## MULTI-LANGUAGE VALIDATION
+- TR → PMLP → C compilation: Working ✅
+- EN → PMLP → C compilation: Working ✅
+- PMLP direct → C compilation: Working ✅
+- Cross-language imports: Working ✅
+- Stdlib 3x variants (tr/en/pmlp): All working ✅
+- Auto-detection accuracy: >95% ✅
+- Performance overhead: <25ms (18ms avg) ✅
+
+## SONUÇ
+✅ TODO #8 TAMAMLANDI - Multi-language support complete!
+🌍 MLP-GCC = TRULY MULTI-LINGUAL LANGUAGE! 🌍
+```
+
+### 🎯 BAŞARI KRİTERİ
+
+**TODO #8 tamamlanabilir ancak ve ancak:**
+- ✅ 35/35 test geçiyor
+- ✅ PMLP specification complete ve documented
+- ✅ TR → PMLP normalizer working
+- ✅ EN → PMLP normalizer working
+- ✅ Auto-detection >95% accuracy
+- ✅ Cross-language imports working (TR ↔ EN)
+- ✅ Multi-language stdlib (tr/, en/, pmlp/) complete
+- ✅ Performance <25ms normalization overhead
+- ✅ Cache system <5ms cached normalization
+- ✅ Documentation complete (PMLP spec, usage guide)
+
+---
+
 ## 📝 NOTLAR
 
 ### Design Decisions
@@ -567,16 +731,5 @@ A: +20ms normalization. Cache ile ~5ms'ye düşer.
 A: Ekosistem zenginliği. TR kullanıcı EN kütüphane kullanabilmeli.
 
 ---
-
-## ✅ TAMAMLANMA KONTROL LİSTESİ
-
-- [ ] PMLP specification complete
-- [ ] Normalizer implemented (TR/EN → PMLP)
-- [ ] PMLP lexer/parser in compiler
-- [ ] Multi-language stdlib (tr/, en/, pmlp/)
-- [ ] Cross-language import working
-- [ ] Documentation complete
-- [ ] All tests passing
-- [ ] Performance acceptable (<25ms overhead)
 
 **TODO tamamlandığında:** 🌍 MLP = Truly multi-lingual programming language! 🌍

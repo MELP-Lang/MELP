@@ -1,0 +1,306 @@
+// ============================================
+// MELP STANDARD LIBRARY - HTTP Client
+// ============================================
+// HTTP/1.1 client implementation
+// Module: stdlib/net/http.mlp
+// Runtime: MELP/runtime/net/http.c
+// Dependencies: stdlib/net/socket.mlp
+
+// ============================================
+// HTTP TYPE DEFINITIONS
+// ============================================
+
+// HTTP methods
+string HTTP_GET = "GET"
+string HTTP_POST = "POST"
+string HTTP_PUT = "PUT"
+string HTTP_DELETE = "DELETE"
+string HTTP_HEAD = "HEAD"
+string HTTP_OPTIONS = "OPTIONS"
+
+// HTTP status codes
+numeric HTTP_OK = 200
+numeric HTTP_CREATED = 201
+numeric HTTP_NO_CONTENT = 204
+numeric HTTP_BAD_REQUEST = 400
+numeric HTTP_UNAUTHORIZED = 401
+numeric HTTP_FORBIDDEN = 403
+numeric HTTP_NOT_FOUND = 404
+numeric HTTP_SERVER_ERROR = 500
+
+// HTTP versions
+string HTTP_1_0 = "HTTP/1.0"
+string HTTP_1_1 = "HTTP/1.1"
+
+// ============================================
+// EXTERNAL C RUNTIME FUNCTIONS
+// ============================================
+
+// Parse URL into components (host, port, path)
+// Returns: JSON-like string with components
+external fn mlp_http_parse_url(url: string) -> string
+
+// Build HTTP request string
+external fn mlp_http_build_request(method: string, path: string, host: string, headers: string, body: string) -> string
+
+// Parse HTTP response
+// Returns: JSON-like string with status, headers, body
+external fn mlp_http_parse_response(response: string) -> string
+
+// Perform complete HTTP request (high-level)
+// Returns: response string or empty on error
+external fn mlp_http_request(method: string, url: string, headers: string, body: string) -> string
+
+// URL encode string
+external fn mlp_http_url_encode(str: string) -> string
+
+// URL decode string
+external fn mlp_http_url_decode(str: string) -> string
+
+// ============================================
+// HTTP REQUEST STRUCTURE (Simulated)
+// ============================================
+
+// Note: MLP doesn't have structs yet, using parallel arrays
+// request_id tracks related data across arrays
+
+// ============================================
+// HIGH-LEVEL HTTP API
+// ============================================
+
+// HTTP GET request
+// Returns: Optional<string> - Some(response_body) on success, None on error
+function http_get(string url) -> optional
+    string response = mlp_http_request("GET", url, "", "")
+    if string_length(response) > 0 then
+        return optional_some(response)
+    end_if
+    return optional_none()
+end_function
+
+// HTTP GET with headers
+function http_get_with_headers(string url, string headers) -> optional
+    string response = mlp_http_request("GET", url, headers, "")
+    if string_length(response) > 0 then
+        return optional_some(response)
+    end_if
+    return optional_none()
+end_function
+
+// HTTP POST request
+// Returns: Optional<string> - Some(response_body) on success, None on error
+function http_post(string url, string body) -> optional
+    string headers = "Content-Type: application/x-www-form-urlencoded\r\n"
+    string response = mlp_http_request("POST", url, headers, body)
+    if string_length(response) > 0 then
+        return optional_some(response)
+    end_if
+    return optional_none()
+end_function
+
+// HTTP POST with JSON body
+function http_post_json(string url, string json_body) -> optional
+    string headers = "Content-Type: application/json\r\n"
+    string response = mlp_http_request("POST", url, headers, json_body)
+    if string_length(response) > 0 then
+        return optional_some(response)
+    end_if
+    return optional_none()
+end_function
+
+// HTTP POST with custom headers
+function http_post_with_headers(string url, string headers, string body) -> optional
+    string response = mlp_http_request("POST", url, headers, body)
+    if string_length(response) > 0 then
+        return optional_some(response)
+    end_if
+    return optional_none()
+end_function
+
+// HTTP PUT request
+function http_put(string url, string body) -> optional
+    string headers = "Content-Type: application/x-www-form-urlencoded\r\n"
+    string response = mlp_http_request("PUT", url, headers, body)
+    if string_length(response) > 0 then
+        return optional_some(response)
+    end_if
+    return optional_none()
+end_function
+
+// HTTP DELETE request
+function http_delete(string url) -> optional
+    string response = mlp_http_request("DELETE", url, "", "")
+    if string_length(response) > 0 then
+        return optional_some(response)
+    end_if
+    return optional_none()
+end_function
+
+// ============================================
+// LOW-LEVEL HTTP API (Manual control)
+// ============================================
+
+// Parse URL into components
+// Returns: Optional<string> - Some(parsed_json) on success
+function http_parse_url(string url) -> optional
+    string parsed = mlp_http_parse_url(url)
+    if string_length(parsed) > 0 then
+        return optional_some(parsed)
+    end_if
+    return optional_none()
+end_function
+
+// Build HTTP request manually
+function http_build_request(string method, string path, string host, string headers, string body) -> string
+    return mlp_http_build_request(method, path, host, headers, body)
+end_function
+
+// Parse HTTP response
+function http_parse_response(string response) -> optional
+    string parsed = mlp_http_parse_response(response)
+    if string_length(parsed) > 0 then
+        return optional_some(parsed)
+    end_if
+    return optional_none()
+end_function
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+// URL encode string (for query parameters)
+function http_url_encode(string str) -> string
+    return mlp_http_url_encode(str)
+end_function
+
+// URL decode string
+function http_url_decode(string str) -> string
+    return mlp_http_url_decode(str)
+end_function
+
+// Extract status code from response
+// Simple parser: looks for "HTTP/1.1 XXX" pattern
+function http_get_status_code(string response) -> numeric
+    // Find "HTTP/1.1 " or "HTTP/1.0 "
+    numeric pos = 0
+    numeric response_len = string_length(response)
+    
+    // Skip to first space after HTTP/
+    while pos < response_len
+        if response[pos] == ' ' then
+            pos = pos + 1
+            break
+        end_if
+        pos = pos + 1
+    end_while
+    
+    // Parse 3-digit status code
+    numeric status = 0
+    numeric digit_count = 0
+    while pos < response_len and digit_count < 3
+        if response[pos] >= '0' and response[pos] <= '9' then
+            status = status * 10 + (response[pos] - '0')
+            digit_count = digit_count + 1
+        else
+            break
+        end_if
+        pos = pos + 1
+    end_while
+    
+    return status
+end_function
+
+// Extract body from response
+// Simple parser: body starts after "\r\n\r\n"
+function http_get_body(string response) -> string
+    numeric pos = 0
+    numeric response_len = string_length(response)
+    
+    // Find "\r\n\r\n" separator
+    while pos < response_len - 3
+        if response[pos] == '\r' and response[pos + 1] == '\n' and response[pos + 2] == '\r' and response[pos + 3] == '\n' then
+            // Body starts after separator
+            pos = pos + 4
+            break
+        end_if
+        pos = pos + 1
+    end_while
+    
+    // Extract body (from pos to end)
+    if pos >= response_len then
+        return ""
+    end_if
+    
+    return string_substring(response, pos, response_len)
+end_function
+
+// Check if response is successful (2xx status)
+function http_is_success(string response) -> boolean
+    numeric status = http_get_status_code(response)
+    if status >= 200 and status < 300 then
+        return true
+    end_if
+    return false
+end_function
+
+// ============================================
+// HELPER FUNCTIONS (from stdlib)
+// ============================================
+
+function string_length(string s) -> numeric
+    numeric len = 0
+    while s[len] != '\0'
+        len = len + 1
+    end_while
+    return len
+end_function
+
+function string_substring(string s, numeric start, numeric end_pos) -> string
+    numeric len = end_pos - start
+    if len <= 0 then
+        return ""
+    end_if
+    
+    // Simplified: return original string for now
+    // Proper implementation needs runtime support
+    return s
+end_function
+
+function optional_some(string value) -> optional
+    // Placeholder for optional type
+    return value
+end_function
+
+function optional_none() -> optional
+    // Placeholder for optional type
+    return ""
+end_function
+
+// ============================================
+// USAGE EXAMPLES
+// ============================================
+
+// Simple GET request:
+// optional response = http_get("http://httpbin.org/get")
+// if optional_has_value(response) then
+//     string body = optional_unwrap(response)
+//     numeric status = http_get_status_code(body)
+//     string content = http_get_body(body)
+//     yazdir("Status: " + string(status))
+//     yazdir("Body: " + content)
+// end_if
+
+// POST JSON request:
+// string json = '{"name": "test", "value": 123}'
+// optional response = http_post_json("http://httpbin.org/post", json)
+// if http_is_success(response.unwrap()) then
+//     yazdir("POST successful")
+// end_if
+
+// GET with custom headers:
+// string headers = "Authorization: Bearer token123\r\nAccept: application/json\r\n"
+// optional response = http_get_with_headers("http://api.example.com/data", headers)
+
+// URL encoding:
+// string encoded = http_url_encode("hello world")  // "hello%20world"
+// string decoded = http_url_decode(encoded)        // "hello world"

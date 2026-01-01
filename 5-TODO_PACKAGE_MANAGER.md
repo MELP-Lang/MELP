@@ -36,6 +36,7 @@ Bu TODO **npm/cargo seviyesinde** paket sistemi kuracak.
 
 ### **Task 1: Package Manifest (mlp.toml)** (3 gün)
 
+**Atanan:** PKG_YZ_01  
 **Hedef:** Proje tanımlama dosyası
 
 **mlp.toml:**
@@ -129,6 +130,7 @@ cache_destroy(cache)  # CLI exit'te cleanup
 
 ### **Task 2: mlp-pkg CLI** (6-7 gün)
 
+**Atanan:** PKG_YZ_02  
 **Hedef:** Package manager CLI
 
 **Commands:**
@@ -254,6 +256,7 @@ cache_destroy(cache)  # Öldürme (CLI exit RAII)
 
 ### **Task 3: Package Registry** (7-8 gün)
 
+**Atanan:** PKG_YZ_03  
 **Hedef:** Online package repository
 
 **⚠️ IMPORTANT:** Registry Server = **TOOL (Binary)**, MLP modülü DEĞİL!  
@@ -357,6 +360,7 @@ mlp-pkg publish --dry-run
 
 ### **Task 4: Dependency Resolution** (5-6 gün)
 
+**Atanan:** PKG_YZ_04  
 **Hedef:** SAT solver for dependency resolution
 
 **Algorithm:**
@@ -411,6 +415,7 @@ mlp-pkg add lib-a lib-b
 
 ### **Task 5: Lock Files & Reproducible Builds** (3 gün)
 
+**Atanan:** PKG_YZ_05  
 **Hedef:** Deterministic builds
 
 **mlp.lock:**
@@ -463,6 +468,7 @@ sha256sum bin/my-app
 
 ### **Task 6: Binary Cache & Performance** (4 gün)
 
+**Atanan:** PKG_YZ_06  
 **Hedef:** Fast package installation
 
 **Features:**
@@ -523,17 +529,118 @@ time mlp-pkg install --clean-cache
 
 ---
 
-## 🧪 TEST STRATEJİSİ
+## 🧪 GERÇEK TESTLER - TODO TAMAMLANMA KRİTERLERİ
+
+### ⚠️ UYARI: Tüm testler geçmeden TODO tamamlanmış sayılmaz!
+
+**Test Dosyaları:** `tests/pkg/`
 
 ```bash
+# Test 1-5: Manifest & CLI Tests
 tests/pkg/
-├── manifest_test.sh
-├── install_test.sh
-├── resolution_test.sh
-├── lock_test.sh
-├── cache_test.sh
-└── registry_test.sh
+├── test_manifest_parse.sh      # mlp.toml parsing ✅
+├── test_init.sh                # mlp-pkg init ✅
+├── test_add.sh                 # mlp-pkg add <package> ✅
+├── test_remove.sh              # mlp-pkg remove <package> ✅
+└── test_update.sh              # mlp-pkg update ✅
+
+# Test 6-10: Dependency Resolution Tests
+tests/pkg/resolution/
+├── test_simple_deps.sh         # A → B → C chain ✅
+├── test_version_range.sh       # Semantic versioning ✅
+├── test_conflict.sh            # Conflict resolution ✅
+├── test_circular.sh            # Circular dependency detection ✅
+└── test_optional_deps.sh       # Optional dependencies ✅
+
+# Test 11-15: Lock File & Cache Tests
+tests/pkg/lockfile/
+├── test_lock_generation.sh     # mlp.lock generation ✅
+├── test_lock_reproducible.sh   # Reproducible builds ✅
+├── test_lock_update.sh         # Lock file update ✅
+├── test_cache_hit.sh           # Binary cache hit ✅
+└── test_cache_miss.sh          # Binary cache miss ✅
+
+# Test 16-20: Registry Tests
+tests/pkg/registry/
+├── test_publish.sh             # mlp-pkg publish ✅
+├── test_search.sh              # mlp-pkg search ✅
+├── test_download.sh            # Package download ✅
+├── test_auth.sh                # Authentication ✅
+└── test_mirror.sh              # Mirror support ✅
+
+# Test 21-25: Integration Tests
+tests/pkg/integration/
+├── test_full_workflow.sh       # init → add → install ✅
+├── test_transitive_deps.sh     # Multi-level dependencies ✅
+├── test_offline_mode.sh        # Offline operation ✅
+├── test_workspace.sh           # Workspace management ✅
+└── test_performance.sh         # Install speed <30s ✅
 ```
+
+### 📊 TEST RAPORU FORMATI
+
+**Dosya:** `TEST_RAPORU_TODO5.md`
+
+```markdown
+# TODO #5 TEST RAPORU
+
+## ÖZET
+- **Toplam Test:** 25
+- **Başarılı:** 25/25 ✅
+- **Başarısız:** 0/25 ✅
+- **Test Süresi:** ~90 saniye
+
+## DETAY
+
+### Manifest & CLI Tests (5/5 ✅)
+- test_manifest_parse.sh: PASS (150ms)
+- test_init.sh: PASS (200ms)
+- test_add.sh: PASS (300ms)
+- test_remove.sh: PASS (250ms)
+- test_update.sh: PASS (400ms)
+
+### Dependency Resolution Tests (5/5 ✅)
+- test_simple_deps.sh: PASS (500ms)
+- test_version_range.sh: PASS (600ms)
+- test_conflict.sh: PASS (800ms)
+- test_circular.sh: PASS (350ms)
+- test_optional_deps.sh: PASS (450ms)
+
+### Lock File & Cache Tests (5/5 ✅)
+- test_lock_generation.sh: PASS (400ms)
+- test_lock_reproducible.sh: PASS (1200ms)
+- test_lock_update.sh: PASS (500ms)
+- test_cache_hit.sh: PASS (800ms)
+- test_cache_miss.sh: PASS (1500ms)
+
+### Registry Tests (5/5 ✅)
+- test_publish.sh: PASS (2000ms)
+- test_search.sh: PASS (600ms)
+- test_download.sh: PASS (1800ms)
+- test_auth.sh: PASS (400ms)
+- test_mirror.sh: PASS (700ms)
+
+### Integration Tests (5/5 ✅)
+- test_full_workflow.sh: PASS (3500ms)
+- test_transitive_deps.sh: PASS (2000ms)
+- test_offline_mode.sh: PASS (1200ms)
+- test_workspace.sh: PASS (1500ms)
+- test_performance.sh: PASS (25000ms) - Install <30s ✅
+
+## SONUÇ
+✅ TODO #5 TAMAMLANDI - Tüm testler geçti!
+```
+
+### 🎯 BAŞARI KRİTERİ
+
+**TODO #5 tamamlanabilir ancak ve ancak:**
+- ✅ 25/25 test geçiyor
+- ✅ mlp-pkg init/add/install/publish çalışıyor
+- ✅ Registry deployed (registry.mlp-lang.org)
+- ✅ 50+ package published (test registry)
+- ✅ Lock files reproducible (same hash)
+- ✅ Binary cache <30s install time
+- ✅ Offline mode çalışıyor
 
 ---
 
@@ -547,15 +654,5 @@ registry-web/             # Web UI (React/Vue)
 
 ---
 
-## 🎯 BAŞARI KRİTERLERİ
-
-- [ ] mlp-pkg init/add/install working
-- [ ] Registry deployed (registry.mlp-lang.org)
-- [ ] 50+ packages published
-- [ ] Lock files reproducible
-- [ ] Binary cache <30s install
-
----
-
-**Son Güncelleme:** 29 Aralık 2025  
+**Son Güncelleme:** 1 Ocak 2026  
 **Hazırlayan:** PD_01 (Danışman)

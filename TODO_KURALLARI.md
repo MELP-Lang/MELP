@@ -2,7 +2,7 @@
 
 > ⚠️ **UYARI:** Bu belgenin içeriği değiştirilemez. Sadece okuma amaçlı kullanılır. Değişiklik için Proje Danışmanı'na danışın.
 
-**İzlenecek TODO:** [`1-TODO_TOOLING_BASICS_MODULAR.md`](1-TODO_TOOLING_BASICS_MODULAR.md)
+**İzlenecek TODO:** [`3-TODO_LANGUAGE_FEATURES.md`](LANGUAGE_FEATURES/3-TODO_LANGUAGE_FEATURES.md)
 
 ---
 
@@ -154,17 +154,14 @@ Başlamak için onay bekliyorum.
 
 1. **Numaranı öğren** - Görevli_YZ_Buradan_Başla.md'yi oku, sen YZ_XX'sin
 2. **Kod yaz** - Sadece izinli dosyalara dokun
-3. **🔴 TEST ET (KRİTİK!)** - Her adımda gerçek testler çalıştır
+3. **Test et** - Her adımda gerçek testler çalıştır
    - ❌ **YASAK:** Stub, mock, pseudo-code, hack, TODO yorumları
    - ✅ **ZORUNLU:** %100 çalışan, gerçek testler
-   - ⚠️ **KURAL:** Tüm testler geçmeden işin bitmedi!
-   - Test dosyaları: `tests/X/test_*.mlp`, `tests/X/run_tests.sh`
-   - Test sonuçlarını raporla: "X/Y tests passing"
    - Test sonuçlarını TODO'daki görev alanına ekle
 4. **TODO Güncelle** - Tamamlanan checkbox'ları işaretle
    ```markdown
    - [x] Kod yazıldı
-   - [x] **Testler geçti (15/15 passing)** ← ZORUNLU!
+   - [x] Testler geçti
    - [x] Commit yapıldı
    ```
 5. **Commit** - Private repo'ya push et

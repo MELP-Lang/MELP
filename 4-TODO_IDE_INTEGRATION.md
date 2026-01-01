@@ -36,6 +36,7 @@ Bu TODO **first-class IDE desteği** sağlayacak.
 
 ### **Task 1: Full LSP Implementation** (5-6 gün)
 
+**Atanan:** IDE_YZ_01  
 **Hedef:** LSP 3.17 full compliance
 
 **Yeni LSP Methods:**
@@ -100,6 +101,7 @@ echo '{"method":"textDocument/rename"}' | ./mlp-lsp --stdio
 
 ### **Task 2: VS Code Extension (VSIX)** (4-5 gün)
 
+**Atanan:** IDE_YZ_02  
 **Hedef:** Official VS Code extension (.vsix package)
 
 **Özellikler:**
@@ -237,6 +239,7 @@ code --install-extension mlp-lang-1.0.0.vsix
 
 ### **Task 3: Vim/Neovim Plugin** (3-4 gün)
 
+**Atanan:** IDE_YZ_03  
 **Hedef:** Vim LSP + Tree-sitter support
 
 **Dosyalar:**
@@ -321,6 +324,7 @@ vim test.mlp
 
 ### **Task 4: Debug Adapter Protocol (DAP)** (4-5 gün)
 
+**Atanan:** IDE_YZ_04  
 **Hedef:** VS Code debugger entegrasyonu
 
 **Özellikler:**
@@ -391,6 +395,7 @@ code .
 
 ### **Task 5: Code Actions & Quick Fixes** (3 gün)
 
+**Atanan:** IDE_YZ_05  
 **Hedef:** IDE quick fixes
 
 **Code Actions:**
@@ -445,6 +450,7 @@ EOF
 
 ### **Task 6: Electron-Based Editor (mlp-studio)** (8-10 gün) - OPTIONAL
 
+**Atanan:** IDE_YZ_06 (OPTIONAL)  
 **Hedef:** Standalone cross-platform MLP IDE (VS Code benzeri)
 
 **Neden Electron?**
@@ -624,15 +630,105 @@ tree-sitter-mlp/             # Tree-sitter grammar
 
 ---
 
-## 🎯 BAŞARI KRİTERLERİ
+## 🧪 GERÇEK TESTLER - TODO TAMAMLANMA KRİTERLERİ
 
-- [ ] LSP rename çalışıyor (F2)
-- [ ] VS Code extension marketplace'te
-- [ ] Vim plugin working with nvim-lspconfig
-- [ ] Debugger breakpoints VS Code'da
-- [ ] Code actions quick fixes
+### ⚠️ UYARI: Tüm testler geçmeden TODO tamamlanmış sayılmaz!
+
+**Test Dosyaları:** `tests/ide/`
+
+```bash
+# Test 1-8: LSP Method Tests
+tests/ide/lsp/
+├── test_rename.sh              # textDocument/rename ✅
+├── test_references.sh          # textDocument/references ✅
+├── test_code_actions.sh        # textDocument/codeAction ✅
+├── test_formatting.sh          # textDocument/formatting ✅
+├── test_symbols.sh             # documentSymbol + workspace/symbol ✅
+├── test_inlay_hints.sh         # textDocument/inlayHint ✅
+├── test_hover.sh               # textDocument/hover ✅
+└── test_completion.sh          # textDocument/completion ✅
+
+# Test 9-12: VS Code Extension Tests
+tests/ide/vscode/
+├── test_syntax_highlight.mlp   # Syntax highlighting ✅
+├── test_debug_breakpoint.mlp   # Debugger integration ✅
+├── test_tasks_integration.mlp  # Tasks.json integration ✅
+└── test_snippets.mlp           # Code snippets ✅
+
+# Test 13-16: Vim Plugin Tests
+tests/ide/vim/
+├── test_lsp_integration.vim    # nvim-lspconfig ✅
+├── test_treesitter.vim         # Tree-sitter syntax ✅
+├── test_autocomplete.vim       # Auto-completion ✅
+└── test_goto_definition.vim    # Go to definition ✅
+
+# Test 17-20: Debugger Integration Tests
+tests/ide/debugger/
+├── test_breakpoint_set.mlp     # Set breakpoints ✅
+├── test_step_through.mlp       # Step over/into/out ✅
+├── test_variable_inspect.mlp   # Variable inspection ✅
+└── test_watch_expressions.mlp  # Watch expressions ✅
+```
+
+### 📊 TEST RAPORU FORMATI
+
+**Dosya:** `TEST_RAPORU_TODO4.md`
+
+```markdown
+# TODO #4 TEST RAPORU
+
+## ÖZET
+- **Toplam Test:** 20
+- **Başarılı:** 20/20 ✅
+- **Başarısız:** 0/20 ✅
+- **Test Süresi:** ~45 saniye
+
+## DETAY
+
+### LSP Method Tests (8/8 ✅)
+- test_rename.sh: PASS (500ms)
+- test_references.sh: PASS (450ms)
+- test_code_actions.sh: PASS (400ms)
+- test_formatting.sh: PASS (300ms)
+- test_symbols.sh: PASS (600ms)
+- test_inlay_hints.sh: PASS (350ms)
+- test_hover.sh: PASS (250ms)
+- test_completion.sh: PASS (500ms)
+
+### VS Code Extension Tests (4/4 ✅)
+- test_syntax_highlight.mlp: PASS (200ms)
+- test_debug_breakpoint.mlp: PASS (1200ms)
+- test_tasks_integration.mlp: PASS (300ms)
+- test_snippets.mlp: PASS (150ms)
+
+### Vim Plugin Tests (4/4 ✅)
+- test_lsp_integration.vim: PASS (800ms)
+- test_treesitter.vim: PASS (400ms)
+- test_autocomplete.vim: PASS (350ms)
+- test_goto_definition.vim: PASS (300ms)
+
+### Debugger Integration Tests (4/4 ✅)
+- test_breakpoint_set.mlp: PASS (600ms)
+- test_step_through.mlp: PASS (900ms)
+- test_variable_inspect.mlp: PASS (500ms)
+- test_watch_expressions.mlp: PASS (400ms)
+
+## SONUÇ
+✅ TODO #4 TAMAMLANDI - Tüm testler geçti!
+```
+
+### 🎯 BAŞARI KRİTERİ
+
+**TODO #4 tamamlanabilir ancak ve ancak:**
+- ✅ 20/20 test geçiyor
+- ✅ LSP rename çalışıyor (F2)
+- ✅ VS Code extension marketplace'te yayınlandı
+- ✅ Vim plugin nvim-lspconfig ile çalışıyor
+- ✅ Debugger breakpoints VS Code'da çalışıyor
+- ✅ Code actions quick fixes çalışıyor
+- ✅ Tree-sitter syntax highlighting aktif
 
 ---
 
-**Son Güncelleme:** 29 Aralık 2025  
+**Son Güncelleme:** 1 Ocak 2026  
 **Hazırlayan:** PD_01 (Danışman)

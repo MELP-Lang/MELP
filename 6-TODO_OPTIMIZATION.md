@@ -39,6 +39,7 @@ Bu TODO **C/Rust seviyesinde performans** sağlayacak.
 
 ### **Task 1: Dead Code Elimination** (3 gün)
 
+**Atanan:** OPT_YZ_01  
 **Hedef:** Kullanılmayan kodu sil
 
 **Örnek:**
@@ -83,6 +84,7 @@ ls -lh test_*
 
 ### **Task 2: Constant Folding** (3 gün)
 
+**Atanan:** OPT_YZ_02  
 **Hedef:** Compile-time hesaplama
 
 **Örnek:**
@@ -122,6 +124,7 @@ objdump -d test | grep "mov.*60"
 
 ### **Task 3: Function Inlining** (4 gün)
 
+**Atanan:** OPT_YZ_03  
 **Hedef:** Küçük fonksiyonları inline et
 
 **Örnek:**
@@ -177,6 +180,7 @@ grep "call.*add" test.s
 
 ### **Task 4: Loop Optimizations** (5 gün)
 
+**Atanan:** OPT_YZ_04  
 **Hedef:** Loop unrolling, vectorization
 
 **Loop Unrolling:**
@@ -232,6 +236,7 @@ time ./loop_o2  # 0.8s (6x faster!)
 
 ### **Task 5: Benchmark Suite** (3 gün)
 
+**Atanan:** OPT_YZ_05  
 **Hedef:** Performance tracking
 
 **Benchmarks:**
@@ -294,6 +299,7 @@ String concat 1M   | 0.15s       | ???     | <0.25s
 
 ### **Task 6: Profiler Integration** (4 gün)
 
+**Atanan:** OPT_YZ_06  
 **Hedef:** Performance profiling tools
 
 **Profiler Tools:**
@@ -368,6 +374,7 @@ MELP/runtime/profiler/
 
 ### **Task 7: Zero-Cost Abstractions** (3 gün)
 
+**Atanan:** OPT_YZ_07  
 **Hedef:** Abstraction without runtime cost
 
 **Örnek:**
@@ -466,14 +473,133 @@ benchmarks/              (10+ benchmarks)
 
 ---
 
-## 🎯 BAŞARI KRİTERLERİ
+## 🧪 GERÇEK TESTLER - TODO TAMAMLANMA KRİTERLERİ
 
-### Performance Targets
+### ⚠️ UYARI: Tüm testler geçmeden TODO tamamlanmış sayılmaz!
 
-- [ ] Fibonacci(40): <1.0s (C: 0.8s)
-- [ ] Matrix 1000x1000: <2.5s (C: 2.1s)
-- [ ] JSON parse 10MB: <0.5s (C: 0.3s)
-- [ ] Binary size: %20-30 küçük (DCE)
+**Test Dosyaları:** `tests/optimization/` + `benchmarks/`
+
+```bash
+# Test 1-5: Dead Code Elimination Tests
+tests/optimization/dce/
+├── test_unused_function.mlp    # Unused function removal ✅
+├── test_unused_variable.mlp    # Unused variable removal ✅
+├── test_dead_branch.mlp        # Unreachable code removal ✅
+├── test_unused_import.mlp      # Unused import removal ✅
+└── test_binary_size.sh         # Binary size reduction check ✅
+
+# Test 6-10: Constant Folding Tests
+tests/optimization/constant_fold/
+├── test_arithmetic.mlp         # 2 + 3 → 5 ✅
+├── test_string_concat.mlp      # "hello" + "world" ✅
+├── test_boolean.mlp            # true && false → false ✅
+├── test_nested.mlp             # (2 + 3) * 4 → 20 ✅
+└── test_global_const.mlp       # Global constant folding ✅
+
+# Test 11-15: Function Inlining Tests
+tests/optimization/inline/
+├── test_small_function.mlp     # Small function inlining ✅
+├── test_recursive.mlp          # No inline recursion ✅
+├── test_threshold.mlp          # Size threshold check ✅
+├── test_performance.mlp        # Inline speedup check ✅
+└── test_debug_preserve.mlp     # Debug symbols preserved ✅
+
+# Test 16-20: Loop Optimization Tests
+tests/optimization/loop/
+├── test_loop_unroll.mlp        # Loop unrolling ✅
+├── test_loop_fusion.mlp        # Loop fusion ✅
+├── test_loop_invariant.mlp     # Loop invariant motion ✅
+├── test_vectorization.mlp      # SIMD vectorization ✅
+└── test_strength_reduction.mlp # Strength reduction ✅
+
+# Test 21-30: Performance Benchmarks
+benchmarks/
+├── bench_fibonacci.mlp         # Fibonacci(40) <1.0s ✅
+├── bench_matrix_mult.mlp       # 1000x1000 <2.5s ✅
+├── bench_json_parse.mlp        # 10MB JSON <0.5s ✅
+├── bench_sorting.mlp           # QuickSort 1M <0.3s ✅
+├── bench_string_ops.mlp        # String ops ✅
+├── bench_hashmap.mlp           # HashMap 100k <0.2s ✅
+├── bench_file_io.mlp           # File I/O 100MB <1.0s ✅
+├── bench_regex.mlp             # Regex matching ✅
+├── bench_threading.mlp         # Multi-threading ✅
+└── bench_memory.mlp            # Memory allocation ✅
+```
+
+### 📊 TEST RAPORU FORMATI
+
+**Dosya:** `TEST_RAPORU_TODO6.md`
+
+```markdown
+# TODO #6 TEST RAPORU
+
+## ÖZET
+- **Toplam Test:** 30 (20 optimization + 10 benchmarks)
+- **Başarılı:** 30/30 ✅
+- **Başarısız:** 0/30 ✅
+- **Test Süresi:** ~180 saniye
+
+## DETAY
+
+### Dead Code Elimination Tests (5/5 ✅)
+- test_unused_function.mlp: PASS (200ms) - Binary -15% ✅
+- test_unused_variable.mlp: PASS (150ms)
+- test_dead_branch.mlp: PASS (180ms)
+- test_unused_import.mlp: PASS (120ms)
+- test_binary_size.sh: PASS - 25% size reduction ✅
+
+### Constant Folding Tests (5/5 ✅)
+- test_arithmetic.mlp: PASS (100ms)
+- test_string_concat.mlp: PASS (120ms)
+- test_boolean.mlp: PASS (80ms)
+- test_nested.mlp: PASS (110ms)
+- test_global_const.mlp: PASS (150ms)
+
+### Function Inlining Tests (5/5 ✅)
+- test_small_function.mlp: PASS (180ms) - 20% speedup ✅
+- test_recursive.mlp: PASS (200ms)
+- test_threshold.mlp: PASS (150ms)
+- test_performance.mlp: PASS (300ms)
+- test_debug_preserve.mlp: PASS (120ms)
+
+### Loop Optimization Tests (5/5 ✅)
+- test_loop_unroll.mlp: PASS (250ms) - 30% speedup ✅
+- test_loop_fusion.mlp: PASS (280ms)
+- test_loop_invariant.mlp: PASS (220ms)
+- test_vectorization.mlp: PASS (400ms) - 2x speedup ✅
+- test_strength_reduction.mlp: PASS (180ms)
+
+### Performance Benchmarks (10/10 ✅)
+- bench_fibonacci.mlp: PASS (0.95s) - Target: 1.0s ✅
+- bench_matrix_mult.mlp: PASS (2.3s) - Target: 2.5s ✅
+- bench_json_parse.mlp: PASS (0.45s) - Target: 0.5s ✅
+- bench_sorting.mlp: PASS (0.28s) - Target: 0.3s ✅
+- bench_string_ops.mlp: PASS (0.12s) ✅
+- bench_hashmap.mlp: PASS (0.18s) - Target: 0.2s ✅
+- bench_file_io.mlp: PASS (0.89s) - Target: 1.0s ✅
+- bench_regex.mlp: PASS (0.35s) ✅
+- bench_threading.mlp: PASS (0.42s) ✅
+- bench_memory.mlp: PASS (0.15s) ✅
+
+## PERFORMANCE SUMMARY
+- MLP vs C: 85-92% speed (target: 80-90%) ✅
+- Binary size: -25% with DCE ✅
+- Compile time: +10% overhead (acceptable) ✅
+
+## SONUÇ
+✅ TODO #6 TAMAMLANDI - Tüm testler ve benchmarklar geçti!
+```
+
+### 🎯 BAŞARI KRİTERİ
+
+**TODO #6 tamamlanabilir ancak ve ancak:**
+- ✅ 30/30 test geçiyor (20 optimization + 10 benchmarks)
+- ✅ Fibonacci(40): <1.0s (C: 0.8s) ✅
+- ✅ Matrix 1000x1000: <2.5s (C: 2.1s) ✅
+- ✅ JSON parse 10MB: <0.5s (C: 0.3s) ✅
+- ✅ Binary size: %20-30 küçük (DCE) ✅
+- ✅ MLP vs C: 80-90% speed ratio ✅
+- ✅ -O0, -O1, -O2, -O3 flags working ✅
 
 ### Optimization Flags
 
@@ -486,5 +612,5 @@ benchmarks/              (10+ benchmarks)
 
 ---
 
-**Son Güncelleme:** 29 Aralık 2025  
+**Son Güncelleme:** 1 Ocak 2026  
 **Hazırlayan:** PD_01 (Danışman)
