@@ -1,0 +1,49 @@
+# TODO ve İç Belgeler (Private Workshop Only)
+*TODO*.md
+TODO_*/
+*_TODO*.md
+YZ_*.md
+UA_*.md
+MM_*.md
+PD_*.md
+NEXT_AI_START_HERE.md
+create-current-todo.sh
+pre-commit-check.sh
+sync_to_public.sh
+*.backup
+
+# Build artifacts
+build/
+*.o
+*.a
+*.so
+*.dylib
+melpc
+melpc_stage1
+stage1_unified.c
+stage1_unified.o
+
+# Test artifacts (workshop only)
+test_results/
+temp/
+/tests/unit/*.c
+/tests/unit/*.out
+/tests/unit/*.exe
+
+# Geçici dosyalar
+çıktı.md
+kullanıcı_görüşü.md
+test_*
+*.log
+*.tmp
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

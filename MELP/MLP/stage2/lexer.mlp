@@ -1,0 +1,471 @@
+-- lang: en-US
+-- syntax: mlp
+-- MLP Lexer Module - Stage2 Self-Hosting Compiler
+-- Optimized from p7 lexer.mlp (635 → ~450 lines)
+-- 6 Esas Compliant: MODULAR (<500), STATELESS, STRUCT+FUNC
+
+-- =============================================================================
+-- TOKEN TYPES
+-- =============================================================================
+
+Numeric TOKEN_EOF = 0
+Numeric TOKEN_IDENTIFIER = 1
+Numeric TOKEN_NUMBER = 2
+Numeric TOKEN_STRING = 3
+Numeric TOKEN_INTERPOLATED_STRING = 4
+
+-- Keywords (10-26)
+Numeric TOKEN_FUNCTION = 10
+Numeric TOKEN_END_FUNCTION = 11
+Numeric TOKEN_STRUCT = 12
+Numeric TOKEN_END_STRUCT = 13
+Numeric TOKEN_IF = 14
+Numeric TOKEN_THEN = 15
+Numeric TOKEN_ELSE = 16
+Numeric TOKEN_END_IF = 17
+Numeric TOKEN_WHILE = 18
+Numeric TOKEN_END = 19
+Numeric TOKEN_RETURN = 20
+Numeric TOKEN_IMPORT = 21
+Numeric TOKEN_AS = 22
+Numeric TOKEN_BREAK = 23
+Numeric TOKEN_CONTINUE = 24
+Numeric TOKEN_MODULE = 25
+Numeric TOKEN_ENUM = 26
+
+-- Types (30-34)
+Numeric TOKEN_TYPE_STRING = 30
+Numeric TOKEN_TYPE_NUMERIC = 31
+Numeric TOKEN_TYPE_LIST = 32
+Numeric TOKEN_TYPE_I32 = 33
+Numeric TOKEN_TYPE_F64 = 34
+
+-- Operators (40-54)
+Numeric TOKEN_PLUS = 40
+Numeric TOKEN_MINUS = 41
+Numeric TOKEN_STAR = 42
+Numeric TOKEN_DIV = 43
+Numeric TOKEN_MOD = 44
+Numeric TOKEN_ASSIGN = 45
+Numeric TOKEN_EQ = 46
+Numeric TOKEN_NEQ = 47
+Numeric TOKEN_LT = 48
+Numeric TOKEN_GT = 49
+Numeric TOKEN_LTE = 50
+Numeric TOKEN_GTE = 51
+Numeric TOKEN_AND = 52
+Numeric TOKEN_OR = 53
+Numeric TOKEN_NOT = 54
+
+-- Delimiters (60-67)
+Numeric TOKEN_LEFT_PAREN = 60
+Numeric TOKEN_RIGHT_PAREN = 61
+Numeric TOKEN_LEFT_BRACKET = 62
+Numeric TOKEN_RIGHT_BRACKET = 63
+Numeric TOKEN_COMMA = 64
+Numeric TOKEN_SEMICOLON = 65
+Numeric TOKEN_DOT = 66
+Numeric TOKEN_COLON = 67
+
+-- =============================================================================
+-- DATA STRUCTURES
+-- =============================================================================
+
+struct Token then
+    Numeric type
+    String value
+    Numeric line
+    Numeric column
+    list interpolation_parts
+end_struct
+
+struct LexerState then
+    String source_code
+    Numeric position
+    Numeric length
+    Numeric line
+    Numeric column
+    Numeric eof_reached
+end_struct
+
+-- =============================================================================
+-- FACTORY & STATE MANAGEMENT
+-- =============================================================================
+
+function make_token(token_type, value, line, column)
+    Token token
+    token.type = token_type
+    token.value = value
+    token.line = line
+    token.column = column
+    token.interpolation_parts = list()
+    return token
+end_function
+
+function lexer_state_create(source_code)
+    LexerState state
+    state.source_code = source_code
+    state.position = 0
+    state.length = string_length(source_code)
+    state.line = 1
+    state.column = 1
+    state.eof_reached = 0
+    return state
+end_function
+
+-- =============================================================================
+-- CHARACTER HELPERS & CLASSIFICATION
+-- =============================================================================
+
+function char_at(state, offset)
+    Numeric pos = state.position + offset
+    if pos >= state.length then return "" end_if
+    return string_substring(state.source_code, pos, 1)
+end_function
+
+function current_char(state)
+    return char_at(state, 0)
+end_function
+
+function peek_char(state, offset)
+    return char_at(state, offset)
+end_function
+
+function is_eof(state)
+    if state.position >= state.length then return 1 end_if
+    return 0
+end_function
+
+function advance(state)
+    if is_eof(state) == 1 then return state end_if
+    String ch = current_char(state)
+    if ch == "\n" then
+        state.line = state.line + 1
+        state.column = 1
+    else
+        state.column = state.column + 1
+    end_if
+    state.position = state.position + 1
+    return state
+end_function
+
+function is_digit(ch)
+    if ch >= "0" then if ch <= "9" then return 1 end_if end_if
+    return 0
+end_function
+
+function is_alpha(ch)
+    if ch >= "a" then if ch <= "z" then return 1 end_if end_if
+    if ch >= "A" then if ch <= "Z" then return 1 end_if end_if
+    if ch == "_" then return 1 end_if
+    return 0
+end_function
+
+function is_alnum(ch)
+    if is_alpha(ch) == 1 then return 1 end_if
+    if is_digit(ch) == 1 then return 1 end_if
+    return 0
+end_function
+
+function is_whitespace(ch)
+    if ch == " " then return 1 end_if
+    if ch == "\t" then return 1 end_if
+    if ch == "\n" then return 1 end_if
+    if ch == "\r" then return 1 end_if
+    return 0
+end_function
+
+-- =============================================================================
+-- WHITESPACE, COMMENTS & NUMBER/STRING READING
+-- =============================================================================
+
+function skip_whitespace(state)
+    while is_eof(state) == 0
+        String ch = current_char(state)
+        if is_whitespace(ch) == 0 then break end_if
+        state = advance(state)
+    end
+    return state
+end_function
+
+function skip_line_comment(state)
+    while is_eof(state) == 0
+        String ch = current_char(state)
+        if ch == "\n" then break end_if
+        state = advance(state)
+    end
+    return state
+end_function
+
+function skip_whitespace_and_comments(state)
+    while is_eof(state) == 0
+        state = skip_whitespace(state)
+        if is_eof(state) == 1 then break end_if
+        String ch = current_char(state)
+        String next = peek_char(state, 1)
+        if ch == "-" then
+            if next == "-" then
+                state = skip_line_comment(state)
+            else
+                break
+            end_if
+        else
+            break
+        end_if
+    end
+    return state
+end_function
+
+function read_number(state)
+    Numeric start = state.position
+    while is_eof(state) == 0
+        String ch = current_char(state)
+        if is_digit(ch) == 0 then
+            if ch == "," then
+                state = advance(state)
+                continue
+            end_if
+            break
+        end_if
+        state = advance(state)
+    end
+    Numeric len = state.position - start
+    String value = string_substring(state.source_code, start, len)
+    value = string_replace(value, ",", ".")
+    Token token
+    token = make_token(TOKEN_NUMBER, value, state.line, state.column)
+    return token
+end_function
+
+function read_string(state, delimiter)
+    state = advance(state)
+    Numeric start = state.position
+    list parts = list()
+    String current_part = ""
+    
+    while is_eof(state) == 0
+        String ch = current_char(state)
+        if ch == delimiter then
+            if string_length(current_part) > 0 then mlp_list_add(parts, current_part) end_if
+            state = advance(state)
+            break
+        end_if
+        if ch == "{" then
+            if string_length(current_part) > 0 then
+                mlp_list_add(parts, current_part)
+                current_part = ""
+            end_if
+            state = advance(state)
+            Numeric var_start = state.position
+            while is_eof(state) == 0
+                String vch = current_char(state)
+                if vch == "}" then break end_if
+                state = advance(state)
+            end
+            Numeric var_len = state.position - var_start
+            String var_name = string_substring(state.source_code, var_start, var_len)
+            mlp_list_add(parts, "{" + var_name + "}")
+            state = advance(state)
+        else
+            current_part = current_part + ch
+            state = advance(state)
+        end_if
+    end
+    if string_length(current_part) > 0 then mlp_list_add(parts, current_part) end_if
+    Numeric part_count = mlp_list_length(parts)
+    if part_count > 1 then
+        Token token
+        token = make_token(TOKEN_INTERPOLATED_STRING, "", state.line, state.column)
+        token.interpolation_parts = parts
+        return token
+    end_if
+    if part_count == 1 then
+        String final_value = mlp_list_get(parts, 0)
+        return make_token(TOKEN_STRING, final_value, state.line, state.column)
+    end_if
+    return make_token(TOKEN_STRING, "", state.line, state.column)
+end_function
+
+-- =============================================================================
+-- IDENTIFIER, OPERATOR READING & MAIN TOKENIZER
+-- =============================================================================
+
+function keyword_type(value)
+    if value == "function" then return TOKEN_FUNCTION end_if
+    if value == "end_function" then return TOKEN_END_FUNCTION end_if
+    if value == "struct" then return TOKEN_STRUCT end_if
+    if value == "end_struct" then return TOKEN_END_STRUCT end_if
+    if value == "if" then return TOKEN_IF end_if
+    if value == "then" then return TOKEN_THEN end_if
+    if value == "else" then return TOKEN_ELSE end_if
+    if value == "end_if" then return TOKEN_END_IF end_if
+    if value == "while" then return TOKEN_WHILE end_if
+    if value == "end" then return TOKEN_END end_if
+    if value == "return" then return TOKEN_RETURN end_if
+    if value == "import" then return TOKEN_IMPORT end_if
+    if value == "as" then return TOKEN_AS end_if
+    if value == "break" then return TOKEN_BREAK end_if
+    if value == "continue" then return TOKEN_CONTINUE end_if
+    if value == "module" then return TOKEN_MODULE end_if
+    if value == "enum" then return TOKEN_ENUM end_if
+    if value == "String" then return TOKEN_TYPE_STRING end_if
+    if value == "Numeric" then return TOKEN_TYPE_NUMERIC end_if
+    if value == "list" then return TOKEN_TYPE_LIST end_if
+    if value == "i32" then return TOKEN_TYPE_I32 end_if
+    if value == "f64" then return TOKEN_TYPE_F64 end_if
+    return TOKEN_IDENTIFIER
+end_function
+
+function read_identifier(state)
+    Numeric start = state.position
+    while is_eof(state) == 0
+        String ch = current_char(state)
+        if is_alnum(ch) == 0 then break end_if
+        state = advance(state)
+    end
+    Numeric len = state.position - start
+    String value = string_substring(state.source_code, start, len)
+    Numeric type = keyword_type(value)
+    Token token
+    token = make_token(type, value, state.line, state.column)
+    return token
+end_function
+
+function read_operator(state)
+    String ch = current_char(state)
+    String next = peek_char(state, 1)
+    
+    -- Two-character operators
+    if ch == "=" then
+        if next == "=" then
+            state = advance(state)
+            state = advance(state)
+            return make_token(TOKEN_EQ, "==", state.line, state.column)
+        end_if
+        state = advance(state)
+        return make_token(TOKEN_ASSIGN, "=", state.line, state.column)
+    end_if
+    
+    if ch == "!" then
+        if next == "=" then
+            state = advance(state)
+            state = advance(state)
+            return make_token(TOKEN_NEQ, "!=", state.line, state.column)
+        end_if
+        state = advance(state)
+        return make_token(TOKEN_NOT, "!", state.line, state.column)
+    end_if
+    
+    if ch == "<" then
+        if next == "=" then
+            state = advance(state)
+            state = advance(state)
+            return make_token(TOKEN_LTE, "<=", state.line, state.column)
+        end_if
+        state = advance(state)
+        return make_token(TOKEN_LT, "<", state.line, state.column)
+    end_if
+    
+    if ch == ">" then
+        if next == "=" then
+            state = advance(state)
+            state = advance(state)
+            return make_token(TOKEN_GTE, ">=", state.line, state.column)
+        end_if
+        state = advance(state)
+        return make_token(TOKEN_GT, ">", state.line, state.column)
+    end_if
+    
+    if ch == "&" then
+        if next == "&" then
+            state = advance(state)
+            state = advance(state)
+            return make_token(TOKEN_AND, "&&", state.line, state.column)
+        end_if
+    end_if
+    
+    if ch == "|" then
+        if next == "|" then
+            state = advance(state)
+            state = advance(state)
+            return make_token(TOKEN_OR, "||", state.line, state.column)
+        end_if
+    end_if
+    
+    -- Single-character operators
+    if ch == "+" then state = advance(state)
+        return make_token(TOKEN_PLUS, "+", state.line, state.column) end_if
+    if ch == "-" then state = advance(state)
+        return make_token(TOKEN_MINUS, "-", state.line, state.column) end_if
+    if ch == "*" then state = advance(state)
+        return make_token(TOKEN_STAR, "*", state.line, state.column) end_if
+    if ch == "/" then state = advance(state)
+        return make_token(TOKEN_DIV, "/", state.line, state.column) end_if
+    if ch == "%" then state = advance(state)
+        return make_token(TOKEN_MOD, "%", state.line, state.column) end_if
+    
+    -- Delimiters
+    if ch == "(" then state = advance(state)
+        return make_token(TOKEN_LEFT_PAREN, "(", state.line, state.column) end_if
+    if ch == ")" then state = advance(state)
+        return make_token(TOKEN_RIGHT_PAREN, ")", state.line, state.column) end_if
+    if ch == "[" then state = advance(state)
+        return make_token(TOKEN_LEFT_BRACKET, "[", state.line, state.column) end_if
+    if ch == "]" then state = advance(state)
+        return make_token(TOKEN_RIGHT_BRACKET, "]", state.line, state.column) end_if
+    if ch == "," then state = advance(state)
+        return make_token(TOKEN_COMMA, ",", state.line, state.column) end_if
+    if ch == ";" then state = advance(state)
+        return make_token(TOKEN_SEMICOLON, ";", state.line, state.column) end_if
+    if ch == "." then state = advance(state)
+        return make_token(TOKEN_DOT, ".", state.line, state.column) end_if
+    if ch == ":" then state = advance(state)
+        return make_token(TOKEN_COLON, ":", state.line, state.column) end_if
+    
+    -- Unknown character
+    state = advance(state)
+    return make_token(TOKEN_EOF, "", state.line, state.column)
+end_function
+
+function get_next_token(state)
+    if state.eof_reached == 1 then
+        return make_token(TOKEN_EOF, "", state.line, state.column)
+    end_if
+    state = skip_whitespace_and_comments(state)
+    if is_eof(state) == 1 then
+        state.eof_reached = 1
+        return make_token(TOKEN_EOF, "", state.line, state.column)
+    end_if
+    String ch = current_char(state)
+    if is_digit(ch) == 1 then return read_number(state) end_if
+    if ch == "\"" then return read_string(state, "\"") end_if
+    if ch == "'" then return read_string(state, "'") end_if
+    if is_alpha(ch) == 1 then return read_identifier(state) end_if
+    return read_operator(state)
+end_function
+
+function tokenize(source_code)
+    LexerState state
+    state = lexer_state_create(source_code)
+    list tokens = list()
+    while state.eof_reached == 0
+        Token token
+        token = get_next_token(state)
+        mlp_list_add(tokens, token)
+        if token.type == TOKEN_EOF then break end_if
+    end
+    return tokens
+end_function
+
+-- =============================================================================
+-- UTILITY: Token to String (for debugging)
+-- =============================================================================
+
+function token_type_name(type)
+    if type == TOKEN_EOF then return "EOF" end_if
+    if type == TOKEN_IDENTIFIER then return "IDENTIFIER" end_if
+    if type == TOKEN_NUMBER then return "NUMBER" end_if
+    if type == TOKEN_STRING then return "STRING" end_if
+    if type == TOKEN_FUNCTION then return "FUNCTION" end_if
+    return "UNKNOWN"
+end_function

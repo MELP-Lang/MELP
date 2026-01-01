@@ -1,6 +1,9 @@
 #!/bin/bash
 # create-current-todo.sh - UA'nın YZ'ye TODO atarken kullanacağı script
 # Bu script CURRENT_TODO.txt oluşturur (pre-commit-check.sh için gerekli)
+# 
+# Güncel TODO: 3-TODO_LANGUAGE_FEATURES.md
+# Proje: MLP-GCC Language Features (Generics, Pattern Matching, etc.)
 
 set -e
 
@@ -8,8 +11,9 @@ set -e
 if [ $# -lt 1 ]; then
     echo "Kullanım: $0 <dosya1> [dosya2] [dosya3] ..."
     echo ""
-    echo "Örnek:"
-    echo "  $0 codegen_emit.c codegen_emit.h"
+    echo "Örnek (3-TODO için):"
+    echo "  $0 generics_parser.c generics_codegen.c"
+    echo "  $0 pattern_matching_parser.c lambda_codegen.c"
     echo ""
     echo "Bu script CURRENT_TODO.txt oluşturur ve pre-commit-check.sh"
     echo "bu dosyadaki izinleri kontrol eder."

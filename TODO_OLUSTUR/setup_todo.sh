@@ -83,12 +83,17 @@ ABS_TARGET_DIR=$(cd .. && pwd)/$(basename "$TARGET_DIR")
 cp -r TODO_TEMPLATE "$TARGET_DIR"
 echo "  ✓ Template kopyalandı"
 
-# Root'a YZ_KURALLAR.md ve NEXT_AI_START_HERE.md kopyala
+# TODO klasörü içindeki root template dosyalarını sil (bunlar ayrıca root'a kopyalanacak)
+rm -f "${TARGET_DIR}/TODO_KURALLARI.md.template"
+rm -f "${TARGET_DIR}/Görevli_YZ_Buradan_Başla.md.template"
+rm -f "${TARGET_DIR}/YZ_KURALLAR.md.template.backup"
+
+# Root'a TODO_KURALLARI.md ve Görevli_YZ_Buradan_Başla.md kopyala
 echo -e "${BLUE}📋 Root dosyaları kopyalanıyor...${NC}"
-cp TODO_TEMPLATE/YZ_KURALLAR.md.template "../YZ_KURALLAR.md"
-cp TODO_TEMPLATE/NEXT_AI_START_HERE.md.template "../NEXT_AI_START_HERE.md"
-echo "  ✓ YZ_KURALLAR.md kopyalandı (root)"
-echo "  ✓ NEXT_AI_START_HERE.md kopyalandı (root)"
+cp TODO_TEMPLATE/TODO_KURALLARI.md.template "../TODO_KURALLARI.md"
+cp TODO_TEMPLATE/Görevli_YZ_Buradan_Başla.md.template "../Görevli_YZ_Buradan_Başla.md"
+echo "  ✓ TODO_KURALLARI.md kopyalandı (root)"
+echo "  ✓ Görevli_YZ_Buradan_Başla.md kopyalandı (root)"
 
 # Klasör isimlerini değiştir
 cd "$TARGET_DIR"
@@ -123,13 +128,18 @@ CURRENT_DATE=$(date +"%d %B %Y" | sed 's/January/Ocak/; s/February/Şubat/; s/Ma
 # Root dosyalarını değiştir
 echo "  ✓ Root dosyaları güncelleniyor..."
 cd ..
-sed -i "s/{{PROJECT_NAME}}/${PROJECT_NAME}/g" YZ_KURALLAR.md
-sed -i "s/{{TODO_FILE}}/${TODO_BELGE}/g" YZ_KURALLAR.md
-sed -i "s/{{CREATION_DATE}}/${CURRENT_DATE}/g" YZ_KURALLAR.md
+sed -i "s/{{PROJECT_NAME}}/${PROJECT_NAME}/g" TODO_KURALLARI.md
+sed -i "s/{{TODO_FILE}}/${TODO_BELGE}/g" TODO_KURALLARI.md
+sed -i "s/{{TODO_PATH}}/${TODO_TAM}/g" TODO_KURALLARI.md
+sed -i "s/{{CREATION_DATE}}/${CURRENT_DATE}/g" TODO_KURALLARI.md
 
-sed -i "s/{{PROJECT_NAME}}/${PROJECT_NAME}/g" NEXT_AI_START_HERE.md
-sed -i "s/{{TODO_FILE}}/${TODO_BELGE}/g" NEXT_AI_START_HERE.md
-sed -i "s/{{CREATION_DATE}}/${CURRENT_DATE}/g" NEXT_AI_START_HERE.md
+sed -i "s/{{PROJECT_NAME}}/${PROJECT_NAME}/g" Görevli_YZ_Buradan_Başla.md
+sed -i "s/{{TODO_FILE}}/${TODO_BELGE}/g" Görevli_YZ_Buradan_Başla.md
+sed -i "s/{{CREATION_DATE}}/${CURRENT_DATE}/g" Görevli_YZ_Buradan_Başla.md
+sed -i "s/{TODO_KISA}/${TODO_KISA}/g" Görevli_YZ_Buradan_Başla.md
+sed -i "s/{TODO_TAM}/${TODO_TAM}/g" Görevli_YZ_Buradan_Başla.md
+sed -i "s/{TODO_BELGE}/${TODO_BELGE}/g" Görevli_YZ_Buradan_Başla.md
+sed -i "s/{CURRENT_DATE}/${CURRENT_DATE}/g" Görevli_YZ_Buradan_Başla.md
 
 cd "$SCRIPT_DIR"
 
@@ -166,9 +176,21 @@ find "$ABS_TARGET_DIR" -type f \( -name "*.md" -o -name "*.template" \) | while 
     sed -i "s/{CRITERIA_1}/Başarı kriteri 1/g" "$file"
     sed -i "s/{CRITERIA_2}/Başarı kriteri 2/g" "$file"
     sed -i "s/{CRITERIA_3}/Başarı kriteri 3/g" "$file"
-    📁 ROOT (../):"
-echo "     ├── YZ_KURALLAR.md          ← YZ için TEK KAYNAK!"
-echo "     └── NEXT_AI_START_HERE.md   ← YZ başlangıç noktası"
+done
+
+# .template uzantılarını kaldır
+echo "  ✓ Template uzantıları kaldırılıyor..."
+find "$ABS_TARGET_DIR" -type f -name "*.template" | while read -r template_file; do
+    new_name="${template_file%.template}"
+    mv "$template_file" "$new_name"
+done
+
+echo ""
+echo -e "${GREEN}✨ TODO klasörü hazır!${NC}"
+echo ""
+echo "  📁 ROOT (../):"
+echo "     ├── TODO_KURALLARI.md       ← YZ için TEK KAYNAK!"
+echo "     └── Görevli_YZ_Buradan_Başla.md   ← YZ başlangıç noktası"
 echo ""
 echo "  📁 $TARGET_DIR/:"
 echo "     ├── ${TODO_KISA}_PD/"
@@ -178,6 +200,7 @@ echo "     │   └── Mastermind_buradan_basla.md"
 echo "     ├── ${TODO_KISA}_UA/"
 echo "     │   └── Ust_Akil_buradan_basla.md"
 echo "     ├── ${TODO_KISA}_YZ/"
+echo "     │   ├── Görevli_YZ_Buradan_Başla.md"
 echo "     │   ├── YZ_RAPOR_TEMPLATE.md"
 echo "     │   └── completed/"
 echo "     └── docs/"
@@ -185,31 +208,17 @@ echo "         └── On_Bilgilendirme.md"
 echo ""
 echo -e "${YELLOW}⚠️  SONRAKİ ADIMLAR:${NC}"
 echo "  1. ${TODO_BELGE} dosyasını oluştur (ana görev listesi)"
-echo "  2. YZ_KURALLAR.md'de 'PROJE SPESİFİK BÖLÜM'ü doldur:"
+echo "  2. TODO_KURALLARI.md'de 'PROJE SPESİFİK BÖLÜM'ü doldur:"
 echo "     - Proje prensipleri"
 echo "     - Mimari açıklaması"
 echo "     - Test komutları"
 echo "     - Başarı kriteri"
-echo "  3. NEXT_AI_START_HERE.md'yi kontrol et (Phase 1 doğru mu?)"
-echo "  4. YZ'yi başlat: 'NEXT_AI_START_HERE.md dosyasını oku ve başla.'"
+echo "  3. Görevli_YZ_Buradan_Başla.md'yi kontrol et (Phase 1 doğru mu?)"
+echo "  4. YZ'yi başlat: 'Görevli_YZ_Buradan_Başla.md dosyasını oku ve başla.'"
 echo ""
 echo -e "${BLUE}💡 YZ İÇİN:${NC}"
 echo "  YZ sadece 2 belge okuyacak:"
-echo "  ✅ YZ_KURALLAR.md (10 dakika - HER ŞEY burada!)"
-echo "  ✅ ${TODO_BELGE} (5 dakika - görevler)
-echo "  └── docs/"
-echo "      └── On_Bilgilendirme.md"
-echo ""
-echo -e "${YELLOW}⚠️  SONRAKİ ADIMLAR:${NC}"
-echo "  1. ${TODO_BELGE} dosyasını oluştur (ana görev listesi)"
-echo "  2. ${TARGET_DIR}/${TODO_KISA}_YZ/NEXT_AI_START_HERE.md'yi DÜZENLE:"
-echo "     - {PHASE1_NAME}, {TASK1_NAME} gibi placeholder'ları doldur"
-echo "     - {TEST_COMMAND} projeye göre ayarla"
-echo "  3. ${TARGET_DIR}/docs/ klasörüne proje spesifik belgeler ekle"
-echo "  4. YZ'yi başlat: TODO_KURALLARI.md → NEXT_AI_START_HERE.md"
-echo ""
-echo -e "${BLUE}💡 İPUCU:${NC}"
-echo "  NEXT_AI_START_HERE.md'de '🔍 İLK ÖNCE: MEVCUT DURUMU KONTROL ET!'"
-echo "  bölümü çok önemli - YZ'nin gereksiz iş yapmasını önler!"
+echo "  ✅ TODO_KURALLARI.md (10 dakika - HER ŞEY burada!)"
+echo "  ✅ ${TODO_BELGE} (5 dakika - görevler)"
 echo ""
 echo -e "${GREEN}🚀 Hazır! İyi çalışmalar!${NC}"

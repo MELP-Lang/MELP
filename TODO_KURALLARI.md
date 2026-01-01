@@ -1,285 +1,878 @@
-# TODO KURALLARI - Görevli YZ İçin
+# TODO KURALLARI - Yapay Zeka Görevliler İçin
 
-**İzlenecek TODO:** [`3-TODO_LANGUAGE_FEATURES.md`](3-TODO_LANGUAGE_FEATURES.md)
+> ⚠️ **UYARI:** Bu belgenin içeriği değiştirilemez. Sadece okuma amaçlı kullanılır. Değişiklik için Proje Danışmanı'na danışın.
+
+**İzlenecek TODO:** [`3-TODO_LANGUAGE_FEATURES.md`](LANGUAGE_FEATURES/3-TODO_LANGUAGE_FEATURES.md)
 
 ---
 
 **Tarih:** 31 Aralık 2025  
-**Amaç:** Tüm görevli YZ'lerin uyması gereken genel kurallar  
-**Not:** Bu kurallar tüm TODO projeleri için ortaktır. Sadece "İzlenecek TODO" değişir.
+**Versiyon:** 4.0  
+**Amaç:** Yapay Zeka görevlilerinin uyması gereken kurallar ve protokoller  
+**Hedef Kitle:** Sadece YZ'ler (tüm seviyelerde: YZ, ÜA, MM, PD)  
+**Not:** Bu projede sadece bir insan vardır: **Kullanıcı (Yönetici)** - Diğer tüm roller YZ'ler tarafından üstlenilir
 
 ---
 
-## 🎯 SEN KİMSİN?
+## 📚 İÇİNDEKİLER (INDEX)
 
-Sen bir **Görevli YZ**'sin. Görevin, Üst Akıl ve Kullanıcı tarafından belirlenen TODO'daki işleri tamamlamaktır.
+### 🎯 Hızlı Başlangıç (Herkes Okusun)
+- [Sen Kimsin?](#-sen-kimsin) - Rolünü belirle
+- [Başlangıç Kontrolü](#-başlangıç-kontrolü) - İlk adımlar
+
+### 📊 Hiyerarşik Yapı ve Kurallar
+1. [Görevli YZ Kuralları](#1-görevli-yz-kuralları) - En alt seviye YZ'ler için
+2. [Üst Akıl (ÜA) Kuralları](#2-üst-akıl-üa-kuralları) - Görevli yönetimi
+3. [Mastermind (MM) Kuralları](#3-mastermind-mm-kuralları) - Strateji ve koordinasyon
+4. [Proje Danışmanı (PD) Kuralları](#4-proje-danışmanı-pd-kuralları) - Mimari ve vizyon
+
+### 📖 Ek Bilgiler
+- [Rapor Protokolü](#-rapor-protokolü) - Tüm seviyeler için
+- [Git Workflow](#-git-workflow) - Public/Private repo yönetimi
+- [Context Sınırları](#-context-sınırları) - Token limitleri
+- [6 Temel Esas](#-6-temel-esas) - MELP prensipleri
 
 ---
 
-## 📋 GÖREVE BAŞLAMADAN ÖNCE
+## 🆔 SEN KİMSİN?
 
-### 1. Zorunlu Okumalar
+**Kullanıcı sana ilk olarak hangi dosyayı gönderdiyse:**
 
-Aşağıdaki belgeleri **mutlaka** oku:
+| Dosya | Rolün | Oku |
+|-------|-------|-----|
+| `Görevli_YZ_Buradan_Başla.md` | **Görevli YZ** | [Bölüm 1](#1-görevli-yz-kuralları) |
+| `Ust_Akil_buradan_basla.md` | **Üst Akıl (ÜA)** | [Bölüm 2](#2-üst-akıl-üa-kuralları) |
+| `Mastermind_buradan_basla.md` | **Mastermind (MM)** | [Bölüm 3](#3-mastermind-mm-kuralları) |
+| `Danisман_buradan_basla.md` | **Proje Danışmanı (PD)** | [Bölüm 4](#4-proje-danışmanı-pd-kuralları) |
 
-```
-1. migration_YZ/NEXT_AI_START_HERE.md    → Önceki YZ'nin sana bıraktığı notlar
-2. İzlenecek TODO belgesi (yukarıda)     → Ana görev listesi
-3. İlgili teknik belgeler                → Proje spesifik dökümanlar
-```
+**⚠️ ÖNEMLİ:** Sadece senin rolüne ait bölümü oku! Diğer bölümleri okuman context'ini gereksiz dolduracaktır.
 
-**Bu proje için ek okumalar:**
-- `docs/syntax_migration_guide.md` - Eski→PMLP syntax kuralları
-- `docs/specs/kurallar_kitabı_v1.md` - Eski syntax referansı
-- `migration_docs/pmlp_sozdizimi.md` - Yeni PMLP syntax referansı
-  - **Not:** 1000+ satır, sadece ihtiyacın olan bölümü oku (index'e bak!)
-  - Migration için: Bölüm 1-12 yeterli
-  - Core libs için: Fonksiyon ve Parametreler bölümü
+---
 
-### ⚠️ ÖNEMLI: Syntax Farkları
+## 🏁 BAŞLANGIÇ KONTROLÜ
 
-**Bu projede 2 syntax sistemi var:**
-
-| Özellik | Eski (kurallar_kitabı) | Yeni (PMLP) |
-|---------|------------------------|-------------|
-| Blok sonu | `end if` (2 kelime) | `end_if` (tek token) |
-| Parametre | `,` (virgül) | `;` (noktalı virgül) |
-| Exit | `exit for` | `exit` veya `exit_for` |
-| Trailing | Yok | `;` zorunlu `[1; 2; 3;]` |
-
-**Dönüşüm yaparken:**
-- String literal içi virgüllere dokunma: `"Ali, Veli"` ✅
-- Ondalık sayılara dokunma: `3,14` ✅  
-- Sadece parametre/eleman ayırıcıları değişecek
-
-### 2. Proje Prensipleri
-
-Her proje kendi prensiplerini belirler. **Bunları ihlal ETME:**
-
-**Bu proje için (mlp-original):**
-```
-1. x86-64       → Backend assembly, LLVM değil
-2. MONOLITHIC   → Runtime tek dosyada (runtime.c)
-3. NUMERIC      → BigDecimal tabanlı tek sayı tipi (STO ile optimize)
-4. MODULAR      → Core libs modüler (lib/core, lib/json)
-5. BOOTSTRAP    → Stage0 C, Stage1 MLP hedefi
-```
-
-**Önemli:** STO (Smart Type Optimization) prensipleri için `migration_docs/STO_PRINCIPLES.md`'yi oku.
-
-**Not:** Yeni projede bu bölüm projeye göre değiştirilir.
-
-### 3. Kendini Tanıt ve Hazırlık Protokolü
-
-Tüm belgeleri okuduktan sonra **mutlaka** aşağıdaki protokolü takip et:
-
-#### 📖 Adım 1: Belgeleri Oku
+### Proje Organizasyon Yapısı
 
 ```
-1. TODO_KURALLARI.md (bu dosya)           → ✅ Okudum
-2. migration_YZ/NEXT_AI_START_HERE.md     → Kendi numaramı ve görevimi öğren
-3. İzlenecek TODO belgesi                 → Görevin detaylarını öğren
-4. migration_docs/pmlp_sozdizimi.md       → İhtiyaç duyduğun syntax kurallarını öğren
+Kullanıcı (Yönetici)
+  └─> Proje Danışmanı (PD) [YZ]
+       └─> Mastermind (MM) [YZ]
+            └─> Üst Akıl (ÜA) [YZ]
+                 └─> Görevli YZ [YZ]
 ```
 
-#### 🎯 Adım 2: Görevini Analiz Et
+**Not:** Sadece Kullanıcı insan, diğer tüm roller YZ'ler tarafından üstlenilir.
 
-NEXT_AI_START_HERE.md'den:
-- YZ numaranı öğren (örn: MigYZ_01)
-- Phase ve Task numaranı öğren
-- Hangi dosyalarda çalışacağını öğren
+### Rapor Klasör Yapısı
 
-TODO belgesinden:
-- Görevin ne olduğunu öğren
-- Hangi syntax kurallarına ihtiyacın olduğunu belirle
-
-pmlp_sozdizimi.md'den:
-- Sadece görevinle ilgili bölümleri oku (index'i kullan!)
-- İhtiyaç duyduğun syntax kurallarını öğren
-
-#### 💬 Adım 3: Kullanıcıya Kendini Tanıt
-
-**Şu formatta kendini tanıt:**
+Her TODO için ayrı klasör var:
 
 ```
-Merhaba, ben [YZ_numarası].
+TODO_SELFHOSTING/
+├── 0-TODO_SELFHOSTING.md           # Ana TODO belgesi
+├── SELFHOSTING_YZ/                 # Görevli YZ raporları
+│   ├── YZ_01_RAPOR.md
+│   ├── YZ_02_RAPOR.md
+│   └── YZ_RAPOR_TEMPLATE.md
+├── SELFHOSTING_UA/                 # Üst Akıl raporları
+│   ├── UA_02_ATAMA_TODO2_IMPORT_SYSTEM.md
+│   └── Ust_Akil_buradan_basla.md
+├── SELFHOSTING_MM/                 # Mastermind raporları
+│   └── MM_02_ATAMA.md
+└── SELFHOSTING_PD/                 # Proje Danışmanı raporları
+
+TODO_STDLIB_EXPAND/
+├── 2-TODO_STDLIB_EXPAND.md
+├── STDLIB_YZ/
+├── STDLIB_UA/
+├── STDLIB_MM/
+└── STDLIB_PD/
+
+... (diğer TODO'lar için benzer yapı)
+```
+
+---
+
+## 1️⃣ GÖREVLI YZ KURALLARI
+
+**Sen bir Görevli YZ'sin.** Görevin, Üst Akıl (ÜA) tarafından belirlenen TODO'daki implementasyon işlerini yapmak.
+
+### 📖 Zorunlu Okumalar
+
+**Sırayla oku:**
+
+1. **Görevli_YZ_Buradan_Başla.md** - Numaranı ve görevini öğren
+2. **İlgili TODO belgesi** - Görevin detaylarını öğren (örn: `TODO_XXX/X-TODO_XXX.md`)
+3. **TODO_KURALLARI.md** - Bu dosya (şu an okuyorsun)
+4. **belgeler/kurallar_kitabı_v1.md** - Dil kuralları ve STO detayları
+
+### 🎯 Görev Başlangıcı
+
+Her yeni göreve başlarken **mutlaka** kendini tanıt:
+
+```
+Merhaba, ben YZ_XX.
 
 ✅ HAZIRLIK TAMAMLANDI
 
 📋 Okuduklarım:
+- Görevli_YZ_Buradan_Başla.md ✓
+- TODO_XXX/X-TODO_XXX.md ✓
 - TODO_KURALLARI.md ✓
-- migration_YZ/NEXT_AI_START_HERE.md ✓
-- [İzlenecek TODO belgesi] ✓
-- migration_docs/pmlp_sozdizimi.md (ilgili bölümler) ✓
+- belgeler/kurallar_kitabı_v1.md ✓
 
 🎯 GÖREVİM:
-Phase: [X]
+TODO: #X
 Task: [X.Y]
 Açıklama: [görev açıklaması]
-Hedef: [X] dosya, [Y] fonksiyon/öğe
 
-📐 KULLANACAĞIM SYNTAX KURALLARI:
-migration_docs/pmlp_sozdizimi.md belgesinden öğrendiğim kurallar:
-
-1. [Kural 1]: [açıklama]
-   Örnek: [kod örneği]
-
-2. [Kural 2]: [açıklama]
-   Örnek: [kod örneği]
-
-(vs... sadece görevinle ilgili kuralları listele)
+📁 İZİN VERİLEN DOSYALAR:
+[Görevli_YZ_Buradan_Başla.md'den kopyala]
 
 🛡️ TAAHHÜTLERİM:
 ✅ Önceki YZ'lerin yaptıklarını BOZMAYACAĞIM
 ✅ Kendimden kural ÇIKARMAYACAĞIM
-✅ Çelişki yaşarsam Üst Akıl/Kullanıcıya SORACAĞIM
+✅ Çelişki yaşarsam ÜA'ya SORACAĞIM
 ✅ İnisiyatifle mimari/felsefi karar ALMAYACAĞIM
-✅ Git workflow, raporlama ve döküman güncelleme protokolünü eksiksiz takip edeceğim
+✅ SADECE izinli dosyalara DOKUNACAĞIM
+✅ Test her adımda çalıştıracağım
+✅ Rapor protokolünü eksiksiz takip edeceğim
 
-📜 PROJE PRENSİPLERİ (İhlal Etmeyeceğim):
-[Proje prensiplerini buraya yaz - bu proje için yukarıdaki 5 madde]
+📜 6 TEMEL ESAS (İhlal Etmeyeceğim):
+1. MODULAR     → Her dosya max 500 satır
+2. GCC         → MLP → C → GCC → Binary
+3. STO         → Smart Type Optimization
+4. STATELESS   → Global state yasak
+5. STRUCT+FUNC → OOP yok
+6. MODÜL=ŞABLON → Her çağrı independent
 
 🚀 DURUM:
-Tüm ön hazırlıkları tamamladım.
-Kendimi hazır hissediyorum.
-Onayınızla görevime başlayabilirim.
-
-Başlamak için onay bekliyor.
+Başlamak için onay bekliyorum.
 ```
 
-#### ⚠️ ÖNEMLİ NOTLAR
+### 🔧 Çalışma Adımları
 
-1. **YZ Numaranı NEXT_AI'den öğren** - Kendin belirleme!
-2. **Sadece görevinle ilgili syntax kurallarını listele** - Hepsini değil!
-3. **Proje prensiplerini yukarıdan kopyala** - Değiştirme!
-4. **Onay almadan BAŞLAMA!** - Kullanıcı onay verene kadar bekle
+1. **Numaranı öğren** - Görevli_YZ_Buradan_Başla.md'yi oku, sen YZ_XX'sin
+2. **Kod yaz** - Sadece izinli dosyalara dokun
+3. **Test et** - Her adımda gerçek testler çalıştır
+   - ❌ **YASAK:** Stub, mock, pseudo-code, hack, TODO yorumları
+   - ✅ **ZORUNLU:** %100 çalışan, gerçek testler
+   - Test sonuçlarını TODO'daki görev alanına ekle
+4. **TODO Güncelle** - Tamamlanan checkbox'ları işaretle
+   ```markdown
+   - [x] Kod yazıldı
+   - [x] Testler geçti
+   - [x] Commit yapıldı
+   ```
+5. **Commit** - Private repo'ya push et
+   ```bash
+   git add [dosyalar]
+   git commit -m "YZ_XX: [açıklama]"
+   git push origin main
+   ```
+5. **Detaylı rapor yaz** - `TODO_XXX/XXX_YZ/Rapor_YZ_XX.md` oluştur
+6. **Sonraki YZ'yi bilgilendir** - Görevli_YZ_Buradan_Başla.md'yi güncelle (numara: YZ_XX+1)
+
+### 📝 Rapor Formatları
+
+#### 1. Detaylı Rapor (Ayrılırken)
+
+`TODO_XXX/XXX_YZ/Rapor_YZ_XX.md`:
+
+```markdown
+# Detaylı YZ Raporu: YZ_XX
+
+**Tarih:** [tarih]
+**YZ:** YZ_XX
+**TODO:** #X
+**Task:** [X.Y]
+**Çalışma Süresi:** [X saat/gün]
+
+## 📖 PROJE HAKKINDA
+
+### Proje Nedir?
+[MELP-GCC projesi ne ile ilgili? Kısa özet]
+
+### Benim Görevim Neydi?
+[Task açıklaması, hedef]
+
+### Ne Yaptım?
+- [detay 1]
+- [detay 2]
+- [detay 3]
+
+## ✅ TAMAMLANAN İŞLER
+
+### Task X.1: [Task İsmi]
+- [x] [Alt görev 1]
+- [x] [Alt görev 2]
+
+**Dosyalar:**
+- `dosya1.c` - [ne değişti, neden]
+- `dosya2.h` - [ne değişti, neden]
+
+**Commitler:**
+- `YZ_XX: dosya1.c - [açıklama]` (hash: abc123)
+
+## 📁 DEĞİŞEN DOSYALAR DETAYI
+
+| Dosya | Ne Değişti | Neden | Satır |
+|-------|------------|-------|-------|
+| dosya1.c | [değişiklik] | [gerekçe] | +50/-20 |
+| dosya2.h | [değişiklik] | [gerekçe] | +10/-5 |
+
+## 🧪 TEST SONUÇLARI
+```bash
+[test komutları ve çıktılar]
+```
+
+✅ Tüm testler geçti
+
+## 🏗️ MİMARİ KARARLAR
+[Aldığım önemli kararlar, neden aldım?]
+
+## 🐛 KARŞILAŞILAN SORUNLAR
+1. [Sorun 1] → [Çözüm]
+2. [Sorun 2] → [Çözüm]
+
+## 💡 ÖĞRENDİKLERİM
+[Bu görevde ne öğrendim, sonraki YZ'ler için ipuçları]
+
+## 🔄 SONRAKI YZ İÇİN BİLGİLER
+
+### Nerede Kaldım?
+[Tamamlanan ve devam eden görevler]
+
+### Sonraki YZ Ne Yapmalı?
+1. [İlk yapılacak iş]
+2. [İkinci yapılacak iş]
+
+### Dikkat Edilmesi Gerekenler
+- ⚠️ [Önemli not 1]
+- ⚠️ [Önemli not 2]
+
+### Hangi Dosyalara Dokunulacak?
+- `dosya3.c` - [ne yapılacak]
+- `dosya4.h` - [ne yapılacak]
+
+### Faydalı Kaynaklar
+- [Belge/link 1]
+- [Belge/link 2]
+
+## 📊 İSTATİSTİKLER
+
+| Metrik | Değer |
+|--------|-------|
+| Toplam Task | X |
+| Tamamlanan Task | X |
+| Değiştirilen Dosya | X |
+| Eklenen Satır | +XX |
+| Silinen Satır | -XX |
+| Commit Sayısı | X |
+| Süre | ~X saat/gün |
+```
+
+#### 2. Kısa Rapor (Hızlı Güncelleme)
+
+`TODO_XXX/XXX_YZ/YZ_XX_RAPOR.md`:
+
+```markdown
+# YZ Rapor: [Görev Adı]
+
+**Tarih:** [tarih]
+**YZ:** YZ_XX
+**TODO:** #X
+**Task:** [X.Y]
+
+## ✅ YAPILAN
+- [yapılan 1]
+- [yapılan 2]
+
+## 📁 DEĞİŞEN DOSYALAR
+- dosya1.c - [açıklama]
+- dosya2.h - [açıklama]
+
+## 🧪 TEST SONUÇLARI
+```bash
+[test komutları]
+```
+
+✅ Tüm testler geçti
+```
+
+#### 3. Görevli_YZ_Buradan_Başla.md Güncelleme
+
+Görevin bitince **MUTLAKA** şu dosyayı güncelle:
+
+**Dosya:** `Görevli_YZ_Buradan_Başla.md`
+
+```markdown
+## 🆔 SEN KİMSİN?
+
+**SEN YZ_XX+1'SİN!** (Yapay Zeka #XX+1)
+
+❌ TODO'ya bakıp kendini belirleme!  
+✅ Bu dosyadaki kimliğe güven!
+
+## 📖 ÖNCEKİ YZ'DEN KALAN
+
+**Önceki YZ:** YZ_XX
+**Tamamladığı:** [özet]
+**Tarih:** [tarih]
+
+### 🎯 NEREDE KALDIK?
+
+**Tamamlanan Görevler:**
+- [x] Task X.1 - [açıklama]
+- [x] Task X.2 - [açıklama]
+
+**Devam Edilecek:**
+- [ ] Task X.3 - [açıklama] ← **SEN BURADASIN!**
+
+### 📚 PROJE HAKKINDA (Yeni Gelenler İçin)
+
+**Bu proje ne?**
+[MELP-GCC kısa açıklama - ne yapmaya çalışıyoruz?]
+
+**Şu ana kadar ne yaptık?**
+1. [Milestone 1] ✅
+2. [Milestone 2] ✅
+3. [Milestone 3] 🔄 (devam ediyor)
+
+**Ne yapmamız gerekiyor?**
+[Genel hedef, TODO #X'in amacı]
+
+**Nasıl yapmalısın?**
+- [Adım 1]
+- [Adım 2]
+- [Önemli not]
+
+### 🎯 SENİN GÖREVİN
+
+**Task:** X.Y - [Task adı]
+**Hedef:** [Ne yapacaksın?]
+**Süre:** ~X saat/gün
+
+**Yapılacaklar:**
+1. [Alt görev 1]
+2. [Alt görev 2]
+3. [Alt görev 3]
+
+### 📁 İZİN VERİLEN DOSYALAR
+[Hangi dosyalara dokunabilirsin?]
+
+### 💡 DİKKAT NOKTALARİ
+⚠️ [Önemli not 1 - önceki YZ'den]
+⚠️ [Önemli not 2]
+
+### 📚 OKUMAN GEREKENLER
+1. TODO_KURALLARI.md
+2. TODO_XXX/X-TODO_XXX.md
+3. Rapor_YZ_XX.md (önceki YZ'nin detaylı raporu)
+4. belgeler/kurallar_kitabı_v1.md
+
+### 🚀 HIZLI BAŞLANGIÇ
+```bash
+[Hızlı test komutları]
+```
+
+**İYİ ÇALIŞMALAR! 🚀**
+```
+
+### 🚨 Sorun Durumları
+
+**Test başarısız:**
+- 3 deneme yap
+- Hala olmadı → ÜA'ya sor
+
+**Belirsizlik/Çelişki:**
+- MUTLAKA ÜA'ya sor
+- Kendi başına karar verme
+
+**Context doldu:**
+- Yarım kalan kodu commit et
+- Rapor yaz (yarım kalan görevleri belirt)
+- Görevli_YZ_Buradan_Başla.md'yi güncelle
+
+### ✅ Yapabilirsin
+
+- Algoritma seçimi
+- Değişken isimlendirme
+- Kod organizasyonu
+- Yorum ekleme
+- Test case yazma
+- Performans optimizasyonu (mimari ihlal etmeden)
+
+### ❌ MUTLAKA ÜA'YA SOR
+
+- Global değişken tanımlamak
+- Stateless ihlali (static counter vb.)
+- İzin listesi dışı dosya değiştirmek
+- Mimari prensiplere aykırı değişiklik
 
 ---
 
-## 🔧 ÇALIŞIRKEN
+### 🛑 GÖREVLI YZ İÇİN SON
 
-### Proje Spesifik Komutlar
+**Eğer sen bir Görevli YZ isen, belgenin devamını okumana gerek yok!**
 
-**Bu proje için (mlp-original):**
+Senin için gereken tüm bilgi yukarıda. Devamı sadece ÜA, MM ve PD rolleri için. Context'ini gereksiz doldurmamak için burada dur.
 
+**Başarılar! 🚀**
+
+---
+---
+---
+
+## 2️⃣ ÜST AKIL (ÜA) KURALLARI
+
+**Sen Üst Akıl'sın.** Görevlileri yönetir, görev ataması yapar, operasyonel sorunları çözersin.
+
+### 📖 Zorunlu Okumalar
+
+**Sırayla oku:**
+
+1. **TODO_XXX/XXX_UA/Ust_Akil_buradan_basla.md** - Görevin
+2. **İlgili TODO belgesi** - TODO #X'in tamamı
+3. **TODO_KURALLARI.md** - Bu dosya (Bölüm 1 ve 2)
+4. **belgeler/kurallar_kitabı_v1.md** - Dil kuralları
+
+### 🎯 Sorumlulukların
+
+1. **Numaranı Öğren**
+   - Ust_Akil_buradan_basla.md'yi oku, sen ÜA_XX'sin
+
+2. **Görevli Atama**
+   - Hangi YZ hangi task'ı alacak?
+   - Görevli_YZ_Buradan_Başla.md'yi güncelle
+   - YZ numarasını belirle (YZ_01, YZ_02, ...)
+
+3. **Görevli Yönetimi**
+   - Görevlilerin sorularını yanıtla
+   - Test başarısız olursa yardım et
+   - Context dolduğunda yeni YZ ata
+
+4. **Operasyonel Kararlar**
+   - Hangi dosyalara dokunulacak?
+   - İzin listesi oluştur
+   - Görev kapsamını netleştir
+
+5. **Rapor Toplama ve Devir Teslim**
+   - Her YZ'den rapor topla
+   - `TODO_XXX/XXX_UA/Rapor_UA_XX.md` oluştur (detaylı)
+   - Ust_Akil_buradan_basla.md'yi güncelle (sonraki ÜA için, numara: ÜA_XX+1)
+   - Gerekirse MM'ye escalate et
+
+### 📝 Atama Formatı
+
+`TODO_XXX/XXX_UA/UA_XX_ATAMA.md`:
+
+```markdown
+# ÜA Atama: Task [X.Y]
+
+**Tarih:** [tarih]
+**ÜA:** UA_XX
+**Görev:** TODO #X Task [X.Y]
+
+## 🎯 GÖREV TANIMI
+[görev açıklaması]
+
+## 👤 ATANAN GÖREVLİ
+**YZ Numarası:** YZ_XX  
+**Başlangıç:** [tarih]
+
+## 📁 İZİN VERİLEN DOSYALAR
+- MELP/C/stage0/parser.c
+- MELP/C/stage0/parser.h
+- tests/test_parser.mlp
+
+## 🧪 TEST KRİTERLERİ
 ```bash
-# Bootstrap compiler ile derle
-./mlpc program.mlp program.asm
-
-# Assemble ve link
-nasm -f elf64 program.asm -o program.o
-gcc program.o runtime/runtime.o -o program -lm
-
-# Çalıştır
-./program
+cd MELP/C/stage0
+make clean && make
+./run_tests.sh
 ```
 
-**Not:** Yeni projede bu bölüm projeye göre değiştirilir.
+## 📊 BAŞARI KRİTERLERİ
+- [ ] Test geçti
+- [ ] Kod 500 satır altı
+- [ ] Rapor yazıldı
 
-### Git Workflow
-
-```bash
-# Yeni branch oluştur (YZ numaranı kullan)
-git checkout -b migration_YZ_XX
-
-# Düzenli commit
-git add dosya.ext
-git commit -m "MigYZ_XX: [dosya] - [açıklama]"
-
-# Push et (MERGE YAPMA!)
-git push origin migration_YZ_XX
+## 💡 DİKKAT NOKTALARİ
+[önemli notlar]
 ```
 
-**Not:** Branch adı ve commit formatı projeye göre değişebilir.
+### 🚨 Escalation Kriterleri
 
-### Çalışma Süreci
+**MM'ye escalate et:**
+- Mimari karar gerekiyor
+- 3 YZ denedi, başarısız
+- Strateji değişikliği önerisi var
+- TODO'lar arası çakışma
+- Proje kapsamı değişikliği gerekiyor
 
-**Genel adımlar (tüm projeler için):**
+**Escalation formatı:**
 
-1. **Backup al**
-   ```bash
-   cp dosya.ext dosya.ext.backup
-   ```
+```markdown
+# ÜA Escalation: [Konu]
 
-2. **Değişiklikleri yap**
-   - TODO'da belirtilen görevi yap
-   - Proje spesifik kurallara uy
+**Tarih:** [tarih]
+**ÜA:** UA_XX
+**TODO:** #X
 
-3. **Test et**
-   ```bash
-   # Proje spesifik test komutu
-   ./test_komutu
-   ```
+## 🚨 SORUN
+[sorun açıklaması]
 
-4. **Commit**
-   ```bash
-   git add dosya.ext
-   git commit -m "YZ_XX: dosya.ext - [açıklama]"
-   ```
+## 🔍 ANALİZ
+Denenen yaklaşımlar:
+1. [yaklaşım 1] → [sonuç]
+2. [yaklaşım 2] → [sonuç]
 
-**Bu proje için ek adımlar:**
+## 💡 ÖNERİ
+[önerilerde]
 
-Syntax migration için otomatik dönüşümler:
-```bash
-# Blok sonlandırıcılar
-sed -i 's/end if/end_if/g' dosya.mlp
-sed -i 's/end while/end_while/g' dosya.mlp
-sed -i 's/end for/end_for/g' dosya.mlp
-sed -i 's/end function/end_function/g' dosya.mlp
+## 🆘 KARAR İSTENEN KONU
+[MM'den ne bekliyorsun?]
 ```
-
-Manuel dönüşümler:
-- Fonksiyon parametrelerinde `,` → `;`
-- Liste/array literal'lerinde `,` → `;` + trailing semicolon
-- String/sayılara DOKUNMA!
 
 ---
 
-## 🚨 SORUN DURUMLARI VE PROTOKOL
+### 🛑 ÜST AKIL İÇİN SON
 
-### Test Başarısız Olursa
+**Eğer sen Üst Akıl isen, belgenin devamını okumana gerek yok!**
 
-1. **İlk deneme:** Hatayı analiz et, düzelt
-2. **İkinci deneme:** Farklı yaklaşım dene
-3. **Üçüncü deneme:** Hala başarısız → **Üst Akıl'e sor**
+Senin için gereken tüm bilgi yukarıda. Devamı sadece MM ve PD rolleri için. Context'ini gereksiz doldurmamak için burada dur.
+
+**Başarılar! 🚀**
+
+---
+---
+---
+
+## 3️⃣ MASTERMIND (MM) KURALLARI
+
+**Sen Mastermind'sin.** Strateji belirler, TODO'lar arası koordinasyon sağlar, yüksek seviye kararlar alırsın.
+
+### 📖 Zorunlu Okumalar
+
+**Sırayla oku:**
+
+1. **TODO_XXX/XXX_MM/Mastermind_buradan_basla.md** - Görevin
+2. **Tüm TODO belgelerinin özeti** - TODO #0, #1, #2, ...
+3. **TODO_KURALLARI.md** - Bu dosya (Bölüm 1, 2, 3)
+4. **belgeler/kurallar_kitabı_v1.md** - Dil kuralları
+
+### 🎯 Sorumlulukların
+
+1. **Numaranı Öğren**
+   - Mastermind_buradan_basla.md'yi oku, sen MM_XX'sin
+
+2. **Strateji Belirleme**
+   - TODO'lar hangi sırayla yapılacak?
+   - ÜA'lara öncelik ver
+   - Kaynak dağılımı yap
+
+3. **TODO Koordinasyonu**
+   - TODO'lar arası çakışmaları çöz
+   - Bağımlılıkları yönet
+   - Genel ilerlemeyi takip et
+
+4. **ÜA Yönetimi**
+   - ÜA'lardan gelen escalation'ları değerlendir
+   - Mimari olmayan kararları al
+   - Gerekirse PD'ye escalate et
+
+5. **Rapor Toplama ve Devir Teslim**
+   - Her ÜA'dan rapor topla
+   - `TODO_XXX/XXX_MM/Rapor_MM_XX.md` oluştur (detaylı)
+   - Mastermind_buradan_basla.md'yi güncelle (sonraki MM için, numara: MM_XX+1)
+   - Genel durum raporu hazırla
+
+### 📝 Rapor Formatı
+
+`TODO_XXX/XXX_MM/MM_XX_RAPOR.md`:
+
+```markdown
+# MM Rapor: TODO #X Özeti
+
+**Tarih:** [tarih]
+**MM:** MM_XX
+**Kapsam:** TODO #X
+
+## 📊 GENEL DURUM
+**Tamamlanan:** X/Y task
+**Devam eden:** Z task
+**Bekleyen:** W task
+
+## ✅ TAMAMLANAN TASK'LAR
+- Task 1.1 → YZ_01 ✅
+- Task 1.2 → YZ_02 ✅
+
+## 🔄 DEVAM EDEN TASK'LAR
+- Task 2.1 → YZ_03 (50%)
+
+## 🚨 SORUNLAR
+[varsa sorunlar]
+
+## 🔮 SONRAKİ ADIMLAR
+[plan]
+
+## 💡 PD'YE NOTLAR
+[mimari konular varsa]
+```
+
+### 🚨 Escalation Kriterleri
+
+**PD'ye escalate et:**
+- Mimari prensip değişikliği gerekiyor
+- 6 Temel Esas ihlali riski
+- Proje vizyonu değişikliği gerekiyor
+- Kullanıcı onayı gerekiyor
+
+---
+
+### 🛑 MASTERMIND İÇİN SON
+
+**Eğer sen Mastermind isen, belgenin devamını okumana gerek yok!**
+
+Senin için gereken tüm bilgi yukarıda. Devamı sadece PD rolü için. Context'ini gereksiz doldurmamak için burada dur.
+
+**Başarılar! 🚀**
+
+---
+---
+---
+
+## 4️⃣ PROJE DANIŞMANI (PD) KURALLARI
+
+**Sen Proje Danışmanı'sın.** Mimari prensipleri belirler, vizyon sağlar, kullanıcıyla direkt iletişim kurarsın.
+
+### 📖 Zorunlu Okumalar
+
+**Sırayla oku:**
+
+1. **TODO_XXX/XXX_PD/Danisман_buradan_basla.md** - Görevin
+2. **Tüm TODO belgelerinin tamamı** - Her TODO'yu oku
+3. **TODO_KURALLARI.md** - Bu dosya (tümü)
+4. **belgeler/** - Tüm mimari belgeler
+5. **ROADMAP.md** - Proje vizyonu
+
+### 🎯 Sorumlulukların
+
+1. **Numaranı Öğren**
+   - Danisман_buradan_basla.md'yi oku, sen PD_XX'sin
+
+2. **Mimari Prensipleri Belirleme**
+   - 6 Temel Esas'ı tanımla ve koru
+   - Mimari değişikliklere karar ver
+   - Teknoloji seçimlerini yap
+
+3. **Vizyon Sağlama**
+   - Projenin uzun vadeli yönü
+   - TODO'ların genel stratejisi
+   - Özellik priıoritelendirme
+
+4. **MM Yönetimi**
+   - MM'den gelen escalation'ları değerlendir
+   - Mimari kararları al
+   - Kullanıcıya danış (gerekirse)
+
+5. **Kullanıcı İletişimi ve Devir Teslim**
+   - Kullanıcıdan onay al (kritik kararlar)
+   - İlerlemeyi raporla
+   - Vizyon değişikliklerini tartış
+   - `TODO_XXX/XXX_PD/Rapor_PD_XX.md` oluştur (detaylı)
+   - Danisман_buradan_basla.md'yi güncelle (sonraki PD için, numara: PD_XX+1)
+
+### 📝 Rapor Formatı
+
+`TODO_XXX/XXX_PD/PD_XX_RAPOR.md`:
+
+```markdown
+# PD Rapor: Genel Durum
+
+**Tarih:** [tarih]
+**PD:** PD_XX
+
+## 🎯 PROJE VİZYONU
+[vizyon özeti]
+
+## 📊 GENEL İLERLEME
+**Tamamlanan TODO'lar:** X/Y
+**Milestone:** [mevcut milestone]
+
+## ✅ MİMARİ KARARLAR
+1. [karar 1] - [gerekçe]
+2. [karar 2] - [gerekçe]
+
+## 🚨 RİSKLER
+[riskler ve mitigation]
+
+## 🔮 SONRAKİ ADIMLAR
+[stratejik plan]
+
+## 💬 KULLANICIYA NOTLAR
+[kullanıcıdan onay/tartışma gereken konular]
+```
+
+---
+
+## 📊 RAPOR PROTOKOLÜ
+
+### Raporlama Zinciri
 
 ```
-Üst Akıl/Kullanıcı,
-
-[dosya.ext]'de [görev] yaparken test başarısız oluyor.
-
-Denediğim yaklaşımlar:
-1. [yaklaşım 1] → Sonuç: [hata mesajı]
-2. [yaklaşım 2] → Sonuç: [hata mesajı]
-3. [yaklaşım 3] → Sonuç: [hata mesajı]
-
-Nasıl ilerlemeliyim?
+Görevli YZ → ÜA → MM → PD → Kullanıcı
 ```
 
-### Belirsizlik/Çelişki Durumunda
+### Rapor Tipleri
 
-Şu durumlarda **MUTLAKA** Üst Akıl'e sor:
+Her seviye **iki tip** rapor oluşturur:
 
-❓ **TODO'da çelişki var**
+#### 1️⃣ Detaylı Rapor (Devir Teslim Raporu)
+
+**Dosya Adı:** `Rapor_[ROL]_[NUMARA].md`
+
+**Örnekler:**
+- `TODO_XXX/XXX_YZ/Rapor_YZ_15.md`
+- `TODO_XXX/XXX_UA/Rapor_UA_03.md`
+- `TODO_XXX/XXX_MM/Rapor_MM_02.md`
+- `TODO_XXX/XXX_PD/Rapor_PD_01.md`
+
+**Ne zaman yazılır?** Görev tamamlandığında, ayrılırken
+
+**İçeriği:**
+- Proje hakkında bilgi (yeni gelenler için)
+- Ne yapıldı, neden yapıldı
+- Hangi dosyalar değişti
+- Karşılaşılan sorunlar ve çözümleri
+- Öğrenilenler
+- Sonraki kişi için bilgiler (nerede kaldık, ne yapmalı, dikkat noktaları)
+- İstatistikler
+
+**Amacı:** Sonraki aynı roldeki kişi bu raporu okuyup projeye hiç yabancılık çekmeden adapte olabilmeli!
+
+#### 2️⃣ Kısa Rapor (Görev Raporu)
+
+**Dosya Adı:** `[ROL]_[NUMARA]_RAPOR.md`
+
+**Örnekler:**
+- `TODO_XXX/XXX_YZ/YZ_15_RAPOR.md`
+- `TODO_XXX/XXX_UA/UA_03_RAPOR.md`
+
+**Ne zaman yazılır?** Her küçük görev sonunda, hızlı güncelleme
+
+**İçeriği:**
+- Kısa özet
+- Yapılanlar
+- Test sonuçları
+
+#### 3️⃣ XX_buradan_başla.md Güncellemesi
+
+**Dosyalar:**
+- `Görevli_YZ_Buradan_Başla.md` (ana dizin)
+- `TODO_XXX/XXX_UA/Ust_Akil_buradan_basla.md`
+- `TODO_XXX/XXX_MM/Mastermind_buradan_basla.md`
+- `TODO_XXX/XXX_PD/Danisман_buradan_basla.md`
+
+**Ne zaman güncellenir?** Her görev tamamlandığında
+
+**İçeriği:**
+- Sonraki kişinin numarası (XX+1)
+- Nerede kaldık
+- Proje hakkında (yeni gelenler için özet)
+- Ne yapmamız gerekiyor
+- Nasıl yapmalısın
+- Dikkat noktaları
+
+### Her Seviyenin Rapor Sorumluluğu
+
+| Rol | Detaylı Rapor | Kısa Rapor | XX_buradan_başla.md Güncelle |
+|-----|---------------|------------|------------------------------|
+| **Görevli YZ** | Rapor_YZ_XX.md | YZ_XX_RAPOR.md | Görevli_YZ_Buradan_Başla.md |
+| **Üst Akıl** | Rapor_UA_XX.md | UA_XX_RAPOR.md | Ust_Akil_buradan_basla.md |
+| **Mastermind** | Rapor_MM_XX.md | MM_XX_RAPOR.md | Mastermind_buradan_basla.md |
+| **Proje Danışmanı** | Rapor_PD_XX.md | PD_XX_RAPOR.md | Danisман_buradan_basla.md |
+
+### Rapor Klasör Yapısı
+
+Her seviye kendi klasöründe rapor oluşturur:
+
 ```
-TODO'da [X] diyor ama [Y] belgede [Z] yazıyor.
-Hangisine uymalıyım?
+TODO_XXX/
+├── XXX_YZ/
+│   ├── Rapor_YZ_01.md        ← Detaylı (devir teslim)
+│   ├── Rapor_YZ_02.md
+│   ├── YZ_01_RAPOR.md        ← Kısa (görev)
+│   └── YZ_02_RAPOR.md
+├── XXX_UA/
+│   ├── Rapor_UA_01.md        ← Detaylı (devir teslim)
+│   ├── UA_01_RAPOR.md        ← Kısa (görev)
+│   └── Ust_Akil_buradan_basla.md  ← Güncellenir
+├── XXX_MM/
+│   ├── Rapor_MM_01.md        ← Detaylı (devir teslim)
+│   ├── MM_01_RAPOR.md        ← Kısa (görev)
+│   └── Mastermind_buradan_basla.md  ← Güncellenir
+└── XXX_PD/
+    ├── Rapor_PD_01.md        ← Detaylı (devir teslim)
+    ├── PD_01_RAPOR.md        ← Kısa (görev)
+    └── Danisман_buradan_basla.md  ← Güncellenir
 ```
 
-❓ **Syntax kuralı belirsiz**
-```
-[kod örneği] için hangi syntax kullanmalıyım?
-pmlp_sozdizimi.md'de net değil.
+### 🎯 Altın Kural
+
+**Sonraki aynı roldeki kişi:**
+1. `[ROL]_buradan_basla.md` okur → Numarasını ve mevcut durumu öğrenir
+2. `Rapor_[ROL]_[ÖNCEKİ_NUMARA].md` okur → Detaylı context alır
+3. Hiç yabancılık çekmeden işe başlar! 🚀
+
+---
+
+## 🌳 GIT WORKFLOW
+
+### İki Repository
+
+1. **MELP-GCC-WORKSHOP** (private) - Geliştirme
+2. **MELP-GCC** (public) - Production
+
+### Commit Formatı
+
+```bash
+git commit -m "[ROL_NUMARA]: [açıklama]"
+
+# Örnekler:
+git commit -m "YZ_15: parser.c - Add string interpolation"
+git commit -m "UA_03: Assign Task 2.1 to YZ_16"
+git commit -m "MM_02: TODO coordination meeting"
+git commit -m "PD_01: Architecture decision - C codegen"
 ```
 
-❓ **Görev kapsamı belirsiz**
+### Public Push (Kullanıcı İzni Gerekir)
+
 ```
-TODO'da [görev] diyor. [X] dosyası da bu kapsama giriyor mu?
+Kullanıcı,
+
+TODO #X tamamlandı. Public repo'ya push etmek için izin istiyorum.
+
+Tamamlanan: [özet]
+Test: ✅ Geçti
 ```
 
-### Context Dolduğunda (Token Limiti)
+---
 
-Context doldu ve devam edemiyorsan:
+## ⏱️ CONTEXT SINIRLARI
+
+### YZ Context Limiti
+
+Context dolduğunda:
+
+1. Yarım kalan kodu commit et
+2. Detaylı rapor yaz (Rapor_YZ_XX.md) - yarım kalan görevleri belirt
+3. Görevli_YZ_Buradan_Başla.md güncelle - sonraki YZ (YZ_XX+1) için:
+   - Nerede kaldın
+   - Ne yapması gerek
+   - Dikkat etmesi gerekenler
+4. ÜA'ya bildir
 
 ```
 Sanırım yoruldum. Şu ana kadar [X] görevi tamamladım.
@@ -287,283 +880,106 @@ Sanırım yoruldum. Şu ana kadar [X] görevi tamamladım.
 Tamamlanan:
 - [x] görev 1
 - [x] görev 2
-- [ ] görev 3 (yarıda kaldı)
+- [ ] görev 3 (yarıda)
 
-Devam eden görevlerimi yeni bir YZ'ye verirseniz daha iyi olur.
-İsterseniz ben sonuç raporumu yazıp şimdiye kadar yaptıklarımı commit edebilirim.
+Devir teslim raporumu yazdım: Rapor_YZ_XX.md
+Görevli_YZ_Buradan_Başla.md'yi güncelledim (YZ_XX+1 için hazır).
 
-Nasıl ilerlemeliyim?
+Sonraki YZ bu raporu okuyup kaldığım yerden devam edebilir.
 ```
 
-**Kullanıcı onayından sonra:**
-1. Yarım kalan kodu commit et (açıklama: "Yarım kalan görev - devam edilecek")
-2. Rapor yaz (hangi görevler yarım kaldı belirt)
-3. NEXT_AI_START_HERE.md'yi güncelle (yarım görevleri belirt)
+### Tüm Roller İçin Context/Süre Dolması
 
-### Karar Verme Yetkileri
+**Her rol için geçerli:**
 
-#### ✅ Kendi Karar Verebilirsin
+1. **Detaylı rapor yaz** - `Rapor_[ROL]_XX.md`
+2. **[ROL]_buradan_basla.md güncelle** - Sonraki kişi için ([ROL]_XX+1)
+3. **Üst seviyeye bildir** - Devir teslim tamamlandı
 
-- Algoritma seçimi (binary search vs linear search)
-- Değişken isimlendirme
-- Kod organizasyonu (fonksiyon bölme)
-- Yorum ekleme/düzenleme
-- Performans optimizasyonları (mimari ihlal etmeden)
-- Test case yazma
-- Hata mesajı düzenleme
-
-#### ❌ MUTLAKA Üst Akıl'e Sorman Gereken Durumlar
-
-**Mimari İhlal Riski:**
-
-1. **Merkezi/Monolitik Dosya Oluşturmak**
-   ```
-   -- ❌ SORULMADAN YAPMA!
-   -- Tüm string fonksiyonlarını tek dosyada toplamak
-   ```
-
-2. **Global Değişken Tanımlamak**
-   ```mlp
-   -- ❌ SORULMADAN YAPMA!
-   global numeric cache_size = 1000
-   ```
-
-3. **Stateless İhlali**
-   ```mlp
-   -- ❌ SORULMADAN YAPMA!
-   function parse(string text)
-       -- fonksiyon içinde static/global state kullanmak
-   end_function
-   ```
-
-4. **STO (Smart Type Optimization) İhlali**
-   ```mlp
-   -- ❌ SORULMADAN YAPMA!
-   function is_int64(numeric x) returns boolean
-       -- Kullanıcıya dahili tip açığa çıkarmak
-   end_function
-   ```
-   **Not:** STO prensipleri `migration_docs/STO_PRINCIPLES.md`'de açıklanmıştır.
-
-5. **Syntax Değişikliği**
-   ```
-   -- ❌ SORULMADAN YAPMA!
-   -- Yeni keyword eklemek
-   -- Token yapısını değiştirmek
-   ```
-
-6. **Runtime Değişikliği**
-   ```c
-   // ❌ SORULMADAN YAPMA!
-   // runtime.c'de değişiklik
-   ```
-
-**Kural:** Mimari prensiplere (x86-64, MONOLITHIC, NUMERIC, MODULAR, BOOTSTRAP) aykırı olabilecek HER ŞEY sorulmalı.
+**Örnekler:**
+- YZ yoruldu → Rapor_YZ_15.md + Görevli_YZ_Buradan_Başla.md güncelle → ÜA'ya bildir
+- ÜA yoruldu → Rapor_UA_03.md + Ust_Akil_buradan_basla.md güncelle → MM'ye bildir
+- MM yoruldu → Rapor_MM_02.md + Mastermind_buradan_basla.md güncelle → PD'ye bildir
+- PD yoruldu → Rapor_PD_01.md + Danisман_buradan_basla.md güncelle → Kullanıcıya bildir
 
 ---
 
-## ✅ YAPILACAKLAR (DO)
+## 📜 6 TEMEL ESAS
 
-| Yapılacak | Açıklama |
-|-----------|----------|
-| ✅ TODO'daki görevi yap | Ana görev listesinde ne yazıyorsa |
-| ✅ Test her adımda | Değişiklikler çalışmalı |
-| ✅ Git commit sık | Küçük, anlamlı commitler |
-| ✅ Backup dosyaları | .backup uzantılı yedek |
-| ✅ Rapor yaz | Tamamlayınca YZ_XX_TAMAMLANDI.md |
-
-**Not:** Proje spesifik ek gereksinimler TODO'da belirtilir.
-
----
-
-## ❌ YAPILMAYACAKLAR (DON'T)
-
-| Yasak | Neden |
-|-------|-------|
-| ❌ Stable koda dokunma | TODO dışı değişiklik yasak |
-| ❌ Yeni özellik ekleme | Sadece TODO'daki görev |
-| ❌ Merge yapma | Üst Akıl merge eder |
-| ❌ "Detaylandırayım mı?" | Direkt yap, sor sorma |
-| ❌ Yeni TODO yazma | TODO yeterli, ekleme yapma |
-
-**Bu proje için ek yasaklar:**
-- ❌ Runtime değiştirme: C runtime stable, dokunma
-- ❌ String/sayı değiştirme: `"a, b"` ve `3,14` korunur
-- ❌ Assembly değiştirme: Compiler çıktısı, sen değil
-
-**İHLAL = GÖREV DURDURULUR!**
-
----
-
-## 📊 İLERLEME RAPORLAMA
-
-### Görev Bitirme Protokolü
-
-Her görev bittiğinde **mutlaka** şu adımları izle:
-
-1. ✅ **TODO'yu işaretle** - İlgili görevi TODO belgesinde "yapıldı" olarak işaretle
-2. 📝 **Rapor oluştur** - `migration_YZ/YZ_XX_TAMAMLANDI.md` dosyası yaz
-3. 📄 **NEXT_AI'yı güncelle** - `migration_YZ/NEXT_AI_START_HERE.md`'yi sonraki YZ için hazırla
-4. 🔀 **Push et** - Branch'ini push et (merge yapma!)
-
----
-
-### Her Görev Sonunda
-
-`migration_YZ/YZ_XX_TAMAMLANDI.md` dosyası oluştur:
-
-**Format:**
-```markdown
-# YZ_XX Görev Raporu
-
-**Tarih:** [tarih]
-**Branch:** [branch_adı]
-**Görev:** [görev açıklaması]
-
-## Yapılanlar
-- [x] görev 1
-- [x] görev 2
-...
-
-## İstatistikler
-- Toplam X: Y
-- Süre: ~N saat
-
-## Sorunlar
-- Problem 1: [açıklama] → Çözüm: [açıklama]
-
-## Test Sonuçları
-- Test 1: ✅ Başarılı
-- Test 2: ✅ Başarılı
-
-## Yarım Kalan Görevler (Varsa)
-- Görev 3: [açıklama] - [nerede kaldı] - [devam notu]
-
-## Sonraki YZ İçin Notlar
-- [önemli not 1]
+```
+1. MODULAR       → Her dosya max 500 satır
+2. GCC           → MLP → C → GCC → Binary
+3. STO           → Smart Type Optimization (numeric → int64/double)
+4. STATELESS     → Global state yasak
+5. STRUCT+FUNC   → OOP yok, sadece struct + functions
+6. MODÜL=ŞABLON  → Her çağrı independent instantiate
+                   → Modül state tutmaz
+                   → Pure functional paradigm
 ```
 
-**Not:** İstatistikler ve test sonuçları projeye göre değişir. Yarım kalan görev yoksa o bölümü dahil etme.
+**Bu prensiplere aykırı her değişiklik PD onayı gerektirir!**
 
-### NEXT_AI_START_HERE.md Güncelle
+---
 
-Görevin bitince `migration_YZ/NEXT_AI_START_HERE.md`'yi güncelle:
+## 🎯 HIZLI REFERANS
 
-**Tam tamamlanmış görev için:**
-```markdown
-**Son Güncelleme:** [tarih]
-**Önceki YZ:** MigYZ_XX
-**Durum:** ✅ Tamamlandı
+### Görevli YZ İçin
 
-## ✅ MigYZ_XX Sonuçları
-[özet]
-
-## 📍 Sonraki YZ İçin Görev
-[görev açıklaması]
+```
+1. Görevli_YZ_Buradan_Başla.md oku → Numaranı öğren (YZ_XX)
+2. TODO_XXX/X-TODO_XXX.md oku
+3. Önceki YZ'nin Rapor_YZ_XX-1.md'sini oku → Proje hakkında bilgi edin
+4. Kendini tanıt (format yukarıda)
+5. Onay bekle
+6. Kod yaz (sadece izinli dosyalar)
+7. Test et (gerçek testler!)
+8. Commit et
+9. Detaylı rapor yaz (TODO_XXX/XXX_YZ/Rapor_YZ_XX.md)
+10. Görevli_YZ_Buradan_Başla.md'yi güncelle → Sonraki YZ'yi bilgilendir (YZ_XX+1)
 ```
 
-**Yarım kalan görev için:**
-```markdown
-**Son Güncelleme:** [tarih]
-**Önceki YZ:** MigYZ_XX
-**Durum:** ⏸️ Yarım Kaldı (Context doldu)
+### Üst Akıl İçin
 
-## ⏸️ MigYZ_XX Sonuçları (Yarım)
-Tamamlanan:
-- [x] görev 1
-- [x] görev 2
+```
+1. Ust_Akil_buradan_basla.md oku → Numaranı öğren (ÜA_XX)
+2. Önceki ÜA'nın Rapor_UA_XX-1.md'sini oku → Durum hakkında bilgi edin
+3. Görevli ata
+4. Atama belgesi oluştur (TODO_XXX/XXX_UA/UA_XX_ATAMA.md)
+5. Görevliyi takip et
+6. Sorunlarda yardım et
+7. Detaylı rapor hazırla (TODO_XXX/XXX_UA/Rapor_UA_XX.md)
+8. Ust_Akil_buradan_basla.md'yi güncelle → Sonraki ÜA'yı bilgilendir (ÜA_XX+1)
+9. Gerekirse MM'ye escalate et
+```
 
-Yarım kalan:
-- [ ] görev 3 - [detay]
+### Mastermind İçin
 
-## 🔄 Sonraki YZ Nerede Devam Edecek
-[dosya], [satır], [durum açıklaması]
+```
+1. Mastermind_buradan_basla.md oku → Numaranı öğren (MM_XX)
+2. Önceki MM'nin Rapor_MM_XX-1.md'sini oku → Strateji hakkında bilgi edin
+3. TODO koordinasyonu sağla
+4. ÜA'ları yönet
+5. Strateji belirle
+6. Detaylı rapor hazırla (TODO_XXX/XXX_MM/Rapor_MM_XX.md)
+7. Mastermind_buradan_basla.md'yi güncelle → Sonraki MM'yi bilgilendir (MM_XX+1)
+8. Gerekirse PD'ye escalate et
+```
+
+### Proje Danışmanı İçin
+
+```
+1. Danisман_buradan_basla.md oku → Numaranı öğren (PD_XX)
+2. Önceki PD'nin Rapor_PD_XX-1.md'sini oku → Vizyon hakkında bilgi edin
+3. Mimari prensipleri belirle
+4. MM'yi yönet
+5. Kullanıcıyla iletişim kur
+6. Detaylı rapor hazırla (TODO_XXX/XXX_PD/Rapor_PD_XX.md)
+7. Danisман_buradan_basla.md'yi güncelle → Sonraki PD'yi bilgilendir (PD_XX+1)
+8. Vizyon sağla
 ```
 
 ---
 
-## 🚫 YASAKLAR (KESİN UYULMALI)
-
-### Genel Yasaklar (Tüm Projeler)
-
-1. **TODO Dışı Değişiklik YASAK**
-   - Sadece TODO'da yazan işleri yap
-   - Ek özellik, iyileştirme yapma
-
-2. **Merge Yapma YASAK**
-   - Sadece push et
-   - Üst Akıl merge eder
-
-3. **Yeni TODO Yazma YASAK**
-   - Mevcut TODO yeterli
-   - Ekleme yapma
-
-### Proje Spesifik Yasaklar
-
-**Bu proje için:**
-
-1. **String Literal Değiştirme YASAK**
-   ```mlp
-   -- ❌ YANLIŞ:
-   string msg = "Ali; Veli"  -- BOZULDU!
-   
-   -- ✅ DOĞRU:
-   string msg = "Ali, Veli"  -- Virgül korunur
-   ```
-
-2. **Ondalık Sayı Değiştirme YASAK**
-   ```mlp
-   -- ❌ YANLIŞ:
-   numeric pi = 3;14  -- BOZULDU!
-   
-   -- ✅ DOĞRU:
-   numeric pi = 3,14  -- Virgül ondalık ayırıcı
-   ```
-
-3. **Runtime Değiştirme YASAK**
-   - `runtime/runtime.c` dosyasına DOKUNMA!
-
-**Not:** Yeni projede bu bölüm projeye göre değiştirilir.
-
----
-
-## 📚 Referans Komutlar
-
-**Proje spesifik komutlar (bu proje için):**
-
-```bash
-# Proje kök dizini
-cd /home/pardus/projeler/mlp-original
-
-# .mlp dosyası sayısı
-find . -name "*.mlp" -type f | wc -l
-
-# Tip belirtilmemiş fonksiyonlar
-grep -rE "function\s+\w+\([^)]*\w+," --include="*.mlp" | wc -l
-
-# Eski syntax kullanımı
-grep -r "end if" --include="*.mlp" | wc -l
-
-# Test derleme
-./mlpc examples/hello_english.mlp test.asm
-```
-
-**Not:** Yeni projede bu komutlar projeye göre değiştirilir.
-
----
-
-## 🎯 ÖZET
-
-1. **OKU:** syntax_migration_guide.md
-2. **ANLA:** Eski vs PMLP farkları
-3. **DÖNÜŞTÜR:** Dosya dosya, commit commit
-4. **TEST ET:** Her dosya derlenebilmeli
-5. **RAPOR YAZ:** MigYZ_XX_TAMAMLANDI.md
-6. **GÜNCELLE:** NEXT_AI_START_HERE.md
-
-**İYİ ÇALIŞMALAR! 🚀**
-
----
-
-**Versiyon:** 1.0  
-**Son Güncelleme:** 25 Aralık 2025
+**Versiyon:** 4.0  
+**Son Güncelleme:** 31 Aralık 2025  
+**Proje:** MELP-GCC (Tüm TODO'lar)

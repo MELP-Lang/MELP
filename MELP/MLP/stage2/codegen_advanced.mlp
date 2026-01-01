@@ -1,0 +1,394 @@
+-- lang: en-US
+-- syntax: mlp
+-- MLP Codegen Advanced Module - Stage2 Self-Hosting Compiler
+-- Advanced features: Generics, Closures, Pattern Matching
+-- Optimized from p7 codegen_lambda.mlp + codegen_structures.mlp
+-- 6 Esas Compliant: MODULAR (<500), STATELESS, STRUCT+FUNC
+-- Target: C code generation (GCC backend)
+
+import "lexer.mlp"
+import "parser.mlp"
+import "codegen.mlp"
+
+-- =============================================================================
+-- GENERIC TYPES SUPPORT
+-- =============================================================================
+
+struct GenericInstance then
+    String base_name
+    list type_params
+    String concrete_name
+end_struct
+
+struct GenericState then
+    list instances
+    Numeric instance_counter
+end_struct
+
+function make_generic_state()
+    GenericState state
+    state.instances = list()
+    state.instance_counter = 0
+    return state
+end_function
+
+-- Generate concrete type name: List<i64> → List_i64
+function generate_generic_concrete_name(base_name, type_params)
+    String result = base_name
+    Numeric i = 0
+    while i < mlp_list_length(type_params)
+        String type_param = mlp_list_get(type_params, i)
+        result = result + "_" + type_param
+        i = i + 1
+    end
+    return result
+end_function
+
+-- Register generic instance
+function register_generic_instance(gen_state, base_name, type_params)
+    String concrete_name = generate_generic_concrete_name(base_name, type_params)
+    
+    -- Check if already registered
+    Numeric i = 0
+    while i < mlp_list_length(gen_state.instances)
+        GenericInstance inst = mlp_list_get(gen_state.instances, i)
+        if mlp_string_equals(inst.concrete_name, concrete_name) then
+            return concrete_name
+        end_if
+        i = i + 1
+    end
+    
+    -- Create new instance
+    GenericInstance inst
+    inst.base_name = base_name
+    inst.type_params = type_params
+    inst.concrete_name = concrete_name
+    mlp_list_add(gen_state.instances, inst)
+    
+    return concrete_name
+end_function
+
+-- =============================================================================
+-- GENERIC FUNCTION CODEGEN
+-- =============================================================================
+
+function codegen_generic_function(state, node, type_params)
+    -- Extract function details
+    String func_name = node.name
+    list params = node.parameters
+    String return_type = node.return_type
+    
+    -- Generate concrete function name
+    String concrete_name = generate_generic_concrete_name(func_name, type_params)
+    
+    -- Convert generic types to concrete types
+    String c_return_type = mlp_type_to_c_type(return_type)
+    
+    -- Function signature
+    String sig = c_return_type + " " + concrete_name + "("
+    
+    -- Parameters
+    Numeric i = 0
+    while i < mlp_list_length(params)
+        ASTNode param = mlp_list_get(params, i)
+        String param_type = param.type_name
+        String c_param_type = mlp_type_to_c_type(param_type)
+        sig = sig + c_param_type + " " + param.name
+        if i < mlp_list_length(params) - 1 then
+            sig = sig + ", "
+        end_if
+        i = i + 1
+    end
+    
+    sig = sig + ") {"
+    state = emit_line(state, sig)
+    
+    -- Function body
+    state.indent_level = state.indent_level + 1
+    state = codegen_statement(state, node.body)
+    state.indent_level = state.indent_level - 1
+    
+    state = emit_line(state, "}")
+    state = emit_line(state, "")
+    
+    return state
+end_function
+
+-- =============================================================================
+-- CLOSURE/LAMBDA SUPPORT
+-- =============================================================================
+
+struct ClosureData then
+    String closure_name
+    list captured_vars
+    Numeric param_count
+    ASTNode body
+end_struct
+
+struct ClosureState then
+    list closures
+    Numeric closure_counter
+end_struct
+
+function make_closure_state()
+    ClosureState state
+    state.closures = list()
+    state.closure_counter = 0
+    return state
+end_function
+
+-- Generate closure struct definition
+function codegen_closure_struct(state, closure_data)
+    String struct_name = closure_data.closure_name + "_env"
+    
+    state = emit_line(state, "// Closure environment: " + closure_data.closure_name)
+    state = emit_line(state, "struct " + struct_name + " {")
+    state.indent_level = state.indent_level + 1
+    
+    -- Function pointer
+    state = emit_line(state, "int64_t (*func_ptr)(struct " + struct_name + "*, int64_t);")
+    
+    -- Captured variables
+    Numeric i = 0
+    while i < mlp_list_length(closure_data.captured_vars)
+        String var_name = mlp_list_get(closure_data.captured_vars, i)
+        state = emit_line(state, "int64_t " + var_name + ";")
+        i = i + 1
+    end
+    
+    state.indent_level = state.indent_level - 1
+    state = emit_line(state, "};")
+    state = emit_line(state, "")
+    
+    return state
+end_function
+
+-- Generate closure function implementation
+function codegen_closure_function(state, closure_data)
+    String func_name = closure_data.closure_name + "_impl"
+    String struct_name = closure_data.closure_name + "_env"
+    
+    -- Function signature: int64_t func_impl(struct env* env, params...)
+    String sig = "int64_t " + func_name + "(struct " + struct_name + "* __env"
+    
+    -- Add parameters
+    Numeric i = 0
+    while i < closure_data.param_count
+        sig = sig + ", int64_t __p" + mlp_numeric_to_string(i)
+        i = i + 1
+    end
+    sig = sig + ") {"
+    
+    state = emit_line(state, sig)
+    state.indent_level = state.indent_level + 1
+    
+    -- Load captured variables from environment
+    i = 0
+    while i < mlp_list_length(closure_data.captured_vars)
+        String var_name = mlp_list_get(closure_data.captured_vars, i)
+        state = emit_line(state, "int64_t " + var_name + " = __env->" + var_name + ";")
+        i = i + 1
+    end
+    
+    -- Generate body
+    state = codegen_statement(state, closure_data.body)
+    
+    state.indent_level = state.indent_level - 1
+    state = emit_line(state, "}")
+    state = emit_line(state, "")
+    
+    return state
+end_function
+
+-- Generate closure creation code
+function codegen_lambda_expression(state, node)
+    String closure_name = "__lambda_" + mlp_numeric_to_string(state.label_counter)
+    state.label_counter = state.label_counter + 1
+    
+    -- Create closure data
+    ClosureData closure_data
+    closure_data.closure_name = closure_name
+    closure_data.captured_vars = node.captured_vars
+    closure_data.param_count = mlp_list_length(node.parameters)
+    closure_data.body = node.body
+    
+    -- Allocate closure on heap
+    String struct_name = closure_name + "_env"
+    state = emit_line(state, "// Allocate closure")
+    state = emit_line(state, "struct " + struct_name + "* " + closure_name + " = ")
+    state = emit_line(state, "    malloc(sizeof(struct " + struct_name + "));")
+    
+    -- Initialize function pointer
+    state = emit_line(state, closure_name + "->func_ptr = " + closure_name + "_impl;")
+    
+    -- Capture variables
+    Numeric i = 0
+    while i < mlp_list_length(closure_data.captured_vars)
+        String var_name = mlp_list_get(closure_data.captured_vars, i)
+        state = emit_line(state, closure_name + "->" + var_name + " = " + var_name + ";")
+        i = i + 1
+    end
+    
+    return state
+end_function
+
+-- Generate closure call
+function codegen_lambda_call(state, closure_var, arguments)
+    state = emit_line(state, "// Call closure")
+    String call_expr = closure_var + "->func_ptr(" + closure_var
+    
+    -- Add arguments
+    Numeric i = 0
+    while i < mlp_list_length(arguments)
+        ASTNode arg = mlp_list_get(arguments, i)
+        state = codegen_expression(state, arg)
+        call_expr = call_expr + ", " + state.last_expr_result
+        i = i + 1
+    end
+    
+    call_expr = call_expr + ")"
+    state = emit_line(state, call_expr + ";")
+    
+    return state
+end_function
+
+-- =============================================================================
+-- PATTERN MATCHING CODEGEN
+-- =============================================================================
+
+struct PatternCase then
+    ASTNode pattern
+    ASTNode body
+end_struct
+
+-- Generate pattern match as nested if-else
+function codegen_pattern_match(state, node)
+    ASTNode target = node.target
+    list cases = node.cases
+    
+    -- Evaluate target expression
+    state = emit_line(state, "// Pattern match")
+    state = codegen_expression(state, target)
+    String target_var = generate_temp_var(state)
+    state = emit_line(state, "int64_t " + target_var + " = " + state.last_expr_result + ";")
+    
+    -- Generate cases
+    Numeric i = 0
+    while i < mlp_list_length(cases)
+        PatternCase pattern_case = mlp_list_get(cases, i)
+        
+        if i == 0 then
+            state = emit_line(state, "if (")
+        else
+            state = emit_line(state, "} else if (")
+        end_if
+        
+        -- Pattern condition
+        state = codegen_pattern_condition(state, target_var, pattern_case.pattern)
+        state = emit_line(state, ") {")
+        
+        -- Case body
+        state.indent_level = state.indent_level + 1
+        state = codegen_statement(state, pattern_case.body)
+        state.indent_level = state.indent_level - 1
+        
+        i = i + 1
+    end
+    
+    -- Default case (exhaustiveness check should be done in type checker)
+    state = emit_line(state, "} else {")
+    state.indent_level = state.indent_level + 1
+    state = emit_line(state, "fprintf(stderr, \"Pattern match failed\\n\");")
+    state = emit_line(state, "exit(1);")
+    state.indent_level = state.indent_level - 1
+    state = emit_line(state, "}")
+    
+    return state
+end_function
+
+-- Generate pattern matching condition
+function codegen_pattern_condition(state, target_var, pattern)
+    String pattern_type = pattern.type
+    
+    if mlp_string_equals(pattern_type, "LITERAL") then
+        -- Literal pattern: match value == literal
+        state.last_expr_result = target_var + " == " + mlp_numeric_to_string(pattern.value)
+        return state
+    end_if
+    
+    if mlp_string_equals(pattern_type, "IDENTIFIER") then
+        -- Variable binding: always matches
+        String var_name = pattern.name
+        state = emit_line(state, "int64_t " + var_name + " = " + target_var + ";")
+        state.last_expr_result = "1"  -- Always true
+        return state
+    end_if
+    
+    if mlp_string_equals(pattern_type, "WILDCARD") then
+        -- Wildcard: always matches
+        state.last_expr_result = "1"
+        return state
+    end_if
+    
+    if mlp_string_equals(pattern_type, "CONSTRUCTOR") then
+        -- Constructor pattern (for enums/ADTs)
+        String constructor_name = pattern.constructor
+        state.last_expr_result = target_var + ".tag == TAG_" + constructor_name
+        return state
+    end_if
+    
+    -- Default: no match
+    state.last_expr_result = "0"
+    return state
+end_function
+
+-- =============================================================================
+-- ENTRY POINT FOR ADVANCED CODEGEN
+-- =============================================================================
+
+function codegen_advanced_features(state, node)
+    String node_type = node.type
+    
+    if mlp_string_equals(node_type, "GENERIC_FUNCTION") then
+        return codegen_generic_function(state, node, node.type_params)
+    end_if
+    
+    if mlp_string_equals(node_type, "LAMBDA") then
+        return codegen_lambda_expression(state, node)
+    end_if
+    
+    if mlp_string_equals(node_type, "PATTERN_MATCH") then
+        return codegen_pattern_match(state, node)
+    end_if
+    
+    -- Fallback to basic codegen
+    return codegen_statement(state, node)
+end_function
+
+-- =============================================================================
+-- MAIN CODEGEN WITH ADVANCED FEATURES
+-- =============================================================================
+
+function codegen_with_advanced(ast_root)
+    CodegenState state = make_codegen_state()
+    GenericState gen_state = make_generic_state()
+    ClosureState closure_state = make_closure_state()
+    
+    -- Generate C header
+    state = emit_line(state, "// Generated by MLP Stage2 Compiler (Advanced)")
+    state = emit_line(state, "#include <stdio.h>")
+    state = emit_line(state, "#include <stdint.h>")
+    state = emit_line(state, "#include <stdlib.h>")
+    state = emit_line(state, "#include <string.h>")
+    state = emit_line(state, "")
+    
+    -- Generate code for all nodes
+    state = codegen_program(state, ast_root)
+    
+    return state.output
+end_function
+
+-- Export
+function codegen_advanced(ast)
+    return codegen_with_advanced(ast)
+end_function

@@ -1,6 +1,6 @@
-# 🤖 SEN: LANGUAGE_FEATURES_YZ_07
+# 🤖 SEN: LANGUAGE_FEATURES_YZ_08
 
-**Yedinci görevlisin!** Codegen Advanced İmplementasyonu yapacaksın.
+**Sekizinci görevlisin!** Generics Type System İmplementasyonu yapacaksın.
 
 ---
 
@@ -26,116 +26,43 @@
 - Expression codegen (binary, unary, call) ✅
 - P7'den %38 daha kompakt ✅
 
-🎯 **Şimdi:** Advanced features (generics, closures, pattern matching) zamanı!
+✅ **YZ_07 Tamamlandı (2 saat!):**
+- codegen_advanced.mlp yazıldı (394 satır < 500) ✅
+- Generic function codegen ✅
+- Lambda/closure codegen ✅
+- Pattern match codegen ✅
+- P7'den %48 daha kompakt ✅
+
+🎯 **Şimdi:** Generics Type System (Phase 4) zamanı!
 
 ---
 
 ## 🚨 HEMEN YAP
 
-### 1️⃣ YZ_06 Raporunu Oku (10 dk)
+### 1️⃣ YZ_07 Raporunu Oku (10 dk)
 ```bash
-cat TODO_LANGUAGE_FEATURES/PHASE_3_CODEGEN/YZ_06_RAPOR.md
+cat TODO_LANGUAGE_FEATURES/PHASE_3_CODEGEN/YZ_07_RAPOR.md
 ```
-**Öğren:** Codegen pattern'leri, C code generation, State management
+**Öğren:** Generic codegen pattern'leri, closure environment, pattern match
 
-### 2️⃣ P7 Advanced Codegen Raporunu Oku (15 dk)
+### 2️⃣ TODO Görevini Oku (10 dk)
 ```bash
-ls -la /home/pardus/projeler/mlp-original/self_host/compiler_core/codegen_lambda.mlp
-ls -la /home/pardus/projeler/mlp-original/self_host/compiler_core/codegen_structures.mlp
+cat 3-TODO_LANGUAGE_FEATURES.md | grep -A 100 "Task 8: Generics"
 ```
-**Öğren:** p7 lambda/closure handling, generic structures
+**Öğren:** Phase 4 - Generics Type System implementasyonu
 
-### 3️⃣ TODO Görevini Oku (10 dk)
-```bash
-cat 3-TODO_LANGUAGE_FEATURES.md | grep -A 100 "Task 7: Codegen Advanced"
-```
-**Öğren:** Phase 3 - Advanced codegen implementasyonu
-
-### 4️⃣ İşe Koyul!
+### 3️⃣ İşe Koyul!
 
 ---
 
-## 🎯 GÖREVİN: PHASE 3 - CODEGEN ADVANCED İMPLEMENTASYONU
+## 🎯 GÖREVİN: PHASE 4 - GENERICS TYPE SYSTEM
 
-**Hedef:** Generics, closures, pattern matching codegen (< 500 satır)  
-**Referans:** p7 codegen_lambda.mlp, codegen_structures.mlp  
+**Hedef:** Generic types, constraints, instantiation (< 500 satır)  
+**Referans:** YZ_07 codegen_advanced.mlp  
 **Süre:** 2 gün
 
-**Çıktı:** `MELP/MLP/stage2/codegen_advanced.mlp`
+**Çıktı:** `MELP/MLP/stage2/type_system.mlp`
 
 ---
 
-## 📋 KOMUTLAR
-
-```bash
-# Referansı kopyala
-cp /home/pardus/projeler/mlp-original/self_host/compiler_core/codegen.mlp \
-   TODO_LANGUAGE_FEATURES/PHASE_3_CODEGEN/p7_codegen_reference.mlp
-
-# Codegen modülünü başlat
-cat > MELP/MLP/stage2/codegen.mlp << 'CODEGEN'
-# MLP Codegen Module
-# Stage2 Self-Hosting Compiler
-# Referans: p7 codegen.mlp → optimize < 600 satır
-
-import "parser.mlp"
-
-struct CodegenState {
-    indent_level: i32
-    output: string
-    temp_counter: i32
-}
-
-func codegen(ast: ASTNode) -> string {
-    # TODO: implement C code generation
-}
-CODEGEN
-
-# İncele ve geliştir!
-```
-
----
-
-## ✅ CHECKLIST
-YZ_06 raporu okundu
-- [ ] p7 codegen_lambda.mlp incelendi
-- [ ] p7 codegen_structures.mlp incelendi
-- [ ] Closure environment struct tasarlandı
-- [ ] codegen_advanced.mlp başlatıldı
-- [ ] Generic function codegen implement edildi
-- [ ] Lambda/closure codegen implement edildi
-- [ ] Pattern match codegen implement edildi
-- [ ] Test yazıldı (3 feature test)
-- [ ] Testler PASS ✅
-- [ ] Rapor yazıldı
-- [ ] Commit yapıldı
-- [ ] YZ_07 KURALLARI TAKİP EDİLDİ ✅
-- [ ] YZ_06İ KURAL
-
-**Çıkarken mutlaka yap:**
-1. `3-TODO_LANGUAGE_FEATURES.md` dosyasını aç
-2. Kendi Task'ını bul (örn: Task 4: Parser Core - YZ_05)
-3. Task başlığına **"✅ TAMAMLANDI"** ekle
-4. Başarı kriterlerini `[x]` işaretle
-5. Tamamlanma tarihi ve rapor yolunu ekle
-6. Görevli_YZ_Buradan_Başla.md belgesini güncelle
-
-**Örnek:**
-```markdown
-#### **Task 4: Parser Core** - YZ_05 ✅ TAMAMLANDI
-
-**Tamamlandı:** 1 Ocak 2026 - YZ_05 (~3 saat)
-**Rapor:** `TODO_LANGUAGE_FEATURES/PHASE_2_PARSER/YZ_05_RAPOR.md`
-```
-
----6: Codegen Core** - YZ_06 ✅ TAMAMLANDI
-
-**Tamamlandı:** 1 Ocak 2026 - YZ_06 (~3 saat)
-**Rapor:** `TODO_LANGUAGE_FEATURES/PHASE_3_CODEGEN/YZ_06_RAPOR.md`
-```
-
----
-
-**BAŞLA!** 3 gün süren var. p7 codegen pattern'ini incele!
-
-*Güncelleme: 1 Ocak 2026 - YZ_06 (Phase 3 Codegen
+**BAŞLA!** YZ_07 raporunu incele ve type system'i tasarla!

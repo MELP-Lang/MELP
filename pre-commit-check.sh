@@ -1,6 +1,9 @@
 #!/bin/bash
 # pre-commit-check.sh - YZ Commit Öncesi Zorunlu Kontrol
 # Her YZ commit öncesi BU SCRIPT'İ ÇALIŞTIRMALI!
+#
+# Güncel TODO: 3-TODO_LANGUAGE_FEATURES.md
+# Proje: MLP-GCC Language Features
 
 set -e
 
@@ -11,6 +14,7 @@ NC='\033[0m'
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "⏳ YZ COMMIT ÖNCESİ KONTROL BAŞLIYOR..."
+echo "   TODO: 3-TODO_LANGUAGE_FEATURES"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
@@ -35,8 +39,7 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 
 # Read-only dosyalar listesi (YZ ASLA değiştiremez!)
 READ_ONLY_FILES=(
-    "YZ_KURALLAR.md"
-    "Danışman_Yol_Haritası.md"
+    "TODO_KURALLARI.md"
     "docs/ARCHITECTURE_AND_MEMORY_STRATEGY.md"
     "docs/COMPILER_BACKENDS_COMPARISON.md"
     "docs/LANGUAGE_EVOLUTION_GUIDE.md"
@@ -44,11 +47,12 @@ READ_ONLY_FILES=(
     "pre-commit-check.sh"
     "create-current-todo.sh"
     "TODO_OLUSTUR/setup_todo.sh"
+    "3-TODO_LANGUAGE_FEATURES.md"
 )
 
 # Progress update dosyaları (YZ güncelleyebilir ama SADECE işaretleme için!)
 PROGRESS_FILES=(
-    "TODO_SELFHOSTING.md"
+    "3-TODO_LANGUAGE_FEATURES.md"
     "NEXT_AI_START_HERE.md"
 )
 

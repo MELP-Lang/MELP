@@ -1,0 +1,483 @@
+-- lang: en-US
+-- syntax: mlp
+-- MLP Parser Module - Stage2 Self-Hosting Compiler
+-- Optimized from p7 parser.mlp (661 → <500 lines)
+-- 6 Esas Compliant: MODULAR (<500), STATELESS, STRUCT+FUNC
+
+import "lexer.mlp"
+
+-- =============================================================================
+-- AST NODE TYPES
+-- =============================================================================
+
+Numeric AST_PROGRAM = 0
+Numeric AST_FUNCTION = 1
+Numeric AST_STRUCT = 2
+Numeric AST_VARIABLE_DECL = 3
+Numeric AST_ASSIGNMENT = 4
+Numeric AST_IF_STMT = 5
+Numeric AST_WHILE_STMT = 6
+Numeric AST_RETURN_STMT = 7
+Numeric AST_BLOCK = 8
+Numeric AST_BINARY_OP = 9
+Numeric AST_UNARY_OP = 10
+Numeric AST_CALL = 11
+Numeric AST_IDENTIFIER = 12
+Numeric AST_NUMBER = 13
+Numeric AST_STRING = 14
+Numeric AST_IMPORT = 15
+Numeric AST_PRINT = 16
+
+-- =============================================================================
+-- DATA STRUCTURES
+-- =============================================================================
+
+struct ASTNode then
+    Numeric node_type
+    String value
+    list children
+    Numeric line
+    Numeric column
+end_struct
+
+struct ParserState then
+    list tokens
+    Numeric position
+    Numeric scope_level
+end_struct
+
+-- =============================================================================
+-- FACTORY FUNCTIONS
+-- =============================================================================
+
+function make_ast_node(node_type, value, line, column)
+    ASTNode node
+    node.node_type = node_type
+    node.value = value
+    node.children = list()
+    node.line = line
+    node.column = column
+    return node
+end_function
+
+function make_parser_state(tokens)
+    ParserState state
+    state.tokens = tokens
+    state.position = 0
+    state.scope_level = 0
+    return state
+end_function
+
+-- =============================================================================
+-- TOKEN NAVIGATION
+-- =============================================================================
+
+function current_token(state)
+    Numeric pos = state.position
+    Numeric length = mlp_list_length(state.tokens)
+    if pos >= length then
+        Token eof_token = make_token(TOKEN_EOF, "", 0, 0)
+        return eof_token
+    end_if
+    return mlp_list_get(state.tokens, pos)
+end_function
+
+function peek_token(state, offset)
+    Numeric pos = state.position + offset
+    Numeric length = mlp_list_length(state.tokens)
+    if pos >= length then
+        Token eof_token = make_token(TOKEN_EOF, "", 0, 0)
+        return eof_token
+    end_if
+    return mlp_list_get(state.tokens, pos)
+end_function
+
+function advance_token(state)
+    state.position = state.position + 1
+    return state
+end_function
+
+function expect_token(state, expected_type)
+    Token token = current_token(state)
+    if token.type != expected_type then
+        print "Parser error at line " print token.line
+    end_if
+    return advance_token(state)
+end_function
+
+function match_token(state, token_type)
+    Token token = current_token(state)
+    if token.type == token_type then
+        return 1
+    end_if
+    return 0
+end_function
+
+-- =============================================================================
+-- PRECEDENCE TABLE
+-- =============================================================================
+
+function get_precedence(token_type)
+    if token_type == TOKEN_OR then return 10 end_if
+    if token_type == TOKEN_AND then return 20 end_if
+    if token_type == TOKEN_EQ then return 30 end_if
+    if token_type == TOKEN_NEQ then return 30 end_if
+    if token_type == TOKEN_LT then return 40 end_if
+    if token_type == TOKEN_GT then return 40 end_if
+    if token_type == TOKEN_LTE then return 40 end_if
+    if token_type == TOKEN_GTE then return 40 end_if
+    if token_type == TOKEN_PLUS then return 50 end_if
+    if token_type == TOKEN_MINUS then return 50 end_if
+    if token_type == TOKEN_STAR then return 60 end_if
+    if token_type == TOKEN_DIV then return 60 end_if
+    if token_type == TOKEN_MOD then return 60 end_if
+    return 0
+end_function
+
+-- =============================================================================
+-- EXPRESSION PARSING (PRATT STYLE)
+-- =============================================================================
+
+function parse_primary(state)
+    Token token = current_token(state)
+    
+    -- Number literal
+    if token.type == TOKEN_NUMBER then
+        ASTNode node = make_ast_node(AST_NUMBER, token.value, token.line, token.column)
+        state = advance_token(state)
+        return node
+    end_if
+    
+    -- String literal
+    if token.type == TOKEN_STRING then
+        ASTNode node = make_ast_node(AST_STRING, token.value, token.line, token.column)
+        state = advance_token(state)
+        return node
+    end_if
+    
+    -- Identifier or function call
+    if token.type == TOKEN_IDENTIFIER then
+        ASTNode node = make_ast_node(AST_IDENTIFIER, token.value, token.line, token.column)
+        state = advance_token(state)
+        
+        -- Check for function call
+        Token next_token = current_token(state)
+        if next_token.type == TOKEN_LEFT_PAREN then
+            node.node_type = AST_CALL
+            state = advance_token(state)
+            
+            -- Parse arguments
+            if match_token(state, TOKEN_RIGHT_PAREN) == 0 then
+                while 1 == 1
+                    ASTNode arg = parse_expression(state, 0)
+                    mlp_list_add(node.children, arg)
+                    
+                    Token comma_token = current_token(state)
+                    if comma_token.type != TOKEN_COMMA then
+                        break
+                    end_if
+                    state = advance_token(state)
+                end
+            end_if
+            
+            state = expect_token(state, TOKEN_RIGHT_PAREN)
+        end_if
+        
+        return node
+    end_if
+    
+    -- Parenthesized expression
+    if token.type == TOKEN_LEFT_PAREN then
+        state = advance_token(state)
+        ASTNode expr = parse_expression(state, 0)
+        state = expect_token(state, TOKEN_RIGHT_PAREN)
+        return expr
+    end_if
+    
+    -- Unary operators
+    if token.type == TOKEN_MINUS then
+        ASTNode node = make_ast_node(AST_UNARY_OP, "-", token.line, token.column)
+        state = advance_token(state)
+        mlp_list_add(node.children, parse_primary(state))
+        return node
+    end_if
+    
+    if token.type == TOKEN_NOT then
+        ASTNode node = make_ast_node(AST_UNARY_OP, "!", token.line, token.column)
+        state = advance_token(state)
+        mlp_list_add(node.children, parse_primary(state))
+        return node
+    end_if
+    
+    -- Error
+    print "Parser error at line " print token.line
+    ASTNode error_node = make_ast_node(AST_NUMBER, "0", token.line, token.column)
+    return error_node
+end_function
+
+function parse_expression(state, min_precedence)
+    ASTNode left = parse_primary(state)
+    
+    while 1 == 1
+        Token op_token = current_token(state)
+        Numeric op_prec = get_precedence(op_token.type)
+        
+        if op_prec == 0 then break end_if
+        if op_prec < min_precedence then break end_if
+        
+        String op_value = op_token.value
+        Numeric op_line = op_token.line
+        Numeric op_col = op_token.column
+        state = advance_token(state)
+        
+        ASTNode right = parse_expression(state, op_prec + 1)
+        
+        ASTNode binary_node = make_ast_node(AST_BINARY_OP, op_value, op_line, op_col)
+        mlp_list_add(binary_node.children, left)
+        mlp_list_add(binary_node.children, right)
+        
+        left = binary_node
+    end
+    
+    return left
+end_function
+
+-- =============================================================================
+-- STATEMENT PARSING
+-- =============================================================================
+
+function parse_import_statement(state)
+    Token import_token = current_token(state)
+    state = expect_token(state, TOKEN_IMPORT)
+    
+    Token module_token = current_token(state)
+    state = expect_token(state, TOKEN_STRING)
+    
+    ASTNode node = make_ast_node(AST_IMPORT, module_token.value, import_token.line, import_token.column)
+    return node
+end_function
+
+function parse_print_statement(state)
+    Token print_token = current_token(state)
+    state = expect_token(state, TOKEN_PRINT)
+    
+    ASTNode expr = parse_expression(state, 0)
+    ASTNode node = make_ast_node(AST_PRINT, "", print_token.line, print_token.column)
+    mlp_list_add(node.children, expr)
+    return node
+end_function
+
+function parse_return_statement(state)
+    Token return_token = current_token(state)
+    state = expect_token(state, TOKEN_RETURN)
+    
+    ASTNode expr = parse_expression(state, 0)
+    ASTNode node = make_ast_node(AST_RETURN_STMT, "", return_token.line, return_token.column)
+    mlp_list_add(node.children, expr)
+    return node
+end_function
+
+function parse_variable_declaration(state)
+    Token type_token = current_token(state)
+    state = advance_token(state)
+    
+    Token name_token = current_token(state)
+    state = expect_token(state, TOKEN_IDENTIFIER)
+    
+    ASTNode node = make_ast_node(AST_VARIABLE_DECL, name_token.value, type_token.line, type_token.column)
+    node.value = type_token.value + ":" + name_token.value
+    
+    -- Check for assignment
+    Token assign_token = current_token(state)
+    if assign_token.type == TOKEN_ASSIGN then
+        state = advance_token(state)
+        ASTNode init_expr = parse_expression(state, 0)
+        mlp_list_add(node.children, init_expr)
+    end_if
+    
+    return node
+end_function
+
+function parse_assignment(state)
+    Token name_token = current_token(state)
+    state = expect_token(state, TOKEN_IDENTIFIER)
+    state = expect_token(state, TOKEN_ASSIGN)
+    
+    ASTNode expr = parse_expression(state, 0)
+    ASTNode node = make_ast_node(AST_ASSIGNMENT, name_token.value, name_token.line, name_token.column)
+    mlp_list_add(node.children, expr)
+    return node
+end_function
+
+function parse_if_statement(state)
+    Token if_token = current_token(state)
+    state = expect_token(state, TOKEN_IF)
+    
+    ASTNode condition = parse_expression(state, 0)
+    state = expect_token(state, TOKEN_THEN)
+    
+    ASTNode then_block = parse_block(state, TOKEN_END_IF)
+    
+    ASTNode node = make_ast_node(AST_IF_STMT, "", if_token.line, if_token.column)
+    mlp_list_add(node.children, condition)
+    mlp_list_add(node.children, then_block)
+    
+    -- Check for else
+    Token next_token = current_token(state)
+    if next_token.type == TOKEN_ELSE then
+        state = advance_token(state)
+        ASTNode else_block = parse_block(state, TOKEN_END_IF)
+        mlp_list_add(node.children, else_block)
+    end_if
+    
+    state = expect_token(state, TOKEN_END_IF)
+    return node
+end_function
+
+function parse_while_statement(state)
+    Token while_token = current_token(state)
+    state = expect_token(state, TOKEN_WHILE)
+    
+    ASTNode condition = parse_expression(state, 0)
+    ASTNode body = parse_block(state, TOKEN_END)
+    
+    state = expect_token(state, TOKEN_END)
+    
+    ASTNode node = make_ast_node(AST_WHILE_STMT, "", while_token.line, while_token.column)
+    mlp_list_add(node.children, condition)
+    mlp_list_add(node.children, body)
+    return node
+end_function
+
+function parse_function_declaration(state)
+    Token func_token = current_token(state)
+    state = expect_token(state, TOKEN_FUNCTION)
+    
+    Token name_token = current_token(state)
+    state = expect_token(state, TOKEN_IDENTIFIER)
+    
+    ASTNode node = make_ast_node(AST_FUNCTION, name_token.value, func_token.line, func_token.column)
+    
+    state = expect_token(state, TOKEN_LEFT_PAREN)
+    
+    -- Parse parameters
+    if match_token(state, TOKEN_RIGHT_PAREN) == 0 then
+        while 1 == 1
+            Token param_name = current_token(state)
+            state = expect_token(state, TOKEN_IDENTIFIER)
+            
+            ASTNode param_node = make_ast_node(AST_IDENTIFIER, param_name.value, param_name.line, param_name.column)
+            mlp_list_add(node.children, param_node)
+            
+            Token comma_token = current_token(state)
+            if comma_token.type != TOKEN_COMMA then
+                break
+            end_if
+            state = advance_token(state)
+        end
+    end_if
+    
+    state = expect_token(state, TOKEN_RIGHT_PAREN)
+    
+    -- Parse function body
+    ASTNode body = parse_block(state, TOKEN_END_FUNCTION)
+    mlp_list_add(node.children, body)
+    
+    state = expect_token(state, TOKEN_END_FUNCTION)
+    return node
+end_function
+
+function parse_statement(state)
+    Token token = current_token(state)
+    
+    if token.type == TOKEN_IMPORT then
+        return parse_import_statement(state)
+    end_if
+     return parse_import_statement(state) end_if
+    if token.type == TOKEN_FUNCTION then return parse_function_declaration(state) end_if
+    if token.type == TOKEN_PRINT then return parse_print_statement(state) end_if
+    if token.type == TOKEN_RETURN then return parse_return_statement(state) end_if
+    if token.type == TOKEN_IF then return parse_if_statement(state) end_if
+    if token.type == TOKEN_WHILE then return parse_while_statement(state) end_if
+    if token.type == TOKEN_TYPE_NUMERIC then return parse_variable_declaration(state) end_if
+    if token.type == TOKEN_TYPE_STRING then return parse_variable_declaration(state) end_if
+    if token.type == TOKEN_IDENTIFIER then return parse_assignment(state) end_if
+    
+    print "Parser error at line "_function
+
+function parse_block(state, end_token_type)
+    list statements = list()
+    
+    while 1 == 1
+        Token token = current_token(state)
+        
+        if token.type == TOKEN_EOF then
+            break
+        end_if
+        
+        if token.type == end_token_type then
+            break
+        end_if
+        
+        ASTNode stmt = parse_statement(state)
+        mlp_list_add(statements, stmt)
+    end
+    
+    Token block_token = current_token(state)
+    ASTNode block_node = make_ast_node(AST_BLOCK, "", block_token.line, block_token.column)
+    block_node.children = statements
+    return block_node
+end_function
+
+-- =============================================================================
+-- TOP-LEVEL PARSER
+-- =============================================================================
+
+function parse(tokens)
+    ParserState state = make_parser_state(tokens)
+    ASTNode root = parse_block(state, TOKEN_EOF)
+    root.node_type = AST_PROGRAM
+    return root
+end_function
+
+function ast_to_string(node, indent)
+    String result = ""
+    
+    -- Add indentation
+    Numeric i = 0
+    while i < indent
+        result = result + "  "
+        i = i + 1
+    end
+    
+    -- Node type
+    if node.node_type == AST_PROGRAM then result = result + "PROGRAM" end_if
+    if node.node_type == AST_FUNCTION then result = result + "FUNCTION " + node.value end_if
+    if node.node_type == AST_VARIABLE_DECL then result = result + "VAR_DECL " + node.value end_if
+    if node.node_type == AST_ASSIGNMENT then result = result + "ASSIGN " + node.value end_if
+    if node.node_type == AST_IF_STMT then result = result + "IF" end_if
+    if node.node_type == AST_WHILE_STMT then result = result + "WHILE" end_if
+    if node.node_type == AST_RETURN_STMT then result = result + "RETURN" end_if
+    if node.node_type == AST_BLOCK then result = result + "BLOCK" end_if
+    if node.node_type == AST_BINARY_OP then result = result + "BINARY_OP " + node.value end_if
+    if node.node_type == AST_UNARY_OP then result = result + "UNARY_OP " + node.value end_if
+    if node.node_type == AST_CALL then result = result + "CALL " + node.value end_if
+    if node.node_type == AST_IDENTIFIER then result = result + "ID " + node.value end_if
+    if node.node_type == AST_NUMBER then result = result + "NUM " + node.value end_if
+    if node.node_type == AST_STRING then result = result + "STR " + node.value end_if
+    if node.node_type == AST_IMPORT then result = result + "IMPORT " + node.value end_if
+    if node.node_type == AST_PRINT then result = result + "PRINT" end_if
+    
+    result = result + "\n"
+    
+    -- Children
+    Numeric child_count = mlp_list_length(node.children)
+    Numeric j = 0
+    while j < child_count
+        ASTNode child = mlp_list_get(node.children, j)
+        result = result + ast_to_string(child, indent + 1)
+        j = j + 1
+    end
+    
+    return result
+end_function
