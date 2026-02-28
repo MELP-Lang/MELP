@@ -1,0 +1,4 @@
+function main() -> numeric
+    print("Stage 1 başladı.")
+    return 0
+end_function
