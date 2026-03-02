@@ -3,7 +3,7 @@
 
 function main()
     -- Numeric array
-    array<numeric> nums = [1; 2; 3; 4; 5]
+    numeric[] nums = [1; 2; 3; 4; 5]
 
     -- Dizi elemanlarına erişim
     print(nums[0])

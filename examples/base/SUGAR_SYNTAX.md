@@ -128,11 +128,18 @@ end_while
 
 ## Görev 10: arrays
 
-### Array Runtime Crash
+**Durum:** ✅ Çalışıyor — `numeric[]` sözdizimi kullanılmalı
 
-**Problem:** `nums[0]` segfault
+**NOT:** `array<numeric>` C++ template syntax'ı — MLP'de geçersiz, segfault verir.
 
-**Durum:** 🚫 **Critical** — Array feature broken
+```mlp
+-- ✅ DOĞRU:
+numeric[] nums = [1; 2; 3]
+print(nums[0])
+
+-- ❌ YANLIŞ (segfault!):
+array<numeric> nums = [1; 2; 3]
+```
 
 ---
 
@@ -143,6 +150,6 @@ end_while
 | `program/end_program` | ❌ Normalizer | 01 |
 | `exit` keyword | 🚫 Eksik | 07 |
 | String return type | 🚫 Bug | 09 |
-| Array runtime | 🚫 Bug | 10 |
+| Array (`numeric[]`) | ✅ Çalışıyor | 10 |
 
 **TAMAMLANDI — YZ_01 (2026-03-03)**
