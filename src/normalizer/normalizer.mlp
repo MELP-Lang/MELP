@@ -276,7 +276,7 @@ end_function
 -- CLI entry point
 -- ============================================================================
 
-function main() as numeric
+function main()
     -- Usage: normalizer <input_file> <output_file>
     string input_path = read_arg(1)
     string output_path = read_arg(2)
@@ -285,7 +285,7 @@ function main() as numeric
         print("Usage: normalizer <input.tr.mlp> <output.mlp>")
         print("       normalizer <input.ru.mlp> <output.mlp>")
         print("       Language is detected from file extension.")
-        return 1
+        return
     end_if
 
     if len(output_path) == 0 then
@@ -302,8 +302,7 @@ function main() as numeric
     boolean ok = normalize_file(input_path; output_path)
     if ok then
         print("Normalized: " + input_path + " -> " + output_path)
-        return 0
+    else
+        print("Error normalizing: " + input_path)
     end_if
-    print("Error normalizing: " + input_path)
-    return 1
 end_function

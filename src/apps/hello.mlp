@@ -1,4 +1,3 @@
-function main() -> numeric
-    print("Stage 1 başladı.")
-    return 0
+function main()
+    print("Merhaba, MELP!")
 end_function

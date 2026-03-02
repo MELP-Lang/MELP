@@ -20,22 +20,20 @@ fonksiyon faktoriyel(sayı n) olarak sayı
     döndür n * faktoriyel(n - 1)
 son_fonksiyon
 
-fonksiyon ana() olarak sayı
+fonksiyon ana()
     sayı sonuc = topla(3; 5)
-    yaz("3 + 5 = " + metin_olarak(sonuc))
+    print("3 + 5 = " + str(sonuc))
 
     sayı negatif = mutlak_deger(-42)
-    yaz("|-42| = " + metin_olarak(negatif))
+    print("|-42| = " + str(negatif))
 
     sayı f = faktoriyel(5)
-    yaz("5! = " + metin_olarak(f))
+    print("5! = " + str(f))
 
     -- Döngü örneği
     sayı i = 1
     döngü i <= 5 yap
-        yaz("Sayı: " + metin_olarak(i))
+        print("Sayı: " + str(i))
         i = i + 1
     son_döngü
-
-    döndür 0
 son_fonksiyon
