@@ -1,0 +1,69 @@
+-- lang_russian.mlp
+-- Russian keyword → canonical English .mlp translation
+--
+-- Source: stage0/v2/compiler/stage0/normalizer/configs/diller.json
+-- Extended with compound terminators.
+--
+-- Order: compound terminators FIRST, then single-word keywords.
+
+function translate_russian(source as string) as string
+    string s = source
+
+    -- -------------------------------------------------------------------------
+    -- Compound terminators (MUST come before single-word forms)
+    -- -------------------------------------------------------------------------
+    s = replace_keyword(s; "конец_функции";  "end_function")
+    s = replace_keyword(s; "конец_если";     "end_if")
+    s = replace_keyword(s; "конец_пока";     "end_while")
+    s = replace_keyword(s; "конец_для";      "end_for")
+    s = replace_keyword(s; "конец_структуры"; "end_struct")
+    s = replace_keyword(s; "конец_совпадения"; "end_match")
+    s = replace_keyword(s; "иначе_если";     "else_if")
+
+    -- -------------------------------------------------------------------------
+    -- Function / control flow keywords
+    -- -------------------------------------------------------------------------
+    s = replace_keyword(s; "функция";    "function")
+    s = replace_keyword(s; "вернуть";    "return")
+    s = replace_keyword(s; "если";       "if")
+    s = replace_keyword(s; "иначе";      "else")
+    s = replace_keyword(s; "тогда";      "then")
+    s = replace_keyword(s; "делать";     "do")
+    s = replace_keyword(s; "пока";       "while")
+    s = replace_keyword(s; "для";        "for")
+    s = replace_keyword(s; "каждый";     "each")
+    s = replace_keyword(s; "совпадение"; "match")
+    s = replace_keyword(s; "случай";     "case")
+    s = replace_keyword(s; "как";        "as")
+    s = replace_keyword(s; "импорт";     "import")
+    s = replace_keyword(s; "экспорт";    "export")
+    s = replace_keyword(s; "модуль";     "module")
+
+    -- -------------------------------------------------------------------------
+    -- Variable / type keywords
+    -- -------------------------------------------------------------------------
+    s = replace_keyword(s; "число";      "numeric")
+    s = replace_keyword(s; "строка";     "string")
+    s = replace_keyword(s; "логический"; "boolean")
+    s = replace_keyword(s; "истина";     "true")
+    s = replace_keyword(s; "ложь";       "false")
+    s = replace_keyword(s; "нуль";       "null")
+    s = replace_keyword(s; "массив";     "array")
+    s = replace_keyword(s; "список";     "list")
+    s = replace_keyword(s; "структура";  "struct")
+    s = replace_keyword(s; "класс";      "class")
+
+    -- -------------------------------------------------------------------------
+    -- Logical operators
+    -- -------------------------------------------------------------------------
+    s = replace_keyword(s; "и";          "and")
+    s = replace_keyword(s; "или";        "or")
+    s = replace_keyword(s; "не";         "not")
+
+    -- -------------------------------------------------------------------------
+    -- Block terminators (single-word, AFTER compound)
+    -- -------------------------------------------------------------------------
+    s = replace_keyword(s; "конец";      "end")
+
+    return s
+end_function

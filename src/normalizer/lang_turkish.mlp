@@ -1,0 +1,85 @@
+-- lang_turkish.mlp
+-- Turkish keyword → canonical English .mlp translation
+--
+-- Source: stage0/v2/compiler/stage0/normalizer/configs/diller.json
+-- Extended with compound terminators missing from original config.
+--
+-- Order matters: longer/compound keywords FIRST to avoid partial matches.
+-- Example: "son_fonksiyon" must be replaced before "son" → "end"
+
+function translate_turkish(source as string) as string
+    string s = source
+
+    -- -------------------------------------------------------------------------
+    -- Compound terminators (MUST come before single-word forms)
+    -- -------------------------------------------------------------------------
+    s = replace_keyword(s; "son_fonksiyon";  "end_function")
+    s = replace_keyword(s; "son_işlev";      "end_function")
+    s = replace_keyword(s; "son_eğer";       "end_if")
+    s = replace_keyword(s; "son_döngü";      "end_while")
+    s = replace_keyword(s; "son_için";       "end_for")
+    s = replace_keyword(s; "son_yapı";       "end_struct")
+    s = replace_keyword(s; "son_sınıf";      "end_class")
+    s = replace_keyword(s; "son_eşleş";      "end_match")
+    s = replace_keyword(s; "değilse_eğer";   "else_if")
+    s = replace_keyword(s; "yoksa_eğer";     "else_if")
+
+    -- -------------------------------------------------------------------------
+    -- Function / control flow keywords
+    -- -------------------------------------------------------------------------
+    s = replace_keyword(s; "fonksiyon";  "function")
+    s = replace_keyword(s; "işlev";      "function")
+    s = replace_keyword(s; "döndür";     "return")
+    s = replace_keyword(s; "dön";        "return")
+    s = replace_keyword(s; "eğer";       "if")
+    s = replace_keyword(s; "değilse";    "else")
+    s = replace_keyword(s; "yoksa";      "else")
+    s = replace_keyword(s; "sonra";      "then")
+    s = replace_keyword(s; "yap";        "do")
+    s = replace_keyword(s; "döngü";      "while")
+    s = replace_keyword(s; "için";       "for")
+    s = replace_keyword(s; "her";        "each")
+    s = replace_keyword(s; "eşleş";      "match")
+    s = replace_keyword(s; "durum";      "case")
+    s = replace_keyword(s; "olarak";     "as")
+    s = replace_keyword(s; "içe_aktar";  "import")
+    s = replace_keyword(s; "dışa_aktar"; "export")
+    s = replace_keyword(s; "modül";      "module")
+    s = replace_keyword(s; "paket";      "package")
+    s = replace_keyword(s; "al";         "import")
+
+    -- -------------------------------------------------------------------------
+    -- Variable / type keywords
+    -- -------------------------------------------------------------------------
+    s = replace_keyword(s; "değişken";   "variable")
+    s = replace_keyword(s; "sayısal";    "numeric")
+    s = replace_keyword(s; "sayı";       "numeric")
+    s = replace_keyword(s; "metin";      "string")
+    s = replace_keyword(s; "yazı";       "string")
+    s = replace_keyword(s; "mantıksal";  "boolean")
+    s = replace_keyword(s; "doğru";      "true")
+    s = replace_keyword(s; "yanlış";     "false")
+    s = replace_keyword(s; "boş";        "null")
+    s = replace_keyword(s; "hiç";        "null")
+    s = replace_keyword(s; "dizi";       "array")
+    s = replace_keyword(s; "liste";      "list")
+    s = replace_keyword(s; "yapı";       "struct")
+    s = replace_keyword(s; "sınıf";      "class")
+
+    -- -------------------------------------------------------------------------
+    -- Logical operators
+    -- -------------------------------------------------------------------------
+    s = replace_keyword(s; "ve";         "and")
+    s = replace_keyword(s; "veya";       "or")
+    s = replace_keyword(s; "değil";      "not")
+
+    -- -------------------------------------------------------------------------
+    -- Block terminators (single-word, AFTER compound)
+    -- -------------------------------------------------------------------------
+    s = replace_keyword(s; "son";        "end")
+    s = replace_keyword(s; "sonu";       "end")
+    s = replace_keyword(s; "bitir";      "end")
+    s = replace_keyword(s; "başla";      "begin")
+
+    return s
+end_function

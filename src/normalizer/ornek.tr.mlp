@@ -1,0 +1,41 @@
+-- ornek.tr.mlp
+-- Türkçe keyword'lerle yazılmış örnek program
+-- Bu dosya normalizer ile canonical .mlp'ye çevrilir
+
+fonksiyon topla(sayı a; sayı b) olarak sayı
+    döndür a + b
+son_fonksiyon
+
+fonksiyon mutlak_deger(sayı x) olarak sayı
+    eğer x < 0 sonra
+        döndür x * -1
+    son_eğer
+    döndür x
+son_fonksiyon
+
+fonksiyon faktoriyel(sayı n) olarak sayı
+    eğer n <= 1 sonra
+        döndür 1
+    son_eğer
+    döndür n * faktoriyel(n - 1)
+son_fonksiyon
+
+fonksiyon ana() olarak sayı
+    sayı sonuc = topla(3; 5)
+    yaz("3 + 5 = " + metin_olarak(sonuc))
+
+    sayı negatif = mutlak_deger(-42)
+    yaz("|-42| = " + metin_olarak(negatif))
+
+    sayı f = faktoriyel(5)
+    yaz("5! = " + metin_olarak(f))
+
+    -- Döngü örneği
+    sayı i = 1
+    döngü i <= 5 yap
+        yaz("Sayı: " + metin_olarak(i))
+        i = i + 1
+    son_döngü
+
+    döndür 0
+son_fonksiyon

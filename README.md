@@ -1,28 +1,54 @@
 # MLP Stage 1
 
 > **Stage 1:** Programs written in `.mlp`, compiled by the Stage 0 toolchain.
+> This is what we present to the community as "the MELP programming language".
 
 ---
 
 ## Stage Terminology
 
 ```
-Stage 0  ─  C++ compiler that compiles .mlp files
+Stage 0  ─  C++ compiler that compiles .mlp files  (FROZEN)
              /home/pardus/projeler/MLP/LLVM/stage0/v2/
              └── compiler/          ← C++ source (lexer, parser, codegen, OK layer)
              └── build/…/melp_compiler  ← the tool we USE here
 
-Stage 1  ─  .mlp programs (this repo)
+Stage 1  ─  .mlp programs (this repo)              (ACTIVE)
              /home/pardus/projeler/MLP/LLVM/stage1/     ← YOU ARE HERE
-             └── src/compiler/      ← MLP compiler written in .mlp  (future)
-             └── src/stdlib/        ← MLP standard library in .mlp  (future)
-             └── src/apps/          ← Sample programs in .mlp
+             └── src/normalizer/    ← keyword normalizer written in .mlp
+             └── src/stdlib/        ← standard library in .mlp
+             └── src/compiler/      ← tokenizer/lexer in .mlp (WIP)
+             └── src/apps/          ← sample programs
 
 Stage 2  ─  .mlp compiler written in .mlp (self-hosting)
-             Not started yet.
+             Not started yet.  Depends on Stage 1 being complete.
 ```
 
-The Stage 0 `compiler/` directory contains two sub-layers (`stage0/` = frontend, `stage1/` = backend/orchestrator) — both are **C++ code**, both are Stage 0. The naming inside that repo is an internal implementation detail, not the public stage numbering.
+The Stage 0 `compiler/` directory contains two sub-layers (`stage0/` = frontend,
+`stage1/` = backend/orchestrator) — both are **C++ code**, both are Stage 0.
+The naming inside that repo is an internal implementation detail.
+
+---
+
+## Architecture
+
+```
+┌──────────────────────────────────────────────────┐
+│  User Layer (Stage 1)                            │
+│                                                  │
+│  program.mlp      ← English keywords (default)  │
+│  program.tr.mlp   ← Turkish keywords            │
+│  program.ru.mlp   ← Russian keywords            │
+│                                                  │
+│  Normalizer: src/normalizer/normalizer.mlp       │
+│  Runs automatically for .tr.mlp / .ru.mlp files  │
+└───────────────────┬──────────────────────────────┘
+                    │ canonical .mlp
+┌───────────────────▼──────────────────────────────┐
+│  Stage 0 Compiler (FROZEN)                       │
+│  Speaks only canonical .mlp                      │
+└──────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -52,16 +78,36 @@ make test
 
 ```
 stage1/
+├── STAGE1_PLAN.md       ← development roadmap
 ├── Makefile             ← build system
 ├── src/
-│   ├── apps/            ← standalone .mlp programs
-│   │   └── hello.mlp
-│   ├── compiler/        ← MLP compiler written in .mlp (self-hosting goal)
-│   │   └── lexer.mlp    ← tokenizer (WIP — has known bugs)
-│   ├── stdlib/          ← standard library in .mlp (planned)
-│   └── ok/              ← OK layer in .mlp (planned)
+│   ├── normalizer/      ← Phase 1: keyword/syntax normalizer (ACTIVE)
+│   │   ├── normalizer.mlp    ← core logic
+│   │   ├── lang_turkish.mlp  ← Turkish keyword map
+│   │   ├── lang_russian.mlp  ← Russian keyword map
+│   │   └── ornek.tr.mlp      ← example Turkish program
+│   ├── stdlib/          ← Phase 2: standard library (planned)
+│   ├── compiler/        ← Phase 3: lexer.mlp (WIP, has bugs)
+│   │   └── lexer.mlp
+│   └── apps/            ← Phase 4: sample programs
+│       └── hello.mlp
 └── build/               ← compiled LLVM IR output (.ll files)
 ```
+
+---
+
+## Roadmap
+
+| Phase | Goal | Status |
+|-------|------|--------|
+| 0 | `hello.mlp` runs | ✅ Done |
+| 1 | `normalizer.mlp` — keyword normalizer in .mlp | 🔧 WIP |
+| 2 | `stdlib/` — math, string, io, test modules | 🔴 Not started |
+| 3 | `lexer.mlp` fix — resolve 3 known bugs | 🔴 Not started |
+| 4 | `apps/` — fibonacci, calculator, wordcount | 🔴 Not started |
+| 5 | Stage 2 bootstrap — new compiler in .mlp | 🔴 Future |
+
+For the full plan see [STAGE1_PLAN.md](STAGE1_PLAN.md).
 
 ---
 
@@ -71,23 +117,21 @@ stage1/
   **Fix:** rename to `tokenize_test` or similar.
 - `else then` is not valid syntax — use `else` without `then`.
   **Fix:** replace all `else then` with `else`.
-- `-> numeric` (arrow return type) works in the compiler but `as numeric` is the canonical form.
+- `-> numeric` (arrow return type) works but `as numeric` is the canonical form.
 - Deep nested `if/else` chains (40+ levels) cause stack overflow in `lli`.
-  **Fix:** restructure using early returns or data tables.
-- Segfault in `lli` when running the full lexer — root cause: `strcmp` segfault from deep call stack.
+  **Fix:** restructure using early returns or lookup tables.
 
 ---
 
-## Stage 1 Roadmap
+## Stage 0 Bugs Affecting Stage 1
 
-| Phase | Goal | Status |
-|-------|------|--------|
-| 1 | `hello.mlp` runs | ✅ Done |
-| 2 | `lexer.mlp` — tokenizer in MLP | 🔧 WIP (segfault) |
-| 3 | `parser.mlp` — parser in MLP | 🔴 Not started |
-| 4 | `stdlib/` — string, math, io modules | 🔴 Not started |
-| 5 | `ok/` — OK layer in MLP | 🔴 Not started |
-| 6 | Self-hosting: compile stage1 with stage1 | 🔴 Future |
+These are frozen in Stage 0 and must be worked around:
+
+| ID | Bug | Workaround |
+|----|-----|------------|
+| B1 | `struct { field as string }` → LLVM error | Use parallel arrays instead of struct-of-strings |
+| B2 | `MyType[] arr = [a; b]` → Parser error | Use numeric arrays only |
+| B3 | Function returning struct → garbage value | Avoid returning structs |
 
 ---
 
