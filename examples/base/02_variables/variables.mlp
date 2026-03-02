@@ -1,0 +1,50 @@
+-- GÖREV 02: variables
+-- Türkçe ondalık format (virgül), tüm tipleri test et
+
+function main()
+    -- numeric tanımlamalar
+    numeric integer_val = 42
+    numeric decimal_val = 3,14
+    numeric big_num = 1.000.000
+
+    -- string tanımlamalar
+    string text1 = "Merhaba"
+    string text2 = "MELP"
+
+    -- boolean tanımlamalar
+    boolean flag1 = true
+    boolean flag2 = false
+
+    -- Çıktı: Tüm değerleri göster
+    print("Integer: ")
+    print(integer_val)
+
+    print("Decimal: ")
+    print(decimal_val)
+
+    print("Big Number: ")
+    print(big_num)
+
+    print("String 1: ")
+    print(text1)
+
+    print("String 2: ")
+    print(text2)
+
+    print("Boolean 1: ")
+    print(flag1)
+
+    print("Boolean 2: ")
+    print(flag2)
+
+    -- Atama kurallarını test et (sonraki atama - noktalı virgül YASAK)
+    integer_val = 100
+    decimal_val = 2,71
+    text1 = "Selam"
+
+    print("After reassignment:")
+    print(integer_val)
+    print(decimal_val)
+    print(text1)
+
+end_function
