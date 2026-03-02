@@ -1,0 +1,45 @@
+-- GÖREV 09: functions
+-- Fonksiyonlar: parametreli, dönüş değerli, rekürsif
+
+function add(numeric x; numeric y) as numeric
+    return x + y
+end_function
+
+function is_even(numeric n) as boolean
+    numeric remainder = n mod 2
+    if remainder == 0 then
+        return true
+    else
+        return false
+    end_if
+end_function
+
+function factorial(numeric n) as numeric
+    if n <= 1 then
+        return 1
+    else
+        numeric prev = factorial(n - 1)
+        return n * prev
+    end_if
+end_function
+
+function print_message(string msg)
+    print(msg)
+end_function
+
+function main()
+    -- Parametreli fonksiyon
+    numeric sum = add(10; 20)
+    print(sum)
+
+    -- Boolean dönüş
+    boolean even = is_even(4)
+    print(even)
+
+    -- Rekürsif fonksiyon (5! = 120)
+    numeric fact = factorial(5)
+    print(fact)
+
+    -- String parametreli void fonksiyon
+    print_message("Function test")
+end_function

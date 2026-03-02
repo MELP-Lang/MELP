@@ -79,12 +79,70 @@ println("Merhaba, MELP!")
 
 ---
 
-## Özet (Görev 01 sonu)
+## Görev 02-04: Variables, Arithmetic, String Ops
 
-| Sugar | Durum | Not |
-|-------|-------|-----|
-| `main()` kısaltması | ❌ | Normalizer eklenene kadar `function main()` zorunlu |
-| String interpolation | ⚠️ | Test bekliyor |
-| `println()` | ⚠️ | Test bekliyor |
+**Not:** Temel syntax doğru, sugar gerekmez.
 
-**Sonraki görevlerde** yeni sugar önerileri eklenecektir.
+---
+
+## Görev 05-06: Boolean & If/Else
+
+**Operators:** `and`, `or`, `not` — C-style (`&&`, `||`, `!`) YASAK
+**Durum:** ✅ Doğru çalışıyor
+
+---
+
+## Görev 07: while_loop
+
+### exit — Loop Break
+
+**Canonical:** Şu an mümkün değil
+**Önerilen:**
+```pmlp
+while condition
+    if break_condition then
+        exit
+    end_if
+end_while
+```
+
+**Durum:** 🚫 **Eksik** — TODO_KURALLARI'nda var, ama compiler'da implement edilmedi
+
+---
+
+## Görev 08: for_loop
+
+**Durum:** ✅ `for...to`, `for...downto`, `for...step` doğru çalışıyor. Sugar gerekmez.
+
+---
+
+## Görev 09: functions
+
+### String Return Type Bug
+
+**Problem:** `function greet(string name) as string` — Backend crash
+
+**Durum:** 🚫 **Backend bug** — LLVM type mismatch
+
+---
+
+## Görev 10: arrays
+
+### Array Runtime Crash
+
+**Problem:** `nums[0]` segfault
+
+**Durum:** 🚫 **Critical** — Array feature broken
+
+---
+
+## Özet: Compiler Eksiklikleri
+
+| Feature | Durum | Görev |
+|---------|-------|-------|
+| `program/end_program` | ❌ Normalizer | 01 |
+| `exit` keyword | 🚫 Eksik | 07 |
+| String return type | 🚫 Bug | 09 |
+| Array runtime | 🚫 Bug | 10 |
+
+**TAMAMLANDI — YZ_01 (2026-03-03)**

@@ -1,0 +1,40 @@
+-- GÖREV 05: boolean_logic
+-- Boolean operatörleri: and, or, not
+
+function main()
+    boolean t = true
+    boolean f = false
+
+    -- AND
+    boolean and_tt = t and t
+    print(and_tt)
+
+    boolean and_tf = t and f
+    print(and_tf)
+
+    -- OR
+    boolean or_tf = t or f
+    print(or_tf)
+
+    boolean or_ff = f or f
+    print(or_ff)
+
+    -- NOT
+    boolean not_t = not t
+    print(not_t)
+
+    boolean not_f = not f
+    print(not_f)
+
+    -- Comparison
+    numeric x = 10
+    numeric y = 5
+    boolean cmp_eq = x == y
+    print(cmp_eq)
+
+    boolean cmp_gt = x > y
+    print(cmp_gt)
+
+    boolean cmp_le = x <= y
+    print(cmp_le)
+end_function

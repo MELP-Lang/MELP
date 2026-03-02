@@ -1,8 +1,4 @@
--- GÖREV 01: hello_world (sugar syntax versiyonu)
--- Beklenen çıktı: Merhaba, MELP!
--- Not: Compiler şu an string interpolation desteklemiyor
--- Bu dosya canonical syntax ile yazılmıştır (sugar syntax gerekiyorsa normalizer eklenecek)
-
-function main()
+-- SUGAR REFERANS (normalizer gerektirir, henüz derlenemez)
+program
     print("Merhaba, MELP!")
-end_function
+end_program

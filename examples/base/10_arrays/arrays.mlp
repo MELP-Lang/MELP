@@ -1,0 +1,12 @@
+-- GÖREV 10: arrays
+-- Dizi tanımlama ve basit işlemler
+
+function main()
+    -- Numeric array
+    array<numeric> nums = [1; 2; 3; 4; 5]
+
+    -- Dizi elemanlarına erişim
+    print(nums[0])
+    print(nums[2])
+    print(nums[4])
+end_function
