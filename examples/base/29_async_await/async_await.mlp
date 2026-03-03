@@ -1,0 +1,8 @@
+function fetch_data() as numeric
+    return 200
+end_function
+
+function main()
+    numeric data = fetch_data()
+    print(data)
+end_function

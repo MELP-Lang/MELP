@@ -1,0 +1,8 @@
+function greet(numeric n) as numeric
+    return n + 1
+end_function
+
+function main()
+    numeric result = greet(10)
+    print(result)
+end_function

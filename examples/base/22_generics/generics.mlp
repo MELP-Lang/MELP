@@ -1,0 +1,10 @@
+function apply_twice(numeric n) as numeric
+    return n * 2
+end_function
+
+function main()
+    numeric a = apply_twice(5)
+    print(a)
+    numeric b = apply_twice(10)
+    print(b)
+end_function

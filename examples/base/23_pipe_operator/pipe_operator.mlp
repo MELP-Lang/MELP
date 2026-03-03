@@ -1,0 +1,14 @@
+function double(numeric n) as numeric
+    return n * 2
+end_function
+
+function add_ten(numeric n) as numeric
+    return n + 10
+end_function
+
+function main()
+    numeric a = 5
+    numeric b = double(a)
+    numeric c = add_ten(b)
+    print(c)
+end_function

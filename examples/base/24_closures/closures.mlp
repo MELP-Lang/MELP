@@ -1,0 +1,12 @@
+function make_counter() as numeric
+    numeric counter = 0
+    counter = counter + 1
+    return counter
+end_function
+
+function main()
+    numeric c1 = make_counter()
+    numeric c2 = make_counter()
+    print(c1)
+    print(c2)
+end_function

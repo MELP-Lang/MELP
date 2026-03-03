@@ -1,0 +1,14 @@
+-- GÖREV 21: interfaces
+
+function dispatch(numeric val) as numeric
+    if val == 0 then
+        return 10
+    else
+        return 20
+    end_if
+end_function
+
+function main()
+    print(dispatch(0))
+    print(dispatch(1))
+end_function

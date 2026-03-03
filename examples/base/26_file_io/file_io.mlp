@@ -1,0 +1,9 @@
+function read_data() as numeric
+    numeric value = 100
+    return value
+end_function
+
+function main()
+    numeric d = read_data()
+    print(d)
+end_function

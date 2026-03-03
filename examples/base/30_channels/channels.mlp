@@ -1,0 +1,8 @@
+function send_message(numeric msg) as numeric
+    return msg
+end_function
+
+function main()
+    numeric m = send_message(42)
+    print(m)
+end_function

@@ -1,0 +1,10 @@
+function process() as numeric
+    numeric result = 42
+    print(result)
+    return result
+end_function
+
+function main()
+    numeric r = process()
+    print(r)
+end_function
