@@ -1,0 +1,29 @@
+-- GÖREV 16: pattern_matching
+-- Match-case yapısı ile pattern matching
+
+function describe_number(numeric n) as numeric
+    match n
+        case 1 then return 100
+        case 2 then return 200
+        case 3 then return 300
+        else return 0
+    end_match
+end_function
+
+function main()
+    numeric x = 1
+    numeric y = 2
+    numeric z = 5
+
+    print(describe_number(x))
+    print(describe_number(y))
+    print(describe_number(z))
+
+    -- Match-case ile kontrol
+    numeric result = match y
+        case 1 then 10
+        case 2 then 20
+        else 0
+    end_match
+    print(result)
+end_function

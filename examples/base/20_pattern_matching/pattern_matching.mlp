@@ -1,0 +1,48 @@
+-- GÖREV 20: pattern_matching
+-- Match-case ile pattern matching
+
+function classify_age(numeric age) as numeric
+    match age
+        case 0 then return 1
+        case 1 then return 1
+        case 5 then return 2
+        case 9 then return 3
+        else return 0
+    end_match
+end_function
+
+function check_range(numeric n) as numeric
+    match n
+        case 1 then return 10
+        case 2 then return 20
+        case 3 then return 30
+        case 4 then return 40
+        case 5 then return 50
+        else return 0
+    end_match
+end_function
+
+function main()
+    -- Simple pattern matching
+    numeric age1 = 0
+    print(classify_age(age1))
+
+    numeric age2 = 5
+    print(classify_age(age2))
+
+    numeric age3 = 9
+    print(classify_age(age3))
+
+    numeric age4 = 10
+    print(classify_age(age4))
+
+    -- Range matching
+    numeric val1 = check_range(2)
+    print(val1)
+
+    numeric val2 = check_range(5)
+    print(val2)
+
+    numeric val3 = check_range(10)
+    print(val3)
+end_function

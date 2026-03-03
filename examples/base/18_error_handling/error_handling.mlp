@@ -1,0 +1,49 @@
+-- GÖREV 18: error_handling
+-- Basit hata işleme (Result pattern ile)
+
+function divide(numeric a; numeric b) as numeric
+    if b == 0 then
+        return 0  -- hata durumu
+    else
+        return a / b
+    end_if
+end_function
+
+function safe_parse(numeric val) as numeric
+    if val < 0 then
+        return 0  -- hata: negatif
+    else
+        return val
+    end_if
+end_function
+
+function main()
+    -- Başarılı işlem
+    numeric r1 = divide(10; 2)
+    print(r1)
+
+    -- Hata durumu (0 dönüş)
+    numeric r2 = divide(10; 0)
+    if r2 == 0 then
+        print(0)
+    end_if
+
+    -- Safe parse başarılı
+    numeric p1 = safe_parse(42)
+    print(p1)
+
+    -- Safe parse hata
+    numeric p2 = safe_parse(-5)
+    if p2 == 0 then
+        print(0)
+    end_if
+
+    -- Cascade kontrol
+    numeric a = divide(100; 5)
+    if not (a == 0) then
+        numeric b = divide(a; 2)
+        if not (b == 0) then
+            print(b)
+        end_if
+    end_if
+end_function
