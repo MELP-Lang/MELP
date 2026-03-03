@@ -1,0 +1,16 @@
+struct Todo
+    numeric id
+    numeric done
+end_struct
+
+function main()
+    Todo t1
+    t1.id = 1
+    t1.done = 0
+    print(t1.id)
+
+    Todo t2
+    t2.id = 2
+    t2.done = 1
+    print(t2.id)
+end_function

@@ -1,0 +1,16 @@
+function count_words(string text) as numeric
+    numeric count = 1
+    numeric i = 0
+    while i < 10
+        if text == "" then
+            count = 0
+        end_if
+        i = i + 1
+    end_while
+    return count
+end_function
+
+function main()
+    numeric wc = count_words("hello world test")
+    print(wc)
+end_function

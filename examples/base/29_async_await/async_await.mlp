@@ -1,8 +1,24 @@
-function fetch_data() as numeric
-    return 200
+-- FEATURE: ASYNC_AWAIT - Asenkron fonksiyon
+-- NOT: Stage0'da async = sync pass-through (Phase 7 — gerçek async yok)
+-- async keyword parse + compile ediliyor, await gelecekte
+
+async function fetch_data(numeric id) as numeric
+    -- Şu an senkron çalışıyor
+    return id * 10
+end_function
+
+async function process(numeric val) as numeric
+    numeric data = fetch_data(val)
+    return data + 1
 end_function
 
 function main()
-    numeric data = fetch_data()
-    print(data)
+    numeric r1 = fetch_data(5)
+    print(r1)
+
+    numeric r2 = fetch_data(20)
+    print(r2)
+
+    numeric r3 = process(3)
+    print(r3)
 end_function

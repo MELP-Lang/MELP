@@ -1,14 +1,43 @@
--- GÖREV 21: interfaces
+-- FEATURE: INTERFACES - Arayüz tanımı ve implementasyon
+-- NOT: Dinamik dispatch Stage0'da TODO — statik method call çalışıyor
 
-function dispatch(numeric val) as numeric
-    if val == 0 then
-        return 10
-    else
-        return 20
-    end_if
+interface Drawable
+    function draw() as numeric
+end_interface
+
+struct Circle implements Drawable
+    numeric radius
+end_struct
+
+struct Rectangle implements Drawable
+    numeric width
+    numeric height
+end_struct
+
+function Circle.draw() as numeric
+    numeric r = this.radius
+    return r
+end_function
+
+function Rectangle.draw() as numeric
+    numeric w = this.width
+    return w
+end_function
+
+function Rectangle.area() as numeric
+    numeric w = this.width
+    numeric h = this.height
+    return w * h
 end_function
 
 function main()
-    print(dispatch(0))
-    print(dispatch(1))
+    Circle c
+    c.radius = 5
+    print(c.draw())
+
+    Rectangle r
+    r.width = 10
+    r.height = 4
+    print(r.draw())
+    print(r.area())
 end_function

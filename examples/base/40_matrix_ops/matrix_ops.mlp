@@ -1,0 +1,23 @@
+function matrix_add() as numeric
+    numeric a11 = 1
+    numeric a12 = 2
+    numeric a21 = 3
+    numeric a22 = 4
+
+    numeric b11 = 5
+    numeric b12 = 6
+    numeric b21 = 7
+    numeric b22 = 8
+
+    numeric c11 = a11 + b11
+    numeric c12 = a12 + b12
+    numeric c21 = a21 + b21
+    numeric c22 = a22 + b22
+
+    return c11
+end_function
+
+function main()
+    numeric result = matrix_add()
+    print(result)
+end_function

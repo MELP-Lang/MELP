@@ -1,8 +1,39 @@
-function add(numeric a; numeric b) as numeric
-    return a + b
+-- FEATURE: OPERATOR_OVERLOAD - Struct için operator tanımı
+-- NOT: function Struct.operator+(other) syntax Stage0'da parse error
+-- Workaround: named method kullan
+
+struct Vector
+    numeric x
+    numeric y
+end_struct
+
+-- operator+ desteklenmiyor (B6: parse error "Expected method name after '.'")
+-- Workaround: named method
+function Vector.add(Vector other) as numeric
+    numeric rx = this.x + other.x
+    return rx
+end_function
+
+function Vector.length_sq() as numeric
+    numeric x = this.x
+    numeric y = this.y
+    return x * x + y * y
 end_function
 
 function main()
-    numeric result = add(15; 25)
-    print(result)
+    Vector a
+    a.x = 3
+    a.y = 4
+
+    Vector b
+    b.x = 1
+    b.y = 2
+
+    -- Named method (operator+ workaround)
+    numeric rx = a.add(b)
+    print(rx)
+
+    -- length squared
+    numeric lsq = a.length_sq()
+    print(lsq)
 end_function

@@ -1,10 +1,18 @@
-function process() as numeric
-    numeric result = 42
-    print(result)
-    return result
+-- FEATURE: DEFER - Geciktirilen işlem (fonksiyon bitiminde çalışır)
+-- NOT: Stage0 defer parse ediliyor ama LIFO semantiği yok — sadece kod üretiliyor
+
+function open_resource() as numeric
+    print("kaynak acildi")
+    return 1
 end_function
 
 function main()
-    numeric r = process()
-    print(r)
+    -- defer: blok sonunda çalışır
+    defer print("defer-2: son temizlik")
+    defer print("defer-1: kaynak kapatildi")
+
+    numeric r = open_resource()
+    print("islem yapiliyor")
+    print("islem tamam")
+    -- defer'lar burada çalışır (sıra Stage0'da garantili değil)
 end_function

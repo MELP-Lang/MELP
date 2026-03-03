@@ -1,0 +1,35 @@
+-- GÖREV 31: fibonacci
+-- İteratif ve rekürsif fibonacci
+
+function fib_iterative(numeric n) as numeric
+    if n <= 1 then
+        return n
+    end_if
+
+    numeric a = 0
+    numeric b = 1
+    numeric i = 2
+
+    while i <= n
+        numeric temp = a + b
+        a = b
+        b = temp
+        i = i + 1
+    end_while
+
+    return b
+end_function
+
+function fib_recursive(numeric n) as numeric
+    if n <= 1 then
+        return n
+    else
+        return fib_recursive(n - 1) + fib_recursive(n - 2)
+    end_if
+end_function
+
+function main()
+    print(fib_iterative(10))
+    print(fib_iterative(20))
+    print(fib_recursive(10))
+end_function

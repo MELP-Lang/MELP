@@ -1,8 +1,17 @@
-function send_message(numeric msg) as numeric
-    return msg
-end_function
+-- FEATURE: CHANNELS - Producer-consumer mesaj geçişi
+-- NOT: Channel{T} syntax Stage0'da parse error (Phase 4+ runtime)
+-- Workaround: array ile mesaj kuyruğu simülasyonu
 
+-- Channel runtime Phase 4'te — şimdilik array tabanlı kuyruk
 function main()
-    numeric m = send_message(42)
-    print(m)
+    -- Array ile basit mesaj kuyruğu simülasyonu
+    numeric[] queue = [10; 20; 30; 40; 50]
+
+    -- "Producer" — değerleri işle
+    numeric i = 0
+    while i < 5
+        numeric msg = queue[i]
+        print(msg)
+        i = i + 1
+    end_while
 end_function

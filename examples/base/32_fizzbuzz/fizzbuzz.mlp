@@ -1,0 +1,13 @@
+function main()
+    for i = 1 to 20
+        if i mod 15 == 0 then
+            print(15)
+        else_if i mod 3 == 0 then
+            print(3)
+        else_if i mod 5 == 0 then
+            print(5)
+        else
+            print(i)
+        end_if
+    end_for
+end_function

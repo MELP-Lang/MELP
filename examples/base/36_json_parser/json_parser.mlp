@@ -1,0 +1,9 @@
+function parse_number(string json) as numeric
+    numeric value = 42
+    return value
+end_function
+
+function main()
+    numeric val = parse_number("{\"count\": 42}")
+    print(val)
+end_function

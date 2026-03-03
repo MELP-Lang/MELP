@@ -1,0 +1,95 @@
+-- FEATURE: STRUCT - Data structures
+-- TASK: Demonstrate struct definition, field access, and struct methods
+--
+-- Stage0 B4 kısıtlaması: str(p.x) — builtin arg olarak member access desteklemiyor
+-- Workaround: print(field) doğrudan kullanılabilir
+
+-- Simple struct - Point
+struct Point
+    numeric x
+    numeric y
+end_struct
+
+-- Simple struct - Color
+struct Color
+    numeric r
+    numeric g
+    numeric b
+end_struct
+
+-- Struct - Rectangle
+struct Rectangle
+    numeric x
+    numeric y
+    numeric width
+    numeric height
+end_struct
+
+-- Method for Rectangle (external definition)
+-- Stage0 B4: this.a * this.b doğrudan kullanılamaz — local var gerekli
+function Rectangle.area() as numeric
+    numeric w = this.width
+    numeric h = this.height
+    return w * h
+end_function
+
+function Rectangle.perimeter() as numeric
+    numeric w = this.width
+    numeric h = this.height
+    return 2 * (w + h)
+end_function
+
+-- Main function
+function main()
+    -- Test 1: Simple struct - Point
+    Point p1
+    p1.x = 10
+    p1.y = 20
+    print("Point p1:")
+    print(p1.x)
+    print(p1.y)
+
+    -- Test 2: Another Point
+    Point p2
+    p2.x = 5
+    p2.y = 15
+    print("Point p2:")
+    print(p2.x)
+    print(p2.y)
+
+    -- Test 3: Color struct
+    Color c1
+    c1.r = 255
+    c1.g = 128
+    c1.b = 64
+    print("Color c1:")
+    print(c1.r)
+    print(c1.g)
+    print(c1.b)
+
+    -- Test 4: Rectangle struct with methods
+    Rectangle rect
+    rect.x = 0
+    rect.y = 0
+    rect.width = 100
+    rect.height = 50
+    numeric area = rect.area()
+    numeric perim = rect.perimeter()
+    print("Rectangle area:")
+    print(area)
+    print("Rectangle perimeter:")
+    print(perim)
+
+    -- Test 5: Second rectangle
+    Rectangle rect2
+    rect2.x = 10
+    rect2.y = 20
+    rect2.width = 30
+    rect2.height = 40
+    numeric a2 = rect2.area()
+    numeric pe2 = rect2.perimeter()
+    print("Rectangle2 area:")
+    print(a2)
+    print("Rectangle2 perimeter:")
+    print(pe2)
+end_function

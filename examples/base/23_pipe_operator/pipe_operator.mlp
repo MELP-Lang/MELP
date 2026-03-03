@@ -1,3 +1,7 @@
+-- FEATURE: PIPE_OPERATOR - |> zinciri ile veri dönüşüm pipeline
+-- Syntax: x |> f |> g  →  g(f(x))
+-- NOT: f() parantez olmadan yazılmalı
+
 function double(numeric n) as numeric
     return n * 2
 end_function
@@ -6,9 +10,24 @@ function add_ten(numeric n) as numeric
     return n + 10
 end_function
 
+function square(numeric n) as numeric
+    return n * n
+end_function
+
+function negate(numeric n) as numeric
+    return 0 - n
+end_function
+
 function main()
-    numeric a = 5
-    numeric b = double(a)
-    numeric c = add_ten(b)
-    print(c)
+    -- 5 → double → 10 → add_ten → 20
+    numeric r1 = 5 |> double |> add_ten
+    print(r1)
+
+    -- 3 → square → 9 → add_ten → 19
+    numeric r2 = 3 |> square |> add_ten
+    print(r2)
+
+    -- 5 → double → 10 → double → 20 → add_ten → 30
+    numeric r3 = 5 |> double |> double |> add_ten
+    print(r3)
 end_function

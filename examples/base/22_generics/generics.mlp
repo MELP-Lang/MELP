@@ -1,10 +1,21 @@
-function apply_twice(numeric n) as numeric
-    return n * 2
+-- FEATURE: GENERICS - Generic fonksiyon
+-- NOT: Monomorphization Stage0'da TODO — type-erased çalışıyor
+
+function identity<T>(T value) as T
+    return value
+end_function
+
+function double_val<T>(T value) as T
+    return value * 2
 end_function
 
 function main()
-    numeric a = apply_twice(5)
-    print(a)
-    numeric b = apply_twice(10)
-    print(b)
+    numeric x = identity<numeric>(42)
+    print(x)
+
+    numeric y = double_val<numeric>(21)
+    print(y)
+
+    numeric z = identity<numeric>(100)
+    print(z)
 end_function

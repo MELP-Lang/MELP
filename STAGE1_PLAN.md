@@ -129,6 +129,7 @@ These bugs exist in Stage 0 (frozen) and may affect Stage 1 development:
 | B1 | `struct { value as string }` → LLVM Verification Error | Avoid string fields in structs |
 | B2 | `Token[] tokens = [t1; t2]` → Parser error | Use numeric arrays only |
 | B3 | Function returning struct → garbage value | Avoid struct return values |
+| B4 | `parsePrimary` sınırı — 3 durum: (1) `this.a * this.b` binary expr, (2) `str(p.x)` builtin arg, (3) `rect.nested.x = 0` 2-level member assign | (1,2) local var kullan; (3) nested struct'ı flat tut |
 
 > If these bugs are fixed in a future Stage 0 patch (v2.1), Stage 1 can be updated accordingly.
 

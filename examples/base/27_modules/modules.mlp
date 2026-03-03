@@ -1,8 +1,25 @@
-function greet(numeric n) as numeric
-    return n + 1
+-- FEATURE: MODULES - export fonksiyon
+-- NOT: import ./module Stage0'da tek dosya scope'unda çalışıyor
+-- Multi-file import Phase 2'de — şimdilik export keyword test ediliyor
+
+export function add(numeric a; numeric b) as numeric
+    return a + b
+end_function
+
+export function multiply(numeric a; numeric b) as numeric
+    return a * b
+end_function
+
+export function max_val(numeric a; numeric b) as numeric
+    if a > b then
+        return a
+    end_if
+    return b
 end_function
 
 function main()
-    numeric result = greet(10)
-    print(result)
+    print(add(3; 4))
+    print(multiply(6; 7))
+    print(max_val(10; 25))
+    print(max_val(99; 3))
 end_function
