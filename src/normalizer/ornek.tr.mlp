@@ -1,39 +1,40 @@
 -- ornek.tr.mlp
 -- Türkçe keyword'lerle yazılmış örnek program
 -- Bu dosya normalizer ile canonical .mlp'ye çevrilir
+-- Kanonik bitiş stili: KEYWORD_sonu
 
-fonksiyon topla(sayı a; sayı b) olarak sayı
+fonksiyon topla(sayısal a; sayısal b) olarak sayısal
     döndür a + b
-son_fonksiyon
+fonksiyon_sonu
 
-fonksiyon mutlak_deger(sayı x) olarak sayı
+fonksiyon mutlak_deger(sayısal x) olarak sayısal
     eğer x < 0 sonra
         döndür x * -1
-    son_eğer
+    eğer_sonu
     döndür x
-son_fonksiyon
+fonksiyon_sonu
 
-fonksiyon faktoriyel(sayı n) olarak sayı
+fonksiyon faktoriyel(sayısal n) olarak sayısal
     eğer n <= 1 sonra
         döndür 1
-    son_eğer
+    eğer_sonu
     döndür n * faktoriyel(n - 1)
-son_fonksiyon
+fonksiyon_sonu
 
 fonksiyon ana()
-    sayı sonuc = topla(3; 5)
+    sayısal sonuc = topla(3; 5)
     print("3 + 5 = " + str(sonuc))
 
-    sayı negatif = mutlak_deger(-42)
+    sayısal negatif = mutlak_deger(-42)
     print("|-42| = " + str(negatif))
 
-    sayı f = faktoriyel(5)
+    sayısal f = faktoriyel(5)
     print("5! = " + str(f))
 
     -- Döngü örneği
-    sayı i = 1
-    döngü i <= 5 yap
+    sayısal i = 1
+    döngü i <= 5
         print("Sayı: " + str(i))
         i = i + 1
-    son_döngü
-son_fonksiyon
+    döngü_sonu
+fonksiyon_sonu

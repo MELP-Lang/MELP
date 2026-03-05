@@ -1,39 +1,50 @@
 -- lang_turkish.mlp
--- Turkish keyword → canonical English .mlp translation
+-- Türkçe keyword → canonical English .mlp çevirisi
 --
--- Source: stage0/v2/compiler/stage0/normalizer/configs/diller.json
--- Extended with compound terminators missing from original config.
+-- Kanonik Türkçe sözdizimi: docs_TR/sozdizimi.md
+-- Kanonik bitiş stili: KEYWORD_sonu (fonksiyon_sonu, eğer_sonu, döngü_sonu, ...)
+-- Alternatif formlar da kabul edilir (son_fonksiyon vb.)
 --
--- Order matters: longer/compound keywords FIRST to avoid partial matches.
--- Example: "son_fonksiyon" must be replaced before "son" → "end"
+-- Sıra kuralı: bileşik/uzun keyword'ler ÖNCE gelir (kısa formlardan önce).
 
 function translate_turkish(source as string) as string
     string s = source
 
     -- -------------------------------------------------------------------------
-    -- Compound terminators (MUST come before single-word forms)
+    -- Bileşik bitiş keyword'leri (kısa formlardan ÖNCE gelmeli)
+    -- Kanonik: KEYWORD_sonu stili
     -- -------------------------------------------------------------------------
-    s = replace_keyword(s; "son_fonksiyon";  "end_function")
     s = replace_keyword(s; "fonksiyon_sonu"; "end_function")
-    s = replace_keyword(s; "son_işlev";      "end_function")
     s = replace_keyword(s; "işlev_sonu";     "end_function")
+    s = replace_keyword(s; "eğer_sonu";      "end_if")
+    s = replace_keyword(s; "döngü_sonu";     "end_while")
+    s = replace_keyword(s; "için_sonu";      "end_for")
+    s = replace_keyword(s; "yapı_sonu";      "end_struct")
+    s = replace_keyword(s; "sınıf_sonu";     "end_class")
+    s = replace_keyword(s; "eşleş_sonu";     "end_match")
+
+    -- Alternatif: son_KEYWORD stili (geriye uyumluluk)
+    s = replace_keyword(s; "son_fonksiyon";  "end_function")
+    s = replace_keyword(s; "son_işlev";      "end_function")
     s = replace_keyword(s; "son_eğer";       "end_if")
     s = replace_keyword(s; "son_döngü";      "end_while")
     s = replace_keyword(s; "son_için";       "end_for")
     s = replace_keyword(s; "son_yapı";       "end_struct")
     s = replace_keyword(s; "son_sınıf";      "end_class")
     s = replace_keyword(s; "son_eşleş";      "end_match")
+
+    -- Alternatif else_if formları
     s = replace_keyword(s; "değilse_eğer";   "else_if")
     s = replace_keyword(s; "yoksa_eğer";     "else_if")
 
     -- -------------------------------------------------------------------------
-    -- Function / control flow keywords
-    -- Siralama kurali: uzun/bileşik → kisa/tek; örn. "döngü" önce, "dön" sonra
+    -- Kontrol akışı keyword'leri
+    -- Sıra: uzun/bileşik önce, kısa/tek sonra
     -- -------------------------------------------------------------------------
     s = replace_keyword(s; "fonksiyon";  "function")
     s = replace_keyword(s; "işlev";      "function")
     s = replace_keyword(s; "döndür";     "return")
-    s = replace_keyword(s; "döngü";      "while")    -- döngü önce, dön sonra!
+    s = replace_keyword(s; "döngü";      "while")
     s = replace_keyword(s; "dön";        "return")
     s = replace_keyword(s; "eğer";       "if")
     s = replace_keyword(s; "değilse";    "else")
@@ -48,16 +59,13 @@ function translate_turkish(source as string) as string
     s = replace_keyword(s; "dışa_aktar"; "export")
     s = replace_keyword(s; "modül";      "module")
     s = replace_keyword(s; "paket";      "package")
-    -- NOT: "al → import" kaldirildi: 2 karakterli keyword substring false match yapar
-    -- "içe_aktar" zaten import'u kapsiyor.
 
     -- -------------------------------------------------------------------------
-    -- Variable / type keywords
-    -- Siralama kurali: uzun önce, kisa sonra (örn. "sayısal" önce, "sayı" sonra)
-    --                  "yapı" önce, "yap" sonra
+    -- Veri tipi keyword'leri
+    -- Sıra: uzun önce (sayısal → sayı, yapı → yap)
     -- -------------------------------------------------------------------------
     s = replace_keyword(s; "değişken";   "variable")
-    s = replace_keyword(s; "sayısal";    "numeric")   -- sayısal önce, sayı sonra
+    s = replace_keyword(s; "sayısal";    "numeric")
     s = replace_keyword(s; "sayı";       "numeric")
     s = replace_keyword(s; "metin";      "string")
     s = replace_keyword(s; "yazı";       "string")
@@ -68,24 +76,16 @@ function translate_turkish(source as string) as string
     s = replace_keyword(s; "hiç";        "null")
     s = replace_keyword(s; "dizi";       "array")
     s = replace_keyword(s; "liste";      "list")
-    s = replace_keyword(s; "yapı";       "struct")    -- yapı önce, yap sonra
+    s = replace_keyword(s; "yapı";       "struct")
     s = replace_keyword(s; "sınıf";      "class")
-    s = replace_keyword(s; "yap";        "")          -- en son: çok kısa keyword
+    s = replace_keyword(s; "yap";        "")
 
     -- -------------------------------------------------------------------------
-    -- Logical operators
+    -- Mantıksal operatörler
     -- -------------------------------------------------------------------------
     s = replace_keyword(s; "ve";         "and")
     s = replace_keyword(s; "veya";       "or")
     s = replace_keyword(s; "değil";      "not")
-
-    -- -------------------------------------------------------------------------
-    -- Block terminators (single-word, AFTER compound)
-    -- -------------------------------------------------------------------------
-    s = replace_keyword(s; "son";        "end")
-    s = replace_keyword(s; "sonu";       "end")
-    s = replace_keyword(s; "bitir";      "end")
-    s = replace_keyword(s; "başla";      "begin")
 
     return s
 end_function
