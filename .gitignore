@@ -6,5 +6,10 @@ build/
 *.so
 src/normalizer/melp_normalizer_bin
 output.ll
+
+# Internal / private
 .claude/
 .vscode/
+belgeler/
+TODO_KURALLARI.md
+STAGE1_PLAN.md
