@@ -9,12 +9,6 @@
 
 function translate_turkish(source as string) as string
     string s = source
-    -- Bug workaround: "true" ve "false" string literal'leri compiler tarafindan
-    -- boolean deger (1/0) olarak derleniyor. Concat ile olusturuyoruz.
-    string kw_true = "tru"
-    kw_true = kw_true + "e"
-    string kw_false = "fals"
-    kw_false = kw_false + "e"
 
     -- -------------------------------------------------------------------------
     -- Compound terminators (MUST come before single-word forms)
@@ -68,8 +62,8 @@ function translate_turkish(source as string) as string
     s = replace_keyword(s; "metin";      "string")
     s = replace_keyword(s; "yazı";       "string")
     s = replace_keyword(s; "mantıksal";  "boolean")
-    s = replace_keyword(s; "doğru";      kw_true)
-    s = replace_keyword(s; "yanlış";     kw_false)
+    s = replace_keyword(s; "doğru";      "true")
+    s = replace_keyword(s; "yanlış";     "false")
     s = replace_keyword(s; "boş";        "null")
     s = replace_keyword(s; "hiç";        "null")
     s = replace_keyword(s; "dizi";       "array")

@@ -14,6 +14,10 @@
 --   Bug B2: read_arg() crashes  -> main() reads args from /tmp/.melp_norm_* files
 --   Bug I1: import not supported -> lang files concatenated by build.sh
 --
+-- Previously worked around (now fixed in Stage 0 compiler):
+--   [FIXED] string == string: was pointer comparison, now strcmp-based
+--   [FIXED] "true"/"false" string literals: were compiled as boolean 1/0
+--
 -- import "lang_turkish.mlp"  <- injected by build.sh (cat)
 -- import "lang_russian.mlp"  <- injected by build.sh (cat)
 
@@ -21,10 +25,14 @@
 -- String utilities
 -- ============================================================================
 
--- Check if char at position i is a word boundary (not alphanumeric or _)
+-- Check if char at position i is a word character (alphanumeric, _ or any non-ASCII byte).
+-- Non-ASCII bytes (>= 128) cover Turkish/Russian/Arabic multi-byte UTF-8 sequences so
+-- that keywords cannot partially match inside non-latin identifiers.
 function is_word_char(s as string; i as numeric) as boolean
     numeric code = char_code(s; i)
-    -- a-z: 97-122, A-Z: 65-90, 0-9: 48-57, _: 95
+    if code >= 128 then
+        return true
+    end_if
     if code >= 97 and code <= 122 then
         return true
     end_if
@@ -40,13 +48,56 @@ function is_word_char(s as string; i as numeric) as boolean
     return false
 end_function
 
--- Replace all occurrences of old_kw with new_kw in source.
--- Note: substring() == string comparison is broken in Stage 0 (heap vs pointer).
--- Workaround: delegate to the replace() builtin which uses strcmp internally.
--- Whole-word boundary check is NOT performed; compound keywords (son_fonksiyon etc.)
--- must come BEFORE single-word forms in each translate_* function to avoid partial matches.
+-- Replace whole-word occurrences of old_kw with new_kw in source.
+-- Word boundary: a match is accepted only when the char before and after the keyword
+-- are NOT word characters (alphanumeric, _, or non-ASCII UTF-8 bytes).
+-- This prevents "son" from matching inside "sonuc", "dön" inside "döndür", etc.
 function replace_keyword(source as string; old_kw as string; new_kw as string) as string
-    return replace(source; old_kw; new_kw)
+    numeric kw_len = len(old_kw)
+    if kw_len == 0 then
+        return source
+    end_if
+    numeric src_len = len(source)
+    string result = ""
+    numeric i = 0
+    while i < src_len
+        if i + kw_len <= src_len then
+            string candidate = substring(source; i; kw_len)
+            if candidate == old_kw then
+                boolean before_ok = true
+                if i > 0 then
+                    if is_word_char(source; i - 1) then
+                        before_ok = false
+                    end_if
+                end_if
+                if before_ok then
+                    boolean after_ok = true
+                    if i + kw_len < src_len then
+                        if is_word_char(source; i + kw_len) then
+                            after_ok = false
+                        end_if
+                    end_if
+                    if after_ok then
+                        result = result + new_kw
+                        i = i + kw_len
+                    else
+                        result = result + substring(source; i; 1)
+                        i = i + 1
+                    end_if
+                else
+                    result = result + substring(source; i; 1)
+                    i = i + 1
+                end_if
+            else
+                result = result + substring(source; i; 1)
+                i = i + 1
+            end_if
+        else
+            result = result + substring(source; i; 1)
+            i = i + 1
+        end_if
+    end_while
+    return result
 end_function
 
 -- ###LANG_INJECT### Lang dosyaları (lang_turkish.mlp, lang_russian.mlp) burada araya girer.
@@ -57,14 +108,10 @@ end_function
 -- ============================================================================
 
 function translate_chunk(chunk as string; lang as string) as string
-    -- lang == "turkish" karşılaştırması read_file() sonucuyla çalışmıyor (Bug: string == string, heap vs literal pointer)
-    -- Workaround: char_code(lang; 0) ile ilk karakter kontrolü
-    --   t = 116 → turkish,  r = 114 → russian
-    numeric lang_first = char_code(lang; 0)
-    if lang_first == 116 then
+    if lang == "turkish" then
         return translate_turkish(chunk)
     end_if
-    if lang_first == 114 then
+    if lang == "russian" then
         return translate_russian(chunk)
     end_if
     return chunk
@@ -81,10 +128,7 @@ end_function
 --   At end: translate+emit remaining pending.
 
 function normalize_source(source as string; lang as string) as string
-    -- lang == "english" yerine char_code ile kontrol (aynı workaround)
-    -- e = 101 → english
-    numeric lang_code = char_code(lang; 0)
-    if lang_code == 101 then
+    if lang == "english" then
         return source
     end_if
 
