@@ -1,11 +1,11 @@
-# MELP Programming Language · Alfa
+# MELP Programlama Dili · Alfa
 
-> A statically-typed, compiled programming language with a clean syntax.  
-> Compiler produces native binaries via LLVM.
+> Temiz sözdizimine sahip, statik tipli, derlenebilir bir programlama dili.  
+> LLVM altyapısı sayesinde gerçek binary dosyaları üretir.
 
 ---
 
-## Hello World
+## Merhaba Dünya
 
 ```melp
 function main() as numeric
@@ -14,7 +14,7 @@ function main() as numeric
 end_function
 ```
 
-Turkish keywords also work (`.tr.mlp` files):
+Türkçe anahtar kelimelerle de yazılabilir (`.tr.mlp` dosyaları):
 
 ```melp
 fonksiyon ana() olarak sayısal
@@ -25,42 +25,42 @@ son_fonksiyon
 
 ---
 
-## Quick Start (VS Code)
+## Hızlı Başlangıç (VS Code)
 
-1. Download `melp-ide-*.vsix` from [Releases](../../releases)
-2. In VS Code: `Ctrl+Shift+P` → **Install from VSIX** → select the file
-3. Open or create a `.mlp` file — press `Ctrl+F5` to run
+1. [Sürümler](../../releases) sayfasından `melp-ide-*.vsix` dosyasını indirin
+2. VS Code: `Ctrl+Shift+P` → **Install from VSIX** → dosyayı seçin
+3. Herhangi bir `.mlp` dosyası açın → `Ctrl+F5` ile çalıştırın
 
-The compiler is bundled inside the extension — no separate install needed.
+Derleyici uzantının içine gömülüdür — ayrıca kurulum gerekmez.
 
-**Linux only in Alfa.** macOS and Windows support planned for Beta.
+**Alfa sürümünde yalnızca Linux desteklenmektedir.** macOS ve Windows desteği Beta'da gelecek.
 
 ---
 
-## Language Features
+## Dil Özellikleri
 
 ```melp
--- Variables
+-- Değişkenler
 numeric x = 42
-numeric pi = 3,14        -- Turkish decimal: comma = decimal separator
-string name = "MELP"
-boolean active = true
+numeric pi = 3,14        -- Virgül ondalık ayırıcıdır
+string isim = "MELP"
+boolean aktif = true
 
--- Functions
-function add(a as numeric; b as numeric) as numeric
+-- Fonksiyonlar
+function topla(a as numeric; b as numeric) as numeric
     return a + b
 end_function
 
--- Control flow
+-- Koşul ifadeleri
 if x > 10 then
-    print("large")
+    print("büyük")
 else_if x > 5 then
-    print("medium")
+    print("orta")
 else
-    print("small")
+    print("küçük")
 end_if
 
--- Loops
+-- Döngüler
 for i = 1 to 10
     print(i)
 end_for
@@ -69,89 +69,89 @@ while x > 0
     x = x - 1
 end_while
 
--- Arrays
-numeric[] nums = [1; 2; 3; 4; 5]
-print(nums[0])
+-- Diziler
+numeric[] sayilar = [1; 2; 3; 4; 5]
+print(sayilar[0])
 
--- Structs
-struct Point
+-- Yapılar (struct)
+struct Nokta
     numeric x
     numeric y
 end_struct
 
--- Enums + Pattern matching
-enum Color
-    Red
-    Green
-    Blue
+-- Sabit listeler (enum) + Örüntü eşleme
+enum Renk
+    Kirmizi
+    Yesil
+    Mavi
 end_enum
 
-match c
-    case Red
-        print("red")
+match renk
+    case Kirmizi
+        print("kırmızı")
     end_case
 end_match
 
--- Import
-import "mymodule.mlp"
+-- Modül içe aktarma
+import "modullerim/yardimci.mlp"
 ```
 
 ---
 
-## Examples
+## Örnekler
 
-See [`examples/`](examples/) — 40+ programs organized by level:
+[`examples/`](examples/) klasöründe seviyeye göre düzenlenmiş 40+ program bulunmaktadır:
 
-| Folder | Topics |
+| Klasör | Konular |
 |---|---|
-| `base/` | hello world, variables, arithmetic, strings, control flow, functions, structs, enums |
-| `cli/` | argument parsing, file I/O, text processing |
-| `stdlib/` | math, string ops, sorting algorithms |
-| `games/` | number guessing, text adventure |
+| `base/` | merhaba dünya, değişkenler, aritmetik, string işlemleri, kontrol akışı, fonksiyonlar, struct, enum |
+| `cli/` | argüman ayrıştırma, dosya G/Ç, metin işleme |
+| `stdlib/` | matematik, string işlemleri, sıralama algoritmaları |
+| `games/` | sayı tahmin oyunu, metin macerası |
 
 ---
 
-## Multi-language Support
+## Çok Dilli Destek
 
-MELP programs can be written in multiple natural languages.  
-A normalizer transparently converts them before compilation:
+MELP programları birden fazla doğal dilde yazılabilir.  
+Normalizer, derleme öncesinde otomatik olarak çeviri yapar:
 
 ```
-program.mlp      ← English (canonical)
-program.tr.mlp   ← Turkish keywords → auto-normalized
-program.ru.mlp   ← Russian keywords → auto-normalized
+program.mlp      ← İngilizce (temel sözdizimi)
+program.tr.mlp   ← Türkçe anahtar kelimeler → otomatik normalleştirilir
+program.ru.mlp   ← Rusça anahtar kelimeler → otomatik normalleştirilir
 ```
 
 ---
 
-## Project Structure
+## Proje Yapısı
 
 ```
 MELP/
-├── examples/          ← sample programs (40+)
+├── examples/          ← örnek programlar (40+)
 ├── src/
-│   ├── compiler/      ← MELP compiler written in .mlp (WIP)
-│   │   └── lexer.mlp  ← 676-line tokenizer
-│   ├── normalizer/    ← multi-language keyword normalizer
-│   └── stdlib/        ← standard library modules
+│   ├── compiler/      ← MELP ile yazılmış MELP derleyicisi (devam ediyor)
+│   │   └── lexer.mlp  ← 676 satırlık tokenizer
+│   ├── normalizer/    ← çok dilli anahtar kelime normalizer'ı
+│   └── stdlib/        ← standart kütüphane modülleri
 ├── editors/
-│   └── VSIX/          ← VS Code extension source
-└── belgeler/          ← language documentation (Turkish)
+│   └── VSIX/          ← VS Code uzantısı kaynak kodu
+└── belgeler/          ← dil belgeleri
 ```
 
 ---
 
-## Roadmap
+## Yol Haritası
 
-| Milestone | Status |
+| Kilometre Taşı | Durum |
 |---|---|
-| Alfa: compiler + VS Code extension + 40 examples | ✅ Now |
-| Beta: `parser.mlp` + macOS/Windows support | 🔧 In progress |
-| v1.0: compiler written entirely in MELP (self-hosting) | 🔴 Planned |
+| Alfa: derleyici + VS Code uzantısı + 40 örnek | ✅ Şimdi |
+| Beta: `parser.mlp` + macOS/Windows desteği | 🔧 Devam ediyor |
+| v1.0: derleyici tamamen MELP ile yazılmış (öz-derleme) | 🔴 Planlandı |
 
 ---
 
-## Platform Support
+## Platform Desteği
 
 | Platform | Alfa | Beta |
 |---|---|---|
@@ -161,6 +161,6 @@ MELP/
 
 ---
 
-## License
+## Lisans
 
 [MIT](LICENSE)
