@@ -20,7 +20,9 @@ function translate_turkish(source as string) as string
     -- Compound terminators (MUST come before single-word forms)
     -- -------------------------------------------------------------------------
     s = replace_keyword(s; "son_fonksiyon";  "end_function")
+    s = replace_keyword(s; "fonksiyon_sonu"; "end_function")
     s = replace_keyword(s; "son_işlev";      "end_function")
+    s = replace_keyword(s; "işlev_sonu";     "end_function")
     s = replace_keyword(s; "son_eğer";       "end_if")
     s = replace_keyword(s; "son_döngü";      "end_while")
     s = replace_keyword(s; "son_için";       "end_for")
