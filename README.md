@@ -8,18 +8,16 @@
 ## Merhaba Dünya
 
 ```melp
-function main() as numeric
+function main()
     print("Merhaba Dünya!")
-    return 0
 end_function
 ```
 
 Türkçe anahtar kelimelerle de yazılabilir (`.tr.mlp` dosyaları):
 
 ```melp
-fonksiyon ana() olarak sayısal
+fonksiyon ana()
     yaz("Merhaba Dünya!")
-    döndür 0
 son_fonksiyon
 ```
 
