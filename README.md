@@ -1,153 +1,166 @@
-# MLP Stage 1
+# MELP Programming Language · Alfa
 
-> **Stage 1:** Programs written in `.mlp`, compiled by the Stage 0 toolchain.
-> This is what we present to the community as "the MELP programming language".
-
----
-
-## Stage Terminology
-
-```
-Stage 0  ─  C++ compiler that compiles .mlp files  (FROZEN)
-             /home/pardus/projeler/MLP/LLVM/stage0/v2/
-             └── compiler/          ← C++ source (lexer, parser, codegen, OK layer)
-             └── build/…/melp_compiler  ← the tool we USE here
-
-Stage 1  ─  .mlp programs (this repo)              (ACTIVE)
-             /home/pardus/projeler/MLP/LLVM/stage1/     ← YOU ARE HERE
-             └── src/normalizer/    ← keyword normalizer written in .mlp
-             └── src/stdlib/        ← standard library in .mlp
-             └── src/compiler/      ← tokenizer/lexer in .mlp (WIP)
-             └── src/apps/          ← sample programs
-
-Stage 2  ─  .mlp compiler written in .mlp (self-hosting)
-             Not started yet.  Depends on Stage 1 being complete.
-```
-
-The Stage 0 `compiler/` directory contains two sub-layers (`stage0/` = frontend,
-`stage1/` = backend/orchestrator) — both are **C++ code**, both are Stage 0.
-The naming inside that repo is an internal implementation detail.
+> A statically-typed, compiled programming language with a clean syntax.  
+> Compiler produces native binaries via LLVM.
 
 ---
 
-## Architecture
+## Hello World
 
+```melp
+function main() as numeric
+    print("Merhaba Dünya!")
+    return 0
+end_function
 ```
-┌──────────────────────────────────────────────────┐
-│  User Layer (Stage 1)                            │
-│                                                  │
-│  program.mlp      ← English keywords (default)  │
-│  program.tr.mlp   ← Turkish keywords            │
-│  program.ru.mlp   ← Russian keywords            │
-│                                                  │
-│  Normalizer: src/normalizer/normalizer.mlp       │
-│  Runs automatically for .tr.mlp / .ru.mlp files  │
-└───────────────────┬──────────────────────────────┘
-                    │ canonical .mlp
-┌───────────────────▼──────────────────────────────┐
-│  Stage 0 Compiler (FROZEN)                       │
-│  Speaks only canonical .mlp                      │
-└──────────────────────────────────────────────────┘
+
+Turkish keywords also work (`.tr.mlp` files):
+
+```melp
+fonksiyon ana() olarak sayısal
+    yaz("Merhaba Dünya!")
+    döndür 0
+son_fonksiyon
 ```
 
 ---
 
-## Quick Start
+## Quick Start (VS Code)
 
-**Prerequisite:** Stage 0 compiler built.
+1. Download `melp-ide-*.vsix` from [Releases](../../releases)
+2. In VS Code: `Ctrl+Shift+P` → **Install from VSIX** → select the file
+3. Open or create a `.mlp` file — press `Ctrl+F5` to run
 
-```bash
-# Build all
-make
+The compiler is bundled inside the extension — no separate install needed.
 
-# Run hello world
-make run TARGET=src/apps/hello.mlp
+**Linux only in Alfa.** macOS and Windows support planned for Beta.
 
-# Run all tests
-make test
-```
+---
 
-**Compiler path** (set in `Makefile`):
-```
-/home/pardus/projeler/MLP/LLVM/stage0/v2/build/compiler/stage1/modules/orchestrator/melp_compiler
+## Language Features
+
+```melp
+-- Variables
+numeric x = 42
+numeric pi = 3,14        -- Turkish decimal: comma = decimal separator
+string name = "MELP"
+boolean active = true
+
+-- Functions
+function add(a as numeric; b as numeric) as numeric
+    return a + b
+end_function
+
+-- Control flow
+if x > 10 then
+    print("large")
+else_if x > 5 then
+    print("medium")
+else
+    print("small")
+end_if
+
+-- Loops
+for i = 1 to 10
+    print(i)
+end_for
+
+while x > 0
+    x = x - 1
+end_while
+
+-- Arrays
+numeric[] nums = [1; 2; 3; 4; 5]
+print(nums[0])
+
+-- Structs
+struct Point
+    numeric x
+    numeric y
+end_struct
+
+-- Enums + Pattern matching
+enum Color
+    Red
+    Green
+    Blue
+end_enum
+
+match c
+    case Red
+        print("red")
+    end_case
+end_match
+
+-- Import
+import "mymodule.mlp"
 ```
 
 ---
 
-## Directory Structure
+## Examples
+
+See [`examples/`](examples/) — 40+ programs organized by level:
+
+| Folder | Topics |
+|---|---|
+| `base/` | hello world, variables, arithmetic, strings, control flow, functions, structs, enums |
+| `cli/` | argument parsing, file I/O, text processing |
+| `stdlib/` | math, string ops, sorting algorithms |
+| `games/` | number guessing, text adventure |
+
+---
+
+## Multi-language Support
+
+MELP programs can be written in multiple natural languages.  
+A normalizer transparently converts them before compilation:
 
 ```
-stage1/
-├── STAGE1_PLAN.md       ← development roadmap
-├── Makefile             ← build system
+program.mlp      ← English (canonical)
+program.tr.mlp   ← Turkish keywords → auto-normalized
+program.ru.mlp   ← Russian keywords → auto-normalized
+```
+
+---
+
+## Project Structure
+
+```
+MELP/
+├── examples/          ← sample programs (40+)
 ├── src/
-│   ├── normalizer/      ← Phase 1: keyword/syntax normalizer (ACTIVE)
-│   │   ├── normalizer.mlp    ← core logic
-│   │   ├── lang_turkish.mlp  ← Turkish keyword map
-│   │   ├── lang_russian.mlp  ← Russian keyword map
-│   │   └── ornek.tr.mlp      ← example Turkish program
-│   ├── stdlib/          ← Phase 2: standard library (planned)
-│   ├── compiler/        ← Phase 3: lexer.mlp (WIP, has bugs)
-│   │   └── lexer.mlp
-│   └── apps/            ← Phase 4: sample programs
-│       └── hello.mlp
-└── build/               ← compiled LLVM IR output (.ll files)
+│   ├── compiler/      ← MELP compiler written in .mlp (WIP)
+│   │   └── lexer.mlp  ← 676-line tokenizer
+│   ├── normalizer/    ← multi-language keyword normalizer
+│   └── stdlib/        ← standard library modules
+├── editors/
+│   └── VSIX/          ← VS Code extension source
+└── belgeler/          ← language documentation (Turkish)
 ```
 
 ---
 
 ## Roadmap
 
-| Phase | Goal | Status |
-|-------|------|--------|
-| 0 | `hello.mlp` runs | ✅ Done |
-| 1 | `normalizer.mlp` — keyword normalizer in .mlp | 🔧 WIP |
-| 2 | `stdlib/` — math, string, io, test modules | 🔴 Not started |
-| 3 | `lexer.mlp` fix — resolve 3 known bugs | 🔴 Not started |
-| 4 | `apps/` — fibonacci, calculator, wordcount | 🔴 Not started |
-| 5 | Stage 2 bootstrap — new compiler in .mlp | 🔴 Future |
-
-For the full plan see [STAGE1_PLAN.md](STAGE1_PLAN.md).
+| Milestone | Status |
+|---|---|
+| Alfa: compiler + VS Code extension + 40 examples | ✅ Now |
+| Beta: `parser.mlp` + macOS/Windows support | 🔧 In progress |
+| v1.0: compiler written entirely in MELP (self-hosting) | 🔴 Planned |
 
 ---
 
-## Known Issues in `src/compiler/lexer.mlp`
+## Platform Support
 
-- `test` is a reserved word in the MLP parser — any function named `test` fails to parse.
-  **Fix:** rename to `tokenize_test` or similar.
-- `else then` is not valid syntax — use `else` without `then`.
-  **Fix:** replace all `else then` with `else`.
-- `-> numeric` (arrow return type) works but `as numeric` is the canonical form.
-- Deep nested `if/else` chains (40+ levels) cause stack overflow in `lli`.
-  **Fix:** restructure using early returns or lookup tables.
+| Platform | Alfa | Beta |
+|---|---|---|
+| Linux x86_64 | ✅ | ✅ |
+| macOS | — | 🔄 |
+| Windows | — | 🔄 |
 
 ---
 
-## Stage 0 Bugs Affecting Stage 1
+## License
 
-These are frozen in Stage 0 and must be worked around:
-
-| ID | Bug | Workaround |
-|----|-----|------------|
-| B1 | `struct { field as string }` → LLVM error | Use parallel arrays instead of struct-of-strings |
-| B2 | `MyType[] arr = [a; b]` → Parser error | Use numeric arrays only |
-| B3 | Function returning struct → garbage value | Avoid returning structs |
-
----
-
-## Compile a Single File
-
-```bash
-MELP=/home/pardus/projeler/MLP/LLVM/stage0/v2/build/compiler/stage1/modules/orchestrator/melp_compiler
-
-# Compile to LLVM IR
-$MELP src/apps/hello.mlp -o build/hello.ll
-
-# Run
-lli build/hello.ll
-
-# Or native binary
-llc -filetype=obj build/hello.ll -o build/hello.o
-clang build/hello.o -o build/hello -no-pie
-./build/hello
-```
+[MIT](LICENSE)

@@ -130,8 +130,41 @@ These bugs exist in Stage 0 (frozen) and may affect Stage 1 development:
 | B2 | `Token[] tokens = [t1; t2]` → Parser error | Use numeric arrays only |
 | B3 | Function returning struct → garbage value | Avoid struct return values |
 | B4 | `parsePrimary` sınırı — 3 durum: (1) `this.a * this.b` binary expr, (2) `str(p.x)` builtin arg, (3) `rect.nested.x = 0` 2-level member assign | (1,2) local var kullan; (3) nested struct'ı flat tut |
+| B5 | `read_file()` on nonexistent file → segfault when compared with `""` | Do not test missing files |
+| B6 | `operator+` syntax → parse error | Use named method (e.g. `Vector.add(other)`) |
 
 > If these bugs are fixed in a future Stage 0 patch (v2.1), Stage 1 can be updated accordingly.
+
+---
+
+## Binary I/O & FFI Findings
+
+Discovered during `examples/tools/` development (BMP/JPEG/PNG parsers):
+
+### clang -O2 breaks fgetc ordering
+`clang -O2` treats `fgetc()` as a pure function and reorders calls — byte reads come out wrong.
+**Rule:** Always use `clang -O0` when MELP code does binary I/O via `fgetc`.
+
+### FFI with external shared libraries
+For complex C libraries (libjpeg, libpng), direct FFI to the library API is not feasible
+because MELP's FFI only supports scalar parameters (no struct pointers).
+**Solution:** Write a thin C wrapper (`melp_image.c`) that exposes a scalar API, compile
+to a `.so`, then link with a two-step build:
+```bash
+# Step 1: IR → object file
+clang -O0 -c -x ir out.ll -o out.o
+# Step 2: link with wrapper .so
+clang -O0 out.o -o program melp_image.so -ljpeg -lpng
+# Run with library path
+LD_LIBRARY_PATH=/path/to/tools ./program
+```
+Standard libc functions (`fopen`, `fgetc`, `fclose`) work with the single-step build
+because clang links libc automatically.
+
+### FFI parameter types
+- `external function fopen(s as string; m as string) as numeric` — string params work
+- All numeric params/returns map to `i64` in LLVM IR (64-bit integer)
+- File pointers (`FILE*`) fit in `numeric` on 64-bit systems (pointer = 8 bytes)
 
 ---
 

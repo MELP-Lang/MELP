@@ -1,24 +1,30 @@
+-- FEATURE: BINARY SEARCH - İteratif binary search
+-- B6 workaround: array literal [] syntax yerine tek tek atama
+
 function binary_search(numeric target) as numeric
-    numeric arr[] = [1; 3; 5; 7; 9; 11; 13; 15]
+    -- Sıralı dizi: [1, 3, 5, 7, 9, 11, 13, 15]
+    numeric[] arr = [1; 3; 5; 7; 9; 11; 13; 15]
     numeric left = 0
     numeric right = 7
-    numeric mid = 4
 
     while left <= right
-        if arr[mid] == target then
+        numeric mid = (left + right) / 2
+        numeric val = arr[mid]
+        if val == target then
             return mid
-        else_if arr[mid] < target then
+        else_if val < target then
             left = mid + 1
         else
             right = mid - 1
         end_if
-        mid = (left + right) / 2
     end_while
 
-    return 0
+    return 0 - 1
 end_function
 
 function main()
-    numeric idx = binary_search(9)
-    print(idx)
+    print(binary_search(9))
+    print(binary_search(1))
+    print(binary_search(15))
+    print(binary_search(7))
 end_function

@@ -9,11 +9,13 @@
 -- Usage:
 --   normalize_source(source as string; lang as string) as string
 --
--- NOTE: Stage 0 bug B1 (string in struct) is worked around by using
--- parallel arrays instead of an array of structs.
-
-import "lang_turkish.mlp"
-import "lang_russian.mlp"
+-- Stage 0 limitations worked around:
+--   Bug B1: No reliable arrays -> replaced extract/restore with inline scanning
+--   Bug B2: read_arg() crashes  -> main() reads args from /tmp/.melp_norm_* files
+--   Bug I1: import not supported -> lang files concatenated by build.sh
+--
+-- import "lang_turkish.mlp"  <- injected by build.sh (cat)
+-- import "lang_russian.mlp"  <- injected by build.sh (cat)
 
 -- ============================================================================
 -- String utilities
@@ -38,271 +40,127 @@ function is_word_char(s as string; i as numeric) as boolean
     return false
 end_function
 
--- Find next occurrence of needle in haystack starting from pos
--- Returns -1 if not found
-function find_from(haystack as string; needle as string; pos as numeric) as numeric
-    numeric hlen = len(haystack)
-    numeric nlen = len(needle)
-    if nlen == 0 then
-        return pos
-    end_if
-    numeric i = pos
-    while i <= hlen - nlen do
-        if substring(haystack; i; nlen) == needle then
-            return i
-        end_if
-        i = i + 1
-    end_while
-    return -1
-end_function
-
--- Replace all whole-word occurrences of old_kw with new_kw in source
--- Whole-word: not preceded or followed by a word character
+-- Replace all occurrences of old_kw with new_kw in source.
+-- Note: substring() == string comparison is broken in Stage 0 (heap vs pointer).
+-- Workaround: delegate to the replace() builtin which uses strcmp internally.
+-- Whole-word boundary check is NOT performed; compound keywords (son_fonksiyon etc.)
+-- must come BEFORE single-word forms in each translate_* function to avoid partial matches.
 function replace_keyword(source as string; old_kw as string; new_kw as string) as string
-    string result = ""
-    numeric src_len = len(source)
-    numeric kw_len = len(old_kw)
-    numeric i = 0
+    return replace(source; old_kw; new_kw)
+end_function
 
-    while i < src_len do
-        -- Try to match old_kw at position i
-        if i + kw_len <= src_len then
-            if substring(source; i; kw_len) == old_kw then
-                -- Check left boundary
-                boolean left_ok = true
-                if i > 0 then
-                    left_ok = not is_word_char(source; i - 1)
-                end_if
-                -- Check right boundary
-                boolean right_ok = true
-                if i + kw_len < src_len then
-                    right_ok = not is_word_char(source; i + kw_len)
-                end_if
+-- ###LANG_INJECT### Lang dosyaları (lang_turkish.mlp, lang_russian.mlp) burada araya girer.
+-- build.sh bu marker'dan splitter yaparak doğru sırayla birleştirir.
 
-                if left_ok and right_ok then
-                    result = result + new_kw
-                    i = i + kw_len
-                else
-                    result = result + substring(source; i; 1)
-                    i = i + 1
-                end_if
-            else
-                result = result + substring(source; i; 1)
-                i = i + 1
-            end_if
-        else
-            result = result + substring(source; i; 1)
-            i = i + 1
-        end_if
-    end_while
+-- ============================================================================
+-- Translate dispatcher
+-- ============================================================================
 
-    return result
+function translate_chunk(chunk as string; lang as string) as string
+    -- lang == "turkish" karşılaştırması read_file() sonucuyla çalışmıyor (Bug: string == string, heap vs literal pointer)
+    -- Workaround: char_code(lang; 0) ile ilk karakter kontrolü
+    --   t = 116 → turkish,  r = 114 → russian
+    numeric lang_first = char_code(lang; 0)
+    if lang_first == 116 then
+        return translate_turkish(chunk)
+    end_if
+    if lang_first == 114 then
+        return translate_russian(chunk)
+    end_if
+    return chunk
 end_function
 
 -- ============================================================================
--- Preserved segment handling (protect strings and comments)
+-- Core normalize function - inline context-aware scanning
 -- ============================================================================
+-- Strategy (no arrays needed):
+--   Accumulate "code" chars in `pending`.
+--   When a string literal or comment starts:
+--     1. Translate+emit pending
+--     2. Copy literal/comment verbatim
+--   At end: translate+emit remaining pending.
 
--- Max number of preserved segments
-numeric MAX_SEGMENTS = 256
-
--- Parallel arrays for preserved segments (avoids struct B1 bug)
-string preserved_content[MAX_SEGMENTS]
-numeric preserved_start[MAX_SEGMENTS]
-numeric preserved_end[MAX_SEGMENTS]
-numeric preserved_count = 0
-
--- Placeholder prefix/suffix
-string PLACEHOLDER_PREFIX = "___PRESERVED_"
-string PLACEHOLDER_SUFFIX = "___"
-
-function make_placeholder(idx as numeric) as string
-    return PLACEHOLDER_PREFIX + str(idx) + PLACEHOLDER_SUFFIX
-end_function
-
--- Extract string literals and -- comments, replace with placeholders
--- Returns modified source
-function extract_preserved(source as string) as string
-    preserved_count = 0
-    string result = ""
-    numeric i = 0
-    numeric src_len = len(source)
-
-    while i < src_len do
-        -- Check for double-quote string literal
-        if substring(source; i; 1) == "\"" then
-            -- Scan to closing quote
-            numeric start = i
-            i = i + 1
-            while i < src_len and substring(source; i; 1) != "\"" do
-                -- Handle escape sequences
-                if substring(source; i; 1) == "\\" then
-                    i = i + 1
-                end_if
-                i = i + 1
-            end_while
-            i = i + 1 -- consume closing quote
-            numeric seg_idx = preserved_count
-            preserved_start[seg_idx] = start
-            preserved_end[seg_idx] = i
-            preserved_content[seg_idx] = substring(source; start; i - start)
-            preserved_count = preserved_count + 1
-            result = result + make_placeholder(seg_idx)
-
-        -- Check for line comment --
-        else_if i + 1 < src_len and substring(source; i; 2) == "--" then
-            numeric start = i
-            -- Scan to end of line
-            while i < src_len and substring(source; i; 1) != "\n" do
-                i = i + 1
-            end_while
-            numeric seg_idx = preserved_count
-            preserved_start[seg_idx] = start
-            preserved_end[seg_idx] = i
-            preserved_content[seg_idx] = substring(source; start; i - start)
-            preserved_count = preserved_count + 1
-            result = result + make_placeholder(seg_idx)
-
-        -- Check for block comment /* ... */
-        else_if i + 1 < src_len and substring(source; i; 2) == "/*" then
-            numeric start = i
-            i = i + 2
-            while i + 1 < src_len and substring(source; i; 2) != "*/" do
-                i = i + 1
-            end_while
-            i = i + 2 -- consume */
-            numeric seg_idx = preserved_count
-            preserved_start[seg_idx] = start
-            preserved_end[seg_idx] = i
-            preserved_content[seg_idx] = substring(source; start; i - start)
-            preserved_count = preserved_count + 1
-            result = result + make_placeholder(seg_idx)
-
-        else
-            result = result + substring(source; i; 1)
-            i = i + 1
-        end_if
-    end_while
-
-    return result
-end_function
-
--- Restore preserved segments from placeholders
-function restore_preserved(source as string) as string
-    string result = source
-    numeric idx = 0
-    while idx < preserved_count do
-        string placeholder = make_placeholder(idx)
-        result = replace_keyword(result; placeholder; preserved_content[idx])
-        idx = idx + 1
-    end_while
-    return result
-end_function
-
--- ============================================================================
--- Language detection
--- ============================================================================
-
-function detect_language(source as string) as string
-    -- Check for Turkish keywords
-    if contains(source; "fonksiyon") then
-        return "turkish"
-    end_if
-    if contains(source; "eğer") then
-        return "turkish"
-    end_if
-    if contains(source; "döndür") then
-        return "turkish"
-    end_if
-    -- Check for Russian keywords
-    if contains(source; "функция") then
-        return "russian"
-    end_if
-    if contains(source; "если") then
-        return "russian"
-    end_if
-    return "english"
-end_function
-
--- ============================================================================
--- Core normalize function
--- ============================================================================
-
--- Normalize source from given language to canonical English .mlp
 function normalize_source(source as string; lang as string) as string
-    if lang == "english" then
+    -- lang == "english" yerine char_code ile kontrol (aynı workaround)
+    -- e = 101 → english
+    numeric lang_code = char_code(lang; 0)
+    if lang_code == 101 then
         return source
     end_if
 
-    -- Step 1: protect string literals and comments
-    string working = extract_preserved(source)
+    string result = ""
+    string pending = ""
+    numeric i = 0
+    numeric src_len = len(source)
 
-    -- Step 2: translate keywords
-    if lang == "turkish" then
-        working = translate_turkish(working)
-    else_if lang == "russian" then
-        working = translate_russian(working)
-    end_if
+    while i < src_len 
+        string ch = substring(source; i; 1)
 
-    -- Step 3: restore preserved segments
-    working = restore_preserved(working)
+        -- String literal: copy verbatim
+        if ch == "\"" then
+            result = result + translate_chunk(pending; lang)
+            pending = ""
+            result = result + ch
+            i = i + 1
+            boolean in_str = true
+            while i < src_len and in_str 
+                string sc = substring(source; i; 1)
+                if sc == "\\" then
+                    result = result + sc
+                    i = i + 1
+                    if i < src_len then
+                        result = result + substring(source; i; 1)
+                        i = i + 1
+                    end_if
+                else_if sc == "\"" then
+                    result = result + sc
+                    i = i + 1
+                    in_str = false
+                else
+                    result = result + sc
+                    i = i + 1
+                end_if
+            end_while
 
-    return working
-end_function
+        -- Line comment (--): copy verbatim until newline
+        else_if i + 1 < src_len and substring(source; i; 2) == "--" then
+            result = result + translate_chunk(pending; lang)
+            pending = ""
+            while i < src_len and substring(source; i; 1) != "\n" 
+                result = result + substring(source; i; 1)
+                i = i + 1
+            end_while
 
--- Normalize a file: detect language from extension, normalize, write output
--- .tr.mlp → turkish, .ru.mlp → russian, .mlp → english (passthrough)
-function normalize_file(input_path as string; output_path as string) as boolean
-    string source = read_file(input_path)
-    if len(source) == 0 then
-        print("Error: cannot read file: " + input_path)
-        return false
-    end_if
+        -- Normal code character: accumulate in pending
+        else
+            pending = pending + ch
+            i = i + 1
+        end_if
+    end_while
 
-    -- Detect language from file extension
-    string lang = "english"
-    if ends_with(input_path; ".tr.mlp") then
-        lang = "turkish"
-    else_if ends_with(input_path; ".ru.mlp") then
-        lang = "russian"
-    end_if
+    -- Translate remaining code
+    result = result + translate_chunk(pending; lang)
 
-    string result = normalize_source(source; lang)
-    boolean ok = write_file(output_path; result)
-    return ok
+    return result
 end_function
 
 -- ============================================================================
 -- CLI entry point
 -- ============================================================================
+-- Temp file protocol (workaround for Stage 0 bugs B2/B3/B4):
+--   /tmp/.melp_norm_src  <- shell writes: source file content
+--   /tmp/.melp_norm_lang <- shell writes: "turkish" or "russian" or "english"
+-- Binary prints normalized result to stdout.
+-- Shell captures stdout and writes to final output path.
 
 function main()
-    -- Usage: normalizer <input_file> <output_file>
-    string input_path = read_arg(1)
-    string output_path = read_arg(2)
+    string source = read_file("/tmp/.melp_norm_src")
+    string lang = read_file("/tmp/.melp_norm_lang")
 
-    if len(input_path) == 0 then
-        print("Usage: normalizer <input.tr.mlp> <output.mlp>")
-        print("       normalizer <input.ru.mlp> <output.mlp>")
-        print("       Language is detected from file extension.")
-        return
-    end_if
-
-    if len(output_path) == 0 then
-        -- Default: strip language suffix
-        if ends_with(input_path; ".tr.mlp") then
-            output_path = substring(input_path; 0; len(input_path) - 7) + ".mlp"
-        else_if ends_with(input_path; ".ru.mlp") then
-            output_path = substring(input_path; 0; len(input_path) - 7) + ".mlp"
-        else
-            output_path = input_path + ".out.mlp"
-        end_if
-    end_if
-
-    boolean ok = normalize_file(input_path; output_path)
-    if ok then
-        print("Normalized: " + input_path + " -> " + output_path)
+    if len(source) == 0 then
+        print("__ERROR__: /tmp/.melp_norm_src missing or empty.")
     else
-        print("Error normalizing: " + input_path)
+        string normalized = normalize_source(source; lang)
+        print(normalized)
     end_if
 end_function

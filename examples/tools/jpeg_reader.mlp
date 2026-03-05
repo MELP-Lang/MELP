@@ -1,0 +1,48 @@
+-- JPEG RGB Parser — MELP Stage 1
+-- Okur: JPEG dosyası → her pikselin R, G, B değerini yazdırır
+-- Gereksinim: melp_image.so (libjpeg wrapper)
+--
+-- Derle:
+--   TOOLS=/path/to/examples/tools
+--   melp_compiler jpeg_reader.mlp -o out.ll
+--   clang -O0 -c -x ir out.ll -o out.o
+--   clang -O0 out.o -o jpeg_reader $TOOLS/melp_image.so -ljpeg -lpng
+-- Çalıştır:
+--   LD_LIBRARY_PATH=$TOOLS ./jpeg_reader
+
+external function jpeg_open(s as string) as numeric
+external function img_width(h as numeric) as numeric
+external function img_height(h as numeric) as numeric
+external function img_channels(h as numeric) as numeric
+external function img_pixel(h as numeric; x as numeric; y as numeric; ch as numeric) as numeric
+external function img_close(h as numeric) as numeric
+
+function main()
+    numeric h = jpeg_open("/tmp/test.jpg")
+
+    numeric w  = img_width(h)
+    numeric ht = img_height(h)
+    numeric ch = img_channels(h)
+
+    print(w)
+    print(ht)
+    print(ch)
+
+    -- Tüm pikselleri satır satır yazdır
+    numeric row = 0
+    while row < ht
+        numeric col = 0
+        while col < w
+            numeric r = img_pixel(h; col; row; 0)
+            numeric g = img_pixel(h; col; row; 1)
+            numeric b = img_pixel(h; col; row; 2)
+            print(r)
+            print(g)
+            print(b)
+            col = col + 1
+        end_while
+        row = row + 1
+    end_while
+
+    img_close(h)
+end_function

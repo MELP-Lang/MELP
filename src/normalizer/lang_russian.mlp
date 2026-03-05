@@ -8,6 +8,12 @@
 
 function translate_russian(source as string) as string
     string s = source
+    -- Bug workaround: "true" ve "false" string literal'leri compiler tarafindan
+    -- boolean deger (1/0) olarak derleniyor. Concat ile olusturuyoruz.
+    string kw_true = "tru"
+    kw_true = kw_true + "e"
+    string kw_false = "fals"
+    kw_false = kw_false + "e"
 
     -- -------------------------------------------------------------------------
     -- Compound terminators (MUST come before single-word forms)
@@ -28,7 +34,7 @@ function translate_russian(source as string) as string
     s = replace_keyword(s; "если";       "if")
     s = replace_keyword(s; "иначе";      "else")
     s = replace_keyword(s; "тогда";      "then")
-    s = replace_keyword(s; "делать";     "do")
+    s = replace_keyword(s; "делать";     "")
     s = replace_keyword(s; "пока";       "while")
     s = replace_keyword(s; "для";        "for")
     s = replace_keyword(s; "каждый";     "each")
@@ -45,8 +51,8 @@ function translate_russian(source as string) as string
     s = replace_keyword(s; "число";      "numeric")
     s = replace_keyword(s; "строка";     "string")
     s = replace_keyword(s; "логический"; "boolean")
-    s = replace_keyword(s; "истина";     "true")
-    s = replace_keyword(s; "ложь";       "false")
+    s = replace_keyword(s; "истина";     kw_true)
+    s = replace_keyword(s; "ложь";       kw_false)
     s = replace_keyword(s; "нуль";       "null")
     s = replace_keyword(s; "массив";     "array")
     s = replace_keyword(s; "список";     "list")

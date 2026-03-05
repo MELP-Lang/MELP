@@ -2,3 +2,9 @@ build/
 *.ll
 *.elf
 *.o
+*.s
+*.so
+src/normalizer/melp_normalizer_bin
+output.ll
+.claude/
+.vscode/
