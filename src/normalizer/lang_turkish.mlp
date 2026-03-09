@@ -14,6 +14,13 @@ function translate_turkish(source as string) as string
     -- Bileşik bitiş keyword'leri (kısa formlardan ÖNCE gelmeli)
     -- Kanonik: KEYWORD_sonu stili
     -- -------------------------------------------------------------------------
+    -- Giriş noktası ismi
+    s = replace_keyword(s; "ana";            "main")
+
+    -- Stdlib fonksiyon takma adları
+    s = replace_keyword(s; "yaz";            "print")
+    s = replace_keyword(s; "yazdır";         "print")
+
     s = replace_keyword(s; "fonksiyon_sonu"; "end_function")
     s = replace_keyword(s; "işlev_sonu";     "end_function")
     s = replace_keyword(s; "eğer_sonu";      "end_if")
