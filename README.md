@@ -23,13 +23,86 @@ son_fonksiyon
 
 ---
 
-## Hızlı Başlangıç (VS Code)
+## ▶ Hemen Dene (Kurulum Yok)
 
-1. [Sürümler](../../releases) sayfasından `melp-ide-*.vsix` dosyasını indirin
-2. VS Code: `Ctrl+Shift+P` → **Install from VSIX** → dosyayı seçin
-3. Herhangi bir `.mlp` dosyası açın → `Ctrl+F5` ile çalıştırın
+Tarayıcı tabanlı IDE ile MeLP'i anında kullanabilirsiniz:
 
-Derleyici uzantının içine gömülüdür — ayrıca kurulum gerekmez.
+**[melp-lang.github.io/melp-ide-web/](https://melp-lang.github.io/melp-ide-web/)**
+
+> Yerel kurulum için aşağıya bakın.
+
+---
+
+## 🛠️ Editör Desteği
+
+### 1. VS Code Extension (VSIX)
+
+**Özellikler:**
+- ✅ Syntax highlighting (Turkish/Russian/English)
+- ✅ Code snippets (40+ şablon)
+- ✅ IntelliSense
+- ✅ Error highlighting
+- ✅ Build & run (F5)
+
+**Kurulum:**
+1. [Releases](https://github.com/MELP-Lang/MELP/releases) sayfasından `melp-ide-*.vsix` indirin
+2. VS Code: `Ctrl+Shift+P` → **Install from VSIX**
+3. `.mlp` dosyası açın → `Ctrl+F5` ile çalıştırın
+
+Derleyici extension içine gömülü — ayrı kurulum gerektirmez.
+
+---
+
+### 2. Web IDE (Ön İzleme)
+
+**Tarayıcıda çalışır, kurulum gerektirmez:**
+
+**[melp-lang.github.io/melp-ide-web/](https://melp-lang.github.io/melp-ide-web/)**
+
+**Özellikler:**
+- ✅ Syntax highlighting
+- ✅ Canlı derleme
+- ✅ Örnek kod kütüphanesi
+- ✅ Paylaşım linki
+
+**İdeal için:**
+- Öğrenme/eğitim
+- Hızlı deneme
+- Kod paylaşma
+
+**Sınırlamalar:**
+- Dosya I/O yok
+- FFI/native kütüphane yok
+
+---
+
+### 3. MeLP GUI IDE (Alfa)
+
+**Electron tabanlı standalone IDE:**
+
+**İndirme:** [Releases](https://github.com/MELP-Lang/MELP/releases) sayfası
+
+**Özellikler:**
+- ✅ Entegre terminal
+- ✅ Proje yönetimi
+- ✅ Debug desteği
+- ⚠️ Alfa aşamasında
+
+**Platform:**
+- Linux: AppImage
+- macOS: .app
+- Windows: .exe installer
+
+---
+
+### Hangi Editörü Seçmeliyim?
+
+| Kullanım | Öneri |
+|----------|-------|
+| 🎓 Yeni öğreniyorum | Web IDE |
+| 💻 Ciddi geliştirme | VS Code Extension |
+| 🚀 Production | VS Code + native compiler |
+| 📚 Eğitim veriyorum | Web IDE |
 
 **Alfa sürümünde yalnızca Linux desteklenmektedir.** macOS ve Windows desteği Beta'da gelecek.
 

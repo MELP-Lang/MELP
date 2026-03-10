@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# run_melp — MELP programını derle ve çalıştır
+#
+# Kullanım:
+#   ./bin/run_melp program.mlp          # derle ve çalıştır
+#   ./bin/run_melp program.mlp --ir     # sadece LLVM IR üret
+#   ./bin/run_melp program.mlp --keep   # .ll dosyasını sil me
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+COMPILER="$SCRIPT_DIR/melp_compiler"
+RUNTIME="$SCRIPT_DIR/mlp_runtime.bc"
+
+# Renk kodları
+RED='\033[0;31m'; GREEN='\033[0;32m'; NC='\033[0m'
+
+usage() {
+    echo "Kullanım: run_melp <dosya.mlp> [--ir] [--keep]"
+    echo "  --ir    : Sadece LLVM IR (.ll) üret, çalıştırma"
+    echo "  --keep  : Geçici .ll dosyasını sakla"
+    exit 1
+}
+
+[ $# -eq 0 ] && usage
+[ -f "$1" ]  || { echo -e "${RED}Hata: '$1' bulunamadı${NC}"; exit 1; }
+
+MLP_FILE="$1"
+ONLY_IR=false
+KEEP_IR=false
+shift
+
+for arg in "$@"; do
+    case "$arg" in
+        --ir)   ONLY_IR=true ;;
+        --keep) KEEP_IR=true ;;
+        *)      echo "Bilinmeyen seçenek: $arg"; usage ;;
+    esac
+done
+
+# clang bul
+CLANG="clang-14"
+command -v "$CLANG" &>/dev/null || CLANG="clang"
+command -v "$CLANG" &>/dev/null || {
+    echo -e "${RED}Hata: clang-14 bulunamadı.${NC}"
+    echo "Kur: sudo apt install clang-14"
+    exit 1
+}
+
+BASENAME="${MLP_FILE%.mlp}"
+LL_FILE="${BASENAME}.ll"
+BIN_FILE="${BASENAME}"
+
+# 1. Derle → LLVM IR
+"$COMPILER" "$MLP_FILE" -o "$LL_FILE"
+
+if $ONLY_IR; then
+    echo -e "${GREEN}IR üretildi: $LL_FILE${NC}"
+    exit 0
+fi
+
+# 2. Link → binary (önce runtime'sız dene)
+if ! "$CLANG" "$LL_FILE" -lm -o "$BIN_FILE" 2>/dev/null; then
+    "$CLANG" "$LL_FILE" "$RUNTIME" -lm -Wl,--allow-multiple-definition -o "$BIN_FILE"
+fi
+
+# 3. Çalıştır
+"$BIN_FILE"
+
+# 4. Temizlik
+$KEEP_IR || rm -f "$LL_FILE"
+rm -f "$BIN_FILE"

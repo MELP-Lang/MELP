@@ -1,15 +1,53 @@
-build/
+# Derleme çıktıları
 *.ll
 *.elf
 *.o
 *.s
 *.so
-src/normalizer/melp_normalizer_bin
+build/demo
+build/hello
+build/hello.elf
+build/lexer.elf
+build/demo.ll
+build/hello.ll
+build/lexer.ll
 output.ll
+src/normalizer/melp_normalizer_bin
 
-# Internal / private
+# Yedek binary'ler (sync_from_v2.sh tarafından üretilir)
+bin/melp_compiler.bak.*
+
+# OS ve editör
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+
+# Internal / private (bu dizin sadece binary + topluluk dosyaları içerir)
 .claude/
 .vscode/
-belgeler/
 TODO_KURALLARI.md
 STAGE1_PLAN.md
+MM_TOPLULUK_ACILIS_EKSIKLER.md
+MELP_STAGE1_INDEX.md
+
+# MM / YZ talimat belgeleri
+TALIMAT_*.md
+TALIMAT_*.md.old
+
+# Geçici test ve rapor dosyaları
+test_examples.sh
+migrate_examples.sh
+test_report_*.txt
+migration_report.txt
+test_run_output.log
+failed_tests.txt
+
+# Internal mimari belgeler (topluluk için değil)
+belgeler/
+
+# Derlenmiş native kütüphaneler
+*.so
+examples/tools/*.png
+examples/tools/*.c

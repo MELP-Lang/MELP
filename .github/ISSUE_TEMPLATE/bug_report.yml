@@ -1,0 +1,77 @@
+name: Hata Bildirimi
+description: MELP derleyicisi veya çalışma zamanında bir hata bildirin
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Hata bildirdiğiniz için teşekkürler! Lütfen aşağıdaki alanları doldurun.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Hatanın Açıklaması
+      description: Ne oldu? Neyi bekliyordunuz?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Yeniden Üretme Adımları
+      description: Hatayı nasıl yeniden üretebiliriz?
+      placeholder: |
+        1. Şu .mlp dosyasını oluştur:
+        ```mlp
+        function main() as void
+            ...
+        end_function
+        ```
+        2. `./bin/melp_compiler dosya.mlp -o çıktı.ll` komutunu çalıştır
+        3. Hata mesajını gör
+    validations:
+      required: true
+
+  - type: textarea
+    id: mlp_code
+    attributes:
+      label: MELP Kodu (varsa)
+      description: Hatayı tetikleyen minimal MELP kodu
+      render: text
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Beklenen Davranış
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Gerçek Davranış / Hata Mesajı
+      render: text
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: MELP Sürümü
+      placeholder: "0.1.0-alfa"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: İşletim Sistemi
+      placeholder: "Ubuntu 22.04, Linux x86_64"
+    validations:
+      required: true
+
+  - type: input
+    id: llvm_version
+    attributes:
+      label: LLVM Sürümü
+      placeholder: "clang-14, llvm-14"

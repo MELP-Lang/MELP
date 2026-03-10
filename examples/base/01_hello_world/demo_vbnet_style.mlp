@@ -1,0 +1,62 @@
+-- Demo: MeLP VB.NET-style Syntax + Multilingual Support
+-- 
+-- Showcasing:
+-- 1. VB.NET-like end_xxx blocks (no curly braces!)
+-- 2. Clean, readable syntax
+-- 3. Modern type system (nullable, Result<T>)
+
+-- Function with clear end_function marker
+function calculate_sum(numeric a; numeric b) as numeric
+    return a + b
+end_function
+
+-- VB.NET-style control flow (no { } needed!)
+function demo_control_flow()
+    print("Control Flow Demo:")
+    
+    numeric x = 5
+    
+    if x > 0 then
+        print("  ✓ Positive number")
+    else_if x < 0 then
+        print("  ✗ Negative number")
+    else
+        print("  = Zero")
+    end_if
+    
+    -- While loop with clear end marker
+    numeric counter = 0
+    while counter < 3
+        print("  Loop iteration: ")
+        print(counter)
+        counter = counter + 1
+    end_while
+end_function
+
+function main()
+    print("=== MeLP Demo ===")
+    print("")
+    
+    -- Example 1: VB.NET-style blocks
+    demo_control_flow()
+    
+    -- Example 2: Functions with clear end markers
+    numeric result = calculate_sum(10; 20)
+    print("Sum: ")
+    print(result)
+    
+    print("")
+    print("✅ Demo complete!")
+end_function
+
+-- This same code can be written in Turkish:
+--
+-- fonksiyon ana()
+--     yaz("Merhaba Dünya!")
+-- son_fonksiyon
+--
+-- Or Russian:
+--
+-- функция главная()
+--     печать("Привет Мир!")
+-- конец_функции

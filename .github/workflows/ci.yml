@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  smoke-test:
+    name: Smoke Test (Linux x86_64)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: LLVM 14 kur
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y clang-14 llvm-14
+
+      - name: Binary çalıştırılabilir mi?
+        run: |
+          chmod +x bin/melp_compiler
+          ls -lh bin/melp_compiler
+
+      - name: Hello World derle ve çalıştır
+        run: |
+          cat > /tmp/ci_hello.mlp << 'EOF'
+          function main() as void
+              print("CI: Hello MELP!")
+          end_function
+          EOF
+          ./bin/melp_compiler /tmp/ci_hello.mlp -o /tmp/ci_hello.ll
+          clang-14 /tmp/ci_hello.ll ./bin/mlp_runtime.bc -lm -o /tmp/ci_hello
+          output=$(/tmp/ci_hello)
+          echo "Çıktı: $output"
+          test "$output" = "CI: Hello MELP!" || (echo "HATA: Beklenmeyen çıktı" && exit 1)
+
+      - name: Examples temel derleme testi
+        run: |
+          fail=0
+          for mlp in examples/base/*/hello*.mlp examples/base/01_*/*.mlp; do
+            [ -f "$mlp" ] || continue
+            ./bin/melp_compiler "$mlp" -o /tmp/ci_test.ll 2>&1
+            if [ $? -ne 0 ]; then
+              echo "FAIL: $mlp"
+              fail=$((fail + 1))
+            fi
+          done
+          echo "Başarısız: $fail"
+          exit $fail
+
+      - name: LLVM IR doğrulama (llvm-as)
+        run: |
+          ./bin/melp_compiler /tmp/ci_hello.mlp -o /tmp/validate.ll
+          llvm-as-14 /tmp/validate.ll -o /dev/null && echo "IR: geçerli"
