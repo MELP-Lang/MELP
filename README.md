@@ -78,20 +78,29 @@ Derleyici extension içine gömülü — ayrı kurulum gerektirmez.
 
 ### 3. MeLP GUI IDE (Alfa)
 
-**Electron tabanlı standalone IDE:**
+**Electron tabanlı standalone IDE — VS Code'a gerek yok:**
 
-**İndirme:** [Releases](https://github.com/MELP-Lang/MELP/releases) sayfası
+**İndirme:** [Releases](https://github.com/MELP-Lang/MELP/releases) sayfasından `melp-ide-linux-x64.AppImage` indirin
+
+**Kurulum (Linux):**
+```bash
+chmod +x melp-ide-linux-x64.AppImage
+./melp-ide-linux-x64.AppImage
+```
+
+> ⚠️ **macOS ve Windows sürümleri Beta'da gelecek.** Şu an yalnızca Linux desteklenmektedir.
 
 **Özellikler:**
+- ✅ Görsel widget tasarımı (sürükle-bırak)
 - ✅ Entegre terminal
-- ✅ Proje yönetimi
-- ✅ Debug desteği
+- ✅ Proje yönetimi (.mlpgui formatı)
+- ✅ Otomatik kod üretimi
 - ⚠️ Alfa aşamasında
 
-**Platform:**
-- Linux: AppImage
-- macOS: .app
-- Windows: .exe installer
+**Desteklenen Platform:**
+- ✅ Linux: `.AppImage` (tek dosya, kurulum gerektirmez)
+- 🔄 macOS: Beta'da gelecek  
+- 🔄 Windows: Beta'da gelecek
 
 ---
 
