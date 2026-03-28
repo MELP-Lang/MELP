@@ -76,18 +76,22 @@ EOK'un ileri katmanı olan **EFBO**, FBO dispatch tablosunu post-quantum şifrel
 
 ## Öne Çıkan Özellikler
 
-**Çok Sözdizimli Yazım** — Aynı programı Türkçe, İngilizce, Rusça, Japonca veya başka herhangi bir doğal dilde yazabilirsiniz. `function main()` de çalışır, `fonksiyon giriş()` de. Normalizer, her dil varyantını aynı derleme hattına bağlar. Başka hiçbir derlenmiş dil bunu yerleşik olarak sunmaz.
+**Çok Sözdizimli Yazım** — MELP'i kendi alışkın olduğunuz sözdizim stiliyle yazın. Normalizer, C, Python, Go, Rust, VBNet veya native MELP stilini aynı binary'e derler. Ayrıca tüm anahtar kelimeler Türkçe, İngilizce, Rusça, Japonca dahil herhangi bir doğal dilde yazılabilir. Başka hiçbir derlenmiş dil bunu yerleşik olarak sunmaz.
 
 ```melp
--- Türkçe
-fonksiyon giriş()
-    yaz("Merhaba Dünya!")
-son fonksiyon
+-- C stili
+function topla(numeric a, numeric b) {
+    return a + b;
+}
 
--- İngilizce — aynı program, aynı binary
-function main()
-    print("Hello World!")
-end function
+-- Python stili
+def topla(numeric a, numeric b):
+    return a + b
+
+-- Native MELP stili (Türkçe)
+numeric fonksiyon topla(numeric a; numeric b)
+    döndür a + b
+son fonksiyon
 ```
 
 **Memory Safe, GC'siz, Annotation'sız** — `unsafe` blok yok, lifetime annotation yok, borrow checker kavramı yok. Bellek güvenliği stateless mimari sayesinde tasarım gereği sağlanır.
