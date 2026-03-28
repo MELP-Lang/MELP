@@ -1,0 +1,13 @@
+-- FIX-6: HOF - function as parameter (f as function syntax)
+-- Tests passing a user-defined function reference to another function
+
+function double(x as numeric) -> numeric
+  return x * 2
+end function
+
+function applyTwice(f as function; x as numeric) -> numeric
+  return f(f(x))
+end function
+
+print(applyTwice(double; 3))
+-- Expected: 12

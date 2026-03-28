@@ -1,0 +1,14 @@
+-- test_04_step_two.mlp
+-- FEATURE: FOR_STEP
+-- PHASE: Phase2-L04
+-- Expected: 30
+
+-- step 2 ile çift sayılar toplamı: 0+2+4+6+8+10 = 30
+
+function main()
+    numeric total = 0
+    for i = 0 to 10 step 2
+        total = total + i
+    end for
+    print(total)
+end function

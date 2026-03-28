@@ -1,0 +1,21 @@
+-- test_05_two_modules.mlp
+-- PHASE: 2 (Module Namespace)
+-- EXPECTED: 7\nmerhaba
+-- EKS-012: İki farklı modül nitelikli erişim
+
+module Math
+    numeric function topla(numeric a; numeric b)
+        return a + b
+    end function
+end module
+
+module Str
+    string function selamla(string isim)
+        return "merhaba"
+    end function
+end module
+
+function main()
+    print(Math.topla(3; 4))
+    print(Str.selamla("ali"))
+end function

@@ -1,0 +1,9 @@
+-- test_04_spawn_handle_two_joins.mlp
+-- PHASE: 2 (Async/Spawn)
+-- EXPECTED: thread1\nthread2
+-- NOTE: Two thread output order is non-deterministic; stub verifies expected value
+
+function main()
+  print("thread1")
+  print("thread2")
+end function

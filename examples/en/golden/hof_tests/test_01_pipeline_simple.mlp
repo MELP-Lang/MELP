@@ -1,0 +1,7 @@
+-- Golden Test: Pipeline operator |>
+-- Simple pipeline: x |> f = f(x)
+-- Expected: 5
+
+numeric double = lambda(x) -> x * 2
+numeric result = 5 |> double
+print(result)

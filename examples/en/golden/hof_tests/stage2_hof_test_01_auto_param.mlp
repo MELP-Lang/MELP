@@ -1,0 +1,11 @@
+function apply(numeric x; auto fn)
+  return fn(x)
+end function
+
+function square(numeric x)
+  return x * x
+end function
+
+function main()
+  return apply(6; square)
+end function

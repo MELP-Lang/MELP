@@ -1,0 +1,4 @@
+-- Test: string variable print
+-- Expected: hello
+string msg = "hello"
+print(msg)

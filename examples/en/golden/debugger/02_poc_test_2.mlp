@@ -1,0 +1,10 @@
+-- TEST: Variable Inspection
+-- PHASE: 4.3 (Debugger)
+-- EXPECTED: 30
+
+function main()
+  numeric x = 10
+  numeric y = 20
+  numeric z = x + y
+  print(z)
+end function

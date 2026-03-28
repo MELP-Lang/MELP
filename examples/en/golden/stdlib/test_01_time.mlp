@@ -1,0 +1,26 @@
+-- GOLDEN_TEST: test_01_time
+-- DESC: Test time stdlib - now_ms, current_year, current_month, current_day
+-- FEATURE: STDLIB-3-TIME
+-- PHASE: Phase6
+
+-- now_ms() must return a positive timestamp
+numeric t = now_ms()
+numeric t_ok = t > 0
+print(t_ok)
+
+-- current_year() must be >= 2024
+numeric y = current_year()
+numeric y_ok = y >= 2024
+print(y_ok)
+
+-- current_month() must be in [1..12]
+numeric mo = current_month()
+numeric mo_ok = mo >= 1
+print(mo_ok)
+
+-- current_day() must be in [1..31]
+numeric d = current_day()
+numeric d_ok = d >= 1
+print(d_ok)
+
+-- Expected: 1\n1\n1\n1

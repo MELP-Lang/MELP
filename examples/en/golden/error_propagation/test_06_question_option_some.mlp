@@ -1,0 +1,15 @@
+-- test_06_question_option_some.mlp
+-- Expected: 21
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+numeric function half(numeric n)
+  Option o = Option.Some(n)
+  numeric v = o?
+  return v / 2
+end function
+
+print(half(42))

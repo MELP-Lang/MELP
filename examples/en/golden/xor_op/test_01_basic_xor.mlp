@@ -1,0 +1,5 @@
+-- TEST: XOR bitwise operator 5 xor 3
+-- LANG: FIX-3
+-- Expected: 6
+
+print(5 xor 3)

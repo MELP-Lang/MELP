@@ -1,0 +1,13 @@
+-- method returns field value
+-- Expected: 0
+interface Readable
+    numeric function read()
+end interface
+struct Sensor implements Readable
+    numeric reading
+end struct
+numeric function Sensor.read()
+    return this.reading
+end function
+Sensor s = Sensor { reading: 99 }
+print(s.read())

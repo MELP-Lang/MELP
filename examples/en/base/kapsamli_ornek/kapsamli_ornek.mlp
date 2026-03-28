@@ -1,0 +1,544 @@
+-- ============================================================
+-- KAPSAMLI MELP ÖRNEĞİ — Stage 2 Syntax Keşif Dosyası
+-- Tarih: 5 Mart 2026
+-- Amaç: Bilinen/beklenen her syntax formunu bir arada göstermek,
+--        sınırları ve davranışları gözlemlemek.
+-- ÇALIŞTIRMAYABİLİR — bu bir keşif belgesidir.
+-- ============================================================
+
+-- ============================================================
+-- BÖLÜM 0: KRİTİK SYNTAX KURALLARI (hatırlatma)
+-- ============================================================
+-- Parametre ayırıcı  : ; (noktalı virgül)
+-- Blok kapatıcı      : end if  end while  end for  end function
+-- if koşul           : "if ... then" (then ZORUNLU)
+-- else if            : tek token, alt çizgili
+-- Mantıksal          : and  or  not  (&&, ||, ! DEĞİL)
+-- Yorum              : --  (// DEĞİL)
+-- Dizi               : [1; 2; 3]  (virgül DEĞİL)
+-- Harf büyüklüğü     : her şey küçük harf — SCOPE, IF, Function → HATA
+-- ============================================================
+
+
+-- ============================================================
+-- BÖLÜM 1: STRUCT TANIMLARI
+-- ============================================================
+
+-- Öğrenci kaydı
+struct Ogrenci
+    numeric id
+    numeric not1
+    numeric not2
+    numeric not3
+    numeric ortalama
+end struct
+
+-- İstatistik özeti
+struct Ozet
+    numeric toplam_ogrenci
+    numeric gecen
+    numeric kalan
+    numeric en_yuksek
+    numeric en_dusuk
+end struct
+
+
+-- ============================================================
+-- BÖLÜM 2: DÖNÜŞ TİPİ — 5 FARKLI FORM (eşdeğer)
+-- ============================================================
+
+-- Form 1: kanonik  →  function isim(...) as tip
+numeric function ortalama_hesapla(numeric a; numeric b; numeric c)
+    return (a + b + c) / 3
+end function
+
+-- Form 2: tip tek başına  →  function isim(...) tip
+-- function ortalama_v2(numeric a; numeric b; numeric c) numeric
+--     return (a + b + c) / 3
+-- end function
+
+-- Form 3: tersine sıra  →  function isim(...) tip as
+-- function ortalama_v3(numeric a; numeric b; numeric c) numeric as
+--     return (a + b + c) / 3
+-- end function
+
+-- Form 4: önek (C/Java stili)  →  numeric function isim(...)
+-- numeric function ortalama_v4(numeric a; numeric b; numeric c)
+--     return (a + b + c) / 3
+-- end function
+
+-- NOT: Form 2-4 normalizer/derleyici desteğine bağlı.
+--      Şu an kanonik form (Form 1) güvenli.
+
+
+-- ============================================================
+-- BÖLÜM 3: ÖZYINELEME — faktöriyel
+-- ============================================================
+
+numeric function faktoriyel(numeric n)
+    if n <= 1 then
+        return 1
+    else
+        return n * faktoriyel(n - 1)
+    end if
+end function
+
+
+-- ============================================================
+-- BÖLÜM 4: HARF NOTU — match ile
+-- ============================================================
+
+-- Notu 0-100 aralığında alır; 90+ A, 80+ B, 70+ C, altı F
+-- match tam eşleşme yaptığı için burada if-else if zinciri daha uygun
+numeric function harf_notu(numeric ort)
+    -- Dönen değer: 4=A  3=B  2=C  1=F  (string yok, numeric kod)
+    if ort >= 90 then
+        return 4
+    else
+        if ort >= 80 then
+            return 3
+        else
+            if ort >= 70 then
+                return 2
+            else
+                return 1
+            end if
+        end if
+    end if
+end function
+
+-- match örneği: harf kodu → açıklama kodu
+-- (string döndürme desteği belirsiz; numeric kod döndürüyoruz)
+numeric function harf_kodu_acikla(numeric kod)
+    match kod
+        case 4 then return 10   -- "Pekiyi"
+        case 3 then return 20   -- "İyi"
+        case 2 then return 30   -- "Orta"
+        case 1 then return 40   -- "Geçmedi"
+        else return 0
+    end match
+end function
+
+
+-- ============================================================
+-- BÖLÜM 5: LAMBDA — çarpan fabrikası
+-- ============================================================
+
+-- Basit lambda: tek parametre
+-- numeric ikiye_katla = lambda(x) -> x * 2
+
+-- Parametreli lambda: iki parametre, ; ile ayrılır
+-- numeric topla = lambda(x; y) -> x + y
+-- numeric r = topla(10; 20)
+
+-- NOT: lambda değişkene atanır; lambda tipi numeric/boolean olarak bildirilir.
+--      Capture (dış değişken okuma) desteklenir.
+
+
+-- ============================================================
+-- BÖLÜM 6: FIZZBUZZ — for + koşul + mod
+-- ============================================================
+
+numeric function fizzbuzz(numeric n)
+    -- 1'den n'e kadar FizzBuzz çıktısı; sayıları döner (print yok)
+    -- Gerçek çıktı için print kullanılır ama bu fonksiyon
+    -- sadece kaç "özel" sayı olduğunu sayar (15'in katları)
+    numeric sayac = 0
+    loop i = 1 to n
+        if i mod 15 == 0 then
+            sayac = sayac + 1
+        else
+            if i mod 3 == 0 then
+                -- üçün katı
+                numeric dummy3 = i
+            else
+                if i mod 5 == 0 then
+                    -- beşin katı
+                    numeric dummy5 = i
+                else
+                    -- sıradan sayı
+                    numeric dummy = i
+                end if
+            end if
+        end if
+    end loop
+    return sayac
+end function
+
+
+-- ============================================================
+-- BÖLÜM 7: SCOPE BLOĞU — isimli, erken çıkış, iç içe
+-- ============================================================
+
+-- scope <isim>         → bloğu aç
+-- exit_<isim>          → erken çık
+-- end_<isim>           → kapat  (veya end_scope)
+-- DİKKAT: end_<isim> açılan isimle TAMAMEN eşleşmeli
+-- DİKKAT: "test" rezerve — scope test → HATA
+-- DİKKAT: scope a() hata; yalnızca basit IDENTIFIER kabul edilir
+
+numeric function scope_demo(numeric x)
+    numeric sonuc = 0
+
+    scope hesap
+        sonuc = x * 2
+
+        if x < 0 then
+            exit_hesap          -- negatif gelirse bloğu atla
+        end if
+
+        sonuc = sonuc + 10      -- yalnızca x >= 0 ise buraya gelir
+
+        scope ic_blok
+            numeric ekstra = x mod 3
+            sonuc = sonuc + ekstra
+        end_ic_blok             -- ic_blok'u kapat
+
+    end_hesap                   -- hesap'ı kapat
+
+    return sonuc
+end function
+
+
+-- ============================================================
+-- BÖLÜM 8: IF-THEN TEK SATIR FORMU
+-- ============================================================
+
+-- Form: "if koşul then komut"  →  end if ZORUNLU DEĞİL
+-- `:` ile tek satırda birden çok komut
+-- else bu formda DESTEKLENMIYOR
+
+numeric function tek_satir_if_demo(numeric x)
+    numeric sonuc = 0
+
+    if x > 100 then sonuc = 999
+
+    if x == 42 then sonuc = 42
+
+    -- Çoklu komut: `:` ayırıcı
+    -- if x > 0 then sonuc = x : sonuc = sonuc * 2
+
+    return sonuc
+end function
+
+
+-- ============================================================
+-- BÖLÜM 9: ÖĞRENCİ NOT SİSTEMİ — ana mantık
+-- ============================================================
+
+-- Öğrenci notu gir, ortalama hesapla, harf ver
+numeric function ogrenci_isle(numeric id; numeric n1; numeric n2; numeric n3)
+    Ogrenci ogr
+    ogr.id = id
+    ogr.not1 = n1
+    ogr.not2 = n2
+    ogr.not3 = n3
+    ogr.ortalama = ortalama_hesapla(n1; n2; n3)
+
+    -- Harf kodu döndür
+    return harf_notu(ogr.ortalama)
+end function
+
+-- Tüm öğrenciler için özet istatistik hesapla
+numeric function istatistik_hesapla(numeric o1; numeric o2; numeric o3; numeric o4; numeric o5)
+    -- En yüksek ortalamayı bul (scope + erken çıkış ile)
+    numeric en_yuksek = o1
+
+    scope maksimum
+        if o2 > en_yuksek then en_yuksek = o2
+        if o3 > en_yuksek then en_yuksek = o3
+        if o4 > en_yuksek then en_yuksek = o4
+        if o5 > en_yuksek then en_yuksek = o5
+    end_maksimum
+
+    return en_yuksek
+end function
+
+
+-- ============================================================
+-- BÖLÜM 10: ÖZYINELEME — fibonacci (iteratif + rekürsif)
+-- ============================================================
+
+numeric function fib_iteratif(numeric n)
+    if n <= 1 then
+        return n
+    end if
+
+    numeric a = 0
+    numeric b = 1
+    numeric i = 2
+
+    loop i <= n
+        numeric temp = a + b
+        a = b
+        b = temp
+        i = i + 1
+    end loop
+
+    return b
+end function
+
+numeric function fib_rekursif(numeric n)
+    if n <= 1 then
+        return n
+    else
+        return fib_rekursif(n - 1) + fib_rekursif(n - 2)
+    end if
+end function
+
+
+-- ============================================================
+-- BÖLÜM 11: DİZİ — topla, döngü
+-- ============================================================
+
+numeric function dizi_topla()
+    numeric[] notlar = [55; 70; 85; 90; 45]
+    numeric toplam = 0
+    loop i = 0 to 4
+        toplam = toplam + notlar[i]
+    end loop
+    return toplam
+end function
+
+
+-- ============================================================
+-- BÖLÜM 12: BOOLEAN MANTIK — and / or / not
+-- ============================================================
+
+boolean function gecti_mi(numeric ort; boolean devamsizlik_var)
+    -- Geçmek için: ortalama >= 50 VE devamsızlık yok
+    if ort >= 50 and not devamsizlik_var then
+        return true
+    else
+        return false
+    end if
+end function
+
+
+-- ============================================================
+-- BÖLÜM 13: İÇ İÇE DÖNGÜ + DOWNTO + STEP
+-- ============================================================
+
+numeric function geri_say(numeric baslangic)
+    numeric toplam = 0
+    loop i = baslangic downto 1
+        toplam = toplam + i
+    end loop
+    return toplam
+end function
+
+numeric function carpim_tablosu_toplam(numeric n)
+    -- n×n çarpım tablosunun tüm elemanlarının toplamı
+    numeric toplam = 0
+    loop i = 1 to n
+        loop j = 1 to n
+            toplam = toplam + (i * j)
+        end loop
+    end loop
+    return toplam
+end function
+
+numeric function adim_toplam()
+    -- 0 10 20 30 40 50 → toplam = 150
+    numeric toplam = 0
+    loop k = 0 to 50 step 10
+        toplam = toplam + k
+    end loop
+    return toplam
+end function
+
+
+-- ============================================================
+-- BÖLÜM 14: STRUCT METODU
+-- ============================================================
+
+numeric function Ozet.gecme_yuzdesi()
+    numeric g = this.gecen
+    numeric t = this.toplam_ogrenci
+    if t == 0 then
+        return 0
+    end if
+    return (g * 100) / t
+end function
+
+
+-- ============================================================
+-- BÖLÜM 15: ANA FONKSİYON — her şeyi bir araya getirir
+-- ============================================================
+
+numeric function main()
+    print("=== KAPSAMLI MELP ÖRNEĞİ ===")
+
+    -- --- 1. FAKTÖRİYEL ---
+    print("--- Faktoriyel ---")
+    numeric f5 = faktoriyel(5)      -- 120
+    print(f5)
+    numeric f10 = faktoriyel(10)    -- 3628800
+    print(f10)
+
+    -- --- 2. FİBONACCI ---
+    print("--- Fibonacci ---")
+    numeric fib10_iter = fib_iteratif(10)   -- 55
+    print(fib10_iter)
+    numeric fib10_rek = fib_rekursif(10)    -- 55
+    print(fib10_rek)
+
+    -- --- 3. FIZZBUZZ SAYACI (1-30) ---
+    print("--- FizzBuzz (15 katlari, 1-30) ---")
+    numeric ff = fizzbuzz(30)   -- 2 tane: 15, 30
+    print(ff)
+
+    -- --- 4. ÖĞRENCİ NOT SİSTEMİ ---
+    print("--- Ogrenci Not Sistemi ---")
+
+    -- Beş öğrenci: (id; not1; not2; not3)
+    numeric h1 = ogrenci_isle(1; 95; 88; 92)    -- A (4)
+    numeric h2 = ogrenci_isle(2; 75; 80; 70)    -- C (2)
+    numeric h3 = ogrenci_isle(3; 40; 55; 45)    -- F (1)
+    numeric h4 = ogrenci_isle(4; 85; 90; 88)    -- B (3)
+    numeric h5 = ogrenci_isle(5; 60; 65; 70)    -- C (2)
+    print(h1)
+    print(h2)
+    print(h3)
+    print(h4)
+    print(h5)
+
+    -- Harf kodu açıklama (match demo)
+    numeric aciklama = harf_kodu_acikla(h1)     -- 10 = "A/Pekiyi"
+    print(aciklama)
+
+    -- Ortalamalar (struct field hesabı yerine fonksiyon ile)
+    numeric ort1 = ortalama_hesapla(95; 88; 92)  -- 91
+    numeric ort2 = ortalama_hesapla(75; 80; 70)  -- 75
+    numeric ort3 = ortalama_hesapla(40; 55; 45)  -- 46
+    numeric ort4 = ortalama_hesapla(85; 90; 88)  -- 87
+    numeric ort5 = ortalama_hesapla(60; 65; 70)  -- 65
+
+    -- En yüksek ortalama (scope içinde)
+    numeric en_yuksek = istatistik_hesapla(ort1; ort2; ort3; ort4; ort5)
+    print("En yuksek ortalama:")
+    print(en_yuksek)
+
+    -- --- 5. GECTI MI? (boolean) ---
+    print("--- Gecme durumu ---")
+    boolean ogr3_gecti = gecti_mi(ort3; false)  -- 46 < 50 → false
+    boolean ogr1_gecti = gecti_mi(ort1; false)  -- 91 >= 50 → true
+    print(ogr3_gecti)
+    print(ogr1_gecti)
+
+    -- --- 6. DİZİ TOPLAM ---
+    print("--- Dizi toplam ---")
+    numeric dtoplam = dizi_topla()   -- 55+70+85+90+45 = 345
+    print(dtoplam)
+
+    -- --- 7. DOWNTO + STEP ---
+    print("--- Geri say (5) ---")
+    numeric gs = geri_say(5)     -- 5+4+3+2+1 = 15
+    print(gs)
+
+    print("--- Adim toplami (0-50 step 10) ---")
+    numeric at = adim_toplam()   -- 150
+    print(at)
+
+    print("--- Carpim tablosu toplami (3x3) ---")
+    numeric ct = carpim_tablosu_toplam(3)   -- (1+2+3)^2 = 36
+    print(ct)
+
+    -- --- 8. SCOPE DEMO ---
+    print("--- Scope demo ---")
+    numeric sd1 = scope_demo(5)     -- (5*2)+10+(5 mod 3) = 22
+    print(sd1)
+    numeric sd2 = scope_demo(-3)    -- (-3*2) = -6  (erken çıkış, +10 yok)
+    print(sd2)
+
+    -- --- 9. IF-THEN TEK SATIR ---
+    print("--- If-then tek satir ---")
+    numeric ts1 = tek_satir_if_demo(42)    -- 42
+    print(ts1)
+    numeric ts2 = tek_satir_if_demo(200)   -- 999
+    print(ts2)
+    numeric ts3 = tek_satir_if_demo(1)     -- 0
+    print(ts3)
+
+    -- --- 10. STRUCT + METOT ---
+    print("--- Ozet struct ---")
+    Ozet oz
+    oz.toplam_ogrenci = 5
+    oz.gecen = 4
+    oz.kalan = 1
+    oz.en_yuksek = 91
+    oz.en_dusuk = 46
+    numeric yuzde = oz.gecme_yuzdesi()   -- (4*100)/5 = 80
+    print(yuzde)
+
+    -- --- 11. LAMBDA (yorum satırı — derleyici desteği bağlı) ---
+    -- numeric ikiye_katla = lambda(x) -> x * 2
+    -- numeric r_lambda = ikiye_katla(21)   -- 42
+    -- print(r_lambda)
+    --
+    -- numeric fark = lambda(x; y) -> x - y
+    -- numeric r_fark = fark(100; 58)      -- 42
+    -- print(r_fark)
+
+    -- --- 12. WHILE ile TOPLAM ---
+    print("--- While döngüsü (1-100 toplam) ---")
+    numeric while_toplam = 0
+    numeric wi = 1
+    loop wi <= 100
+        while_toplam = while_toplam + wi
+        wi = wi + 1
+    end loop
+    print(while_toplam)   -- 5050
+
+    print("=== BITTI ===")
+    return 0
+end function
+
+
+-- ============================================================
+-- BÖLÜM 16: FONKSİYON_SONU / İSLEV_SONU ÖRNEĞİ
+-- (sadece --lang=turkish veya --normalize flag'i ile çalışır)
+-- ============================================================
+
+-- function selam()
+--     print("merhaba")
+-- fonksiyon_sonu        -- end function ile eşdeğer (--lang=turkish)
+
+-- function islev_dene()
+--     print("islev")
+-- islev_sonu            -- fonksiyon_sonu ile aynı alias
+
+
+-- ============================================================
+-- BÖLÜM 17: BİLİNEN KISITLAMALAR VE TEST EDİLECEK SINIRLAR
+-- ============================================================
+
+-- [KISIT-1] Dönüş tipi alternatifleri (Form 2-4)
+--   Normalizer desteğine bağlı; kanonik form (Form 1) her zaman çalışır.
+--
+-- [KISIT-2] scope sonrası sadece basit identifier
+--   scope hesap  → OK
+--   scope a()    → HATA
+--   scope test   → HATA (rezerve kelime)
+--
+-- [KISIT-3] end_<isim> eşleşmesi zorunlu
+--   scope hesap … end_blok → parser PATLAMA
+--   scope hesap … end_hesap → OK
+--
+-- [KISIT-4] if-then tek satır — else yok
+--   if x then a : b → OK (çoklu komut `:` ile)
+--   if x then a else b → DESTEKLENMIYOR
+--
+-- [KISIT-5] fonksiyon_sonu / islev_sonu
+--   --lang=turkish olmadan tanınmaz
+--
+-- [KISIT-6] Parametre ayırıcı
+--   topla(3, 4)  → YANLIŞ
+--   topla(3; 4)  → DOĞRU
+--
+-- [KISIT-7] Büyük harf
+--   SCOPE, IF, Function, WHILE → her biri HATA
+--
+-- [KISIT-8] this.alan * this.baska — doğrudan kullanılamaz
+--   struct metot içinde önce local değişkene atanmalı:
+--   numeric w = this.width  →  return w * h

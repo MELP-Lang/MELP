@@ -1,0 +1,20 @@
+-- Option with different pattern variable names
+-- Expected: 33\n44
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+Option a = Option.Some(33)
+Option b = Option.Some(44)
+
+match a
+  case Some(alpha) -> print(alpha)
+  case None -> print(0)
+end match
+
+match b
+  case Some(beta) -> print(beta)
+  case None -> print(0)
+end match

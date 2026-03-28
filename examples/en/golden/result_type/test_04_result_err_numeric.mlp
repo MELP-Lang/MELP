@@ -1,0 +1,13 @@
+-- Result with numeric Err value
+-- Expected: 404
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+Result r = Result.Err(404)
+match r
+  case Ok(v) -> print(200)
+  case Err(code) -> print(code)
+end match

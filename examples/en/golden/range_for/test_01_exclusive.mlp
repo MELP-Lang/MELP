@@ -1,0 +1,6 @@
+-- GOLDEN TEST: Range for - exclusive
+-- FEATURE: LANG-11 Range for i in 1..5
+-- Expected: 1\n2\n3\n4
+for i in 1..5
+  print(i)
+end for

@@ -1,0 +1,5 @@
+-- Test: for loop with single iteration (start == end)
+-- Expected: 42
+for i = 42 to 42
+  print(i)
+end for

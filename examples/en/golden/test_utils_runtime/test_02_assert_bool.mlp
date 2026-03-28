@@ -1,0 +1,13 @@
+-- Golden Test: test_assert_true_false
+-- Tests boolean assertions
+-- Expected output:
+-- 1
+-- 0
+-- 1
+-- 0
+
+print(__builtin_test_assert_true(1))
+print(__builtin_test_assert_true(0))
+print(__builtin_test_assert_false(0))
+print(__builtin_test_assert_false(1))
+-- Expected: 1\n0\n1\n0

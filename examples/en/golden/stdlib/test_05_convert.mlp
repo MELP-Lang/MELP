@@ -1,0 +1,19 @@
+-- GOLDEN_TEST: test_05_convert
+-- DESC: Test convert stdlib - to_int (non-numeric), is_numeric, to_bool (non-bool), int_to_str
+-- FEATURE: STDLIB-6-CONVERT
+-- PHASE: Phase6
+
+-- to_int with non-numeric string -> 0
+print(to_int("hello"))
+
+-- is_numeric with non-digit string -> 0
+print(is_numeric("abc"))
+
+-- to_bool with unknown string -> 0
+print(to_bool("maybe"))
+
+-- int_to_str converts integer to string representation
+print(int_to_str(99))
+print(int_to_str(0))
+
+-- Expected: 0\n0\n0\n99\n0

@@ -1,0 +1,8 @@
+-- Test: native binary numeric output
+-- FEATURE: NATIVE_BINARY
+-- PHASE: Phase1-P01
+-- Expected: 42
+function main()
+  numeric x = 42
+  print(x)
+end function

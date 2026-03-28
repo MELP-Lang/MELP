@@ -1,0 +1,10 @@
+-- Golden Test: Pipeline with closure
+-- Pipeline using a closure that captures a variable
+-- Expected: 5
+
+numeric factor = 3
+numeric multiply = lambda(x) -> x * factor
+
+-- 5 |> multiply = 5 * 3 = 15
+numeric result = 5 |> multiply
+print(result)

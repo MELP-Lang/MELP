@@ -1,0 +1,10 @@
+-- test_01_basic_struct.mlp
+-- Expected: 10
+
+struct Point
+  numeric x
+  numeric y
+end struct
+
+Point p = Point { x: 10; y: 20 }
+print(p.x)

@@ -1,0 +1,21 @@
+-- TEST: enum_if_else_branch
+-- EXPECTED: green
+-- FEATURE: ENUM.md
+-- CATEGORY: bug
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+enum Color
+  RED
+  GREEN
+  BLUE
+end enum
+
+function main()
+  numeric c = Color.GREEN
+  if c == Color.RED then
+    print("red")
+  else
+    print("green")
+  end if
+  return 0
+end function

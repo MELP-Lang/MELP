@@ -1,0 +1,20 @@
+-- Result with large numeric values
+-- Expected: 999999\n888888
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+Result r1 = Result.Ok(999999)
+Result r2 = Result.Err(888888)
+
+match r1
+  case Ok(v) -> print(v)
+  case Err(e) -> print(0)
+end match
+
+match r2
+  case Ok(v) -> print(0)
+  case Err(e) -> print(e)
+end match

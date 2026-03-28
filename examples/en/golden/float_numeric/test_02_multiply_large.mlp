@@ -1,0 +1,11 @@
+-- MKLP_TEST: large_number_multiply
+-- EXPECTED: 1000000000000
+-- FEATURE: FLOAT_NUMERIC.md
+-- CATEGORY: feature
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+function main()
+  numeric a = 1000000
+  numeric b = 1000000
+  print(a * b)
+end function

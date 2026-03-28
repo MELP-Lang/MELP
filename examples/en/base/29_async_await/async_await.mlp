@@ -1,0 +1,24 @@
+-- FEATURE: ASYNC_AWAIT - Asenkron fonksiyon
+-- NOT: Stage0'da async = sync pass-through (Phase 7 — gerçek async yok)
+-- async keyword parse + compile ediliyor, await gelecekte
+
+async numeric function fetch_data(numeric id)
+    -- Şu an senkron çalışıyor
+    return id * 10
+end function
+
+async numeric function process(numeric val)
+    numeric data = fetch_data(val)
+    return data + 1
+end function
+
+function main()
+    numeric r1 = fetch_data(5)
+    print(r1)
+
+    numeric r2 = fetch_data(20)
+    print(r2)
+
+    numeric r3 = process(3)
+    print(r3)
+end function

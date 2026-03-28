@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# melp_compiler — Stage1/Stage0 boundary enforcer
+#
+# This is a WRAPPER around the real Stage0 compiler binary (melp_compiler_bin).
+# It enforces the architectural rule:
+#
+#   melp_compiler NEVER receives .mlp files.
+#   .mlp (MLP) must be converted to .pmlp (PMLP) by melp_normalizer_bin first.
+#
+# Correct pipeline:
+#   .mlp → melp_normalizer_bin → .pmlp → melp_compiler_bin → LLVM IR
+#
+# If you are trying to compile a .mlp file, use:
+#   bin/run_melp your_file.mlp
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REAL_COMPILER="$SCRIPT_DIR/melp_compiler_bin"
+
+if [[ ! -x "$REAL_COMPILER" ]]; then
+    echo "melp_compiler: FATAL: real compiler binary not found: $REAL_COMPILER" >&2
+    exit 127
+fi
+
+# Scan all arguments for .mlp files
+for arg in "$@"; do
+    if [[ "$arg" == *.mlp && "$arg" != *.pmlp ]]; then
+        echo "" >&2
+        echo "❌ melp_compiler ERROR: Direct .mlp input is not allowed." >&2
+        echo "" >&2
+        echo "   File given : $arg" >&2
+        echo "   File type  : MLP (human-facing language)" >&2
+        echo "" >&2
+        echo "   melp_compiler only accepts PMLP (normalized, Stage0 internal format)." >&2
+        echo "   .mlp files must first be converted to PMLP by melp_normalizer_bin." >&2
+        echo "" >&2
+        echo "   Stage1/Stage0 architecture:" >&2
+        echo "     .mlp  →  melp_normalizer_bin  →  .pmlp  →  melp_compiler_bin  →  LLVM IR" >&2
+        echo "" >&2
+        echo "   To compile an English/Turkish/Russian .mlp file, use:" >&2
+        echo "     bin/run_melp $arg" >&2
+        echo "" >&2
+        exit 1
+    fi
+done
+
+exec "$REAL_COMPILER" "$@"

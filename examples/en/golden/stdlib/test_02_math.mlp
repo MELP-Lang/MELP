@@ -1,0 +1,15 @@
+-- GOLDEN_TEST: test_02_math
+-- DESC: Test math stdlib - abs, sqrt, pow, min, max, clamp, gcd, lcm
+-- FEATURE: STDLIB-1-MATH
+-- PHASE: Phase6
+
+print(sqrt(9))
+print(pow(2; 10))
+print(min(3; 7))
+print(max(3; 7))
+print(abs(-42))
+print(clamp(15; 0; 10))
+print(gcd(12; 8))
+print(lcm(4; 6))
+
+-- Expected: 3\n1024\n3\n7\n42\n10\n4\n12

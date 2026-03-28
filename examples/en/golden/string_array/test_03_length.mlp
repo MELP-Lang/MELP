@@ -1,0 +1,6 @@
+-- TEST: String Array Last Element
+-- LANG: LANG-2
+-- Expected: kiraz
+
+string[] fruits = ["elma"; "armut"; "kiraz"]
+print(fruits[2])

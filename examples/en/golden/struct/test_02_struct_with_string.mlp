@@ -1,0 +1,11 @@
+-- test_02_struct_with_string.mlp
+-- Expected: hello
+-- NOTE: F-01 fixed — struct string fields now emit real global string constant
+
+struct Person
+  string name
+  numeric age
+end struct
+
+Person p = Person { name: "hello"; age: 25 }
+print(p.name)

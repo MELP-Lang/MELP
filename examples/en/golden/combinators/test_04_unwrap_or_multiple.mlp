@@ -1,0 +1,16 @@
+-- Multiple unwrap_or operations
+-- Expected: 10\n77
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+Option a = Option.Some(10)
+Option b = Option.None
+
+numeric x = a.unwrap_or(0)
+numeric y = b.unwrap_or(77)
+
+print(x)
+print(y)

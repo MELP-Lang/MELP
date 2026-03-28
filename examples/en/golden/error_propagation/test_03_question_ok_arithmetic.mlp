@@ -1,0 +1,15 @@
+-- test_03_question_ok_arithmetic.mlp
+-- Expected: 84
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+numeric function double_val(numeric n)
+  Result r = Result.Ok(n)
+  numeric v = r?
+  return v * 2
+end function
+
+print(double_val(42))

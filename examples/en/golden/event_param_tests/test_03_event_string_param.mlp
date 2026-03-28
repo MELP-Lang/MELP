@@ -1,0 +1,12 @@
+-- test_03_event_string_param.mlp
+-- PHASE: 2 (Event Block)
+-- EXPECTED: mesaj: Merhaba
+-- EKS-016: String parametreli event
+
+event on_message(string msg)
+    print("mesaj: " + msg)
+end_event
+
+function main()
+    on_message("Merhaba")
+end function

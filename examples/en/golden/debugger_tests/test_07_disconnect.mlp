@@ -1,0 +1,8 @@
+-- DAP disconnect test
+-- Expected: 1
+
+numeric function test_dap_disconnect()
+  return 1
+end function
+
+print(test_dap_disconnect())

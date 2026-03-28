@@ -1,0 +1,16 @@
+-- Golden Test: test_register
+-- Tests test registration and counting
+-- Expected output:
+-- 1
+-- 2
+-- 2
+
+numeric test1 = __builtin_test_register("test_addition"; 1)
+print(test1)
+
+numeric test2 = __builtin_test_register("test_subtraction"; 2)
+print(test2)
+
+numeric total = __builtin_test_get_total()
+print(total)
+-- Expected: 1\n2\n2

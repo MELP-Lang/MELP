@@ -1,0 +1,25 @@
+-- Array Empty Test
+-- Tests array_is_empty and empty array operations
+
+-- Create empty array
+numeric arr = __builtin_array_create()
+
+-- Should be empty
+numeric isEmpty1 = __builtin_array_is_empty(arr)
+print(isEmpty1)
+
+-- Length should be 0
+numeric len1 = __builtin_array_length(arr)
+print(len1)
+
+-- Push element
+__builtin_array_push(arr; 42)
+
+-- Now not empty
+numeric isEmpty2 = __builtin_array_is_empty(arr)
+print(isEmpty2)
+
+-- Length should be 1
+numeric len2 = __builtin_array_length(arr)
+print(len2)
+-- Expected: 1\n0\n0\n1

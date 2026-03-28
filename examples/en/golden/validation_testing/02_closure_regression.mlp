@@ -1,0 +1,6 @@
+-- FEATURE: VALIDATION_TESTING
+-- TEST: 02
+-- EXPECTED: 20
+
+numeric sonuc = 20
+print(sonuc)

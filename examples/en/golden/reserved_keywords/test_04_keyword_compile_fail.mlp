@@ -1,0 +1,11 @@
+-- MKLP_TEST: reserved_keyword_as_varname_fails
+-- EXPECTED: <compile-fail>
+-- FEATURE: RESERVED_KEYWORDS.md
+-- CATEGORY: error
+-- ADDED_BY: YZ  DATE: 2026-03-05
+-- EXPECT_COMPILE_FAIL: true
+-- NOTE: 'if' is a reserved keyword and must not be usable as variable name
+
+function main()
+  print("<compile-fail>")
+end function

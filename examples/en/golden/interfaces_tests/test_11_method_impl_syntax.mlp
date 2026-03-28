@@ -1,0 +1,13 @@
+-- function Circle.draw() syntax
+-- Expected: 0
+interface Drawable
+    numeric function draw()
+end interface
+struct Circle implements Drawable
+    numeric r
+end struct
+numeric function Circle.draw()
+    return this.r
+end function
+Circle c = Circle { r: 3 }
+print(c.draw())

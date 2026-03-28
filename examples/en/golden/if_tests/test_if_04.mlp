@@ -1,0 +1,21 @@
+-- TEST: If with different comparisons
+-- Expected: 3
+
+function main()
+    numeric result = 0
+    numeric a = 10
+
+    if a == 10 then
+        result = result + 1
+    end if
+
+    if a >= 10 then
+        result = result + 1
+    end if
+
+    if a <= 10 then
+        result = result + 1
+    end if
+
+    print(result)
+end function

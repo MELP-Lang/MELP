@@ -1,0 +1,7 @@
+-- TEST: Negative numeric value
+-- Expected: -42
+
+function main()
+    numeric negative = -42
+    print(negative)
+end function

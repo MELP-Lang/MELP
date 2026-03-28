@@ -1,0 +1,10 @@
+-- TEST: Switch else fallback clause
+-- LANG: LANG-4
+-- Expected: diger
+
+numeric x = 5
+switch x
+    when 1 then print("bir")
+    when 2 then print("iki")
+    else print("diger")
+end_switch

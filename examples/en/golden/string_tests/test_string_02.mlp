@@ -1,0 +1,7 @@
+-- TEST: String with tab escape sequence
+-- Expected: Col1	Col2	Col3
+
+function main()
+    string tabbed = "Col1\tCol2\tCol3"
+    print(tabbed)
+end function

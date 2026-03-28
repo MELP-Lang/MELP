@@ -1,0 +1,9 @@
+-- test_02_auto_string.mlp
+-- PHASE: 1 (Auto Type)
+-- EXPECTED: merhaba
+-- EKS-018: auto string → pointer değeri değil, string çıktısı
+
+function main()
+    auto s = "merhaba"
+    print(s)    -- "merhaba" bekleniyor (sayısal pointer değil)
+end function

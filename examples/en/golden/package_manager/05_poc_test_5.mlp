@@ -1,0 +1,8 @@
+-- TEST: Lockfile Generation
+-- PHASE: 4.1 (Package Manager)
+-- EXPECTED: 3
+
+function main()
+  numeric locked_versions = 3
+  print(locked_versions)
+end function

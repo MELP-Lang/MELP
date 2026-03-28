@@ -1,0 +1,16 @@
+-- Exhaustive match with 3 variants
+-- Expected: 1
+
+enum Status
+  Success
+  Pending
+  Failed
+end enum
+
+Status s = Status.Success
+
+match s
+  case Success -> print(1)
+  case Pending -> print(2)
+  case Failed -> print(3)
+end match

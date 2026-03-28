@@ -1,0 +1,18 @@
+-- MKLP_TEST: build_multi_function
+-- EXPECTED: 42
+-- FEATURE: BUILD_PROCESS.md
+-- CATEGORY: feature
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+numeric function double(numeric x)
+  return x * 2
+end function
+
+numeric function add(numeric a; numeric b)
+  return a + b
+end function
+
+function main()
+  numeric result = add(double(10); double(11))
+  print(result)
+end function

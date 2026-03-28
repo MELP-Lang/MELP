@@ -1,0 +1,10 @@
+-- TEST: Basic while loop
+-- Expected: 5
+
+function main()
+    numeric i = 0
+    while i < 5
+        i = i + 1
+    end while
+    print(i)
+end function

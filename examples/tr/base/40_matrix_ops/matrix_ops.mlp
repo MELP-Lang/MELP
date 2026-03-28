@@ -1,0 +1,23 @@
+sayısal fonksiyon matris_topla()
+    sayısal a11 = 1
+    sayısal a12 = 2
+    sayısal a21 = 3
+    sayısal a22 = 4
+
+    sayısal b11 = 5
+    sayısal b12 = 6
+    sayısal b21 = 7
+    sayısal b22 = 8
+
+    sayısal c11 = a11 + b11
+    sayısal c12 = a12 + b12
+    sayısal c21 = a21 + b21
+    sayısal c22 = a22 + b22
+
+    döndür c11
+fonksiyon sonu
+
+fonksiyon giriş()
+    sayısal result = matris_topla()
+    yazdır(result)
+fonksiyon sonu

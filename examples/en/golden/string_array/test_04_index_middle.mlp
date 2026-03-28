@@ -1,0 +1,6 @@
+-- TEST: String Array Index Access Middle
+-- LANG: LANG-2
+-- Expected: Veli
+
+string[] isimler = ["Ali"; "Veli"; "Ayse"; "Mehmet"]
+print(isimler[1])

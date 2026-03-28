@@ -1,0 +1,7 @@
+-- TEST: Hover Info
+-- PHASE: 4.2 (LSP)
+-- EXPECTED: 42
+
+function main()
+  print(42)
+end function

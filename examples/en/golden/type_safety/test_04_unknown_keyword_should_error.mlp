@@ -1,0 +1,8 @@
+-- test_04_unknown_keyword_should_error.mlp
+-- PHASE: 1 (Type Safety)
+-- EXPECTED: COMPILE_ERROR: Expected expression
+-- EKS-002: Negatif test — bilinmeyen keyword → parser error
+
+bilinmeyenBlok main()
+    print("bu derlenmemeli")
+end_bilinmeyenBlok

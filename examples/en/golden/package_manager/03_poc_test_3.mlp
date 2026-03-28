@@ -1,0 +1,7 @@
+-- TEST: Version Check
+-- PHASE: 4.1 (Package Manager)
+-- EXPECTED: 1
+
+function main()
+  print(1)
+end function

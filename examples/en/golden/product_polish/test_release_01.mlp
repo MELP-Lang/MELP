@@ -1,0 +1,6 @@
+-- FEATURE: PRODUCT_POLISH
+-- TEST: Release smoke
+-- Expected: 10
+
+numeric sonuc = 10
+print(sonuc)

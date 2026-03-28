@@ -1,0 +1,5 @@
+-- TEST: XOR with zero gives same value
+-- LANG: FIX-3
+-- Expected: 42
+
+print(42 xor 0)

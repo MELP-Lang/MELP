@@ -1,0 +1,12 @@
+-- test_05_default_missing_required.mlp
+-- PHASE: 3 (Default Params)
+-- EXPECTED: COMPILE_ERROR: Missing required argument 'mesaj'
+-- EKS-009: Negatif test — zorunlu parametre verilmezse compile error
+
+function log(string mesaj; string seviye: "INFO")
+    print(seviye + ": " + mesaj)
+end function
+
+function main()
+    log()    -- ❌ zorunlu 'mesaj' argümanı eksik
+end function

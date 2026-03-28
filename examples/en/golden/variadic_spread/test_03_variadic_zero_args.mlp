@@ -1,0 +1,18 @@
+-- test_03_variadic_zero_args.mlp
+-- PHASE: 3 (Variadic)
+-- EXPECTED: 0
+-- EKS-007: Variadic fonksiyon sıfır argümanla çağrısı
+
+numeric function toplam(numeric... sayilar)
+    numeric s = 0
+    for i in sayilar
+        s = s + i
+    end for
+    return s
+end function
+
+function main()
+    numeric r = toplam()
+    print(r)
+    return 0
+end function

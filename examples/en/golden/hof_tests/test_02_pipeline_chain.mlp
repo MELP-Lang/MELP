@@ -1,0 +1,11 @@
+-- Golden Test: Chained Pipeline
+-- Multiple pipeline stages: x |> f |> g |> h
+-- Expected: 5
+
+numeric double = lambda(x) -> x * 2
+numeric triple = lambda(x) -> x * 3
+numeric add10 = lambda(x) -> x + 10
+
+-- 5 |> double |> triple |> add10 = ((5*2)*3)+10 = 40
+numeric result = 5 |> double |> triple |> add10
+print(result)

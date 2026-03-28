@@ -1,0 +1,12 @@
+-- TEST: While loop with accumulator
+-- Expected: 55
+
+function main()
+    numeric i = 0
+    numeric sum = 0
+    while i <= 10
+        sum = sum + i
+        i = i + 1
+    end while
+    print(sum)
+end function

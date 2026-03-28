@@ -1,0 +1,15 @@
+-- GÖREV 03: aritmetik
+-- Dört işlem, mod, üs işlemleri
+
+fonksiyon giriş()
+    sayısal a = 10
+    sayısal b = 5
+    yazdır(a + b)
+    yazdır(a - b)
+    yazdır(a * b)
+    yazdır(a / b)
+    sayısal mod_result = 17 mod 5
+    yazdır(mod_result)
+    sayısal power = 2 ** 10
+    yazdır(power)
+fonksiyon sonu

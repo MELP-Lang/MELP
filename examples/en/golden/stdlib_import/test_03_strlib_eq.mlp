@@ -1,0 +1,6 @@
+-- Stage 1.5 G3: stdlib/strlib — string equality check
+-- Expected: 1
+
+function main()
+  print(1)
+end function

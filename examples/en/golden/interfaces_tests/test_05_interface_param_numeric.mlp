@@ -1,0 +1,14 @@
+-- struct with two fields, method returns second field
+-- Expected: 0
+interface Container
+    numeric function capacity()
+end interface
+struct Tank implements Container
+    numeric size
+    numeric cap
+end struct
+numeric function Tank.capacity()
+    return this.cap
+end function
+Tank t = Tank { size: 10; cap: 99 }
+print(t.capacity())

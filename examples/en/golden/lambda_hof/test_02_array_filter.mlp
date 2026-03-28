@@ -1,0 +1,9 @@
+-- TEST: Lambda HOF array_filter even numbers
+-- LANG: LANG-1
+-- Expected: 2\n4
+
+numeric[] nums = [1; 2; 3; 4; 5]
+numeric[] evens = array_filter(nums; lambda(x) -> x mod 2 == 0)
+for each n in evens
+    print(n)
+end for

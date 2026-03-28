@@ -1,0 +1,15 @@
+-- test_01_question_ok_unwrap.mlp
+-- Expected: 42
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+numeric function compute()
+  Result r = Result.Ok(42)
+  numeric v = r?
+  return v
+end function
+
+print(compute())

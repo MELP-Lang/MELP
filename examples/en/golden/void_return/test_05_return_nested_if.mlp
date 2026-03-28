@@ -1,0 +1,21 @@
+-- MKLP_TEST: void_return_nested_if
+-- EXPECTED: positive
+-- FEATURE: VOID_RETURN.md
+-- CATEGORY: bug
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+function classify(numeric n)
+  if n < 0 then
+    print("negative")
+    return
+  end if
+  if n == 0 then
+    print("zero")
+    return
+  end if
+  print("positive")
+end function
+
+function main()
+  classify(5)
+end function

@@ -1,0 +1,18 @@
+-- TEST: Multiple enum declarations coexist
+-- Expected: ok
+
+enum Priority
+    LOW
+    MEDIUM
+    HIGH
+end enum
+
+enum State
+    PENDING
+    ACTIVE
+    DONE
+end enum
+
+function main()
+    print("ok")
+end function

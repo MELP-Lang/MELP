@@ -1,0 +1,382 @@
+{
+  "name": "mlp-ide",
+  "displayName": "MLP IDE",
+  "description": "MLP programlama dili için sözdizimi, IntelliSense, designer, fonksiyon görünümü ve debug desteği",
+  "version": "0.7.5",
+  "publisher": "pardus",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pardus/mlp-ide"
+  },
+  "keywords": [
+    "MLP",
+    "MELP",
+    "Turkish",
+    "Programming Language",
+    "Debugger"
+  ],
+  "icon": "assets/icon.png",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Debuggers",
+    "Snippets"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "workspaceContains:**/*.mlp",
+    "workspaceContains:**/*.mlpgui",
+    "onDebug:mlp",
+    "onDebugResolve:mlp",
+    "onDebugDynamicConfigurations:mlp"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "mlp",
+        "aliases": [
+          "MLP",
+          "mlp",
+          "MELP"
+        ],
+        "extensions": [
+          ".mlp"
+        ],
+        "configuration": "./language-configuration/mlp.json",
+        "icon": {
+          "light": "./assets/mlp-file-light.svg",
+          "dark": "./assets/mlp-file-dark.svg"
+        }
+      },
+      {
+        "id": "mlpgui",
+        "aliases": [
+          "MLP GUI",
+          "MLPGUI",
+          "mlpgui"
+        ],
+        "extensions": [
+          ".mlpgui"
+        ],
+        "configuration": "./language-configuration/mlpgui.json",
+        "icon": {
+          "light": "./assets/mlpgui-file-light.svg",
+          "dark": "./assets/mlpgui-file-dark.svg"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "mlp",
+        "scopeName": "source.mlp",
+        "path": "./syntaxes/mlp.tmLanguage.json"
+      },
+      {
+        "language": "mlpgui",
+        "scopeName": "source.mlpgui",
+        "path": "./syntaxes/mlpgui.tmLanguage.json"
+      }
+    ],
+    "breakpoints": [
+      {
+        "language": "mlp"
+      },
+      {
+        "language": "mlpgui"
+      }
+    ],
+    "debuggers": [
+      {
+        "type": "mlp",
+        "label": "MLP Debug",
+        "languages": [
+          "mlp"
+        ],
+        "breakpoints": [
+          {
+            "language": "mlp"
+          }
+        ],
+        "configurationAttributes": {
+          "launch": {
+            "required": [
+              "program"
+            ],
+            "properties": {
+              "program": {
+                "type": "string",
+                "description": "Derlenecek .mlp dosyası",
+                "default": "${file}"
+              },
+              "compilerPath": {
+                "type": "string",
+                "description": "melp_compiler binary yolu",
+                "default": "melp_compiler"
+              },
+              "normalizerPath": {
+                "type": "string",
+                "description": "melp_normalizer_bin binary yolu",
+                "default": "melp_normalizer_bin"
+              },
+              "stopOnEntry": {
+                "type": "boolean",
+                "description": "Başlar başlamaz dur",
+                "default": false
+              },
+              "cwd": {
+                "type": "string",
+                "description": "Çalışma dizini",
+                "default": "${workspaceFolder}"
+              }
+            }
+          }
+        },
+        "initialConfigurations": [
+          {
+            "type": "mlp",
+            "request": "launch",
+            "name": "MLP: Dosyayı Debug Et",
+            "program": "${file}",
+            "compilerPath": "melp_compiler",
+            "normalizerPath": "melp_normalizer_bin",
+            "stopOnEntry": false
+          }
+        ],
+        "configurationSnippets": [
+          {
+            "label": "MLP: Launch",
+            "description": "MLP programını debug et",
+            "body": {
+              "type": "mlp",
+              "request": "launch",
+              "name": "MLP: Dosyayı Debug Et",
+              "program": "${file}",
+              "compilerPath": "melp_compiler",
+              "normalizerPath": "melp_normalizer_bin",
+              "stopOnEntry": false
+            }
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "mlp.runFile",
+        "title": "MLP: Dosyayı Çalıştır",
+        "icon": "$(play)"
+      },
+      {
+        "command": "mlp.debugFile",
+        "title": "MLP: Dosyayı Debug Et",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "mlp.buildFile",
+        "title": "MLP: Derle (binary üret)",
+        "icon": "$(tools)"
+      },
+      {
+        "command": "mlp.openFunctionsView",
+        "title": "MLP: Fonksiyon Görünümünü Aç",
+        "icon": "$(symbol-function)"
+      },
+      {
+        "command": "mlp.openDesigner",
+        "title": "MELP: GUI Tasarımcısını Aç",
+        "icon": "$(window)"
+      },
+      {
+        "command": "mlp.newGuiProject",
+        "title": "MELP: Yeni GUI Projesi Oluştur",
+        "icon": "$(new-file)"
+      },
+      {
+        "command": "mlp.openGuiCodeEditor",
+        "title": "MELP: Kod Editorunde Ac",
+        "icon": "$(code)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "mlp.runFile",
+          "when": "resourceExtname == .mlp",
+          "group": "navigation@1"
+        },
+        {
+          "command": "mlp.debugFile",
+          "when": "resourceExtname == .mlp",
+          "group": "navigation@2"
+        },
+        {
+          "command": "mlp.openDesigner",
+          "when": "resourceExtname == .mlpgui",
+          "group": "navigation@1"
+        },
+        {
+          "command": "mlp.openGuiCodeEditor",
+          "when": "resourceExtname == .mlpgui",
+          "group": "navigation@2"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "mlp.openDesigner",
+          "when": "resourceExtname == .mlpgui",
+          "group": "mlp@1"
+        },
+        {
+          "command": "mlp.openGuiCodeEditor",
+          "when": "resourceExtname == .mlpgui",
+          "group": "mlp@2"
+        },
+        {
+          "command": "mlp.newGuiProject",
+          "group": "mlp@3"
+        }
+      ],
+      "editor/title/run": [
+        {
+          "command": "mlp.runFile",
+          "when": "resourceExtname == .mlp"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "mlp-explorer",
+          "title": "MLP IDE",
+          "icon": "assets/activity-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "mlp-explorer": [
+        {
+          "id": "mlp.functionsView",
+          "name": "MLP Fonksiyonları"
+        }
+      ]
+    },
+    "customEditors": [
+      {
+        "viewType": "mlp.melpDesigner",
+        "displayName": "MELP GUI Tasarımcısı",
+        "selector": [
+          {
+            "filenamePattern": "*.mlpgui"
+          }
+        ],
+        "priority": "default"
+      },
+      {
+        "viewType": "mlp-ide.melpDesigner",
+        "displayName": "MELP GUI Tasarımcısı",
+        "selector": [
+          {
+            "filenamePattern": "*.mlpgui"
+          }
+        ],
+        "priority": "option"
+      }
+    ],
+    "configurationDefaults": {
+      "workbench.editorAssociations": {
+        "*.mlpgui": "mlp.melpDesigner"
+      }
+    },
+    "keybindings": [
+      {
+        "command": "mlp.runFile",
+        "key": "ctrl+f5",
+        "when": "resourceExtname == .mlp && !inDebugMode"
+      },
+      {
+        "command": "mlp.openDesigner",
+        "key": "ctrl+shift+d",
+        "when": "resourceExtname == .mlpgui"
+      }
+    ],
+    "configuration": {
+      "title": "MLP",
+      "properties": {
+        "mlp.compilerPath": {
+          "type": "string",
+          "default": "",
+          "description": "melp_compiler binary'nin tam yolu. Boş bırakılırsa önce uzantı içindeki gömülü derleyici, sonra PATH kullanılır."
+        },
+        "mlp.normalizerPath": {
+          "type": "string",
+          "default": "",
+          "description": "melp_normalizer_bin binary'nin tam yolu. Boş bırakılırsa önce uzantı içindeki gömülü normalizer, sonra PATH kullanılır."
+        },
+        "mlp.runtimeBitcodePath": {
+          "type": "string",
+          "default": "",
+          "description": "mlp_runtime.bc dosyasının tam yolu. Boş bırakılırsa uzantı içindeki gömülü runtime kullanılır."
+        },
+        "mlp.compilerArgs": {
+          "type": "array",
+          "default": [],
+          "description": "Derleyiciye ekstra argümanlar"
+        },
+        "mlp.showFunctionSignatures": {
+          "type": "boolean",
+          "default": true,
+          "description": "Hover üzerinde MLP fonksiyon imzalarını ve açıklamaları göster"
+        },
+        "mlp.language": {
+          "type": "string",
+          "default": "en",
+          "enum": [
+            "en",
+            "tr",
+            "ru",
+            "ar",
+            "zh"
+          ],
+          "enumDescriptions": [
+            "English — function, if, loop, ...",
+            "Türkçe — fonksiyon, koşul, döngü, ...",
+            "Русский — функция, если, цикл, ...",
+            "العربية — دالة، إذا، حلقة، ...",
+            "中文 — 函数、如果、循环、..."
+          ],
+          "description": "MLP anahtar kelime dili. Seçilen dile göre IntelliSense keyword ve snippet önerir."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack && npm run sync-installed",
+    "watch": "webpack --watch",
+    "sync-installed": "DIL_SRC=../../ORTAK/dil; for F in syntax.json diller.json; do if [ -f \"$DIL_SRC/$F\" ]; then cp \"$DIL_SRC/$F\" language/$F && echo \"[sync-installed] language/$F güncellendi\"; else echo \"[sync-installed] UYARI: $DIL_SRC/$F bulunamadı\"; fi; done; for LANG in en tr ru ar zh; do if [ -f \"$DIL_SRC/$LANG/keywords.json\" ]; then mkdir -p \"language/$LANG\" && cp \"$DIL_SRC/$LANG/keywords.json\" \"language/$LANG/keywords.json\" && echo \"[sync-installed] language/$LANG/keywords.json güncellendi\"; fi; done; LSP_BUNDLE=../../ORTAK/LSP/LSP_EN/bundle/index.js; if [ -f \"$LSP_BUNDLE\" ]; then cp \"$LSP_BUNDLE\" bin/melp_lsp.js && echo \"[sync-installed] LSP bundle güncellendi\"; else echo \"[sync-installed] UYARI: LSP bundle bulunamadı: $LSP_BUNDLE\"; fi; for BASE in ~/.vscode ~/.vscode-oss; do EXT=$(for d in $(ls -d ${BASE}/extensions/pardus.mlp-ide-*/ 2>/dev/null | sort -V); do [ -f \"${d}package.json\" ] && echo \"$d\"; done | tail -1); if [ -z \"$EXT\" ]; then echo \"[sync-installed] Uzantı bulunamadı: $BASE\"; continue; fi; echo \"[sync-installed] Hedef: $EXT\"; mkdir -p \"${EXT}dist\" \"${EXT}data\" \"${EXT}syntaxes\" \"${EXT}bin\" \"${EXT}snippets\" \"${EXT}language\"; cp dist/extension.js dist/debugAdapter.js \"${EXT}dist/\"; cp data/mlp_functions.json \"${EXT}data/\"; cp syntaxes/mlp.tmLanguage.json \"${EXT}syntaxes/\"; cp bin/melp_compiler_linux bin/melp_normalizer_bin bin/mlp_runtime.bc bin/melp_lsp.js \"${EXT}bin/\"; cp language/diller.json language/syntax.json \"${EXT}language/\"; for LANG in en tr ru ar zh; do if [ -d \"language/$LANG\" ]; then mkdir -p \"${EXT}language/$LANG\" && cp language/$LANG/keywords.json \"${EXT}language/$LANG/\" 2>/dev/null; fi; done; cp snippets/mlp.json \"${EXT}snippets/\"; cp package.json \"${EXT}package.json\"; echo \"[sync-installed] Done: $EXT\"; done",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "package-vsix": "node ./scripts/vsce-package.cjs package --no-dependencies",
+    "release": "node ./scripts/bump-and-package.cjs",
+    "release:minor": "node ./scripts/bump-and-package.cjs minor",
+    "release:major": "node ./scripts/bump-and-package.cjs major",
+    "lint": "eslint src",
+    "smoke:pr1": "node ./scripts/smoke-pr1.cjs"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.75.0",
+    "@vscode/debugadapter": "^1.65.0",
+    "@vscode/debugprotocol": "^1.65.0",
+    "@vscode/vsce": "^2.15.0",
+    "ts-loader": "^9.4.0",
+    "typescript": "^5.0.0",
+    "webpack": "^5.80.0",
+    "webpack-cli": "^5.0.0"
+  }
+}

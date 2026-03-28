@@ -1,0 +1,15 @@
+-- test_12_question_ok_subtraction.mlp
+-- Expected: 8
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+numeric function sub_two(numeric n)
+  Result r = Result.Ok(n)
+  numeric v = r?
+  return v - 2
+end function
+
+print(sub_two(10))

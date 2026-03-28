@@ -1,0 +1,12 @@
+-- MKLP_TEST: underscore_prefix_names
+-- EXPECTED: ok
+-- FEATURE: RESERVED_KEYWORDS.md
+-- CATEGORY: feature
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+function main()
+  numeric out_value = 10
+  numeric out_total = 20
+  numeric _result = out_value + out_total
+  print("ok")
+end function

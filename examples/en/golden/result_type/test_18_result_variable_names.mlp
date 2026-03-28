@@ -1,0 +1,20 @@
+-- Result with various variable names
+-- Expected: 55\n77
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+Result success_result = Result.Ok(55)
+Result error_result = Result.Err(77)
+
+match success_result
+  case Ok(ok_value) -> print(ok_value)
+  case Err(err_value) -> print(0)
+end match
+
+match error_result
+  case Ok(ok_value) -> print(0)
+  case Err(err_value) -> print(err_value)
+end match

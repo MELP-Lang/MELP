@@ -1,0 +1,18 @@
+-- test_03_funcref_as_parameter.mlp
+-- PHASE: 3 (Funcref)
+-- EXPECTED: 100
+-- EKS-008: funcref parametresi olan fonksiyon çağrısı
+
+numeric function karesi(numeric x)
+    return x * x
+end function
+
+function uygula(numeric f(numeric); numeric x) as numeric
+    return f(x)
+end function
+
+function main()
+    numeric r = uygula(karesi; 10)
+    print(r)      -- 100
+    return 0
+end function

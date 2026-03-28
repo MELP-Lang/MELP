@@ -1,0 +1,10 @@
+-- TEST: Hover Information - Function
+-- LSP Request: textDocument/hover at line 8, column 3 (on 'print')
+-- Expected: Hover content "Print to stdout"
+-- Description: Show function documentation on hover
+
+export function test()
+  string message = "Hello"
+  print(message)  -- cursor on 'print', should show documentation
+  return 0
+end function

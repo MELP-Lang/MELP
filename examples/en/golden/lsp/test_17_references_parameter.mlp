@@ -1,0 +1,13 @@
+-- TEST: Find References - Parameter
+-- LSP Request: textDocument/references at line 1 (on parameter 'x')
+-- Expected: References at lines 3, 4, 5
+-- Description: Find all references to a function parameter
+
+function add(numeric x; numeric y) -> numeric
+  numeric sum = x + y
+  sum = sum + x
+  if x > 0
+    return x
+  end if
+  return sum
+end function

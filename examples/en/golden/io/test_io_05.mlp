@@ -1,0 +1,8 @@
+-- TEST: write_file creates file and read_file reads it back
+-- Expected: hello
+
+function main()
+    write_file("/tmp/melp_test_io_05.txt"; "hello")
+    string content = read_file("/tmp/melp_test_io_05.txt")
+    print(content)
+end function

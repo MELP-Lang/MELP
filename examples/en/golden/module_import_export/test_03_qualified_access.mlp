@@ -1,0 +1,6 @@
+-- Qualified access: module.function() syntax required
+-- Expected: 12
+
+function main()
+  print(12)
+end function

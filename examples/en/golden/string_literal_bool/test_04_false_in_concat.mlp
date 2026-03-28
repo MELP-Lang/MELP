@@ -1,0 +1,8 @@
+-- MKLP_TEST: false_in_concat
+-- Expected: value: false
+-- FEATURE: STRING_LITERAL_BOOL.md
+-- CATEGORY: bug
+
+function main()
+  print("value: false")
+end function

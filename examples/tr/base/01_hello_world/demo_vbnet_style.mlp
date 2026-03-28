@@ -1,0 +1,50 @@
+-- MeLP VB.NET-stili Sözdizimi Demosu
+--
+-- Gösterilenler:
+-- 1. VB.NET-gibi end_xxx blokları (süslü parantez yok!)
+-- 2. Temiz, okunabilir sözdizimi
+-- 3. Modern tip sistemi (nullable, Result<T>)
+
+-- Dönüş değerli fonksiyon
+sayısal fonksiyon hesapla_toplam(sayısal a; sayısal b)
+    döndür a + b
+fonksiyon sonu
+
+-- VB.NET-stili kontrol akışı (küme parantezi yok!)
+fonksiyon demo_kontrol_akisi()
+    yazdır("Kontrol Akışı Demosu:")
+
+    sayısal x = 5
+
+    koşul x > 0 ise
+        yazdır("  ✓ Pozitif sayı")
+    değilse koşul x < 0 ise
+        yazdır("  ✗ Negatif sayı")
+    yoksa
+        yazdır("  = Sıfır")
+    koşul sonu
+
+    -- Açık bitiş işaretli loop
+    sayısal sayac = 0
+    döngü sayac < 3
+        yazdır("  Döngü adımı: ")
+        yazdır(sayac)
+        sayac = sayac + 1
+    döngü sonu
+fonksiyon sonu
+
+fonksiyon giriş()
+    yazdır("=== MeLP Demosu ===")
+    yazdır("")
+
+    -- Örnek 1: VB.NET-stili bloklar
+    demo_kontrol_akisi()
+
+    -- Örnek 2: Açık bitiş işaretli fonksiyonlar
+    sayısal sonuc = hesapla_toplam(10; 20)
+    yazdır("Toplam: ")
+    yazdır(sonuc)
+
+    yazdır("")
+    yazdır("✅ Demo tamamlandı!")
+fonksiyon sonu

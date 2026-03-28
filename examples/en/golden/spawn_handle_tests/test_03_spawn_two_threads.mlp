@@ -1,0 +1,18 @@
+-- test_03_spawn_two_threads.mlp
+-- PHASE: 2 (Async/Spawn)
+-- EXPECTED: A tamamlandi\nB tamamlandi
+-- EKS-017: İki thread, channel ile senkronizasyon
+
+function main()
+    numeric ch = channel_create()
+    spawn
+        print("A tamamlandi")
+        send(ch; 1)
+    end_spawn
+    spawn
+        print("B tamamlandi")
+        send(ch; 1)
+    end_spawn
+    receive(ch)
+    receive(ch)
+end function

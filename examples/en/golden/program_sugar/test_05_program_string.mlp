@@ -1,0 +1,11 @@
+-- test_05_program_string.mlp
+-- PHASE: 2 (Sugar Syntax)
+-- EXPECTED: Merhaba Dunya
+-- EKS-001: program bloğu içinde string birleştirme
+
+program
+    string s1 = "Merhaba"
+    string s2 = " Dunya"
+    string sonuc = s1 + s2
+    print(sonuc)
+end_program

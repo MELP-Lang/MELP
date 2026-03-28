@@ -1,0 +1,13 @@
+-- static dispatch at compile time
+-- Expected: 0
+interface Scalable
+    numeric function scale()
+end interface
+struct Widget implements Scalable
+    numeric size
+end struct
+numeric function Widget.scale()
+    return this.size
+end function
+Widget w = Widget { size: 8 }
+print(w.scale())

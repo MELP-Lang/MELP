@@ -1,0 +1,15 @@
+-- test_13_question_with_param.mlp
+-- Expected: 7
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+numeric function square_root_approx(numeric n)
+  Result r = Result.Ok(n)
+  numeric v = r?
+  return v + 2
+end function
+
+print(square_root_approx(5))

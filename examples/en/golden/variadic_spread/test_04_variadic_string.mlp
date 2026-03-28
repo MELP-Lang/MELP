@@ -1,0 +1,18 @@
+-- test_04_variadic_string.mlp
+-- PHASE: 3 (Variadic)
+-- EXPECTED: 3
+-- EKS-007: String variadic parametre sayısı sayılıyor
+
+numeric function say_words(string... kelimeler)
+    numeric n = 0
+    for k in kelimeler
+        n = n + 1
+    end for
+    return n
+end function
+
+function main()
+    numeric n = say_words("a"; "b"; "c")
+    print(n)    -- 3
+    return 0
+end function

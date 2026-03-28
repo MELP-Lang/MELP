@@ -1,0 +1,11 @@
+-- Golden Test: net_url_port
+-- Tests URL parsing: port extraction
+-- Expected output:
+-- 443
+-- 8080
+-- 80
+
+print(__builtin_net_url_port("https://example.com/path"))
+print(__builtin_net_url_port("http://localhost:8080/api"))
+print(__builtin_net_url_port("http://example.org/page"))
+-- Expected: 443\n8080\n80

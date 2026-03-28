@@ -1,0 +1,23 @@
+-- FEATURE: FILE_IO - Dosya okuma ve yazma
+-- TASK: read_file(), write_file(), append_file() builtin'lerini göster
+
+function main()
+    -- Test 1: Dosya yaz
+    numeric ok = write_file("/tmp/melp_test.txt"; "Merhaba dosya!")
+    print(ok)
+
+    -- Test 2: Dosya oku
+    string content = read_file("/tmp/melp_test.txt")
+    print(content)
+
+    -- Test 3: Dosyaya ekle
+    numeric ok2 = append_file("/tmp/melp_test.txt"; " Eklendi.")
+    print(ok2)
+
+    -- Test 4: Tekrar oku
+    string content2 = read_file("/tmp/melp_test.txt")
+    print(content2)
+
+    -- Test 5: Olmayan dosya → read_file() null döndürür, == "" karşılaştırması segfault (B5 bug)
+    -- Workaround yok — bu test atlandı
+end function

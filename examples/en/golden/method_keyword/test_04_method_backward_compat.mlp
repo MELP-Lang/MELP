@@ -1,0 +1,8 @@
+-- test_04_method_backward_compat.mlp
+-- PHASE: 2 (Method Keyword)
+-- EXPECTED: 1\n2
+
+function main()
+  print(1)
+  print(2)
+end function

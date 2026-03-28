@@ -1,0 +1,19 @@
+-- test_04_question_enum_return_ok.mlp
+-- Expected: 42
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+Result function safe_get(numeric n)
+  Result r = Result.Ok(n)
+  numeric v = r?
+  return Result.Ok(v)
+end function
+
+Result result = safe_get(42)
+match result
+  case Ok(v) -> print(v)
+  case Err(e) -> print(0)
+end match

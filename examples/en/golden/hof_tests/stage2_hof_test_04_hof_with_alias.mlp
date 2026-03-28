@@ -1,0 +1,12 @@
+function apply2(numeric a; numeric b; auto op)
+  return op(a; b)
+end function
+
+function add(numeric x; numeric y)
+  return x + y
+end function
+
+function main()
+  auto plus = add
+  return apply2(10; 3; plus)
+end function

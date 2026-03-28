@@ -1,0 +1,16 @@
+-- test_02_hashmap_size.mlp
+-- PHASE: 2 (HashMap Methods)
+-- EXPECTED: 3\n2
+-- EKS-014: Hashmap .size() metod sözdizimi
+
+function main()
+    hashmap<string; numeric> puan = {}
+    puan["ali"] = 95
+    puan["veli"] = 80
+    puan["ayse"] = 70
+
+    print(puan.size())    -- 3
+
+    puan.delete("veli")
+    print(puan.size())    -- 2
+end function

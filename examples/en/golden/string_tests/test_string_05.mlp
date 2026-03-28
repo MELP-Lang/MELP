@@ -1,0 +1,7 @@
+-- TEST: Long string literal stored and printed
+-- Expected: This is a very long string that contains multiple words and demonstrates that the MELP compiler can handle longer string literals without any issues.
+
+function main()
+    string long_text = "This is a very long string that contains multiple words and demonstrates that the MELP compiler can handle longer string literals without any issues."
+    print(long_text)
+end function

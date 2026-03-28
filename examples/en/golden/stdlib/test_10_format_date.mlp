@@ -1,0 +1,12 @@
+-- GOLDEN_TEST: test_10_format_date
+-- DESC: Test format_date from STDLIB-3 time
+-- FEATURE: STDLIB-3-TIME
+-- PHASE: Phase6
+
+-- format_date with epoch 0 and date format
+print(format_date(0; "%Y-%m-%d"))
+
+-- format_date with year format only
+print(format_date(0; "%Y"))
+
+-- Expected: 1970-01-01\n1970

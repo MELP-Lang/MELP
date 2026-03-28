@@ -1,0 +1,11 @@
+-- test_01_assert_equal.mlp
+-- Tests numeric equality assertion
+-- Expected output:
+-- 1
+-- 0
+-- 1
+
+print(__builtin_test_assert_eq_numeric(5; 2 + 3))
+print(__builtin_test_assert_eq_numeric(3; 7))
+print(__builtin_test_assert_eq_numeric(0; 0))
+-- Expected: 1\n0\n1

@@ -1,0 +1,15 @@
+-- MKLP_TEST: string_var_eq_var_same
+-- EXPECTED: same
+-- FEATURE: STRING_EQ.md
+-- CATEGORY: bug
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+function main()
+  string a = "world"
+  string b = "world"
+  if a == b then
+    print("same")
+  else
+    print("diff")
+  end if
+end function

@@ -1,0 +1,25 @@
+-- test_06_file_operations.mlp
+-- Expected output:
+-- 1
+-- 1
+-- 0
+-- 0
+
+-- Write source file
+__builtin_fs_write_string("/tmp/mlp_w52_src.txt"; "MELP")
+
+-- Copy to destination
+__builtin_fs_copy("/tmp/mlp_w52_src.txt"; "/tmp/mlp_w52_dst.txt")
+
+-- Verify both files exist: 1, 1
+print(__builtin_fs_exists("/tmp/mlp_w52_src.txt"))
+print(__builtin_fs_exists("/tmp/mlp_w52_dst.txt"))
+
+-- Remove both files
+__builtin_fs_remove("/tmp/mlp_w52_src.txt")
+__builtin_fs_remove("/tmp/mlp_w52_dst.txt")
+
+-- Verify both removed: 0, 0
+print(__builtin_fs_exists("/tmp/mlp_w52_src.txt"))
+print(__builtin_fs_exists("/tmp/mlp_w52_dst.txt"))
+-- Expected: 1\n1\n0\n0

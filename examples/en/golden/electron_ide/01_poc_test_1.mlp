@@ -1,0 +1,8 @@
+-- TEST: File Open
+-- PHASE: 4.5 (Electron IDE)
+-- EXPECTED: 1
+
+function main()
+  character[] filename = "test.mlp"
+  print(1)
+end function

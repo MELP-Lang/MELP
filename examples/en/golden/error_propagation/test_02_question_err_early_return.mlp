@@ -1,0 +1,15 @@
+-- test_02_question_err_early_return.mlp
+-- Expected: -1
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+numeric function compute()
+  Result r = Result.Err(99)
+  numeric v = r?
+  return v
+end function
+
+print(compute())

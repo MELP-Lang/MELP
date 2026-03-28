@@ -1,0 +1,15 @@
+-- test_14_question_option_in_result_func.mlp
+-- Expected: 15
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+numeric function triple(numeric n)
+  Option o = Option.Some(n)
+  numeric v = o?
+  return v * 3
+end function
+
+print(triple(5))

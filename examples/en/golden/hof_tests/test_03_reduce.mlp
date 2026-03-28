@@ -1,0 +1,21 @@
+-- Higher-Order Function Test - array_reduce
+-- Tests folding array to single value
+
+-- Create array
+numeric arr = __builtin_array_create()
+__builtin_array_push(arr; 1)
+__builtin_array_push(arr; 2)
+__builtin_array_push(arr; 3)
+__builtin_array_push(arr; 4)
+__builtin_array_push(arr; 5)
+
+-- Sum using reduce
+numeric add_fn = lambda(acc; x) -> acc + x
+numeric sum = __builtin_array_reduce(arr; add_fn; 0)
+print(sum)
+
+-- Multiply using reduce (factorial-like: 1*2*3*4*5 = 120)
+numeric mul_fn = lambda(acc; x) -> acc * x
+numeric product = __builtin_array_reduce(arr; mul_fn; 1)
+print(product)
+-- Expected: 15\n120

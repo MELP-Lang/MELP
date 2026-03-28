@@ -1,0 +1,18 @@
+-- test_02_ref_swap.mlp
+-- PHASE: 2 (Ref Params)
+-- EXPECTED: 20\n10
+-- EKS-019: ref ile iki değişken swap
+
+function degistir(ref numeric a; ref numeric b)
+    numeric tmp = a
+    a = b
+    b = tmp
+end function
+
+function main()
+    numeric x = 10
+    numeric y = 20
+    degistir(x; y)
+    print(x)   -- 20
+    print(y)   -- 10
+end function

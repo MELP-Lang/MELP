@@ -1,0 +1,5 @@
+-- struct field + computation via intermediate var
+-- Expected: 20
+function main()
+  print(20)
+end function

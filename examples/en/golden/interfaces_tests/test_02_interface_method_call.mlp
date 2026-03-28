@@ -1,0 +1,13 @@
+-- interface method returns field
+-- Expected: 0
+interface Measurable
+    numeric function get_value()
+end interface
+struct Box implements Measurable
+    numeric value
+end struct
+numeric function Box.get_value()
+    return this.value
+end function
+Box b = Box { value: 100 }
+print(b.get_value())

@@ -1,0 +1,6 @@
+-- FEATURE: PRODUCT_POLISH
+-- TEST: Docs integrity smoke
+-- Expected: 20
+
+numeric sonuc = 20
+print(sonuc)

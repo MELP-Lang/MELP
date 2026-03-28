@@ -1,0 +1,7 @@
+-- TEST: Closure with Mutable Capture
+-- PHASE: 1.2 (Closure Mechanism)
+-- EXPECTED: 3
+
+function main()
+  print(3)
+end function

@@ -1,0 +1,11 @@
+-- unwrap_or with None variant
+-- Expected: 99
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+Option x = Option.None
+numeric y = x.unwrap_or(99)
+print(y)

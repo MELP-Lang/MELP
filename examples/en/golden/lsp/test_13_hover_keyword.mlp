@@ -1,0 +1,12 @@
+-- TEST: Hover Information - Keyword
+-- LSP Request: textDocument/hover at line 4, column 2 (on 'if')
+-- Expected: Hover content "if-then-else control structure"
+-- Description: Show keyword documentation on hover
+
+function test()
+  numeric x = 10
+  if x > 5  -- cursor on 'if', should show keyword info
+    return 1
+  end if
+  return 0
+end function

@@ -1,0 +1,20 @@
+-- GOLDEN_TEST: test_07_split
+-- DESC: Test string split function
+-- FEATURE: STDLIB-4-SPLIT
+-- PHASE: Phase6
+
+var parts = split("hello world melp"; " ")
+string a = parts[0]
+string b = parts[1]
+string c = parts[2]
+print(a)
+print(b)
+print(c)
+
+var csv = split("a,b,c"; ",")
+string x = csv[0]
+string y = csv[2]
+print(x)
+print(y)
+
+-- Expected: hello\nworld\nmelp\na\nc

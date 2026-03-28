@@ -1,0 +1,9 @@
+-- MKLP_TEST: quoted_import_with_extension
+-- EXPECTED: 42
+-- FEATURE: IMPORT.md
+-- CATEGORY: bug
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+function main()
+  print(42)
+end function

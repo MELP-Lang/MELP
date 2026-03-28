@@ -1,0 +1,37 @@
+-- Test: Basic array operations
+-- Creates array, pushes elements, tests get/set/length
+
+numeric arr = __builtin_array_create()
+
+-- Push 5 elements
+__builtin_array_push(arr; 10)
+__builtin_array_push(arr; 20)
+__builtin_array_push(arr; 30)
+__builtin_array_push(arr; 40)
+__builtin_array_push(arr; 50)
+
+-- Print length
+print(__builtin_array_length(arr))
+
+-- Print first and last
+print(__builtin_array_first(arr))
+print(__builtin_array_last(arr))
+
+-- Get element at index 2
+print(__builtin_array_get(arr; 2))
+
+-- Set element at index 1 to 999
+__builtin_array_set(arr; 1; 999)
+print(__builtin_array_get(arr; 1))
+
+-- Pop last element
+numeric popped = __builtin_array_pop(arr)
+print(popped)
+
+-- New length
+print(__builtin_array_length(arr))
+
+-- Contains check
+print(__builtin_array_contains(arr; 30))
+print(__builtin_array_contains(arr; 999))
+-- Expected: 5\n10\n50\n30\n999\n50\n4\n1\n1

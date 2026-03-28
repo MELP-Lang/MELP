@@ -1,0 +1,14 @@
+-- test_03_iflet_value_arithmetic.mlp
+-- Expected: 84
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+Option x = Option.Some(42)
+
+if let Some(v) = x then
+  numeric result = v * 2
+  print(result)
+end if

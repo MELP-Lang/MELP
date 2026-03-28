@@ -1,0 +1,11 @@
+-- Golden Test: test_assert_ne
+-- Tests non-equality assertion
+-- Expected output:
+-- 1
+-- 0
+-- 1
+
+print(__builtin_test_assert_ne_numeric(5; 10))
+print(__builtin_test_assert_ne_numeric(7; 7))
+print(__builtin_test_assert_ne_numeric(1; 0))
+-- Expected: 1\n0\n1

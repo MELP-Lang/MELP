@@ -1,0 +1,18 @@
+-- test_04_try_catch_finally.mlp
+-- PHASE: 2 (Error Handling)
+-- EXPECTED: hata yakalandi\nher zaman calisir
+-- EKS-011: try/catch/finally tam blok
+
+function riskli()
+    throw "test hatasi"
+end function
+
+function main()
+    try
+        riskli()
+    catch e
+        print("hata yakalandi")
+    finally
+        print("her zaman calisir")
+    end_try
+end function

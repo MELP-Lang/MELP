@@ -1,0 +1,16 @@
+-- Guard with multiple equality checks
+-- Expected: 42
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+Result r = Result.Ok(42)
+match r
+  case Ok(v) if v == 10 -> print(10)
+  case Ok(v) if v == 42 -> print(42)
+  case Ok(v) if v == 100 -> print(100)
+  case Ok(v) -> print(0)
+  case Err(e) -> print(-1)
+end match

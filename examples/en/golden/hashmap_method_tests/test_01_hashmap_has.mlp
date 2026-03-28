@@ -1,0 +1,15 @@
+-- test_01_hashmap_has.mlp
+-- PHASE: 2 (HashMap Methods)
+-- EXPECTED: 1\n0
+-- EKS-014: Hashmap .has() metod sözdizimi
+
+function main()
+    hashmap<string; numeric> puan = {}
+    puan["ali"] = 95
+
+    boolean var_mi = puan.has("ali")
+    boolean yok_mu = puan.has("veli")
+
+    print(var_mi)   -- 1 (true)
+    print(yok_mu)   -- 0 (false)
+end function

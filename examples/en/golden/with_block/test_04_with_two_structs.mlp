@@ -1,0 +1,21 @@
+-- test_04_with_two_structs.mlp
+-- PHASE: 3 (With Block)
+-- EXPECTED: Alice\nBob
+-- EKS-004: İki farklı struct üzerinde with kullanımı
+
+struct Person
+    string name
+end struct
+
+function main()
+    Person p1
+    Person p2
+    with p1
+        name = "Alice"
+    end_with
+    with p2
+        name = "Bob"
+    end_with
+    print(p1.name)
+    print(p2.name)
+end function

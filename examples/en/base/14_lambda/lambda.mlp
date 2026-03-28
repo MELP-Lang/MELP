@@ -1,0 +1,38 @@
+-- FEATURE: LAMBDA - Anonymous functions and closures
+-- TASK: Demonstrate inline lambda and closure
+
+function main()
+    -- Test 1: Simple lambda - double
+    numeric double = lambda(x) -> x * 2
+    numeric r1 = double(5)
+    print("double(5) = " + str(r1))
+
+    -- Test 2: Lambda with addition
+    numeric add = lambda(x; y) -> x + y
+    numeric r2 = add(10; 20)
+    print("add(10;20) = " + str(r2))
+
+    -- Test 3: Lambda with multiplication
+    numeric multiply = lambda(x; y) -> x * y
+    numeric r3 = multiply(6; 7)
+    print("multiply(6;7) = " + str(r3))
+
+    -- Test 4: Closure - capturing outer variable
+    numeric base = 100
+    numeric add_base = lambda(x) -> x + base
+    numeric r4 = add_base(23)
+    print("add_base(23) = " + str(r4))
+
+    -- Test 5: Closure - multiple captures
+    numeric factor = 3
+    numeric offset = 5
+    numeric complex_fn = lambda(x) -> x * factor + offset
+    numeric r5 = complex_fn(4)
+    print("complex(4) = " + str(r5))
+
+    -- Test 6: Nested lambda (if supported)
+    numeric outer_val = 10
+    numeric inner_fn = lambda(y) -> y + outer_val
+    numeric r6 = inner_fn(15)
+    print("nested(15) = " + str(r6))
+end function

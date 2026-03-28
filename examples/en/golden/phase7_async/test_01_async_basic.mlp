@@ -1,0 +1,14 @@
+-- GOLDEN_TEST: test_01_async_basic
+-- FEATURE: STDLIB-ASYNC-1
+-- PHASE: Phase7
+
+async function compute(n as numeric) as numeric
+  return n * 2
+end function
+
+function main()
+  numeric result = await compute(21)
+  print(result)
+end function
+
+-- Expected: 42

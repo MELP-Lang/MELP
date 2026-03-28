@@ -1,0 +1,13 @@
+-- MKLP_TEST: reserved_valid_names
+-- EXPECTED: ok
+-- FEATURE: RESERVED_KEYWORDS.md
+-- CATEGORY: feature
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+function main()
+  numeric value = 42
+  numeric count = 10
+  string message = "ok"
+  boolean is_valid = true
+  print(message)
+end function

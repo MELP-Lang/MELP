@@ -1,0 +1,8 @@
+-- TEST: Code Completion - Function Names
+-- LSP Request: textDocument/completion at line 5, column 9
+-- Expected: ["print", "format", "parseJson", "stringify"]
+-- Description: Completion for function names from stdlib
+
+export function main()
+  pri  -- cursor here, should suggest print, printf
+end function

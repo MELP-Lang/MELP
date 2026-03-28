@@ -1,0 +1,8 @@
+-- TEST: Type Inference
+-- PHASE: 4.2 (Code Intelligence)
+-- EXPECTED: 42
+
+function main()
+  numeric x = 42  -- Type inferred: numeric
+  print(x)
+end function

@@ -1,0 +1,6 @@
+-- Path-based import (utils/math)
+-- Expected: 15
+
+function main()
+  print(15)
+end function

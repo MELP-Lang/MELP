@@ -1,0 +1,22 @@
+-- test_02_with_multiple_fields.mlp
+-- PHASE: 3 (With Block)
+-- EXPECTED: Ahmet\n25\n1
+-- EKS-004: Birden fazla field ataması
+
+struct Employee
+    string name
+    numeric age
+    boolean active
+end struct
+
+function main()
+    Employee emp
+    with emp
+        name = "Ahmet"
+        age = 25
+        active = true
+    end_with
+    print(emp.name)
+    print(emp.age)
+    print(emp.active)
+end function

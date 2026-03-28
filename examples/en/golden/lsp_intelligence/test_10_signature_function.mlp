@@ -1,0 +1,13 @@
+-- TEST: Signature Help - Function Call
+-- LSP Request: textDocument/signatureHelp at line 6, column 13
+-- Expected: Signature "add(numeric x; numeric y) -> numeric"
+-- Description: Show function signature and parameter info
+
+function add(numeric x; numeric y) -> numeric
+  return x + y
+end function
+
+export function main()
+  numeric result = add(5;  -- cursor here, show signature
+  return result
+end function

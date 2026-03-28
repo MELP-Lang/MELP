@@ -1,0 +1,15 @@
+-- test_01_ref_basic.mlp
+-- PHASE: 2 (Ref Params)
+-- EXPECTED: 6
+-- EKS-019: Temel ref parametre — orijinal değer değişmeli
+
+numeric function artir(ref numeric x)
+    x = x + 1
+    return x
+end function
+
+function main()
+    numeric sayi = 5
+    artir(sayi)
+    print(sayi)   -- 6 (ref ile değiştirildi)
+end function

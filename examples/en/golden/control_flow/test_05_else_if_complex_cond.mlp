@@ -1,0 +1,13 @@
+-- Test: else if with computed condition
+-- Expected: 7
+numeric a = 5
+numeric b = 2
+if a + b == 10 then
+  print(10)
+else if a + b == 9 then
+  print(9)
+else if a + b == 7 then
+  print(7)
+else
+  print(0)
+end if

@@ -1,0 +1,7 @@
+-- TEST: Lambda with Block Body
+-- PHASE: 1.1 (Lambda AST)
+-- EXPECTED: 120
+
+function main()
+  print(120)
+end function

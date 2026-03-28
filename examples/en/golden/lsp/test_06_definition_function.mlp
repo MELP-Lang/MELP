@@ -1,0 +1,12 @@
+-- TEST: Go-to-Definition - Simple Function
+-- LSP Request: textDocument/definition at line 8, column 3 (on 'test')
+-- Expected: Location at line 4 where test() is defined
+-- Description: Jump to function definition
+
+export function test()
+  return 42
+end function
+
+export function main()
+  test()  -- cursor on 'test', should jump to definition
+end function

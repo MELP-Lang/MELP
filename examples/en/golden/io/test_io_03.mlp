@@ -1,0 +1,7 @@
+-- TEST: Print multiple lines
+-- Expected: Line 1\nLine 2
+
+function main()
+    println("Line 1")
+    println("Line 2")
+end function

@@ -1,0 +1,13 @@
+-- COLL-1: Hashmap create, set, get operations
+-- Tests basic hashmap put/get with integer keys/values
+
+function main()
+    hashmap<numeric; numeric> m = {}
+    hashmap_set(m; 10; 100)
+    hashmap_set(m; 20; 200)
+    hashmap_set(m; 30; 300)
+    print(hashmap_get(m; 10))
+    print(hashmap_get(m; 20))
+    print(hashmap_get(m; 30))
+end function
+-- Expected: 100\n200\n300

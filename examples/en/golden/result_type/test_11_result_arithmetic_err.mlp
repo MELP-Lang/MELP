@@ -1,0 +1,16 @@
+-- Result with arithmetic in Err value
+-- Expected: 50
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+numeric a = 10
+numeric b = 5
+Result r = Result.Err(a * b)
+
+match r
+  case Ok(v) -> print(0)
+  case Err(e) -> print(e)
+end match

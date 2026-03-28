@@ -1,0 +1,13 @@
+-- Option with large numeric value
+-- Expected: 888888
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+Option opt = Option.Some(888888)
+match opt
+  case Some(v) -> print(v)
+  case None -> print(0)
+end match

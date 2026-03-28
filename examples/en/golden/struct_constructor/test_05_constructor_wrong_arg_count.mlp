@@ -1,0 +1,14 @@
+-- test_05_constructor_wrong_arg_count.mlp
+-- PHASE: 3 (Struct Constructor)
+-- EXPECTED: COMPILE_ERROR: Missing required argument 'y' in call to 'Point'
+-- EKS-003: Negatif test — yanlış argüman sayısı
+
+struct Point(numeric x; numeric y)
+    numeric x
+    numeric y
+end struct
+
+function main()
+    Point p = Point(10)   -- ❌ 2 argüman bekleniyor, 1 verildi
+    print(p.x)
+end function

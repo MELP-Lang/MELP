@@ -1,0 +1,21 @@
+-- two different struct impls
+-- Expected: 0\n0
+interface Valued
+    numeric function get()
+end interface
+struct Alpha implements Valued
+    numeric x
+end struct
+struct Beta implements Valued
+    numeric y
+end struct
+numeric function Alpha.get()
+    return this.x
+end function
+numeric function Beta.get()
+    return this.y
+end function
+Alpha a = Alpha { x: 40 }
+Beta b = Beta { y: 50 }
+print(a.get())
+print(b.get())

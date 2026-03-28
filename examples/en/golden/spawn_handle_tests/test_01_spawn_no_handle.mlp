@@ -1,0 +1,13 @@
+-- test_01_spawn_no_handle.mlp
+-- PHASE: 2 (Async/Spawn)
+-- EXPECTED: thread calisiyor
+-- EKS-017: Temel spawn (handle atamasız — zaten çalışıyor)
+
+function main()
+    numeric ch = channel_create()
+    spawn
+        print("thread calisiyor")
+        send(ch; 1)
+    end_spawn
+    receive(ch)
+end function

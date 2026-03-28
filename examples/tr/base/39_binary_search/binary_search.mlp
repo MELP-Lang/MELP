@@ -1,0 +1,30 @@
+-- ÖZELLİK: İKİLİ_ARAMA - İteratif ikili arama
+-- B6 geçici çözüm: dizi literal [] sözdizimi yerine tek tek atama
+
+sayısal fonksiyon ikili_ara(sayısal hedef)
+    -- Sıralı dizi: [1, 3, 5, 7, 9, 11, 13, 15]
+    sayısal[] arr = [1; 3; 5; 7; 9; 11; 13; 15]
+    sayısal sol = 0
+    sayısal sag = 7
+
+    döngü sol <= sag
+        sayısal orta = (sol + sag) / 2
+        sayısal val = arr[orta]
+        koşul val == hedef ise
+            döndür orta
+        değilse koşul val < hedef ise
+            sol = orta + 1
+        yoksa
+            sag = orta - 1
+        koşul sonu
+    döngü sonu
+
+    döndür 0 - 1
+fonksiyon sonu
+
+fonksiyon giriş()
+    yazdır(ikili_ara(9))
+    yazdır(ikili_ara(1))
+    yazdır(ikili_ara(15))
+    yazdır(ikili_ara(7))
+fonksiyon sonu

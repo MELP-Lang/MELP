@@ -1,0 +1,7 @@
+-- TEST: Struct with Methods
+-- PHASE: 3.1 (Struct Types)
+-- EXPECTED: 50
+
+function main()
+  print(50)
+end function

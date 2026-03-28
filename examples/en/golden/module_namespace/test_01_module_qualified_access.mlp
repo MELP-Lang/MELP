@@ -1,0 +1,15 @@
+-- test_01_module_qualified_access.mlp
+-- PHASE: 2 (Module Namespace)
+-- EXPECTED: 7
+-- EKS-012: Nitelikli erişim ModulAdı.fonksiyon() çalışmalı
+
+module MathUtils
+    numeric function topla(numeric a; numeric b)
+        return a + b
+    end function
+end module
+
+function main()
+    numeric r = MathUtils.topla(3; 4)
+    print(r)
+end function

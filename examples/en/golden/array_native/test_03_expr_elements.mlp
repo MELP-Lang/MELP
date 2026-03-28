@@ -1,0 +1,10 @@
+-- TEST: Array - variable expressions as elements (FIX-5)
+-- PHASE: Array (FIX-5)
+-- Description: numeric[] arr with variable and computed values as elements
+
+numeric x = 5
+numeric[] arr = [x; x * 2; x * 3]
+print(arr[0])
+print(arr[1])
+print(arr[2])
+-- Expected: 5\n10\n15

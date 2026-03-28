@@ -1,0 +1,13 @@
+-- FIX Month 10: basic interface + struct implements + method
+-- Expected: 0
+interface Drawable
+    numeric function draw()
+end interface
+struct Circle implements Drawable
+    numeric radius
+end struct
+numeric function Circle.draw()
+    return this.radius
+end function
+Circle c = Circle { radius: 42 }
+print(c.draw())

@@ -1,0 +1,19 @@
+-- struct implements two interfaces
+-- Expected: 0
+interface Printable
+    numeric function show()
+end interface
+interface Serializable
+    numeric function serialize()
+end interface
+struct Document implements Printable; Serializable
+    numeric size
+end struct
+numeric function Document.show()
+    return this.size
+end function
+numeric function Document.serialize()
+    return this.size
+end function
+Document doc = Document { size: 70 }
+print(doc.show())

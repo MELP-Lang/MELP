@@ -1,0 +1,11 @@
+-- test_03_auto_bool.mlp
+-- PHASE: 1 (Auto Type)
+-- EXPECTED: 1\n0
+-- EKS-018: auto boolean tip çıkarımı
+
+function main()
+    auto b1 = true
+    auto b2 = false
+    print(b1)   -- 1
+    print(b2)   -- 0
+end function

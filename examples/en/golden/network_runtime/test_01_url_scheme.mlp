@@ -1,0 +1,11 @@
+-- Golden Test: net_url_scheme
+-- Tests URL parsing: scheme extraction
+-- Expected output:
+-- https
+-- http
+-- ftp
+
+print_str(__builtin_net_url_scheme("https://example.com/path"))
+print_str(__builtin_net_url_scheme("http://localhost:8080/"))
+print_str(__builtin_net_url_scheme("ftp://files.server.org"))
+-- Expected: https\nhttp\nftp

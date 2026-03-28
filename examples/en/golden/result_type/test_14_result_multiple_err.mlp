@@ -1,0 +1,26 @@
+-- Multiple Err results
+-- Expected: 1\n2\n3
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+Result e1 = Result.Err(1)
+Result e2 = Result.Err(2)
+Result e3 = Result.Err(3)
+
+match e1
+  case Ok(v) -> print(0)
+  case Err(e) -> print(e)
+end match
+
+match e2
+  case Ok(v) -> print(0)
+  case Err(e) -> print(e)
+end match
+
+match e3
+  case Ok(v) -> print(0)
+  case Err(e) -> print(e)
+end match

@@ -1,0 +1,15 @@
+-- TEST: Match with variable binding
+-- PHASE: 6.4 (Pattern Matching)
+-- Expected: 42
+
+numeric function process(numeric value)
+    match value
+        case x then
+            return x
+    end match
+    return 0
+end function
+
+function main()
+    print(process(42))
+end function

@@ -1,0 +1,21 @@
+-- FEATURE: GENERICS - Generic fonksiyon
+-- NOT: Monomorphization Stage0'da TODO — type-erased çalışıyor
+
+function identity<T>(T value) as T
+    return value
+end function
+
+function double_val<T>(T value) as T
+    return value * 2
+end function
+
+function main()
+    numeric x = identity<numeric>(42)
+    print(x)
+
+    numeric y = double_val<numeric>(21)
+    print(y)
+
+    numeric z = identity<numeric>(100)
+    print(z)
+end function

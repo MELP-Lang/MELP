@@ -1,0 +1,7 @@
+-- TEST: Simple Struct
+-- PHASE: 3.1 (Struct Types)
+-- EXPECTED: 30
+
+function main()
+  print(30)
+end function

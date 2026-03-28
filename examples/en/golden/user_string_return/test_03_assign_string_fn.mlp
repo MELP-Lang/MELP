@@ -1,0 +1,14 @@
+-- MKLP_TEST: user_string_fn_assign
+-- EXPECTED: ok
+-- FEATURE: USER_STRING_RETURN.md
+-- CATEGORY: bug
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+string function getStatus()
+  return "ok"
+end function
+
+function main()
+  string s = getStatus()
+  print(s)
+end function

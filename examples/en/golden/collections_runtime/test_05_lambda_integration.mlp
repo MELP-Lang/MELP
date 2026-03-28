@@ -1,0 +1,31 @@
+-- Test: Lambda + Collections Integration
+-- Complex test combining lambdas with arrays
+
+-- Create array of numbers
+numeric numbers = __builtin_array_create()
+__builtin_array_push(numbers; 1)
+__builtin_array_push(numbers; 2)
+__builtin_array_push(numbers; 3)
+__builtin_array_push(numbers; 4)
+__builtin_array_push(numbers; 5)
+
+-- Scale by 10 (no closure needed)
+numeric scale = lambda(x) -> x * 10
+numeric scaled = __builtin_array_map(numbers; scale)
+print(__builtin_array_get(scaled; 0))
+print(__builtin_array_get(scaled; 4))
+
+-- Chain operations: filter then map
+numeric is_big = lambda(x) -> x > 2
+numeric filtered = __builtin_array_filter(numbers; is_big)
+numeric double_fn = lambda(x) -> x * 2
+numeric doubled = __builtin_array_map(filtered; double_fn)
+print(__builtin_array_length(doubled))
+print(__builtin_array_get(doubled; 0))
+print(__builtin_array_get(doubled; 2))
+
+-- Reduce: sum + custom initial
+numeric add = lambda(a; x) -> a + x
+numeric total = __builtin_array_reduce(numbers; add; 100)
+print(total)
+-- Expected: 10\n50\n3\n6\n10\n115

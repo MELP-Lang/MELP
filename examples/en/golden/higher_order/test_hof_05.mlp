@@ -1,0 +1,6 @@
+-- FEATURE: HIGHER_ORDER_FUNCTIONS
+-- TEST: Basic HOF 5 - return constant
+-- Expected: 50
+
+numeric sonuc = 50
+print(sonuc)

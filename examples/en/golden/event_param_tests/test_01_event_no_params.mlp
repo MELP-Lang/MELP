@@ -1,0 +1,12 @@
+-- test_01_event_no_params.mlp
+-- PHASE: 2 (Event Block)
+-- EXPECTED: Tiklanma eventi
+-- EKS-016: Parametresiz event (zaten çalışıyor — referans test)
+
+event on_click()
+    print("Tiklanma eventi")
+end_event
+
+function main()
+    on_click()
+end function

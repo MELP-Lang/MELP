@@ -1,0 +1,7 @@
+-- TEST: Print expression result
+-- Expected: 42
+
+function main()
+    numeric result = 42
+    print(result)
+end function

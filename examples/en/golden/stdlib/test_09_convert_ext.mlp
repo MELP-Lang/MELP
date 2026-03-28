@@ -1,0 +1,14 @@
+-- GOLDEN_TEST: test_09_convert_ext
+-- DESC: Test to_float and is_null from STDLIB-6 convert
+-- FEATURE: STDLIB-6-CONVERT
+-- PHASE: Phase6
+
+-- to_float parses a float string, truncated to integer
+print(to_float("3"))
+print(to_float("0"))
+
+-- is_null: 0 is considered null, non-zero is not
+print(is_null(0))
+print(is_null(42))
+
+-- Expected: 3\n0\n1\n0

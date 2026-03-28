@@ -1,0 +1,12 @@
+-- Test: str() of local variable returned across function scope
+-- FEATURE: STR_HEAP
+-- PHASE: Phase2-STR-HEAP
+-- Expected: 42
+string function num_to_str()
+  numeric x = 42
+  return str(x)
+end function
+function main()
+  string s = num_to_str()
+  print(s)
+end function

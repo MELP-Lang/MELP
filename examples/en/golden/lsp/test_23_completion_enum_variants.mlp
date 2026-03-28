@@ -1,0 +1,19 @@
+-- TEST: Completion - Enum Variants
+-- LSP Request: textDocument/completion at line 7, column 8
+-- Expected: ["Ok", "Err"] enum variants
+-- Description: Complete enum variant names with type context
+
+enum Result
+  Ok(numeric)
+  Err(string)
+end enum
+
+function test()
+  Result r = Result.Ok(42)
+  match r
+    case Ok(x) then return x
+    case Er  -- cursor here, should suggest Err
+    end case
+  end match
+  return 0
+end function

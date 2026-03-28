@@ -1,0 +1,24 @@
+-- MKLP_TEST: enum_advanced_in_function
+-- Expected: green
+-- FEATURE: ENUM.md
+-- CATEGORY: bug
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+enum Color
+  Red
+  Green
+  Blue
+end enum
+
+string function colorName(numeric c)
+  match c
+    case Color.Red then return "red"
+    case Color.Green then return "green"
+    case Color.Blue then return "blue"
+    else return "unknown"
+  end match
+end function
+
+function main()
+  print(colorName(Color.Green))
+end function

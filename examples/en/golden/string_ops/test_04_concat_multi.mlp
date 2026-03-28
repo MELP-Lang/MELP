@@ -1,0 +1,8 @@
+-- Test: string multi-step concat (a+b then +c)
+-- Expected: abc
+string a = "a"
+string b = "b"
+string c = "c"
+string ab = a + b
+string abc = ab + c
+print(abc)

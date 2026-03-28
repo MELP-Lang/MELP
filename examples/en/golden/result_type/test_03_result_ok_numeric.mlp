@@ -1,0 +1,13 @@
+-- Result with numeric Ok value
+-- Expected: 100
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+Result r = Result.Ok(100)
+match r
+  case Ok(value) -> print(value)
+  case Err(err) -> print(999)
+end match

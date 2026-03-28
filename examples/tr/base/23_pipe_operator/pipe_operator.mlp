@@ -1,0 +1,33 @@
+-- ÖZELLİK: BORU_OPERATÖRÜ - |> zinciri ile veri dönüşüm pipeline
+-- Sözdizimi: x |> f |> g  →  g(f(x))
+-- NOT: f() parantez olmadan yazılmalı
+
+sayısal fonksiyon ikiye_katla(sayısal n)
+    döndür n * 2
+fonksiyon sonu
+
+sayısal fonksiyon on_ekle(sayısal n)
+    döndür n + 10
+fonksiyon sonu
+
+sayısal fonksiyon karesi(sayısal n)
+    döndür n * n
+fonksiyon sonu
+
+sayısal fonksiyon negatif_yap(sayısal n)
+    döndür 0 - n
+fonksiyon sonu
+
+fonksiyon giriş()
+    -- 5 → ikiye_katla → 10 → on_ekle → 20
+    sayısal r1 = 5 |> ikiye_katla |> on_ekle
+    yazdır(r1)
+
+    -- 3 → karesi → 9 → on_ekle → 19
+    sayısal r2 = 3 |> karesi |> on_ekle
+    yazdır(r2)
+
+    -- 5 → ikiye_katla → 10 → ikiye_katla → 20 → on_ekle → 30
+    sayısal r3 = 5 |> ikiye_katla |> ikiye_katla |> on_ekle
+    yazdır(r3)
+fonksiyon sonu

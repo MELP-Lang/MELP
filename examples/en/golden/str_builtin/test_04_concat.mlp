@@ -1,0 +1,7 @@
+-- Test: str() concat with string
+-- FEATURE: STR_BUILTIN
+-- PHASE: Phase1-P02
+-- Expected: Sayi: 7
+function main()
+  print("Sayi: " + str(7))
+end function

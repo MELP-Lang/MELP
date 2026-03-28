@@ -1,0 +1,13 @@
+-- test_01_module_empty.mlp
+-- FEATURE: MODULE_BLOCK
+-- PHASE: Phase2-L02
+-- Expected: 42
+
+-- Boş module bloğu parse hatasına yol açmamalı
+
+function main()
+    print(42)
+end function
+
+module Math
+end module

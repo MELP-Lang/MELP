@@ -1,0 +1,9 @@
+-- test_03_to_number_empty.mlp
+-- PHASE: 1 (Stdlib Builtins)
+-- EXPECTED: 0
+-- EKS-015: to_number("") → 0 (crash olmamalı)
+
+function main()
+    numeric n = to_number("")
+    print(n)    -- 0 bekleniyor, crash değil
+end function

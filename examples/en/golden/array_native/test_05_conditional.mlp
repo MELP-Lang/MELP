@@ -1,0 +1,16 @@
+-- TEST: Array index in condition (FIX-5)
+-- PHASE: Array (FIX-5)
+-- Description: Use arr[i] directly in if condition comparison
+
+numeric[] arr = [42; 5]
+if arr[0] > 10 then
+  print(1)
+else
+  print(0)
+end if
+if arr[1] > 10 then
+  print(1)
+else
+  print(0)
+end if
+-- Expected: 1\n0

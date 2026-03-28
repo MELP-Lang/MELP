@@ -1,0 +1,7 @@
+-- Test: for loop counting, last value printed
+-- Expected: 5
+numeric last = 0
+for k = 1 to 5
+  last = k
+end for
+print(last)

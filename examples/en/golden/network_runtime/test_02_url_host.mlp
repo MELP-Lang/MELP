@@ -1,0 +1,11 @@
+-- Golden Test: net_url_host
+-- Tests URL parsing: host extraction
+-- Expected output:
+-- example.com
+-- localhost
+-- api.github.com
+
+print_str(__builtin_net_url_host("https://example.com/path"))
+print_str(__builtin_net_url_host("http://localhost:8080/api"))
+print_str(__builtin_net_url_host("https://api.github.com/repos"))
+-- Expected: example.com\nlocalhost\napi.github.com

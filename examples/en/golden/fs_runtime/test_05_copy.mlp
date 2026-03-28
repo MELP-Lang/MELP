@@ -1,0 +1,36 @@
+-- Golden Test: fs_copy / fs_rename
+-- File copy and rename operations
+-- Expected output:
+-- 1 (write success)
+-- 1 (copy success)
+-- 1 (original exists)
+-- 1 (copy exists)
+-- 42 (original size)
+-- 42 (copy size)
+-- cleanup outputs
+
+-- Create a test file
+numeric write_ok = __builtin_fs_write_string("/tmp/mlp_copy_test.txt"; "This is a test file with exactly 42 chars!")
+
+-- Copy the file
+numeric copy_ok = __builtin_fs_copy("/tmp/mlp_copy_test.txt"; "/tmp/mlp_copy_test_copy.txt")
+print(copy_ok)
+
+-- Verify both exist
+numeric orig_exists = __builtin_fs_exists("/tmp/mlp_copy_test.txt")
+print(orig_exists)
+
+numeric copy_exists = __builtin_fs_exists("/tmp/mlp_copy_test_copy.txt")
+print(copy_exists)
+
+-- Verify sizes match
+numeric orig_size = __builtin_fs_file_size("/tmp/mlp_copy_test.txt")
+print(orig_size)
+
+numeric copy_size = __builtin_fs_file_size("/tmp/mlp_copy_test_copy.txt")
+print(copy_size)
+
+-- Cleanup
+__builtin_fs_remove("/tmp/mlp_copy_test.txt")
+__builtin_fs_remove("/tmp/mlp_copy_test_copy.txt")
+-- Expected: 1\n1\n1\n42\n42

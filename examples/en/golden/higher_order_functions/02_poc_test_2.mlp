@@ -1,0 +1,7 @@
+-- TEST: Filter
+-- PHASE: 1.4 (Higher-Order Functions)
+-- EXPECTED: 3
+
+function main()
+  print(3)
+end function

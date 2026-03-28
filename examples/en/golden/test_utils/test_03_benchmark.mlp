@@ -1,0 +1,7 @@
+-- test_03_benchmark.mlp
+-- Tests benchmark start/end and total retrieval
+-- Expected output:
+-- 0
+
+print(__builtin_test_get_total())
+-- Expected: 0

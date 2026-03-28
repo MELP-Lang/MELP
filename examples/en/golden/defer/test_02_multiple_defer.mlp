@@ -1,0 +1,14 @@
+-- test_02_multiple_defer.mlp
+-- Test multiple defer statements (LIFO order)
+-- Expected: start\nend\ndefer 3\ndefer 2\ndefer 1
+
+function test_function() -> numeric
+  print("start")
+  defer print("defer 1")
+  defer print("defer 2")
+  defer print("defer 3")
+  print("end")
+  return 0
+end function
+
+test_function()

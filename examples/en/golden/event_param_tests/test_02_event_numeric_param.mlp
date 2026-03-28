@@ -1,0 +1,12 @@
+-- test_02_event_numeric_param.mlp
+-- PHASE: 2 (Event Block)
+-- EXPECTED: guncelleme: 42
+-- EKS-016: Numerik parametreli event
+
+event on_update(numeric val)
+    print("guncelleme: " + str(val))
+end_event
+
+function main()
+    on_update(42)
+end function

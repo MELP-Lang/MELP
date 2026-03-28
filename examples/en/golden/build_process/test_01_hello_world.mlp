@@ -1,0 +1,9 @@
+-- MKLP_TEST: build_hello_world
+-- EXPECTED: Merhaba Dunya
+-- FEATURE: BUILD_PROCESS.md
+-- CATEGORY: feature
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+function main()
+  print("Merhaba Dunya")
+end function

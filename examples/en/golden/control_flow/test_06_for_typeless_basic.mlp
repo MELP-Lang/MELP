@@ -1,0 +1,7 @@
+-- Test: for loop without explicit type
+-- Expected: 15
+numeric total = 0
+for i = 1 to 5
+  total = total + i
+end for
+print(total)

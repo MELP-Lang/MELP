@@ -1,0 +1,7 @@
+-- GOLDEN TEST: Ternary Operator - nested conditions
+-- FEATURE: LANG-7 Ternary ? :
+-- Expected: 200
+var x = 100
+var y = 200
+var max = x > y ? x : y
+print(max)

@@ -1,0 +1,10 @@
+-- TEST: Go-to-Definition - Parameter
+-- LSP Request: textDocument/definition at line 6, column 13 (on parameter 'x')
+-- Expected: Location at function parameter definition (line 1)
+-- Description: Jump to function parameter definition
+
+function add(numeric x; numeric y) -> numeric
+  numeric result = 0
+  result = x + y  -- cursor on 'x', should jump to parameter
+  return result
+end function

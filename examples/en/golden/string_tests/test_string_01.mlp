@@ -1,0 +1,7 @@
+-- TEST: Basic string declaration and print
+-- Expected: Hello World
+
+function main()
+    string greeting = "Hello World"
+    print(greeting)
+end function

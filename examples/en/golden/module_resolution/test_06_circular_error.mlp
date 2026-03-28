@@ -1,0 +1,6 @@
+-- Circular dependency: import skipped, execution continues
+-- Expected: 42
+
+function main()
+  print(42)
+end function

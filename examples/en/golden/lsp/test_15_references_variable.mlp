@@ -1,0 +1,15 @@
+-- TEST: Find References - Variable Usage
+-- LSP Request: textDocument/references at line 3 (on 'count')
+-- Expected: References at lines 5, 6, 8
+-- Description: Find all references to a variable
+
+function test()
+  numeric count = 10
+  numeric total = 0
+  total = count + 5  -- reference 1
+  total = total + count  -- reference 2
+  if count > 0  -- reference 3
+    return total
+  end if
+  return 0
+end function

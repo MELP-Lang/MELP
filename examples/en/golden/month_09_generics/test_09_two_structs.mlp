@@ -1,0 +1,8 @@
+struct Box<T>
+  T value
+end struct
+
+struct Pair<T; U>
+  T first
+  U second
+end struct

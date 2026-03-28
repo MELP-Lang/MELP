@@ -1,0 +1,11 @@
+-- MKLP_TEST: integer_division
+-- EXPECTED: 3
+-- FEATURE: FLOAT_NUMERIC.md
+-- CATEGORY: feature
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+function main()
+  numeric a = 10
+  numeric b = 3
+  print(a / b)
+end function

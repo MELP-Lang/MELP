@@ -1,0 +1,25 @@
+-- test_05_file_read_write.mlp
+-- Expected output:
+-- 1
+-- 16
+-- 1
+-- 0
+
+-- Write a file with known content (16 bytes)
+__builtin_fs_write_string("/tmp/mlp_w52_test5.txt"; "Hello, Week 5.2!")
+
+-- Check file exists: should be 1
+print(__builtin_fs_exists("/tmp/mlp_w52_test5.txt"))
+
+-- Check file size: "Hello, Week 5.2!" = 16 bytes
+print(__builtin_fs_file_size("/tmp/mlp_w52_test5.txt"))
+
+-- Check it is a regular file: should be 1
+print(__builtin_fs_is_file("/tmp/mlp_w52_test5.txt"))
+
+-- Remove the file
+__builtin_fs_remove("/tmp/mlp_w52_test5.txt")
+
+-- Check file no longer exists: should be 0
+print(__builtin_fs_exists("/tmp/mlp_w52_test5.txt"))
+-- Expected: 1\n16\n1\n0

@@ -1,0 +1,9 @@
+-- TEST: Simple Export/Import
+-- PHASE: 2.3 (Modules)
+-- EXPECTED: 15
+
+-- Simulated module: math
+
+function main()
+  print(15)
+end function

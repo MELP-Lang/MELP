@@ -1,0 +1,8 @@
+function add(numeric x; numeric y)
+  return x + y
+end function
+
+function main()
+  auto fn = add
+  return fn(20; 22)
+end function

@@ -1,0 +1,5 @@
+-- TEST: Power operator 2**8
+-- LANG: FIX-2
+-- Expected: 256
+
+print(2 ** 8)

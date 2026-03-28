@@ -1,0 +1,13 @@
+-- Result with zero value in Ok
+-- Expected: 0
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+Result r = Result.Ok(0)
+match r
+  case Ok(v) -> print(v)
+  case Err(e) -> print(1)
+end match

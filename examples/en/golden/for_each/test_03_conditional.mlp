@@ -1,0 +1,16 @@
+-- test_03_conditional.mlp
+-- FEATURE: FOR_EACH
+-- PHASE: Phase2-L06
+-- Expected: 2
+-- Description: For each içinde koşullu filtreleme (3'ten büyük elemanları say: 5 ve 7)
+
+function main()
+    numeric[] nums = [1; 5; 2; 7; 3]
+    numeric count = 0
+    for each n in nums
+        if n > 3 then
+            count = count + 1
+        end if
+    end for
+    print(count)
+end function

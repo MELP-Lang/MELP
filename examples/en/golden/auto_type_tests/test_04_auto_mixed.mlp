@@ -1,0 +1,14 @@
+-- test_04_auto_mixed.mlp
+-- PHASE: 1 (Auto Type)
+-- EXPECTED: 100\ndünya\n1
+-- EKS-018: Karışık auto tip kullanımı
+
+function main()
+    auto x = 100
+    auto s = "dünya"
+    auto b = true
+
+    print(x)   -- 100
+    print(s)   -- dünya
+    print(b)   -- 1
+end function

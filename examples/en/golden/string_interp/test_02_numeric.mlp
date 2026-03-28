@@ -1,0 +1,7 @@
+-- GOLDEN TEST: String Interpolation with Numeric
+-- FEATURE: LANG-5 String Interpolation
+-- Expected: yas 25
+function main()
+  numeric age = 25
+  print("yas {age}")
+end function

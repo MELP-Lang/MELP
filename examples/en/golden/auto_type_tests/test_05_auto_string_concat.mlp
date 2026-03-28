@@ -1,0 +1,11 @@
+-- test_05_auto_string_concat.mlp
+-- PHASE: 1 (Auto Type)
+-- EXPECTED: Merhaba Dünya
+-- EKS-018: auto string ile birleştirme işlemi
+
+function main()
+    auto s1 = "Merhaba"
+    auto s2 = " Dünya"
+    string sonuc = s1 + s2
+    print(sonuc)
+end function

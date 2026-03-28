@@ -1,0 +1,8 @@
+-- TEST: Variable addition
+-- Expected: 30
+
+function main()
+    numeric x = 10
+    numeric y = 20
+    print(x + y)
+end function

@@ -1,0 +1,31 @@
+-- Sequential Result operations
+-- Expected: 10\n20\n30\n40
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+Result r1 = Result.Ok(10)
+match r1
+  case Ok(v) -> print(v)
+  case Err(e) -> print(0)
+end match
+
+Result r2 = Result.Err(20)
+match r2
+  case Ok(v) -> print(0)
+  case Err(e) -> print(e)
+end match
+
+Result r3 = Result.Ok(30)
+match r3
+  case Ok(v) -> print(v)
+  case Err(e) -> print(0)
+end match
+
+Result r4 = Result.Err(40)
+match r4
+  case Ok(v) -> print(0)
+  case Err(e) -> print(e)
+end match

@@ -1,0 +1,10 @@
+-- GOLDEN TEST: none return type - interpolation inside none function
+-- FEATURE: L-05 none + LANG-5 string interpolation combo
+-- Expected: merhaba dunya
+none function guncelle(name as string)
+  print("merhaba {name}")
+end function
+
+function main()
+  guncelle("dunya")
+end function

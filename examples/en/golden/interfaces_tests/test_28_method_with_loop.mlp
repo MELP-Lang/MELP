@@ -1,0 +1,17 @@
+-- method with for loop inside
+-- Expected: 15
+interface Summable
+    numeric function sum_to_five()
+end interface
+struct Counter implements Summable
+    numeric dummy
+end struct
+numeric function Counter.sum_to_five()
+    numeric total = 0
+    for i = 1 to 5
+        total = total + i
+    end for
+    return total
+end function
+Counter c = Counter { dummy: 0 }
+print(c.sum_to_five())

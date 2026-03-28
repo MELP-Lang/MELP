@@ -1,0 +1,6 @@
+function identity<T>(T x) as T
+  return x
+end function
+
+identity<numeric>(1)
+identity<boolean>(2)

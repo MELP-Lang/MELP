@@ -1,0 +1,7 @@
+function identity<T>(T x) as T
+  return x
+end function
+
+struct Box<T>
+  T value
+end struct

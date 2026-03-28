@@ -1,0 +1,11 @@
+-- TEST: If-else statement
+-- Expected: 42
+
+function main()
+    numeric x = 3
+    if x > 5 then
+        print(100)
+    else
+        print(42)
+    end if
+end function

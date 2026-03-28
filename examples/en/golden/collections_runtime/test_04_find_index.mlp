@@ -1,0 +1,33 @@
+-- Test: Array Find and Index Operations
+-- Tests array_find, array_index_of, array_reverse
+
+numeric arr = __builtin_array_create()
+__builtin_array_push(arr; 5)
+__builtin_array_push(arr; 10)
+__builtin_array_push(arr; 15)
+__builtin_array_push(arr; 20)
+__builtin_array_push(arr; 25)
+
+-- Find first element > 12
+numeric is_big = lambda(x) -> x > 12
+numeric found = __builtin_array_find(arr; is_big)
+print(found)
+
+-- Index of 15
+print(__builtin_array_index_of(arr; 15))
+
+-- Index of non-existent
+print(__builtin_array_index_of(arr; 999))
+
+-- Reverse array
+__builtin_array_reverse(arr)
+print(__builtin_array_get(arr; 0))
+print(__builtin_array_get(arr; 4))
+
+-- Is empty check
+print(__builtin_array_is_empty(arr))
+
+-- Create empty array and check
+numeric empty = __builtin_array_create()
+print(__builtin_array_is_empty(empty))
+-- Expected: 15\n2\n-1\n25\n5\n0\n1

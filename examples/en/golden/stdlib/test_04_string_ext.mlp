@@ -1,0 +1,20 @@
+-- GOLDEN_TEST: test_04_string_ext
+-- DESC: Test string extension stdlib - upper/lower/trim/length/reverse/index/ends/count/contains/starts/substring/repeat/replace
+-- FEATURE: STDLIB-4-STRING-EXT
+-- PHASE: Phase6
+
+print(string_to_upper("hello"))
+print(string_to_lower("WORLD"))
+print(string_trim("  hi  "))
+print(string_length("hello"))
+print(string_reverse("abc"))
+print(string_index_of("hello"; "ll"))
+print(string_ends_with("melp lang"; "lang"))
+print(string_count("abcabc"; "a"))
+print(string_contains("hello world"; "world"))
+print(string_starts_with("melp lang"; "melp"))
+print(string_substring("hello"; 1; 3))
+print(string_repeat("ab"; 3))
+print(string_replace("hello world"; "world"; "melp"))
+
+-- Expected: HELLO\nworld\nhi\n5\ncba\n2\n1\n2\n1\n1\nell\nababab\nhello melp

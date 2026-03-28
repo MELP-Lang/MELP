@@ -1,0 +1,15 @@
+-- MKLP_TEST: arithmetic_chain
+-- EXPECTED: 14
+-- FEATURE: FLOAT_NUMERIC.md
+-- CATEGORY: feature
+-- ADDED_BY: YZ  DATE: 2026-03-05
+-- NOTE: (2 + 3) * 4 - 6 = 14
+
+function main()
+  numeric a = 2
+  numeric b = 3
+  numeric c = 4
+  numeric d = 6
+  numeric result = (a + b) * c - d
+  print(result)
+end function

@@ -1,0 +1,17 @@
+-- Guard with range check
+-- Expected: 50
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+Option x = Option.Some(25)
+
+match x
+  case Some(v) if v < 10 -> print(10)
+  case Some(v) if v < 50 -> print(50)
+  case Some(v) if v < 100 -> print(100)
+  case Some(v) -> print(200)
+  case None -> print(0)
+end match

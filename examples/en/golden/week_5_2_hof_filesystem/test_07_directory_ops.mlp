@@ -1,0 +1,21 @@
+-- test_07_directory_ops.mlp
+-- Expected output:
+-- 1
+-- 1
+-- 1
+-- 0
+
+-- Create a new directory
+numeric mk_result = __builtin_fs_mkdir("/tmp/mlp_w52_testdir")
+print(mk_result)
+
+-- Verify directory exists: should be 1
+print(__builtin_fs_is_directory("/tmp/mlp_w52_testdir"))
+
+-- Remove the directory
+numeric rm_result = __builtin_fs_rmdir("/tmp/mlp_w52_testdir")
+print(rm_result)
+
+-- Verify directory no longer exists: should be 0
+print(__builtin_fs_is_directory("/tmp/mlp_w52_testdir"))
+-- Expected: 1\n1\n1\n0

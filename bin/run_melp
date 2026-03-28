@@ -1,0 +1,150 @@
+#!/usr/bin/env bash
+# run_melp — MELP programını derle ve çalıştır
+#
+# ============================================================
+# PIPELINE (Stage1 architecture):
+#
+#   .mlp (English/Turkish/Russian MLP)
+#     ↓  melp_normalizer_bin  (Stage1 boundary)
+#   PMLP (internal, underscore tokens)
+#     ↓  melp_compiler        (Stage0 — FROZEN, do not touch)
+#   LLVM IR → binary
+#
+# NEVER call melp_compiler directly on .mlp files.
+# Always go through the normalizer first.
+# ============================================================
+#
+# Kullanım:
+#   ./bin/run_melp program.mlp             # derle ve çalıştır
+#   ./bin/run_melp program.tr.mlp          # Türkçe MLP
+#   ./bin/run_melp program.mlp --ir        # sadece LLVM IR üret
+#   ./bin/run_melp program.mlp --keep      # .ll dosyasını sakla
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+COMPILER="$SCRIPT_DIR/melp_compiler"
+RUNTIME="$SCRIPT_DIR/mlp_runtime.bc"
+# ORTAK/normalizer canonical path (src/normalizer/ removed 2026-03-23)
+NORMALIZER_BIN="$SCRIPT_DIR/../../../ORTAK/normalizer/melp_normalizer_bin"
+# Fallback: allow override via MELP_NORMALIZER env var
+if [ -n "${MELP_NORMALIZER:-}" ]; then
+    NORMALIZER_BIN="$MELP_NORMALIZER"
+fi
+
+# Renk kodları
+RED='\033[0;31m'; GREEN='\033[0;32m'; NC='\033[0m'
+
+usage() {
+    echo "Kullanım: run_melp <dosya.mlp> [--ir] [--keep]"
+    echo "  --ir    : Sadece LLVM IR (.ll) üret, çalıştırma"
+    echo "  --keep  : Geçici .ll dosyasını sakla"
+    exit 1
+}
+
+[ $# -eq 0 ] && usage
+[ -f "$1" ]  || { echo -e "${RED}Hata: '$1' bulunamadı${NC}"; exit 1; }
+
+MLP_FILE="$1"
+ONLY_IR=false
+KEEP_IR=false
+shift
+
+for arg in "$@"; do
+    case "$arg" in
+        --ir)   ONLY_IR=true ;;
+        --keep) KEEP_IR=true ;;
+        *)      echo "Bilinmeyen seçenek: $arg"; usage ;;
+    esac
+done
+
+# clang bul
+CLANG=""
+for candidate in clang-19 clang-18 clang-17 clang-16 clang-15 clang-14 clang; do
+    if command -v "$candidate" &>/dev/null; then
+        CLANG="$candidate"
+        break
+    fi
+done
+if [[ -z "$CLANG" ]]; then
+    echo -e "${RED}Hata: clang bulunamadı.${NC}"
+    echo "Kur: sudo apt install clang"
+    exit 1
+fi
+
+BASENAME="${MLP_FILE%.mlp}"
+LL_FILE="${BASENAME}.ll"
+BIN_FILE="${BASENAME}"
+
+# --- Normalizer check ---
+if [ ! -x "$NORMALIZER_BIN" ]; then
+    echo -e "${RED}Hata: normalizer binary bulunamadı: $NORMALIZER_BIN${NC}"
+    echo "Kur: cd src/normalizer && bash build.sh"
+    exit 1
+fi
+
+# Dil algıla
+LANG_TAG="english"
+case "$MLP_FILE" in
+    *.tr.mlp) LANG_TAG="turkish" ;;
+    *.ru.mlp) LANG_TAG="russian" ;;
+    *.ar.mlp) LANG_TAG="arabic"  ;;
+    *.zh.mlp) LANG_TAG="chinese" ;;
+    *.ja.mlp) LANG_TAG="japanese" ;;
+esac
+
+# Dil kodunu belirle (turkish → tr, russian → ru, ...)
+case "$LANG_TAG" in
+    turkish)  LANG_CODE="tr" ;;
+    russian)  LANG_CODE="ru" ;;
+    arabic)   LANG_CODE="ar" ;;
+    chinese)  LANG_CODE="zh" ;;
+    japanese) LANG_CODE="ja" ;;
+    *)        LANG_CODE="en" ;;
+esac
+
+# keywords.json yolu — ORTAK/dil/<kod>/keywords.json (tek kanonik kaynak)
+ORTAK_DIR="$(cd "$(dirname "$NORMALIZER_BIN")/../.." && pwd)/ORTAK"
+KEYWORDS_PATH="$ORTAK_DIR/dil/${LANG_CODE}/keywords.json"
+if [[ ! -f "$KEYWORDS_PATH" ]]; then
+    echo -e "${RED}Hata: keywords.json bulunamadı: $KEYWORDS_PATH${NC}"
+    exit 1
+fi
+
+# 1. Normalize: MLP → PMLP (Stage1→Stage0 boundary)
+NORM_FILE="/tmp/run_melp_norm_$$.pmlp"
+cp "$MLP_FILE" /tmp/.melp_norm_src
+printf '%s' "$LANG_TAG"        > /tmp/.melp_norm_lang
+printf '%s' "$KEYWORDS_PATH"   > /tmp/.melp_norm_diller
+printf '%s' "$ORTAK_DIR"       > /tmp/.melp_norm_ortak_root
+"$NORMALIZER_BIN" > "$NORM_FILE"
+trap "rm -f $NORM_FILE" EXIT
+
+# 2. Derle: PMLP → LLVM IR  (Stage0 — melp_compiler never sees .mlp directly)
+# Hata mesajlarındaki temp dosya yolunu orijinal kaynak dosya yoluyla değiştir
+# (filename:0:0: ❌ mesajlarında kullanıcı temp yolu değil kaynak yolu görür)
+compiler_exit=0
+compiler_out=$("$COMPILER" "$NORM_FILE" -o "$LL_FILE" 2>&1) || compiler_exit=$?
+if [ -n "$compiler_out" ]; then
+    echo "$compiler_out" | sed "s|${NORM_FILE}|${MLP_FILE}|g" >&2
+fi
+if [ $compiler_exit -ne 0 ]; then
+    exit $compiler_exit
+fi
+
+if $ONLY_IR; then
+    echo -e "${GREEN}IR üretildi: $LL_FILE${NC}"
+    exit 0
+fi
+
+# 3. Link → binary (önce runtime'sız dene)
+if ! "$CLANG" "$LL_FILE" -lm -o "$BIN_FILE" 2>/dev/null; then
+    "$CLANG" "$LL_FILE" "$RUNTIME" -lm -Wl,--allow-multiple-definition -o "$BIN_FILE"
+fi
+
+# 4. Çalıştır
+"$BIN_FILE"
+
+# 5. Temizlik
+$KEEP_IR || rm -f "$LL_FILE"
+rm -f "$BIN_FILE"

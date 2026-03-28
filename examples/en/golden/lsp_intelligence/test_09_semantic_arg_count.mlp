@@ -1,0 +1,13 @@
+-- TEST: Semantic Diagnostics - Wrong Argument Count
+-- LSP Request: textDocument/publishDiagnostics on save
+-- Expected: Error "Function 'add' expects 2 arguments, got 1"
+-- Description: Detect incorrect number of function arguments
+
+function add(numeric x; numeric y) -> numeric
+  return x + y
+end function
+
+export function main()
+  numeric result = add(5)  -- Error: expected 2 args, got 1
+  return result
+end function

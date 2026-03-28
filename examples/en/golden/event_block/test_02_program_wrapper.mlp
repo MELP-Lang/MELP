@@ -1,0 +1,12 @@
+-- Test: event block inside program wrapper
+-- FEATURE: EVENT_BLOCK
+-- PHASE: Phase2-L01
+-- Expected: clicked
+program MyApp
+  event click()
+    print("clicked")
+  end_event
+  app_start()
+    click()
+  end_app
+end_program

@@ -1,0 +1,9 @@
+sayısal fonksiyon http_al(metin url)
+    sayısal status = 200
+    döndür status
+fonksiyon sonu
+
+fonksiyon giriş()
+    sayısal resp = http_al("http://example.com")
+    yazdır(resp)
+fonksiyon sonu

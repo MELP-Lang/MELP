@@ -1,0 +1,19 @@
+-- TEST: Enum value in variables
+-- PHASE: 3.2 (Enum)
+-- EXPECTED: 1
+
+enum Level
+  Low
+  Medium
+  High
+end enum
+
+none function main()
+  numeric level1 = Level.Low
+  numeric level2 = Level.Medium
+  numeric level3 = Level.High
+  numeric sum = level1 + level2 + level3
+  if sum == 3 then
+    print(1)
+  end if
+end function

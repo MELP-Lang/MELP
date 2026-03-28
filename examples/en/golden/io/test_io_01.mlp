@@ -1,0 +1,6 @@
+-- TEST: Print string to stdout
+-- Expected: Hello, World!
+
+function main()
+    print("Hello, World!")
+end function

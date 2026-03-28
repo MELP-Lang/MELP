@@ -1,0 +1,12 @@
+-- GOLDEN TEST: Generic struct with T field (type-first format)
+-- FEATURE: Generic struct field T (universal storage)
+-- Expected: 42
+struct Container
+  T data
+  numeric size
+end struct
+
+function main()
+  Container c = Container { data: 42; size: 1 }
+  print(c.data)
+end function

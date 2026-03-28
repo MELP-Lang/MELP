@@ -1,0 +1,17 @@
+-- TEST: Comparing enum values
+-- PHASE: 3.2 (Enum)
+-- EXPECTED: 1
+
+enum Mode
+  Read
+  Write
+  Execute
+end enum
+
+none function main()
+  numeric m1 = Mode.Write
+  numeric m2 = Mode.Write
+  if m1 == m2 then
+    print(1)
+  end if
+end function

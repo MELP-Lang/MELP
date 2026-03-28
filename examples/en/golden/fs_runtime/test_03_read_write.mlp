@@ -1,0 +1,9 @@
+-- Golden Test: fs_write_string / fs_file_size
+-- Tests: Write content to file and verify size
+-- Expected output: 15 (length of "Hello from MLP!")
+
+__builtin_fs_write_string("/tmp/mlp_test_file.txt"; "Hello from MLP!")
+numeric size = __builtin_fs_file_size("/tmp/mlp_test_file.txt")
+print(size)
+__builtin_fs_remove("/tmp/mlp_test_file.txt")
+-- Expected: 15

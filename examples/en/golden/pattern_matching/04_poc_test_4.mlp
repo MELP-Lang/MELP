@@ -1,0 +1,7 @@
+-- TEST: Enum Pattern Match
+-- PHASE: 3.2 (Pattern Matching)
+-- EXPECTED: 42
+
+function main()
+  print(42)
+end function

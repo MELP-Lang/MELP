@@ -1,0 +1,8 @@
+function main()
+  numeric x = 10
+  auto addx = lambda(numeric y) -> numeric
+    return x + y
+  end_lambda
+
+  return addx(5)
+end function

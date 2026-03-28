@@ -1,0 +1,8 @@
+-- TEST: Array first and last element access
+-- PHASE: Array (FIX-5)
+-- Description: numeric[] arr - access first and last indices
+
+numeric[] arr = [100; 200; 300; 400]
+print(arr[0])
+print(arr[3])
+-- Expected: 100\n400

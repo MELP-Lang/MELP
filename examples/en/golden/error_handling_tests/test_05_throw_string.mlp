@@ -1,0 +1,20 @@
+-- test_05_throw_string.mlp
+-- PHASE: 2 (Error Handling)
+-- EXPECTED: Hata: dosya bulunamadi
+-- EKS-011: throw ile string hata mesajı + catch ile yakalama
+
+string function dosya_oku(string yol)
+    if yol == "" then
+        throw "dosya bulunamadi"
+    end if
+    return "icerik"
+end function
+
+function main()
+    try
+        string icerik = dosya_oku("")
+        print(icerik)
+    catch hata_mesaj
+        print("Hata: " + hata_mesaj)
+    end_try
+end function

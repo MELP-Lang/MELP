@@ -1,0 +1,9 @@
+-- TEST: Code Completion - Context-Aware
+-- LSP Request: textDocument/completion at line 4, column 7
+-- Expected: ["true", "false", "1", "0"]
+-- Description: Smart completions based on context (boolean expressions)
+
+function test()
+  if tru  -- cursor here, should suggest true, false
+  end if
+end function

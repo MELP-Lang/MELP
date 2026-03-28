@@ -1,0 +1,8 @@
+-- TEST: Simple expression - x + y
+-- Expected: 15
+
+function main()
+    numeric x = 5
+    numeric y = 10
+    print(x + y)
+end function

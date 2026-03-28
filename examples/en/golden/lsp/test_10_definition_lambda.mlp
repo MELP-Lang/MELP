@@ -1,0 +1,12 @@
+-- TEST: Go-to-Definition - Lambda
+-- LSP Request: textDocument/definition at line 6, column 5 (on 'add')
+-- Expected: Location at lambda definition
+-- Description: Jump to lambda expression definition
+
+function test()
+  numeric a = 10
+  numeric b = 20
+  lambda add(numeric x; numeric y) -> x + y
+  numeric sum = add(a; b)  -- cursor on 'add', should jump to lambda
+  return sum
+end function

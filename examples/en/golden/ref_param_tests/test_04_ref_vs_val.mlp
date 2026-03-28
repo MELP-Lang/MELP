@@ -1,0 +1,22 @@
+-- test_04_ref_vs_val.mlp
+-- PHASE: 2 (Ref Params)
+-- EXPECTED: 5\n6
+-- EKS-019: ref vs value: ref değişir, value parameter değişmez
+
+function artir_val(numeric x)
+    x = x + 1    -- local kopya, orijinali etkilemez
+end function
+
+function artir_ref(ref numeric x)
+    x = x + 1    -- orijinali etkiler
+end function
+
+function main()
+    numeric a = 5
+    artir_val(a)
+    print(a)   -- 5 (değişmedi)
+
+    numeric b = 5
+    artir_ref(b)
+    print(b)   -- 6 (değişti)
+end function

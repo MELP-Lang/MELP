@@ -1,0 +1,13 @@
+-- MKLP_TEST: true_as_function_arg
+-- EXPECTED: true
+-- FEATURE: STRING_LITERAL_BOOL.md
+-- CATEGORY: bug
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+string function echo(s as string)
+  return s
+end function
+
+function main()
+  print(echo("true"))
+end function

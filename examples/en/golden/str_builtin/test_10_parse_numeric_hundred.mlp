@@ -1,0 +1,10 @@
+-- MKLP_TEST: parse_numeric_hundred
+-- EXPECTED: 100
+-- FEATURE: STR_BUILTIN.md
+-- CATEGORY: bug
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+function main()
+  numeric x = parse_numeric("100")
+  print(x)
+end function

@@ -1,0 +1,17 @@
+-- GOLDEN_TEST: test_02_colored_output
+-- DESC: Test colored text output
+-- EXPECTED_OUTPUT: Colored messages
+
+-- Print in different colors
+numeric r1 = __builtin_cli_print_colored("ERROR: "; "red")
+numeric r2 = __builtin_cli_print_colored("Something went wrong\n"; "red")
+
+numeric r3 = __builtin_cli_print_colored("SUCCESS: "; "green")
+numeric r4 = __builtin_cli_print_colored("All tests passed\n"; "green")
+
+numeric r5 = __builtin_cli_print_colored("WARNING: "; "yellow")
+numeric r6 = __builtin_cli_print_colored("Check logs\n"; "yellow")
+
+numeric r7 = __builtin_cli_print_colored("INFO: "; "blue")
+numeric r8 = __builtin_cli_print_colored("Processing...\n"; "cyan")
+-- Expected: [31mERROR: [0m[31mSomething went wrong\n[0m[32mSUCCESS: [0m[32mAll tests passed\n[0m[33mWARNING: [0m[33mCheck logs\n[0m[34mINFO: [0m[36mProcessing...\n[0m

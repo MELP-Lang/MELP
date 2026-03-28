@@ -1,0 +1,15 @@
+-- Result with nested expressions
+-- Expected: 123
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+numeric val = 123
+Result r = Result.Ok(val)
+
+match r
+  case Ok(v) -> print(v)
+  case Err(e) -> print(0)
+end match

@@ -1,0 +1,15 @@
+-- GOLDEN_TEST: test_curry
+-- DESC: Curry builtin for partial function application
+-- Expected: 0
+
+-- Define a function that takes 2 arguments
+numeric add = lambda(x; y) -> x + y
+
+-- Curry with first argument = 5
+numeric add5 = curry(add; 5)
+
+-- Call curried function with remaining argument
+numeric result = add5(10)
+
+-- Output: 5 + 10 = 15
+print(result)

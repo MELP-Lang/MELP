@@ -1,0 +1,10 @@
+-- MKLP_TEST: string_true_literal
+-- EXPECTED: true
+-- FEATURE: STRING_LITERAL_BOOL.md
+-- CATEGORY: bug
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+function main()
+  string s = "true"
+  print(s)
+end function

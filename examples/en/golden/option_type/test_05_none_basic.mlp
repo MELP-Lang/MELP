@@ -1,0 +1,13 @@
+-- Option<T> basic None variant
+-- Expected: 999
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+Option x = Option.None
+match x
+  case Some(v) -> print(0)
+  case None -> print(999)
+end match

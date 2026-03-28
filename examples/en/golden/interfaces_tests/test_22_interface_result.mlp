@@ -1,0 +1,14 @@
+-- interface method result assigned to variable
+-- Expected: 0
+interface Identifiable
+    numeric function id()
+end interface
+struct Entity implements Identifiable
+    numeric eid
+end struct
+numeric function Entity.id()
+    return this.eid
+end function
+Entity e = Entity { eid: 33 }
+numeric res = e.id()
+print(res)

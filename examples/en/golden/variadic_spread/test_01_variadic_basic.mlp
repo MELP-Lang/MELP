@@ -1,0 +1,18 @@
+-- test_01_variadic_basic.mlp
+-- PHASE: 3 (Variadic)
+-- EXPECTED: 6
+-- EKS-007: Temel variadic fonksiyon çağrısı (zaten çalışıyor)
+
+numeric function toplam(numeric... sayilar)
+    numeric s = 0
+    for i in sayilar
+        s = s + i
+    end for
+    return s
+end function
+
+function main()
+    numeric r = toplam(1; 2; 3)
+    print(r)
+    return 0
+end function

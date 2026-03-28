@@ -1,0 +1,39 @@
+-- ÖZELLİK: İŞLEÇ_AŞIRI_YÜKLE - Yapı için işleç tanımı
+-- NOT: function Struct.operator+(other) sözdizimi Stage0'da parse error
+-- Geçici çözüm: isimli metod kullan
+
+yapı Vektor
+    sayısal x
+    sayısal y
+yapı sonu
+
+-- operator+ desteklenmiyor (B6: "Expected method name after '.'")
+-- Geçici çözüm: isimli metod
+sayısal fonksiyon Vektor.topla(Vektor other)
+    sayısal rx = bu.x + other.x
+    döndür rx
+fonksiyon sonu
+
+sayısal fonksiyon Vektor.uzunluk_kare()
+    sayısal x = bu.x
+    sayısal y = bu.y
+    döndür x * x + y * y
+fonksiyon sonu
+
+fonksiyon giriş()
+    Vektor a
+    a.x = 3
+    a.y = 4
+
+    Vektor b
+    b.x = 1
+    b.y = 2
+
+    -- İsimli metod (operator+ geçici çözüm)
+    sayısal rx = a.topla(b)
+    yazdır(rx)
+
+    -- uzunluk karesi
+    sayısal lsq = a.uzunluk_kare()
+    yazdır(lsq)
+fonksiyon sonu

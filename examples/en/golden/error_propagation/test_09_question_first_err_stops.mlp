@@ -1,0 +1,17 @@
+-- test_09_question_first_err_stops.mlp
+-- Expected: -1
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+numeric function compute()
+  Result r1 = Result.Err(5)
+  numeric a = r1?
+  Result r2 = Result.Ok(20)
+  numeric b = r2?
+  return a + b
+end function
+
+print(compute())

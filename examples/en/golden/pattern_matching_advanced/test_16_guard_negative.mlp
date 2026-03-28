@@ -1,0 +1,14 @@
+-- Guard with negative numbers
+-- Expected: -42
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+Result r = Result.Err(-42)
+match r
+  case Ok(v) -> print(0)
+  case Err(e) if e < 0 -> print(e)
+  case Err(e) -> print(100)
+end match

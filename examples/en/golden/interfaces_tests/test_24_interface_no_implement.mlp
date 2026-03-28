@@ -1,0 +1,6 @@
+-- interface declared but struct doesn't implement it in code
+-- Expected: 1
+interface Unused
+    numeric function fn()
+end interface
+print(1)

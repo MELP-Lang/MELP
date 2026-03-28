@@ -1,0 +1,13 @@
+-- TEST: Signature Help - Lambda Call
+-- LSP Request: textDocument/signatureHelp at line 6, column 15
+-- Expected: Signature "compute(numeric x) -> numeric"
+-- Description: Show signature for lambda function calls
+
+function test()
+  lambda compute(numeric x) -> numeric
+    return x * 2
+  end_lambda
+  
+  numeric result = compute(5  -- cursor here, show lambda signature
+  return result
+end function

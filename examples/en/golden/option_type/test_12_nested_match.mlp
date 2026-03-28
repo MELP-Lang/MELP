@@ -1,0 +1,15 @@
+-- Option with nested expressions
+-- Expected: 15
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+numeric x = 15
+Option opt = Option.Some(x)
+
+match opt
+  case Some(val) -> print(val)
+  case None -> print(0)
+end match

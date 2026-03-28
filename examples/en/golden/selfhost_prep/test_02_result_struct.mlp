@@ -1,0 +1,11 @@
+// Test: Result<T,E> as struct
+// Expected: 1
+import stdlib/result
+
+var res = Ok<numeric, string>(100)
+
+if is_ok(res) then
+    print(1)
+else
+    print(0)
+end if

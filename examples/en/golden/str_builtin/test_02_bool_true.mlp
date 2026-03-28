@@ -1,0 +1,7 @@
+-- Test: str() boolean true
+-- FEATURE: STR_BUILTIN
+-- PHASE: Phase1-P02
+-- Expected: true
+function main()
+  print(str(true))
+end function

@@ -1,0 +1,21 @@
+-- TEST: enum_equality_basic
+-- EXPECTED: 1
+-- FEATURE: ENUM.md
+-- CATEGORY: bug
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+enum Color
+  RED
+  GREEN
+  BLUE
+end enum
+
+function main()
+  numeric c = Color.RED
+  numeric result = 0
+  if c == Color.RED then
+    result = 1
+  end if
+  print(result)
+  return 0
+end function

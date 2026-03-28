@@ -1,0 +1,10 @@
+-- test_01_to_number_basic.mlp
+-- PHASE: 1 (Stdlib Builtins)
+-- EXPECTED: 123
+-- EKS-015: to_number() temel string → numeric dönüşümü
+
+function main()
+    string numStr = "123"
+    numeric n = to_number(numStr)
+    print(n)
+end function

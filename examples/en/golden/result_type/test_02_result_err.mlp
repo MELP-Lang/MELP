@@ -1,0 +1,13 @@
+-- Result<T,E> basic Err variant
+-- Expected: 7
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+Result r = Result.Err(7)
+match r
+  case Ok(v) -> print(0)
+  case Err(e) -> print(e)
+end match

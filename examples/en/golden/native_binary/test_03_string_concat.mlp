@@ -1,0 +1,7 @@
+-- Test: native binary string concatenation
+-- FEATURE: NATIVE_BINARY
+-- PHASE: Phase1-P01
+-- Expected: hello world
+string a = "hello"
+string b = " world"
+print(a + b)

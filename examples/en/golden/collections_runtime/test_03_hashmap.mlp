@@ -1,0 +1,31 @@
+-- Test: HashMap operations
+-- Tests create, set, get, has, delete
+
+numeric map = __builtin_hashmap_create()
+
+-- Set key-value pairs
+__builtin_hashmap_set(map; 100; 1000)
+__builtin_hashmap_set(map; 200; 2000)
+__builtin_hashmap_set(map; 300; 3000)
+
+-- Get values
+print(__builtin_hashmap_get(map; 100))
+print(__builtin_hashmap_get(map; 200))
+print(__builtin_hashmap_get(map; 300))
+
+-- Size
+print(__builtin_hashmap_size(map))
+
+-- Has key
+print(__builtin_hashmap_has(map; 200))
+print(__builtin_hashmap_has(map; 400))
+
+-- Delete key
+__builtin_hashmap_delete(map; 200)
+print(__builtin_hashmap_has(map; 200))
+print(__builtin_hashmap_size(map))
+
+-- Update existing key
+__builtin_hashmap_set(map; 100; 9999)
+print(__builtin_hashmap_get(map; 100))
+-- Expected: 1000\n2000\n3000\n3\n1\n0\n0\n2\n9999

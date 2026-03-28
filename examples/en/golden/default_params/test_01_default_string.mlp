@@ -1,0 +1,12 @@
+-- test_01_default_string.mlp
+-- PHASE: 3 (Default Params)
+-- EXPECTED: INFO: Başladı
+-- EKS-009: String default parametre — çağrıda argüman verilmezse default kullanılır
+
+function log(string mesaj; string seviye: "INFO")
+    print(seviye + ": " + mesaj)
+end function
+
+function main()
+    log("Başladı")       -- seviye = "INFO" (default)
+end function

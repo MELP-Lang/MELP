@@ -1,0 +1,11 @@
+-- test_05_type_bool_assign.mlp
+-- PHASE: 1 (Type Safety)
+-- EXPECTED: 1\n0
+-- EKS-002: Boolean değişkenine boolean atama çalışmalı
+
+function main()
+    boolean b = true
+    print(b)
+    b = false       -- aynı tip → OK
+    print(b)
+end function

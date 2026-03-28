@@ -1,0 +1,40 @@
+-- GÖREV 06: koşul_dallanma
+-- koşul / yoksa koşul / yoksa zincirleri ve iç içe koşul
+
+fonksiyon giriş()
+    sayısal x = 15
+
+    -- Basit koşul
+    koşul x > 10 ise
+        yazdır("Greater than 10")
+    koşul sonu
+
+    -- koşul yoksa
+    sayısal y = 5
+    koşul y > 10 ise
+        yazdır("y > 10")
+    yoksa
+        yazdır("y <= 10")
+    koşul sonu
+
+    -- koşul yoksa koşul yoksa
+    sayısal score = 75
+    koşul score >= 90 ise
+        yazdır("Grade: A")
+    değilse koşul score >= 80 ise
+        yazdır("Grade: B")
+    değilse koşul score >= 70 ise
+        yazdır("Grade: C")
+    yoksa
+        yazdır("Grade: F")
+    koşul sonu
+
+    -- İç içe koşul
+    sayısal a = 20
+    sayısal b = 30
+    koşul a > 10 ise
+        koşul b > 25 ise
+            yazdır("Both conditions true")
+        koşul sonu
+    koşul sonu
+fonksiyon sonu

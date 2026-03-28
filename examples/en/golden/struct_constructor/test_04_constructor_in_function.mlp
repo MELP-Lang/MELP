@@ -1,0 +1,20 @@
+-- test_04_constructor_in_function.mlp
+-- PHASE: 3 (Struct Constructor)
+-- EXPECTED: 100\n200
+-- EKS-003: Fonksiyon içinde constructor kullanımı
+
+struct Rect(numeric w; numeric h)
+    numeric w
+    numeric h
+end struct
+
+Rect function make_rect(numeric width; numeric height)
+    Rect r = Rect(width; height)
+    return r
+end function
+
+function main()
+    Rect r = make_rect(100; 200)
+    print(r.w)
+    print(r.h)
+end function

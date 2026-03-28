@@ -1,0 +1,24 @@
+-- ÖZELLİK: EŞZAMANSIZ_BEKLE - Asenkron fonksiyon
+-- NOT: Stage0'da eşzamansız = senkron geçiş (Faz 7 — gerçek async yok)
+-- eşzamansız keyword parse + compile ediliyor, bekle gelecekte
+
+eşzamansız sayısal fonksiyon veri_getir(sayısal id)
+    -- Şu an senkron çalışıyor
+    döndür id * 10
+fonksiyon sonu
+
+eşzamansız sayısal fonksiyon isle(sayısal val)
+    sayısal data = veri_getir(val)
+    döndür data + 1
+fonksiyon sonu
+
+fonksiyon giriş()
+    sayısal r1 = veri_getir(5)
+    yazdır(r1)
+
+    sayısal r2 = veri_getir(20)
+    yazdır(r2)
+
+    sayısal r3 = isle(3)
+    yazdır(r3)
+fonksiyon sonu

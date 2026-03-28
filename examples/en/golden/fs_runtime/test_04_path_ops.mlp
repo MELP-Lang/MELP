@@ -1,0 +1,20 @@
+-- Golden Test: fs_mkdir / fs_rmdir
+-- Directory creation and removal
+-- Expected output:
+-- 1 (mkdir success)
+-- 1 (directory exists)
+-- 1 (rmdir success)
+-- 0 (directory removed)
+
+numeric mk_result = __builtin_fs_mkdir("/tmp/mlp_test_dir")
+print(mk_result)
+
+numeric exists_after_mk = __builtin_fs_is_directory("/tmp/mlp_test_dir")
+print(exists_after_mk)
+
+numeric rm_result = __builtin_fs_rmdir("/tmp/mlp_test_dir")
+print(rm_result)
+
+numeric exists_after_rm = __builtin_fs_is_directory("/tmp/mlp_test_dir")
+print(exists_after_rm)
+-- Expected: 1\n1\n1\n0

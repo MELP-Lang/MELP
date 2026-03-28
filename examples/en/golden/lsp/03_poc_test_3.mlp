@@ -1,0 +1,7 @@
+-- TEST: Find References
+-- PHASE: 4.2 (LSP)
+-- EXPECTED: 2
+
+function main()
+  print(2)
+end function

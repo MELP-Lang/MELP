@@ -1,0 +1,9 @@
+-- TEST: Lambda if body in array_map
+-- LANG: LANG-12
+-- Expected: 1\n20\n30
+
+numeric[] nums = [1; 2; 3]
+numeric[] mapped = array_map(nums; lambda(x) -> if x > 1 then x * 10 else x end if)
+for each n in mapped
+    print(n)
+end for

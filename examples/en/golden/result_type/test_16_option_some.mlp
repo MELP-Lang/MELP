@@ -1,0 +1,13 @@
+-- Option<T> with Some variant
+-- Expected: 42
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+Option opt = Option.Some(42)
+match opt
+  case Some(v) -> print(v)
+  case None -> print(0)
+end match

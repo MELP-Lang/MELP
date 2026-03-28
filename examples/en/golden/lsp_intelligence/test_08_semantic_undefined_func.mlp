@@ -1,0 +1,9 @@
+-- TEST: Semantic Diagnostics - Undefined Function
+-- LSP Request: textDocument/publishDiagnostics on save
+-- Expected: Error "Function 'unknown' is not defined"
+-- Description: Detect calls to undefined functions
+
+export function main()
+  numeric result = unknown(10)  -- Error: unknown function
+  return result
+end function

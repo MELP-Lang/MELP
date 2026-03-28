@@ -1,0 +1,17 @@
+-- MKLP_TEST: hof_apply_fn
+-- Expected: 0
+-- FEATURE: HIGHER_ORDER_FUNCTIONS.md
+-- CATEGORY: feature
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+numeric function double(numeric x)
+  return x * 2
+end function
+
+numeric function apply(numeric x; numeric fn)
+  return fn(x)
+end function
+
+function main()
+  print(apply(5; double))
+end function

@@ -1,0 +1,11 @@
+-- Golden Test: net_url_encode
+-- Tests URL encoding
+-- Expected output:
+-- hello%20world
+-- foo%3Dbar%26baz
+-- simple
+
+print_str(__builtin_net_url_encode("hello world"))
+print_str(__builtin_net_url_encode("foo=bar&baz"))
+print_str(__builtin_net_url_encode("simple"))
+-- Expected: hello%20world\nfoo%3Dbar%26baz\nsimple

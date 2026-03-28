@@ -1,0 +1,15 @@
+-- COLL-1: Hashmap size, has, delete operations
+
+function main()
+    hashmap<numeric; numeric> m = {}
+    hashmap_set(m; 1; 10)
+    hashmap_set(m; 2; 20)
+    hashmap_set(m; 3; 30)
+    print(hashmap_size(m))
+    print(hashmap_has(m; 2))
+    print(hashmap_has(m; 9))
+    hashmap_delete(m; 2)
+    print(hashmap_has(m; 2))
+    print(hashmap_size(m))
+end function
+-- Expected: 3\n1\n0\n0\n2

@@ -1,0 +1,9 @@
+-- test_04_to_number_negative.mlp
+-- PHASE: 1 (Stdlib Builtins)
+-- EXPECTED: -42
+-- EKS-015: to_number("-42") → -42 (negatif sayı)
+
+function main()
+    numeric n = to_number("-42")
+    print(n)
+end function

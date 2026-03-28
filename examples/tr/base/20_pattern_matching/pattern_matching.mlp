@@ -1,0 +1,48 @@
+-- GÖREV 20: örüntü_eşleştirme
+-- Seç-durum ile örüntü eşleştirme
+
+sayısal fonksiyon yas_sinifla(sayısal yas)
+    seç yas
+        durum 0 ise döndür 1
+        durum 1 ise döndür 1
+        durum 5 ise döndür 2
+        durum 9 ise döndür 3
+        yoksa döndür 0
+    seç sonu
+fonksiyon sonu
+
+sayısal fonksiyon aralik_kontrol(sayısal n)
+    seç n
+        durum 1 ise döndür 10
+        durum 2 ise döndür 20
+        durum 3 ise döndür 30
+        durum 4 ise döndür 40
+        durum 5 ise döndür 50
+        yoksa döndür 0
+    seç sonu
+fonksiyon sonu
+
+fonksiyon giriş()
+    -- Basit örüntü eşleştirme
+    sayısal age1 = 0
+    yazdır(yas_sinifla(age1))
+
+    sayısal age2 = 5
+    yazdır(yas_sinifla(age2))
+
+    sayısal age3 = 9
+    yazdır(yas_sinifla(age3))
+
+    sayısal age4 = 10
+    yazdır(yas_sinifla(age4))
+
+    -- Aralık eşleştirme
+    sayısal val1 = aralik_kontrol(2)
+    yazdır(val1)
+
+    sayısal val2 = aralik_kontrol(5)
+    yazdır(val2)
+
+    sayısal val3 = aralik_kontrol(10)
+    yazdır(val3)
+fonksiyon sonu

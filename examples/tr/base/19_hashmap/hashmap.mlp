@@ -1,0 +1,31 @@
+-- GÖREV 19: hashmap
+-- Anahtar-değer koleksiyonu (basit)
+
+fonksiyon giriş()
+    -- Hashmap oluştur
+    hashmap<metin, sayısal> scores = {}
+
+    -- Değer ekle
+    scores["alice"] = 95
+    scores["bob"] = 87
+    scores["charlie"] = 92
+
+    -- Değer oku
+    sayısal alice_score = scores["alice"]
+    yazdır(alice_score)
+
+    sayısal bob_score = scores["bob"]
+    yazdır(bob_score)
+
+    sayısal charlie_score = scores["charlie"]
+    yazdır(charlie_score)
+
+    -- Olmayan anahtar (0 döner)
+    sayısal missing = scores["unknown"]
+    yazdır(missing)
+
+    -- Değer güncelle
+    scores["alice"] = 98
+    sayısal updated = scores["alice"]
+    yazdır(updated)
+fonksiyon sonu

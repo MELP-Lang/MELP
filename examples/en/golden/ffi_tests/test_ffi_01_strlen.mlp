@@ -1,0 +1,9 @@
+-- TEST: FFI strlen - measure string length via C stdlib
+-- Expected: 5
+
+external function strlen(s as string) as numeric
+
+function main()
+    numeric n = strlen("hello")
+    print(n)
+end function

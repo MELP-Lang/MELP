@@ -1,0 +1,16 @@
+-- test_05_max.mlp
+-- FEATURE: FOR_EACH
+-- PHASE: Phase2-L06
+-- Expected: 99
+-- Description: For each ile maksimum eleman bulma
+
+function main()
+    numeric[] vals = [3; 99; 17; 42; 8]
+    numeric maxVal = 0
+    for each v in vals
+        if v > maxVal then
+            maxVal = v
+        end if
+    end for
+    print(maxVal)
+end function

@@ -1,0 +1,18 @@
+-- test_05_with_expression_value.mlp
+-- PHASE: 3 (With Block)
+-- EXPECTED: 15
+-- EKS-004: with bloğunda expression ile field ataması
+
+struct Stats
+    numeric total
+end struct
+
+function main()
+    Stats s
+    numeric a = 5
+    numeric b = 10
+    with s
+        total = a + b
+    end_with
+    print(s.total)
+end function

@@ -1,0 +1,207 @@
+-- EXPORTED: isDigit, isAlpha, isLower, isUpper, toLower, toUpper, isSpace, isAlnum, charToDigit, digitToChar, isHexDigit, hexToValue, isPrintable, isControl, isPunct, charCode
+-- stdlib/string_utils.mlp - PMLP0 String/Character Utilities
+-- ASCII character operations (pure .mlp implementation)
+-- Note: Works with ASCII codes (numeric), not actual strings
+-- Each function uses unique parameter names for LLVM compatibility
+
+-- Check if ASCII code is a digit (0-9)
+function isDigit(id_c as numeric) -> numeric
+  if id_c >= 48 then
+    if id_c <= 57 then
+      return 1
+    end_if
+  end_if
+  return 0
+end_function
+
+-- Check if ASCII code is a letter (A-Z or a-z)
+function isAlpha(ia_c as numeric) -> numeric
+  if ia_c >= 65 then
+    if ia_c <= 90 then
+      return 1
+    end_if
+  end_if
+  if ia_c >= 97 then
+    if ia_c <= 122 then
+      return 1
+    end_if
+  end_if
+  return 0
+end_function
+
+-- Check if ASCII code is lowercase (a-z)
+function isLower(il_c as numeric) -> numeric
+  if il_c >= 97 then
+    if il_c <= 122 then
+      return 1
+    end_if
+  end_if
+  return 0
+end_function
+
+-- Check if ASCII code is uppercase (A-Z)
+function isUpper(iu_c as numeric) -> numeric
+  if iu_c >= 65 then
+    if iu_c <= 90 then
+      return 1
+    end_if
+  end_if
+  return 0
+end_function
+
+-- Convert uppercase to lowercase (A-Z -> a-z)
+function toLower(tl_c as numeric) -> numeric
+  if tl_c >= 65 then
+    if tl_c <= 90 then
+      return tl_c + 32
+    end_if
+  end_if
+  return tl_c
+end_function
+
+-- Convert lowercase to uppercase (a-z -> A-Z)
+function toUpper(tu_c as numeric) -> numeric
+  if tu_c >= 97 then
+    if tu_c <= 122 then
+      return tu_c - 32
+    end_if
+  end_if
+  return tu_c
+end_function
+
+-- Check if ASCII code is whitespace (space, tab, newline, etc.)
+function isSpace(is_c as numeric) -> numeric
+  if is_c == 32 then
+    return 1
+  end_if
+  if is_c == 9 then
+    return 1
+  end_if
+  if is_c == 10 then
+    return 1
+  end_if
+  if is_c == 13 then
+    return 1
+  end_if
+  return 0
+end_function
+
+-- Check if ASCII code is alphanumeric
+function isAlnum(ian_c as numeric) -> numeric
+  if isAlpha(ian_c) == 1 then
+    return 1
+  end_if
+  if isDigit(ian_c) == 1 then
+    return 1
+  end_if
+  return 0
+end_function
+
+-- Convert digit character to number ('0'-'9' -> 0-9)
+function charToDigit(ctd_c as numeric) -> numeric
+  if isDigit(ctd_c) == 1 then
+    return ctd_c - 48
+  end_if
+  return 0 - 1
+end_function
+
+-- Convert number to digit character (0-9 -> '0'-'9')
+function digitToChar(dtc_n as numeric) -> numeric
+  if dtc_n >= 0 then
+    if dtc_n <= 9 then
+      return dtc_n + 48
+    end_if
+  end_if
+  return 0 - 1
+end_function
+
+-- Check if ASCII is hex digit (0-9, A-F, a-f)
+function isHexDigit(ihd_c as numeric) -> numeric
+  if isDigit(ihd_c) == 1 then
+    return 1
+  end_if
+  if ihd_c >= 65 then
+    if ihd_c <= 70 then
+      return 1
+    end_if
+  end_if
+  if ihd_c >= 97 then
+    if ihd_c <= 102 then
+      return 1
+    end_if
+  end_if
+  return 0
+end_function
+
+-- Convert hex digit to value (0-15)
+function hexToValue(htv_c as numeric) -> numeric
+  if isDigit(htv_c) == 1 then
+    return htv_c - 48
+  end_if
+  if htv_c >= 65 then
+    if htv_c <= 70 then
+      return htv_c - 55
+    end_if
+  end_if
+  if htv_c >= 97 then
+    if htv_c <= 102 then
+      return htv_c - 87
+    end_if
+  end_if
+  return 0 - 1
+end_function
+
+-- Check if ASCII is printable (32-126)
+function isPrintable(ipr_c as numeric) -> numeric
+  if ipr_c >= 32 then
+    if ipr_c <= 126 then
+      return 1
+    end_if
+  end_if
+  return 0
+end_function
+
+-- Check if ASCII is control character (0-31 or 127)
+function isControl(ict_c as numeric) -> numeric
+  if ict_c < 32 then
+    return 1
+  end_if
+  if ict_c == 127 then
+    return 1
+  end_if
+  return 0
+end_function
+
+-- Check if ASCII is punctuation (printable but not alnum or space)
+function isPunct(ipn_c as numeric) -> numeric
+  if isPrintable(ipn_c) == 0 then
+    return 0
+  end_if
+  if isAlnum(ipn_c) == 1 then
+    return 0
+  end_if
+  if isSpace(ipn_c) == 1 then
+    return 0
+  end_if
+  return 1
+end_function
+
+-- Return common character codes (0=NUL, 1=TAB, 2=LF, 3=CR, 4=SPACE)
+function charCode(cc_which as numeric) -> numeric
+  if cc_which == 0 then
+    return 0
+  end_if
+  if cc_which == 1 then
+    return 9
+  end_if
+  if cc_which == 2 then
+    return 10
+  end_if
+  if cc_which == 3 then
+    return 13
+  end_if
+  if cc_which == 4 then
+    return 32
+  end_if
+  return 0 - 1
+end_function

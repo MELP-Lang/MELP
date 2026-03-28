@@ -1,0 +1,11 @@
+-- test_02_type_assign_string.mlp
+-- PHASE: 1 (Type Safety)
+-- EXPECTED: hello\nworld
+-- EKS-002: String değişkenine string atama çalışmalı
+
+function main()
+    string s = "hello"
+    print(s)
+    s = "world"      -- aynı tip → OK
+    print(s)
+end function

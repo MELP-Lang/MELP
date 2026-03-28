@@ -1,0 +1,8 @@
+// Test: Match with wildcard pattern
+// Expected: 1
+
+var x = 999
+
+match x
+    else print(1)
+end match

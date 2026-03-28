@@ -1,0 +1,18 @@
+-- GOLDEN_TEST: test_01_test_block
+-- FEATURE: STDLIB-TEST-1
+-- PHASE: Phase8
+-- Testing framework: test/end_test blocks + assert() builtin
+
+function main()
+  test "addition works" do
+    assert(2 + 2 == 4)
+  end_test
+  test "multiplication works" do
+    assert(3 * 3 == 9)
+  end_test
+  test "subtraction works" do
+    assert(10 - 3 == 7)
+  end_test
+end function
+
+-- Expected:   test: addition works ... PASS\n  test: multiplication works ... PASS\n  test: subtraction works ... PASS

@@ -1,0 +1,15 @@
+-- test_10_question_ok_with_addition.mlp
+-- Expected: 100
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+numeric function add_fifty(numeric n)
+  Result r = Result.Ok(n)
+  numeric v = r?
+  return v + 50
+end function
+
+print(add_fifty(50))

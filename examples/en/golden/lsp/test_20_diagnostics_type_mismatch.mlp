@@ -1,0 +1,11 @@
+-- TEST: Diagnostics - Type Mismatch
+-- LSP Request: textDocument/publishDiagnostics on save
+-- Expected: Error "Type mismatch: expected numeric, got string" at line 3
+-- Description: Report type errors
+
+function test() -> numeric
+  numeric x = 10
+  string s = "hello"
+  numeric result = s  -- type error: assigning string to numeric
+  return result
+end function

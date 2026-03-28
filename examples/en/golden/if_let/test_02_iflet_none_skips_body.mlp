@@ -1,0 +1,16 @@
+-- test_02_iflet_none_skips_body.mlp
+-- Expected: 0
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+Option x = Option.None
+numeric ran = 0
+
+if let Some(v) = x then
+  ran = 1
+end if
+
+print(ran)

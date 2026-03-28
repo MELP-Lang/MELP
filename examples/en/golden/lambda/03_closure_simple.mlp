@@ -1,0 +1,9 @@
+-- TEST: Closure with Single Capture
+-- PHASE: 1.2 (Closure Mechanism)
+-- EXPECTED: 15
+
+function main()
+  numeric x = 10
+  numeric addX = lambda(y) -> x + y
+  print(addX(5))
+end function

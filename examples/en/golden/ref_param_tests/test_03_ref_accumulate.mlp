@@ -1,0 +1,15 @@
+-- test_03_ref_accumulate.mlp
+-- PHASE: 2 (Ref Params)
+-- EXPECTED: 7
+-- EKS-019: ref ile toplam biriktirme
+
+function ekle(ref numeric toplam; numeric deger)
+    toplam = toplam + deger
+end function
+
+function main()
+    numeric t = 0
+    ekle(t; 3)
+    ekle(t; 4)
+    print(t)   -- 7
+end function

@@ -1,0 +1,15 @@
+-- test_02_constructor_string_field.mlp
+-- PHASE: 3 (Struct Constructor)
+-- EXPECTED: Ali\n30
+-- EKS-003: String ve numeric field constructor
+
+struct Person(string name; numeric age)
+    string name
+    numeric age
+end struct
+
+function main()
+    Person ali = Person("Ali"; 30)
+    print(ali.name)
+    print(ali.age)
+end function

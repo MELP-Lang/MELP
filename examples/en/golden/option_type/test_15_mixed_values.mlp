@@ -1,0 +1,26 @@
+-- Mixed Some and None values
+-- Expected: 7\n0\n14
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+Option v1 = Option.Some(7)
+Option v2 = Option.None
+Option v3 = Option.Some(14)
+
+match v1
+  case Some(x) -> print(x)
+  case None -> print(99)
+end match
+
+match v2
+  case Some(x) -> print(x)
+  case None -> print(0)
+end match
+
+match v3
+  case Some(x) -> print(x)
+  case None -> print(99)
+end match

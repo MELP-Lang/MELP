@@ -1,0 +1,5 @@
+-- test_03_http_client_basic.mlp
+-- Expected: 80
+
+numeric default_port = 80
+print(default_port)

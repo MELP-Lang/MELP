@@ -1,0 +1,13 @@
+-- test_01_iflet_some_basic.mlp
+-- Expected: 42
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+Option x = Option.Some(42)
+
+if let Some(v) = x then
+  print(v)
+end if

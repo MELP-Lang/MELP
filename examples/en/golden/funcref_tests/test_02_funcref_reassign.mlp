@@ -1,0 +1,22 @@
+-- test_02_funcref_reassign.mlp
+-- PHASE: 3 (Funcref)
+-- EXPECTED: 4\n8\n9
+-- EKS-008: funcref değişkenine farklı fonksiyon atama
+
+numeric function kare(numeric x)
+    return x * x
+end function
+
+numeric function kup(numeric x)
+    return x * x * x
+end function
+
+function main()
+    numeric fn(numeric) = kare
+    print(fn(2))    -- 4
+    fn = kup
+    print(fn(2))    -- 8
+    fn = kare
+    print(fn(3))    -- 9
+    return 0
+end function

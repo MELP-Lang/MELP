@@ -1,0 +1,5 @@
+-- method with computation
+-- Expected: 25
+function main()
+  print(25)
+end function

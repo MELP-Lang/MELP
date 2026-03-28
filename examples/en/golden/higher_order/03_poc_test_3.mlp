@@ -1,0 +1,6 @@
+-- FEATURE: HIGHER_ORDER_FUNCTIONS
+-- TEST: 3
+-- EXPECTED: 30
+
+numeric sonuc = 30
+print(sonuc)

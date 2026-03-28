@@ -1,0 +1,15 @@
+-- test_01_constructor_basic.mlp
+-- PHASE: 3 (Struct Constructor)
+-- EXPECTED: 10\n20
+-- EKS-003: Temel struct constructor
+
+struct Point(numeric x; numeric y)
+    numeric x
+    numeric y
+end struct
+
+function main()
+    Point p = Point(10; 20)
+    print(p.x)
+    print(p.y)
+end function

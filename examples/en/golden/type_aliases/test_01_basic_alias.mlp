@@ -1,0 +1,7 @@
+-- test_01_basic_alias.mlp
+-- Expected: 42
+-- Test: Basic numeric type alias declaration and usage
+
+type UserId = numeric
+UserId id = 42
+print(id)

@@ -1,0 +1,19 @@
+-- test_05_question_enum_return_err_propagated.mlp
+-- Expected: 0
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+Result function safe_get()
+  Result r = Result.Err(99)
+  numeric v = r?
+  return Result.Ok(v)
+end function
+
+Result result = safe_get()
+match result
+  case Ok(v) -> print(v)
+  case Err(e) -> print(0)
+end match

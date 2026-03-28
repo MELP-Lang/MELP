@@ -1,0 +1,19 @@
+-- test_01_with_basic.mlp
+-- PHASE: 3 (With Block)
+-- EXPECTED: Ali Veli\n30
+-- EKS-004: Temel with kullanımı
+
+struct Person
+    string name
+    numeric age
+end struct
+
+function main()
+    Person ali
+    with ali
+        name = "Ali Veli"
+        age = 30
+    end_with
+    print(ali.name)
+    print(ali.age)
+end function

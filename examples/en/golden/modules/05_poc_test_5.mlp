@@ -1,0 +1,7 @@
+-- TEST: Module with Constants
+-- PHASE: 2.3 (Modules)
+-- EXPECTED: 42
+
+function main()
+  print(42)
+end function

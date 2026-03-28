@@ -1,0 +1,16 @@
+-- test_02_module_with_function.mlp
+-- FEATURE: MODULE_BLOCK
+-- PHASE: Phase2-L02
+-- Expected: 0
+
+-- module içindeki fonksiyon dışarıdan çağrılabilmeli
+
+module Util
+    numeric function double(numeric n)
+        return n + n
+    end function
+end module
+
+function main()
+    print(double(21))
+end function

@@ -1,0 +1,14 @@
+-- test_04_single_element.mlp
+-- FEATURE: FOR_EACH
+-- PHASE: Phase2-L06
+-- Expected: 42
+-- Description: Tek elemanlı array üzerinde for each
+
+function main()
+    numeric[] arr = [42]
+    numeric result = 0
+    for each x in arr
+        result = x
+    end for
+    print(result)
+end function

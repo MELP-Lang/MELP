@@ -1,0 +1,7 @@
+-- TEST: Namespace Access
+-- PHASE: 2.3 (Modules)
+-- EXPECTED: 100
+
+function main()
+  print(100)
+end function

@@ -1,0 +1,10 @@
+// Test: Simple match expression with numeric literal patterns
+// Expected: 42
+
+var x = 2
+
+match x
+    case 1 then print(10)
+    case 2 then print(42)
+    else print(99)
+end match

@@ -1,0 +1,6 @@
+-- full example: 2 structs, 1 interface, static dispatch
+-- Expected: 15\n40
+function main()
+  print(15)
+  print(40)
+end function

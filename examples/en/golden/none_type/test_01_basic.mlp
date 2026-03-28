@@ -1,0 +1,10 @@
+-- GOLDEN TEST: none return type - void function call
+-- FEATURE: L-05 none (void return type keyword)
+-- Expected: hello world
+none function greet(msg as string)
+  print(msg)
+end function
+
+function main()
+  greet("hello world")
+end function

@@ -1,0 +1,13 @@
+-- PascalCase interface name
+-- Expected: 0
+interface MyInterface
+    numeric function check()
+end interface
+struct MyStruct implements MyInterface
+    numeric val
+end struct
+numeric function MyStruct.check()
+    return this.val
+end function
+MyStruct m = MyStruct { val: 1 }
+print(m.check())

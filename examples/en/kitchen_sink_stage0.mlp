@@ -1,0 +1,295 @@
+-- ============================================================
+-- MeLP Kitchen Sink — Stage 0 Compatible Features
+-- English MLP syntax (space tokens, compiled via normalizer).
+-- Contains only features supported by STAGE0 v1.0.11.
+-- Excluded: try/catch, scope/exit_compute, module, lambda,
+--           HOF, closure, float literals (ESK-007),
+--           exit-in-for (ESK-005), default_params, ref params.
+-- ============================================================
+
+
+-- ============================================================
+-- STRUCTS
+-- ============================================================
+
+struct Point
+    numeric x
+    numeric y
+end struct
+
+struct Rectangle
+    numeric x
+    numeric y
+    numeric width
+    numeric height
+end struct
+
+
+-- ============================================================
+-- ENUMS
+-- ============================================================
+
+enum Direction
+    NORTH
+    SOUTH
+    EAST
+    WEST
+end enum
+
+
+-- ============================================================
+-- FUNCTIONS — basic
+-- ============================================================
+
+numeric function add(numeric a; numeric b)
+    return a + b
+end function
+
+numeric function subtract(numeric a; numeric b)
+    return a - b
+end function
+
+numeric function multiply(numeric a; numeric b)
+    return a * b
+end function
+
+numeric function divide(numeric a; numeric b)
+    if b == 0 then
+        return 0
+    end if
+    return a / b
+end function
+
+boolean function isEven(numeric n)
+    numeric rem = n mod 2
+    if rem == 0 then
+        return true
+    else
+        return false
+    end if
+end function
+
+string function greet(string name)
+    return "Hello, " + name + "!"
+end function
+
+
+-- ============================================================
+-- FUNCTIONS — recursion
+-- ============================================================
+
+numeric function factorial(numeric n)
+    if n <= 1 then
+        return 1
+    end if
+    return n * factorial(n - 1)
+end function
+
+numeric function fib(numeric n)
+    if n <= 1 then
+        return n
+    end if
+    return fib(n - 1) + fib(n - 2)
+end function
+
+
+-- ============================================================
+-- STRUCT METHODS
+-- ============================================================
+
+-- NOTE: B4 constraint — this.a * this.b requires local var
+numeric function Rectangle.area()
+    numeric w = this.width
+    numeric h = this.height
+    return w * h
+end function
+
+numeric function Rectangle.perimeter()
+    numeric w = this.width
+    numeric h = this.height
+    return 2 * (w + h)
+end function
+
+-- NOTE: ESK-006 — str(this.x) inside methods returns raw pointer.
+-- Workaround: access fields directly from outside the method.
+numeric function Point.distanceSq(Point other)
+    numeric dx = this.x - other.x
+    numeric dy = this.y - other.y
+    return dx * dx + dy * dy
+end function
+
+
+-- ============================================================
+-- PATTERN MATCHING helpers
+-- ============================================================
+
+string function describeDirection(Direction d)
+    match d
+        case Direction.NORTH then return "Going north"
+        case Direction.SOUTH then return "Going south"
+        case Direction.EAST  then return "Going east"
+        case Direction.WEST  then return "Going west"
+    end match
+    return "Unknown"
+end function
+
+string function describeNumber(numeric n)
+    match n
+        case 0 then return "zero"
+        case 1 then return "one"
+        case 2 then return "two"
+    end match
+    return "many"
+end function
+
+
+-- ============================================================
+-- MAIN
+-- ============================================================
+
+function main()
+    println("=== MeLP Kitchen Sink Stage0 ===")
+    println("")
+
+    -- ── Variables ──────────────────────────────────────────
+    println("-- Variables --")
+    numeric x = 42
+    string name = "MeLP"
+    boolean flag = true
+    println(x)
+    println(name)
+    println(flag)
+    println("")
+
+    -- ── Arithmetic ─────────────────────────────────────────
+    println("-- Arithmetic --")
+    println(add(10; 5))
+    println(subtract(10; 5))
+    println(multiply(10; 5))
+    println(divide(10; 5))
+    println(divide(10; 0))
+    println("")
+
+    -- ── Logical operators ──────────────────────────────────
+    println("-- Logical operators --")
+    boolean a = true
+    boolean b = false
+    println(a and b)
+    println(a or b)
+    println(not a)
+    println("")
+
+    -- ── if / else if / else ────────────────────────────────
+    println("-- Conditionals --")
+    numeric score = 75
+    if score >= 90 then
+        println("A")
+    else if score >= 70 then
+        println("B")
+    else if score >= 50 then
+        println("C")
+    else
+        println("F")
+    end if
+    println("")
+
+    -- ── while ──────────────────────────────────────────────
+    println("-- While --")
+    numeric i = 0
+    while i < 5
+        print(i)
+        print(" ")
+        i = i + 1
+    end while
+    println("")
+    println("")
+
+    -- ── for range ascending ────────────────────────────────
+    println("-- For range ascending --")
+    for i = 1 to 5
+        print(i)
+        print(" ")
+    end for
+    println("")
+    println("")
+
+    -- ── for range descending ───────────────────────────────
+    println("-- For range descending --")
+    for i = 5 downto 1
+        print(i)
+        print(" ")
+    end for
+    println("")
+    println("")
+
+    -- ── for each ───────────────────────────────────────────
+    println("-- For each --")
+    numeric[] nums = [10; 20; 30; 40; 50]
+    for each n in nums
+        print(n)
+        print(" ")
+    end for
+    println("")
+    println("")
+
+    -- ── Iseven ─────────────────────────────────────────────
+    println("-- isEven --")
+    println(isEven(4))
+    println(isEven(7))
+    println("")
+
+    -- ── Greet ──────────────────────────────────────────────
+    println("-- Greet --")
+    println(greet("World"))
+    println("")
+
+    -- ── Recursion ──────────────────────────────────────────
+    println("-- Recursion --")
+    println(factorial(6))
+    println(fib(10))
+    println("")
+
+    -- ── Struct ─────────────────────────────────────────────
+    println("-- Struct --")
+    Point p1
+    p1.x = 3
+    p1.y = 4
+    Point p2
+    p2.x = 0
+    p2.y = 0
+    -- ESK-006 workaround: print fields directly (not via str(this.x) in method)
+    print("(")
+    print(p1.x)
+    print(", ")
+    print(p1.y)
+    println(")")
+    println(p1.distanceSq(p2))
+    println("")
+
+    -- ── Rectangle ──────────────────────────────────────────
+    println("-- Rectangle --")
+    Rectangle rect
+    rect.x = 0
+    rect.y = 0
+    rect.width = 10
+    rect.height = 5
+    println(rect.area())
+    println(rect.perimeter())
+    println("")
+
+    -- ── Enum ───────────────────────────────────────────────
+    println("-- Enum --")
+    Direction dir = Direction.NORTH
+    println(describeDirection(dir))
+    println(describeDirection(Direction.WEST))
+    println("")
+
+    -- ── Pattern matching ───────────────────────────────────
+    println("-- Match --")
+    println(describeNumber(0))
+    println(describeNumber(2))
+    println(describeNumber(99))
+    println("")
+
+    println("=== Done ===")
+end function

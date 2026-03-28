@@ -1,0 +1,383 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "MLP",
+  "scopeName": "source.mlp",
+  "fileTypes": ["mlp"],
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#debug" },
+    { "include": "#keywords_control" },
+    { "include": "#keywords_declaration" },
+    { "include": "#keywords_module" },
+    { "include": "#types" },
+    { "include": "#constants" },
+    { "include": "#operators_logical" },
+    { "include": "#operators_arithmetic" },
+    { "include": "#builtin_functions" },
+    { "include": "#function_call" },
+    { "include": "#numbers_turkish" },
+    { "include": "#numbers" },
+    { "include": "#operators" },
+    { "include": "#gui_events" },
+    { "include": "#identifiers" }
+  ],
+  "repository": {
+
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-dash.mlp",
+          "match": "--.*$"
+        },
+        {
+          "name": "comment.block.mlp",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+
+    "strings": {
+      "name": "string.quoted.double.mlp",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.mlp",
+          "match": "\\\\[ntr\"\\\\]"
+        }
+      ]
+    },
+
+    "debug": {
+      "comment": "debug keyword'leri uyari rengiyle gosterilir (release build'de sifir maliyet)",
+      "patterns": [
+        {
+          "comment": "Tek satir debug: debug: ifade",
+          "name": "keyword.control.debug.mlp",
+          "match": "\\bdebug\\s*:"
+        },
+        {
+          "comment": "debug / end debug / pause / goto / label bloklari",
+          "name": "keyword.control.debug.mlp",
+          "match": "\\b(debug|end\\s+debug|pause|goto)\\b"
+        },
+        {
+          "comment": "label: tanimlama (label: isim seklinde)",
+          "name": "keyword.control.debug.mlp",
+          "match": "\\blabel\\s*:"
+        }
+      ]
+    },
+
+    "keywords_control": {
+      "comment": "Kontrol akisi - if/else/while/for ve ilgili tum tokenlar",
+      "patterns": [
+        {
+          "comment": "Blok sonlandiricilar once eslestir (end if, end loop, end for...)",
+          "name": "keyword.control.mlp",
+          "match": "\\b(end\\s+if|end\\s+loop|end\\s+for|end\\s+match|end\\s+try)\\b"
+        },
+        {
+          "comment": "if / else if / else",
+          "name": "keyword.control.mlp",
+          "match": "\\b(if|else\\s+if|else)\\b"
+        },
+        {
+          "comment": "then - if ve else if icin zorunlu eslestirici",
+          "name": "keyword.control.flow.mlp",
+          "match": "\\b(then)\\b"
+        },
+        {
+          "comment": "loop dongusu (MLP kanonik formu, while legacy)",
+          "name": "keyword.control.mlp",
+          "match": "\\b(loop|end\\s+loop)\\b"
+        },
+        {
+          "comment": "for dongusu: to, downto, step, each, in, where",
+          "name": "keyword.control.mlp",
+          "match": "\\b(for|to|downto|step|end\\s+for|each|in|where)\\b"
+        },
+        {
+          "comment": "Donguden cikis ve devam",
+          "name": "keyword.control.mlp",
+          "match": "\\b(exit|continue|exit_loop|exit_for|continue_loop|continue_for)\\b"
+        },
+        {
+          "comment": "Pattern matching",
+          "name": "keyword.control.mlp",
+          "match": "\\b(match|case|end\\s+match)\\b"
+        },
+        {
+          "comment": "Hata yonetimi",
+          "name": "keyword.control.mlp",
+          "match": "\\b(try|catch|finally|end\\s+try)\\b"
+        },
+        {
+          "comment": "scope - isimli kontrol akisi blogu",
+          "name": "keyword.control.mlp",
+          "match": "\\b(scope|end\\s+scope)\\b"
+        },
+        {
+          "comment": "spawn - thread blogu",
+          "name": "keyword.control.mlp",
+          "match": "\\b(spawn|end\\s+spawn)\\b"
+        },
+        {
+          "comment": "test blogu - birim test cercevesi",
+          "name": "keyword.control.mlp",
+          "match": "\\b(test|end\\s+test|do|assert)\\b"
+        }
+      ]
+    },
+
+    "keywords_declaration": {
+      "comment": "Fonksiyon, struct, enum, interface tanimlari",
+      "patterns": [
+        {
+          "comment": "function taniminin basi - fonksiyon adini da renklendir",
+          "name": "meta.function.declaration.mlp",
+          "match": "\\b(function)\\s+([a-zA-Z_][a-zA-Z0-9_]*(\\.[a-zA-Z_][a-zA-Z0-9_]*)?(\\.[a-zA-Z_][a-zA-Z0-9_]*)?)\\b",
+          "captures": {
+            "1": { "name": "keyword.declaration.function.mlp" },
+            "2": { "name": "entity.name.function.mlp" }
+          }
+        },
+        {
+          "comment": "end function / return / none",
+          "name": "keyword.declaration.function.mlp",
+          "match": "\\b(end\\s+function|return|none)\\b"
+        },
+        {
+          "comment": "Fonksiyon/metod modifiyerleri",
+          "name": "keyword.other.mlp",
+          "match": "\\b(own|mut|pure|inline|comptime)\\b"
+        },
+        {
+          "comment": "lambda",
+          "name": "keyword.declaration.function.mlp",
+          "match": "\\b(lambda|end\\s+lambda)\\b"
+        },
+        {
+          "comment": "struct taniminin basi",
+          "name": "meta.struct.declaration.mlp",
+          "match": "\\b(struct)\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\b",
+          "captures": {
+            "1": { "name": "keyword.declaration.struct.mlp" },
+            "2": { "name": "entity.name.type.mlp" }
+          }
+        },
+        {
+          "comment": "enum taniminin basi",
+          "name": "meta.enum.declaration.mlp",
+          "match": "\\b(enum)\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\b",
+          "captures": {
+            "1": { "name": "keyword.declaration.struct.mlp" },
+            "2": { "name": "entity.name.type.mlp" }
+          }
+        },
+        {
+          "comment": "interface taniminin basi",
+          "name": "meta.interface.declaration.mlp",
+          "match": "\\b(interface)\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\b",
+          "captures": {
+            "1": { "name": "keyword.declaration.struct.mlp" },
+            "2": { "name": "entity.name.type.mlp" }
+          }
+        },
+        {
+          "comment": "Struct/enum/interface kapaticilar + implements",
+          "name": "keyword.declaration.struct.mlp",
+          "match": "\\b(end\\s+struct|end\\s+enum|end\\s+interface|end\\s+implement|implement|implements)\\b"
+        },
+        {
+          "comment": "method - struct method tanimi (function ile esit)",
+          "name": "meta.function.declaration.mlp",
+          "match": "\\b(method)\\s+([a-zA-Z_][a-zA-Z0-9_]*(\\.[a-zA-Z_][a-zA-Z0-9_]*)?)\\b",
+          "captures": {
+            "1": { "name": "keyword.declaration.function.mlp" },
+            "2": { "name": "entity.name.function.mlp" }
+          }
+        },
+        {
+          "comment": "external - C/sistem kutuphanesi bildirimi",
+          "name": "keyword.declaration.function.mlp",
+          "match": "\\b(external)\\b"
+        },
+        {
+          "comment": "async/await - eszamanlilik",
+          "name": "keyword.control.mlp",
+          "match": "\\b(async|await)\\b"
+        },
+        {
+          "comment": "this - struct method icindeki instance referansi",
+          "name": "variable.language.this.mlp",
+          "match": "\\b(this)\\b"
+        }
+      ]
+    },
+
+    "keywords_module": {
+      "comment": "Modul sistemi - import, export, module (Stage 2)",
+      "patterns": [
+        {
+          "name": "keyword.control.import.mlp",
+          "match": "\\b(module|end\\s+module|import|export)\\b"
+        }
+      ]
+    },
+
+    "types": {
+      "comment": "Kullanici-gorunur tipler - SADECE bunlar (int64/double/etc. YASAK - STO prensibi)",
+      "name": "storage.type.mlp",
+      "match": "\\b(numeric|string|boolean|list|none|Result|Option)\\b"
+    },
+
+    "constants": {
+      "patterns": [
+        {
+          "name": "constant.language.mlp",
+          "match": "\\b(true|false|null)\\b"
+        }
+      ]
+    },
+
+    "operators_logical": {
+      "comment": "and/or/not - &&/||/! degil!",
+      "name": "keyword.operator.logical.mlp",
+      "match": "\\b(and|or|not)\\b"
+    },
+
+    "operators_arithmetic": {
+      "comment": "mod ve ** - keyword olarak ele alinir",
+      "name": "keyword.operator.arithmetic.mlp",
+      "match": "\\b(mod)\\b|\\*\\*"
+    },
+
+    "builtin_functions": {
+      "comment": "Dile ozgu builtin fonksiyonlar ve mlp_functions.json kategorileri",
+      "patterns": [
+        {
+          "comment": "Cekirdek builtin'ler",
+          "name": "support.function.builtin.mlp",
+          "match": "\\b(print|typeof|range)\\s*(?=\\()"
+        },
+        {
+          "comment": "String kategori fonksiyonlari",
+          "name": "support.function.string.mlp",
+          "match": "\\b(string_length|string_concat|string_replace|string_split|string_substring|string_upper|string_lower|string_trim|string_contains|string_starts_with|string_ends_with|string_index_of|string_to_numeric|string_format|string_repeat|string_reverse|string_pad_left|string_pad_right)\\s*(?=\\()"
+        },
+        {
+          "comment": "Matematik kategori fonksiyonlari",
+          "name": "support.function.mlp",
+          "match": "\\b(matematik_kuvvet|matematik_karekok|matematik_mutlak|matematik_tavan|matematik_taban|matematik_yuvarlak|matematik_sin|matematik_cos|matematik_tan|matematik_log|matematik_pi|matematik_rastgele|matematik_min|matematik_maks)\\s*(?=\\()"
+        },
+        {
+          "comment": "Liste kategori fonksiyonlari",
+          "name": "support.function.mlp",
+          "match": "\\b(liste_olustur|liste_ekle|liste_cikar|liste_uzunluk|liste_get|liste_set|liste_temizle|liste_sirala|liste_bul|liste_ters_cevir)\\s*(?=\\()"
+        },
+        {
+          "comment": "Dosya I/O fonksiyonlari",
+          "name": "support.function.mlp",
+          "match": "\\b(dosya_ac|dosya_kapat|dosya_yaz|dosya_oku|dosya_sil|dosya_var_mi|klasor_olustur|klasor_sil)\\s*(?=\\()"
+        },
+        {
+          "comment": "Tarih/saat fonksiyonlari",
+          "name": "support.function.mlp",
+          "match": "\\b(tarih_simdi|tarih_fark|tarih_format|tarih_ekle)\\s*(?=\\()"
+        },
+        {
+          "comment": "Sistem fonksiyonlari",
+          "name": "support.function.mlp",
+          "match": "\\b(sistem_gecikme|sistem_ortam_degiskeni|sistem_calistir)\\s*(?=\\()"
+        },
+        {
+          "comment": "Ag fonksiyonlari",
+          "name": "support.function.mlp",
+          "match": "\\b(ag_http_get|ag_http_post)\\s*(?=\\()"
+        },
+        {
+          "comment": "GUI kontrol fonksiyonlari",
+          "name": "support.function.mlp",
+          "match": "\\b(gui_mesaj_kutusu|gui_dosya_sec|GUI_BUTTON_CREATE|GUI_LABEL_CREATE|GUI_LABEL_SET_TEXT|GUI_TEXTBOX_CREATE|GUI_TEXTBOX_GET_TEXT|GUI_TEXTBOX_SET_TEXT|GUI_CHECKBOX_CREATE|GUI_CHECKBOX_GET_CHECKED|GUI_CHECKBOX_SET_CHECKED|GUI_LISTBOX_CREATE|GUI_LISTBOX_GET_SELECTED|GUI_COMBOBOX_CREATE)\\s*(?=\\()"
+        }
+      ]
+    },
+
+    "function_call": {
+      "comment": "Genel fonksiyon cagrisi - parantez oncesindeki isim",
+      "name": "entity.name.function.mlp",
+      "match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s*(?=\\()"
+    },
+
+    "numbers_turkish": {
+      "comment": "Turkce sayi formati: 3,14 (ondalik virgul) ve 1.000.000 (binlik nokta)",
+      "patterns": [
+        {
+          "comment": "Binlik ve ondalik: 1.000.000,50 veya 1.000 veya 3,14",
+          "name": "constant.numeric.mlp",
+          "match": "\\b\\d{1,3}(?:\\.\\d{3})+(?:,\\d+)?\\b"
+        },
+        {
+          "comment": "Sadece ondalik virgul: 3,14",
+          "name": "constant.numeric.mlp",
+          "match": "\\b\\d+,\\d+\\b"
+        }
+      ]
+    },
+
+    "numbers": {
+      "comment": "Standart sayilar (Turkce format sonrasi eslestir)",
+      "name": "constant.numeric.mlp",
+      "match": "\\b\\d+(\\.\\d+)?\\b"
+    },
+
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.comparison.mlp",
+          "match": "(==|!=|<=|>=|<|>)"
+        },
+        {
+          "name": "keyword.operator.assignment.mlp",
+          "match": "(?<![=!<>])=(?!=)"
+        },
+        {
+          "name": "keyword.operator.arithmetic.mlp",
+          "match": "(\\+|-|\\*|/)"
+        },
+        {
+          "comment": "Parametre ve eleman ayirici - sadece liste/fonksiyon ici",
+          "name": "punctuation.separator.mlp",
+          "match": ";"
+        }
+      ]
+    },
+
+    "gui_events": {
+      "comment": "GUI olay tanimlari: event id_onClick() / end_event (MELP .mlpgui kod bolumu)",
+      "patterns": [
+        {
+          "name": "meta.event.mlp",
+          "match": "^\\s*(event)\\s+([a-zA-Z_][a-zA-Z0-9_]*)(?:\\s*\\(\\s*\\))?\\b",
+          "captures": {
+            "1": { "name": "keyword.other.event.mlp" },
+            "2": { "name": "entity.name.function.event.mlp" }
+          }
+        },
+        {
+          "name": "keyword.other.event.mlp",
+          "match": "\\b(end\\s+event)\\b"
+        }
+      ]
+    },
+
+    "identifiers": {
+      "comment": "Genel degiskenler ve tanimlayicilar (Turkce karakter destekli)",
+      "name": "variable.other.mlp",
+      "match": "\\b[a-zA-ZçÇğĞıİöÖşŞüÜ_][a-zA-ZçÇğĞıİöÖşŞüÜ0-9_]*\\b"
+    }
+  }
+}

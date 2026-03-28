@@ -1,0 +1,11 @@
+-- TEST: Go-to-Definition - Variable
+-- LSP Request: textDocument/definition at line 6, column 4 (on 'count')
+-- Expected: Location at line 3 where count is defined
+-- Description: Jump to variable definition
+
+function test()
+  numeric count = 10
+  numeric result = 0
+  result = count + 5  -- cursor on 'count', should jump to definition
+  return result
+end function

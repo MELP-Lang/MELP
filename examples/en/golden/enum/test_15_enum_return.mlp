@@ -1,0 +1,19 @@
+-- TEST: Returning enum value from function
+-- PHASE: 3.2 (Enum)
+-- EXPECTED: 1
+
+enum Bool
+  False
+  True
+end enum
+
+numeric function get_bool()
+  return Bool.True  -- Returns 1
+end function
+
+none function main()
+  numeric b = get_bool()
+  if b == 1 then
+    print(1)
+  end if
+end function

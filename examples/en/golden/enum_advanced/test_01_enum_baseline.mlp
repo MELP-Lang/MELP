@@ -1,0 +1,19 @@
+-- MKLP_TEST: enum_advanced_payload_single
+-- Expected: 42
+-- EXPECTED: <compile-ok>
+-- FEATURE: ENUM.md
+-- CATEGORY: feature
+-- ADDED_BY: YZ  DATE: 2026-03-05
+-- NOTE: Basic enum without payload - baseline test for enum_advanced dir
+
+enum Option
+  Some
+  None
+end enum
+
+function main()
+  numeric opt = Option.Some
+  if opt == Option.Some then
+    print("42")
+  end if
+end function

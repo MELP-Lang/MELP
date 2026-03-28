@@ -1,0 +1,13 @@
+-- method body reaches end without explicit return
+-- Expected: 0
+interface Defaulted
+    numeric function get()
+end interface
+struct DefaultImpl implements Defaulted
+    numeric x
+end struct
+numeric function DefaultImpl.get()
+    numeric y = 0
+end function
+DefaultImpl d = DefaultImpl { x: 5 }
+print(d.get())

@@ -1,0 +1,18 @@
+-- GOLDEN_TEST: test_11_json
+-- DESC: Test json_parse, json_get, json_stringify from STDLIB-7
+-- FEATURE: STDLIB-7-JSON
+-- PHASE: Phase6
+
+-- json_parse + json_get: read values from JSON object
+let obj = json_parse("{\"name\": \"Alice\", \"age\": \"30\"}")
+print(json_get(obj; "name"))
+print(json_get(obj; "age"))
+
+-- json_parse + json_stringify: roundtrip single-key JSON
+let city_obj = json_parse("{\"city\": \"Istanbul\"}")
+print(json_stringify(city_obj))
+
+-- json_get missing key returns empty string
+print(json_get(obj; "missing"))
+
+-- Expected: Alice\n30\n{"city":"Istanbul"}

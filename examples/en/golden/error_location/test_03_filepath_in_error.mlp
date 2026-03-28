@@ -1,0 +1,9 @@
+-- Test: error location - file path present in error
+-- FEATURE: ERROR_LOCATION
+-- PHASE: Phase1-P03
+-- EXPECT_COMPILE_FAIL: true
+-- EXPECTED_STDERR_CONTAINS: error_location
+-- Expected: COMPILE_ERROR: Unknown identifier: hic_olmayan
+function main()
+  print(hic_olmayan)
+end function

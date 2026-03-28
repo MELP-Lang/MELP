@@ -1,0 +1,13 @@
+-- Expected: 1
+function is_zero<T>(val as T) as numeric
+  if val == 0 then
+    return 1
+  else
+    return 0
+  end if
+end function
+
+function main()
+  var result = is_zero<numeric>(0)
+  print(result)
+end function

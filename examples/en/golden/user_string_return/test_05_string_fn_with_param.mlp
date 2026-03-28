@@ -1,0 +1,13 @@
+-- MKLP_TEST: user_string_fn_parameter
+-- EXPECTED: Merhaba Ali
+-- FEATURE: USER_STRING_RETURN.md
+-- CATEGORY: bug
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+string function greet(name as string)
+  return "Merhaba " + name
+end function
+
+function main()
+  print(greet("Ali"))
+end function

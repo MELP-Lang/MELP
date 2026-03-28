@@ -1,0 +1,16 @@
+yapı Dugum
+    sayısal deger
+    sayısal sonraki_id
+yapı sonu
+
+fonksiyon giriş()
+    Dugum n1
+    n1.deger = 10
+    n1.sonraki_id = 1
+    yazdır(n1.deger)
+
+    Dugum n2
+    n2.deger = 20
+    n2.sonraki_id = 2
+    yazdır(n2.deger)
+fonksiyon sonu

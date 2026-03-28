@@ -1,0 +1,15 @@
+-- test_01_debug_noop.mlp
+-- FEATURE: DEBUG_BLOCK
+-- PHASE: Phase2-L03
+-- Expected: 42
+
+-- debug bloğu içindeki print release modunda çalışmamalı
+-- Sadece dışarıdaki print çıktı vermeli
+
+function main()
+    numeric x = 42
+    debug
+        print(999)
+    end_debug
+    print(x)
+end function

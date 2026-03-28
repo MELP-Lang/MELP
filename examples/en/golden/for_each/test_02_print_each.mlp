@@ -1,0 +1,12 @@
+-- test_02_print_each.mlp
+-- FEATURE: FOR_EACH
+-- PHASE: Phase2-L06
+-- Expected: 1\n2\n3
+-- Description: Array üzerinde her elemanı ayrı yazdırma
+
+function main()
+    numeric[] nums = [1; 2; 3]
+    for each n in nums
+        print(n)
+    end for
+end function

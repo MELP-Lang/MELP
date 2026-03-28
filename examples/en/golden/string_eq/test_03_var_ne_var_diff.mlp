@@ -1,0 +1,15 @@
+-- MKLP_TEST: string_var_ne_var_diff
+-- EXPECTED: diff
+-- FEATURE: STRING_EQ.md
+-- CATEGORY: bug
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+function main()
+  string a = "foo"
+  string b = "bar"
+  if a != b then
+    print("diff")
+  else
+    print("same")
+  end if
+end function

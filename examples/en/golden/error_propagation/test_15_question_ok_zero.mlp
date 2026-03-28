@@ -1,0 +1,15 @@
+-- test_15_question_ok_zero.mlp
+-- Expected: 0
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+numeric function get_zero()
+  Result r = Result.Ok(0)
+  numeric v = r?
+  return v
+end function
+
+print(get_zero())

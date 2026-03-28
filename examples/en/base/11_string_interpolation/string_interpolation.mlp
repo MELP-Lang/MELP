@@ -1,0 +1,34 @@
+-- FEATURE: STRING_INTERPOLATION + STR_BUILTIN + PRINT
+-- TASK: Demonstrate str() builtin and string concatenation
+
+function main()
+    -- Test 1: str() with numeric literals
+    string msg1 = "Değer: " + str(42)
+    print(msg1)
+
+    -- Test 2: str() with numeric variables
+    numeric age = 25
+    string msg2 = "Yaş: " + str(age)
+    print(msg2)
+
+    -- Test 3: str() with boolean
+    boolean durum = true
+    string msg3 = "Durum: " + str(durum)
+    print(msg3)
+
+    -- Test 4: str() with boolean false
+    boolean flag = false
+    string msg4 = "Bayrak: " + str(flag)
+    print(msg4)
+
+    -- Test 5: Multiple str() concatenations
+    numeric x = 10
+    numeric y = 20
+    string msg5 = "x=" + str(x) + " y=" + str(y)
+    print(msg5)
+
+    -- Test 6: str() with expression
+    numeric result = 5 + 5
+    string msg6 = "Sonuç: " + str(result)
+    print(msg6)
+end function

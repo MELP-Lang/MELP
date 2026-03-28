@@ -1,0 +1,8 @@
+-- TEST: Package Cache
+-- PHASE: 4.1 (Package Manager)
+-- EXPECTED: 5
+
+function main()
+  numeric cache_size = 5
+  print(cache_size)
+end function

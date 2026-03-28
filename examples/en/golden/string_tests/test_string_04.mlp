@@ -1,0 +1,11 @@
+-- TEST: Multiple string declarations
+-- Expected: Fifth
+
+function main()
+    string first = "First"
+    string second = "Second"
+    string third = "Third"
+    string fourth = "Fourth"
+    string fifth = "Fifth"
+    print(fifth)
+end function

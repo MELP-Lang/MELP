@@ -1,0 +1,13 @@
+-- test_03_program_if.mlp
+-- PHASE: 2 (Sugar Syntax)
+-- EXPECTED: pozitif
+-- EKS-001: program bloğu içinde kontrol akışı
+
+program
+    numeric x = 5
+    if x > 0 then
+        print("pozitif")
+    else
+        print("negatif")
+    end if
+end_program

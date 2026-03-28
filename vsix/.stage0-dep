@@ -1,0 +1,10 @@
+{
+  "stage0_version": "1.0.11",
+  "stage0_root": "/home/pardus/PROJELER/MELP/LLVM/STAGE0",
+  "melp_compiler": "/home/pardus/PROJELER/MELP/LLVM/STAGE0/build/compiler/stage1/modules/orchestrator/melp_compiler",
+  "mlp_runtime_bc": "/home/pardus/PROJELER/MELP/LLVM/STAGE0/build/mlp_runtime.bc",
+  "bundled_binary": "bin/melp_compiler_linux",
+  "bundled_runtime": "bin/mlp_runtime.bc",
+  "last_synced": "2026-03-22",
+  "notes": "VSIX binary'yi kendi bin/ klasöründe bundle ediyor. sync-binary.sh ile güncele."
+}

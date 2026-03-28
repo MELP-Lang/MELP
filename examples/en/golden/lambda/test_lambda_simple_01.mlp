@@ -1,0 +1,7 @@
+-- TEST: Simple lambda with two parameters
+-- Expected: 30
+
+function main()
+    numeric f = lambda(x; y) -> x + y
+    print(f(10; 20))
+end function

@@ -1,0 +1,23 @@
+-- test_05_iflet_sequential.mlp
+-- Expected: 1\n99
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+Option a = Option.Some(1)
+Option b = Option.None
+Option c = Option.Some(99)
+
+if let Some(v) = a then
+  print(v)
+end if
+
+if let Some(v) = b then
+  print(0)
+end if
+
+if let Some(v) = c then
+  print(v)
+end if

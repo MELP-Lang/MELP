@@ -1,0 +1,25 @@
+-- TEST: Enum with many variants
+-- PHASE: 3.2 (Enum)
+-- EXPECTED: 1
+
+enum Month
+  Jan
+  Feb
+  Mar
+  Apr
+  May
+  Jun
+  Jul
+  Aug
+  Sep
+  Oct
+  Nov
+  Dec
+end enum
+
+none function main()
+  numeric m = Month.Dec
+  if m == 11 then  -- Dec is 12th month, index 11
+    print(1)
+  end if
+end function

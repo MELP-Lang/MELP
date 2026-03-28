@@ -1,0 +1,12 @@
+function apply(numeric x; auto fn)
+  return fn(x)
+end function
+
+function inc(numeric x)
+  return x + 1
+end function
+
+function main()
+  auto f = inc
+  return apply(10; f)
+end function

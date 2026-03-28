@@ -1,0 +1,9 @@
+-- Test: error location - another undefined variable
+-- FEATURE: ERROR_LOCATION
+-- PHASE: Phase1-P03
+-- EXPECT_COMPILE_FAIL: true
+-- EXPECTED_STDERR_CONTAINS: test_02_undef_var2.mlp
+-- Expected: COMPILE_ERROR: Unknown identifier: baska_tanimsiz
+function main()
+  print(baska_tanimsiz)
+end function

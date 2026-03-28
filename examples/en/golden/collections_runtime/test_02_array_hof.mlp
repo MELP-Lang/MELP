@@ -1,0 +1,29 @@
+-- Test: Higher-Order Functions with arrays
+-- Tests map, filter, reduce
+
+numeric arr = __builtin_array_create()
+__builtin_array_push(arr; 1)
+__builtin_array_push(arr; 2)
+__builtin_array_push(arr; 3)
+__builtin_array_push(arr; 4)
+__builtin_array_push(arr; 5)
+
+-- Map: triple each element
+numeric triple = lambda(x) -> x * 3
+numeric tripled = __builtin_array_map(arr; triple)
+print(__builtin_array_get(tripled; 0))
+print(__builtin_array_get(tripled; 2))
+print(__builtin_array_get(tripled; 4))
+
+-- Filter: keep even numbers
+numeric is_even = lambda(x) -> x - x / 2 * 2 == 0
+numeric evens = __builtin_array_filter(arr; is_even)
+print(__builtin_array_length(evens))
+print(__builtin_array_get(evens; 0))
+print(__builtin_array_get(evens; 1))
+
+-- Reduce: sum all elements (1+2+3+4+5=15)
+numeric add = lambda(a; b) -> a + b
+numeric total = __builtin_array_reduce(arr; add; 0)
+print(total)
+-- Expected: 3\n9\n15\n2\n2\n4\n15

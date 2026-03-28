@@ -1,0 +1,11 @@
+-- Golden Test: fs_is_directory / fs_is_file
+-- Expected output:
+-- 1
+-- 0
+
+numeric is_dir = __builtin_fs_is_directory("/tmp")
+print(is_dir)
+
+numeric is_file = __builtin_fs_is_file("/tmp")
+print(is_file)
+-- Expected: 1\n0

@@ -1,0 +1,10 @@
+-- Test: else if basic three-way branch
+-- Expected: 2
+numeric x = 15
+if x > 20 then
+  print(3)
+else if x > 10 then
+  print(2)
+else
+  print(1)
+end if

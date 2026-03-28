@@ -1,0 +1,12 @@
+-- test_03_try_finally.mlp
+-- PHASE: 2 (Error Handling)
+-- EXPECTED: deneniyor\ntemizleniyor
+-- EKS-011: try/finally — finally her zaman çalışır
+
+function main()
+    try
+        print("deneniyor")
+    finally
+        print("temizleniyor")
+    end_try
+end function

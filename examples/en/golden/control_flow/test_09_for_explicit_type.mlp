@@ -1,0 +1,7 @@
+-- Test: for loop with explicit numeric type
+-- Expected: 10
+numeric count = 0
+for numeric j = 1 to 10
+  count = count + 1
+end for
+print(count)

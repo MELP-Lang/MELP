@@ -1,0 +1,13 @@
+-- test_12_alias_accum_manual.mlp
+-- Expected: 55
+-- Test: Alias type in arithmetic sum (1+2+...+10 = 55)
+
+type Count = numeric
+
+function sumFirst10() -> Count
+  Count result = 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10
+  return result
+end function
+
+numeric total = sumFirst10()
+print(total)

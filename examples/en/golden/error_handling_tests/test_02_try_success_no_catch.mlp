@@ -1,0 +1,17 @@
+-- test_02_try_success_no_catch.mlp
+-- PHASE: 2 (Error Handling)
+-- EXPECTED: basardi
+-- EKS-011: try başarılı olduğunda catch çalışmamalı
+
+numeric function guvenli()
+    return 42
+end function
+
+function main()
+    try
+        numeric r = guvenli()
+        print("basardi")
+    catch e
+        print("hata yakalandi")  -- bu çalışmamalı
+    end_try
+end function

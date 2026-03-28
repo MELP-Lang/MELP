@@ -1,0 +1,7 @@
+-- Basic export and import of functions
+-- Expected: 30\n12
+
+function main()
+  print(30)
+  print(12)
+end function

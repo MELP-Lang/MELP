@@ -1,0 +1,10 @@
+-- Test: native binary conditional
+-- FEATURE: NATIVE_BINARY
+-- PHASE: Phase1-P01
+-- Expected: OK
+function main()
+  numeric x = 5
+  if x > 3 then
+    print("OK")
+  end if
+end function

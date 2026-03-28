@@ -1,0 +1,4 @@
+struct Stack<T>
+  T top
+  numeric size
+end struct

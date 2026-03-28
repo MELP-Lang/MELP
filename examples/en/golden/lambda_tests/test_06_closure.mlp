@@ -1,0 +1,11 @@
+-- GOLDEN TEST: Lambda closure (capture variable by value)
+-- Expected: 15
+-- Test: Lambda captures outer variable 'multiplier'
+
+function main()
+  numeric multiplier = 3
+  numeric mult = lambda(x) -> x * multiplier
+  numeric result = mult(5)
+  print(result)
+  return result
+end function

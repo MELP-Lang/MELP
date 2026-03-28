@@ -1,0 +1,15 @@
+-- All cases with guards (last one catches rest)
+-- Expected: 7
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+Result r = Result.Ok(7)
+match r
+  case Ok(v) if v > 100 -> print(1)
+  case Ok(v) if v < 0 -> print(2)
+  case Ok(v) -> print(v)
+  case Err(e) -> print(0)
+end match

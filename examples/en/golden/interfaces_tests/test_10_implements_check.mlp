@@ -1,0 +1,13 @@
+-- implements - method returns 5
+-- Expected: 0
+interface Valued
+    numeric function val()
+end interface
+struct Item implements Valued
+    numeric v
+end struct
+numeric function Item.val()
+    return this.v
+end function
+Item i = Item { v: 5 }
+print(i.val())

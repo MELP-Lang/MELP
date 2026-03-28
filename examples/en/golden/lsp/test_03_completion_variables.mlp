@@ -1,0 +1,10 @@
+-- TEST: Code Completion - Variable Names
+-- LSP Request: textDocument/completion at line 6, column 4
+-- Expected: ["count", "result", "x"]
+-- Description: Completion for variable names in current scope
+
+function test()
+  numeric count = 10
+  numeric result = 0
+  co  -- cursor here, should suggest count
+end function

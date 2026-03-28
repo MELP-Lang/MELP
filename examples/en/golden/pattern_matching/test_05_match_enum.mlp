@@ -1,0 +1,26 @@
+-- TEST: Match with enum (requires enum variant support)
+-- PHASE: 6.4 (Pattern Matching)
+-- Expected: 1
+
+enum Status
+    Active
+    Inactive
+    Pending
+end enum
+
+numeric function check_status(Status s)
+    match s
+        case Active then
+            return 1
+        case Inactive then
+            return 0
+        case Pending then
+            return 2
+    end match
+    return -1
+end function
+
+function main()
+    Status status = Status.Active
+    print(check_status(status))
+end function

@@ -1,0 +1,8 @@
+-- TEST: String Array For Each
+-- LANG: LANG-2
+-- Expected: Ali\nVeli\nAyse
+
+string[] names = ["Ali"; "Veli"; "Ayse"]
+for each n in names
+    print(n)
+end for

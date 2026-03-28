@@ -1,0 +1,29 @@
+-- GÖREV 07: while_loop
+-- While döngüsü, sayaç, toplam
+
+function main()
+    -- Basit sayaç döngüsü (1-5)
+    numeric i = 1
+    loop i <= 5
+        print(i)
+        i = i + 1
+    end loop
+
+    -- Toplam hesapla (1-10)
+    numeric sum = 0
+    numeric j = 1
+    loop j <= 10
+        sum = sum + j
+        j = j + 1
+    end loop
+    print(sum)
+
+    -- Koşula göre döngü kontrolü
+    numeric k = 0
+    loop k < 5
+        if k == 3 then
+            print("Found 3")
+        end if
+        k = k + 1
+    end loop
+end function

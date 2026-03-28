@@ -1,0 +1,22 @@
+-- Array Reverse Test
+-- Tests array_reverse function
+
+-- Create array
+numeric arr = __builtin_array_create()
+__builtin_array_push(arr; 1)
+__builtin_array_push(arr; 2)
+__builtin_array_push(arr; 3)
+__builtin_array_push(arr; 4)
+__builtin_array_push(arr; 5)
+
+-- Print before reverse
+print(__builtin_array_get(arr; 0))
+print(__builtin_array_get(arr; 4))
+
+-- Reverse
+__builtin_array_reverse(arr)
+
+-- Print after reverse
+print(__builtin_array_get(arr; 0))
+print(__builtin_array_get(arr; 4))
+-- Expected: 1\n5\n5\n1

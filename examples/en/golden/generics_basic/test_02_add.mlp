@@ -1,0 +1,9 @@
+-- Expected: 10
+function add<T>(a as T; b as T) as T
+  return a + b
+end function
+
+function main()
+  var sum1 = add<numeric>(3; 7)
+  print(sum1)
+end function

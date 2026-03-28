@@ -1,0 +1,50 @@
+-- GÖREV 02: degiskenler
+-- Türkçe ondalık format (virgül), tüm tipleri test et
+
+fonksiyon giriş()
+    -- sayısal tanımlamalar
+    sayısal integer_val = 42
+    sayısal decimal_val = 3,14
+    sayısal big_num = 1.000.000
+
+    -- metin tanımlamalar
+    metin text1 = "Merhaba"
+    metin text2 = "MELP"
+
+    -- mantıksal tanımlamalar
+    mantıksal flag1 = doğru
+    mantıksal flag2 = yanlış
+
+    -- Çıktı: Tüm değerleri göster
+    yazdır("Integer: ")
+    yazdır(integer_val)
+
+    yazdır("Decimal: ")
+    yazdır(decimal_val)
+
+    yazdır("Big Number: ")
+    yazdır(big_num)
+
+    yazdır("String 1: ")
+    yazdır(text1)
+
+    yazdır("String 2: ")
+    yazdır(text2)
+
+    yazdır("Boolean 1: ")
+    yazdır(flag1)
+
+    yazdır("Boolean 2: ")
+    yazdır(flag2)
+
+    -- Atama kurallarını test et (sonraki atama - noktalı virgül YASAK)
+    integer_val = 100
+    decimal_val = 2,71
+    text1 = "Selam"
+
+    yazdır("After reassignment:")
+    yazdır(integer_val)
+    yazdır(decimal_val)
+    yazdır(text1)
+
+fonksiyon sonu

@@ -1,0 +1,11 @@
+-- test_01_type_assign_numeric.mlp
+-- PHASE: 1 (Type Safety)
+-- EXPECTED: 10\n20
+-- EKS-002: Aynı tipler arası atama çalışmalı
+
+function main()
+    numeric x = 10
+    print(x)
+    x = 20      -- aynı tip → OK
+    print(x)
+end function

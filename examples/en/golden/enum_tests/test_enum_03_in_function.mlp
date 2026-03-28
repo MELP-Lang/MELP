@@ -1,0 +1,20 @@
+-- TEST: Enum declaration accessible in functions
+-- Expected: ok
+
+enum LogLevel
+    DEBUG
+    INFO
+    WARNING
+    ERROR
+end enum
+
+numeric function check(numeric level)
+    if level == LogLevel.INFO then
+        return 1
+    end if
+    return 0
+end function
+
+function main()
+    print("ok")
+end function

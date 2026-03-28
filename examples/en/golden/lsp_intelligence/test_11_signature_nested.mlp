@@ -1,0 +1,17 @@
+-- TEST: Signature Help - Nested Function Calls
+-- LSP Request: textDocument/signatureHelp at line 9, column 20
+-- Expected: Signature "multiply(numeric a; numeric b) -> numeric"
+-- Description: Show signature for nested function calls
+
+function add(numeric x; numeric y) -> numeric
+  return x + y
+end function
+
+function multiply(numeric a; numeric b) -> numeric
+  return a * b
+end function
+
+export function main()
+  numeric result = add(5; multiply(2;  -- cursor here
+  return result
+end function

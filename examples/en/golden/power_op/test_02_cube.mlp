@@ -1,0 +1,5 @@
+-- TEST: Power operator 3**3
+-- LANG: FIX-2
+-- Expected: 27
+
+print(3 ** 3)

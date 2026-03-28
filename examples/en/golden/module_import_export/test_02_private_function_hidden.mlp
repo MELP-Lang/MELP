@@ -1,0 +1,7 @@
+-- Private functions should not be accessible via module-qualified name
+-- Expected: 0
+
+import math_module
+
+numeric result = math_module.helper(5)
+print(result)

@@ -1,0 +1,14 @@
+-- Option Some with variable
+-- Expected: 77
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+numeric val = 77
+Option opt = Option.Some(val)
+match opt
+  case Some(v) -> print(v)
+  case None -> print(0)
+end match

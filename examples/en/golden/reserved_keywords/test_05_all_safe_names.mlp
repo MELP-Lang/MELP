@@ -1,0 +1,16 @@
+-- MKLP_TEST: all_safe_names
+-- EXPECTED: 42
+-- FEATURE: RESERVED_KEYWORDS.md
+-- CATEGORY: feature
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+numeric function compute(numeric input_val)
+  numeric intermediate = input_val * 2
+  numeric final_result = intermediate - input_val
+  return final_result
+end function
+
+function main()
+  numeric answer = compute(42)
+  print(answer)
+end function

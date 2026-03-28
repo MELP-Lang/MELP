@@ -1,0 +1,12 @@
+-- GOLDEN TEST: Generic struct with 'value as T' field syntax
+-- FEATURE: Generic struct — MELP spec field format
+-- Expected: 77
+struct Box
+  value as T
+  label as string
+end struct
+
+function main()
+  Box b = Box { value: 77; label: "test" }
+  print(b.value)
+end function

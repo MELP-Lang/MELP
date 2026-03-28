@@ -1,0 +1,17 @@
+-- test_01_try_catch_basic.mlp
+-- PHASE: 2 (Error Handling)
+-- EXPECTED: hata yakalandi
+-- EKS-011: Temel try/catch kullanımı
+
+numeric function riskli()
+    throw "hata!"
+    return 0
+end function
+
+function main()
+    try
+        riskli()
+    catch e
+        print("hata yakalandi")
+    end_try
+end function

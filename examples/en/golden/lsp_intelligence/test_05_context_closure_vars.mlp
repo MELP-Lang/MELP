@@ -1,0 +1,14 @@
+-- TEST: Context Completion - Closure Variables
+-- LSP Request: textDocument/completion at line 8, column 10
+-- Expected: ["x", "y", "z"]
+-- Description: Auto-complete captured variables in closure
+
+function test()
+  numeric x = 10
+  numeric y = 20
+  numeric z = 30
+  
+  lambda compute() -> numeric
+    return x + y + z  -- cursor here, should suggest captured x, y, z
+  end_lambda
+end function

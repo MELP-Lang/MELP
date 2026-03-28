@@ -1,0 +1,11 @@
+function identity<T>(T x) as T
+  return x
+end function
+
+function double_val<T>(T x) as T
+  return x
+end function
+
+function negate<T>(T x) as T
+  return x
+end function

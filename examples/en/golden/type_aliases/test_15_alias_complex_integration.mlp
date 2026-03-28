@@ -1,0 +1,20 @@
+-- test_15_alias_complex_integration.mlp
+-- Expected: 130
+-- Test: Complex integration — multiple aliases, function, loop, conditional
+
+type Price = numeric
+type Quantity = numeric
+type Discount = numeric
+
+function calcTotal(Price p; Quantity q; Discount d) -> numeric
+  numeric gross = p * q
+  numeric net = gross - d
+  return net
+end function
+
+Price unitPrice = 15
+Quantity units = 10
+Discount discount = 20
+
+numeric total = calcTotal(unitPrice; units; discount)
+print(total)

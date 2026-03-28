@@ -1,0 +1,14 @@
+-- test_01_downto_sum.mlp
+-- FEATURE: FOR_DOWNTO
+-- PHASE: Phase2-L04
+-- Expected: 6
+
+-- Azalan for döngüsü: 3+2+1 = 6
+
+function main()
+    numeric sum = 0
+    for i = 3 downto 1
+        sum = sum + i
+    end for
+    print(sum)
+end function

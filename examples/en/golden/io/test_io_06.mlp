@@ -1,0 +1,9 @@
+-- TEST: append_file appends to existing file
+-- Expected: line1 line2
+
+function main()
+    write_file("/tmp/melp_test_io_06.txt"; "line1")
+    append_file("/tmp/melp_test_io_06.txt"; " line2")
+    string content = read_file("/tmp/melp_test_io_06.txt")
+    print(content)
+end function

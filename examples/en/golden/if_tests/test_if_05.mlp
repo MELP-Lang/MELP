@@ -1,0 +1,11 @@
+-- TEST: If false branch - condition not met
+-- Expected: 0
+
+function main()
+    numeric x = 3
+    if x > 10 then
+        print(1)
+        return 0
+    end if
+    print(0)
+end function

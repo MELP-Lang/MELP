@@ -1,0 +1,10 @@
+-- Test: error location - undefined variable in assignment
+-- FEATURE: ERROR_LOCATION
+-- PHASE: Phase1-P03
+-- EXPECT_COMPILE_FAIL: true
+-- EXPECTED_STDERR_CONTAINS: test_05_undef_assign.mlp
+-- Expected: COMPILE_ERROR: Unknown identifier: olmayan_sayi
+function main()
+  numeric x = 5
+  print(olmayan_sayi)
+end function

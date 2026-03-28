@@ -1,0 +1,8 @@
+-- TEST: Code Completion - Keywords
+-- LSP Request: textDocument/completion at line 3, column 4
+-- Expected: ["function", "numeric", "string", "boolean", "if", "while", "for", "return", "import", "export"]
+-- Description: When typing 'f', should suggest function-related keywords
+
+function test()
+  f  -- cursor here
+end function

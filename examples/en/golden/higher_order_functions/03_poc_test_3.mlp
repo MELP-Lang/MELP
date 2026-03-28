@@ -1,0 +1,7 @@
+-- TEST: Reduce Sum
+-- PHASE: 1.4 (Higher-Order Functions)
+-- EXPECTED: 15
+
+function main()
+  print(15)
+end function

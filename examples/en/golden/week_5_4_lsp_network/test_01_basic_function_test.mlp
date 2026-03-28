@@ -1,0 +1,9 @@
+-- test_01_basic_function_test.mlp
+-- Expected: 3
+
+numeric function add_values(numeric x; numeric y)
+  return x + y
+end function
+
+numeric result = add_values(1; 2)
+print(result)

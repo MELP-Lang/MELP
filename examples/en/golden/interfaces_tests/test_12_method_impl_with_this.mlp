@@ -1,0 +1,13 @@
+-- this.field access in method body
+-- Expected: 0
+interface Accessor
+    numeric function access()
+end interface
+struct Data implements Accessor
+    numeric data
+end struct
+numeric function Data.access()
+    return this.data
+end function
+Data d = Data { data: 20 }
+print(d.access())

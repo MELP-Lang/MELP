@@ -1,0 +1,16 @@
+-- MKLP_TEST: string_quote_char_match
+-- EXPECTED: match
+-- FEATURE: STRING_EQ.md
+-- CATEGORY: bug
+-- ADDED_BY: YZ  DATE: 2026-03-05
+-- NOTE: This was the core normalizer bug: ch == "\"" always returned false
+--       due to pointer comparison instead of strcmp. Fixed in expressions_codegen.cpp.
+
+function main()
+  string ch = "\""
+  if ch == "\"" then
+    print("match")
+  else
+    print("no match")
+  end if
+end function

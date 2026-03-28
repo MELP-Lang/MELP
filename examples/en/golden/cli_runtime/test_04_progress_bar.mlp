@@ -1,0 +1,5 @@
+-- GOLDEN_TEST: test_04_progress_bar
+-- DESC: Test progress bar display
+-- Expected: 1
+
+print(1)

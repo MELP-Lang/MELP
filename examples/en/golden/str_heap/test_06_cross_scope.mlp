@@ -1,0 +1,11 @@
+-- Test: str() result returned across function scope (cross-scope heap safety)
+-- FEATURE: STR_HEAP
+-- PHASE: Phase2-STR-HEAP
+-- Expected: 999
+string function get_str()
+  return str(999)
+end function
+function main()
+  string s = get_str()
+  print(s)
+end function

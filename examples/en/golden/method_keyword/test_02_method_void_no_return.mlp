@@ -1,0 +1,20 @@
+-- test_02_method_void_no_return.mlp
+-- PHASE: 2 (Method Keyword)
+-- EXPECTED: sıfırlandı\n0
+-- EKS-010: method keyword void dönüş (dönüş tipi yok)
+
+struct Sayac
+    numeric deger
+end struct
+
+method Sayac.sifirla()
+    this.deger = 0
+    print("sıfırlandı")
+end_sifirla
+
+function main()
+    Sayac s
+    s.deger = 99
+    s.sifirla()
+    print(s.deger)
+end function

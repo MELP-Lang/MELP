@@ -1,0 +1,10 @@
+-- GOLDEN TEST: Lambda single parameter
+-- Expected: 25
+-- Test: Lambda with one parameter (square)
+
+function main()
+  numeric square = lambda(n) -> n * n
+  numeric result = square(5)
+  print(result)
+  return result
+end function

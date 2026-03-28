@@ -1,0 +1,12 @@
+struct Stack<T>
+  T top
+  numeric size
+end struct
+
+function push<T>(T item; numeric sz) as numeric
+  return sz
+end function
+
+function pop<T>(T top) as T
+  return top
+end function

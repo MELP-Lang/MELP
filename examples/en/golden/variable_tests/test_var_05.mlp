@@ -1,0 +1,7 @@
+-- TEST: Large numeric value
+-- Expected: 999999
+
+function main()
+    numeric large = 999999
+    print(large)
+end function

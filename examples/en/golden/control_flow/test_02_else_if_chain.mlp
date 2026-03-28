@@ -1,0 +1,12 @@
+-- Test: else if four-way chain
+-- Expected: 3
+numeric score = 75
+if score >= 90 then
+  print(1)
+else if score >= 80 then
+  print(2)
+else if score >= 70 then
+  print(3)
+else
+  print(4)
+end if

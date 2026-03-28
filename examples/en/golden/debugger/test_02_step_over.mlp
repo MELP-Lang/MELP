@@ -1,0 +1,13 @@
+-- test_02_step_over.mlp
+-- Test step over functionality
+-- Expected: 3
+
+function test_function() -> numeric
+  numeric a = 1
+  numeric b = 2  -- Step over this line
+  numeric c = a + b
+  print(c)
+  return 0
+end function
+
+test_function()

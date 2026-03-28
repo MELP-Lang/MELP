@@ -1,0 +1,19 @@
+-- TEST: Using enum in function parameter
+-- PHASE: 3.2 (Enum)
+-- EXPECTED: 1
+
+enum State
+  Init
+  Running
+  Stopped
+end enum
+
+none function check_state(numeric s)
+  if s == State.Running then
+    print(1)
+  end if
+end function
+
+none function main()
+  check_state(State.Running)
+end function

@@ -1,0 +1,8 @@
+-- DAP step over test
+-- Expected: 1
+
+numeric function test_dap_next()
+  return 1
+end function
+
+print(test_dap_next())

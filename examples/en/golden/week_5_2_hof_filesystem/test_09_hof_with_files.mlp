@@ -1,0 +1,33 @@
+-- test_09_hof_with_files.mlp
+-- Expected output:
+-- 18
+-- 36
+
+-- Write 3 files with known sizes
+-- "AAAA" = 4 bytes, "BBBBBB" = 6 bytes, "CCCCCCCC" = 8 bytes
+__builtin_fs_write_string("/tmp/mlp_w52_hof_a.txt"; "AAAA")
+__builtin_fs_write_string("/tmp/mlp_w52_hof_b.txt"; "BBBBBB")
+__builtin_fs_write_string("/tmp/mlp_w52_hof_c.txt"; "CCCCCCCC")
+
+-- Create array of file sizes: [4, 6, 8]
+numeric sizes = __builtin_array_create()
+__builtin_array_push(sizes; __builtin_fs_file_size("/tmp/mlp_w52_hof_a.txt"))
+__builtin_array_push(sizes; __builtin_fs_file_size("/tmp/mlp_w52_hof_b.txt"))
+__builtin_array_push(sizes; __builtin_fs_file_size("/tmp/mlp_w52_hof_c.txt"))
+
+-- Sum total bytes with reduce: 4+6+8 = 18
+numeric sum_fn = lambda(acc; x) -> acc + x
+numeric total_bytes = __builtin_array_reduce(sizes; sum_fn; 0)
+print(total_bytes)
+
+-- Map: double each size, then sum: (8+12+16) = 36
+numeric double_fn = lambda(x) -> x * 2
+numeric doubled = __builtin_array_map(sizes; double_fn)
+numeric doubled_sum = __builtin_array_reduce(doubled; sum_fn; 0)
+print(doubled_sum)
+
+-- Cleanup
+__builtin_fs_remove("/tmp/mlp_w52_hof_a.txt")
+__builtin_fs_remove("/tmp/mlp_w52_hof_b.txt")
+__builtin_fs_remove("/tmp/mlp_w52_hof_c.txt")
+-- Expected: 18\n36

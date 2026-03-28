@@ -1,0 +1,11 @@
+-- TEST: Semantic Diagnostics - Type Mismatch
+-- LSP Request: textDocument/publishDiagnostics on save
+-- Expected: Error "Type mismatch: cannot assign string to numeric"
+-- Description: Detect type errors in assignments
+
+function test() -> numeric
+  numeric x = 10
+  string s = "hello"
+  x = s  -- Error: type mismatch
+  return x
+end function

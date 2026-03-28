@@ -1,0 +1,14 @@
+-- test_01_sum.mlp
+-- FEATURE: FOR_EACH
+-- PHASE: Phase2-L06
+-- Expected: 60
+-- Description: Array üzerinde for each ile toplam hesaplama
+
+function main()
+    numeric[] nums = [10; 20; 30]
+    numeric sum = 0
+    for each n in nums
+        sum = sum + n
+    end for
+    print(sum)
+end function

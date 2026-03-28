@@ -1,0 +1,4 @@
+struct Pair<T; U>
+  T first
+  U second
+end struct

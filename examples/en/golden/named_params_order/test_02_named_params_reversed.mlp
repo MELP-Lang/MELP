@@ -1,0 +1,14 @@
+-- test_02_named_params_reversed.mlp
+-- PHASE: 2 (Named Params)
+-- EXPECTED: Ali\n25\n1
+-- EKS-006: Ters sırayla isimli parametre çağrısı (EKS-006 fix sonrası)
+
+function kullanici(string isim; numeric yas; boolean aktif)
+    print(isim)
+    print(yas)
+    print(aktif)
+end function
+
+function main()
+    kullanici(aktif: true; isim: "Ali"; yas: 25)
+end function

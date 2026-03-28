@@ -1,0 +1,8 @@
+-- DAP set breakpoints test
+-- Expected: 1
+
+numeric function test_dap_set_breakpoints()
+  return 1
+end function
+
+print(test_dap_set_breakpoints())

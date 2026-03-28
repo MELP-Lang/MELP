@@ -1,0 +1,20 @@
+-- Option variable binding in patterns
+-- Expected: 55\n66
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+Option first = Option.Some(55)
+Option second = Option.Some(66)
+
+match first
+  case Some(x) -> print(x)
+  case None -> print(0)
+end match
+
+match second
+  case Some(y) -> print(y)
+  case None -> print(0)
+end match

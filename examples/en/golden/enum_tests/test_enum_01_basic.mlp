@@ -1,0 +1,12 @@
+-- TEST: Basic enum declaration compiles successfully
+-- Expected: ok
+
+enum Color
+    RED
+    GREEN
+    BLUE
+end enum
+
+function main()
+    print("ok")
+end function

@@ -1,0 +1,16 @@
+# Build artifacts
+*.out.mlp
+*.out.mlp.out.mlp
+output.ll
+*.ll
+*.elf
+build/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.swp
+*~

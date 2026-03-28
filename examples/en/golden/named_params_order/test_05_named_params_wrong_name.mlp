@@ -1,0 +1,13 @@
+-- test_05_named_params_wrong_name.mlp
+-- PHASE: 2 (Named Params)
+-- EXPECTED: COMPILE_ERROR: Unknown parameter name 'yanlis'
+-- EKS-006: Negatif test — bilinmeyen parametre adı
+
+numeric function f(numeric x; numeric y)
+    return x + y
+end function
+
+function main()
+    numeric r = f(x: 3; yanlis: 4)  -- ❌ 'yanlis' parametre adı yok
+    print(r)
+end function

@@ -1,0 +1,25 @@
+-- Sequential Option operations
+-- Expected: 10\n0\n30
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+Option o1 = Option.Some(10)
+match o1
+  case Some(v) -> print(v)
+  case None -> print(999)
+end match
+
+Option o2 = Option.None
+match o2
+  case Some(v) -> print(v)
+  case None -> print(0)
+end match
+
+Option o3 = Option.Some(30)
+match o3
+  case Some(v) -> print(v)
+  case None -> print(999)
+end match

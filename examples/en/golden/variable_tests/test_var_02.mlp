@@ -1,0 +1,11 @@
+-- TEST: Multiple variable declarations and arithmetic
+-- Expected: 100
+
+function main()
+    numeric a = 10
+    numeric b = 20
+    numeric c = 30
+    numeric d = 40
+    numeric result = d + c + b + a
+    print(result)
+end function

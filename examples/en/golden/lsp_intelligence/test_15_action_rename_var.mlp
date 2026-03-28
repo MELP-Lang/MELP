@@ -1,0 +1,12 @@
+-- TEST: Code Actions - Rename Refactoring
+-- LSP Request: codeAction for rename with preview
+-- Expected: Quick fix "Rename 'x' to meaningful name"
+-- Description: Suggest renaming poorly named variables
+
+function calculate()
+  numeric x = 10
+  numeric y = 20
+  numeric x2 = x * 2  -- Poor naming: x2 should be something meaningful
+  numeric y2 = y * 2
+  return x2 + y2
+end function

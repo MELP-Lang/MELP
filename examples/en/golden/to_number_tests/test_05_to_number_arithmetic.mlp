@@ -1,0 +1,11 @@
+-- test_05_to_number_arithmetic.mlp
+-- PHASE: 1 (Stdlib Builtins)
+-- EXPECTED: 125
+-- EKS-015: to_number() ile aritmetik işlem
+
+function main()
+    string a = "100"
+    string b = "25"
+    numeric toplam = to_number(a) + to_number(b)
+    print(toplam)   -- 125
+end function

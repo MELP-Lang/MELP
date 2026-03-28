@@ -1,0 +1,13 @@
+-- Option with numeric Some value
+-- Expected: 100
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+Option opt = Option.Some(100)
+match opt
+  case Some(value) -> print(value)
+  case None -> print(999)
+end match

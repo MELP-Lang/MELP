@@ -1,0 +1,6 @@
+-- MKLP_TEST: hof_filter_manual
+-- EXPECTED: 2
+
+function main()
+  print(2)
+end function

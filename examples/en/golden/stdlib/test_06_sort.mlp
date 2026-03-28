@@ -1,0 +1,26 @@
+-- GOLDEN_TEST: test_06_sort
+-- DESC: Test array sort stdlib - array_sort ascending and array_sort_desc descending
+-- FEATURE: STDLIB-5-SORT
+-- PHASE: Phase6
+
+-- Test ascending sort
+numeric arr = __builtin_array_create()
+__builtin_array_push(arr; 30)
+__builtin_array_push(arr; 10)
+__builtin_array_push(arr; 20)
+numeric sorted = array_sort(arr)
+print(__builtin_array_get(sorted; 0))
+print(__builtin_array_get(sorted; 1))
+print(__builtin_array_get(sorted; 2))
+
+-- Test descending sort
+numeric arr2 = __builtin_array_create()
+__builtin_array_push(arr2; 10)
+__builtin_array_push(arr2; 30)
+__builtin_array_push(arr2; 20)
+numeric sorted2 = array_sort_desc(arr2)
+print(__builtin_array_get(sorted2; 0))
+print(__builtin_array_get(sorted2; 1))
+print(__builtin_array_get(sorted2; 2))
+
+-- Expected: 10\n20\n30\n30\n20\n10

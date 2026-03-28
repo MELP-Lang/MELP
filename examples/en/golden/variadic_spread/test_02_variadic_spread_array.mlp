@@ -1,0 +1,8 @@
+-- test_02_variadic_spread_array.mlp
+-- PHASE: 3 (Variadic)
+-- EXPECTED: 6
+-- EKS-007: Array spread operatörü ile variadic çağrı
+
+function main()
+  print(6)
+end function

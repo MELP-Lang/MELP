@@ -1,0 +1,13 @@
+-- test_09_alias_reassignment.mlp
+-- Expected: 99
+-- Test: Alias type used in function with literal return
+
+type Level = numeric
+
+function getLevel() -> Level
+  Level lv = 99
+  return lv
+end function
+
+Level result = getLevel()
+print(result)

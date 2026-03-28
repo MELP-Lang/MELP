@@ -1,0 +1,6 @@
+-- Nested path import (utils/text/formatter)
+-- Expected: 123
+
+function main()
+  print(123)
+end function

@@ -1,0 +1,8 @@
+-- empty interface (no methods declared)
+-- Expected: 0
+interface Empty
+end interface
+struct Plain implements Empty
+    numeric x
+end struct
+print(0)

@@ -1,0 +1,9 @@
+-- TEST: Array element arithmetic (FIX-5)
+-- PHASE: Array (FIX-5)
+-- Description: Use arr[i] in expressions (add, return to variable)
+
+numeric[] arr = [1; 2; 3; 4; 5]
+numeric sum = arr[0] + arr[1] + arr[2]
+print(sum)
+print(arr[4])
+-- Expected: 6\n5

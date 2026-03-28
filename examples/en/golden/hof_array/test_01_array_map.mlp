@@ -1,0 +1,14 @@
+-- COLL-2: array_map with named function pointer
+
+numeric function triple(numeric x)
+    return x * 3
+end function
+
+function main()
+    numeric[] nums = [2; 4; 6]
+    numeric[] tripled = array_map(nums; triple)
+    print(__builtin_array_get(tripled; 0))
+    print(__builtin_array_get(tripled; 1))
+    print(__builtin_array_get(tripled; 2))
+end function
+-- Expected: 6\n12\n18

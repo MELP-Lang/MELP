@@ -1,0 +1,26 @@
+-- SUGAR REFERANS (normalizer gerektirir, henüz derlenemez)
+ 
+numeric function main()
+    print("Merhaba, MELP!")
+end function
+
+deneme bir()
+sss = 3
+end_deneme
+
+programc test
+
+end_programc
+
+ 
+
+scope xxx
+
+end_scope
+
+deneme xxx
+sss = 3 -- bu neden bir hata vermiyor? tipi tanımlanmamış.
+rrr = "test" -- bu da neden hata vermiyor? tipi tanımlanmamış.
+sss = "df"
+
+end_deneme

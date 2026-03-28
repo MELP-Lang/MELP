@@ -1,0 +1,13 @@
+-- test_02_default_override.mlp
+-- PHASE: 3 (Default Params)
+-- EXPECTED: ERR: Hata!\nINFO: Normal
+-- EKS-009: Default override ve default kullanımı karışık
+
+function log(string mesaj; string seviye: "INFO")
+    print(seviye + ": " + mesaj)
+end function
+
+function main()
+    log("Hata!"; seviye: "ERR")    -- override
+    log("Normal")                   -- default
+end function

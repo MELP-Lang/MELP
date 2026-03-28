@@ -1,0 +1,8 @@
+-- TEST: FFI puts - print string via C stdlib
+-- Expected: Hello from FFI!
+
+external function puts(s as string) as numeric
+
+function main()
+    numeric r = puts("Hello from FFI!")
+end function

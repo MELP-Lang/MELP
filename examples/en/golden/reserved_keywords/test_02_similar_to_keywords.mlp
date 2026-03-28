@@ -1,0 +1,13 @@
+-- MKLP_TEST: keyword_similar_names
+-- EXPECTED: ok
+-- FEATURE: RESERVED_KEYWORDS.md
+-- CATEGORY: feature
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+function main()
+  numeric output = 42
+  numeric outside = 5
+  numeric outcome = 7
+  numeric total = output + outside + outcome
+  print("ok")
+end function

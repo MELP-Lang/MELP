@@ -1,0 +1,29 @@
+-- TEST: Symbol Navigation - Document Symbols
+-- LSP Request: textDocument/documentSymbol
+-- Expected: Symbol list with functions, struct, variables
+-- Description: Get all symbols in document for outline/quick navigation
+
+struct Status
+  numeric code
+  string message
+end struct
+
+export function getStatus(numeric id) -> Status
+  Status s
+  s.code = 200
+  s.message = "OK"
+  return s
+end function
+
+export function validateId(numeric id) -> boolean
+  if id > 0
+    return true
+  end if
+  return false
+end function
+
+export function main()
+  numeric userId = 42
+  Status userStatus = getStatus(userId)
+  return userStatus.code
+end function

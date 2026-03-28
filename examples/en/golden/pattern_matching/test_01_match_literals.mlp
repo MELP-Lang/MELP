@@ -1,0 +1,19 @@
+-- TEST: Basic pattern matching on numeric literals
+-- PHASE: 6.4 (Pattern Matching)
+-- Expected: 1
+
+numeric function classify(numeric n)
+    match n
+        case 0 then
+            return 1
+        case 1 then
+            return 2
+        case 2 then
+            return 3
+    end match
+    return 0
+end function
+
+function main()
+    print(classify(0))
+end function

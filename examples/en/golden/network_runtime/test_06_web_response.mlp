@@ -1,0 +1,9 @@
+-- Golden Test: web_text_response
+-- Tests response builder creation
+-- Expected output: response handle IDs
+-- 1
+-- 2
+
+print(__builtin_web_text_response(200; "Hello World"))
+print(__builtin_web_json_response(201; "ok"))
+-- Expected: 1\n2

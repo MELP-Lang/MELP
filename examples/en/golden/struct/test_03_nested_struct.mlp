@@ -1,0 +1,18 @@
+-- test_03_nested_struct.mlp
+-- Expected: 100
+
+struct Point
+  numeric x
+  numeric y
+end struct
+
+struct Rectangle
+  Point topLeft
+  Point bottomRight
+end struct
+
+Rectangle r = Rectangle {
+  topLeft: Point { x: 0; y: 0 };
+  bottomRight: Point { x: 100; y: 50 }
+}
+print(r.bottomRight.x)

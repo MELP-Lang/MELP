@@ -1,0 +1,18 @@
+-- test_03_with_update_fields.mlp
+-- PHASE: 3 (With Block)
+-- EXPECTED: eski\nyeni
+-- EKS-004: with ile field güncelleme
+
+struct Config
+    string value
+end struct
+
+function main()
+    Config cfg
+    cfg.value = "eski"
+    print(cfg.value)
+    with cfg
+        value = "yeni"
+    end_with
+    print(cfg.value)
+end function

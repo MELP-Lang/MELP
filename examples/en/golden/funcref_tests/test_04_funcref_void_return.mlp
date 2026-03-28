@@ -1,0 +1,14 @@
+-- test_04_funcref_void_return.mlp
+-- PHASE: 3 (Funcref)
+-- EXPECTED: Merhaba!
+-- EKS-008: none dönen fonksiyon referansı
+
+none function selamla()
+    print("Merhaba!")
+end function
+
+function main()
+    none fn() = selamla
+    fn()
+    return 0
+end function

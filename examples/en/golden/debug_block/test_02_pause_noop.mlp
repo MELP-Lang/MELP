@@ -1,0 +1,14 @@
+-- test_02_pause_noop.mlp
+-- FEATURE: DEBUG_BLOCK
+-- PHASE: Phase2-L03
+-- Expected: 99
+
+-- pause debug içinde no-op olmalı
+
+function main()
+    numeric result = 99
+    debug
+        pause
+    end_debug
+    print(result)
+end function

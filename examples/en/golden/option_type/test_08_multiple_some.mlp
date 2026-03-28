@@ -1,0 +1,26 @@
+-- Multiple Option Some values
+-- Expected: 1\n2\n3
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+Option opt1 = Option.Some(1)
+Option opt2 = Option.Some(2)
+Option opt3 = Option.Some(3)
+
+match opt1
+  case Some(v) -> print(v)
+  case None -> print(0)
+end match
+
+match opt2
+  case Some(v) -> print(v)
+  case None -> print(0)
+end match
+
+match opt3
+  case Some(v) -> print(v)
+  case None -> print(0)
+end match

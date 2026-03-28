@@ -1,0 +1,16 @@
+-- Multiple guards on same variant
+-- Expected: 2
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+Result r = Result.Ok(25)
+match r
+  case Ok(v) if v > 100 -> print(1)
+  case Ok(v) if v > 20 -> print(2)
+  case Ok(v) if v > 10 -> print(3)
+  case Ok(v) -> print(4)
+  case Err(e) -> print(0)
+end match

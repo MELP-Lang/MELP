@@ -1,0 +1,8 @@
+// Test: Generic enum syntax (Option<T>)
+// Expected: 1
+enum Option<T>
+    Some(T)
+    None
+end enum
+
+print(1)

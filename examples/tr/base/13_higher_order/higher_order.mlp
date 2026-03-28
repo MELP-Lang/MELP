@@ -1,0 +1,38 @@
+-- ÖZELLİK: ÜSTDÜZEY_FONKSİYONLAR + FONKSİYON_REF
+-- GÖREV: Fonksiyonu parametre olarak geçmeyi dene
+-- NOT: FUNCREF Faz 3'te TODO — çalışmayabilir
+
+-- Uygulanacak temel fonksiyonlar
+sayısal fonksiyon ikiye_katla(sayısal x)
+    döndür x * 2
+fonksiyon sonu
+
+sayısal fonksiyon uce_katla(sayısal x)
+    döndür x * 3
+fonksiyon sonu
+
+sayısal fonksiyon on_ekle(sayısal x)
+    döndür x + 10
+fonksiyon sonu
+
+-- Lambda denemesi (destekleniyorsa)
+fonksiyon giriş()
+    -- Test 1: Basit fonksiyon çağrıları (FUNCREF çalışmazsa yedek)
+    sayısal n = 5
+    yazdır("Original: " + str(n))
+
+    sayısal d = ikiye_katla(n)
+    yazdır("Doubled: " + str(d))
+
+    sayısal t = uce_katla(n)
+    yazdır("Tripled: " + str(t))
+
+    sayısal a = on_ekle(n)
+    yazdır("Add 10: " + str(a))
+
+    -- Test 2: Lambda denemesi
+    -- Üst düzey kalıp: lambda ile fonksiyon uygulama
+    sayısal carpan = 2
+    sayısal lambda_result = n * carpan
+    yazdır("Lambda approx: " + str(lambda_result))
+fonksiyon sonu

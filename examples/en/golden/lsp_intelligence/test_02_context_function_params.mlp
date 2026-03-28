@@ -1,0 +1,8 @@
+-- TEST: Context Completion - Function Parameters
+-- LSP Request: textDocument/completion at line 5, column 5
+-- Expected: ["x", "y"]
+-- Description: Auto-complete function parameters inside function body
+
+function add(numeric x; numeric y) -> numeric
+  return x + y  -- cursor on one of params, should suggest x, y
+end function

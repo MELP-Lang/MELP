@@ -1,0 +1,15 @@
+-- test_16_question_err_with_value.mlp
+-- Expected: -1
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+numeric function risky(numeric flag)
+  Result r = Result.Err(flag)
+  numeric v = r?
+  return v * 10
+end function
+
+print(risky(5))

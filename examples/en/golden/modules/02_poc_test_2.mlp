@@ -1,0 +1,7 @@
+-- TEST: Constant Export
+-- PHASE: 2.3 (Modules)
+-- EXPECTED: 3
+
+function main()
+  print(3)
+end function

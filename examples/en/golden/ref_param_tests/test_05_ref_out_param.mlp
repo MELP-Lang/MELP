@@ -1,0 +1,14 @@
+-- test_05_ref_out_param.mlp
+-- PHASE: 2 (Ref Params)
+-- EXPECTED: 7
+-- EKS-019: ref ile "out" parametre kullanımı (C# out benzeri)
+
+function topla_ve_kaydet(numeric a; numeric b; ref numeric sonuc)
+    sonuc = a + b
+end function
+
+function main()
+    numeric r = 0
+    topla_ve_kaydet(3; 4; r)
+    print(r)   -- 7
+end function

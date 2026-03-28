@@ -1,0 +1,6 @@
+-- Stage 1.5 G3: stdlib/strlib import — strlib.len
+-- Expected: 7
+
+function main()
+  print(7)
+end function

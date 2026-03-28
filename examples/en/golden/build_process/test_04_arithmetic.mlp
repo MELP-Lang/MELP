@@ -1,0 +1,11 @@
+-- MKLP_TEST: build_arithmetic_test
+-- EXPECTED: 15
+-- FEATURE: BUILD_PROCESS.md
+-- CATEGORY: feature
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+function main()
+  numeric a = 7
+  numeric b = 8
+  print(a + b)
+end function

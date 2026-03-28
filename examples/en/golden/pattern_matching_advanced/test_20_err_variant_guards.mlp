@@ -1,0 +1,16 @@
+-- Guards on Err variant
+-- Expected: 3
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+Result r = Result.Err(250)
+match r
+  case Ok(v) -> print(0)
+  case Err(e) if e > 1000 -> print(1)
+  case Err(e) if e > 500 -> print(2)
+  case Err(e) if e > 100 -> print(3)
+  case Err(e) -> print(4)
+end match

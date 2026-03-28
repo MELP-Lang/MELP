@@ -1,0 +1,12 @@
+-- TEST: While loop with multiplication (factorial 5)
+-- Expected: 120
+
+function main()
+    numeric i = 1
+    numeric product = 1
+    while i <= 5
+        product = product * i
+        i = i + 1
+    end while
+    print(product)
+end function

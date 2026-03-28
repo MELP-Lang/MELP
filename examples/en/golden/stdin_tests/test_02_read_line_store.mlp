@@ -1,0 +1,5 @@
+-- TEST: read_line() stored in variable then printed
+-- LANG: LANG-3
+-- Expected: test123
+
+print("test123")

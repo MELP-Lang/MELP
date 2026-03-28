@@ -1,0 +1,15 @@
+-- test_01_funcref_basic.mlp
+-- PHASE: 3 (Funcref)
+-- EXPECTED: 25
+-- EKS-008: Temel fonksiyon referansı — tip isim(paramtip) = fonksiyon
+
+numeric function karesi(numeric x)
+    return x * x
+end function
+
+function main()
+    numeric fn(numeric) = karesi
+    numeric sonuc = fn(5)
+    print(sonuc)
+    return 0
+end function

@@ -1,0 +1,17 @@
+-- test_05_event_param_used_in_logic.mlp
+-- PHASE: 2 (Event Block)
+-- EXPECTED: dusuk\nyuksek
+-- EKS-016: Parametreli event ile koşul mantığı
+
+event on_sensor(numeric value)
+    if value < 50 then
+        print("dusuk")
+    else
+        print("yuksek")
+    end if
+end_event
+
+function main()
+    on_sensor(30)
+    on_sensor(80)
+end function

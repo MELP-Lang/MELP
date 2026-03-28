@@ -1,0 +1,14 @@
+-- Exhaustive match using wildcard
+-- Expected: 50
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+Result r = Result.Ok(50)
+
+match r
+  case Ok(v) -> print(v)
+  case _ -> print(0)
+end match

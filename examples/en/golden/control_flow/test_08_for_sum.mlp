@@ -1,0 +1,7 @@
+-- Test: for loop sum of 1 to 10
+-- Expected: 55
+numeric sum = 0
+for n = 1 to 10
+  sum = sum + n
+end for
+print(sum)

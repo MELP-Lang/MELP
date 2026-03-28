@@ -1,0 +1,7 @@
+-- TEST: Basic numeric variable
+-- Expected: 42
+
+function main()
+    numeric x = 42
+    print(x)
+end function

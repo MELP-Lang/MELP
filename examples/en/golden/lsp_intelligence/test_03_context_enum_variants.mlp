@@ -1,0 +1,16 @@
+-- TEST: Context Completion - Enum Variants
+-- LSP Request: textDocument/completion at line 9, column 8
+-- Expected: ["Ok", "Err"]
+-- Description: Auto-complete enum variants after type
+
+enum Result
+  Ok(numeric)
+  Err(string)
+end enum
+
+function test()
+  Result r = Result.Ok(42)
+  match r
+    case O  -- cursor here, should suggest Ok, Err
+  end match
+end function

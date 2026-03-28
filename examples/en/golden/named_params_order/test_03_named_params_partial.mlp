@@ -1,0 +1,14 @@
+-- test_03_named_params_partial.mlp
+-- PHASE: 2 (Named Params)
+-- EXPECTED: 7
+-- EKS-006: Kısmi sıra değişimi ile isimli parametre
+
+numeric function topla(numeric a; numeric b; numeric c)
+    return a + b + c
+end function
+
+function main()
+    -- b ve c sıraları değiştirilmiş
+    numeric r = topla(a: 1; c: 3; b: 3)
+    print(r)
+end function

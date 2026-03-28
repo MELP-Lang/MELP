@@ -1,0 +1,9 @@
+-- Test: error location - colon separator in format
+-- FEATURE: ERROR_LOCATION
+-- PHASE: Phase1-P03
+-- EXPECT_COMPILE_FAIL: true
+-- EXPECTED_STDERR_CONTAINS: :0:0:
+-- Expected: COMPILE_ERROR: Unknown identifier: olmayan_degisken
+function main()
+  print(olmayan_degisken)
+end function

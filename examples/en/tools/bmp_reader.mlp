@@ -1,0 +1,88 @@
+-- BMP RGB Parser — MELP Stage 1
+-- Okur: 24bpp BMP dosyası → her pikselin R, G, B değerini yazdırır
+-- Derle: melp_compiler bmp_reader.mlp -o out.ll
+-- Çalıştır: clang -O0 -x ir out.ll -o bmp_reader && ./bmp_reader
+--
+-- ÖNEMLI: clang -O0 kullan. -O1/-O2 fgetc sırasını bozuyor.
+
+external function fopen(s as string; m as string) as numeric
+external function fgetc(fp as numeric) as numeric
+external function fclose(fp as numeric) as numeric
+
+function read_u16(fp as numeric) as numeric
+    numeric b0 = fgetc(fp)
+    numeric b1 = fgetc(fp)
+    return b0 + b1 * 256
+end function
+
+function read_u32(fp as numeric) as numeric
+    numeric b0 = fgetc(fp)
+    numeric b1 = fgetc(fp)
+    numeric b2 = fgetc(fp)
+    numeric b3 = fgetc(fp)
+    return b0 + b1 * 256 + b2 * 65536 + b3 * 16777216
+end function
+
+function skip_bytes(fp as numeric; n as numeric) as numeric
+    numeric i = 0
+    loop i < n
+        numeric d = fgetc(fp)
+        i = i + 1
+    end loop
+    return 0
+end function
+
+-- BMP row padding: (4 - (width*3 mod 4)) mod 4
+function row_padding(width as numeric) as numeric
+    numeric row_bytes = width * 3
+    numeric rem = row_bytes mod 4
+    if rem == 0 then
+        return 0
+    end if
+    return 4 - rem
+end function
+
+function main()
+    numeric fp = fopen("input.bmp"; "rb")
+
+    -- BMP File Header (14 bytes)
+    numeric sig0    = fgetc(fp)
+    numeric sig1    = fgetc(fp)
+    numeric fs      = read_u32(fp)
+    numeric res     = read_u32(fp)
+    numeric poffset = read_u32(fp)
+
+    -- DIB Header — BITMAPINFOHEADER (40 bytes)
+    numeric dib     = read_u32(fp)
+    numeric width   = read_u32(fp)
+    numeric height  = read_u32(fp)
+    numeric planes  = read_u16(fp)
+    numeric bpp     = read_u16(fp)
+    numeric comp    = read_u32(fp)
+    numeric isize   = read_u32(fp)
+    numeric sk1     = skip_bytes(fp; 16)
+
+    -- Ekstra header byte'larını atla
+    numeric extra   = poffset - 54
+    numeric sk2     = skip_bytes(fp; extra)
+
+    -- Piksel okuma: BMP bottom-up, BGR sırası
+    numeric pad = row_padding(width)
+    numeric row = 0
+    loop row < height
+        numeric col = 0
+        loop col < width
+            numeric blue  = fgetc(fp)
+            numeric green = fgetc(fp)
+            numeric red   = fgetc(fp)
+            print(red)
+            print(green)
+            print(blue)
+            col = col + 1
+        end loop
+        numeric sk3 = skip_bytes(fp; pad)
+        row = row + 1
+    end loop
+
+    fclose(fp)
+end function

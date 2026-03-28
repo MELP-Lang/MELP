@@ -1,0 +1,15 @@
+-- test_05_funcref_multiarg.mlp
+-- PHASE: 3 (Funcref)
+-- EXPECTED: 14
+-- EKS-008: İki parametreli funcref
+
+numeric function topla(numeric a; numeric b)
+    return a + b
+end function
+
+function main()
+    numeric fn(numeric; numeric) = topla
+    numeric r = fn(5; 9)
+    print(r)    -- 14
+    return 0
+end function

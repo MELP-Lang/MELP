@@ -1,0 +1,11 @@
+-- TEST: Parse For Loop
+-- PHASE: 4.4 (Tree-sitter)
+-- EXPECTED: 10
+
+function main()
+  numeric sum = 0
+  for numeric i = 0 to 4
+    sum = sum + i
+  end for
+  print(sum)
+end function

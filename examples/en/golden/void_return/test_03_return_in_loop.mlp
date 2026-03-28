@@ -1,0 +1,23 @@
+-- MKLP_TEST: void_return_in_loop
+-- Expected: 1\n2\n3
+2
+3
+-- FEATURE: VOID_RETURN.md
+-- CATEGORY: bug
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+function printUntil(numeric limit)
+  numeric i = 1
+  while i <= 10
+    if i > limit then
+      return
+    end if
+    print(i)
+    i = i + 1
+  end while
+end function
+
+function main()
+  printUntil(3)
+end function
+

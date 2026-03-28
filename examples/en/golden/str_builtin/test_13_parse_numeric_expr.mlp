@@ -1,0 +1,10 @@
+-- MKLP_TEST: parse_numeric_expr
+-- EXPECTED: 15
+-- FEATURE: STR_BUILTIN.md
+-- CATEGORY: bug
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+function main()
+  numeric z = parse_numeric("10") + parse_numeric("5")
+  print(z)
+end function

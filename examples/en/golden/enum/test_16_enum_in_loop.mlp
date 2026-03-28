@@ -1,0 +1,19 @@
+-- TEST: Using enum in while loop
+-- PHASE: 3.2 (Enum)
+-- EXPECTED: 1
+
+enum Counter
+  Start
+  Mid
+  End
+end enum
+
+none function main()
+  numeric c = Counter.Start  -- 0
+  while c < 3
+    c = c + 1
+  end while
+  if c == 3 then
+    print(1)
+  end if
+end function

@@ -1,0 +1,13 @@
+-- Exhaustive match with Result (both Ok and Err)
+-- Expected: 42
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+Result r = Result.Ok(42)
+match r
+  case Ok(v) -> print(v)
+  case Err(e) -> print(0)
+end match

@@ -1,0 +1,14 @@
+-- function using method result
+-- Expected: 0
+interface Source
+    numeric function value()
+end interface
+struct Emitter implements Source
+    numeric v
+end struct
+numeric function Emitter.value()
+    return this.v
+end function
+Emitter e = Emitter { v: 11 }
+numeric r = e.value()
+print(r)

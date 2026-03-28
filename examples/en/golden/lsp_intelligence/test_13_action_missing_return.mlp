@@ -1,0 +1,9 @@
+-- TEST: Code Actions - Add Missing Return
+-- LSP Request: codeAction for missing return
+-- Expected: Quick fix "Add return statement"
+-- Description: Suggest adding return statement for non-void function
+
+function getValue() -> numeric
+  numeric x = 10
+  -- Missing return statement
+end function

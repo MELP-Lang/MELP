@@ -1,0 +1,6 @@
+-- GOLDEN TEST: Ternary Operator - variable in expression
+-- FEATURE: LANG-7 Ternary ? :
+-- Expected: 10
+var a = 10
+var result = a > 5 ? a : 0
+print(result)

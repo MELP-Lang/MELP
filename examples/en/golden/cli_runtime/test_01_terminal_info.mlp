@@ -1,0 +1,16 @@
+-- GOLDEN_TEST: test_01_terminal_info
+-- DESC: Test terminal detection and size functions
+-- EXPECTED_OUTPUT: Terminal info
+
+-- Check if running in TTY
+numeric is_tty = __builtin_cli_is_tty()
+print(is_tty)
+
+-- Get terminal width
+numeric width = __builtin_cli_terminal_width()
+print(width)
+
+-- Get terminal height
+numeric height = __builtin_cli_terminal_height()
+print(height)
+-- Expected: 0\n80\n24

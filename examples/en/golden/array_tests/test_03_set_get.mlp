@@ -1,0 +1,24 @@
+-- Array Set and Get Test
+-- Tests array_set, array_get index operations
+
+-- Create and fill array
+numeric arr = __builtin_array_create()
+__builtin_array_push(arr; 100)
+__builtin_array_push(arr; 200)
+__builtin_array_push(arr; 300)
+
+-- Get elements
+numeric a = __builtin_array_get(arr; 0)
+print(a)
+numeric b = __builtin_array_get(arr; 1)
+print(b)
+numeric c = __builtin_array_get(arr; 2)
+print(c)
+
+-- Set element at index 1
+__builtin_array_set(arr; 1; 999)
+
+-- Get updated value
+numeric updated = __builtin_array_get(arr; 1)
+print(updated)
+-- Expected: 100\n200\n300\n999

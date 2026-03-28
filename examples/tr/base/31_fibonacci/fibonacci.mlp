@@ -1,0 +1,35 @@
+-- GÖREV 31: fibonacci
+-- İteratif ve özyinelemeli fibonacci
+
+sayısal fonksiyon fib_iteratif(sayısal n)
+    koşul n <= 1 ise
+        döndür n
+    koşul sonu
+
+    sayısal a = 0
+    sayısal b = 1
+    sayısal i = 2
+
+    döngü i <= n
+        sayısal temp = a + b
+        a = b
+        b = temp
+        i = i + 1
+    döngü sonu
+
+    döndür b
+fonksiyon sonu
+
+sayısal fonksiyon fib_rekursif(sayısal n)
+    koşul n <= 1 ise
+        döndür n
+    yoksa
+        döndür fib_rekursif(n - 1) + fib_rekursif(n - 2)
+    koşul sonu
+fonksiyon sonu
+
+fonksiyon giriş()
+    yazdır(fib_iteratif(10))
+    yazdır(fib_iteratif(20))
+    yazdır(fib_rekursif(10))
+fonksiyon sonu

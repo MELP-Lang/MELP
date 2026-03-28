@@ -1,0 +1,13 @@
+-- Option None pattern matching
+-- Expected: 0
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+Option opt = Option.None
+match opt
+  case Some(value) -> print(123)
+  case None -> print(0)
+end match

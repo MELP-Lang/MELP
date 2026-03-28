@@ -1,0 +1,22 @@
+-- Higher-Order Function Test - array_map
+-- Tests passing lambda to array_map
+
+-- Create array
+numeric arr = __builtin_array_create()
+__builtin_array_push(arr; 1)
+__builtin_array_push(arr; 2)
+__builtin_array_push(arr; 3)
+__builtin_array_push(arr; 4)
+
+-- Define a doubling lambda
+numeric double_fn = lambda(x) -> x * 2
+
+-- Map: double each element
+numeric doubled = __builtin_array_map(arr; double_fn)
+
+-- Print mapped values
+print(__builtin_array_get(doubled; 0))
+print(__builtin_array_get(doubled; 1))
+print(__builtin_array_get(doubled; 2))
+print(__builtin_array_get(doubled; 3))
+-- Expected: 2\n4\n6\n8

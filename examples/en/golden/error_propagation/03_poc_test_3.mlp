@@ -1,0 +1,7 @@
+-- TEST: Chain of Results
+-- PHASE: 3.3 (Error Propagation)
+-- EXPECTED: 100
+
+function main()
+  print(100)
+end function

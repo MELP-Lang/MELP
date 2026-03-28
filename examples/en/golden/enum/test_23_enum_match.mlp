@@ -1,0 +1,25 @@
+-- TEST: enum_chained_if_match
+-- EXPECTED: two
+-- FEATURE: ENUM.md
+-- CATEGORY: bug
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+enum Number
+  ONE
+  TWO
+  THREE
+end enum
+
+function main()
+  numeric n = Number.TWO
+  if n == Number.ONE then
+    print("one")
+  else
+    if n == Number.TWO then
+      print("two")
+    else
+      print("three")
+    end if
+  end if
+  return 0
+end function

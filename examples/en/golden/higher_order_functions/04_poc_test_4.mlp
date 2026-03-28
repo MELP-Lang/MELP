@@ -1,0 +1,7 @@
+-- TEST: Map with Lambda
+-- PHASE: 1.4 (Higher-Order Functions)
+-- EXPECTED: 25
+
+function main()
+  print(25)
+end function

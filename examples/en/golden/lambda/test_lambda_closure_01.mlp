@@ -1,0 +1,8 @@
+-- TEST: Closure captures outer variable
+-- Expected: 15
+
+function main()
+    numeric x = 10
+    numeric addX = lambda(y) -> x + y
+    print(addX(5))
+end function

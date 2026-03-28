@@ -1,0 +1,13 @@
+-- Option Some with zero value
+-- Expected: 0
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+Option opt = Option.Some(0)
+match opt
+  case Some(v) -> print(v)
+  case None -> print(1)
+end match

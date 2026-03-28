@@ -1,0 +1,13 @@
+-- test_06_alias_function_return.mlp
+-- Expected: 100
+-- Test: Function returns alias-typed value
+
+type Points = numeric
+
+function getMax() -> Points
+  Points max = 100
+  return max
+end function
+
+Points result = getMax()
+print(result)

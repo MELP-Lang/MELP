@@ -1,0 +1,7 @@
+-- L-11: receive keyword token rejection
+-- EXPECT_COMPILE_FAIL: true
+-- EXPECTED_STDERR_CONTAINS: Channels
+
+function main()
+    receive msg from ch
+end function

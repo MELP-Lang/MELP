@@ -1,0 +1,11 @@
+function apply(numeric x; auto fn)
+  return fn(x)
+end function
+
+function main()
+  function sq = lambda(numeric n) as numeric
+    return n * n
+  end_lambda
+
+  return apply(5; sq)
+end function

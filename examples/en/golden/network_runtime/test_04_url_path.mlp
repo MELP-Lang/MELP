@@ -1,0 +1,11 @@
+-- Golden Test: net_url_path
+-- Tests URL parsing: path extraction
+-- Expected output:
+-- /repos/user/project
+-- /api/v2/data
+-- /
+
+print_str(__builtin_net_url_path("https://github.com/repos/user/project"))
+print_str(__builtin_net_url_path("http://localhost:8080/api/v2/data?key=val"))
+print_str(__builtin_net_url_path("https://example.com"))
+-- Expected: /repos/user/project\n/api/v2/data\n/

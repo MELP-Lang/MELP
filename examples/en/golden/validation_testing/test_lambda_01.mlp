@@ -1,0 +1,6 @@
+-- FEATURE: VALIDATION_TESTING
+-- TEST: Lambda validation smoke
+-- Expected: 10
+
+numeric sonuc = 10
+print(sonuc)

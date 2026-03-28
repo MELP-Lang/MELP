@@ -1,0 +1,10 @@
+// Test: Monomorphization - function name mangling
+// Expected: 1
+function identity<T>(x as T) as T
+    x
+end function
+
+var a = identity<numeric>(42)
+var b = identity<string>("hello")
+
+print(1)

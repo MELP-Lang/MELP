@@ -1,0 +1,14 @@
+-- test_13_alias_with_function_body.mlp
+-- Expected: 198
+-- Test: Alias used both inside function body and at top level
+
+type Weight = numeric
+
+function tripleWeight(Weight w) -> numeric
+  Weight tripled = w + w + w
+  return tripled
+end function
+
+Weight wval = 66
+numeric result = tripleWeight(wval)
+print(result)

@@ -1,0 +1,11 @@
+-- TEST: Basic if statement
+-- Expected: 1
+
+function main()
+    numeric x = 10
+    if x > 5 then
+        print(1)
+        return 0
+    end if
+    print(0)
+end function

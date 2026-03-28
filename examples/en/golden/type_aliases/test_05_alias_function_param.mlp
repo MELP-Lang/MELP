@@ -1,0 +1,14 @@
+-- test_05_alias_function_param.mlp
+-- Expected: 42
+-- Test: Type alias as function parameter
+
+type Score = numeric
+
+function double(Score s) -> numeric
+  numeric result = s + s
+  return result
+end function
+
+Score myScore = 21
+numeric result = double(myScore)
+print(result)

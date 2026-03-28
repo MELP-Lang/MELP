@@ -1,0 +1,13 @@
+-- Test: two events, only second one prints
+-- FEATURE: EVENT_BLOCK
+-- PHASE: Phase2-L01
+-- Expected: done
+event ea()
+end_event
+event eb()
+  print("done")
+end_event
+app_start()
+  ea()
+  eb()
+end_app

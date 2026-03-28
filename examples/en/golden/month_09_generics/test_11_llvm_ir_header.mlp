@@ -1,0 +1,3 @@
+function identity<T>(T x) as T
+  return x
+end function

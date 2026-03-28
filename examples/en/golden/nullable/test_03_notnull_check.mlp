@@ -1,0 +1,15 @@
+-- test_03_notnull_check.mlp
+-- FEATURE: NULLABLE
+-- PHASE: Phase2-L05
+-- Expected: 42
+
+-- null olmayan değer kontrolü
+
+function main()
+    numeric val = 42
+    if val != null then
+        print(val)
+    else
+        print(0)
+    end if
+end function

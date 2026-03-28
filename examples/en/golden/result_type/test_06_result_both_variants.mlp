@@ -1,0 +1,20 @@
+-- Test both Ok and Err in same program
+-- Expected: 5\n8
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+Result success = Result.Ok(5)
+Result failure = Result.Err(8)
+
+match success
+  case Ok(v) -> print(v)
+  case Err(e) -> print(999)
+end match
+
+match failure
+  case Ok(v) -> print(888)
+  case Err(e) -> print(e)
+end match

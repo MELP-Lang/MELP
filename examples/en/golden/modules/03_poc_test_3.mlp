@@ -1,0 +1,7 @@
+-- TEST: Multiple Functions
+-- PHASE: 2.3 (Modules)
+-- EXPECTED: 20
+
+function main()
+  print(20)
+end function

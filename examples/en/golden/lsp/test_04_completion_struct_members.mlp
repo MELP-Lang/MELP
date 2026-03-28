@@ -1,0 +1,15 @@
+-- TEST: Code Completion - Struct Members
+-- LSP Request: textDocument/completion at line 8, column 6
+-- Expected: ["x", "y", "name"]
+-- Description: Completion for struct members using dot notation
+
+struct Point
+  numeric x
+  numeric y
+  string name
+end struct
+
+function test()
+  Point p
+  p.  -- cursor here, should suggest x, y, name
+end function

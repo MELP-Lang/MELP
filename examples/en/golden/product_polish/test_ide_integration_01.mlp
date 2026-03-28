@@ -1,0 +1,6 @@
+-- FEATURE: PRODUCT_POLISH
+-- TEST: IDE integration smoke
+-- Expected: 40
+
+numeric sonuc = 40
+print(sonuc)

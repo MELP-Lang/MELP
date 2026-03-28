@@ -1,0 +1,8 @@
+-- option.map with anonymous lambda: x.map((v) -> v * 2)
+-- Expected: 10
+
+function main()
+    option<numeric> x = some(5)
+    option<numeric> y = x.map((v) -> v * 2)
+    print(y.unwrap())
+end function

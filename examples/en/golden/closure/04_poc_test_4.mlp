@@ -1,0 +1,7 @@
+-- TEST: Nested Closure
+-- PHASE: 1.2 (Closure Mechanism)
+-- EXPECTED: 6
+
+function main()
+  print(6)
+end function

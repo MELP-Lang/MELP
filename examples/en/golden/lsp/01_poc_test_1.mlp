@@ -1,0 +1,22 @@
+-- TEST: LSP Symbol Table
+-- PHASE: 4.2 (LSP)
+-- EXPECTED: 3
+
+function foo() -> numeric
+  print(1)
+  return 0
+end function
+
+function bar() -> numeric
+  print(2)
+  return 0
+end function
+
+function baz() -> numeric
+  print(3)
+  return 0
+end function
+
+function main()
+  print(3)
+end function

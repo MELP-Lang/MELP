@@ -1,0 +1,9 @@
+-- Expected: 42
+function identity<T>(x as T) as T
+  return x
+end function
+
+function main()
+  var result = identity<numeric>(42)
+  print(result)
+end function

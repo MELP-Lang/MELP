@@ -1,0 +1,19 @@
+-- TEST: Multiple Match
+-- PHASE: 3.2 (Pattern Matching)
+-- EXPECTED: 6
+
+function classify(numeric n) -> numeric
+  match n
+    case 0 then return 1
+    case 1 then return 2
+    case 2 then return 3
+    case 3 then return 4
+    case 4 then return 5
+    case 5 then return 6
+    case _ then return 0
+  end match
+end function
+
+function main()
+  print(classify(5))
+end function

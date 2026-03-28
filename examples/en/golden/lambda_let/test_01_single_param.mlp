@@ -1,0 +1,5 @@
+-- GOLDEN TEST: Lambda let - single parameter
+-- FEATURE: LANG-1 let f = lambda(x) -> expr
+-- Expected: 10
+let double = lambda(x) -> x * 2
+print(double(5))

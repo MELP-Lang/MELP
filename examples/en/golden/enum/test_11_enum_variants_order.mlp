@@ -1,0 +1,22 @@
+-- TEST: Enum variant indexing order
+-- PHASE: 3.2 (Enum)
+-- EXPECTED: 1
+
+enum Queue
+  First
+  Second
+  Third
+end enum
+
+none function main()
+  numeric f = Queue.First          -- index 0
+  numeric s = Queue.Second         -- index 1
+  numeric t = Queue.Third          -- index 2
+  if f == 0 then
+    if s == 1 then
+      if t == 2 then
+        print(1)
+      end if
+    end if
+  end if
+end function

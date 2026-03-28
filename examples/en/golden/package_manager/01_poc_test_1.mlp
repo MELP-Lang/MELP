@@ -1,0 +1,12 @@
+-- TEST: Package Config Parse
+-- PHASE: 4.1 (Package Manager)
+-- EXPECTED: 1
+
+-- Simulate reading mlp.toml
+function main()
+  character[] pkg_name = "myapp"
+  if pkg_name == "myapp" then
+    print(1)
+    return 0
+  end if
+end function

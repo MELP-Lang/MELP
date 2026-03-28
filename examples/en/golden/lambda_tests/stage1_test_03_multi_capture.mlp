@@ -1,0 +1,10 @@
+function main()
+  numeric x = 7
+  numeric y = 4
+
+  auto f = lambda(numeric z) -> numeric
+    return x + y + z
+  end_lambda
+
+  return f(9)
+end function

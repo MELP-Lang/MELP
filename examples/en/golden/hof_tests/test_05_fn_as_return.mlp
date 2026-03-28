@@ -1,0 +1,14 @@
+-- MKLP_TEST: hof_fn_as_return_value
+-- Expected: 0
+-- FEATURE: HIGHER_ORDER_FUNCTIONS.md
+-- CATEGORY: feature
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+numeric function square(numeric x)
+  return x * x
+end function
+
+function main()
+  numeric fn = square
+  print(fn(5))
+end function

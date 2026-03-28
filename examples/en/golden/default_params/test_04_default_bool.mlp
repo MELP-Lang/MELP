@@ -1,0 +1,17 @@
+-- test_04_default_bool.mlp
+-- PHASE: 3 (Default Params)
+-- EXPECTED: test.txt kayit edildi\ntest.txt ZORLA kayit edildi
+-- EKS-009: Boolean default parametre
+
+function kaydet(string dosya; boolean zorla: false)
+    if zorla then
+        print(dosya + " ZORLA kayit edildi")
+    else
+        print(dosya + " kayit edildi")
+    end if
+end function
+
+function main()
+    kaydet("test.txt")                -- zorla = false (default)
+    kaydet("test.txt"; zorla: true)   -- zorla = true (override)
+end function

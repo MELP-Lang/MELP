@@ -1,0 +1,9 @@
+sayısal fonksiyon sayi_parse_et(metin json)
+    sayısal value = 42
+    döndür value
+fonksiyon sonu
+
+fonksiyon giriş()
+    sayısal val = sayi_parse_et("{\"count\": 42}")
+    yazdır(val)
+fonksiyon sonu

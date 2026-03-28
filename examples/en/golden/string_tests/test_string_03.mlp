@@ -1,0 +1,7 @@
+-- TEST: Empty string is valid
+-- Expected: ok
+
+function main()
+    string empty = ""
+    print("ok")
+end function

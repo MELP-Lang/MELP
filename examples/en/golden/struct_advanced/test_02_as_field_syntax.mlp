@@ -1,0 +1,12 @@
+-- GOLDEN TEST: Struct with 'fieldName as type' syntax (MELP spec format)
+-- FEATURE: struct field syntax — fieldName as type
+-- Expected: 99
+struct Point
+  x as numeric
+  y as numeric
+end struct
+
+function main()
+  Point p = Point { x: 99; y: 50 }
+  print(p.x)
+end function

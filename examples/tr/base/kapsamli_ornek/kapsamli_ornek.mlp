@@ -1,0 +1,493 @@
+-- ============================================================
+-- KAPSAMLI MELP ÖRNEĞİ — Türkçe — Stage 2 Syntax Keşif Dosyası
+-- Tarih: 23 Mart 2026
+-- Amaç: Bilinen/beklenen her syntax formunu bir arada göstermek,
+--        sınırları ve davranışları gözlemlemek.
+-- ÇALIŞTIRMAYABİLİR — bu bir keşif belgesidir.
+-- ============================================================
+
+-- ============================================================
+-- BÖLÜM 0: KRİTİK SYNTAX KURALLARI (hatırlatma)
+-- ============================================================
+-- Parametre ayırıcı  : ; (noktalı virgül)
+-- Blok kapatıcı      : koşul sonu  döngü sonu  fonksiyon sonu
+-- koşul sözdizimi    : "koşul ... ise" (ise ZORUNLU)
+-- değilse koşul      : tek token
+-- Mantıksal          : ve  veya  değil (postfix)  (&&, ||, ! DEĞİL)
+-- Yorum              : --  (// DEĞİL)
+-- Dizi               : [1; 2; 3]  (virgül DEĞİL)
+-- Harf büyüklüğü     : her şey küçük harf — KAPSAM, KOŞUL, Fonksiyon → HATA
+-- ============================================================
+
+
+-- ============================================================
+-- BÖLÜM 1: YAPI TANIMLARI
+-- ============================================================
+
+-- Öğrenci kaydı
+yapı Ogrenci
+    sayısal id
+    sayısal not1
+    sayısal not2
+    sayısal not3
+    sayısal ortalama
+yapı sonu
+
+-- İstatistik özeti
+yapı Ozet
+    sayısal toplam_ogrenci
+    sayısal gecen
+    sayısal kalan
+    sayısal en_yuksek
+    sayısal en_dusuk
+yapı sonu
+
+
+-- ============================================================
+-- BÖLÜM 2: DÖNÜŞ TİPİ — 5 FARKLI FORM (eşdeğer)
+-- ============================================================
+
+-- Form 1: kanonik  →  sayısal fonksiyon isim(...)
+sayısal fonksiyon ortalama_hesapla(sayısal a; sayısal b; sayısal c)
+    döndür (a + b + c) / 3
+fonksiyon sonu
+
+-- Diğer formlar yorumda (normalizer desteğine bağlı)
+-- fonksiyon ortalama_v2(sayısal a; ...) sayısal
+--     döndür (a + b + c) / 3
+-- fonksiyon sonu
+
+
+-- ============================================================
+-- BÖLÜM 3: ÖZYINELEME — faktöriyel
+-- ============================================================
+
+sayısal fonksiyon faktoriyel(sayısal n)
+    koşul n <= 1 ise
+        döndür 1
+    yoksa
+        döndür n * faktoriyel(n - 1)
+    koşul sonu
+fonksiyon sonu
+
+
+-- ============================================================
+-- BÖLÜM 4: HARF NOTU — seç ile
+-- ============================================================
+
+-- Notu 0-100 aralığında alır; 90+ A, 80+ B, 70+ C, altı F
+sayısal fonksiyon harf_notu(sayısal ort)
+    -- Dönen değer: 4=A  3=B  2=C  1=F  (metin yok, sayısal kod)
+    koşul ort >= 90 ise
+        döndür 4
+    değilse koşul ort >= 80 ise
+        döndür 3
+    değilse koşul ort >= 70 ise
+        döndür 2
+    yoksa
+        döndür 1
+    koşul sonu
+fonksiyon sonu
+
+-- seç örneği: harf kodu → açıklama kodu
+sayısal fonksiyon harf_kodu_acikla(sayısal kod)
+    seç kod
+        durum 4 ise döndür 10   -- "Pekiyi"
+        durum 3 ise döndür 20   -- "İyi"
+        durum 2 ise döndür 30   -- "Orta"
+        durum 1 ise döndür 40   -- "Geçmedi"
+        yoksa döndür 0
+    seç sonu
+fonksiyon sonu
+
+
+-- ============================================================
+-- BÖLÜM 5: LAMBDA — çarpan fabrikası
+-- ============================================================
+
+-- Basit lambda: tek parametre
+-- sayısal ikiye_katla = lambda(x) -> x * 2
+
+-- Parametreli lambda: iki parametre, ; ile ayrılır
+-- sayısal topla = lambda(x; y) -> x + y
+-- sayısal r = topla(10; 20)
+
+-- NOT: lambda değişkene atanır; lambda tipi sayısal/mantıksal olarak bildirilir.
+--      Yakalama (dış değişken okuma) desteklenir.
+
+
+-- ============================================================
+-- BÖLÜM 6: FIZZBUZZ — döngü + koşul + mod
+-- ============================================================
+
+sayısal fonksiyon fizzbuzz(sayısal n)
+    -- 1'den n'e kadar FizzBuzz; kaç "özel" sayı olduğunu sayar (15'in katları)
+    sayısal sayac = 0
+    döngü i = 1 dan n
+        koşul i mod 15 == 0 ise
+            sayac = sayac + 1
+        değilse koşul i mod 3 == 0 ise
+            -- üçün katı
+            sayısal dummy3 = i
+        değilse koşul i mod 5 == 0 ise
+            -- beşin katı
+            sayısal dummy5 = i
+        yoksa
+            -- sıradan sayı
+            sayısal dummy = i
+        koşul sonu
+    döngü sonu
+    döndür sayac
+fonksiyon sonu
+
+
+-- ============================================================
+-- BÖLÜM 7: KAPSAM BLOĞU — isimli, erken çıkış, iç içe
+-- ============================================================
+
+-- kapsam <isim>       → bloğu aç
+-- çık_<isim>          → erken çık
+-- kapsam_sonu         → kapat
+-- DİKKAT: "test" rezerve — kapsam test → HATA
+-- DİKKAT: kapsam a() hata; yalnızca basit IDENTIFIER kabul edilir
+
+sayısal fonksiyon kapsam_demo(sayısal x)
+    sayısal sonuc = 0
+
+    kapsam hesap
+        sonuc = x * 2
+
+        koşul x < 0 ise
+            çık_hesap          -- negatif gelirse bloğu atla
+        koşul sonu
+
+        sonuc = sonuc + 10      -- yalnızca x >= 0 ise buraya gelir
+
+        kapsam ic_blok
+            sayısal ekstra = x mod 3
+            sonuc = sonuc + ekstra
+        son_ic_blok             -- ic_blok'u kapat
+
+    son_hesap                   -- hesap'ı kapat
+
+    döndür sonuc
+fonksiyon sonu
+
+
+-- ============================================================
+-- BÖLÜM 8: KOŞUL-İSE TEK SATIR FORMU
+-- ============================================================
+
+sayısal fonksiyon tek_satir_koşul_demo(sayısal x)
+    sayısal sonuc = 0
+
+    koşul x > 100 ise sonuc = 999
+
+    koşul x == 42 ise sonuc = 42
+
+    döndür sonuc
+fonksiyon sonu
+
+
+-- ============================================================
+-- BÖLÜM 9: ÖĞRENCİ NOT SİSTEMİ — ana mantık
+-- ============================================================
+
+sayısal fonksiyon ogrenci_isle(sayısal id; sayısal n1; sayısal n2; sayısal n3)
+    Ogrenci ogr
+    ogr.id = id
+    ogr.not1 = n1
+    ogr.not2 = n2
+    ogr.not3 = n3
+    ogr.ortalama = ortalama_hesapla(n1; n2; n3)
+
+    -- Harf kodu döndür
+    döndür harf_notu(ogr.ortalama)
+fonksiyon sonu
+
+-- Tüm öğrenciler için özet istatistik
+sayısal fonksiyon istatistik_hesapla(sayısal o1; sayısal o2; sayısal o3; sayısal o4; sayısal o5)
+    -- En yüksek ortalamayı bul (kapsam + erken çıkış ile)
+    sayısal en_yuksek = o1
+
+    kapsam maksimum
+        koşul o2 > en_yuksek ise en_yuksek = o2
+        koşul o3 > en_yuksek ise en_yuksek = o3
+        koşul o4 > en_yuksek ise en_yuksek = o4
+        koşul o5 > en_yuksek ise en_yuksek = o5
+    son_maksimum
+
+    döndür en_yuksek
+fonksiyon sonu
+
+
+-- ============================================================
+-- BÖLÜM 10: ÖZYINELEME — fibonacci (iteratif + rekürsif)
+-- ============================================================
+
+sayısal fonksiyon fib_iteratif(sayısal n)
+    koşul n <= 1 ise
+        döndür n
+    koşul sonu
+
+    sayısal a = 0
+    sayısal b = 1
+    sayısal i = 2
+
+    döngü i <= n
+        sayısal temp = a + b
+        a = b
+        b = temp
+        i = i + 1
+    döngü sonu
+
+    döndür b
+fonksiyon sonu
+
+sayısal fonksiyon fib_rekursif(sayısal n)
+    koşul n <= 1 ise
+        döndür n
+    yoksa
+        döndür fib_rekursif(n - 1) + fib_rekursif(n - 2)
+    koşul sonu
+fonksiyon sonu
+
+
+-- ============================================================
+-- BÖLÜM 11: DİZİ — topla, döngü
+-- ============================================================
+
+sayısal fonksiyon dizi_topla()
+    sayısal[] notlar = [55; 70; 85; 90; 45]
+    sayısal toplam = 0
+    döngü i = 0 dan 4
+        toplam = toplam + notlar[i]
+    döngü sonu
+    döndür toplam
+fonksiyon sonu
+
+
+-- ============================================================
+-- BÖLÜM 12: BOOLEAN MANTIK — ve / veya / değil (postfix)
+-- ============================================================
+
+mantıksal fonksiyon gecti_mi(sayısal ort; mantıksal devamsizlik_var)
+    -- Geçmek için: ortalama >= 50 VE devamsızlık yok
+    koşul ort >= 50 ve devamsizlik_var değil ise
+        döndür doğru
+    yoksa
+        döndür yanlış
+    koşul sonu
+fonksiyon sonu
+
+
+-- ============================================================
+-- BÖLÜM 13: İÇ İÇE DÖNGÜ + GERIYE + ADIM
+-- ============================================================
+
+sayısal fonksiyon geri_say(sayısal baslangic)
+    sayısal toplam = 0
+    döngü i = baslangic dan 1 geriye
+        toplam = toplam + i
+    döngü sonu
+    döndür toplam
+fonksiyon sonu
+
+sayısal fonksiyon carpim_tablosu_toplam(sayısal n)
+    -- n×n çarpım tablosunun tüm elemanlarının toplamı
+    sayısal toplam = 0
+    döngü i = 1 dan n
+        döngü j = 1 dan n
+            toplam = toplam + (i * j)
+        döngü sonu
+    döngü sonu
+    döndür toplam
+fonksiyon sonu
+
+sayısal fonksiyon adim_toplam()
+    -- 0 10 20 30 40 50 → toplam = 150
+    sayısal toplam = 0
+    döngü k = 0 dan 50 adım 10
+        toplam = toplam + k
+    döngü sonu
+    döndür toplam
+fonksiyon sonu
+
+
+-- ============================================================
+-- BÖLÜM 14: YAPI METODU
+-- ============================================================
+
+sayısal fonksiyon Ozet.gecme_yuzdesi()
+    sayısal g = bu.gecen
+    sayısal t = bu.toplam_ogrenci
+    koşul t == 0 ise
+        döndür 0
+    koşul sonu
+    döndür (g * 100) / t
+fonksiyon sonu
+
+
+-- ============================================================
+-- BÖLÜM 15: ANA FONKSİYON — her şeyi bir araya getirir
+-- ============================================================
+
+sayısal fonksiyon giriş()
+    yazdır("=== KAPSAMLI MELP ÖRNEĞİ ===")
+
+    -- --- 1. FAKTÖRİYEL ---
+    yazdır("--- Faktoriyel ---")
+    sayısal f5 = faktoriyel(5)      -- 120
+    yazdır(f5)
+    sayısal f10 = faktoriyel(10)    -- 3628800
+    yazdır(f10)
+
+    -- --- 2. FİBONACCI ---
+    yazdır("--- Fibonacci ---")
+    sayısal fib10_iter = fib_iteratif(10)   -- 55
+    yazdır(fib10_iter)
+    sayısal fib10_rek = fib_rekursif(10)    -- 55
+    yazdır(fib10_rek)
+
+    -- --- 3. FIZZBUZZ SAYACI (1-30) ---
+    yazdır("--- FizzBuzz (15 katlari, 1-30) ---")
+    sayısal ff = fizzbuzz(30)   -- 2 tane: 15, 30
+    yazdır(ff)
+
+    -- --- 4. ÖĞRENCİ NOT SİSTEMİ ---
+    yazdır("--- Ogrenci Not Sistemi ---")
+
+    -- Beş öğrenci: (id; not1; not2; not3)
+    sayısal h1 = ogrenci_isle(1; 95; 88; 92)    -- A (4)
+    sayısal h2 = ogrenci_isle(2; 75; 80; 70)    -- C (2)
+    sayısal h3 = ogrenci_isle(3; 40; 55; 45)    -- F (1)
+    sayısal h4 = ogrenci_isle(4; 85; 90; 88)    -- B (3)
+    sayısal h5 = ogrenci_isle(5; 60; 65; 70)    -- C (2)
+    yazdır(h1)
+    yazdır(h2)
+    yazdır(h3)
+    yazdır(h4)
+    yazdır(h5)
+
+    -- Harf kodu açıklama (seç demosu)
+    sayısal aciklama = harf_kodu_acikla(h1)     -- 10 = "A/Pekiyi"
+    yazdır(aciklama)
+
+    -- Ortalamalar
+    sayısal ort1 = ortalama_hesapla(95; 88; 92)  -- 91
+    sayısal ort2 = ortalama_hesapla(75; 80; 70)  -- 75
+    sayısal ort3 = ortalama_hesapla(40; 55; 45)  -- 46
+    sayısal ort4 = ortalama_hesapla(85; 90; 88)  -- 87
+    sayısal ort5 = ortalama_hesapla(60; 65; 70)  -- 65
+
+    -- En yüksek ortalama (kapsam içinde)
+    sayısal en_yuksek = istatistik_hesapla(ort1; ort2; ort3; ort4; ort5)
+    yazdır("En yuksek ortalama:")
+    yazdır(en_yuksek)
+
+    -- --- 5. GEÇTİ Mİ? (mantıksal) ---
+    yazdır("--- Gecme durumu ---")
+    mantıksal ogr3_gecti = gecti_mi(ort3; yanlış)  -- 46 < 50 → yanlış
+    mantıksal ogr1_gecti = gecti_mi(ort1; yanlış)  -- 91 >= 50 → doğru
+    yazdır(ogr3_gecti)
+    yazdır(ogr1_gecti)
+
+    -- --- 6. DİZİ TOPLAM ---
+    yazdır("--- Dizi toplam ---")
+    sayısal dtoplam = dizi_topla()   -- 55+70+85+90+45 = 345
+    yazdır(dtoplam)
+
+    -- --- 7. GERİYE + ADIM ---
+    yazdır("--- Geri say (5) ---")
+    sayısal gs = geri_say(5)     -- 5+4+3+2+1 = 15
+    yazdır(gs)
+
+    yazdır("--- Adim toplami (0-50 adim 10) ---")
+    sayısal at = adim_toplam()   -- 150
+    yazdır(at)
+
+    yazdır("--- Carpim tablosu toplami (3x3) ---")
+    sayısal ct = carpim_tablosu_toplam(3)   -- (1+2+3)^2 = 36
+    yazdır(ct)
+
+    -- --- 8. KAPSAM DEMO ---
+    yazdır("--- Kapsam demo ---")
+    sayısal sd1 = kapsam_demo(5)     -- (5*2)+10+(5 mod 3) = 22
+    yazdır(sd1)
+    sayısal sd2 = kapsam_demo(-3)    -- (-3*2) = -6  (erken çıkış, +10 yok)
+    yazdır(sd2)
+
+    -- --- 9. KOŞUL-İSE TEK SATIR ---
+    yazdır("--- Kosul-ise tek satir ---")
+    sayısal ts1 = tek_satir_koşul_demo(42)    -- 42
+    yazdır(ts1)
+    sayısal ts2 = tek_satir_koşul_demo(200)   -- 999
+    yazdır(ts2)
+    sayısal ts3 = tek_satir_koşul_demo(1)     -- 0
+    yazdır(ts3)
+
+    -- --- 10. YAPI + METOT ---
+    yazdır("--- Ozet yapisi ---")
+    Ozet oz
+    oz.toplam_ogrenci = 5
+    oz.gecen = 4
+    oz.kalan = 1
+    oz.en_yuksek = 91
+    oz.en_dusuk = 46
+    sayısal yuzde = oz.gecme_yuzdesi()   -- (4*100)/5 = 80
+    yazdır(yuzde)
+
+    -- --- 11. LAMBDA (yorum satırı — derleyici desteği bağlı) ---
+    -- sayısal ikiye_katla = lambda(x) -> x * 2
+    -- sayısal r_lambda = ikiye_katla(21)   -- 42
+    -- yazdır(r_lambda)
+    --
+    -- sayısal fark = lambda(x; y) -> x - y
+    -- sayısal r_fark = fark(100; 58)      -- 42
+    -- yazdır(r_fark)
+
+    -- --- 12. DÖNGÜ ile TOPLAM ---
+    yazdır("--- Dongu toplami (1-100) ---")
+    sayısal while_toplam = 0
+    sayısal wi = 1
+    döngü wi <= 100
+        while_toplam = while_toplam + wi
+        wi = wi + 1
+    döngü sonu
+    yazdır(while_toplam)   -- 5050
+
+    yazdır("=== BITTI ===")
+    döndür 0
+fonksiyon sonu
+
+
+-- ============================================================
+-- BÖLÜM 16: BİLİNEN KISITLAMALAR
+-- ============================================================
+
+-- [KISIT-1] Dönüş tipi alternatifleri
+--   Normalizer desteğine bağlı; kanonik form her zaman çalışır.
+--
+-- [KISIT-2] kapsam sonrası sadece basit identifier
+--   kapsam hesap  → OK
+--   kapsam a()    → HATA
+--   kapsam test   → HATA (rezerve kelime)
+--
+-- [KISIT-3] son_<isim> eşleşmesi zorunlu
+--   kapsam hesap … son_blok → parser PATLAMA
+--   kapsam hesap … son_hesap → OK
+--
+-- [KISIT-4] koşul-ise tek satır — yoksa yok
+--   koşul x ise a : b → OK (çoklu komut `:` ile)
+--   koşul x ise a yoksa b → DESTEKLENMIYOR
+--
+-- [KISIT-5] Parametre ayırıcı
+--   topla(3, 4)  → YANLIŞ
+--   topla(3; 4)  → DOĞRU
+--
+-- [KISIT-6] Büyük harf
+--   KAPSAM, KOŞUL, Fonksiyon, DÖNGÜ → her biri HATA
+--
+-- [KISIT-7] bu.alan * bu.baska — doğrudan kullanılamaz
+--   yapı metodunda önce yerel değişkene atanmalı:
+--   sayısal w = bu.genislik  →  döndür w * h

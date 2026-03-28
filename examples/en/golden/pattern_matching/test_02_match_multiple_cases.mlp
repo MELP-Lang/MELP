@@ -1,0 +1,20 @@
+-- TEST: Simple match with multiple cases
+-- PHASE: 6.4 (Pattern Matching)
+-- Expected: 1
+
+numeric function get_message(numeric code)
+    match code
+        case 0 then
+            return 0
+        case 1 then
+            return 1
+        case 2 then
+            return 2
+    end match
+    return -1
+end function
+
+function main()
+    numeric result = get_message(1)
+    print(result)
+end function

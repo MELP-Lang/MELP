@@ -1,0 +1,11 @@
+-- unwrap_or with Some variant
+-- Expected: 42
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+Option x = Option.Some(42)
+numeric y = x.unwrap_or(0)
+print(y)

@@ -1,0 +1,9 @@
+-- Test: error location - undefined variable
+-- FEATURE: ERROR_LOCATION
+-- PHASE: Phase1-P03
+-- EXPECT_COMPILE_FAIL: true
+-- EXPECTED_STDERR_CONTAINS: test_01_undef_var.mlp
+-- Expected: COMPILE_ERROR: Unknown identifier: tanimsiz
+function main()
+  print(tanimsiz)
+end function

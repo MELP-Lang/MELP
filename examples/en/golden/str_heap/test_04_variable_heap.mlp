@@ -1,0 +1,8 @@
+-- Test: str of a numeric variable uses heap allocation
+-- FEATURE: STR_HEAP
+-- PHASE: Phase2-STR-HEAP
+-- Expected: 100
+function main()
+  numeric x = 100
+  print(str(x))
+end function

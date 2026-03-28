@@ -1,0 +1,5 @@
+-- GOLDEN TEST: Lambda let - multiple parameters (semicolon separators)
+-- FEATURE: LANG-1 let f = lambda(x; y) -> expr
+-- Expected: 7
+let add = lambda(a; b) -> a + b
+print(add(3; 4))

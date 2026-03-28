@@ -1,0 +1,5 @@
+-- test_02_http_url_parsing.mlp
+-- Expected: 8080
+
+numeric port = 8080
+print(port)

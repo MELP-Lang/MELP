@@ -1,0 +1,7 @@
+-- Test: str() negative number
+-- FEATURE: STR_BUILTIN
+-- PHASE: Phase1-P02
+-- Expected: -99
+function main()
+  print(str(-99))
+end function

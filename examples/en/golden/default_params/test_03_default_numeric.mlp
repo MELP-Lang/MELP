@@ -1,0 +1,19 @@
+-- test_03_default_numeric.mlp
+-- PHASE: 3 (Default Params)
+-- EXPECTED: 9\n27
+-- EKS-009: Numerik default parametre
+
+numeric function kuvvet(numeric taban; numeric us: 2)
+    numeric sonuc = 1
+    numeric i = 0
+    while i < us
+        sonuc = sonuc * taban
+        i = i + 1
+    end while
+    return sonuc
+end function
+
+function main()
+    print(kuvvet(3))         -- us = 2 (default) → 9
+    print(kuvvet(3; us: 3))  -- us = 3 (override) → 27
+end function

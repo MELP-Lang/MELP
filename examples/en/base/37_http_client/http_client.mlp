@@ -1,0 +1,9 @@
+numeric function http_get(string url)
+    numeric status = 200
+    return status
+end function
+
+function main()
+    numeric resp = http_get("http://example.com")
+    print(resp)
+end function

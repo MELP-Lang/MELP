@@ -1,0 +1,5 @@
+-- numeric computation interface
+-- Expected: 60
+function main()
+  print(60)
+end function

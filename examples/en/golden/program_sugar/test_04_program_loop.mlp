@@ -1,0 +1,12 @@
+-- test_04_program_loop.mlp
+-- PHASE: 2 (Sugar Syntax)
+-- EXPECTED: 1\n2\n3
+-- EKS-001: program bloğu içinde döngü
+
+program
+    numeric i = 1
+    while i <= 3
+        print(i)
+        i = i + 1
+    end while
+end_program

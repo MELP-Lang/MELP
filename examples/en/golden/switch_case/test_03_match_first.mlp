@@ -1,0 +1,11 @@
+-- TEST: Switch when matches first clause
+-- LANG: LANG-4
+-- Expected: bir
+
+numeric x = 1
+switch x
+    when 1 then print("bir")
+    when 2 then print("iki")
+    when 3 then print("uc")
+    else print("diger")
+end_switch

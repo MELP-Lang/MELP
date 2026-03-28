@@ -1,0 +1,14 @@
+-- MKLP_TEST: string_lit_eq_lit
+-- EXPECTED: yes
+-- FEATURE: STRING_EQ.md
+-- CATEGORY: bug
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+function main()
+  string a = "hello"
+  if a == "hello" then
+    print("yes")
+  else
+    print("no")
+  end if
+end function

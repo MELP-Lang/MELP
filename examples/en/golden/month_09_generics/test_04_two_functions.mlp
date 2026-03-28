@@ -1,0 +1,7 @@
+function identity<T>(T x) as T
+  return x
+end function
+
+function max_val<T>(T a; T b) as T
+  return a
+end function

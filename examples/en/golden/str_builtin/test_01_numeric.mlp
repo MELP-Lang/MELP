@@ -1,0 +1,7 @@
+-- Test: str() numeric integer
+-- FEATURE: STR_BUILTIN
+-- PHASE: Phase1-P02
+-- Expected: 42
+function main()
+  print(str(42))
+end function

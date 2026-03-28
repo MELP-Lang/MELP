@@ -1,0 +1,16 @@
+-- Guard with None variant
+-- Expected: 0
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+Option x = Option.None
+
+match x
+  case Some(v) if v > 100 -> print(200)
+  case Some(v) if v > 0 -> print(100)
+  case Some(v) -> print(50)
+  case None -> print(0)
+end match

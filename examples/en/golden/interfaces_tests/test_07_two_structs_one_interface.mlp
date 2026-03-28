@@ -1,0 +1,21 @@
+-- two structs same interface
+-- Expected: 0\n0
+interface Drawable
+    numeric function draw()
+end interface
+struct Circle implements Drawable
+    numeric radius
+end struct
+struct Square implements Drawable
+    numeric side
+end struct
+numeric function Circle.draw()
+    return this.radius
+end function
+numeric function Square.draw()
+    return this.side
+end function
+Circle c = Circle { radius: 5 }
+Square s = Square { side: 7 }
+print(c.draw())
+print(s.draw())

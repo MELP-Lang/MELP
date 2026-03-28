@@ -1,0 +1,7 @@
+-- GOLDEN TEST: String Interpolation Basic
+-- FEATURE: LANG-5 String Interpolation
+-- Expected: merhaba dunya
+function main()
+  var name = "dunya"
+  print("merhaba {name}")
+end function

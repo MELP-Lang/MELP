@@ -1,0 +1,19 @@
+-- test_02_module_multiple_functions.mlp
+-- PHASE: 2 (Module Namespace)
+-- EXPECTED: 7\n12
+-- EKS-012: Modül içinde birden fazla fonksiyon
+
+module Hesap
+    numeric function topla(numeric a; numeric b)
+        return a + b
+    end function
+
+    numeric function carp(numeric a; numeric b)
+        return a * b
+    end function
+end module
+
+function main()
+    print(Hesap.topla(3; 4))   -- 7
+    print(Hesap.carp(3; 4))    -- 12
+end function

@@ -1,0 +1,10 @@
+-- TEST: While loop countdown
+-- Expected: 0
+
+function main()
+    numeric i = 10
+    while i > 0
+        i = i - 1
+    end while
+    print(i)
+end function

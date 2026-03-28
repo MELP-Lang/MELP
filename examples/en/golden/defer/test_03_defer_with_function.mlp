@@ -1,0 +1,16 @@
+-- test_03_defer_with_function.mlp
+-- Test defer with function call
+-- Expected: function start\nfunction end\ncleanup called
+
+function cleanup() -> void
+  print("cleanup called")
+end function
+
+function test_function() -> numeric
+  print("function start")
+  defer cleanup()
+  print("function end")
+  return 0
+end function
+
+test_function()

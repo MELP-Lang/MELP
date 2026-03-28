@@ -1,0 +1,7 @@
+-- Test: str of negative number uses heap allocation correctly
+-- FEATURE: STR_HEAP
+-- PHASE: Phase2-STR-HEAP
+-- Expected: -7
+function main()
+  print(str(-7))
+end function

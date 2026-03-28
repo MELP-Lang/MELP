@@ -1,0 +1,14 @@
+-- GOLDEN_TEST: test_02_channel_basic
+-- FEATURE: STDLIB-ASYNC-2
+-- PHASE: Phase7
+
+function main()
+  numeric ch = channel_create()
+  spawn
+    send(ch; 99)
+  end_spawn
+  numeric val = receive(ch)
+  print(val)
+end function
+
+-- Expected: 99

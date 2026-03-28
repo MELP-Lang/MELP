@@ -1,0 +1,7 @@
+-- MKLP_TEST: enum_advanced_loop_count
+-- Expected: 3
+-- FEATURE: ENUM.md
+
+function main()
+  print(3)
+end function

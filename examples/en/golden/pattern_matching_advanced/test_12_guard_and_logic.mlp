@@ -1,0 +1,14 @@
+-- Guard with logical AND
+-- Expected: 15
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+Result r = Result.Ok(15)
+match r
+  case Ok(v) if v > 10 -> print(v)
+  case Ok(v) -> print(0)
+  case Err(e) -> print(-1)
+end match

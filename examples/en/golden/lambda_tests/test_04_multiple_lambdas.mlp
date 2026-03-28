@@ -1,0 +1,12 @@
+-- GOLDEN TEST: Multiple lambdas in same function
+-- Expected: 15
+-- Test: Use two lambdas
+
+function main()
+  numeric add = lambda(x; y) -> x + y
+  numeric mult = lambda(a; b) -> a * b
+  numeric sum = add(10; 5)
+  numeric result = mult(sum; 1)
+  print(result)
+  return sum
+end function

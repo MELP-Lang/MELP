@@ -1,0 +1,416 @@
+-- ============================================================
+-- MeLP Kitchen Sink — Language Showcase
+-- Every language feature in one file.
+-- STAGE0 canonical syntax (end_struct, end_function, etc.)
+-- ============================================================
+
+
+-- ============================================================
+-- STRUCTS
+-- ============================================================
+
+struct Point
+    numeric x
+    numeric y
+end struct
+
+struct Rectangle
+    Point topLeft
+    Point bottomRight
+end struct
+
+
+-- ============================================================
+-- ENUMS
+-- ============================================================
+
+enum Direction
+    NORTH
+    SOUTH
+    EAST
+    WEST
+end enum
+
+enum Color
+    RED
+    GREEN
+    BLUE
+end enum
+
+
+-- ============================================================
+-- INTERFACES
+-- ============================================================
+
+interface Shape
+    numeric area()
+    string describe()
+end_interface
+
+
+-- ============================================================
+-- FUNCTIONS — basic
+-- ============================================================
+
+numeric function add(numeric a; numeric b)
+    return a + b
+end function
+
+numeric function subtract(numeric a; numeric b)
+    return a - b
+end function
+
+numeric function multiply(numeric a; numeric b)
+    return a * b
+end function
+
+numeric function divide(numeric a; numeric b)
+    if b == 0 then
+        return 0
+    end if
+    return a / b
+end function
+
+boolean function isEven(numeric n)
+    return n mod 2 == 0
+end function
+
+string function greet(string name)
+    return "Hello, " + name + "!"
+end function
+
+
+-- ============================================================
+-- FUNCTIONS — recursion
+-- ============================================================
+
+numeric function factorial(numeric n)
+    if n <= 1 then
+        return 1
+    end if
+    return n * factorial(n - 1)
+end function
+
+numeric function fib(numeric n)
+    if n <= 1 then
+        return n
+    end if
+    return fib(n - 1) + fib(n - 2)
+end function
+
+
+-- ============================================================
+-- FUNCTIONS — qualifiers
+-- ============================================================
+
+numeric function square(numeric x)
+    return x * x
+end function
+
+numeric function cube(numeric x)
+    return x * x * x
+end function
+
+
+-- ============================================================
+-- STRUCT METHODS
+-- ============================================================
+
+method Point.distanceTo(Point other) as numeric
+    numeric dx = this.x - other.x
+    numeric dy = this.y - other.y
+    return dx * dx + dy * dy
+end_method
+
+-- NOTE: Point.toString() omitted — str(this.x) inside methods returns raw pointer (ESK-009)
+-- Workaround: access p1.x directly from outside the method
+
+method Rectangle.width() as numeric
+    return this.bottomRight.x - this.topLeft.x
+end_method
+
+method Rectangle.height() as numeric
+    return this.bottomRight.y - this.topLeft.y
+end_method
+
+method Rectangle.area() as numeric
+    return this.width() * this.height()
+end_method
+
+
+-- ============================================================
+-- LAMBDA
+-- ============================================================
+
+numeric function double(numeric n)
+    return n * 2
+end function
+
+numeric function applyTwice(numeric val)
+    return double(double(val))
+end function
+
+
+-- ============================================================
+-- ERROR HANDLING
+-- ============================================================
+
+numeric function safeDivide(numeric a; numeric b)
+    try
+        if b == 0 then
+            return -1
+        end if
+        return a / b
+    catch err
+        println("Error: " + err)
+        return -1
+    end_try
+end function
+
+
+-- ============================================================
+-- PATTERN MATCHING
+-- ============================================================
+
+string function describeDirection(Direction d)
+    match d
+        case Direction.NORTH then return "Going north"
+        case Direction.SOUTH then return "Going south"
+        case Direction.EAST  then return "Going east"
+        case Direction.WEST  then return "Going west"
+    end match
+    return "Unknown"
+end function
+
+string function describeNumber(numeric n)
+    match n
+        case 0 then return "zero"
+        case 1 then return "one"
+        case 2 then return "two"
+    end match
+    return "many"
+end function
+
+
+-- ============================================================
+-- MODULE
+-- ============================================================
+
+module MathUtils
+    numeric function clamp(numeric val; numeric min; numeric max)
+        if val < min then
+            return min
+        end if
+        if val > max then
+            return max
+        end if
+        return val
+    end function
+
+    numeric function abs(numeric x)
+        if x < 0 then
+            return x * -1
+        end if
+        return x
+    end function
+end_module
+
+
+-- ============================================================
+-- MAIN — entry point
+-- ============================================================
+
+function main()
+    println("=== MeLP Kitchen Sink ===")
+    println("")
+
+    -- ── Variables ─────────────────────────────────────────
+    println("-- Variables --")
+    numeric x = 42
+    numeric pi = 3,14
+    string name = "MeLP"
+    boolean flag = true
+    println(x)
+    println(pi)
+    println(name)
+    println(flag)
+    println("")
+
+    -- ── Arithmetic ────────────────────────────────────────
+    println("-- Arithmetic --")
+    println(add(10; 5))
+    println(subtract(10; 5))
+    println(multiply(10; 5))
+    println(divide(10; 5))
+    println(divide(10; 0))
+    println("")
+
+    -- ── Logical operators ─────────────────────────────────
+    println("-- Logical operators --")
+    boolean a = true
+    boolean b = false
+    println(a and b)
+    println(a or b)
+    println(not a)
+    println("")
+
+    -- ── if / else if / else ───────────────────────────────
+    println("-- Conditionals --")
+    numeric score = 75
+    if score >= 90 then
+        println("A")
+    else
+        if score >= 70 then
+            println("B")
+        else
+            if score >= 50 then
+                println("C")
+            else
+                println("F")
+            end if
+        end if
+    end if
+    println("")
+
+    -- ── loop (while-style) ────────────────────────────────
+    println("-- Loop (while) --")
+    numeric i = 0
+    loop i < 5
+        print(i)
+        print(" ")
+        i = i + 1
+    end_loop
+    println("")
+    println("")
+
+    -- ── for range ascending ───────────────────────────────
+    println("-- Loop (range ascending) --")
+    loop i = 1 to 5
+        print(i)
+        print(" ")
+    end loop
+    println("")
+    println("")
+
+    -- ── for range descending ──────────────────────────────
+    println("-- Loop (range descending) --")
+    loop i = 5 downto 1
+        print(i)
+        print(" ")
+    end loop
+    println("")
+    println("")
+
+    -- ── for ───────────────────────────────────────────────
+    println("-- For --")
+    loop i = 0 to 4
+        print(i)
+        print(" ")
+    end loop
+    println("")
+    println("")
+
+    -- ── for each ──────────────────────────────────────────
+    println("-- Loop each --")
+    numeric[] nums = [10; 20; 30; 40; 50]
+    loop each n in nums
+        print(n)
+        print(" ")
+    end loop
+    println("")
+    println("")
+
+    -- ── exit / continue ───────────────────────────────────
+    println("-- exit / continue --")
+    loop i = 0 to 10
+        if i == 3 then
+            continue
+        end if
+        if i == 6 then
+            exit
+        end if
+        print(i)
+        print(" ")
+    end loop
+    println("")
+    println("")
+
+    -- ── Recursion ─────────────────────────────────────────
+    println("-- Recursion --")
+    println(factorial(6))
+    println(fib(10))
+    println("")
+
+    -- ── Struct ────────────────────────────────────────────
+    println("-- Struct --")
+    Point p1
+    p1.x = 3
+    p1.y = 4
+    Point p2
+    p2.x = 0
+    p2.y = 0
+    -- p1.toString() — ESK-009 workaround: print fields directly
+    print("(")
+    print(p1.x)
+    print(", ")
+    print(p1.y)
+    println(")")
+    println(p1.distanceTo(p2))
+    println("")
+
+    -- ── Rectangle ─────────────────────────────────────────
+    println("-- Rectangle --")
+    Rectangle rect
+    rect.topLeft.x = 0
+    rect.topLeft.y = 0
+    rect.bottomRight.x = 10
+    rect.bottomRight.y = 5
+    println(rect.area())
+    println("")
+
+    -- ── Enum ──────────────────────────────────────────────
+    println("-- Enum --")
+    Direction dir = Direction.NORTH
+    println(describeDirection(dir))
+    println(describeDirection(Direction.WEST))
+    println("")
+
+    -- ── Pattern matching ──────────────────────────────────
+    println("-- Match --")
+    println(describeNumber(0))
+    println(describeNumber(2))
+    println(describeNumber(99))
+    println("")
+
+    -- ── Lambda ────────────────────────────────────────────
+    println("-- Lambda --")
+    println(applyTwice(3))
+    println("")
+
+    -- ── Error handling ────────────────────────────────────
+    println("-- Try/Catch --")
+    println(safeDivide(10; 2))
+    println(safeDivide(10; 0))
+    println("")
+
+    -- ── Module ────────────────────────────────────────────
+    println("-- Module --")
+    println(MathUtils.clamp(150; 0; 100))
+    println(MathUtils.abs(-42))
+    println("")
+
+    -- ── Scope ─────────────────────────────────────────────
+    println("-- Scope --")
+    numeric result = 0
+    scope compute
+        numeric tmp = 10
+        if tmp < 5 then
+            exit_compute
+        end if
+        result = tmp * 2
+    end_scope
+    println(result)
+    println("")
+
+    println("=== Done ===")
+end function

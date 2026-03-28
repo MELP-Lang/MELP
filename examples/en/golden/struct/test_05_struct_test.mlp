@@ -1,0 +1,9 @@
+-- test_05_struct_test.mlp
+-- Expected: 5
+
+struct Test05
+  numeric value
+end struct
+
+Test05 t = Test05 { value: 05; }
+print(t.value)

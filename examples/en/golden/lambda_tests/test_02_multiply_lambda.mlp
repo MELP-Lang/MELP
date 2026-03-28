@@ -1,0 +1,10 @@
+-- GOLDEN TEST: Lambda with multiple expressions
+-- Expected: 50
+-- Test: Lambda multiply operation
+
+function main()
+  numeric mult = lambda(x; y) -> x * y
+  numeric result = mult(10; 5)
+  print(result)
+  return result
+end function

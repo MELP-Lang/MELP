@@ -1,0 +1,7 @@
+-- TEST: Early Return on Error
+-- PHASE: 3.3 (Error Propagation)
+-- EXPECTED: 0
+
+function main()
+  print(0)
+end function

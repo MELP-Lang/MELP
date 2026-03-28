@@ -1,0 +1,18 @@
+-- TEST: Find References - Function Usage
+-- LSP Request: textDocument/references at line 1 (on 'add')
+-- Expected: References at lines 8 and 10 where add() is called
+-- Description: Find all places where function is called
+
+export function add(numeric x; numeric y) -> numeric
+  return x + y
+end function
+
+export function multiply(numeric a; numeric b) -> numeric
+  return a * b
+end function
+
+export function main()
+  numeric x = add(5; 3)  -- reference 1
+  numeric y = add(10; 20)  -- reference 2
+  return x + y
+end function

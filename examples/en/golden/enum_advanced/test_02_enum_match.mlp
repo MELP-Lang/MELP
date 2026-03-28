@@ -1,0 +1,20 @@
+-- MKLP_TEST: enum_advanced_match_basic
+-- Expected: circle
+-- FEATURE: ENUM.md
+-- CATEGORY: bug
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+enum Shape
+  Circle
+  Square
+  Triangle
+end enum
+
+function main()
+  numeric s = Shape.Circle
+  match s
+    case Shape.Circle then print("circle")
+    case Shape.Square then print("square")
+    else print("triangle")
+  end match
+end function

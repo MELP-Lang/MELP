@@ -1,0 +1,13 @@
+-- test_05_spawn_channel_sync.mlp
+-- PHASE: 2 (Async/Spawn)
+-- EXPECTED: 99
+-- EKS-017: Spawn + channel ile değer iletme
+
+function main()
+    numeric ch = channel_create()
+    spawn
+        send(ch; 99)
+    end_spawn
+    numeric val = receive(ch)
+    print(val)
+end function

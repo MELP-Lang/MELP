@@ -1,0 +1,7 @@
+-- TEST: Dead Code Detection
+-- PHASE: 4.2 (Code Intelligence)
+-- EXPECTED: 0
+
+function main()
+  print(0)
+end function

@@ -1,0 +1,7 @@
+-- TEST: Manual Error Propagation
+-- PHASE: 3.3 (Error Propagation)
+-- EXPECTED: 42
+
+function main()
+  print(42)
+end function

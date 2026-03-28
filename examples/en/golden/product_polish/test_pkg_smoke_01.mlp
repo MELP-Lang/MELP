@@ -1,0 +1,6 @@
+-- FEATURE: PRODUCT_POLISH
+-- TEST: Package manager smoke
+-- Expected: 50
+
+numeric sonuc = 50
+print(sonuc)

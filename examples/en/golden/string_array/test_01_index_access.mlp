@@ -1,0 +1,6 @@
+-- TEST: String Array Index Access
+-- LANG: LANG-2
+-- Expected: Ali
+
+string[] names = ["Ali"; "Veli"; "Ayse"]
+print(names[0])

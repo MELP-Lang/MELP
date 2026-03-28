@@ -1,0 +1,10 @@
+-- test_02_multiple_aliases.mlp
+-- Expected: 300
+-- Test: Multiple aliases in same file
+
+type Width = numeric
+type Height = numeric
+Width w = 10
+Height h = 30
+numeric area = w * h
+print(area)

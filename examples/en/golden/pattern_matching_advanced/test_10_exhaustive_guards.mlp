@@ -1,0 +1,14 @@
+-- Exhaustive match with guards
+-- Expected: 5
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+Result r = Result.Ok(5)
+match r
+  case Ok(v) if v > 10 -> print(20)
+  case Ok(v) -> print(v)
+  case Err(e) -> print(0)
+end match

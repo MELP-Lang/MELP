@@ -1,0 +1,20 @@
+-- GOLDEN_TEST: test_08_pad_str
+-- DESC: Test pad_left, pad_right, str() alias
+-- FEATURE: STDLIB-4-PAD, STDLIB-6-STR
+-- PHASE: Phase6
+
+string a = pad_left("hi"; 5; "0")
+string b = pad_right("hi"; 5; "0")
+string c = pad_left("hello"; 5; "0")
+string d = pad_right("hello"; 3; "0")
+print(a)
+print(b)
+print(c)
+print(d)
+
+string s1 = str(42)
+string s2 = str(0)
+print(s1)
+print(s2)
+
+-- Expected: 000hi\nhi000\nhello\nhello\n42\n0

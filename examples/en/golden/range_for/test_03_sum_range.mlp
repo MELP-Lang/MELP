@@ -1,0 +1,8 @@
+-- GOLDEN TEST: Range for - custom range with sum
+-- FEATURE: LANG-11 Range for i in a..b
+-- Expected: 18
+numeric total = 0
+for i in 3..7
+  total = total + i
+end for
+print(total)

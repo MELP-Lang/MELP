@@ -1,0 +1,13 @@
+-- MKLP_TEST: true_and_false_both
+-- Expected: true\nfalse
+false
+-- FEATURE: STRING_LITERAL_BOOL.md
+-- CATEGORY: bug
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+function main()
+  string a = "true"
+  string b = "false"
+  print(a)
+  print(b)
+end function

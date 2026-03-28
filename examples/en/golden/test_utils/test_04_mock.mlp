@@ -1,0 +1,9 @@
+-- test_04_mock.mlp
+-- Tests assert_true and assert_false builtins
+-- Expected output:
+-- 1
+-- 1
+
+print(__builtin_test_assert_true(1))
+print(__builtin_test_assert_false(0))
+-- Expected: 1\n1

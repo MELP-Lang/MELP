@@ -1,0 +1,9 @@
+-- TEST: Diagnostics - Undefined Variable
+-- LSP Request: textDocument/publishDiagnostics on save
+-- Expected: Warning "Variable 'foo' is not defined" at line 3
+-- Description: Report undefined variable usage
+
+function test()
+  numeric x = 10
+  return x + foo  -- foo is not defined, semantic error
+end function

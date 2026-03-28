@@ -1,0 +1,45 @@
+-- GÖREV 09: fonksiyonlar
+-- Fonksiyonlar: parametreli, dönüş değerli, özyinelemeli
+
+sayısal fonksiyon topla(sayısal x; sayısal y)
+    döndür x + y
+fonksiyon sonu
+
+mantıksal fonksiyon cift_mi(sayısal n)
+    sayısal kalan = n mod 2
+    koşul kalan == 0 ise
+        döndür doğru
+    yoksa
+        döndür yanlış
+    koşul sonu
+fonksiyon sonu
+
+sayısal fonksiyon faktoriyel(sayısal n)
+    koşul n <= 1 ise
+        döndür 1
+    yoksa
+        sayısal onceki = faktoriyel(n - 1)
+        döndür n * onceki
+    koşul sonu
+fonksiyon sonu
+
+fonksiyon mesaj_yazdir(metin msg)
+    yazdır(msg)
+fonksiyon sonu
+
+fonksiyon giriş()
+    -- Parametreli fonksiyon
+    sayısal sum = topla(10; 20)
+    yazdır(sum)
+
+    -- Mantıksal dönüş
+    mantıksal even = cift_mi(4)
+    yazdır(even)
+
+    -- Özyinelemeli fonksiyon (5! = 120)
+    sayısal fact = faktoriyel(5)
+    yazdır(fact)
+
+    -- Metin parametreli void fonksiyon
+    mesaj_yazdir("Function test")
+fonksiyon sonu

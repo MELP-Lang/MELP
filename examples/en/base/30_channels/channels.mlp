@@ -1,0 +1,17 @@
+-- FEATURE: CHANNELS - Producer-consumer mesaj geçişi
+-- NOT: Channel{T} syntax Stage0'da parse error (Phase 4+ runtime)
+-- Workaround: array ile mesaj kuyruğu simülasyonu
+
+-- Channel runtime Phase 4'te — şimdilik array tabanlı kuyruk
+function main()
+    -- Array ile basit mesaj kuyruğu simülasyonu
+    numeric[] queue = [10; 20; 30; 40; 50]
+
+    -- "Producer" — değerleri işle
+    numeric i = 0
+    loop i < 5
+        numeric msg = queue[i]
+        print(msg)
+        i = i + 1
+    end loop
+end function

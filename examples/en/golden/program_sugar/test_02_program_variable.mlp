@@ -1,0 +1,9 @@
+-- test_02_program_variable.mlp
+-- PHASE: 2 (Sugar Syntax)
+-- EXPECTED: 42
+-- EKS-001: program bloğu içinde değişken kullanımı
+
+program
+    numeric x = 42
+    print(x)
+end_program

@@ -1,0 +1,29 @@
+-- TEST: enum_loop_count
+-- EXPECTED: 3
+-- FEATURE: ENUM.md
+-- CATEGORY: bug
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+enum Color
+  RED
+  GREEN
+  BLUE
+end enum
+
+function main()
+  numeric count = 0
+  numeric r = Color.RED
+  numeric g = Color.GREEN
+  numeric b = Color.BLUE
+  if r == Color.RED then
+    count = count + 1
+  end if
+  if g == Color.GREEN then
+    count = count + 1
+  end if
+  if b == Color.BLUE then
+    count = count + 1
+  end if
+  print(count)
+  return 0
+end function

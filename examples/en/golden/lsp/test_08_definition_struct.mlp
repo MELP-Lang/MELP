@@ -1,0 +1,14 @@
+-- TEST: Go-to-Definition - Struct Type
+-- LSP Request: textDocument/definition at line 1 (on 'Point')
+-- Expected: Location at struct definition
+-- Description: Jump to struct type definition
+
+struct Point
+  numeric x
+  numeric y
+end struct
+
+function test()
+  Point p  -- cursor on 'Point', should jump to struct definition
+  return p
+end function

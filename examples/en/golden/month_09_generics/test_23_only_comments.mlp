@@ -1,0 +1,2 @@
+; this is not valid mlp but generics_compiler should handle it
+; no functions or structs here

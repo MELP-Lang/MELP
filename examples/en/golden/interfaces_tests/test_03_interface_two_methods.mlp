@@ -1,0 +1,19 @@
+-- interface with two methods
+-- Expected: 0\n0
+interface Dimensions
+    numeric function get_width()
+    numeric function get_height()
+end interface
+struct Canvas implements Dimensions
+    numeric width
+    numeric height
+end struct
+numeric function Canvas.get_width()
+    return this.width
+end function
+numeric function Canvas.get_height()
+    return this.height
+end function
+Canvas cv = Canvas { width: 5; height: 12 }
+print(cv.get_width())
+print(cv.get_height())

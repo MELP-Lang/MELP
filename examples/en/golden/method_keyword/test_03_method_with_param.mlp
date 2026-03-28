@@ -1,0 +1,19 @@
+-- test_03_method_with_param.mlp
+-- PHASE: 2 (Method Keyword)
+-- Expected: 0
+-- EKS-010: method keyword parametreli
+
+struct Sayac
+    numeric deger
+end struct
+
+method Sayac.ekle(numeric miktar) as numeric
+    this.deger = this.deger + miktar
+    return this.deger
+end_ekle
+
+function main()
+    Sayac s
+    s.deger = 10
+    print(s.ekle(5))   -- 15
+end function

@@ -1,0 +1,10 @@
+function main()
+  numeric x = 5
+
+  auto f = lambda(numeric y) -> numeric
+    return x + y
+  end_lambda
+
+  x = 20
+  return f(2)
+end function

@@ -1,0 +1,7 @@
+-- test_07_alias_bool_decl.mlp
+-- Expected: 1
+-- Test: Boolean alias declaration
+
+type IsActive = numeric
+IsActive active = 1
+print(active)

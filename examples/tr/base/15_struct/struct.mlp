@@ -1,0 +1,95 @@
+-- ÖZELLİK: YAPI - Veri yapıları
+-- GÖREV: Yapı tanımı, alan erişimi ve yapı metodlarını göster
+--
+-- Stage0 B4 kısıtlaması: str(p.x) — builtin arg olarak üye erişimi desteklenmiyor
+-- Geçici çözüm: print(alan) doğrudan kullanılabilir
+
+-- Basit yapı - Nokta
+yapı Nokta
+    sayısal x
+    sayısal y
+yapı sonu
+
+-- Basit yapı - Renk
+yapı Renk
+    sayısal r
+    sayısal g
+    sayısal b
+yapı sonu
+
+-- Yapı - Dikdörtgen
+yapı Dikdortgen
+    sayısal x
+    sayısal y
+    sayısal genislik
+    sayısal yukseklik
+yapı sonu
+
+-- Dikdörtgen metodu (dış tanım)
+-- Stage0 B4: this.a * this.b doğrudan kullanılamaz — yerel değişken gerekli
+sayısal fonksiyon Dikdortgen.alan()
+    sayısal w = bu.genislik
+    sayısal h = bu.yukseklik
+    döndür w * h
+fonksiyon sonu
+
+sayısal fonksiyon Dikdortgen.cevre()
+    sayısal w = bu.genislik
+    sayısal h = bu.yukseklik
+    döndür 2 * (w + h)
+fonksiyon sonu
+
+-- Ana fonksiyon
+fonksiyon giriş()
+    -- Test 1: Basit yapı - Nokta
+    Nokta p1
+    p1.x = 10
+    p1.y = 20
+    yazdır("Nokta p1:")
+    yazdır(p1.x)
+    yazdır(p1.y)
+
+    -- Test 2: Başka Nokta
+    Nokta p2
+    p2.x = 5
+    p2.y = 15
+    yazdır("Nokta p2:")
+    yazdır(p2.x)
+    yazdır(p2.y)
+
+    -- Test 3: Renk yapısı
+    Renk c1
+    c1.r = 255
+    c1.g = 128
+    c1.b = 64
+    yazdır("Renk c1:")
+    yazdır(c1.r)
+    yazdır(c1.g)
+    yazdır(c1.b)
+
+    -- Test 4: Dikdörtgen yapısı ile metodlar
+    Dikdortgen rect
+    rect.x = 0
+    rect.y = 0
+    rect.genislik = 100
+    rect.yukseklik = 50
+    sayısal area = rect.alan()
+    sayısal perim = rect.cevre()
+    yazdır("Dikdortgen alani:")
+    yazdır(area)
+    yazdır("Dikdortgen cevresi:")
+    yazdır(perim)
+
+    -- Test 5: İkinci dikdörtgen
+    Dikdortgen rect2
+    rect2.x = 10
+    rect2.y = 20
+    rect2.genislik = 30
+    rect2.yukseklik = 40
+    sayısal a2 = rect2.alan()
+    sayısal pe2 = rect2.cevre()
+    yazdır("Dikdortgen2 alani:")
+    yazdır(a2)
+    yazdır("Dikdortgen2 cevresi:")
+    yazdır(pe2)
+fonksiyon sonu

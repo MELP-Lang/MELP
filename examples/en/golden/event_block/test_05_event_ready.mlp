@@ -1,0 +1,12 @@
+-- Test: event inside program prints app name via program wrapper
+-- FEATURE: EVENT_BLOCK
+-- PHASE: Phase2-L01
+-- Expected: myapp
+program MyApp
+  event init()
+    print("myapp")
+  end_event
+  app_start()
+    init()
+  end_app
+end_program

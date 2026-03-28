@@ -1,0 +1,43 @@
+-- ÖZELLİK: ARAYÜZLER - Arayüz tanımı ve implementasyon
+-- NOT: Dinamik dispatch Stage0'da TODO — statik metod çağrısı çalışıyor
+
+arayüz Cizilir
+    sayısal fonksiyon ciz()
+arayüz sonu
+
+yapı Daire uygular Cizilir
+    sayısal yaricap
+yapı sonu
+
+yapı Dikdortgen uygular Cizilir
+    sayısal genislik
+    sayısal yukseklik
+yapı sonu
+
+sayısal fonksiyon Daire.ciz()
+    sayısal r = bu.yaricap
+    döndür r
+fonksiyon sonu
+
+sayısal fonksiyon Dikdortgen.ciz()
+    sayısal w = bu.genislik
+    döndür w
+fonksiyon sonu
+
+sayısal fonksiyon Dikdortgen.alan()
+    sayısal w = bu.genislik
+    sayısal h = bu.yukseklik
+    döndür w * h
+fonksiyon sonu
+
+fonksiyon giriş()
+    Daire c
+    c.yaricap = 5
+    yazdır(c.ciz())
+
+    Dikdortgen r
+    r.genislik = 10
+    r.yukseklik = 4
+    yazdır(r.ciz())
+    yazdır(r.alan())
+fonksiyon sonu

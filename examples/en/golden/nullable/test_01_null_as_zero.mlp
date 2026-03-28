@@ -1,0 +1,12 @@
+-- test_01_null_as_zero.mlp
+-- FEATURE: NULLABLE
+-- PHASE: Phase2-L05
+-- Expected: 5
+
+-- null = 0, none = 0 → aritmetik olarak kullanılabilir
+
+function main()
+    numeric x = none
+    numeric y = 5
+    print(x + y)
+end function

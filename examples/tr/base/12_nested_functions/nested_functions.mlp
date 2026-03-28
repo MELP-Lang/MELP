@@ -1,0 +1,47 @@
+-- ÖZELLİK: FONKSİYON_TANIMI - İç içe fonksiyon çağrıları
+-- GÖREV: Yardımcı fonksiyon + ana fonksiyon kalıbını göster
+
+-- Yardımcı fonksiyon: iki sayı toplar
+sayısal fonksiyon topla(sayısal x; sayısal y)
+    döndür x + y
+fonksiyon sonu
+
+-- Yardımcı fonksiyon: iki sayı çarpar
+sayısal fonksiyon carp(sayısal x; sayısal y)
+    döndür x * y
+fonksiyon sonu
+
+-- Yardımcı fonksiyon: diğer yardımcıları kullanır
+sayısal fonksiyon hesapla(sayısal a; sayısal b)
+    sayısal sum = topla(a; b)
+    sayısal product = carp(a; b)
+    döndür topla(sum; product)
+fonksiyon sonu
+
+-- Yardımcı fonksiyon: sayıyı metne çevirip yazdırır
+sayısal fonksiyon etiketle_yazdir(metin label; sayısal value)
+    metin msg = label + ": " + str(value)
+    yazdır(msg)
+    döndür 0
+fonksiyon sonu
+
+-- Ana fonksiyon yardımcıları çağırır
+fonksiyon giriş()
+    -- Test 1: Basit yardımcı çağrısı
+    sayısal r1 = topla(10; 5)
+    etiketle_yazdir("topla(10;5)"; r1)
+
+    -- Test 2: Başka yardımcı çağrısı
+    sayısal r2 = carp(3; 7)
+    etiketle_yazdir("carp(3;7)"; r2)
+
+    -- Test 3: İç içe yardımcı çağrıları (hesapla, topla ve carp kullanır)
+    sayısal r3 = hesapla(4; 5)
+    etiketle_yazdir("hesapla(4;5)"; r3)
+
+    -- Test 4: Zincirleme yardımcı çağrıları
+    sayısal step1 = topla(2; 3)
+    sayısal step2 = carp(step1; 4)
+    sayısal step3 = topla(step2; 10)
+    etiketle_yazdir("zincir"; step3)
+fonksiyon sonu

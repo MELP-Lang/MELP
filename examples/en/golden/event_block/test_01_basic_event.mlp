@@ -1,0 +1,10 @@
+-- Test: basic event block called from app_start
+-- FEATURE: EVENT_BLOCK
+-- PHASE: Phase2-L01
+-- Expected: hello
+event greet()
+  print("hello")
+end_event
+app_start()
+  greet()
+end_app

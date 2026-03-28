@@ -1,0 +1,14 @@
+function transform<T; U>(T val) as U
+  return val
+end function
+
+struct Wrapper<T>
+  T data
+  numeric count
+end struct
+
+function identity<T>(T x) as T
+  return x
+end function
+
+identity<numeric>(99)

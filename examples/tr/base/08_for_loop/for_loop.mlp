@@ -1,0 +1,27 @@
+-- GÖREV 08: for_dongusu
+-- For döngüsü: dan, geriye, adım
+
+fonksiyon giriş()
+    -- Artan döngü (dan ... kadar)
+    döngü i = 1 dan 5
+        yazdır(i)
+    döngü sonu
+
+    -- Azalan döngü (geriye)
+    döngü j = 5 dan 1 geriye
+        yazdır(j)
+    döngü sonu
+
+    -- Adımlı (10'şer artış)
+    döngü k = 0 dan 50 adım 10
+        yazdır(k)
+    döngü sonu
+
+    -- İç içe döngüler
+    döngü x = 1 dan 3
+        döngü y = 1 dan 2
+            yazdır(x)
+            yazdır(y)
+        döngü sonu
+    döngü sonu
+fonksiyon sonu

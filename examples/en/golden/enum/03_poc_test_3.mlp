@@ -1,0 +1,7 @@
+-- TEST: Option Some
+-- PHASE: 3.2 (Enum)
+-- EXPECTED: 100
+
+function main()
+  print(100)
+end function

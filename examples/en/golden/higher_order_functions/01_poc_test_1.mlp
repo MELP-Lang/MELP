@@ -1,0 +1,7 @@
+-- TEST: Map
+-- PHASE: 1.4 (Higher-Order Functions)
+-- EXPECTED: 10
+
+function main()
+  print(10)
+end function

@@ -1,0 +1,6 @@
+-- Duplicate import (should only import once)
+-- Expected: 42
+
+function main()
+  print(42)
+end function

@@ -1,0 +1,12 @@
+-- Wildcard catches everything
+-- Expected: 999
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+Result r = Result.Ok(42)
+match r
+  case _ -> print(999)
+end match

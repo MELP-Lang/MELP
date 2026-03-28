@@ -1,0 +1,28 @@
+-- test_04_hof_composition.mlp
+-- Expected output:
+-- 90
+
+-- Create array [1, 2, 3, 4, 5, 6, 7, 8]
+numeric arr = __builtin_array_create()
+__builtin_array_push(arr; 1)
+__builtin_array_push(arr; 2)
+__builtin_array_push(arr; 3)
+__builtin_array_push(arr; 4)
+__builtin_array_push(arr; 5)
+__builtin_array_push(arr; 6)
+__builtin_array_push(arr; 7)
+__builtin_array_push(arr; 8)
+
+-- Step 1: Map - multiply each by 3 → [3,6,9,12,15,18,21,24]
+numeric triple_fn = lambda(x) -> x * 3
+numeric tripled = __builtin_array_map(arr; triple_fn)
+
+-- Step 2: Filter - keep x > 10 → [12,15,18,21,24]
+numeric gt10_fn = lambda(x) -> x > 10
+numeric filtered = __builtin_array_filter(tripled; gt10_fn)
+
+-- Step 3: Reduce - sum → 12+15+18+21+24 = 90
+numeric sum_fn = lambda(acc; x) -> acc + x
+numeric result = __builtin_array_reduce(filtered; sum_fn; 0)
+print(result)
+-- Expected: 90

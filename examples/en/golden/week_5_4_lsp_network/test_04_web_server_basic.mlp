@@ -1,0 +1,5 @@
+-- test_04_web_server_basic.mlp
+-- Expected: 3000
+
+numeric server_port = 3000
+print(server_port)

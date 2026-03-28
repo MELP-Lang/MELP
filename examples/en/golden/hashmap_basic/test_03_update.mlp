@@ -1,0 +1,11 @@
+-- COLL-1: Hashmap update (overwrite existing key)
+
+function main()
+    hashmap<numeric; numeric> scores = {}
+    hashmap_set(scores; 42; 100)
+    print(hashmap_get(scores; 42))
+    hashmap_set(scores; 42; 999)
+    print(hashmap_get(scores; 42))
+    print(hashmap_size(scores))
+end function
+-- Expected: 100\n999\n1

@@ -1,0 +1,16 @@
+-- Exhaustive match with simple enum (no payload)
+-- Expected: 2
+
+enum Color
+  Red
+  Green
+  Blue
+end enum
+
+Color c = Color.Green
+
+match c
+  case Red -> print(1)
+  case Green -> print(2)
+  case Blue -> print(3)
+end match

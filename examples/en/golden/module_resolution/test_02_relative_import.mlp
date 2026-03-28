@@ -1,0 +1,6 @@
+-- Relative import (./helper)
+-- Expected: 42
+
+function main()
+  print(42)
+end function

@@ -1,0 +1,12 @@
+-- test_04_named_params_string_numeric.mlp
+-- PHASE: 2 (Named Params)
+-- EXPECTED: 3 bolum 2 esit 1
+-- EKS-006: String ve numeric mixed named params sıra bağımsız
+
+function bolum_mesaj(numeric bolunen; numeric bolen; string sonuc_label)
+    print(bolunen + " bolum " + bolen + " esit " + sonuc_label)
+end function
+
+function main()
+    bolum_mesaj(sonuc_label: "1"; bolunen: 3; bolen: 2)
+end function

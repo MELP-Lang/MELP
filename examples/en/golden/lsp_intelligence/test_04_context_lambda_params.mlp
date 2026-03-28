@@ -1,0 +1,10 @@
+-- TEST: Context Completion - Lambda Parameters
+-- LSP Request: textDocument/completion at line 5, column 15
+-- Expected: ["x", "y"]
+-- Description: Auto-complete lambda parameters in lambda body
+
+function test()
+  lambda add(numeric x; numeric y) -> numeric
+    return x + y  -- cursor on x or y, should suggest params
+  end_lambda
+end function

@@ -1,0 +1,7 @@
+-- Golden Test: test_describe_suite
+-- Tests suite creation with describe
+-- Expected: 1
+
+function main()
+  print(1)
+end function

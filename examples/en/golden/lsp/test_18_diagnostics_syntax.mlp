@@ -1,0 +1,10 @@
+-- TEST: Diagnostics - Syntax Error
+-- LSP Request: textDocument/publishDiagnostics on save
+-- Expected: Error "Unexpected token" at line 3
+-- Description: Report syntax errors
+
+function test()
+  numeric x = 10
+  x = x +  -- incomplete expression, syntax error
+  return x
+end function

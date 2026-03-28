@@ -1,0 +1,15 @@
+-- COLL-2: array_filter with named predicate function
+
+numeric function is_even(numeric x)
+    return x - x / 2 * 2 == 0
+end function
+
+function main()
+    numeric[] nums = [1; 2; 3; 4; 5; 6]
+    numeric[] evens = array_filter(nums; is_even)
+    print(__builtin_array_length(evens))
+    print(__builtin_array_get(evens; 0))
+    print(__builtin_array_get(evens; 1))
+    print(__builtin_array_get(evens; 2))
+end function
+-- Expected: 3\n2\n4\n6

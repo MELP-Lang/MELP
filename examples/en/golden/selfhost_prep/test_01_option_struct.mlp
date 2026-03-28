@@ -1,0 +1,11 @@
+// Test: Option<T> as struct (no pattern matching required)
+// Expected: 1
+import stdlib/option_simple
+
+var opt = Some_numeric(42)
+
+if is_some_numeric(opt) then
+    print(1)
+else
+    print(0)
+end if

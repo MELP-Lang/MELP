@@ -1,0 +1,36 @@
+-- MeLP Türkçe örnek: Merhaba Dünya
+-- Ayar: "mlp.language": "tr"  (VS Code Ayarlar)
+
+fonksiyon selamla(metin isim)
+    yaz("Merhaba, " + isim + "!")
+fonksiyon sonu
+
+sayısal fonksiyon topla(sayısal a; sayısal b)
+    döndür a + b
+fonksiyon sonu
+
+fonksiyon giriş()
+    -- Basit selamlama
+    selamla("Dünya")
+
+    -- Koşul örneği
+    sayısal puan = 85
+    koşul puan >= 90 ise
+        yaz("Pekiyi")
+    değilse koşul puan >= 70 ise
+        yaz("İyi")
+    yoksa
+        yaz("Geçer")
+    koşul sonu
+
+    -- Döngü örneği
+    sayısal i = 1
+    döngü i <= 5
+        yaz("Adım: " + str(i))
+        i = i + 1
+    döngü sonu
+
+    -- Toplama
+    sayısal sonuç = topla(3; 7)
+    yaz("3 + 7 = " + str(sonuç))
+fonksiyon sonu

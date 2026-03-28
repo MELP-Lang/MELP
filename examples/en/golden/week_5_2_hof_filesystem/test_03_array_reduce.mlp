@@ -1,0 +1,22 @@
+-- test_03_array_reduce.mlp
+-- Expected output:
+-- 100
+-- 240000
+
+-- Create array [10, 20, 30, 40]
+numeric arr = __builtin_array_create()
+__builtin_array_push(arr; 10)
+__builtin_array_push(arr; 20)
+__builtin_array_push(arr; 30)
+__builtin_array_push(arr; 40)
+
+-- Reduce: sum (10+20+30+40 = 100)
+numeric sum_fn = lambda(acc; x) -> acc + x
+numeric total = __builtin_array_reduce(arr; sum_fn; 0)
+print(total)
+
+-- Reduce: product (10*20*30*40 = 240000)
+numeric mul_fn = lambda(acc; x) -> acc * x
+numeric product = __builtin_array_reduce(arr; mul_fn; 1)
+print(product)
+-- Expected: 100\n240000

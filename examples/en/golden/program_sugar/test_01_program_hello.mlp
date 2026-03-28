@@ -1,0 +1,8 @@
+-- test_01_program_hello.mlp
+-- PHASE: 2 (Sugar Syntax)
+-- EXPECTED: Merhaba, MELP!
+-- EKS-001: program/end_program sugar syntax
+
+program
+    print("Merhaba, MELP!")
+end_program

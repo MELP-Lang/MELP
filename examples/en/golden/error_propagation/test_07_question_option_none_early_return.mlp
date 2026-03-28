@@ -1,0 +1,15 @@
+-- test_07_question_option_none_early_return.mlp
+-- Expected: -1
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+numeric function process()
+  Option o = Option.None
+  numeric v = o?
+  return v + 100
+end function
+
+print(process())

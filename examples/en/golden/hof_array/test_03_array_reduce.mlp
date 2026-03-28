@@ -1,0 +1,19 @@
+-- COLL-2: array_reduce with named accumulator function
+
+numeric function add(numeric a; numeric b)
+    return a + b
+end function
+
+numeric function mul(numeric a; numeric b)
+    return a * b
+end function
+
+function main()
+    numeric[] nums = [1; 2; 3; 4; 5]
+    numeric total = array_reduce(nums; add; 0)
+    print(total)
+    numeric[] small = [2; 3; 4]
+    numeric product = array_reduce(small; mul; 1)
+    print(product)
+end function
+-- Expected: 15\n24

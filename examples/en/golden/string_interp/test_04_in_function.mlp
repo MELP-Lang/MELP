@@ -1,0 +1,10 @@
+-- GOLDEN TEST: String Interpolation in Function
+-- FEATURE: LANG-5 String Interpolation — function param
+-- Expected: hello world
+none function greet(subject as string)
+  print("hello {subject}")
+end function
+
+function main()
+  greet("world")
+end function

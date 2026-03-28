@@ -1,0 +1,11 @@
+-- test_05_statistics.mlp
+-- Tests test statistics: total, passed, failed counts
+-- Expected output:
+-- 0
+-- 0
+-- 0
+
+print(__builtin_test_get_total())
+print(__builtin_test_get_passed())
+print(__builtin_test_get_failed())
+-- Expected: 0\n0\n0

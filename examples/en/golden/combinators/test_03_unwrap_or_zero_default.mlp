@@ -1,0 +1,11 @@
+-- unwrap_or with zero default
+-- Expected: 5
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+Option opt = Option.Some(5)
+numeric val = opt.unwrap_or(0)
+print(val)

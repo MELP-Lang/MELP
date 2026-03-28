@@ -1,0 +1,18 @@
+-- TEST: Find References - Struct Type
+-- LSP Request: textDocument/references at line 1 (on 'Point')
+-- Expected: References at lines 6 and 10
+-- Description: Find all uses of a type
+
+struct Point
+  numeric x
+  numeric y
+end struct
+
+function create() -> Point
+  Point p
+  p.x = 0
+  p.y = 0
+
+  Point q  -- reference
+  return p
+end function

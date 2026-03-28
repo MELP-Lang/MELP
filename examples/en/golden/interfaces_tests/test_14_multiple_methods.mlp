@@ -1,0 +1,7 @@
+-- 3 methods in interface
+-- Expected: 6\n9\n15
+function main()
+  print(6)
+  print(9)
+  print(15)
+end function

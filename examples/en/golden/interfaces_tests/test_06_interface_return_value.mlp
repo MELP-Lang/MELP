@@ -1,0 +1,13 @@
+-- method returns constant
+-- Expected: 7
+interface Constant
+    numeric function get()
+end interface
+struct Seven implements Constant
+    numeric x
+end struct
+numeric function Seven.get()
+    return 7
+end function
+Seven s = Seven { x: 0 }
+print(s.get())

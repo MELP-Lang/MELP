@@ -1,0 +1,11 @@
+-- Golden Test: test_assert_eq_numeric
+-- Tests numeric equality assertion
+-- Expected output:
+-- 1
+-- 0
+-- 1
+
+print(__builtin_test_assert_eq_numeric(5; 5))
+print(__builtin_test_assert_eq_numeric(3; 7))
+print(__builtin_test_assert_eq_numeric(0; 0))
+-- Expected: 1\n0\n1

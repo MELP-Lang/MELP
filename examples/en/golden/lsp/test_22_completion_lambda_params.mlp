@@ -1,0 +1,14 @@
+-- TEST: Completion - Lambda Parameters
+-- LSP Request: textDocument/completion at line 7, column 8
+-- Expected: Lambda parameters "x", "y" and functions
+-- Description: Complete parameter names inside lambda bodies
+
+export function processNumbers()
+  lambda add(numeric x; numeric y) -> numeric
+    return x + y  -- cursor here, should suggest x, y parameters
+  end_lambda
+  
+  numeric a = 5
+  numeric b = 10
+  return add(a; b)
+end function

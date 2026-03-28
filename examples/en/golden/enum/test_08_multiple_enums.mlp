@@ -1,0 +1,22 @@
+-- TEST: Multiple enum declarations
+-- PHASE: 3.2 (Enum)
+-- EXPECTED: 1
+
+enum Color
+  Red
+  Green
+  Blue
+end enum
+
+enum Size  
+  Small
+  Medium
+  Large
+end enum
+
+numeric function main()
+  numeric c = Color.Red
+  numeric s = Size.Large
+  print(1)
+  return 0
+end function

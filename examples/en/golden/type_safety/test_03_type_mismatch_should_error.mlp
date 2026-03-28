@@ -1,0 +1,10 @@
+-- test_03_type_mismatch_should_error.mlp
+-- PHASE: 1 (Type Safety)
+-- EXPECTED: COMPILE_ERROR: Type mismatch — numeric değişkene string atanamaz
+-- EKS-002: Negatif test — numeric değişkene string atama → compile error
+
+function main()
+    numeric x = 10
+    x = "hello"     -- ❌ BU SATIR COMPILE ERROR VERMELİ
+    print(x)
+end function

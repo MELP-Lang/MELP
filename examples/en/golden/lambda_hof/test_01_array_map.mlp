@@ -1,0 +1,9 @@
+-- TEST: Lambda HOF array_map doubles values
+-- LANG: LANG-1
+-- Expected: 2\n4\n6
+
+numeric[] nums = [1; 2; 3]
+numeric[] doubled = array_map(nums; lambda(x) -> x * 2)
+for each n in doubled
+    print(n)
+end for

@@ -1,0 +1,7 @@
+-- Multiple imports from different paths
+-- Expected: 84
+-- Expected: 100
+
+function main()
+  print(84)
+end function

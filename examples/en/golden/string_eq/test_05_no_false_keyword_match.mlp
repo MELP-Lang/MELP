@@ -1,0 +1,15 @@
+-- MKLP_TEST: string_no_false_keyword_match
+-- EXPECTED: ok
+-- FEATURE: STRING_EQ.md
+-- CATEGORY: bug
+-- ADDED_BY: YZ  DATE: 2026-03-05
+-- NOTE: "sonuc" should NOT equal "end function" — word boundary / content test.
+
+function main()
+  string s = "sonuc"
+  if s == "end function" then
+    print("bad")
+  else
+    print("ok")
+  end if
+end function

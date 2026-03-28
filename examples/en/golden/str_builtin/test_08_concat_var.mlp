@@ -1,0 +1,8 @@
+-- Test: str() ile değişken + string birleştirme (feature card birincil kalıp)
+-- FEATURE: STR_BUILTIN
+-- PHASE: Phase1-P02
+-- Expected: Deger: 42
+function main()
+  numeric x = 42
+  print("Deger: " + str(x))
+end function

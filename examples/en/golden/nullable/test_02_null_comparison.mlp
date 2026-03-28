@@ -1,0 +1,15 @@
+-- test_02_null_comparison.mlp
+-- FEATURE: NULLABLE
+-- PHASE: Phase2-L05
+-- Expected: 1
+
+-- null == 0: n = 0 ise null ile eşit
+
+function main()
+    numeric n = 0
+    if n == null then
+        print(1)
+    else
+        print(0)
+    end if
+end function

@@ -1,0 +1,10 @@
+-- test_14_alias_nested_expressions.mlp
+-- Expected: 56
+-- Test: Alias variables in nested arithmetic expressions
+
+type A = numeric
+type B = numeric
+A x = 7
+B y = 8
+numeric result = x * y
+print(result)

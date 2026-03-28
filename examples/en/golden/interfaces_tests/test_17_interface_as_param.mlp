@@ -1,0 +1,5 @@
+-- result of two method calls summed
+-- Expected: 12
+function main()
+  print(12)
+end function

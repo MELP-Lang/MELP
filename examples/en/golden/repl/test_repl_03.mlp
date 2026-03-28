@@ -1,0 +1,13 @@
+-- TEST: Recursive factorial function
+-- Expected: 120
+
+numeric function factorial(numeric n)
+    if n <= 1 then
+        return 1
+    end if
+    return n * factorial(n - 1)
+end function
+
+function main()
+    print(factorial(5))
+end function

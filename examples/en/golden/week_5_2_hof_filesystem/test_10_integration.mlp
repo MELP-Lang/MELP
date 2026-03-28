@@ -1,0 +1,36 @@
+-- test_10_integration.mlp
+-- Full integration: HOF pipeline + filesystem operations
+-- Expected output:
+-- 80
+-- 10
+-- 1
+
+-- HOF pipeline: array [1, 2, 4, 8]
+numeric arr = __builtin_array_create()
+__builtin_array_push(arr; 1)
+__builtin_array_push(arr; 2)
+__builtin_array_push(arr; 4)
+__builtin_array_push(arr; 8)
+
+-- Map: square each (x*x) → [1, 4, 16, 64]
+numeric square_fn = lambda(x) -> x * x
+numeric squared = __builtin_array_map(arr; square_fn)
+
+-- Filter: keep elements > 5 → [16, 64]
+numeric gt5_fn = lambda(x) -> x > 5
+numeric large = __builtin_array_filter(squared; gt5_fn)
+
+-- Reduce: sum → 16+64 = 80
+numeric sum_fn = lambda(acc; x) -> acc + x
+numeric result = __builtin_array_reduce(large; sum_fn; 0)
+print(result)
+
+-- Filesystem: write a known result marker to file
+-- "result-ok!" = 10 bytes
+__builtin_fs_write_string("/tmp/mlp_w52_integration.txt"; "result-ok!")
+print(__builtin_fs_file_size("/tmp/mlp_w52_integration.txt"))
+print(__builtin_fs_is_file("/tmp/mlp_w52_integration.txt"))
+
+-- Cleanup
+__builtin_fs_remove("/tmp/mlp_w52_integration.txt")
+-- Expected: 80\n10\n1

@@ -1,0 +1,7 @@
+-- Golden Test: fs_exists - Check if path exists
+-- Expected output: 1
+-- fs_exists returns 1 for existing paths, 0 for non-existing
+
+numeric result = __builtin_fs_exists("/tmp")
+print(result)
+-- Expected: 1

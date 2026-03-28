@@ -1,0 +1,6 @@
+-- Test: string concat stored and printed
+-- Expected: foobar
+string x = "foo"
+string y = "bar"
+string result = x + y
+print(result)

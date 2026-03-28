@@ -1,0 +1,7 @@
+-- test_10_alias_comparison.mlp
+-- Expected: 25
+-- Test: Alias variable used in arithmetic expression  
+
+type Age = numeric
+Age a = 25
+print(a)

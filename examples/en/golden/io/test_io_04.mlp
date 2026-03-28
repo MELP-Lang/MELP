@@ -1,0 +1,7 @@
+-- TEST: read_file reads existing file content
+-- Expected: ok
+
+function main()
+    string content = read_file("MELP_ILKELER.md")
+    print("ok")
+end function

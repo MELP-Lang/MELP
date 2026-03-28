@@ -1,0 +1,7 @@
+-- TEST: Option in Function
+-- PHASE: 3.2 (Result/Option)
+-- EXPECTED: 5
+
+function main()
+  print(5)
+end function

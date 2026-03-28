@@ -1,0 +1,207 @@
+{
+  "schema_version": "1.0.0",
+  "meta": {
+    "name": "Türkçe",
+    "lang_id": "turkish",
+    "code": "tr",
+    "enabled": true
+  },
+  "keywords": {
+    "if": "koşul",
+    "then": "ise",
+    "else": "yoksa",
+    "else if": "değilse koşul",
+    "end if": "koşul sonu",
+    "loop": "döngü",
+    "end loop": "döngü sonu",
+    "end for": "her sonu",
+    "to": "kadar",
+    "downto": "geriye",
+    "step": "adım",
+    "each": "her",
+    "in": "içinde",
+    "from": "den",
+    "where": "sadece",
+    "exit": "çık",
+    "continue": "devam",
+    "return": "döndür",
+    "function": "fonksiyon",
+    "end function": "fonksiyon sonu",
+    "lambda": "lambda",
+    "end lambda": "lambda sonu",
+    "const": "sabit",
+    "comptime": "derleme_zamanı",
+    "pure": "saf",
+    "inline": "satıriçi",
+    "numeric": "sayısal",
+    "string": "metin",
+    "boolean": "mantıksal",
+    "true": "doğru",
+    "false": "yanlış",
+    "null": "boş",
+    "none": "hiçbir",
+    "list": "liste",
+    "struct": "yapı",
+    "end struct": "yapı sonu",
+    "enum": "sıralama",
+    "end enum": "sıralama sonu",
+    "interface": "arayüz",
+    "end interface": "arayüz sonu",
+    "implement": "uygula",
+    "end implement": "uygula sonu",
+    "implements": "uygular",
+    "this": "bu",
+    "method": "yöntem",
+    "end method": "yöntem sonu",
+    "operator": "işleç",
+    "end operator": "işleç sonu",
+    "match": "seç",
+    "end match": "seç sonu",
+    "case": "durum",
+    "try": "dene",
+    "end try": "dene sonu",
+    "catch": "hata yakala",
+    "finally": "sonunda",
+    "throw": "fırlat",
+    "module": "modül",
+    "end module": "modül sonu",
+    "import": "içe_aktar",
+    "export": "dışa_aktar",
+    "async": "eşzamansız",
+    "await": "bekle",
+    "spawn": "başlat",
+    "end spawn": "başlat sonu",
+    "event": "olay",
+    "end event": "olay sonu",
+    "scope": "kapsam",
+    "end scope": "kapsam sonu",
+    "test": "test",
+    "end test": "test sonu",
+    "debug": "hata_ayıkla",
+    "end debug": "hata_ayıkla sonu",
+    "and": "ve",
+    "or": "veya",
+    "not": "değil",
+    "own": "sahip",
+    "mut": "değiş",
+    "external": "dışsal",
+    "print": "yaz",
+    "println": "satıryaz",
+    "typeof": "türü",
+    "range": "aralık",
+    "mod": "mod",
+    "goto": "git",
+    "pause": "dur",
+    "Result": "Sonuç",
+    "Future": "Gelecek",
+    "main": "giriş",
+    "package": "paket",
+    "switch": "seç",
+    "end switch": "seç sonu",
+    "end program": "program sonu"
+  },
+  "aliases_flat": {
+    "hata yakala": "catch",
+    "değilse koşul": "else if",
+    "yoksa koşul": "else if",
+    "eğer sonu": "end if",
+    "işlev sonu": "end function",
+    "eşleş sonu": "end match",
+    "fonksiyon_sonu": "end_function",
+    "işlev_sonu": "end_function",
+    "döngü_sonu": "end_loop",
+    "koşul_sonu": "end_if",
+    "eğer_sonu": "end_if",
+    "yapı_sonu": "end_struct",
+    "sınıf_sonu": "end_class",
+    "seç_sonu": "end_match",
+    "eşleş_sonu": "end_match",
+    "sıralama_sonu": "end_enum",
+    "numaralandırma_sonu": "end_enum",
+    "sayım_sonu": "end_enum",
+    "arayüz_sonu": "end_interface",
+    "modül_sonu": "end_module",
+    "dene_sonu": "end_try",
+    "kapsam_sonu": "end_scope",
+    "lambda_sonu": "end_lambda",
+    "test_sonu": "end_test",
+    "hata_ayıklama_sonu": "end_debug",
+    "eğer": "if",
+    "değilse": "else",
+    "işlev": "function",
+    "dön": "return",
+    "hiç": "null",
+    "sayı": "numeric",
+    "yazı": "string",
+    "eşleş": "match",
+    "yazdır": "print",
+    "ana": "main",
+    "olarak": "as",
+    "sonra": "then"
+  },
+  "aliases": {
+    "if": [
+      "eğer"
+    ],
+    "else": [
+      "değilse"
+    ],
+    "else if": [
+      "yoksa koşul"
+    ],
+    "end if": [
+      "eğer sonu"
+    ],
+    "function": [
+      "işlev"
+    ],
+    "end function": [
+      "işlev sonu"
+    ],
+    "return": [
+      "dön"
+    ],
+    "null": [
+      "hiç"
+    ],
+    "numeric": [
+      "sayı"
+    ],
+    "string": [
+      "yazı"
+    ],
+    "match": [
+      "eşleş"
+    ],
+    "end match": [
+      "eşleş sonu"
+    ],
+    "print": [
+      "yazdır"
+    ],
+    "catch": [
+      "hata yakala"
+    ],
+    "switch": [
+      "seç"
+    ],
+    "end switch": [
+      "seç sonu"
+    ],
+    "main": [
+      "ana"
+    ],
+    "not": [
+      "değil"
+    ]
+  },
+  "special_transforms": {
+    "postfix_not": "değil",
+    "_postfix_not_rule": "POSTFIX ZORUNLU — 'X değil' DOGRU, 'değil X' YASAK. Ornek: 'not t' → 't değil'",
+    "postfix_return": "döndür",
+    "range_to": "dan ... kadar",
+    "range_downto": "dan ... geriye",
+    "foreach": "döngü her ... içinde ...",
+    "catch_error": "hata yakala"
+  }
+}

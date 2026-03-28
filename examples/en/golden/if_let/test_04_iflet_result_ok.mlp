@@ -1,0 +1,13 @@
+-- test_04_iflet_result_ok.mlp
+-- Expected: 10
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+Result r = Result.Ok(10)
+
+if let Ok(v) = r then
+  print(v)
+end if

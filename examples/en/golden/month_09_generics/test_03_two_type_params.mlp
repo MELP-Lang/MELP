@@ -1,0 +1,3 @@
+function transform<T; U>(T val) as U
+  return val
+end function

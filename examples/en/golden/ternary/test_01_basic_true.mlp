@@ -1,0 +1,5 @@
+-- GOLDEN TEST: Ternary Operator - true branch
+-- FEATURE: LANG-7 Ternary ? :
+-- Expected: 1
+var result = 5 > 3 ? 1 : 0
+print(result)

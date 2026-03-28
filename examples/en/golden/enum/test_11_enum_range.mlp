@@ -1,0 +1,17 @@
+-- TEST: Enum variant indexing
+-- PHASE: 3.2 (Enum)
+-- EXPECTED: 1
+
+enum Priority
+  Low
+  Medium
+  High
+  Critical
+end enum
+
+none function main()
+  numeric p = Priority.High
+  if p == 2 then
+    print(1)
+  end if
+end function

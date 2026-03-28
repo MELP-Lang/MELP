@@ -1,0 +1,14 @@
+-- TEST: Context Completion - Struct Members
+-- LSP Request: textDocument/completion at line 7, column 3
+-- Expected: ["x", "y"]
+-- Description: Auto-complete struct members after dot notation
+
+struct Point
+  numeric x
+  numeric y
+end struct
+
+function test()
+  Point p
+  p.  -- cursor here, should suggest x, y
+end function

@@ -1,0 +1,12 @@
+-- GOLDEN_TEST: test_03_environment
+-- DESC: Test environment variable access
+-- EXPECTED_OUTPUT: 1
+
+-- Get HOME environment variable and check if not null
+-- Functions return pointers, just test that they work
+
+-- Set a test env var (returns success code)
+numeric set_result = __builtin_cli_set_env("MELP_TEST"; "hello")
+print(set_result)
+
+-- Expected: 1

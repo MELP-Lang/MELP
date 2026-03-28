@@ -1,0 +1,14 @@
+-- TEST: Enum with single variant
+-- PHASE: 3.2 (Enum)
+-- EXPECTED: 1
+
+enum Singleton
+  Only
+end enum
+
+none function main()
+  numeric s = Singleton.Only
+  if s == 0 then
+    print(1)
+  end if
+end function

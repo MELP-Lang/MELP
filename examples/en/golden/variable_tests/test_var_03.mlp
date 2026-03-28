@@ -1,0 +1,7 @@
+-- TEST: Zero value variable
+-- Expected: 0
+
+function main()
+    numeric zero = 0
+    print(zero)
+end function

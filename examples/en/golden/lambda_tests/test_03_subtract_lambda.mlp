@@ -1,0 +1,10 @@
+-- GOLDEN TEST: Lambda subtract operation
+-- Expected: 7
+-- Test: Lambda with subtraction
+
+function main()
+  numeric sub = lambda(a; b) -> a - b
+  numeric result = sub(15; 8)
+  print(result)
+  return result
+end function

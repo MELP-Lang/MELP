@@ -1,0 +1,10 @@
+-- TEST: Code Actions - Remove Unused Variable
+-- LSP Request: codeAction for unused variable
+-- Expected: Quick fix "Remove unused variable 'unused'"
+-- Description: Suggest removing unused variable declarations
+
+function test()
+  numeric x = 10
+  numeric unused = 20  -- This variable is never used
+  return x
+end function

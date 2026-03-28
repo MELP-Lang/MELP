@@ -1,0 +1,38 @@
+-- ÖZELLİK: LAMBDA - Anonim fonksiyonlar ve closure'lar
+-- GÖREV: Satır içi lambda ve closure gösterimi
+
+fonksiyon giriş()
+    -- Test 1: Basit lambda - ikiye katla
+    sayısal double = lambda(x) -> x * 2
+    sayısal r1 = double(5)
+    yazdır("double(5) = " + str(r1))
+
+    -- Test 2: Lambda ile toplama
+    sayısal add = lambda(x; y) -> x + y
+    sayısal r2 = add(10; 20)
+    yazdır("add(10;20) = " + str(r2))
+
+    -- Test 3: Lambda ile çarpma
+    sayısal multiply = lambda(x; y) -> x * y
+    sayısal r3 = multiply(6; 7)
+    yazdır("multiply(6;7) = " + str(r3))
+
+    -- Test 4: Closure - dış değişkeni yakalar
+    sayısal base = 100
+    sayısal add_base = lambda(x) -> x + base
+    sayısal r4 = add_base(23)
+    yazdır("add_base(23) = " + str(r4))
+
+    -- Test 5: Closure - çoklu yakalama
+    sayısal factor = 3
+    sayısal offset = 5
+    sayısal complex_fn = lambda(x) -> x * factor + offset
+    sayısal r5 = complex_fn(4)
+    yazdır("complex(4) = " + str(r5))
+
+    -- Test 6: İç içe lambda (destekleniyorsa)
+    sayısal outer_val = 10
+    sayısal inner_fn = lambda(y) -> y + outer_val
+    sayısal r6 = inner_fn(15)
+    yazdır("nested(15) = " + str(r6))
+fonksiyon sonu

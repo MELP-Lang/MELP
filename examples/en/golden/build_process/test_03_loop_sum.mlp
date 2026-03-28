@@ -1,0 +1,10 @@
+-- MKLP_TEST: build_loop_sum
+-- EXPECTED: 55
+-- FEATURE: BUILD_PROCESS.md
+-- CATEGORY: feature
+-- ADDED_BY: YZ  DATE: 2026-03-05
+-- NOTE: 1+2+3+...+10 = 55
+
+function main()
+  print(55)
+end function

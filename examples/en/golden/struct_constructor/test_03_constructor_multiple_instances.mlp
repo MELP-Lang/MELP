@@ -1,0 +1,18 @@
+-- test_03_constructor_multiple_instances.mlp
+-- PHASE: 3 (Struct Constructor)
+-- EXPECTED: 1\n2\n3\n4
+-- EKS-003: Birden fazla struct instance constructor ile
+
+struct Point(numeric x; numeric y)
+    numeric x
+    numeric y
+end struct
+
+function main()
+    Point p1 = Point(1; 2)
+    Point p2 = Point(3; 4)
+    print(p1.x)
+    print(p1.y)
+    print(p2.x)
+    print(p2.y)
+end function

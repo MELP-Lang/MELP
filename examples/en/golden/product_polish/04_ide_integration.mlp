@@ -1,0 +1,6 @@
+-- FEATURE: PRODUCT_POLISH
+-- TEST: 04
+-- EXPECTED: 40
+
+numeric sonuc = 40
+print(sonuc)

@@ -1,0 +1,8 @@
+-- test_04_chained_alias.mlp
+-- Expected: 77
+-- Test: Chained alias (B = A where A = numeric)
+
+type BaseId = numeric
+type UserId = BaseId
+UserId x = 77
+print(x)

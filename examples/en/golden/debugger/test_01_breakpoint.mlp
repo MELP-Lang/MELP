@@ -1,0 +1,11 @@
+-- test_01_breakpoint.mlp
+-- Test breakpoint functionality
+-- Expected: 10
+
+function test_function() -> numeric
+  numeric x = 10  -- Breakpoint here
+  print(x)
+  return 0
+end function
+
+test_function()

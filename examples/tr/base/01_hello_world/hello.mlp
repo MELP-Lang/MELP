@@ -1,0 +1,7 @@
+-- GÖREV 01: merhaba_dunya
+-- Beklenen çıktı: Merhaba, MELP!
+-- Kanonik mlp sözdizimi örneği
+
+fonksiyon giriş()
+    yazdır("Merhaba, MELP!")
+fonksiyon sonu

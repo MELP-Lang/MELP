@@ -1,0 +1,8 @@
+-- TEST: Project Open
+-- PHASE: 4.5 (Electron IDE)
+-- EXPECTED: 3
+
+function main()
+  numeric file_count = 3
+  print(file_count)
+end function

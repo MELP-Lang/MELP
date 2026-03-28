@@ -1,0 +1,6 @@
+-- FEATURE: PRODUCT_POLISH
+-- TEST: Example project smoke
+-- Expected: 30
+
+numeric sonuc = 30
+print(sonuc)

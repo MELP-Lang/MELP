@@ -1,0 +1,14 @@
+struct Point
+    x as numeric
+    y as numeric
+end struct
+
+Point function make_point(a as numeric)
+    var p as Point
+    p.x = a
+    p.y = 10
+    return p
+end function
+
+var pt = make_point(5)
+print(pt.x)

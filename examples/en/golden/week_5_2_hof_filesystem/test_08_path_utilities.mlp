@@ -1,0 +1,15 @@
+-- test_08_path_utilities.mlp
+-- Expected output:
+-- /usr/local/bin
+-- file.sh
+-- /usr/local/bin
+
+-- Test dirname: extract parent directory
+print_str(__builtin_fs_dirname("/usr/local/bin/file.sh"))
+
+-- Test basename: extract filename
+print_str(__builtin_fs_basename("/usr/local/bin/file.sh"))
+
+-- Test join_path: combine path components
+print_str(__builtin_fs_join_path("/usr/local"; "bin"))
+-- Expected: /usr/local/bin\nfile.sh\n/usr/local/bin

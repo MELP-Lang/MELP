@@ -1,0 +1,14 @@
+-- Guard checking for zero
+-- Expected: 100
+
+enum Result<T, E>
+  Ok(T)
+  Err(E)
+end enum
+
+Result r = Result.Ok(0)
+match r
+  case Ok(v) if v > 0 -> print(1)
+  case Ok(v) -> print(100)
+  case Err(e) -> print(0)
+end match

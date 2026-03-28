@@ -1,0 +1,32 @@
+-- Array Pop and Contains Test
+-- Tests array_pop, array_contains, array_index_of
+
+-- Create and fill array
+numeric arr = __builtin_array_create()
+__builtin_array_push(arr; 5)
+__builtin_array_push(arr; 10)
+__builtin_array_push(arr; 15)
+__builtin_array_push(arr; 20)
+
+-- Pop last element
+numeric popped = __builtin_array_pop(arr)
+print(popped)
+
+-- New length should be 3
+numeric len = __builtin_array_length(arr)
+print(len)
+
+-- Contains check
+numeric has15 = __builtin_array_contains(arr; 15)
+print(has15)
+
+numeric has20 = __builtin_array_contains(arr; 20)
+print(has20)
+
+-- Index of
+numeric idx = __builtin_array_index_of(arr; 10)
+print(idx)
+
+numeric notFound = __builtin_array_index_of(arr; 999)
+print(notFound)
+-- Expected: 20\n3\n1\n0\n1\n-1

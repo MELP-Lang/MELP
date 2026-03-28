@@ -1,0 +1,6 @@
+-- FEATURE: VALIDATION_TESTING
+-- TEST: Failure reporting smoke
+-- Expected: 40
+
+numeric sonuc = 40
+print(sonuc)

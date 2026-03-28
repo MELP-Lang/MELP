@@ -1,0 +1,12 @@
+-- Test: event with arithmetic computation
+-- FEATURE: EVENT_BLOCK
+-- PHASE: Phase2-L01
+-- Expected: 42
+event compute()
+  numeric x = 21
+  numeric y = 21
+  print(x + y)
+end_event
+app_start()
+  compute()
+end_app

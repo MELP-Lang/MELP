@@ -1,0 +1,31 @@
+-- TEST: Different enum variant values
+-- PHASE: 3.2 (Enum)
+-- EXPECTED: 1
+
+enum Rank
+  First
+  Second
+  Third
+  Fourth
+  Fifth
+end enum
+
+none function main()
+  numeric f = Rank.First      -- 0
+  numeric s = Rank.Second     -- 1  
+  numeric t = Rank.Third      -- 2
+  numeric fourth = Rank.Fourth -- 3
+  numeric fifth = Rank.Fifth   -- 4
+  
+  if f == 0 then
+    if s == 1 then
+      if t == 2 then
+        if fourth == 3 then
+          if fifth == 4 then
+            print(1)
+          end if
+        end if
+      end if
+    end if
+  end if
+end function

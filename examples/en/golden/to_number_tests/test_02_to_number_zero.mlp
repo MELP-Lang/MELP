@@ -1,0 +1,9 @@
+-- test_02_to_number_zero.mlp
+-- PHASE: 1 (Stdlib Builtins)
+-- EXPECTED: 0
+-- EKS-015: to_number("0") → 0
+
+function main()
+    numeric n = to_number("0")
+    print(n)
+end function

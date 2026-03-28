@@ -1,0 +1,11 @@
+function map3_sum(numeric a; numeric b; numeric c; auto fn)
+  return fn(a) + fn(b) + fn(c)
+end function
+
+function main()
+  function inc = lambda(numeric x) as numeric
+    return x + 1
+  end_lambda
+
+  return map3_sum(1; 2; 0; inc)
+end function

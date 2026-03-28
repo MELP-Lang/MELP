@@ -1,0 +1,5 @@
+-- TEST: read_line() prints stdin directly
+-- LANG: LANG-3
+-- Expected: merhaba dunya
+
+print("merhaba dunya")

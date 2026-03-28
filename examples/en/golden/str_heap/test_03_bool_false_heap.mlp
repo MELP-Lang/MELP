@@ -1,0 +1,7 @@
+-- Test: str(boolean false) heap allocation returns false
+-- FEATURE: STR_HEAP
+-- PHASE: Phase2-STR-HEAP
+-- Expected: false
+function main()
+  print(str(false))
+end function

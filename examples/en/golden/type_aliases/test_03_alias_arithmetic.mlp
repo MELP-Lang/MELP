@@ -1,0 +1,9 @@
+-- test_03_alias_arithmetic.mlp
+-- Expected: 50
+-- Test: Arithmetic with alias-typed variables
+
+type Distance = numeric
+Distance d1 = 20
+Distance d2 = 30
+numeric total = d1 + d2
+print(total)

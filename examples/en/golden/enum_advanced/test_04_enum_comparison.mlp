@@ -1,0 +1,20 @@
+-- MKLP_TEST: enum_advanced_comparison
+-- Expected: yes
+-- FEATURE: ENUM.md
+-- CATEGORY: bug
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+enum Status
+  Active
+  Inactive
+  Pending
+end enum
+
+function main()
+  numeric s = Status.Active
+  if s == Status.Active then
+    print("yes")
+  else
+    print("no")
+  end if
+end function

@@ -1,0 +1,9 @@
+-- test_01_auto_numeric.mlp
+-- PHASE: 1 (Auto Type)
+-- EXPECTED: 42
+-- EKS-018: auto numeric çalışıyor (referans test)
+
+function main()
+    auto x = 42
+    print(x)
+end function

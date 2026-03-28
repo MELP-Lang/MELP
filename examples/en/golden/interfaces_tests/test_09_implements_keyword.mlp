@@ -1,0 +1,13 @@
+-- implements keyword basic
+-- Expected: 1
+interface Marker
+    numeric function mark()
+end interface
+struct Point implements Marker
+    numeric x
+end struct
+numeric function Point.mark()
+    return 1
+end function
+Point p = Point { x: 0 }
+print(p.mark())

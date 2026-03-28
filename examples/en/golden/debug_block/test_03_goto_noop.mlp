@@ -1,0 +1,14 @@
+-- test_03_goto_noop.mlp
+-- FEATURE: DEBUG_BLOCK
+-- PHASE: Phase2-L03
+-- Expected: 7
+
+-- goto debug içinde no-op olmalı, normal kod çalışmalı
+
+function main()
+    numeric val = 7
+    debug
+        goto checkpoint
+    end_debug
+    print(val)
+end function

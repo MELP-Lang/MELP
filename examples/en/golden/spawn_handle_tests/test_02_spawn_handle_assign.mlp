@@ -1,0 +1,11 @@
+-- test_02_spawn_handle_assign.mlp
+-- PHASE: 2 (Async/Spawn)
+-- EXPECTED: thread bitti
+-- EKS-017: spawn handle ataması ve join (EKS-017 fix sonrası)
+
+function main()
+    numeric h = spawn
+        print("thread bitti")
+    end_spawn
+    mlp_spawn_join(h)
+end function

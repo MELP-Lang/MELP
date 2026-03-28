@@ -1,0 +1,12 @@
+-- GOLDEN TEST: Combined features POC
+-- FEATURE: none + string interpolation + var inference
+-- Expected: merhaba ali yas 30
+none function bildir(ad as string; yas as numeric)
+  print("merhaba {ad} yas {yas}")
+end function
+
+function main()
+  var isim = "ali"
+  numeric yas = 30
+  bildir(isim; yas)
+end function

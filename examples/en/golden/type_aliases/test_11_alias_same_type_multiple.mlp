@@ -1,0 +1,10 @@
+-- test_11_alias_same_type_multiple.mlp
+-- Expected: 12
+-- Test: Multiple variables sharing same alias type
+
+type Meter = numeric
+Meter x = 3
+Meter y = 4
+Meter z = 5
+numeric total = x + y + z
+print(total)

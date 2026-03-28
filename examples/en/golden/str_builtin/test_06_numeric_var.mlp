@@ -1,0 +1,8 @@
+-- Test: str() ile numeric değişken
+-- FEATURE: STR_BUILTIN
+-- PHASE: Phase1-P02
+-- Expected: 42
+function main()
+  numeric x = 42
+  print(str(x))
+end function

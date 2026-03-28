@@ -1,0 +1,20 @@
+-- outer code calls two methods and adds
+-- Expected: 0
+interface Numerable
+    numeric function first()
+    numeric function second()
+end interface
+struct Pair implements Numerable
+    numeric a
+    numeric b
+end struct
+numeric function Pair.first()
+    return this.a
+end function
+numeric function Pair.second()
+    return this.b
+end function
+Pair p = Pair { a: 10; b: 15 }
+numeric x = p.first()
+numeric y = p.second()
+print(x + y)

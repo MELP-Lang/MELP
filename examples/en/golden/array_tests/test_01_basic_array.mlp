@@ -1,0 +1,26 @@
+-- Array Runtime Test
+-- Tests basic array operations
+
+-- Create an array
+numeric arr = __builtin_array_create()
+
+-- Push elements
+__builtin_array_push(arr; 10)
+__builtin_array_push(arr; 20)
+__builtin_array_push(arr; 30)
+
+-- Get length
+numeric len = __builtin_array_length(arr)
+print(len)
+
+-- Get element at index 1
+numeric elem = __builtin_array_get(arr; 1)
+print(elem)
+
+-- Get first and last
+numeric first = __builtin_array_first(arr)
+print(first)
+
+numeric last = __builtin_array_last(arr)
+print(last)
+-- Expected: 3\n20\n10\n30

@@ -1,0 +1,5 @@
+struct Box<T>
+  T value
+end struct
+
+Box<numeric>(10)

@@ -1,0 +1,14 @@
+-- method result stored in variable then used
+-- Expected: 0
+interface Provider
+    numeric function provide()
+end interface
+struct Supplier implements Provider
+    numeric amount
+end struct
+numeric function Supplier.provide()
+    return this.amount
+end function
+Supplier s = Supplier { amount: 30 }
+numeric result = s.provide()
+print(result)

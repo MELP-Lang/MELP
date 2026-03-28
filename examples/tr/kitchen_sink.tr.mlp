@@ -1,0 +1,515 @@
+-- ============================================================
+-- MELP Mutfak Tezgahı (Türkçe) — kitchen_sink.tr.mlp
+-- Tüm Türkçe MLP sözdizimi formları tek dosyada.
+-- Kanonik: boşluklu kapanış (koşul sonu, fonksiyon sonu...)
+-- Normalizer ile canonical .mlp'ye çevrilir.
+-- ============================================================
+
+
+-- ============================================================
+-- YAPILAR
+-- ============================================================
+
+yapı Nokta
+    sayısal x
+    sayısal y
+yapı sonu
+
+---/
+Dikdörtgen yapısı — sol üst ve sağ alt köşe noktaları ile tanımlanır.
+/---
+yapı Dikdörtgen
+    Nokta solÜst
+    Nokta sağAlt
+yapı sonu
+
+
+-- ============================================================
+-- SIRALAMALLAR (ENUM)
+-- ============================================================
+
+sıralama Yön
+    KUZEY
+    GÜNEY
+    DOĞU
+    BATI
+sıralama sonu
+
+sıralama Renk
+    KIRMIZI
+    YEŞİL
+    MAVİ
+sıralama sonu
+
+
+-- ============================================================
+-- ARAYÜZLER
+-- ============================================================
+
+arayüz Şekil
+    sayısal fonksiyon alan()
+    metin fonksiyon tanımla()
+arayüz sonu
+
+
+-- ============================================================
+-- FONKSİYONLAR — temel
+-- ============================================================
+
+---/
+İki sayıyı toplar.
+@param a İlk sayı
+@param b İkinci sayı
+/---
+sayısal fonksiyon topla(sayısal a; sayısal b)
+    döndür a + b
+fonksiyon sonu
+
+sayısal fonksiyon çıkar(sayısal a; sayısal b)
+    döndür a - b
+fonksiyon sonu
+
+sayısal fonksiyon çarp(sayısal a; sayısal b)
+    döndür a * b
+fonksiyon sonu
+
+sayısal fonksiyon böl(sayısal a; sayısal b)
+    koşul b == 0 ise
+        döndür 0
+    koşul sonu
+    döndür a / b
+fonksiyon sonu
+
+mantıksal fonksiyon çiftMi(sayısal n)
+    döndür n mod 2 == 0
+fonksiyon sonu
+
+metin fonksiyon selamla(metin isim)
+    döndür "Merhaba, " + isim + "!"
+fonksiyon sonu
+
+
+-- ============================================================
+-- FONKSİYONLAR — özyineleme
+-- ============================================================
+
+sayısal fonksiyon faktöriyel(sayısal n)
+    koşul n <= 1 ise
+        döndür 1
+    koşul sonu
+    döndür n * faktöriyel(n - 1)
+fonksiyon sonu
+
+sayısal fonksiyon fib(sayısal n)
+    koşul n <= 1 ise
+        döndür n
+    koşul sonu
+    döndür fib(n - 1) + fib(n - 2)
+fonksiyon sonu
+
+
+-- ============================================================
+-- FONKSİYONLAR — niteleyiciler
+-- ============================================================
+
+sayısal saf fonksiyon kare(sayısal x)
+    döndür x * x
+fonksiyon sonu
+
+sayısal satıriçi fonksiyon küp(sayısal x)
+    döndür x * x * x
+fonksiyon sonu
+
+-- derleme zamanı hesaplama
+sayısal fonksiyon güç2(sayısal n)  -- STAGE0 sınırlaması: comptime function declaration desteklenmiyor
+    koşul n == 0 ise
+        döndür 1
+    koşul sonu
+    döndür 2 * güç2(n - 1)
+fonksiyon sonu
+
+sayısal GÜÇ_10 = güç2(10)   -- STAGE0 sınırlaması: sabit derleme zamanı değişkeni henüz desteklenmiyor
+
+
+-- ============================================================
+-- YAPI METOTLARI
+-- ============================================================
+
+sayısal fonksiyon Nokta.uzaklık(Nokta diğer)
+    sayısal dx = bu.x - diğer.x
+    sayısal dy = bu.y - diğer.y
+    döndür dx * dx + dy * dy
+fonksiyon sonu
+
+metin fonksiyon Nokta.metneÇevir()
+    döndür "(" + bu.x + ", " + bu.y + ")"
+fonksiyon sonu
+
+sayısal fonksiyon Dikdörtgen.genişlik()
+    döndür bu.sağAlt.x - bu.solÜst.x
+fonksiyon sonu
+
+sayısal fonksiyon Dikdörtgen.yükseklik()
+    döndür bu.sağAlt.y - bu.solÜst.y
+fonksiyon sonu
+
+sayısal fonksiyon Dikdörtgen.alan()
+    döndür bu.genişlik() * bu.yükseklik()
+fonksiyon sonu
+
+
+-- ============================================================
+-- LAMBDA
+-- ============================================================
+
+-- Lambda değişkeni → STAGE1 lambda-değişkenini fonksiyon olarak çağıramıyor;
+-- saf fonksiyon olarak yeniden yazıldı
+sayısal fonksiyon ikiKat(sayısal n)
+    döndür n * 2
+fonksiyon sonu
+
+sayısal fonksiyon ikiKezUygula(sayısal değer)
+    döndür ikiKat(ikiKat(değer))
+fonksiyon sonu
+
+
+-- ============================================================
+-- HATA YÖNETİMİ
+-- ============================================================
+
+sayısal fonksiyon güvenliiBöl(sayısal a; sayısal b)
+    dene
+        koşul b == 0 ise
+            döndür -1
+        koşul sonu
+        döndür a / b
+    hata yakala
+        yazdır("Hata yakalandı")
+        döndür -1
+    dene sonu
+fonksiyon sonu
+
+
+-- ============================================================
+-- ÖRÜNTÜ EŞLEŞTİRME
+-- ============================================================
+
+metin fonksiyon yönüTanımla(Yön y)
+    döndür seç y
+        durum Yön.KUZEY ise "Kuzeye gidiliyor"
+        durum Yön.GÜNEY ise "Güneye gidiliyor"
+        durum Yön.DOĞU  ise "Doğuya gidiliyor"
+        durum Yön.BATI  ise "Batıya gidiliyor"
+        yoksa "Bilinmiyor"
+    seç sonu
+fonksiyon sonu
+
+metin fonksiyon sayıyıSınıflandır(sayısal n)
+    döndür seç n
+        durum 0 ise "sıfır"
+        durum 1 ise "bir"
+        durum 2 ise "iki"
+        durum _ => "çok"
+    seç sonu
+fonksiyon sonu
+
+
+-- ============================================================
+-- MODÜL
+-- ============================================================
+
+modül MatematikAraçları
+
+    sayısal fonksiyon sınırla(sayısal değer; sayısal min; sayısal maks)
+        koşul değer < min ise
+            döndür min
+        koşul sonu
+        koşul değer > maks ise
+            döndür maks
+        koşul sonu
+        döndür değer
+    fonksiyon sonu
+
+    sayısal fonksiyon mutlak(sayısal x)
+        -- postfix değil: döngü until semantiği değil, burada if'te gösterim
+        koşul x < 0 ise
+            döndür x * -1
+        koşul sonu
+        döndür x
+    fonksiyon sonu
+
+modül sonu
+
+
+-- ============================================================
+-- GİRİŞ — ANA FONKSİYON
+-- ============================================================
+
+fonksiyon giriş()
+    yazdır("=== MELP Mutfak Tezgahı (Türkçe) ===")
+    yazdır("")
+
+    -- ── Değişkenler ────────────────────────────────────────
+    yazdır("-- Değişkenler --")
+    sayısal x = 42
+    sayısal pi = 3.14
+    metin isim = "MELP"
+    mantıksal bayrak = doğru
+    -- boş (null) string'e atanamıyor STAGE1'de; boş string kullanıldı
+    metin boşDeğer = ""
+    yazdır(x)
+    yazdır(pi)
+    yazdır(isim)
+    yazdır(bayrak)
+    yazdır("")
+
+    -- ── Aritmetik ──────────────────────────────────────────
+    yazdır("-- Aritmetik --")
+    yazdır(topla(10; 5))
+    yazdır(çıkar(10; 5))
+    yazdır(çarp(10; 5))
+    yazdır(böl(10; 5))
+    yazdır(böl(10; 0))
+    yazdır(kare(7))
+    yazdır(küp(3))
+    yazdır("")
+
+    -- ── Mantıksal operatörler — prefix ve postfix değil ───
+    yazdır("-- Mantıksal operatörler --")
+    mantıksal a = doğru
+    mantıksal b = yanlış
+
+    -- prefix form (İngilizce ile paralel)
+    koşul değil b ise
+        yazdır("b yanlış (prefix değil)")
+    koşul sonu
+
+    -- postfix form (Türkçe'ye özgü — aynı anlam)
+    koşul b değil ise
+        yazdır("b yanlış (postfix değil)")
+    koşul sonu
+
+    -- postfix: solundaki tek ifadeye bağlanır
+    sayısal n = 7
+    koşul n > 5 değil ise
+        yazdır("n 5'ten büyük değil")
+    değilse
+        yazdır("n 5'ten büyük")   -- bu çalışır
+    koşul sonu
+
+    -- bağlanma sırası: (n > 5 değil) ve (n < 10)
+    koşul n > 5 değil ve n < 3 ise
+        yazdır("imkansız durum")
+    koşul sonu
+
+    -- parantez ile tüm ifadeye bağla
+    koşul (a ve b) değil ise
+        yazdır("ikisi birden doğru değil")
+    koşul sonu
+
+    yazdır(a ve b)
+    yazdır(a veya b)
+    yazdır("")
+
+    -- ── koşul / değilse / yoksa ────────────────────────────
+    yazdır("-- Koşullar --")
+    sayısal puan = 75
+    koşul puan >= 90 ise
+        yazdır("A")
+    değilse puan >= 70 ise
+        yazdır("B")
+    değilse puan >= 50 ise
+        yazdır("C")
+    yoksa
+        yazdır("F")
+    koşul sonu
+    yazdır("")
+
+    -- ── döngü (while) ─────────────────────────────────────
+    yazdır("-- Döngü (while) --")
+    sayısal i = 0
+    döngü i < 5
+        yazdır(i)
+        i = i + 1
+    döngü sonu
+    yazdır("")
+
+    -- ── döngü sonsuz + çık ────────────────────────────────
+    yazdır("-- Sonsuz döngü + çık --")
+    sayısal sayaç = 0
+    döngü
+        koşul sayaç >= 3 ise
+            çık
+        koşul sonu
+        yazdır(sayaç)
+        sayaç = sayaç + 1
+    döngü sonu
+    yazdır("")
+
+    -- ── do-while: koşul sonda ─────────────────────────────
+    yazdır("-- Do-while (koşul sonda) --")
+    sayısal j = 5
+    döngü
+        yazdır(j)       -- en az bir kere çalışır
+        j = j + 1
+    döngü sonu j < 3    -- koşul sonda; j=5 > 3 olduğu için bir kere çalışır
+    yazdır("")
+
+    -- ── until: postfix değil ──────────────────────────────
+    yazdır("-- Until (döngü değil ile) --")
+    sayısal k = 0
+    döngü k >= 4 değil      -- "k < 4 OLANA KADAR" anlamı
+        yazdır(k)
+        k = k + 1
+    döngü sonu
+    yazdır("")
+
+    -- ── aralık döngüsü (artan) ────────────────────────────
+    yazdır("-- Aralık (artan: 0 dan 5 a kadar) --")
+    döngü i = 0 kadar 5
+        yazdır(i)
+    döngü sonu
+    yazdır("")
+
+    -- ── aralık döngüsü (kısa form) ────────────────────────
+    yazdır("-- Aralık (kısa: 0 kadar 3) --")
+    döngü i = 0 kadar 3
+        yazdır(i)
+    döngü sonu
+    yazdır("")
+
+    -- ── aralık döngüsü (azalan) ────────────────────────────
+    yazdır("-- Aralık (azalan: 5 geriye 1) --")
+    döngü i = 5 geriye 1
+        yazdır(i)
+    döngü sonu
+    yazdır("")
+
+    -- ── foreach ───────────────────────────────────────────
+    yazdır("-- Foreach --")
+    sayısal[] sayılar = [1; 2; 3; 4; 5; 6]
+    döngü her s içinde sayılar
+        yazdır(s)
+    her sonu
+    yazdır("")
+
+    -- ── foreach (filtreli: sadece) ─────────────────────────
+    yazdır("-- Foreach filtreli (çift sayılar) --")
+    döngü her s içinde sayılar sadece s mod 2 == 0
+        yazdır(s)
+    her sonu
+    yazdır("")
+
+    -- ── adlandırılmış kapsam + çık/devam ───────────────────────
+    yazdır("-- Adlandırılmış kapsam --")
+    kapsam dış
+        döngü i = 0 kadar 4
+            kapsam iç
+                döngü j = 0 kadar 4
+                    koşul i == 2 ve j == 2 ise
+                        exit_dış     -- dış kapsama çık
+                    koşul sonu
+                    yazdır(i * 10 + j)
+                döngü sonu
+            end_iç
+        döngü sonu
+    end_dış
+    yazdır("")
+
+    -- ── devam ────────────────────────────────────────────
+    yazdır("-- devam (3 ve 6 atla) --")
+    döngü i = 0 kadar 8
+        koşul i == 3 ise
+            devam
+        koşul sonu
+        koşul i == 6 ise
+            çık
+        koşul sonu
+        yazdır(i)
+    döngü sonu
+    yazdır("")
+
+    -- ── özyineleme ─────────────────────────────────────────
+    yazdır("-- Özyineleme --")
+    yazdır(faktöriyel(6))
+    yazdır(fib(10))
+    yazdır("")
+
+    -- ── yapı ───────────────────────────────────────────────
+    yazdır("-- Yapı --")
+    Nokta n1
+    n1.x = 3
+    n1.y = 4
+    Nokta n2
+    n2.x = 0
+    n2.y = 0
+    yazdır(n1.metneÇevir())
+    yazdır(n1.uzaklık(n2))
+    yazdır("")
+
+    yazdır("-- Dikdörtgen --")
+    Dikdörtgen dik
+    dik.solÜst.x = 0
+    dik.solÜst.y = 0
+    dik.sağAlt.x = 10
+    dik.sağAlt.y = 5
+    yazdır(dik.alan())
+    yazdır("")
+
+    -- ── sıralama ─────────────────────────────────────────
+    yazdır("-- Sıralama (enum) --")
+    Yön yön = Yön.KUZEY
+    yazdır(yönüTanımla(yön))
+    yazdır(yönüTanımla(Yön.BATI))
+    yazdır("")
+
+    -- ── örüntü eşleştirme ─────────────────────────────────
+    yazdır("-- Örüntü eşleştirme --")
+    yazdır(sayıyıSınıflandır(0))
+    yazdır(sayıyıSınıflandır(2))
+    yazdır(sayıyıSınıflandır(99))
+    yazdır("")
+
+    -- ── lambda ─────────────────────────────────────────────
+    yazdır("-- Lambda --")
+    yazdır(ikiKezUygula(3))     -- 12 (3 * 2 = 6, 6 * 2 = 12)
+    yazdır("")
+
+    -- ── hata yönetimi ──────────────────────────────────────
+    yazdır("-- Dene / hata yakala / sonunda --")
+    dene
+        sayısal sonuç = güvenliiBöl(10; 2)
+        yazdır(sonuç)
+        sayısal sıfırBölüm = güvenliiBöl(10; 0)
+        yazdır(sıfırBölüm)
+    hata yakala
+        yazdır("Dış hata yakalandı")
+    sonunda
+        yazdır("Temizlik yapıldı")
+    dene sonu
+    yazdır("")
+
+    -- ── modül ─────────────────────────────────────────────
+    yazdır("-- Modül --")
+    yazdır(MatematikAraçları.sınırla(150; 0; 100))
+    yazdır(MatematikAraçları.mutlak(-42))
+    yazdır("")
+
+    -- ── sahiplik ve ödünç alma ────────────────────────────
+    yazdır("-- Sahiplik --")
+    metin metin1 = "merhaba"
+    -- ödünç alma (& — salt okunur)
+    -- düzenle(metin1)  -- metin& değiş örneği için ayrı fonksiyon gerekir
+
+    -- ── derleme zamanı sabiti ──────────────────────────────
+    yazdır("-- Derleme zamanı --")
+    yazdır(GÜÇ_10)      -- 1024
+    yazdır("")
+
+    -- ── saf fonksiyon ─────────────────────────────────────
+    yazdır("-- Saf fonksiyon --")
+    yazdır(kare(9))     -- 81
+    yazdır("")
+
+    yazdır("=== Bitti ===")
+fonksiyon sonu

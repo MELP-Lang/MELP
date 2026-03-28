@@ -1,0 +1,14 @@
+-- Option None with default match
+-- Expected: 0
+
+enum Option<T>
+  Some(T)
+  None
+end enum
+
+Option maybe = Option.None
+
+match maybe
+  case Some(v) -> print(999)
+  case None -> print(0)
+end match

@@ -1,0 +1,18 @@
+-- method with if statement
+-- Expected: 2
+interface Conditional
+    numeric function check()
+end interface
+struct Checker implements Conditional
+    numeric threshold
+end struct
+numeric function Checker.check()
+    numeric t = this.threshold
+    if t > 0 then
+        return 2
+    else
+        return 1
+    end if
+end function
+Checker c = Checker { threshold: 5 }
+print(c.check())

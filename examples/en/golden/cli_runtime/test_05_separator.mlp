@@ -1,0 +1,11 @@
+-- GOLDEN_TEST: test_05_separator  
+-- DESC: Test separator line printing
+-- EXPECTED_OUTPUT: Visual separator lines
+
+-- Print separator lines
+numeric s1 = __builtin_cli_print_separator("="; 40)
+numeric s2 = __builtin_cli_print_separator("-"; 40)
+numeric s3 = __builtin_cli_print_separator("*"; 40)
+
+print(1)
+-- Expected: ========================================\n----------------------------------------\n****************************************\n1

@@ -1,0 +1,7 @@
+-- TEST: Lambda HOF identity map single element access
+-- LANG: LANG-1
+-- Expected: 10
+
+numeric[] nums = [10; 20; 30]
+numeric[] same = array_map(nums; lambda(x) -> x)
+print(same[0])

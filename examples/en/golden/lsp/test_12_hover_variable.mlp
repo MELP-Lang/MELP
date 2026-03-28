@@ -1,0 +1,9 @@
+-- TEST: Hover Information - Variable Type
+-- LSP Request: textDocument/hover at line 3, column 8 (on 'count')
+-- Expected: Hover content "numeric: count = 10"
+-- Description: Show variable type and value on hover
+
+function test()
+  numeric count = 10
+  return count  -- cursor on 'count', should show type info
+end function

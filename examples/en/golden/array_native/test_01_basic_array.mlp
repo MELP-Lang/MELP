@@ -1,0 +1,9 @@
+-- TEST: Basic array creation and index access (FIX-5 native syntax)
+-- PHASE: Array (FIX-5)
+-- Description: numeric[] type annotation + [elem; ...] literal + arr[i] access
+
+numeric[] arr = [10; 20; 30]
+print(arr[0])
+print(arr[1])
+print(arr[2])
+-- Expected: 10\n20\n30

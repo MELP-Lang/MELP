@@ -1,0 +1,8 @@
+-- Test: native binary arithmetic
+-- FEATURE: NATIVE_BINARY
+-- PHASE: Phase1-P01
+-- Expected: 100
+function main()
+  numeric result = 10 * 10
+  print(result)
+end function

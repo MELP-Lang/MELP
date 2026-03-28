@@ -1,0 +1,16 @@
+-- MKLP_TEST: void_fn_no_return_stmt
+-- EXPECTED: ok
+-- FEATURE: VOID_RETURN.md
+-- CATEGORY: bug
+-- ADDED_BY: YZ  DATE: 2026-03-05
+
+function doWork()
+  numeric x = 2
+  numeric y = 3
+  numeric z = x + y
+end function
+
+function main()
+  doWork()
+  print("ok")
+end function

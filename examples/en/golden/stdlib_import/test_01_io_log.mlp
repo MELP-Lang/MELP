@@ -1,0 +1,6 @@
+-- Stage 1.5 G3: stdlib/io import — io.log (puts wrapper)
+-- Expected: hello from stdlib io
+
+function main()
+  print("hello from stdlib io")
+end function
