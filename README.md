@@ -76,7 +76,19 @@ EOK'un ileri katmanı olan **EFBO**, FBO dispatch tablosunu post-quantum şifrel
 
 ## Öne Çıkan Özellikler
 
-**Çok Dilli Yazım** — Aynı programı Türkçe, İngilizce, Rusça veya başka herhangi bir doğal dilde yazabilirsiniz. Normalizer, her dil varyantını aynı derleme hattına bağlar. Başka hiçbir derlenmiş dil bunu yerleşik olarak sunmaz.
+**Çok Sözdizimli Yazım** — Aynı programı Türkçe, İngilizce, Rusça, Japonca veya başka herhangi bir doğal dilde yazabilirsiniz. `function main()` de çalışır, `fonksiyon giriş()` de. Normalizer, her dil varyantını aynı derleme hattına bağlar. Başka hiçbir derlenmiş dil bunu yerleşik olarak sunmaz.
+
+```melp
+-- Türkçe
+fonksiyon giriş()
+    yaz("Merhaba Dünya!")
+son fonksiyon
+
+-- İngilizce — aynı program, aynı binary
+function main()
+    print("Hello World!")
+end function
+```
 
 **Memory Safe, GC'siz, Annotation'sız** — `unsafe` blok yok, lifetime annotation yok, borrow checker kavramı yok. Bellek güvenliği stateless mimari sayesinde tasarım gereği sağlanır.
 
