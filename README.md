@@ -126,6 +126,8 @@ end function
 
 **Gerçek Binary Üretimi** — MELP sözdizimsel bir deney değildir. LLVM IR üzerinden native binary üretir; optimize edilmiş, taşınabilir, gerçek ürün kodu.
 
+**Platform Bağımsız** *(Beta)* — Bir kere yaz, her yerde çalıştır. LLVM altyapısı sayesinde aynı kaynak kod Linux, macOS ve Windows için native binary üretir. Çapraz derleme için ayrı araç gerekmez.
+
 **Struct + Fonksiyon, Class Yok** — Veri struct ile, davranış bağımsız fonksiyonlarla tanımlanır. OOP hiyerarşisi olmadan aynı modelleme gücü, çok daha az karmaşıklık.
 
 **Spawn + Channel** — Yerleşik eşzamanlılık modeli. Thread oluşturmak için kütüphane gerekmez.
