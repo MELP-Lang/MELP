@@ -313,14 +313,14 @@ Tüm editörler aynı derleyiciyi kullanır. Editörler arası geçiş sıfır m
 
 ## Yol Haritası
 
-| Kilometre Taşı | Durum |
+| Kilometre Taşı | Sürüm |
 |---|---|
-| Alfa: derleyici + editörler + 40+ örnek | ✅ Şimdi |
-| Topluluk Açılışı: GitHub + melp.dev + katkı kılavuzu | 🔧 Devam ediyor |
-| Beta: macOS/Windows + LSP/DAP + **EOK güvenlik katmanı** | 🔴 Planlandı |
-| STAGE1.5: OK mimarisi — COK-lite → FBO_table → ROK entegrasyonu | 🔴 Planlandı |
-| v1.0: derleyici tamamen MELP ile yazılmış (öz-derleme) | 🔴 Planlandı |
-| v2.0: EFBO — kuantum dirençli binary koruma | 🔴 Araştırma |
+| Alfa: derleyici + editörler + 40+ örnek | ✅ Alfa |
+| Topluluk Açılışı: GitHub + melp.dev + katkı kılavuzu | 🔧 Alfa |
+| macOS/Windows + LSP/DAP + **EOK güvenlik katmanı** | 🔴 Beta |
+| OK mimarisi: COK-lite → FBO_table → ROK entegrasyonu | 🔴 Beta |
+| Derleyici tamamen MELP ile yazılmış (öz-derleme) | 🔴 RC |
+| EFBO — kuantum dirençli binary koruma | 🔴 Kararlı Sürüm |
 
 ---
 
