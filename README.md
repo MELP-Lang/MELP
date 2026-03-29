@@ -96,7 +96,7 @@ son fonksiyon
 
 **Memory Safe, GC'siz, Annotation'sız** — `unsafe` blok yok, lifetime annotation yok, borrow checker kavramı yok. Bellek güvenliği stateless mimari sayesinde tasarım gereği sağlanır.
 
-**FBO Tablosu: 4.3 Milyar Girişlik Strateji Havuzu** — FBO, 32-bit indeks alanıyla 4.294.967.296 girişlik bir strateji deposudur. Tüm math kütüphanesi, tüm string operasyonları, tüm runtime kararları buraya yüklenir. Çağıran taraf **sadece indeksi** kullanır; kütüphane seyahat etmez.
+**FBO Tablosu: 4.3 Milyar Girişlik Strateji Havuzu** *(Beta)* — FBO, 32-bit indeks alanıyla 4.294.967.296 girişlik bir strateji deposudur. Tüm math kütüphanesi, tüm string operasyonları, tüm runtime kararları buraya yüklenir. Çağıran taraf **sadece indeksi** kullanır; kütüphane seyahat etmez.
 
 ```
 Geleneksel yaklaşım:
@@ -108,7 +108,7 @@ MELP FBO:
 
 **"MELP'te state, değerin kendisi değil; değere giden yoldur. Ve yol her zaman 4 byte."**
 
-**State: FBO'nun Çalışma Zamanı Uzantısı** — Geleneksel dillerde state geçişi maliyetlidir: veri kopyalanır, bağımlılıklar taşınır, bellek sızar. MELP'te state FBO tablosunun bir indeksidir — modüller arası geçiş 4 byte, erişim O(1) L1 cache hit, kütüphane seyahat etmez. **Performans maliyeti neredeyse sıfır.** Kalan tek maliyet kasıtlıdır: `state.init()` ve `state.close()` ile state nerede başlar nerede biter *görünür* olur. MELP state'i yasaklamaz, onu **görünür** kılar. *(Planlanan: Stage 7)*
+**State: FBO'nun Çalışma Zamanı Uzantısı** *(Beta)* — Geleneksel dillerde state geçişi maliyetlidir: veri kopyalanır, bağımlılıklar taşınır, bellek sızar. MELP'te state FBO tablosunun bir indeksidir — modüller arası geçiş 4 byte, erişim O(1) L1 cache hit, kütüphane seyahat etmez. **Performans maliyeti neredeyse sıfır.** Kalan tek maliyet kasıtlıdır: `state.init()` ve `state.close()` ile state nerede başlar nerede biter *görünür* olur. MELP state'i yasaklamaz, onu **görünür** kılar. *(Planlanan: Stage 7)*
 
 ```melp
 import state
@@ -122,7 +122,7 @@ numeric function sayac()
 end function
 ```
 
-**FBO — 4.3 Milyar Girişlik Strateji Havuzu** — Derleme hattının omurgası. Tüm kütüphaneler, tip operasyonları ve optimizasyon kararları 32-bit indeksli bu havuzda yaşar. Modüller arası transfer = 4 byte indeks; kütüphane seyahat etmez. EOK güvenlik katmanının ve ROK çalışma zamanı optimizasyonunun matematiksel temelidir.
+**FBO — 4.3 Milyar Girişlik Strateji Havuzu** *(Beta)* — Derleme hattının omurgası. Tüm kütüphaneler, tip operasyonları ve optimizasyon kararları 32-bit indeksli bu havuzda yaşar. Modüller arası transfer = 4 byte indeks; kütüphane seyahat etmez. EOK güvenlik katmanının ve ROK çalışma zamanı optimizasyonunun matematiksel temelidir.
 
 **Gerçek Binary Üretimi** — MELP sözdizimsel bir deney değildir. LLVM IR üzerinden native binary üretir; optimize edilmiş, taşınabilir, gerçek ürün kodu.
 
