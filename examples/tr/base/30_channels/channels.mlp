@@ -1,3 +1,4 @@
+#lang turkish
 -- ÖZELLİK: KANALLAR - Üretici-tüketici mesaj geçişi
 -- NOT: Channel{T} sözdizimi Stage0'da parse error (Faz 4+ runtime)
 -- Geçici çözüm: dizi ile mesaj kuyruğu simülasyonu

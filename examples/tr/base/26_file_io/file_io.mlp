@@ -1,3 +1,4 @@
+#lang turkish
 -- ÖZELLİK: DOSYA_IO - Dosya okuma ve yazma
 -- GÖREV: write_file(), read_file(), append_file() builtin'lerini göster
 

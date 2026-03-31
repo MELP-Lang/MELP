@@ -1,3 +1,4 @@
+#lang turkish
 sayısal fonksiyon sayi_parse_et(metin json)
     sayısal value = 42
     döndür value

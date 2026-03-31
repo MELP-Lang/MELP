@@ -1,3 +1,4 @@
+#lang turkish
 fonksiyon giriş()
     döngü i = 1 dan 20
         koşul i mod 15 == 0 ise

@@ -1,5 +1,8 @@
 # MELP Programlama Dili
 
+> **MELP** — *Multi Language Programming* kısaltmasından türetilmiştir.  
+> Küçük **e**, "eritme kazanı" anlamını simgeler: farklı dilleri ve sözdizimlerini tek bir derleme sürecinde eritir.
+
 > Kendi doğal dilinizde yazın. GC yok, borrow checker yok. Memory safe.  
 > Tek derlenmiş dil — binary'e sahip olmak mantığa sahip olmak **anlamına gelmez**.
 
@@ -91,7 +94,7 @@ def topla(numeric a, numeric b):
 -- Native MELP stili (Türkçe)
 numeric fonksiyon topla(numeric a; numeric b)
     döndür a + b
-son fonksiyon
+fonksiyon sonu
 ```
 
 **Memory Safe, GC'siz, Annotation'sız** — `unsafe` blok yok, lifetime annotation yok, borrow checker kavramı yok. Bellek güvenliği stateless mimari sayesinde tasarım gereği sağlanır.
@@ -135,6 +138,23 @@ end function
 **Modüler Mimari** — Her modül tek sorumluluğa sahiptir; merkezi orkestratör yasaktır. Derleme sırası otomatik dependency graph'tan belirlenir.
 
 **Öz-Derleme Hedefi** — MELP'in derleyicisi sonunda MELP ile yazılacak. v1.0'da derleyici kendini derleyecek.
+
+**OK Katmanı — STO · SAO · FBO** — Üç aşamalı derleme zamanı optimizasyon sistemi. STO (Smart Type Optimization) tip çıkarımını, SAO (Semantic-Aware Optimization) erişim örnttilerini analiz eder; FBO semantii 4-byte indekse indirger. Agresif ve güvenli derleme zamanı optimizasyonu.
+
+**Yerleşik `debug` Anahtar Kelimesi** — Ayrı kütüphane ya da araç gerekmez. `debug` dil düzeyindedir; `--release` derlemesinde sıfır maliyet — kod ve sembol üretilmez.
+
+**Ölü Modül Felsefesi** — Modüller varsayılan olarak ölüdür: kendi başına kaynak tahsis etmez, bekletek kaplamaz. Kullanan modül diriltir ve öldürür — atıl kaynak sıfır, GC gereksizdir.
+
+**Yerel Sayı Notasyonu** — `a = 3,45` ve `b = 1.000.000,45` doğrudan yazılabilir. Türkçe virgüllü ondalik ve noktalı binlik ayracı sözdizimi düzeyinde desteklenir.
+
+**Sınırsız Hassasiyet — 3 Tip, Sıfır Tip Derdi** — MELP'te yalnızca üç tip vardır:
+- `numeric` → BigDecimal — 1 bit'ten binlerce byte'a kadar her sayı
+- `string` → BigString — herhangi bir uzunlukta metin
+- `boolean` — doğru / yanlış
+
+Kullanıcı "bu değişkene kaç byte ayırmalıyım?" derdine düşmez. STO (Smart Type Optimization) derleme zamanında değişkenin gerçek kullanımını analiz eder ve bellekte minimum yer kaplayacak şekilde temsil eder. IEEE 754 kısıtı yoktur; finansal ve akademik hesaplamalar RAM sınırına kadar %100 doğrulukla çalışır.
+
+**Adlandırılmış Kapsamlar (`scope`)** — `scope ad` ile iç içe bloklardan temiz koşullu çıkış. Ayrı bayrak değişkeni ya da exception gerektirmez.
 
 ---
 
@@ -192,7 +212,9 @@ bin/run_melp ornek.mlp --ir
 
 ```melp
 -- Temel tipler
-numeric x = 42
+numeric x      = 42
+numeric pi     = 3,14           -- Virgül ondalik ayırıcıdır
+numeric miktar = 1.000.000,45   -- Noktalı binlik ayraç
 string isim = "MELP"
 boolean aktif = true
 
@@ -272,6 +294,18 @@ end match
 event baslangicta()
     print("uygulama başladı")
 end event
+
+-- Adlandırılmış kapsam (iç içe döngüden temiz çıkış)
+scope islem
+    for i = 0 to 100
+        if bul(i) then
+            exit scope islem
+        end if
+    end for
+end scope
+
+-- Debug (--release ile sıfır maliyet)
+debug
 ```
 
 ---
@@ -285,6 +319,18 @@ program.ru.mlp   ← Rusça → aynı şekilde
 ```
 
 Normalizer, her dil varyantını derleme öncesi kanonik forma çevirir. Dil ekleme sadece bir `keywords.json` dosyası gerektirir. Kanonik kaynak: `ORTAK/dil/tr/keywords.json`.
+
+### Sözdizimi Stilleri
+
+MELP aynı zamanda birden fazla sözdizimi stilini destekler:
+
+| Stil | Örnek |
+|---|---|
+| Native MELP | `end function` |
+| C-Stili | `function main() { }` |
+| Python-Stili | `def main():` |
+| Go-Stili | `func main() { }` |
+| VB.NET-Stili | `End Function` |
 
 ---
 

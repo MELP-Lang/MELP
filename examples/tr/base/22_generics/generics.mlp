@@ -1,3 +1,4 @@
+#lang turkish
 -- ÖZELLİK: JENERİKLER - Jenerik fonksiyon
 -- NOT: Monomorphization Stage0'da TODO — tip silinmiş çalışıyor
 

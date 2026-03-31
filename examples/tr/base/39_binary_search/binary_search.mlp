@@ -1,3 +1,4 @@
+#lang turkish
 -- ÖZELLİK: İKİLİ_ARAMA - İteratif ikili arama
 -- B6 geçici çözüm: dizi literal [] sözdizimi yerine tek tek atama
 

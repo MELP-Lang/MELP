@@ -1,3 +1,4 @@
+#lang turkish
 -- ÖZELLİK: EŞZAMANSIZ_BEKLE - Asenkron fonksiyon
 -- NOT: Stage0'da eşzamansız = senkron geçiş (Faz 7 — gerçek async yok)
 -- eşzamansız keyword parse + compile ediliyor, bekle gelecekte

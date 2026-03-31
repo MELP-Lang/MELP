@@ -1,3 +1,4 @@
+#lang turkish
 -- ÖZELLİK: MODÜLLER - dışa_aktar fonksiyon
 -- NOT: içe_aktar ./modul Stage0'da tek dosya kapsamında çalışıyor
 -- Çoklu dosya içe aktarma Faz 2'de — şimdilik dışa_aktar keyword test ediliyor

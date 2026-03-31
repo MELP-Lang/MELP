@@ -1,3 +1,4 @@
+#lang turkish
 -- ÖZELLİK: BORU_OPERATÖRÜ - |> zinciri ile veri dönüşüm pipeline
 -- Sözdizimi: x |> f |> g  →  g(f(x))
 -- NOT: f() parantez olmadan yazılmalı

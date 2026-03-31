@@ -1,3 +1,4 @@
+#lang turkish
 -- SUGAR REFERANS (normalizer gerektirir, henüz derlenemez)
 
 sayısal fonksiyon giriş()

@@ -1,3 +1,4 @@
+#lang turkish
 sayısal fonksiyon matris_topla()
     sayısal a11 = 1
     sayısal a12 = 2

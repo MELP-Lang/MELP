@@ -1,3 +1,4 @@
+#lang turkish
 sayısal fonksiyon http_al(metin url)
     sayısal status = 200
     döndür status

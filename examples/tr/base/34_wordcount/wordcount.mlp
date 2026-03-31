@@ -1,3 +1,4 @@
+#lang turkish
 sayısal fonksiyon kelime_say(metin text)
     sayısal count = 1
     sayısal i = 0

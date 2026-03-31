@@ -1,3 +1,4 @@
+#lang turkish
 -- ÖZELLİK: ÜSTDÜZEY_FONKSİYONLAR + FONKSİYON_REF
 -- GÖREV: Fonksiyonu parametre olarak geçmeyi dene
 -- NOT: FUNCREF Faz 3'te TODO — çalışmayabilir

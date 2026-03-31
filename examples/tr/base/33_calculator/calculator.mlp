@@ -1,3 +1,4 @@
+#lang turkish
 sayısal fonksiyon topla(sayısal a; sayısal b)
     döndür a + b
 fonksiyon sonu

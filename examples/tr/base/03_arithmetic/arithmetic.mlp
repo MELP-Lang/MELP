@@ -1,5 +1,6 @@
 -- GÖREV 03: aritmetik
 -- Dört işlem, mod, üs işlemleri
+#lang turkish
 
 fonksiyon giriş()
     sayısal a = 10

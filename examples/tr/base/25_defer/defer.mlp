@@ -1,3 +1,4 @@
+#lang turkish
 -- ÖZELLİK: DEFER - Geciktirilen işlem (fonksiyon bitiminde çalışır)
 -- NOT: Stage0 defer parse ediliyor ama LIFO semantiği yok — sadece kod üretiliyor
 
