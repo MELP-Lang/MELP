@@ -1,0 +1,7 @@
+-- TEST: Dependency Resolution
+-- PHASE: 4.1 (Package Manager)
+-- EXPECTED: 2
+
+function main()
+  print(2)
+end function

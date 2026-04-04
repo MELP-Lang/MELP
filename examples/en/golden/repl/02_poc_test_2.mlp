@@ -1,0 +1,9 @@
+-- TEST: Variable Addition
+-- PHASE: 4.3 (REPL)
+-- EXPECTED: 30
+
+function main()
+  numeric x = 10
+  numeric y = 20
+  print(x + y)
+end function

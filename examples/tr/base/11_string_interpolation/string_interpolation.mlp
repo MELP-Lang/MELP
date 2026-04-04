@@ -1,0 +1,35 @@
+#lang turkish
+-- ÖZELLİK: METİN_ARADEĞERLEME + STR_BUILTIN + YAZDIR
+-- GÖREV: str() builtin ve metin birleştirme gösterimi
+
+fonksiyon giriş()
+    -- Test 1: str() ile sayısal literaller
+    metin msg1 = "Değer: " + str(42)
+    yazdır(msg1)
+
+    -- Test 2: str() ile sayısal değişkenler
+    sayısal age = 25
+    metin msg2 = "Yaş: " + str(age)
+    yazdır(msg2)
+
+    -- Test 3: str() ile mantıksal
+    mantıksal durum = doğru
+    metin msg3 = "Durum: " + str(durum)
+    yazdır(msg3)
+
+    -- Test 4: str() ile yanlış mantıksal
+    mantıksal flag = yanlış
+    metin msg4 = "Bayrak: " + str(flag)
+    yazdır(msg4)
+
+    -- Test 5: Çoklu str() birleştirme
+    sayısal x = 10
+    sayısal y = 20
+    metin msg5 = "x=" + str(x) + " y=" + str(y)
+    yazdır(msg5)
+
+    -- Test 6: str() ile ifade
+    sayısal result = 5 + 5
+    metin msg6 = "Sonuç: " + str(result)
+    yazdır(msg6)
+fonksiyon sonu

@@ -1,0 +1,251 @@
+-- EXPORTED: abs, max, min, pow, factorial, gcd, lcm, clamp, sign, isEven, isOdd, sumRange, fib, sumOfDigits, countDigits, isPerfectSquare, isPrime, modPow, isqrt, reverseDigits, isPalindrome
+-- stdlib/math_utils.mlp - English MLP Standard Math Utilities
+
+numeric function abs(numeric n)
+  if n < 0 then
+    return 0 - n
+  end_if
+  return n
+end_function
+
+numeric function max(numeric a; numeric b)
+  if a > b then
+    return a
+  end_if
+  return b
+end_function
+
+numeric function min(numeric a; numeric b)
+  if a < b then
+    return a
+  end_if
+  return b
+end_function
+
+numeric function pow(numeric base; numeric exp)
+  if exp == 0 then
+    return 1
+  end_if
+  numeric result = 1
+  numeric i = 0
+  loop i < exp
+    result = result * base
+    i = i + 1
+  end_loop
+  return result
+end_function
+
+numeric function factorial(numeric n)
+  if n <= 1 then
+    return 1
+  end_if
+  numeric result = 1
+  numeric i = 2
+  loop i <= n
+    result = result * i
+    i = i + 1
+  end_loop
+  return result
+end_function
+
+numeric function gcd(numeric a; numeric b)
+  numeric p = a
+  numeric q = b
+  loop q != 0
+    numeric temp = q
+    q = p mod q
+    p = temp
+  end_loop
+  return p
+end_function
+
+numeric function lcm(numeric a; numeric b)
+  numeric g = gcd(a; b)
+  return a * b / g
+end_function
+
+-- Clamp value between min and max
+numeric function clamp(numeric val; numeric minVal; numeric maxVal)
+  if val < minVal then
+    return minVal
+  end_if
+  if val > maxVal then
+    return maxVal
+  end_if
+  return val
+end_function
+
+-- Return sign of number: -1, 0, or 1
+numeric function sign(numeric n)
+  if n < 0 then
+    return 0 - 1
+  end_if
+  if n > 0 then
+    return 1
+  end_if
+  return 0
+end_function
+
+-- Check if number is even
+numeric function isEven(numeric n)
+  if n mod 2 == 0 then
+    return 1
+  end_if
+  return 0
+end_function
+
+-- Check if number is odd
+numeric function isOdd(numeric n)
+  if n mod 2 != 0 then
+    return 1
+  end_if
+  return 0
+end_function
+
+-- Sum of integers from 1 to n
+numeric function sumRange(numeric n)
+  return n * (n + 1) / 2
+end_function
+
+-- Nth Fibonacci number (iterative)
+numeric function fib(numeric n)
+  if n <= 1 then
+    return n
+  end_if
+  numeric a = 0
+  numeric b = 1
+  numeric i = 2
+  loop i <= n
+    numeric temp = a + b
+    a = b
+    b = temp
+    i = i + 1
+  end_loop
+  return b
+end_function
+
+-- Sum of digits
+numeric function sumOfDigits(numeric n)
+  numeric val = abs(n)
+  numeric total = 0
+  loop val > 0
+    total = total + val mod 10
+    val = val / 10
+  end_loop
+  return total
+end_function
+
+-- Count digits in number
+numeric function countDigits(numeric n)
+  if n == 0 then
+    return 1
+  end_if
+  numeric val = abs(n)
+  numeric cnt = 0
+  loop val > 0
+    cnt = cnt + 1
+    val = val / 10
+  end_loop
+  return cnt
+end_function
+
+-- Check if n is a perfect square
+numeric function isPerfectSquare(numeric n)
+  if n < 0 then
+    return 0
+  end_if
+  numeric i = 0
+  loop i * i <= n
+    if i * i == n then
+      return 1
+    end_if
+    i = i + 1
+  end_loop
+  return 0
+end_function
+
+-- Check if n is prime
+numeric function isPrime(numeric n)
+  if n <= 1 then
+    return 0
+  end_if
+  if n <= 3 then
+    return 1
+  end_if
+  if n mod 2 == 0 then
+    return 0
+  end_if
+  numeric i = 3
+  loop i * i <= n
+    if n mod i == 0 then
+      return 0
+    end_if
+    i = i + 2
+  end_loop
+  return 1
+end_function
+
+-- Modular exponentiation: (base^exp) mod m
+numeric function modPow(numeric base; numeric exp; numeric m)
+  numeric result = 1
+  numeric b = base mod m
+  numeric e = exp
+  loop e > 0
+    if e mod 2 == 1 then
+      result = result * b mod m
+    end_if
+    e = e / 2
+    b = b * b mod m
+  end_loop
+  return result
+end_function
+
+-- Integer square root (floor of sqrt) - simple search
+numeric function isqrt(numeric n)
+  if n < 0 then
+    return 0 - 1
+  end_if
+  if n < 2 then
+    return n
+  end_if
+  numeric i = 1
+  loop i * i <= n
+    i = i + 1
+  end_loop
+  return i - 1
+end_function
+
+-- Reverse digits of a number
+numeric function reverseDigits(numeric n)
+  numeric num = n
+  numeric neg = 0
+  if num < 0 then
+    neg = 1
+    num = abs(num)
+  end_if
+  numeric rev = 0
+  loop num > 0
+    rev = rev * 10 + num mod 10
+    num = num / 10
+  end_loop
+  if neg == 1 then
+    return 0 - rev
+  end_if
+  return rev
+end_function
+
+-- Check if palindrome number
+numeric function isPalindrome(numeric n)
+  if n < 0 then
+    return 0
+  end_if
+  if n == reverseDigits(n) then
+    return 1
+  end_if
+  return 0
+end_function
+
+-- Round to nearest integer (compiler built-in)
+-- Stage1 Phase 1 addition
+numeric function round(numeric n)
+end_function

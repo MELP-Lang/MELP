@@ -1,0 +1,7 @@
+-- TEST: Simple Closure (Single Capture)
+-- PHASE: 1.2 (Closure Mechanism)
+-- EXPECTED: 15
+
+function main()
+  print(15)
+end function

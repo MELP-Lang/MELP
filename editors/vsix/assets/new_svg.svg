@@ -1,0 +1,63 @@
+<svg width="512" height="512" viewBox="23 66 164 164" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1b2e"/>
+      <stop offset="100%" stop-color="#162843"/>
+    </linearGradient>
+    <linearGradient id="mGradTop" x1="0" y1="0" x2="0" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4a9fd4"/>
+      <stop offset="100%" stop-color="#2176ae"/>
+    </linearGradient>
+    <linearGradient id="mGradText" x1="0" y1="140" x2="0" y2="340" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4a9fd4"/>
+      <stop offset="100%" stop-color="#2176ae"/>
+    </linearGradient>
+    <linearGradient id="mGradLocal" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#4a9fd4"/>
+      <stop offset="100%" stop-color="#2176ae"/>
+    </linearGradient>
+    <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2176ae" stop-opacity="0"/>
+      <stop offset="30%" stop-color="#4a9fd4"/>
+      <stop offset="70%" stop-color="#4a9fd4"/>
+      <stop offset="100%" stop-color="#2176ae" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="0%" y2="100%" gradientTransform="rotate(30)">
+      <stop offset="0%" stop-color="#f6d365"/>
+      <stop offset="100%" stop-color="#d4af37"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <g transform="matrix(0.32,0,0,0.32,23,66)">
+    <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+    <rect width="512" height="512" rx="96" fill="none" stroke="#2176ae" stroke-width="2" opacity="0.3"/>
+    
+    <g transform="translate(256,256) scale(1.2) translate(-256,-256)">
+    <text x="256" y="318" font-family="'Arial Black','Helvetica Neue',sans-serif" 
+          font-weight="900" font-size="280" text-anchor="middle" fill="url(#mGradText)" letter-spacing="-8">M</text>
+    
+    <rect x="96" y="348" width="320" height="4" rx="2" fill="url(#lineGrad)"/>
+    
+    <!-- M harfi -->
+    <path fill="url(#mGradLocal)" stroke="url(#mGradLocal)" stroke-width="2" filter="url(#glow)" d="M196.8 424L184.648 387.73h-.248q.062 1.24.186 3.534.124 2.232.186 4.898.124 2.604.124 4.898V424h-7.13v-44.268h11.036l11.656 34.782h.248l12.152-34.782h11.036V424h-7.564v-23.312q0-2.108.062-4.588.124-2.542.186-4.774.124-2.232.186-3.534h-.248L203.868 424z"/>
+    
+    <!-- e harfi -->
+    <path fill="url(#goldGrad)" stroke="url(#goldGrad)" stroke-width="2" filter="url(#glow)" transform="translate(-3 0) rotate(-30 252 406) translate(252 406) scale(0.90) translate(-252 -406)" d="M248.136 389.776q6.758 0 10.664 4.03 3.968 4.03 3.968 11.222v3.968h-22.196q.124 4.588 2.542 7.13 2.418 2.48 6.696 2.48 3.224 0 5.828-.62 2.604-.682 5.332-1.922v6.262q-2.48 1.178-5.146 1.736-2.666.558-6.386.558-4.898 0-8.742-1.86-3.782-1.922-5.952-5.766-2.108-3.844-2.108-9.548 0-8.618 4.278-13.144 4.278-4.526 11.222-4.526zm0 5.766q-3.162 0-5.146 2.046-1.922 1.984-2.232 5.952h14.446q-.062-3.472-1.798-5.704-1.674-2.294-5.27-2.294z"/>
+    
+    <!-- L harfi -->
+    <path fill="url(#mGradLocal)" stroke="url(#mGradLocal)" stroke-width="2" filter="url(#glow)" d="M271.386 424v-44.268h7.936V417.304h18.476V424z"/>
+    
+    <!-- P harfi -->
+    <path fill="url(#mGradLocal)" stroke="url(#mGradLocal)" stroke-width="2" filter="url(#glow)" d="M318.692 379.732q8.618 0 12.524 3.596 3.968 3.596 3.968 9.92 0 3.782-1.612 7.13-1.612 3.286-5.456 5.332-3.782 1.984-10.292 1.984h-4.402V424h-7.936v-44.268zm-.496 6.572h-4.774v14.818h3.596q4.836 0 7.44-1.736 2.666-1.798 2.666-5.828 0-3.658-2.17-5.456-2.17-1.798-6.758-1.798z"/>
+    </g>
+      
+ 
+  </g>
+</svg>

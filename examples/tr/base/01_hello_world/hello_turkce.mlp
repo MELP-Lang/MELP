@@ -1,0 +1,8 @@
+#lang turkish
+-- Türkçe keyword desteği ile MeLP örneği
+-- MLP kanonik Türkçe sözdizimi
+
+fonksiyon giriş()
+    yazdır("Merhaba, MeLP Dünyası! 🚀")
+    yazdır("Türkçe keyword desteği çalışıyor!")
+fonksiyon sonu

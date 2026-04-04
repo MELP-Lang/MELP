@@ -1,0 +1,31 @@
+-- GÖREV 19: hashmap
+-- Anahtar-değer koleksiyonu (basit)
+
+function main()
+    -- Hashmap oluştur
+    hashmap<string, numeric> scores = {}
+
+    -- Değer ekle
+    scores["alice"] = 95
+    scores["bob"] = 87
+    scores["charlie"] = 92
+
+    -- Değer oku
+    numeric alice_score = scores["alice"]
+    print(alice_score)
+
+    numeric bob_score = scores["bob"]
+    print(bob_score)
+
+    numeric charlie_score = scores["charlie"]
+    print(charlie_score)
+
+    -- Olmayan anahtar (0 döner)
+    numeric missing = scores["unknown"]
+    print(missing)
+
+    -- Değer güncelle
+    scores["alice"] = 98
+    numeric updated = scores["alice"]
+    print(updated)
+end function

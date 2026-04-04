@@ -1,0 +1,200 @@
+-- lsp_keywords.mlp — MLP keyword tablosu (completion ve hover için)
+--
+-- Stage 0 kısıtlaması: no arrays → keyword listesi string olarak tutulur,
+-- pipe (|) karakteri ayraç olarak kullanılır.
+-- Format: "keyword1|keyword2|keyword3|..."
+--
+-- Fonksiyonlar:
+--   get_keywords_mlp()        → tüm canonical MLP keyword'leri
+--   get_keywords_turkish()    → tüm Türkçe MLP keyword'leri
+--   get_hover_doc(kw)         → keyword için hover açıklama
+--   build_completion_item(kw; detail; doc) → LSP CompletionItem JSON
+
+-- ============================================================================
+-- Keyword Tables
+-- ============================================================================
+
+string function get_keywords_mlp()
+    return "if|then|else|else if|end if|loop|end loop|for|end for|each|in|from|to|downto|step|where|exit|continue|return|function|end function|external|lambda|end lambda|const|comptime|pure|inline|numeric|string|boolean|true|false|null|none|list|hashmap|tuple|struct|end struct|enum|end enum|interface|end interface|implements|this|operator|end operator|match|end match|case|try|end try|catch|finally|throw|defer|module|end module|import|export|package|async|await|spawn|send|receive|and|or|not|xor|mod|own|print|println|input|read_file|write_file|append_file|main|scope|end scope|event|end event|debug|goto|abort|macro|test|program"
+end function
+
+string function get_keywords_turkish()
+    return "eğer|koşul|ise|değilse|yoksa|değilse koşul|yoksa koşul|koşul sonu|eğer sonu|döngü|döngü sonu|için|için sonu|her|içinde|dan|den|dan ... a kadar|dan ... geriye|adım|sadece|çık|devam|döndür|dön|fonksiyon|işlev|fonksiyon sonu|işlev sonu|lambda|lambda sonu|sabit|derleme_zamanı|saf|satıriçi|sayısal|sayı|metin|yazı|mantıksal|doğru|yanlış|boş|hiç|liste|yapı|yapı sonu|sıralama|sıralama sonu|arayüz|arayüz sonu|uygular|bu|işleç|işleç sonu|seç|seç sonu|durum|dene|dene sonu|hata yakala|sonunda|fırlat|modül|modül sonu|içe_aktar|dışa_aktar|paket|eşzamansız|bekle|ve|veya|değil|sahip|yaz|yazdır|ana|giriş"
+end function
+
+-- ============================================================================
+-- Hover Documentation
+-- ============================================================================
+
+string function get_hover_doc(string kw)
+    -- Control flow
+    if kw == "if" or kw == "koşul" or kw == "eğer" then
+        return "**Koşullu dallanma**\n\nSözdizimi:\n```\nif EXPR then\n    ...\nend if\n```\nTürkçe: `koşul EXPR ise ... koşul sonu`"
+    end if
+    if kw == "loop" or kw == "döngü" then
+        return "**Döngü**\n\nKoşullu: `loop COND ... end loop`\nSayısal: `loop i = 0 to 10 ... end loop`\nForeach: `loop each ELEM in COLL ... end loop`\nTürkçe: `döngü i = 0 dan 10 ... döngü sonu`"
+    end if
+    if kw == "return" or kw == "döndür" or kw == "dön" then
+        return "**Değer döndür**\n\nSon ifade otomatik döner — `return` isteğe bağlı.\nErken çıkış için: `return EXPR`\nTürkçe postfix: `EXPR döndür`"
+    end if
+    if kw == "match" or kw == "seç" then
+        return "**Pattern matching**\n\nSözdizimi:\n```\nmatch EXPR\n    case VAL: ...\nend match\n```\nTürkçe: `seç EXPR ... seç sonu`"
+    end if
+
+    -- Functions
+    if kw == "function" or kw == "fonksiyon" or kw == "işlev" then
+        return "**Fonksiyon tanımı**\n\nSözdizimi (tip-önde):\n```\nRETURN_TYPE function name(TYPE param; ...)\n    ...\nend function\n```\nÖrnek: `numeric function add(numeric x; numeric y)`"
+    end if
+    if kw == "lambda" then
+        return "**Lambda (anonim fonksiyon)**\n\nSözdizimi:\n```\nlambda (TYPE param; ...) -> EXPR\nend lambda\n```"
+    end if
+
+    -- Types
+    if kw == "numeric" or kw == "sayısal" or kw == "sayı" then
+        return "**Sayısal tip**\n\nTam sayı veya ondalık. Stage0'da 64-bit double."
+    end if
+    if kw == "string" or kw == "metin" or kw == "yazı" then
+        return "**Metin tipi**\n\nUTF-8 string. Çift tırnak ile yazılır: `\"merhaba\"`"
+    end if
+    if kw == "boolean" or kw == "mantıksal" then
+        return "**Mantıksal tip**\n\nDeğerler: `true` / `false` (Türkçe: `doğru` / `yanlış`)"
+    end if
+    if kw == "list" or kw == "liste" then
+        return "**Liste tipi**\n\nHomojen koleksiyon. `list<TYPE>` ile tanımlanır."
+    end if
+
+    -- OOP
+    if kw == "struct" or kw == "yapı" then
+        return "**Yapı (struct)**\n\nSözdizimi:\n```\nstruct Name\n    TYPE field\nend struct\n```\nTürkçe: `yapı İsim ... yapı sonu`"
+    end if
+    if kw == "interface" or kw == "arayüz" then
+        return "**Arayüz**\n\nSözdizimi:\n```\ninterface Name\n    RETURN function sig(...)\nend interface\n```"
+    end if
+    if kw == "enum" or kw == "sıralama" then
+        return "**Sıralama (enum)**\n\nSözdizimi:\n```\nenum Name\n    VARIANT1\n    VARIANT2\nend enum\n```"
+    end if
+
+    -- Error handling
+    if kw == "try" or kw == "dene" then
+        return "**Hata yönetimi**\n\nSözdizimi:\n```\ntry\n    ...\ncatch error\n    ...\nend try\n```\nTürkçe: `dene ... hata yakala ... dene sonu`"
+    end if
+    if kw == "throw" or kw == "fırlat" then
+        return "**Hata fırlat**\n\n`throw EXPR` — bir hata nesnesi veya mesaj fırlatır."
+    end if
+
+    -- Ownership
+    if kw == "own" or kw == "sahip" then
+        return "**Sahiplik**\n\n`own` tipi — heap-allocated, tek sahiplik.\nÖrnek: `own string buffer`"
+    end if
+
+    -- Modifiers
+    if kw == "pure" or kw == "saf" then
+        return "**Saf fonksiyon**\n\nYan etkisiz — aynı girdi → aynı çıktı. Derleyici optimize edebilir."
+    end if
+    if kw == "inline" or kw == "satıriçi" then
+        return "**Satır içi genişletme**\n\nFonksiyon çağrısı yerine kodu yerleştirir."
+    end if
+    if kw == "comptime" or kw == "derleme_zamanı" then
+        return "**Derleme zamanı değerlendirme**\n\nDerleme sırasında hesaplanan sabit ifadeler."
+    end if
+    if kw == "async" or kw == "eşzamansız" then
+        return "**Eşzamansız fonksiyon**\n\n`async function name(...)` — `await` ile beklenir."
+    end if
+    if kw == "await" or kw == "bekle" then
+        return "**Bekleme**\n\n`await EXPR` — bir async değer/işlem bekler."
+    end if
+
+    -- I/O
+    if kw == "print" or kw == "yaz" or kw == "yazdır" then
+        return "**Çıktı yaz**\n\n`print(EXPR)` — stdout'a yazar, newline yok.\n`println(EXPR)` — newline ekler."
+    end if
+    if kw == "input" then
+        return "**Girdi oku**\n\n`input()` — stdin'den bir satır okur, string döner."
+    end if
+    if kw == "read_file" then
+        return "**Dosya oku**\n\n`read_file(PATH)` — dosyanın tüm içeriğini string olarak döner."
+    end if
+    if kw == "write_file" then
+        return "**Dosyaya yaz**\n\n`write_file(PATH; CONTENT)` — dosyaya yazar (üzerine yazar)."
+    end if
+
+    -- Logical
+    if kw == "and" or kw == "ve" then
+        return "**Mantıksal VE**\n\n`EXPR and EXPR` — her ikisi de doğruysa doğru."
+    end if
+    if kw == "or" or kw == "veya" then
+        return "**Mantıksal VEYA**\n\n`EXPR or EXPR` — en az biri doğruysa doğru."
+    end if
+    if kw == "not" or kw == "değil" then
+        return "**Mantıksal DEĞİL**\n\nPrefix: `not EXPR`\nTürkçe postfix: `EXPR değil` → `not EXPR`"
+    end if
+    if kw == "where" or kw == "sadece" then
+        return "**Filtre koşulu**\n\n`loop each x in list where x > 0` — koşulu sağlayanlar.\nTürkçe: `sadece`"
+    end if
+
+    return ""
+end function
+
+-- ============================================================================
+-- LSP CompletionItem builder
+-- ============================================================================
+-- item_kind: 14 = Keyword
+-- item_kind: 3  = Function
+-- item_kind: 6  = Variable
+-- item_kind: 21 = Constant
+
+string function build_completion_item(string label; string detail; string doc)
+    -- B5 workaround: don't init string var with func() + literal on same line
+    string ci_item = json_kv_str("label"; label)
+    ci_item = ci_item + ", "
+    string ci_kind = json_kv_num("kind"; 14)
+    ci_item = ci_item + ci_kind
+    ci_item = ci_item + ", "
+    string ci_detail = json_kv_str("detail"; detail)
+    ci_item = ci_item + ci_detail
+    ci_item = ci_item + ", "
+    string ci_doc_kind = json_kv_str("kind"; "markdown")
+    string ci_doc_val = json_kv_str("value"; doc)
+    string ci_doc_body = ci_doc_kind
+    ci_doc_body = ci_doc_body + ", "
+    ci_doc_body = ci_doc_body + ci_doc_val
+    string ci_doc_obj = json_object(ci_doc_body)
+    ci_item = ci_item + "\"documentation\": "
+    ci_item = ci_item + ci_doc_obj
+    return json_object(ci_item)
+end function
+
+-- Build completion list from pipe-separated keyword string
+-- Returns a JSON array string
+string function keywords_to_completion_list(string kws; string lang_label)
+    string result = ""
+    boolean first = true
+    numeric i = 0
+    numeric n = len(kws)
+    string kw = ""
+
+    loop i <= n
+        string ch = ""
+        if i < n then
+            ch = substring(kws; i; 1)
+        end if
+
+        if ch == "|" or i == n then
+            if len(kw) > 0 then
+                string doc = get_hover_doc(kw)
+                string item = build_completion_item(kw; lang_label; doc)
+                if not first then
+                    result = result + ", "
+                end if
+                result = result + item
+                first = false
+                kw = ""
+            end if
+        else
+            kw = kw + ch
+        end if
+        i = i + 1
+    end loop
+
+    return json_array(result)
+end function

@@ -1,0 +1,13 @@
+-- Math module with exported and private functions
+
+export function add(numeric a; numeric b) as numeric
+    return a + b
+end function
+
+export function multiply(numeric a; numeric b) as numeric
+    return a * b
+end function
+
+numeric function helper(numeric x)
+    return x * 2
+end function

@@ -1,0 +1,138 @@
+// ============================================================================
+// MLP Standard Library - std.fs Module
+// ============================================================================
+// File system operations: read/write files, manage directories, path utilities
+// Author: YZ_STAGE1_02
+// Date: 29 Ocak 2026
+// Version: 1.0.0
+// ============================================================================
+
+module std.fs
+start
+
+// ============================================================================
+// FILE EXISTENCE AND TYPE CHECKS
+// ============================================================================
+// Check if files and directories exist, and determine their types
+
+// Check if a path exists (file or directory)
+function exists(path: string) -> bool
+    return __builtin_fs_exists(path)
+end_function
+
+// Check if a path points to a regular file
+function is_file(path: string) -> bool
+    return __builtin_fs_is_file(path)
+end_function
+
+// Check if a path points to a directory
+function is_directory(path: string) -> bool
+    return __builtin_fs_is_directory(path)
+end_function
+
+// Get the size of a file in bytes (returns -1 on error)
+function file_size(path: string) -> numeric
+    return __builtin_fs_file_size(path)
+end_function
+
+// ============================================================================
+// FILE READ/WRITE OPERATIONS
+// ============================================================================
+// Read from and write to files
+
+// Read entire file contents as a string
+// Returns empty string on error - check with exists() first
+function read_to_string(path: string) -> string
+    let success: numeric = 0
+    let content: string = __builtin_fs_read_to_string(path; success)
+    return content
+end_function
+
+// Write string content to file (creates or overwrites)
+// Returns 1 on success; 0 on error
+function write_string(path: string; content: string) -> numeric
+    return __builtin_fs_write_string(path; content)
+end_function
+
+// Append string content to end of file
+// Returns 1 on success; 0 on error
+function append_string(path: string; content: string) -> numeric
+    return __builtin_fs_append_string(path; content)
+end_function
+
+// ============================================================================
+// DIRECTORY OPERATIONS
+// ============================================================================
+// Create, remove, and list directories
+
+// Create a single directory
+// Returns 1 on success; 0 on error
+function create_dir(path: string) -> numeric
+    return __builtin_fs_create_dir(path)
+end_function
+
+// Create directory and all parent directories (like mkdir -p)
+// Returns 1 on success; 0 on error
+function create_dir_all(path: string) -> numeric
+    return __builtin_fs_create_dir_all(path)
+end_function
+
+// Remove an empty directory
+// Returns 1 on success; 0 on error
+function remove_dir(path: string) -> numeric
+    return __builtin_fs_remove_dir(path)
+end_function
+
+// Remove directory and all its contents recursively (like rm -rf)
+// Returns 1 on success; 0 on error
+function remove_dir_all(path: string) -> numeric
+    return __builtin_fs_remove_dir_all(path)
+end_function
+
+// List all entries in a directory (files and subdirectories)
+// Returns array of names (not full paths)
+function read_dir(path: string) -> Array
+    let count: numeric = 0
+    return __builtin_fs_read_dir(path; count)
+end_function
+
+// ============================================================================
+// PATH OPERATIONS
+// ============================================================================
+// Utilities for working with file paths
+
+// Join two path components with a directory separator
+function join_path(a: string; b: string) -> string
+    return __builtin_fs_join_path(a; b)
+end_function
+
+// Extract the filename from a path
+function basename(path: string) -> string
+    return __builtin_fs_basename(path)
+end_function
+
+// Extract the directory part of a path
+function dirname(path: string) -> string
+    return __builtin_fs_dirname(path)
+end_function
+
+// Extract the file extension (without the dot)
+// Returns empty string if no extension
+function extension(path: string) -> string
+    let ext: string = __builtin_fs_extension(path)
+    if ext == "" then
+        return ""
+    else
+        return ext
+    end_if
+end_function
+
+// ============================================================================
+// FILE METADATA
+// ============================================================================
+// Get detailed information about files and directories
+
+// Note: FileMetadata struct will be used in future when struct support is added
+// For now; use individual functions above for metadata access
+
+end

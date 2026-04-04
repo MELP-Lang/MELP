@@ -1,0 +1,8 @@
+{
+  "stage0_version": "1.1.1",
+  "stage0_root": "/home/pardus/PROJELER/MELP/LLVM/STAGE0",
+  "melp_compiler": "/home/pardus/PROJELER/MELP/LLVM/STAGE0/build/compiler/stage1/modules/orchestrator/melp_compiler",
+  "mlp_runtime_bc": "/home/pardus/PROJELER/MELP/LLVM/STAGE0/build/mlp_runtime.bc",
+  "last_synced": "2026-04-02",
+  "notes": "STAGE1 bu versiyonla test edildi ve uyumlu."
+}

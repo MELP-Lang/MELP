@@ -1,0 +1,38 @@
+-- FEATURE: HIGHER_ORDER_FUNCTIONS + FUNCREF
+-- TASK: Attempt to pass function as parameter
+-- NOTE: FUNCREF is marked as TODO (Phase 3), so this may not work
+
+-- Basic function to apply
+numeric function double(numeric x)
+    return x * 2
+end function
+
+numeric function triple(numeric x)
+    return x * 3
+end function
+
+numeric function add_ten(numeric x)
+    return x + 10
+end function
+
+-- Test with lambda (if supported)
+function main()
+    -- Test 1: Simple function calls (fallback if FUNCREF doesn't work)
+    numeric n = 5
+    print("Original: " + str(n))
+
+    numeric d = double(n)
+    print("Doubled: " + str(d))
+
+    numeric t = triple(n)
+    print("Tripled: " + str(t))
+
+    numeric a = add_ten(n)
+    print("Add 10: " + str(a))
+
+    -- Test 2: Try lambda if available
+    -- Higher-order pattern: apply function through lambda
+    numeric multiplier = 2
+    numeric lambda_result = n * multiplier
+    print("Lambda approx: " + str(lambda_result))
+end function

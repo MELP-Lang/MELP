@@ -1,0 +1,30 @@
+#lang turkish
+-- GÖREV 16: örüntü_eşleştirme
+-- Seç-durum yapısı ile örüntü eşleştirme
+
+sayısal fonksiyon sayi_acikla(sayısal n)
+    seç n
+        durum 1 ise döndür 100
+        durum 2 ise döndür 200
+        durum 3 ise döndür 300
+        yoksa döndür 0
+    seç sonu
+fonksiyon sonu
+
+fonksiyon giriş()
+    sayısal x = 1
+    sayısal y = 2
+    sayısal z = 5
+
+    yazdır(sayi_acikla(x))
+    yazdır(sayi_acikla(y))
+    yazdır(sayi_acikla(z))
+
+    -- Seç-durum ile değer atama
+    sayısal result = seç y
+        durum 1 ise 10
+        durum 2 ise 20
+        yoksa 0
+    seç sonu
+    yazdır(result)
+fonksiyon sonu

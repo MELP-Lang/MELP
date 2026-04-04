@@ -1,0 +1,133 @@
+-- json_mini.mlp
+-- Tek seviyeli JSON ayristirici demo
+-- {"key": "value", ...} formatindaki bir JSON'dan string deger okur.
+-- Stage0 kisitlamasi: loop icinde return calismiyor; i=jlen ile dongu sonlandirma kullanilir.
+
+-- Bosluk atla; yeni konumu dondur
+-- NOT: Stage0 loop icinde return calismiyor → k=n ile zorla cikis
+function json_skip_ws(s as string; start_i as numeric) -> numeric
+    numeric n = len(s)
+    numeric code = 0
+    numeric result_pos = start_i
+    numeric k = start_i
+    loop k < n
+        code = char_code(s; k)
+        if code == 32 or code == 9 or code == 10 then
+            result_pos = k + 1
+            k = k + 1
+        else
+            k = n
+        end if
+    end loop
+    return result_pos
+end function
+
+-- jsrc icinde "key": degerinin baslangic konumunu dondur; bulunamazsa -1
+function json_find_value_pos(jsrc as string; key as string) -> numeric
+    string needle = "\""
+    needle = needle + key
+    needle = needle + "\""
+    numeric nlen = len(needle)
+    numeric jlen = len(jsrc)
+    numeric i = 0
+    numeric j = 0
+    numeric result = -1
+    string candidate = ""
+    string colon = ""
+    loop i < jlen
+        if result == -1 then
+            if i + nlen <= jlen then
+                candidate = substring(jsrc; i; nlen)
+                if candidate == needle then
+                    j = i + nlen
+                    j = json_skip_ws(jsrc; j)
+                    if j < jlen then
+                        colon = substring(jsrc; j; 1)
+                        if colon == ":" then
+                            j = j + 1
+                            j = json_skip_ws(jsrc; j)
+                            result = j
+                        end if
+                    end if
+                end if
+            end if
+        end if
+        i = i + 1
+    end loop
+    return result
+end function
+
+-- Konum i'deki string degeri oku (acilis tirnagindan baslayarak)
+-- i dogrudan '"' uzerine isaret etmeli; dongu-ici return yerine i=jlen kullanilir
+function json_read_string(jsrc as string; i as numeric) -> string
+    numeric jlen = len(jsrc)
+    string result = ""
+    string ch = ""
+    string esc = ""
+    i = i + 1
+    loop i < jlen
+        ch = substring(jsrc; i; 1)
+        if ch == "\"" then
+            i = jlen
+        else
+            if ch == "\\" then
+                i = i + 1
+                if i < jlen then
+                    esc = substring(jsrc; i; 1)
+                    if esc == "n" then
+                        result = result + "\n"
+                    else
+                        if esc == "t" then
+                            result = result + "\t"
+                        else
+                            result = result + esc
+                        end if
+                    end if
+                    i = i + 1
+                end if
+            else
+                result = result + ch
+                i = i + 1
+            end if
+        end if
+    end loop
+    return result
+end function
+
+function main() -> numeric
+    string json = "{"
+    json = json + "\"ad\": \"MELP\", "
+    json = json + "\"surum\": \"1.0\", "
+    json = json + "\"lisans\": \"Apache-2.0\", "
+    json = json + "\"yazar\": \"topluluk\""
+    json = json + "}"
+
+    print("JSON: " + json)
+    print("---")
+
+    numeric p1 = json_find_value_pos(json; "ad")
+    string v1 = json_read_string(json; p1)
+    print("ad      = " + v1)
+
+    numeric p2 = json_find_value_pos(json; "surum")
+    string v2 = json_read_string(json; p2)
+    print("surum   = " + v2)
+
+    numeric p3 = json_find_value_pos(json; "lisans")
+    string v3 = json_read_string(json; p3)
+    print("lisans  = " + v3)
+
+    numeric p4 = json_find_value_pos(json; "yazar")
+    string v4 = json_read_string(json; p4)
+    print("yazar   = " + v4)
+
+    numeric p5 = json_find_value_pos(json; "yok")
+    if p5 == -1 then
+        print("yok     = (bulunamadi)")
+    else
+        string v5 = json_read_string(json; p5)
+        print("yok     = " + v5)
+    end if
+
+    return 0
+end function

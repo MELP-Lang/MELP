@@ -1,0 +1,9 @@
+// Helper module
+
+export function magic_number() as numeric
+    return 42
+end function
+
+export function double(numeric x) as numeric
+    return x * 2
+end function

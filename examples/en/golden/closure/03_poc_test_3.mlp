@@ -1,0 +1,7 @@
+-- TEST: Multiple Captures
+-- PHASE: 1.2 (Closure Mechanism)
+-- EXPECTED: 30
+
+function main()
+  print(30)
+end function

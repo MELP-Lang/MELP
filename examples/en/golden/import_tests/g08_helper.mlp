@@ -1,0 +1,11 @@
+export function multiply_two(numeric x) as numeric
+  return x * 2
+end function
+
+export function add_ten(numeric x) as numeric
+  return x + 10
+end function
+
+export function square(numeric x) as numeric
+  return x * x
+end function

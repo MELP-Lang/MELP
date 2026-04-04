@@ -1,0 +1,118 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          # v0.1.0-alfa → 0.1.0-alfa
+          VERSION="${TAG#v}"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Extract CHANGELOG section
+        id: changelog
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          # CHANGELOG.md contains sections like: ## [0.1.0-alfa] - YYYY-MM-DD
+          # Extract the block for this version (between its heading and the next ## heading)
+          awk -v ver="[$VERSION]" '
+            /^## \[/ { if (found) exit; if (index($0, ver)) found=1; next }
+            found { print }
+          ' CHANGELOG.md > release_notes.txt
+
+          if [ ! -s release_notes.txt ]; then
+            echo "Bu sürümün CHANGELOG girişi bulunamadı." > release_notes.txt
+          fi
+
+          echo "RELEASE_NOTES_PATH=release_notes.txt" >> "$GITHUB_ENV"
+
+      - name: Install LLVM 16 (strip + verify)
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y llvm-16 binutils
+
+      - name: Verify compiler binary
+        run: |
+          file bin/melp_compiler
+          file bin/mlp_runtime.bc
+          ls -lh bin/melp_compiler bin/mlp_runtime.bc bin/melp_lsp
+
+      - name: Build release package
+        id: package
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          PKG_NAME="melp-${TAG}-linux-x86_64"
+          PKG_DIR="${PKG_NAME}"
+
+          mkdir -p "${PKG_DIR}/bin"
+          mkdir -p "${PKG_DIR}/examples"
+          mkdir -p "${PKG_DIR}/docs"
+
+          # Compiler binaries
+          cp bin/melp_compiler        "${PKG_DIR}/bin/"
+          cp bin/mlp_runtime.bc       "${PKG_DIR}/bin/"
+          # LSP server (may not exist in all tags — skip if missing)
+          if [ -f bin/melp_lsp ]; then
+            cp bin/melp_lsp "${PKG_DIR}/bin/"
+          fi
+
+          # Examples
+          if [ -d examples ]; then
+            cp -r examples/. "${PKG_DIR}/examples/"
+          fi
+
+          # Docs (TR + EN)
+          if [ -d docs_TR ]; then
+            cp -r docs_TR "${PKG_DIR}/docs/docs_TR"
+          fi
+          if [ -d docs_EN ]; then
+            cp -r docs_EN "${PKG_DIR}/docs/docs_EN"
+          fi
+
+          # Root docs
+          for f in README.md CHANGELOG.md INSTALL.md LICENSE; do
+            [ -f "$f" ] && cp "$f" "${PKG_DIR}/"
+          done
+
+          # Make compiler executable inside the archive
+          chmod +x "${PKG_DIR}/bin/melp_compiler"
+
+          # Archive
+          tar -czf "${PKG_NAME}.tar.gz" "${PKG_DIR}"
+
+          echo "pkg_name=${PKG_NAME}" >> "$GITHUB_OUTPUT"
+          echo "pkg_file=${PKG_NAME}.tar.gz" >> "$GITHUB_OUTPUT"
+
+          sha256sum "${PKG_NAME}.tar.gz" > "${PKG_NAME}.tar.gz.sha256"
+          echo "sha256_file=${PKG_NAME}.tar.gz.sha256" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: "MELP ${{ steps.version.outputs.version }}"
+          body_path: release_notes.txt
+          draft: false
+          prerelease: ${{ contains(steps.version.outputs.version, 'alfa') || contains(steps.version.outputs.version, 'beta') || contains(steps.version.outputs.version, 'rc') }}
+          files: |
+            ${{ steps.package.outputs.pkg_file }}
+            ${{ steps.package.outputs.sha256_file }}

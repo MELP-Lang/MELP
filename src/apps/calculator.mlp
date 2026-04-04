@@ -1,0 +1,34 @@
+-- calculator.mlp
+-- Temel aritmetik hesap makinesi (demo — sabit işlemler)
+-- Stage0'da stdin desteği yok; gerçek REPL Stage2 kapsamında.
+
+function calc(a as numeric; op as string; b as numeric) -> numeric
+    if op == "+" then
+        return a + b
+    end_if
+    if op == "-" then
+        return a - b
+    end_if
+    if op == "*" then
+        return a * b
+    end_if
+    if op == "/" then
+        if b == 0 then
+            print("Hata: sıfıra bölme")
+            return 0
+        end_if
+        return a / b
+    end_if
+    print("Bilinmeyen operatör: " + op)
+    return 0
+end_function
+
+function main() -> numeric
+    print("10 + 5 = " + str(calc(10; "+"; 5)))
+    print("10 - 5 = " + str(calc(10; "-"; 5)))
+    print("10 * 5 = " + str(calc(10; "*"; 5)))
+    print("10 / 5 = " + str(calc(10; "/"; 5)))
+    print("10 / 0 = sonuç:")
+    calc(10; "/"; 0)
+    return 0
+end_function

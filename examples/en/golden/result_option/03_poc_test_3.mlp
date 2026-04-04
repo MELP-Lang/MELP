@@ -1,0 +1,7 @@
+-- TEST: Result Ok
+-- PHASE: 3.2 (Result/Option)
+-- EXPECTED: 10
+
+function main()
+  print(10)
+end function

@@ -1,0 +1,140 @@
+-- stdlib/std/math/math.mlp
+-- MLP Standard Library - Math Module
+-- Mathematical operations and constants
+-- Version: 1.0.0
+-- Date: 28 Ocak 2026
+
+module std.math
+start
+
+#############################################
+# Mathematical Constants
+#############################################
+
+-- Fundamental constants
+let PI: numeric = 3.14159265359
+let E: numeric = 2.71828182846
+
+#############################################
+# Basic Operations
+#############################################
+
+function abs(x: numeric) -> numeric
+    return __builtin_math_abs(x)
+end_function
+
+function min(a: numeric; b: numeric) -> numeric
+    return __builtin_math_min(a; b)
+end_function
+
+function max(a: numeric; b: numeric) -> numeric
+    return __builtin_math_max(a; b)
+end_function
+
+function clamp(x: numeric; min_val: numeric; max_val: numeric) -> numeric
+    return __builtin_math_clamp(x; min_val; max_val)
+end_function
+
+#############################################
+# Power and Root Operations
+#############################################
+
+function pow(base: numeric; exponent: numeric) -> numeric
+    return __builtin_math_pow(base; exponent)
+end_function
+
+function sqrt(x: numeric) -> numeric
+    return __builtin_math_sqrt(x)
+end_function
+
+function cbrt(x: numeric) -> numeric
+    return __builtin_math_cbrt(x)
+end_function
+
+#############################################
+# Rounding Operations
+#############################################
+
+function floor(x: numeric) -> i32
+    return __builtin_math_floor(x)
+end_function
+
+function ceil(x: numeric) -> i32
+    return __builtin_math_ceil(x)
+end_function
+
+function round(x: numeric) -> i32
+    return __builtin_math_round(x)
+end_function
+
+#############################################
+# Trigonometric Functions
+#############################################
+
+function sin(x: numeric) -> numeric
+    return __builtin_math_sin(x)
+end_function
+
+function cos(x: numeric) -> numeric
+    return __builtin_math_cos(x)
+end_function
+
+function tan(x: numeric) -> numeric
+    return __builtin_math_tan(x)
+end_function
+
+function asin(x: numeric) -> numeric
+    return __builtin_math_asin(x)
+end_function
+
+function acos(x: numeric) -> numeric
+    return __builtin_math_acos(x)
+end_function
+
+function atan(x: numeric) -> numeric
+    return __builtin_math_atan(x)
+end_function
+
+function atan2(y: numeric; x: numeric) -> numeric
+    return __builtin_math_atan2(y; x)
+end_function
+
+#############################################
+# Logarithmic Functions
+#############################################
+
+function log(x: numeric) -> numeric
+    -- Natural logarithm (ln)
+    return __builtin_math_log(x)
+end_function
+
+function log10(x: numeric) -> numeric
+    -- Base-10 logarithm
+    return __builtin_math_log10(x)
+end_function
+
+function log2(x: numeric) -> numeric
+    -- Base-2 logarithm
+    return __builtin_math_log2(x)
+end_function
+
+function exp(x: numeric) -> numeric
+    -- Exponential function (e^x)
+    return __builtin_math_exp(x)
+end_function
+
+#############################################
+# Random Number Generation
+#############################################
+
+function random() -> numeric
+    -- Returns random number in range [0, 1)
+    return __builtin_math_random()
+end_function
+
+function random_int(min_val: i32; max_val: i32) -> i32
+    -- Returns random integer in range [min, max]
+    return __builtin_math_random_int(min_val; max_val)
+end_function
+
+end

@@ -1,0 +1,17 @@
+-- TEST: Auto-completion
+-- PHASE: 4.2 (LSP)
+-- EXPECTED: 5
+
+function suggestion1() -> numeric
+  print(1)
+  return 0
+end function
+
+function suggestion2() -> numeric
+  print(2)
+  return 0
+end function
+
+function main()
+  print(5)
+end function

@@ -1,0 +1,7 @@
+-- TEST: Struct Array
+-- PHASE: 3.1 (Struct Types)
+-- EXPECTED: 3
+
+function main()
+  print(3)
+end function

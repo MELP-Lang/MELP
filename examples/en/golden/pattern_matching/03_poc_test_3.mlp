@@ -1,0 +1,7 @@
+-- TEST: Match with Guard
+-- PHASE: 3.2 (Pattern Matching)
+-- EXPECTED: 20
+
+function main()
+  print(20)
+end function

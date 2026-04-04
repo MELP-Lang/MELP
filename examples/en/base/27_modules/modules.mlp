@@ -1,0 +1,25 @@
+-- FEATURE: MODULES - export fonksiyon
+-- NOT: import ./module Stage0'da tek dosya scope'unda çalışıyor
+-- Multi-file import Phase 2'de — şimdilik export keyword test ediliyor
+
+export numeric function add(numeric a; numeric b)
+    return a + b
+end function
+
+export numeric function multiply(numeric a; numeric b)
+    return a * b
+end function
+
+export numeric function max_val(numeric a; numeric b)
+    if a > b then
+        return a
+    end if
+    return b
+end function
+
+function main()
+    print(add(3; 4))
+    print(multiply(6; 7))
+    print(max_val(10; 25))
+    print(max_val(99; 3))
+end function

@@ -1,0 +1,7 @@
+-- TEST: Result Enum Ok
+-- PHASE: 3.2 (Enum)
+-- EXPECTED: 42
+
+function main()
+  print(42)
+end function

@@ -1,0 +1,7 @@
+function main()
+  auto add = lambda(numeric a, numeric b) -> numeric
+    return a + b
+  end_lambda
+
+  return add(5; 7)
+end function

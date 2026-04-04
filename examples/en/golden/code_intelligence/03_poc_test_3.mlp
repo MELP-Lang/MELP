@@ -1,0 +1,7 @@
+-- TEST: Complexity Metric
+-- PHASE: 4.2 (Code Intelligence)
+-- EXPECTED: 3
+
+function main()
+  print(3)
+end function

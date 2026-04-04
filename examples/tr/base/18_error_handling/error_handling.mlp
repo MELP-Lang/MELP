@@ -1,0 +1,50 @@
+#lang turkish
+-- GÖREV 18: hata_yonetimi
+-- Basit hata işleme (Result kalıbı ile)
+
+sayısal fonksiyon bol(sayısal a; sayısal b)
+    koşul b == 0 ise
+        döndür 0  -- hata durumu
+    yoksa
+        döndür a / b
+    koşul sonu
+fonksiyon sonu
+
+sayısal fonksiyon guvenli_isle(sayısal val)
+    koşul val < 0 ise
+        döndür 0  -- hata: negatif
+    yoksa
+        döndür val
+    koşul sonu
+fonksiyon sonu
+
+fonksiyon giriş()
+    -- Başarılı işlem
+    sayısal r1 = bol(10; 2)
+    yazdır(r1)
+
+    -- Hata durumu (0 dönüş)
+    sayısal r2 = bol(10; 0)
+    koşul r2 == 0 ise
+        yazdır(0)
+    koşul sonu
+
+    -- Güvenli işlem başarılı
+    sayısal p1 = guvenli_isle(42)
+    yazdır(p1)
+
+    -- Güvenli işlem hata
+    sayısal p2 = guvenli_isle(-5)
+    koşul p2 == 0 ise
+        yazdır(0)
+    koşul sonu
+
+    -- Zincirleme kontrol
+    sayısal a = bol(100; 5)
+    koşul (a == 0) değil ise
+        sayısal b = bol(a; 2)
+        koşul (b == 0) değil ise
+            yazdır(b)
+        koşul sonu
+    koşul sonu
+fonksiyon sonu

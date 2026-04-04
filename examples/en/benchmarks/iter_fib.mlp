@@ -1,0 +1,20 @@
+function fib_iter(n)
+    if n <= 1 then
+        return n
+    end_if
+    let a = 0
+    let b = 1
+    let i = 2
+    while i <= n do
+        let temp = a + b
+        a = b
+        b = temp
+        i = i + 1
+    end_while
+    return b
+end_function
+
+function main()
+    let result = fib_iter(10)
+    print(result)
+end_function

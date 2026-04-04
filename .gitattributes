@@ -1,0 +1,22 @@
+# ──────────────────────────────────────────────────────────────────
+# GitHub Linguist — Dil İstatistikleri Yapılandırması
+# ──────────────────────────────────────────────────────────────────
+
+# MLP kaynak dosyaları — MELP dili olarak işaretle
+*.mlp    linguist-language=MELP linguist-detectable=true
+
+# Editör araçları (VSIX/LSP/Web) — bunlar dilin tooling'i, MELP kodu değil
+editors/ linguist-vendored=true
+
+# Derleme çıktıları ve paketlenmiş dosyalar
+bin/                    linguist-vendored=true
+**/dist/                linguist-vendored=true
+**/bundle/              linguist-vendored=true
+**/*.bundle.js          linguist-vendored=true
+**/melp_lsp.js          linguist-vendored=true
+
+# Belgeleme ve yardım dosyaları
+YARDIM/                 linguist-documentation=true
+belgeler/               linguist-documentation=true
+docs_EN/                linguist-documentation=true
+docs_TR/                linguist-documentation=true

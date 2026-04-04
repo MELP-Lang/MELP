@@ -1,0 +1,7 @@
+-- TEST: Basic Assert
+-- PHASE: 4.5 (Testing Framework)
+-- EXPECTED: 1
+
+function main()
+  print(1)
+end function

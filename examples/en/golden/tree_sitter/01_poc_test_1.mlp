@@ -1,0 +1,7 @@
+-- TEST: Parse Function
+-- PHASE: 4.4 (Tree-sitter)
+-- EXPECTED: 1
+
+function main()
+  print(1)
+end function

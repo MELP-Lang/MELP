@@ -1,0 +1,8 @@
+-- TEST: Breakpoint Hit
+-- PHASE: 4.3 (Debugger)
+-- EXPECTED: 10
+
+function main()
+  numeric x = 10
+  print(x)
+end function

@@ -1,0 +1,448 @@
+{
+  "schema_version": "1.0.0",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MELP Syntax Rules",
+  "description": "Canonical MLP syntax rules: block pairs, keywords, normalizer transforms. Single source of truth for LSP diagnostics, completion, and hover.",
+  "version": "3.0.0",
+  "updated": "2026-03-16",
+  "source": "language/mlp_keywords_turkish.md + language/mlp_keywords_examples.md",
+  "param_separator": ";",
+  "statement_terminator": "newline",
+  "comment_single": "--",
+  "comment_multi_open": "---",
+  "comment_multi_close": "---",
+  "decimal_separator": ",",
+  "thousands_separator": ".",
+  "block_pairs": [
+    {
+      "opener": "function",
+      "closer": "end function",
+      "requires_name": true
+    },
+    {
+      "opener": "if",
+      "closer": "end if",
+      "requires_condition": true,
+      "requires_then": true
+    },
+    {
+      "opener": "loop",
+      "closer": "end loop",
+      "requires_condition": false
+    },
+    {
+      "opener": "for",
+      "closer": "end for",
+      "requires_condition": true
+    },
+    {
+      "opener": "struct",
+      "closer": "end struct",
+      "requires_name": true
+    },
+    {
+      "opener": "enum",
+      "closer": "end enum",
+      "requires_name": true
+    },
+    {
+      "opener": "interface",
+      "closer": "end interface",
+      "requires_name": true
+    },
+    {
+      "opener": "match",
+      "closer": "end match",
+      "requires_condition": true
+    },
+    {
+      "opener": "try",
+      "closer": "end try",
+      "requires_condition": false
+    },
+    {
+      "opener": "lambda",
+      "closer": "end lambda",
+      "requires_condition": false
+    },
+    {
+      "opener": "operator",
+      "closer": "end operator",
+      "requires_name": true
+    },
+    {
+      "opener": "module",
+      "closer": "end module",
+      "requires_name": true
+    },
+    {
+      "opener": "switch",
+      "closer": "end switch",
+      "requires_condition": true
+    },
+    {
+      "opener": "scope",
+      "closer": "end scope",
+      "requires_condition": false
+    },
+    {
+      "opener": "event",
+      "closer": "end event",
+      "requires_name": true
+    },
+    {
+      "opener": "debug",
+      "closer": "end debug",
+      "requires_condition": false
+    },
+    {
+      "opener": "program",
+      "closer": "end program",
+      "requires_name": true
+    },
+    {
+      "opener": "test",
+      "closer": "end test",
+      "requires_name": true
+    },
+    {
+      "opener": "with",
+      "closer": "end with",
+      "requires_condition": false
+    },
+    {
+      "opener": "macro",
+      "closer": "end macro",
+      "requires_name": true
+    }
+  ],
+  "mid_block_keywords": [
+    "else",
+    "else if",
+    "case",
+    "catch",
+    "finally"
+  ],
+  "keywords": {
+    "control_flow": [
+      "if",
+      "then",
+      "else",
+      "else if",
+      "end if",
+      "loop",
+      "end loop",
+      "for",
+      "end for",
+      "to",
+      "downto",
+      "step",
+      "from",
+      "each",
+      "in",
+      "exit",
+      "continue",
+      "return",
+      "where",
+      "switch",
+      "end switch",
+      "case",
+      "match",
+      "end match"
+    ],
+    "functions": [
+      "function",
+      "end function",
+      "lambda",
+      "end lambda",
+      "return",
+      "extern",
+      "const",
+      "comptime",
+      "pure",
+      "inline"
+    ],
+    "types": [
+      "numeric",
+      "string",
+      "boolean",
+      "list",
+      "tuple",
+      "hashmap",
+      "true",
+      "false",
+      "null",
+      "none"
+    ],
+    "structures": [
+      "struct",
+      "end struct",
+      "enum",
+      "end enum",
+      "interface",
+      "end interface",
+      "implements",
+      "this",
+      "operator",
+      "end operator"
+    ],
+    "modules": [
+      "import",
+      "export",
+      "module",
+      "end module",
+      "package",
+      "from"
+    ],
+    "error_handling": [
+      "try",
+      "end try",
+      "catch",
+      "finally",
+      "throw",
+      "defer"
+    ],
+    "async": [
+      "async",
+      "await",
+      "spawn",
+      "send",
+      "receive"
+    ],
+    "logical": [
+      "and",
+      "or",
+      "not",
+      "xor",
+      "mod"
+    ],
+    "ownership": [
+      "own",
+      "mut"
+    ],
+    "io": [
+      "print",
+      "println",
+      "input",
+      "read_file",
+      "write_file",
+      "append_file"
+    ],
+    "entry": [
+      "main"
+    ],
+    "other": [
+      "scope",
+      "end scope",
+      "event",
+      "end event",
+      "debug",
+      "end debug",
+      "with",
+      "end with",
+      "macro",
+      "end macro",
+      "test",
+      "end test",
+      "goto",
+      "abort",
+      "program",
+      "end program",
+      "app_start"
+    ]
+  },
+  "rules": {
+    "if_requires_then": true,
+    "main_no_return_type": true,
+    "main_no_return_statement": true,
+    "return_type_before_name": true,
+    "semicolon_only_as_separator": true,
+    "no_statement_terminator": true,
+    "postfix_not_allowed": true,
+    "postfix_return_allowed": true,
+    "last_expression_auto_returns": true
+  },
+  "mlp_to_pmlp": [
+    {
+      "match": "end\\s+function",
+      "replace": "end_function"
+    },
+    {
+      "match": "end\\s+if",
+      "replace": "end_if"
+    },
+    {
+      "match": "end\\s+loop",
+      "replace": "end_loop"
+    },
+    {
+      "match": "end\\s+for",
+      "replace": "end_for"
+    },
+    {
+      "match": "end\\s+struct",
+      "replace": "end_struct"
+    },
+    {
+      "match": "end\\s+enum",
+      "replace": "end_enum"
+    },
+    {
+      "match": "end\\s+interface",
+      "replace": "end_interface"
+    },
+    {
+      "match": "end\\s+match",
+      "replace": "end_match"
+    },
+    {
+      "match": "end\\s+try",
+      "replace": "end_try"
+    },
+    {
+      "match": "end\\s+lambda",
+      "replace": "end_lambda"
+    },
+    {
+      "match": "end\\s+operator",
+      "replace": "end_operator"
+    },
+    {
+      "match": "end\\s+module",
+      "replace": "end_module"
+    },
+    {
+      "match": "end\\s+switch",
+      "replace": "end_switch"
+    },
+    {
+      "match": "end\\s+scope",
+      "replace": "end_scope"
+    },
+    {
+      "match": "end\\s+event",
+      "replace": "end_event"
+    },
+    {
+      "match": "end\\s+debug",
+      "replace": "end_debug"
+    },
+    {
+      "match": "end\\s+with",
+      "replace": "end_with"
+    },
+    {
+      "match": "end\\s+macro",
+      "replace": "end_macro"
+    },
+    {
+      "match": "end\\s+test",
+      "replace": "end_test"
+    },
+    {
+      "match": "end\\s+program",
+      "replace": "end_program"
+    },
+    {
+      "match": "end\\s+class",
+      "replace": "end_class"
+    },
+    {
+      "match": "end\\s+spawn",
+      "replace": "end_spawn"
+    },
+    {
+      "match": "end\\s+method",
+      "replace": "end_method"
+    },
+    {
+      "match": "end\\s+case",
+      "replace": "end_case"
+    },
+    {
+      "match": "else\\s+if",
+      "replace": "else_if"
+    },
+    {
+      "match": "=>",
+      "replace": "->"
+    }
+  ],
+  "turkish_word_order_transforms": [
+    {
+      "match": "fonksiyon\\s+sonu",
+      "replace": "end function",
+      "note": "fonksiyon sonu → end function"
+    },
+    {
+      "match": "işlev\\s+sonu",
+      "replace": "end function",
+      "note": "işlev sonu → end function"
+    },
+    {
+      "match": "koşul\\s+sonu",
+      "replace": "end if",
+      "note": "koşul sonu → end if"
+    },
+    {
+      "match": "eğer\\s+sonu",
+      "replace": "end if",
+      "note": "eğer sonu → end if"
+    },
+    {
+      "match": "döngü\\s+sonu",
+      "replace": "end loop",
+      "note": "döngü sonu → end loop"
+    },
+    {
+      "match": "için\\s+sonu",
+      "replace": "end for",
+      "note": "için sonu → end for"
+    },
+    {
+      "match": "yapı\\s+sonu",
+      "replace": "end struct",
+      "note": "yapı sonu → end struct"
+    },
+    {
+      "match": "sıralama\\s+sonu",
+      "replace": "end enum",
+      "note": "sıralama sonu → end enum"
+    },
+    {
+      "match": "arayüz\\s+sonu",
+      "replace": "end interface",
+      "note": "arayüz sonu → end interface"
+    },
+    {
+      "match": "lambda\\s+sonu",
+      "replace": "end lambda",
+      "note": "lambda sonu → end lambda"
+    },
+    {
+      "match": "dene\\s+sonu",
+      "replace": "end try",
+      "note": "dene sonu → end try"
+    },
+    {
+      "match": "seç\\s+sonu",
+      "replace": "end match",
+      "note": "seç sonu → end match"
+    },
+    {
+      "match": "eşleş\\s+sonu",
+      "replace": "end match",
+      "note": "eşleş sonu → end match"
+    },
+    {
+      "match": "modül\\s+sonu",
+      "replace": "end module",
+      "note": "modül sonu → end module"
+    },
+    {
+      "match": "işleç\\s+sonu",
+      "replace": "end operator",
+      "note": "işleç sonu → end operator"
+    }
+  ]
+}

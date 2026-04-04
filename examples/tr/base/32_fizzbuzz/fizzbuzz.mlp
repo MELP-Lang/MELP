@@ -1,0 +1,14 @@
+#lang turkish
+fonksiyon giriş()
+    döngü i = 1 dan 20
+        koşul i mod 15 == 0 ise
+            yazdır(15)
+        değilse koşul i mod 3 == 0 ise
+            yazdır(3)
+        değilse koşul i mod 5 == 0 ise
+            yazdır(5)
+        yoksa
+            yazdır(i)
+        koşul sonu
+    döngü sonu
+fonksiyon sonu

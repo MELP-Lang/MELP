@@ -1,0 +1,61 @@
+{
+  "name": "melp-ide",
+  "version": "1.0.4",
+  "description": "MELP GUI Designer — Visual Studio-style, drag & drop, Electron",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "dev": "electron . --dev",
+    "test": "node tests/run-tests.js"
+  },
+  "keywords": [
+    "mlp",
+    "gui",
+    "designer",
+    "electron",
+    "visual-studio"
+  ],
+  "author": {
+    "name": "MLP Team",
+    "email": "mlp-team@example.com"
+  },
+  "homepage": "https://github.com/mlp-lang/melp-ide",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.3.3",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.mlp.guidesigner",
+    "productName": "MLP GUI Designer",
+    "directories": {
+      "output": "dist"
+    },
+    "icon": "assets/icon.png",
+    "files": [
+      "**/*",
+      "!**/*.md",
+      "!**/*.backup",
+      "!**/*.backup2",
+      "!**/*.backup3",
+      "!tests/**",
+      "!docs/**",
+      "!dist/**",
+      "!*.mlpgui"
+    ],
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Development"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    }
+  }
+}

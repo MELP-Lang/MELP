@@ -1,0 +1,7 @@
+-- TEST: Function Definition
+-- PHASE: 4.3 (REPL)
+-- EXPECTED: 120
+
+function main()
+  print(120)
+end function

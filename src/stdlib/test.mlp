@@ -1,0 +1,229 @@
+-- MELP Standard Library - Test Utilities
+-- EK-001: print_summary pure MLP; report_xml/json filename parametreli
+
+-- ============================================================================
+-- ASSERTIONS
+-- ============================================================================
+
+numeric function assert_eq_numeric(numeric actual; numeric expected)
+    return __builtin_test_assert_eq_numeric(actual; expected)
+end_function
+
+numeric function assert_eq_string(string actual; string expected)
+    return __builtin_test_assert_eq_string(actual; expected)
+end_function
+
+numeric function assert_ne_numeric(numeric actual; numeric expected)
+    return __builtin_test_assert_ne_numeric(actual; expected)
+end_function
+
+numeric function assert_ne_string(string actual; string expected)
+    return __builtin_test_assert_ne_string(actual; expected)
+end_function
+
+numeric function assert_true(numeric condition)
+    return __builtin_test_assert_true(condition)
+end_function
+
+numeric function assert_false(numeric condition)
+    return __builtin_test_assert_false(condition)
+end_function
+
+numeric function assert_with_message(numeric condition; string message)
+    return __builtin_test_assert(condition; message)
+end_function
+
+numeric function assert_null(numeric ptr)
+    return __builtin_test_assert_null(ptr)
+end_function
+
+-- ============================================================================
+-- TEST RUNNER
+-- ============================================================================
+
+numeric function test_register(string name; numeric handler_id)
+    return __builtin_test_register(name; handler_id)
+end_function
+
+numeric function run_tests()
+    return __builtin_test_run_all()
+end_function
+
+numeric function run_test(numeric test_id)
+    return __builtin_test_run_single(test_id)
+end_function
+
+numeric function skip_test(numeric test_id)
+    return __builtin_test_skip(test_id)
+end_function
+
+numeric function get_test_total()
+    return __builtin_test_get_total()
+end_function
+
+numeric function get_test_passed()
+    return __builtin_test_get_passed()
+end_function
+
+numeric function get_test_failed()
+    return __builtin_test_get_failed()
+end_function
+
+numeric function get_test_duration()
+    return __builtin_test_get_duration()
+end_function
+
+-- ============================================================================
+-- TEST SUITES
+-- ============================================================================
+
+numeric function describe(string suite_name)
+    return __builtin_test_describe(suite_name)
+end_function
+
+numeric function test_suite_end()
+    return __builtin_test_end_describe()
+end_function
+
+-- ============================================================================
+-- TEST HOOKS
+-- ============================================================================
+
+numeric function before_each(numeric handler_id)
+    return __builtin_test_before_each(handler_id)
+end_function
+
+numeric function after_each(numeric handler_id)
+    return __builtin_test_after_each(handler_id)
+end_function
+
+numeric function before_all(numeric handler_id)
+    return __builtin_test_before_all(handler_id)
+end_function
+
+numeric function after_all(numeric handler_id)
+    return __builtin_test_after_all(handler_id)
+end_function
+
+-- ============================================================================
+-- BENCHMARKING
+-- ============================================================================
+
+numeric function benchmark_start(string name)
+    return __builtin_test_benchmark_start(name)
+end_function
+
+numeric function benchmark_end(numeric benchmark_id)
+    return __builtin_test_benchmark_end(benchmark_id)
+end_function
+
+string function benchmark_result(numeric benchmark_id)
+    return __builtin_test_benchmark_result(benchmark_id)
+end_function
+
+-- ============================================================================
+-- MOCKING
+-- ============================================================================
+
+numeric function mock_create(string name)
+    return __builtin_test_mock_create(name)
+end_function
+
+numeric function mock_expect(numeric mock_id; string meth_name; numeric return_value)
+    return __builtin_test_mock_expect(mock_id; meth_name; return_value)
+end_function
+
+numeric function mock_verify(numeric mock_id)
+    return __builtin_test_mock_verify(mock_id)
+end_function
+
+-- ============================================================================
+-- REPORTING
+-- EK-001: print_summary pure MLP (__builtin_test_print_summary yok)
+--         report_xml/json filename parametresi eklendi
+-- ============================================================================
+
+numeric function print_summary()
+    numeric total = __builtin_test_get_total()
+    numeric passed = __builtin_test_get_passed()
+    numeric failed = __builtin_test_get_failed()
+    print("Total: ")
+    print(total)
+    print(" Passed: ")
+    print(passed)
+    print(" Failed: ")
+    print(failed)
+    print("\n")
+    return 0
+end_function
+
+string function report_xml(string filename)
+    return __builtin_test_report_xml(filename)
+end_function
+
+string function report_json(string filename)
+    return __builtin_test_report_json(filename)
+end_function
+
+-- ============================================================================
+-- COMPARISON HELPERS
+-- ============================================================================
+
+numeric function is_greater_than(numeric a; numeric b)
+    if a > b then
+        return 1
+    else
+        return 0
+    end_if
+end_function
+
+numeric function is_less_than(numeric a; numeric b)
+    if a < b then
+        return 1
+    else
+        return 0
+    end_if
+end_function
+
+numeric function is_gte(numeric a; numeric b)
+    if a >= b then
+        return 1
+    else
+        return 0
+    end_if
+end_function
+
+numeric function is_lte(numeric a; numeric b)
+    if a <= b then
+        return 1
+    else
+        return 0
+    end_if
+end_function
+
+-- ============================================================================
+-- UTILITY
+-- ============================================================================
+
+numeric function print_result(numeric passed; numeric failed)
+    print(passed)
+    print(failed)
+    return passed
+end_function
+
+numeric function all_passed()
+    numeric failed = get_test_failed()
+    if failed == 0 then
+        return 1
+    else
+        return 0
+    end_if
+end_function
+
+numeric function run_single(numeric test_id)
+    return __builtin_test_run_single(test_id)
+end_function
+
+numeric function skip(numeric test_id)
+    return __builtin_test_skip(test_id)
+end_function

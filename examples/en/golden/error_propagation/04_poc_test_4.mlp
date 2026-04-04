@@ -1,0 +1,7 @@
+-- TEST: Nested Error Handling
+-- PHASE: 3.3 (Error Propagation)
+-- EXPECTED: 5
+
+function main()
+  print(5)
+end function

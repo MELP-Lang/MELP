@@ -1,0 +1,7 @@
+-- TEST: Unused Variable Detection
+-- PHASE: 4.2 (Code Intelligence)
+-- EXPECTED: 1
+
+function main()
+  print(1)
+end function

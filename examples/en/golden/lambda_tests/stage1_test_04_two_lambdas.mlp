@@ -1,0 +1,7 @@
+function main()
+  auto complex = lambda(numeric a, numeric b, numeric c) -> numeric
+    return a * b - c
+  end_lambda
+
+  return complex(4; 5; 7)
+end function

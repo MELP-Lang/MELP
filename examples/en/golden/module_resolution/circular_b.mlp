@@ -1,0 +1,7 @@
+// Circular B - imports A (CIRCULAR!)
+
+import ./circular_a
+
+export function func_b() as numeric
+    return 20
+end function

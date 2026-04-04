@@ -1,0 +1,7 @@
+-- TEST: Failed Assertion
+-- PHASE: 4.5 (Testing Framework)
+-- EXPECTED: 0
+
+function main()
+  print(0)
+end function

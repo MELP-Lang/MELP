@@ -1,0 +1,105 @@
+-- lsp_protocol.mlp — JSON-RPC 2.0 mesaj okuma/yazma
+--
+-- Stage 0 Bug B6 workaround:
+--   "str_var = str_var + func(numeric_arg) + literal" → type mismatch
+--   Fix: use intermediate string variable for each func call result.
+
+external function lsp_getline() as string
+external function lsp_send_message(string body) as numeric
+external function lsp_log(string msg) as numeric
+external function lsp_eof() as numeric
+
+-- ============================================================================
+-- Output
+-- ============================================================================
+
+function lsp_send(string body)
+    numeric dummy = lsp_send_message(body)
+end function
+
+-- ============================================================================
+-- Input
+-- ============================================================================
+
+string function lsp_read_message()
+    -- Stage0 Bug B8 workaround: `if cond then exit end if` loop'tan cikmiyor
+    -- Workaround: `loop boolean_var` kullan, boolean'i false yap
+    boolean hdr_loop = true
+    loop hdr_loop
+        string line = lsp_getline()
+        if lsp_eof() == 1 then
+            string empty_r = ""
+            return empty_r
+        end if
+        numeric llen = len(line)
+        if llen > 0 then
+            string last_ch = substring(line; llen - 1; 1)
+            if last_ch == "\r" then
+                line = substring(line; 0; llen - 1)
+                llen = llen - 1
+            end if
+        end if
+        if llen == 0 then
+            hdr_loop = false
+        end if
+    end loop
+
+    string body = lsp_getline()
+    -- Not: EOF body okuduktan sonra set olabilir (son mesaj + stdin kapanma)
+    -- blen > 0 ise body alinmis demektir
+    numeric blen = len(body)
+    if blen == 0 then
+        string empty_b = ""
+        return empty_b
+    end if
+    string last_b = substring(body; blen - 1; 1)
+    if last_b == "\r" then
+        body = substring(body; 0; blen - 1)
+    end if
+    return body
+end function
+
+-- ============================================================================
+-- JSON-RPC builders
+-- B6 workaround: each func(numeric) call result stored in tmp var before concat
+-- ============================================================================
+
+string function make_rpc_response(numeric rpc_id; string result_json)
+    string body = json_kv_str("jsonrpc"; "2.0")
+    body = body + ", "
+    string id_kv = json_kv_num("id"; rpc_id)
+    body = body + id_kv
+    body = body + ", "
+    body = body + "\"result\": "
+    body = body + result_json
+    return json_object(body)
+end function
+
+string function make_rpc_error(numeric rpc_id; numeric err_code; string err_msg)
+    string code_kv = json_kv_num("code"; err_code)
+    string msg_kv = json_kv_str("message"; err_msg)
+    string err_body = code_kv
+    err_body = err_body + ", "
+    err_body = err_body + msg_kv
+    string err_obj = json_object(err_body)
+
+    string body = json_kv_str("jsonrpc"; "2.0")
+    body = body + ", "
+    string id_kv = json_kv_num("id"; rpc_id)
+    body = body + id_kv
+    body = body + ", "
+    body = body + "\"error\": "
+    body = body + err_obj
+    return json_object(body)
+end function
+
+string function make_rpc_notification(string rpc_method; string rpc_params)
+    string body = json_kv_str("jsonrpc"; "2.0")
+    body = body + ", "
+    string method_kv = json_kv_str("method"; rpc_method)
+    body = body + method_kv
+    body = body + ", "
+    body = body + "\"params\": "
+    body = body + rpc_params
+    return json_object(body)
+end function

@@ -1,0 +1,145 @@
+// ============================================================================
+// MLP Standard Library - std.net Module
+// ============================================================================
+// Network operations: HTTP client, URL parsing, and basic TCP sockets
+// Author: YZ_STAGE1_03
+// Date: 30 Ocak 2026
+// Version: 1.0.0
+// ============================================================================
+
+module std.net
+start
+
+// ============================================================================
+// URL STRUCTURE AND PARSING
+// ============================================================================
+// Parse and manipulate URLs
+
+// URL components structure
+struct Url
+    scheme: string      -- http, https
+    host: string        -- example.com, api.github.com
+    port: numeric       -- 80, 443, 8080 (0 = default port)
+    path: string        -- /api/users, /index.html
+    query: string       -- key=value&foo=bar (empty string if no query)
+end_struct
+
+// Parse URL string into components
+// Returns Url struct on success; empty struct on error
+// Example: parse_url("https://example.com:8080/api/users?id=123")
+//   -> Url{scheme="https", host="example.com", port=8080, path="/api/users", query="id=123"}
+function parse_url(url: string) -> Url
+    let scheme: string = ""
+    let host: string = ""
+    let port: numeric = 0
+    let path: string = ""
+    let query: string = ""
+    
+    -- Call builtin parser which returns success flag
+    let success: numeric = __builtin_net_parse_url(url; scheme; host; port; path; query)
+    
+    -- Return parsed components (empty strings if parsing failed)
+    return Url{scheme; host; port; path; query}
+end_function
+
+// ============================================================================
+// HTTP CLIENT - SIMPLE GET/POST
+// ============================================================================
+// Simple HTTP requests without custom headers
+
+// Perform HTTP GET request
+// Returns response body as string (empty on error)
+// Example: http_get("https://httpbin.org/get")
+function http_get(url: string) -> string
+    let status: numeric = 0
+    let body: string = __builtin_net_http_get(url; status)
+    return body
+end_function
+
+// Perform HTTP POST request with body
+// Returns response body as string (empty on error)
+// Example: http_post("https://httpbin.org/post"; "{\"key\":\"value\"}")
+function http_post(url: string; request_body: string) -> string
+    let status: numeric = 0
+    let body: string = __builtin_net_http_post(url; request_body; status)
+    return body
+end_function
+
+// ============================================================================
+// HTTP CLIENT - ADVANCED (WITH STATUS CODE)
+// ============================================================================
+// HTTP requests with status code return
+
+// HTTP GET with status code output
+// Returns body; sets status_out to HTTP status code (200, 404, etc.)
+// Example: 
+//   let status: numeric = 0
+//   let body: string = http_get_status("https://httpbin.org/get"; status)
+//   -- status will be 200 if successful
+function http_get_status(url: string; status_out: numeric) -> string
+    let body: string = __builtin_net_http_get(url; status_out)
+    return body
+end_function
+
+// HTTP POST with status code output
+function http_post_status(url: string; request_body: string; status_out: numeric) -> string
+    let body: string = __builtin_net_http_post(url; request_body; status_out)
+    return body
+end_function
+
+// ============================================================================
+// HTTP CLIENT - CUSTOM HEADERS (OPTIONAL - if time allows)
+// ============================================================================
+// Advanced HTTP requests with custom headers support
+// NOTE: Requires HashMap from std.collections
+
+// HTTP request with custom headers (FUTURE)
+// struct HttpRequest
+//     url: string
+//     method: string           -- GET, POST, PUT, DELETE
+//     headers: HashMap         -- Custom headers (Authorization, Content-Type, etc.)
+//     body: string            -- Request body
+// end_struct
+
+// struct HttpResponse
+//     status: numeric          -- HTTP status code (200, 404, etc.)
+//     headers: string          -- Response headers as string
+//     body: string            -- Response body
+// end_struct
+
+// function http_request(req: HttpRequest) -> HttpResponse
+//     -- Implementation requires HashMap support
+//     -- Placeholder for future implementation
+// end_function
+
+// ============================================================================
+// TCP SOCKET OPERATIONS (OPTIONAL - if time allows)
+// ============================================================================
+// Basic TCP client operations
+
+// TCP socket handle (opaque pointer to socket descriptor)
+-- struct TcpStream
+--     socket_fd: numeric       -- File descriptor (internal)
+-- end_struct
+
+// Connect to TCP server
+-- function tcp_connect(host: string; port: numeric) -> numeric
+--     return __builtin_net_tcp_connect(host; port)
+-- end_function
+
+// Send data over TCP socket
+-- function tcp_send(socket_fd: numeric; data: string) -> numeric
+--     return __builtin_net_tcp_send(socket_fd; data)
+-- end_function
+
+// Receive data from TCP socket
+-- function tcp_recv(socket_fd: numeric) -> string
+--     return __builtin_net_tcp_recv(socket_fd)
+-- end_function
+
+// Close TCP connection
+-- function tcp_close(socket_fd: numeric)
+--     __builtin_net_tcp_close(socket_fd)
+-- end_function
+
+end

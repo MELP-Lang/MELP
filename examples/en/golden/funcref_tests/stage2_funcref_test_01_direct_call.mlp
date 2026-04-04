@@ -1,0 +1,8 @@
+function square(numeric x)
+  return x * x
+end function
+
+function main()
+  auto fn = square
+  return fn(9)
+end function

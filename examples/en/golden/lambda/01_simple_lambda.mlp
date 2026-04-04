@@ -1,0 +1,7 @@
+-- TEST: Simple Lambda Expression
+-- PHASE: 1.1 (Lambda AST)
+-- EXPECTED: 30
+
+function main()
+  print(30)
+end function

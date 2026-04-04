@@ -1,0 +1,13 @@
+#lang turkish
+-- GÖREV 10: diziler
+-- Dizi tanımlama ve basit işlemler
+
+fonksiyon giriş()
+    -- Sayısal dizi
+    sayısal[] nums = [1; 2; 3; 4; 5]
+
+    -- Dizi elemanlarına erişim
+    yazdır(nums[0])
+    yazdır(nums[2])
+    yazdır(nums[4])
+fonksiyon sonu

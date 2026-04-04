@@ -1,0 +1,30 @@
+function fib_recursive(numeric n)
+  if n <= 1 then
+    return n
+  end_if
+  return fib_recursive(n - 1) + fib_recursive(n - 2)
+end_function
+
+function fib_iterative(numeric n)
+  numeric a
+  numeric b
+  numeric temp
+  numeric i
+  
+  if n <= 1 then
+    return n
+  end_if
+  
+  a = 0
+  b = 1
+  
+  for i = 2; i <= n; i = i + 1
+    temp = a + b
+    a = b
+    b = temp
+  end_for
+  
+  return b
+end_function
+
+

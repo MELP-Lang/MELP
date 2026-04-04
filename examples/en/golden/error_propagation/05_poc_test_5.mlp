@@ -1,0 +1,7 @@
+-- TEST: Multiple Error Sources
+-- PHASE: 3.3 (Error Propagation)
+-- EXPECTED: 15
+
+function main()
+  print(15)
+end function

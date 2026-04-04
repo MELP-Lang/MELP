@@ -1,0 +1,7 @@
+-- GÖREV 01: hello_world
+-- Beklenen çıktı: Merhaba, MELP!
+-- Canonical mlp syntax example
+
+function main()
+    print("Merhaba, MELP!")
+end function

@@ -1,0 +1,30 @@
+#lang turkish
+-- GÖREV 07: while_dongusu
+-- While döngüsü (loop), sayaç, toplam
+
+fonksiyon giriş()
+    -- Basit sayaç döngüsü (1-5)
+    sayısal i = 1
+    döngü i <= 5
+        yazdır(i)
+        i = i + 1
+    döngü sonu
+
+    -- Toplam hesapla (1-10)
+    sayısal sum = 0
+    sayısal j = 1
+    döngü j <= 10
+        sum = sum + j
+        j = j + 1
+    döngü sonu
+    yazdır(sum)
+
+    -- Koşula göre döngü kontrolü
+    sayısal k = 0
+    döngü k < 5
+        koşul k == 3 ise
+            yazdır("Found 3")
+        koşul sonu
+        k = k + 1
+    döngü sonu
+fonksiyon sonu

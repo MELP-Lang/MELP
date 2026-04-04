@@ -1,0 +1,5 @@
+function main() -> numeric
+    print("Merhaba, MELP!")
+    return 0
+end_function
+

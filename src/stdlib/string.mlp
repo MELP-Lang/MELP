@@ -1,0 +1,334 @@
+-- EXPORTED: isDigit, isAlpha, isLower, isUpper, toLower, toUpper, isSpace, isAlnum, charToDigit, digitToChar, isHexDigit, hexToValue, isPrintable, isControl, isPunct, charCode, char_code, str_repeat, reverse, trim_left, trim_right, pad_left, pad_right, count_substr
+-- stdlib/string_utils.mlp - English MLP String/Character Utilities
+-- ASCII character operations (pure .mlp implementation)
+-- Note: Works with ASCII codes (numeric), not actual strings
+-- Each function uses unique parameter names for LLVM compatibility
+
+-- Check if ASCII code is a digit (0-9)
+numeric function isDigit(numeric id_c)
+  if id_c >= 48 then
+    if id_c <= 57 then
+      return 1
+    end_if
+  end_if
+  return 0
+end_function
+
+-- Check if ASCII code is a letter (A-Z or a-z)
+numeric function isAlpha(numeric ia_c)
+  if ia_c >= 65 then
+    if ia_c <= 90 then
+      return 1
+    end_if
+  end_if
+  if ia_c >= 97 then
+    if ia_c <= 122 then
+      return 1
+    end_if
+  end_if
+  return 0
+end_function
+
+-- Check if ASCII code is lowercase (a-z)
+numeric function isLower(numeric il_c)
+  if il_c >= 97 then
+    if il_c <= 122 then
+      return 1
+    end_if
+  end_if
+  return 0
+end_function
+
+-- Check if ASCII code is uppercase (A-Z)
+numeric function isUpper(numeric iu_c)
+  if iu_c >= 65 then
+    if iu_c <= 90 then
+      return 1
+    end_if
+  end_if
+  return 0
+end_function
+
+-- Convert uppercase to lowercase (A-Z -> a-z)
+numeric function toLower(numeric tl_c)
+  if tl_c >= 65 then
+    if tl_c <= 90 then
+      return tl_c + 32
+    end_if
+  end_if
+  return tl_c
+end_function
+
+-- Convert lowercase to uppercase (a-z -> A-Z)
+numeric function toUpper(numeric tu_c)
+  if tu_c >= 97 then
+    if tu_c <= 122 then
+      return tu_c - 32
+    end_if
+  end_if
+  return tu_c
+end_function
+
+-- Check if ASCII code is whitespace (space, tab, newline, etc.)
+numeric function isSpace(numeric is_c)
+  if is_c == 32 then
+    return 1
+  end_if
+  if is_c == 9 then
+    return 1
+  end_if
+  if is_c == 10 then
+    return 1
+  end_if
+  if is_c == 13 then
+    return 1
+  end_if
+  return 0
+end_function
+
+-- Check if ASCII code is alphanumeric
+numeric function isAlnum(numeric ian_c)
+  if isAlpha(ian_c) == 1 then
+    return 1
+  end_if
+  if isDigit(ian_c) == 1 then
+    return 1
+  end_if
+  return 0
+end_function
+
+-- Convert digit character to number ('0'-'9' -> 0-9)
+numeric function charToDigit(numeric ctd_c)
+  if isDigit(ctd_c) == 1 then
+    return ctd_c - 48
+  end_if
+  return 0 - 1
+end_function
+
+-- Convert number to digit character (0-9 -> '0'-'9')
+numeric function digitToChar(numeric dtc_n)
+  if dtc_n >= 0 then
+    if dtc_n <= 9 then
+      return dtc_n + 48
+    end_if
+  end_if
+  return 0 - 1
+end_function
+
+-- Check if ASCII is hex digit (0-9, A-F, a-f)
+numeric function isHexDigit(numeric ihd_c)
+  if isDigit(ihd_c) == 1 then
+    return 1
+  end_if
+  if ihd_c >= 65 then
+    if ihd_c <= 70 then
+      return 1
+    end_if
+  end_if
+  if ihd_c >= 97 then
+    if ihd_c <= 102 then
+      return 1
+    end_if
+  end_if
+  return 0
+end_function
+
+-- Convert hex digit to value (0-15)
+numeric function hexToValue(numeric htv_c)
+  if isDigit(htv_c) == 1 then
+    return htv_c - 48
+  end_if
+  if htv_c >= 65 then
+    if htv_c <= 70 then
+      return htv_c - 55
+    end_if
+  end_if
+  if htv_c >= 97 then
+    if htv_c <= 102 then
+      return htv_c - 87
+    end_if
+  end_if
+  return 0 - 1
+end_function
+
+-- Check if ASCII is printable (32-126)
+numeric function isPrintable(numeric ipr_c)
+  if ipr_c >= 32 then
+    if ipr_c <= 126 then
+      return 1
+    end_if
+  end_if
+  return 0
+end_function
+
+-- Check if ASCII is control character (0-31 or 127)
+numeric function isControl(numeric ict_c)
+  if ict_c < 32 then
+    return 1
+  end_if
+  if ict_c == 127 then
+    return 1
+  end_if
+  return 0
+end_function
+
+-- Check if ASCII is punctuation (printable but not alnum or space)
+numeric function isPunct(numeric ipn_c)
+  if isPrintable(ipn_c) == 0 then
+    return 0
+  end_if
+  if isAlnum(ipn_c) == 1 then
+    return 0
+  end_if
+  if isSpace(ipn_c) == 1 then
+    return 0
+  end_if
+  return 1
+end_function
+
+-- Return common character codes (0=NUL, 1=TAB, 2=LF, 3=CR, 4=SPACE)
+numeric function charCode(numeric cc_which)
+  if cc_which == 0 then
+    return 0
+  end_if
+  if cc_which == 1 then
+    return 9
+  end_if
+  if cc_which == 2 then
+    return 10
+  end_if
+  if cc_which == 3 then
+    return 13
+  end_if
+  if cc_which == 4 then
+    return 32
+  end_if
+  return 0 - 1
+end_function
+
+-- ============================================================================
+-- STAGE1 Faz 2 — String manipulation (pure MLP)
+-- ============================================================================
+
+-- DİL PRİMİTİFİ: ASCII code of character at index i; -1 if out of bounds
+-- Compiler dispatch: mlp_string_char_code
+numeric function char_code(string s; numeric i)
+end_function
+
+-- F2-1: Repeat string n times
+string function str_repeat(string sr_s; numeric sr_n)
+  string sr_result = ""
+  numeric sr_i = 0
+  loop sr_i < sr_n
+    sr_result = sr_result + sr_s
+    sr_i = sr_i + 1
+  end_loop
+  return sr_result
+end_function
+
+-- F2-2: Reverse a string
+string function reverse(string rv_s)
+  string rv_result = ""
+  numeric rv_len = string_length(rv_s)
+  numeric rv_i = rv_len - 1
+  loop rv_i >= 0
+    rv_result = rv_result + substring(rv_s; rv_i; 1)
+    rv_i = rv_i - 1
+  end_loop
+  return rv_result
+end_function
+
+-- F2-3: Trim leading whitespace (space=32, tab=9, LF=10, CR=13)
+string function trim_left(string tl_s)
+  numeric tl_len = string_length(tl_s)
+  numeric tl_i = 0
+  loop tl_i < tl_len
+    numeric tl_code = char_code(tl_s; tl_i)
+    if tl_code == 32 then
+      tl_i = tl_i + 1
+    else
+      if tl_code == 9 then
+        tl_i = tl_i + 1
+      else
+        if tl_code == 10 then
+          tl_i = tl_i + 1
+        else
+          if tl_code == 13 then
+            tl_i = tl_i + 1
+          else
+            return substring(tl_s; tl_i; tl_len - tl_i)
+          end_if
+        end_if
+      end_if
+    end_if
+  end_loop
+  return ""
+end_function
+
+-- F2-3: Trim trailing whitespace
+string function trim_right(string tr_s)
+  numeric tr_len = string_length(tr_s)
+  numeric tr_i = tr_len - 1
+  loop tr_i >= 0
+    numeric tr_code = char_code(tr_s; tr_i)
+    if tr_code == 32 then
+      tr_i = tr_i - 1
+    else
+      if tr_code == 9 then
+        tr_i = tr_i - 1
+      else
+        if tr_code == 10 then
+          tr_i = tr_i - 1
+        else
+          if tr_code == 13 then
+            tr_i = tr_i - 1
+          else
+            return substring(tr_s; 0; tr_i + 1)
+          end_if
+        end_if
+      end_if
+    end_if
+  end_loop
+  return ""
+end_function
+
+-- F2-4: Pad string on the left to reach width
+string function pad_left(string pl_s; numeric pl_width; string pl_fill)
+  numeric pl_len = string_length(pl_s)
+  if pl_len >= pl_width then
+    return pl_s
+  end_if
+  numeric pl_pad = pl_width - pl_len
+  return str_repeat(pl_fill; pl_pad) + pl_s
+end_function
+
+-- F2-4: Pad string on the right to reach width
+string function pad_right(string pr_s; numeric pr_width; string pr_fill)
+  numeric pr_len = string_length(pr_s)
+  if pr_len >= pr_width then
+    return pr_s
+  end_if
+  numeric pr_pad = pr_width - pr_len
+  return pr_s + str_repeat(pr_fill; pr_pad)
+end_function
+
+-- F2-5: Count occurrences of needle in string
+numeric function count_substr(string cs_s; string cs_needle)
+  numeric cs_count = 0
+  numeric cs_slen = string_length(cs_s)
+  numeric cs_nlen = string_length(cs_needle)
+  if cs_nlen == 0 then
+    return 0
+  end_if
+  numeric cs_i = 0
+  loop cs_i <= cs_slen - cs_nlen
+    string cs_chunk = substring(cs_s; cs_i; cs_nlen)
+    if str_eq(cs_chunk; cs_needle) == 1 then
+      cs_count = cs_count + 1
+      cs_i = cs_i + cs_nlen
+    else
+      cs_i = cs_i + 1
+    end_if
+  end_loop
+  return cs_count
+end_function

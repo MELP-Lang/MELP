@@ -1,0 +1,51 @@
+#lang turkish
+-- GÖREV 17: null_islemleri (nullable? sözdizimi henüz çalışmıyor)
+-- Null kontrol simülasyonu
+
+sayısal fonksiyon deger_kontrol(sayısal key)
+    koşul key == 1 ise
+        döndür 100
+    değilse koşul key == 2 ise
+        döndür 200
+    yoksa
+        döndür 0  -- "null" yerine 0 kullan
+    koşul sonu
+fonksiyon sonu
+
+fonksiyon giriş()
+    -- Sayısal değişkenler
+    sayısal x = 0     -- null simülasyonu
+    sayısal y = 42
+
+    -- Null kontrol ((y == 0) değil → postfix not)
+    koşul (y == 0) değil ise
+        yazdır(y)
+    koşul sonu
+
+    koşul x == 0 ise
+        yazdır(0)
+    koşul sonu
+
+    -- Fonksiyon sonucu
+    sayısal result1 = deger_kontrol(1)
+    sayısal result2 = deger_kontrol(3)
+
+    koşul (result1 == 0) değil ise
+        yazdır(result1)
+    koşul sonu
+
+    koşul result2 == 0 ise
+        yazdır(0)
+    koşul sonu
+
+    -- Kontrol öncesi
+    sayısal a = 0
+    sayısal b = 50
+
+    koşul (a == 0) değil ise
+        sayısal val = a + b
+        yazdır(val)
+    yoksa
+        yazdır(0)
+    koşul sonu
+fonksiyon sonu

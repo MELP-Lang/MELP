@@ -1,0 +1,11 @@
+{
+  "lliPath": "/usr/bin/lli",
+  "outputLlFile": "output.ll",
+  "tmpFile": "/tmp/_melp_ide_run.mlp",
+  "autosaveEnabled": false,
+  "autosaveInterval": 60,
+  "openLastProject": false,
+  "enableDiagnosticLogging": true,
+  "diagnosticLogPath": "/home/pardus/.config/melp-ide/logs/melp-diagnostics.log",
+  "uiLanguage": "tr"
+}

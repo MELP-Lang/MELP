@@ -1,0 +1,7 @@
+-- TEST: Test Suite Run
+-- PHASE: 4.5 (Testing Framework)
+-- EXPECTED: 3
+
+function main()
+  print(3)
+end function

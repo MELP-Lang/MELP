@@ -1,0 +1,831 @@
+-- =============================================================================
+-- MELP Lexer — Stage 1 Implementation
+-- Tokenizes MELP source text into a stream of tokens.
+--
+-- Usage: tokenize(source) prints each token as "KIND|value|line:col"
+--        Returns total token count.
+--
+-- Token kind numbers:
+--   0=UNKNOWN 1=EOF 2=NEWLINE 3=IDENTIFIER 4=NUMBER 5=STRING 6=BOOLEAN
+--   Keywords 10+, Operators 50+, Delimiters 70+
+-- =============================================================================
+
+-- ─── Character classification ────────────────────────────────────────────────
+
+numeric function is_digit(c as numeric)
+    if c >= 48 and c <= 57 then
+        return 1
+    end if
+    return 0
+end function
+
+numeric function is_alpha(c as numeric)
+    if c >= 97 and c <= 122 then
+        return 1
+    end if
+    if c >= 65 and c <= 90 then
+        return 1
+    end if
+    if c == 95 then
+        return 1
+    end if
+    return 0
+end function
+
+numeric function is_alnum(c as numeric)
+    if is_alpha(c) == 1 then
+        return 1
+    end if
+    if is_digit(c) == 1 then
+        return 1
+    end if
+    return 0
+end function
+
+numeric function is_space(c as numeric)
+    if c == 32 then
+        return 1
+    end if
+    if c == 9 then
+        return 1
+    end if
+    if c == 13 then
+        return 1
+    end if
+    return 0
+end function
+
+-- ─── Keyword detection ───────────────────────────────────────────────────────
+
+numeric function keyword_kind(word as string)
+    if str_eq(word; "function") then
+        return 10
+    end if
+    if str_eq(word; "end_function") then
+        return 11
+    end if
+    if str_eq(word; "return") then
+        return 12
+    end if
+    if str_eq(word; "if") then
+        return 13
+    end if
+    if str_eq(word; "then") then
+        return 14
+    end if
+    if str_eq(word; "else") then
+        return 15
+    end if
+    if str_eq(word; "else_if") then
+        return 16
+    end if
+    if str_eq(word; "end_if") then
+        return 17
+    end if
+    -- DEPRECATED: while → loop (topluluk geçişi tamamlanana kadar destekleniyor)
+    if str_eq(word; "while") then
+        return 18
+    end if
+    -- DEPRECATED: end_while → end_loop (topluluk geçişi tamamlanana kadar destekleniyor)
+    if str_eq(word; "end_while") then
+        return 19
+    end if
+    if str_eq(word; "for") then
+        return 20
+    end if
+    if str_eq(word; "end_for") then
+        return 21
+    end if
+    if str_eq(word; "to") then
+        return 22
+    end if
+    if str_eq(word; "as") then
+        return 23
+    end if
+    if str_eq(word; "struct") then
+        return 24
+    end if
+    if str_eq(word; "end_struct") then
+        return 25
+    end if
+    if str_eq(word; "print") then
+        return 26
+    end if
+    if str_eq(word; "println") then
+        return 27
+    end if
+    if str_eq(word; "and") then
+        return 28
+    end if
+    if str_eq(word; "or") then
+        return 29
+    end if
+    if str_eq(word; "not") then
+        return 30
+    end if
+    if str_eq(word; "mod") then
+        return 31
+    end if
+    if str_eq(word; "match") then
+        return 32
+    end if
+    if str_eq(word; "case") then
+        return 33
+    end if
+    if str_eq(word; "end_match") then
+        return 34
+    end if
+    if str_eq(word; "exit_while") then
+        return 35
+    end if
+    if str_eq(word; "continue_while") then
+        return 36
+    end if
+    if str_eq(word; "exit_for") then
+        return 37
+    end if
+    if str_eq(word; "continue_for") then
+        return 38
+    end if
+    -- ─── Concurrency / async ─────────────────────────────────────────────────
+    if str_eq(word; "event") then
+        return 39
+    end if
+    if str_eq(word; "end_event") then
+        return 40
+    end if
+    if str_eq(word; "async") then
+        return 41
+    end if
+    if str_eq(word; "await") then
+        return 42
+    end if
+    if str_eq(word; "spawn") then
+        return 43
+    end if
+    if str_eq(word; "send") then
+        return 44
+    end if
+    if str_eq(word; "receive") then
+        return 45
+    end if
+    -- ─── Loop (while yerine canonical form) ──────────────────────────────────
+    if str_eq(word; "loop") then
+        return 46
+    end if
+    if str_eq(word; "end_loop") then
+        return 47
+    end if
+    -- ─── Lambda / first-class functions ──────────────────────────────────────
+    if str_eq(word; "lambda") then
+        return 48
+    end if
+    if str_eq(word; "end_lambda") then
+        return 49
+    end if
+    -- ─── App / event-driven entry points ─────────────────────────────────────
+    -- (80+ range: keyword range extensionu; 50-78 operators/delimiters ile çakışmaz)
+    if str_eq(word; "app_start") then
+        return 80
+    end if
+    if str_eq(word; "end_app") then
+        return 81
+    end if
+    -- ─── General control flow ─────────────────────────────────────────────────
+    if str_eq(word; "exit") then
+        return 82
+    end if
+    if str_eq(word; "continue") then
+        return 83
+    end if
+    if str_eq(word; "true") then
+        return 6
+    end if
+    if str_eq(word; "false") then
+        return 6
+    end if
+    return 3
+end function
+
+-- ─── Token kind → printable name ─────────────────────────────────────────────
+
+string function kind_name(k as numeric)
+    if k == 0 then
+        return "UNKNOWN"
+    end if
+    if k == 1 then
+        return "EOF"
+    end if
+    if k == 2 then
+        return "NEWLINE"
+    end if
+    if k == 3 then
+        return "IDENTIFIER"
+    end if
+    if k == 4 then
+        return "NUMBER"
+    end if
+    if k == 5 then
+        return "STRING"
+    end if
+    if k == 6 then
+        return "BOOLEAN"
+    end if
+    if k == 10 then
+        return "function"
+    end if
+    if k == 11 then
+        return "end_function"
+    end if
+    if k == 12 then
+        return "return"
+    end if
+    if k == 13 then
+        return "if"
+    end if
+    if k == 14 then
+        return "then"
+    end if
+    if k == 15 then
+        return "else"
+    end if
+    if k == 16 then
+        return "else_if"
+    end if
+    if k == 17 then
+        return "end_if"
+    end if
+    if k == 18 then
+        return "while"
+    end if
+    if k == 19 then
+        return "end_while"
+    end if
+    if k == 20 then
+        return "for"
+    end if
+    if k == 21 then
+        return "end_for"
+    end if
+    if k == 22 then
+        return "to"
+    end if
+    if k == 23 then
+        return "as"
+    end if
+    if k == 24 then
+        return "struct"
+    end if
+    if k == 25 then
+        return "end_struct"
+    end if
+    if k == 26 then
+        return "print"
+    end if
+    if k == 27 then
+        return "println"
+    end if
+    if k == 28 then
+        return "and"
+    end if
+    if k == 29 then
+        return "or"
+    end if
+    if k == 30 then
+        return "not"
+    end if
+    if k == 31 then
+        return "mod"
+    end if
+    if k == 32 then
+        return "match"
+    end if
+    if k == 33 then
+        return "case"
+    end if
+    if k == 34 then
+        return "end_match"
+    end if
+    if k == 35 then
+        return "exit_while"
+    end if
+    if k == 36 then
+        return "continue_while"
+    end if
+    if k == 37 then
+        return "exit_for"
+    end if
+    if k == 38 then
+        return "continue_for"
+    end if
+    if k == 39 then
+        return "event"
+    end if
+    if k == 40 then
+        return "end_event"
+    end if
+    if k == 41 then
+        return "async"
+    end if
+    if k == 42 then
+        return "await"
+    end if
+    if k == 43 then
+        return "spawn"
+    end if
+    if k == 44 then
+        return "send"
+    end if
+    if k == 45 then
+        return "receive"
+    end if
+    -- DEPRECATED: while → loop (topluluk geçişi tamamlanana kadar destekleniyor)
+    if k == 18 then
+        return "while [DEPRECATED]"
+    end if
+    -- DEPRECATED: end_while → end_loop (topluluk geçişi tamamlanana kadar destekleniyor)
+    if k == 19 then
+        return "end_while [DEPRECATED]"
+    end if
+    if k == 46 then
+        return "loop"
+    end if
+    if k == 47 then
+        return "end_loop"
+    end if
+    if k == 48 then
+        return "lambda"
+    end if
+    if k == 49 then
+        return "end_lambda"
+    end if
+    if k == 80 then
+        return "app_start"
+    end if
+    if k == 81 then
+        return "end_app"
+    end if
+    if k == 82 then
+        return "exit"
+    end if
+    if k == 83 then
+        return "continue"
+    end if
+    if k == 50 then
+        return "PLUS"
+    end if
+    if k == 51 then
+        return "MINUS"
+    end if
+    if k == 52 then
+        return "STAR"
+    end if
+    if k == 53 then
+        return "SLASH"
+    end if
+    if k == 54 then
+        return "EQUALS"
+    end if
+    if k == 55 then
+        return "EQ"
+    end if
+    if k == 56 then
+        return "NEQ"
+    end if
+    if k == 57 then
+        return "LT"
+    end if
+    if k == 58 then
+        return "GT"
+    end if
+    if k == 59 then
+        return "LE"
+    end if
+    if k == 60 then
+        return "GE"
+    end if
+    if k == 61 then
+        return "ARROW"
+    end if
+    if k == 62 then
+        return "DOT"
+    end if
+    if k == 63 then
+        return "DOTDOT"
+    end if
+    if k == 70 then
+        return "LPAREN"
+    end if
+    if k == 71 then
+        return "RPAREN"
+    end if
+    if k == 72 then
+        return "LBRACKET"
+    end if
+    if k == 73 then
+        return "RBRACKET"
+    end if
+    if k == 74 then
+        return "LBRACE"
+    end if
+    if k == 75 then
+        return "RBRACE"
+    end if
+    if k == 76 then
+        return "SEMICOLON"
+    end if
+    if k == 77 then
+        return "COMMA"
+    end if
+    if k == 78 then
+        return "COLON"
+    end if
+    return "UNKNOWN"
+end function
+
+-- ─── emit: print one token ───────────────────────────────────────────────────
+
+numeric function emit(k as numeric; v as string; line as numeric; col as numeric)
+    print(kind_name(k) + "|" + v + "|" + str(line) + ":" + str(col))
+    return 1
+end function
+
+-- ─── scan_identifier: read word starting at pos, return new pos ──────────────
+-- State is communicated via globals simulated by return value.
+-- Returns new pos; wval_out updated indirectly via print.
+-- NOTE: prints the token and returns new pos.
+
+numeric function scan_word(source as string; pos as numeric; src_len as numeric; line as numeric; start_col as numeric)
+    -- pre-declare while vars at function top (no alloca-in-while)
+    string wval = ""
+    numeric ic = 0
+    numeric p = pos
+    numeric done = 0
+    loop done == 0 and p < src_len
+        ic = char_code(source; p)
+        if is_alnum(ic) == 1 then
+            wval = wval + substring(source; p; 1)
+            p = p + 1
+        else
+            done = 1
+        end if
+    end loop
+    numeric kk = keyword_kind(wval)
+    numeric dummy = emit(kk; wval; line; start_col)
+    return p
+end function
+
+-- ─── scan_number: read digits/decimal starting at pos ───────────────────────
+
+numeric function scan_number(source as string; pos as numeric; src_len as numeric; line as numeric; start_col as numeric)
+    string nval = ""
+    numeric nc = 0
+    numeric p = pos
+    numeric done = 0
+    loop done == 0 and p < src_len
+        nc = char_code(source; p)
+        if is_digit(nc) == 1 then
+            nval = nval + substring(source; p; 1)
+            p = p + 1
+        else
+            if nc == 46 then
+                -- '.' — check not '..' range operator
+                if p + 1 < src_len then
+                    if char_code(source; p + 1) != 46 then
+                        nval = nval + "."
+                        p = p + 1
+                    else
+                        done = 1
+                    end if
+                else
+                    done = 1
+                end if
+            else
+                done = 1
+            end if
+        end if
+    end loop
+    numeric dummy = emit(4; nval; line; start_col)
+    return p
+end function
+
+-- ─── scan_string: read "..." starting AFTER opening quote ────────────────────
+-- Returns new pos (after closing quote).
+
+numeric function scan_string(source as string; pos as numeric; src_len as numeric; line as numeric; start_col as numeric)
+    string sval = ""
+    numeric p = pos
+    numeric sc = 0
+    numeric done = 0
+    loop done == 0 and p < src_len
+        sc = char_code(source; p)
+        if sc == 34 then
+            -- closing "
+            done = 1
+        else
+            if sc == 92 then
+                -- backslash escape
+                p = p + 1
+                if p < src_len then
+                    numeric esc = char_code(source; p)
+                    if esc == 110 then
+                        sval = sval + "\n"
+                    else
+                        if esc == 116 then
+                            sval = sval + "\t"
+                        else
+                            sval = sval + substring(source; p; 1)
+                        end if
+                    end if
+                    p = p + 1
+                end if
+            else
+                sval = sval + substring(source; p; 1)
+                p = p + 1
+            end if
+        end if
+    end loop
+    -- consume closing "
+    if p < src_len then
+        p = p + 1
+    end if
+    numeric dummy = emit(5; sval; line; start_col)
+    return p
+end function
+
+-- ─── tokenize: main scanner ───────────────────────────────────────────────────
+
+numeric function tokenize(source as string)
+    -- Declare ALL while variables at function top to avoid alloca-in-while bugs
+    numeric src_len = len(source)
+    numeric pos = 0
+    numeric line = 1
+    numeric col = 1
+    numeric count = 0
+    numeric c = 0
+    numeric tok_col = 0
+    numeric is_comment = 0
+    numeric skip_ws = 0
+    numeric wc = 0
+    numeric next_c = 0
+    numeric dummy = 0
+
+    loop pos < src_len
+        -- Skip spaces/tabs/CR
+        skip_ws = 1
+        loop skip_ws == 1 and pos < src_len
+            wc = char_code(source; pos)
+            if is_space(wc) == 1 then
+                pos = pos + 1
+                col = col + 1
+            else
+                skip_ws = 0
+            end if
+        end loop
+
+        if pos >= src_len then
+            pos = src_len
+        else
+            c = char_code(source; pos)
+
+            -- Check for comment start: '--' or '//'
+            is_comment = 0
+            if c == 45 and pos + 1 < src_len then
+                if char_code(source; pos + 1) == 45 then
+                    is_comment = 1
+                end if
+            end if
+            if c == 47 and pos + 1 < src_len then
+                if char_code(source; pos + 1) == 47 then
+                    is_comment = 1
+                end if
+            end if
+
+            if is_comment == 1 then
+                -- Skip to end of line
+                loop pos < src_len and char_code(source; pos) != 10
+                    pos = pos + 1
+                end loop
+            else
+                -- Newline
+                if c == 10 then
+                    dummy = emit(2; ""; line; col)
+                    count = count + 1
+                    pos = pos + 1
+                    line = line + 1
+                    col = 1
+                else
+                -- String literal
+                if c == 34 then
+                    tok_col = col
+                    pos = pos + 1
+                    col = col + 1
+                    numeric new_pos_s = scan_string(source; pos; src_len; line; tok_col)
+                    col = col + new_pos_s - pos
+                    pos = new_pos_s
+                    count = count + 1
+                else
+                -- Number literal
+                if is_digit(c) == 1 then
+                    tok_col = col
+                    numeric new_pos_n = scan_number(source; pos; src_len; line; tok_col)
+                    col = col + new_pos_n - pos
+                    pos = new_pos_n
+                    count = count + 1
+                else
+                -- Identifier or keyword
+                if is_alpha(c) == 1 then
+                    tok_col = col
+                    numeric new_pos_w = scan_word(source; pos; src_len; line; tok_col)
+                    col = col + new_pos_w - pos
+                    pos = new_pos_w
+                    count = count + 1
+                else
+                -- Operators and delimiters (advance first)
+                    tok_col = col
+                    pos = pos + 1
+                    col = col + 1
+
+                    if c == 43 then
+                        dummy = emit(50; "+"; line; tok_col)
+                        count = count + 1
+                    else
+                    if c == 42 then
+                        if pos < src_len and char_code(source; pos) == 42 then
+                            pos = pos + 1
+                            col = col + 1
+                            dummy = emit(65; "**"; line; tok_col)
+                        else
+                            dummy = emit(52; "*"; line; tok_col)
+                        end if
+                        count = count + 1
+                    else
+                    if c == 47 then
+                        dummy = emit(53; "/"; line; tok_col)
+                        count = count + 1
+                    else
+                    if c == 40 then
+                        dummy = emit(70; "("; line; tok_col)
+                        count = count + 1
+                    else
+                    if c == 41 then
+                        dummy = emit(71; ")"; line; tok_col)
+                        count = count + 1
+                    else
+                    if c == 91 then
+                        dummy = emit(72; "["; line; tok_col)
+                        count = count + 1
+                    else
+                    if c == 93 then
+                        dummy = emit(73; "]"; line; tok_col)
+                        count = count + 1
+                    else
+                    if c == 123 then
+                        dummy = emit(74; "{"; line; tok_col)
+                        count = count + 1
+                    else
+                    if c == 125 then
+                        dummy = emit(75; "}"; line; tok_col)
+                        count = count + 1
+                    else
+                    if c == 59 then
+                        dummy = emit(76; ";"; line; tok_col)
+                        count = count + 1
+                    else
+                    if c == 44 then
+                        dummy = emit(77; ","; line; tok_col)
+                        count = count + 1
+                    else
+                    if c == 58 then
+                        dummy = emit(78; ":"; line; tok_col)
+                        count = count + 1
+                    else
+                    if c == 61 then
+                        if pos < src_len and char_code(source; pos) == 61 then
+                            pos = pos + 1
+                            col = col + 1
+                            dummy = emit(55; "=="; line; tok_col)
+                        else
+                            dummy = emit(54; "="; line; tok_col)
+                        end if
+                        count = count + 1
+                    else
+                    if c == 33 then
+                        if pos < src_len and char_code(source; pos) == 61 then
+                            pos = pos + 1
+                            col = col + 1
+                            dummy = emit(56; "!="; line; tok_col)
+                            count = count + 1
+                        end if
+                    else
+                    if c == 60 then
+                        if pos < src_len and char_code(source; pos) == 61 then
+                            pos = pos + 1
+                            col = col + 1
+                            dummy = emit(59; "<="; line; tok_col)
+                        else
+                            dummy = emit(57; "<"; line; tok_col)
+                        end if
+                        count = count + 1
+                    else
+                    if c == 62 then
+                        if pos < src_len and char_code(source; pos) == 61 then
+                            pos = pos + 1
+                            col = col + 1
+                            dummy = emit(60; ">="; line; tok_col)
+                        else
+                            dummy = emit(58; ">"; line; tok_col)
+                        end if
+                        count = count + 1
+                    else
+                    if c == 45 then
+                        if pos < src_len and char_code(source; pos) == 62 then
+                            pos = pos + 1
+                            col = col + 1
+                            dummy = emit(61; "->"; line; tok_col)
+                        else
+                            dummy = emit(51; "-"; line; tok_col)
+                        end if
+                        count = count + 1
+                    else
+                    if c == 46 then
+                        if pos < src_len and char_code(source; pos) == 46 then
+                            pos = pos + 1
+                            col = col + 1
+                            dummy = emit(63; ".."; line; tok_col)
+                        else
+                            dummy = emit(62; "."; line; tok_col)
+                        end if
+                        count = count + 1
+                    else
+                        dummy = emit(0; "?"; line; tok_col)
+                        count = count + 1
+                    end if
+                    end if
+                    end if
+                    end if
+                    end if
+                    end if
+                    end if
+                    end if
+                    end if
+                    end if
+                    end if
+                    end if
+                    end if
+                    end if
+                    end if
+                    end if
+                    end if
+                    end if
+
+                end if
+                end if
+                end if
+                end if
+            end if
+        end if
+    end loop
+
+    dummy = emit(1; ""; line; col)
+    count = count + 1
+    return count
+end function
+
+-- ─── Entry point ─────────────────────────────────────────────────────────────
+-- Reads source from stdin line-by-line.
+-- Blank lines are preserved; reading stops at EOF (NULL from read_line).
+-- EOF detection: str_eq(null;"") == 0, str_eq("";"") == 1.
+-- Usage:  lexer.elf < source.mlp
+--         lexer.elf           (uses built-in smoke-test string)
+
+numeric function main()
+    string source = ""
+    string line = read_line()
+    numeric done = 0
+    loop done == 0
+        if len(line) == 0 then
+            if str_eq(line; "") then
+                -- blank line — keep the newline
+                source = source + "\n"
+                line = read_line()
+            else
+                -- NULL return  → EOF
+                done = 1
+            end if
+        else
+            source = source + line + "\n"
+            line = read_line()
+        end if
+    end loop
+
+    if len(source) == 0 then
+        -- No stdin: fall back to built-in smoke-test
+        source = "function add(a as numeric; b as numeric) -> numeric\n    return a + b\nend function"
+    end if
+
+    print("--- Tokenizing ---")
+    numeric n = tokenize(source)
+    print("--- Total: " + str(n) + " tokens ---")
+    return 0
+end function

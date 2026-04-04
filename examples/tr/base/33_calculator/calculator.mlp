@@ -1,0 +1,27 @@
+#lang turkish
+sayısal fonksiyon topla(sayısal a; sayısal b)
+    döndür a + b
+fonksiyon sonu
+
+sayısal fonksiyon cikar(sayısal a; sayısal b)
+    döndür a - b
+fonksiyon sonu
+
+sayısal fonksiyon carp(sayısal a; sayısal b)
+    döndür a * b
+fonksiyon sonu
+
+sayısal fonksiyon bol(sayısal a; sayısal b)
+    koşul b == 0 ise
+        döndür 0
+    yoksa
+        döndür a / b
+    koşul sonu
+fonksiyon sonu
+
+fonksiyon giriş()
+    yazdır(topla(10; 5))
+    yazdır(cikar(10; 3))
+    yazdır(carp(6; 7))
+    yazdır(bol(20; 4))
+fonksiyon sonu

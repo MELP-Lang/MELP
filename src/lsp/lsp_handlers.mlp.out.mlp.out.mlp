@@ -1,0 +1,346 @@
+-- lsp_handlers.mlp — LSP method handler'ları
+--
+-- Stage 0 Bug B7 workaround kuralı:
+--   string var = "" ile başlat, concat için var = var + ... kullan
+--   Asla: string var = expr + expr kullanma
+
+-- ============================================================================
+-- Server capabilities
+-- ============================================================================
+
+string function make_server_capabilities()
+    -- textDocumentSync
+    string sync_body = json_kv_num("openClose"; 1)
+    sync_body = sync_body +", "
+    sync_body = sync_body + json_kv_num("change"; 1)
+    string sync_obj = json_object(sync_body)
+
+    -- completionProvider
+    string trig_inner = json_string(" ")
+    trig_inner = trig_inner +", "
+    trig_inner = trig_inner + json_string(".")
+    string trig_chars = json_array(trig_inner)
+    string comp_body = json_kv_bool("resolveProvider"; false)
+    comp_body = comp_body +", "
+    comp_body = comp_body +"\"triggerCharacters\": "
+    comp_body = comp_body + trig_chars
+    string comp_obj = json_object(comp_body)
+
+    -- Capabilities
+    string caps ="\"textDocumentSync\": "
+    caps = caps + sync_obj
+    caps = caps +", "
+    caps = caps +"\"completionProvider\": "
+    caps = caps + comp_obj
+    caps = caps +", "
+    caps = caps + json_kv_bool("hoverProvider"; true)
+    caps = caps +", "
+    caps = caps + json_kv_bool("declarationProvider"; false)
+    caps = caps +", "
+    caps = caps + json_kv_bool("definitionProvider"; false)
+    return json_object(caps)
+end_function
+
+string function handle_initialize(numeric rpc_id; string init_params)
+    string name_kv = json_kv_str("name";"melp-lsp")
+    string ver_kv = json_kv_str("version";"0.1.0")
+    string srv_info = name_kv
+    srv_info = srv_info +", "
+    srv_info = srv_info + ver_kv
+
+    string caps_str = make_server_capabilities()
+    string init_result ="\"capabilities\": "
+    init_result = init_result + caps_str
+    init_result = init_result +", "
+    init_result = init_result +"\"serverInfo\": "
+    init_result = init_result + json_object(srv_info)
+    return make_rpc_response(rpc_id; json_object(init_result))
+end_function
+
+function handle_shutdown(numeric rpc_id)
+    lsp_send(make_rpc_response(rpc_id;"null"))
+end_function
+
+-- ============================================================================
+-- Completion utilities
+-- ============================================================================
+
+string function detect_lang_from_uri(string uri)
+    if ends_with(uri;".tr.mlp") then
+        return"turkish"
+    end_if
+    if ends_with(uri;".ru.mlp") then
+        return"russian"
+    end_if
+    return"english"
+end_function
+
+string function get_word_at(string line; numeric character)
+    numeric n = len(line)
+    numeric wstart = character
+    loop wstart > 0
+        numeric wcode = char_code(line; wstart - 1)
+        boolean is_wc = (wcode >= 65 and wcode <= 90) or (wcode >= 97 and wcode <= 122) or (wcode >= 48 and wcode <= 57) or wcode == 95 or wcode >= 128
+        if not is_wc then
+            exit
+        end_if
+        wstart = wstart - 1
+    end_loop
+    numeric wend = character
+    loop wend < n
+        numeric wcode2 = char_code(line; wend)
+        boolean is_wc2 = (wcode2 >= 65 and wcode2 <= 90) or (wcode2 >= 97 and wcode2 <= 122) or (wcode2 >= 48 and wcode2 <= 57) or wcode2 == 95 or wcode2 >= 128
+        if not is_wc2 then
+            exit
+        end_if
+        wend = wend + 1
+    end_loop
+    if wend > wstart then
+        return substring(line; wstart; wend - wstart)
+    end_if
+    return""
+end_function
+
+string function get_line_n(string src; numeric target_line)
+    numeric cur_line = 0
+    numeric i = 0
+    numeric n = len(src)
+    string line =""
+    loop i < n
+        string ch = substring(src; i; 1)
+        if ch =="\n" then
+            if cur_line == target_line then
+                return line
+            end_if
+            cur_line = cur_line + 1
+            line =""
+        else
+            if cur_line == target_line then
+                line = line + ch
+            end_if
+        end_if
+        i = i + 1
+    end_loop
+    if cur_line == target_line then
+        return line
+    end_if
+    return""
+end_function
+
+string function handle_completion(numeric rpc_id; string comp_params; string doc_src; string doc_uri)
+    string pos_obj = json_get_nested(comp_params;"position")
+    numeric line_num  = json_get_num(pos_obj;"line")
+    numeric character = json_get_num(pos_obj;"character")
+
+    string cur_line = get_line_n(doc_src; line_num)
+    string prefix = get_word_at(cur_line; character)
+
+    string lang = detect_lang_from_uri(doc_uri)
+    string kws =""
+    if lang =="turkish" then
+        kws = get_keywords_turkish()
+    else
+        kws = get_keywords_mlp()
+    end_if
+
+    string items =""
+    boolean first_item = true
+    numeric ki = 0
+    numeric kn = len(kws)
+    string kw =""
+
+    loop ki <= kn
+        string kch =""
+        if ki < kn then
+            kch = substring(kws; ki; 1)
+        end_if
+        if kch =="|" or ki == kn then
+            if len(kw) > 0 then
+                boolean kw_match = len(prefix) == 0 or starts_with(kw; prefix)
+                if kw_match then
+                    string kw_doc = get_hover_doc(kw)
+                    string ci = build_completion_item(kw;"MLP keyword"; kw_doc)
+                    if not first_item then
+                        items = items +", "
+                    end_if
+                    items = items + ci
+                    first_item = false
+                end_if
+            end_if
+            kw =""
+        else
+            kw = kw + kch
+        end_if
+        ki = ki + 1
+    end_loop
+
+    string comp_list_body = json_kv_bool("isIncomplete"; false)
+    comp_list_body = comp_list_body +", "
+    comp_list_body = comp_list_body +"\"items\": "
+    comp_list_body = comp_list_body + json_array(items)
+    return make_rpc_response(rpc_id; json_object(comp_list_body))
+end_function
+
+-- ============================================================================
+-- Hover
+-- ============================================================================
+
+string function handle_hover(numeric rpc_id; string hover_params; string doc_src)
+    string pos_obj = json_get_nested(hover_params;"position")
+    numeric line_num  = json_get_num(pos_obj;"line")
+    numeric character = json_get_num(pos_obj;"character")
+
+    string cur_line = get_line_n(doc_src; line_num)
+    string word = get_word_at(cur_line; character)
+
+    if len(word) == 0 then
+        return make_rpc_response(rpc_id;"null")
+    end_if
+
+    string doc = get_hover_doc(word)
+    if len(doc) == 0 then
+        return make_rpc_response(rpc_id;"null")
+    end_if
+
+    string kind_kv = json_kv_str("kind";"markdown")
+    string val_kv = json_kv_str("value"; doc)
+    string contents_body = kind_kv
+    contents_body = contents_body +", "
+    contents_body = contents_body + val_kv
+    string hover_body ="\"contents\": "
+    hover_body = hover_body + json_object(contents_body)
+    return make_rpc_response(rpc_id; json_object(hover_body))
+end_function
+
+-- ============================================================================
+-- Diagnostics
+-- ============================================================================
+
+string function make_diag(string diag_msg)
+    string zero_pos_body = json_kv_num("line"; 0)
+    zero_pos_body = zero_pos_body +", "
+    zero_pos_body = zero_pos_body + json_kv_num("character"; 0)
+    string zero_pos = json_object(zero_pos_body)
+    string rng_body ="\"start\": "
+    rng_body = rng_body + zero_pos
+    rng_body = rng_body +", "
+    rng_body = rng_body +"\"end\": "
+    rng_body = rng_body + zero_pos
+    string rng = json_object(rng_body)
+    string diag_body ="\"range\": "
+    diag_body = diag_body + rng
+    diag_body = diag_body +", "
+    diag_body = diag_body + json_kv_num("severity"; 1)
+    diag_body = diag_body +", "
+    diag_body = diag_body + json_kv_str("message"; diag_msg)
+    diag_body = diag_body +", "
+    diag_body = diag_body + json_kv_str("source";"melp-lsp")
+    return json_object(diag_body)
+end_function
+
+string function check_diagnostics(string src)
+    numeric if_depth = 0
+    numeric loop_depth = 0
+    numeric func_depth = 0
+    string diags =""
+    boolean first_diag = true
+    numeric i = 0
+    numeric n = len(src)
+
+    loop i < n
+        string line =""
+        loop i < n
+            string ch = substring(src; i; 1)
+            i = i + 1
+            if ch =="\n" then
+                exit
+            end_if
+            line = line + ch
+        end_loop
+
+        string trimmed = trim(line)
+
+        if starts_with(trimmed;"if ") or trimmed =="if" then
+            if_depth = if_depth + 1
+        else
+            if starts_with(trimmed;"koşul ") or trimmed =="koşul" then
+                if_depth = if_depth + 1
+            else
+                if starts_with(trimmed;"end if") or starts_with(trimmed;"end_if") then
+                    if_depth = if_depth - 1
+                else
+                    if starts_with(trimmed;"koşul sonu") then
+                        if_depth = if_depth - 1
+                    else
+                        if starts_with(trimmed;"loop ") or trimmed =="loop" then
+                            loop_depth = loop_depth + 1
+                        else
+                            if starts_with(trimmed;"döngü ") or trimmed =="döngü" then
+                                loop_depth = loop_depth + 1
+                            else
+                                if starts_with(trimmed;"end loop") or starts_with(trimmed;"end_while") then
+                                    loop_depth = loop_depth - 1
+                                else
+                                    if starts_with(trimmed;"döngü sonu") then
+                                        loop_depth = loop_depth - 1
+                                    else
+                                        if starts_with(trimmed;"function ") or contains(trimmed;" function ") then
+                                            func_depth = func_depth + 1
+                                        else
+                                            if starts_with(trimmed;"fonksiyon ") or contains(trimmed;" fonksiyon ") then
+                                                func_depth = func_depth + 1
+                                            else
+                                                if starts_with(trimmed;"end function") or starts_with(trimmed;"end_function") then
+                                                    func_depth = func_depth - 1
+                                                else
+                                                    if starts_with(trimmed;"fonksiyon sonu") then
+                                                        func_depth = func_depth - 1
+                                                    end_if
+                                                end_if
+                                            end_if
+                                        end_if
+                                    end_if
+                                end_if
+                            end_if
+                        end_if
+                    end_if
+                end_if
+            end_if
+        end_if
+    end_loop
+
+    if if_depth != 0 then
+        if not first_diag then
+            diags = diags +", "
+        end_if
+        diags = diags + make_diag("Eşleşmeyen if/end if bloğu")
+        first_diag = false
+    end_if
+    if loop_depth != 0 then
+        if not first_diag then
+            diags = diags +", "
+        end_if
+        diags = diags + make_diag("Eşleşmeyen loop/end loop bloğu")
+        first_diag = false
+    end_if
+    if func_depth != 0 then
+        if not first_diag then
+            diags = diags +", "
+        end_if
+        diags = diags + make_diag("Eşleşmeyen function/end function bloğu")
+    end_if
+
+    return json_array(diags)
+end_function
+
+function handle_diagnostics(string uri; string src)
+    string diag_array = check_diagnostics(src)
+    string diag_params = json_kv_str("uri"; uri)
+    diag_params = diag_params +", "
+    diag_params = diag_params +"\"diagnostics\": "
+    diag_params = diag_params + diag_array
+    string notif = make_rpc_notification("textDocument/publishDiagnostics"; json_object(diag_params))
+    lsp_send(notif)
+end_function
+
+

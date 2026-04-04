@@ -1,0 +1,16 @@
+-- Simple Iterative Fibonacci (Champion Test)
+-- Same as 12 Şubat test
+
+numeric n = 35
+numeric a = 0
+numeric b = 1
+numeric i = 2
+
+while i <= n
+    numeric temp = a + b
+    a = b
+    b = temp
+    i = i + 1
+end_while
+
+print b

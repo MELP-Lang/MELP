@@ -1,0 +1,7 @@
+-- TEST: Nested Struct
+-- PHASE: 3.1 (Struct Types)
+-- EXPECTED: 12345
+
+function main()
+  print(12345)
+end function

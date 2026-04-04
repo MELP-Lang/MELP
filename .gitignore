@@ -1,0 +1,111 @@
+# Derleme çıktıları
+*.ll
+*.elf
+*.o
+*.s
+*.so
+build/demo
+build/hello
+build/hello.elf
+build/lexer.elf
+build/demo.ll
+build/hello.ll
+build/lexer.ll
+output.ll
+# normalizer binary artık ORTAK/normalizer/ altında (kanonik, bu repoda kopya yok)
+
+# Yedek binary'ler (sync_from_v2.sh tarafından üretilir)
+bin/melp_compiler.bak.*
+
+# OS ve editör
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+
+# Internal / private (bu dizin sadece binary + topluluk dosyaları içerir)
+.claude/
+.vscode/
+TODO_KURALLARI.md
+STAGE1_PLAN.md
+MM_TOPLULUK_ACILIS_EKSIKLER.md
+MELP_STAGE1_INDEX.md
+
+# Atölye — YZ/MM talimatları, raporlar, geçici çalışma dosyaları
+_atolye/
+
+# MM / YZ talimat belgeleri (kök dizinde kalanlar için)
+TALIMAT_*.md
+TALIMAT_*.md.old
+PD_TALİMAT_*.md
+TAM_PIPELINE_*.md
+
+# Geçici test ve rapor dosyaları
+test_examples.sh
+migrate_examples.sh
+test_report_*.txt
+migration_report.txt
+test_run_output.log
+failed_tests.txt
+output.ll
+*.log
+
+# Internal mimari belgeler (topluluk için değil)
+belgeler_old/
+
+# Editör bağımsız repo'ları — kendi .git'leri var, STAGE1 takip etmez
+editors/melp/
+editors/web/
+
+# Derlenmiş native kütüphaneler
+*.so
+examples/tools/*.png
+examples/tools/*.c
+
+# MM/YZ iç belgeler — vitrine sızmasın
+*RAPORU_*.md
+YARDIM/*TALIMATI.md
+*MM_MESAJ*.md
+*ilerleme_raporu*.md
+examples/**/YZ_*/
+examples/**/YZ_*_*.md
+examples/**/ÜA_CHECKLIST.md
+examples/**/COMPLETION_REPORT.md
+examples/**/TASKS_*_REPORT.md
+examples/**/TASK_VERIFICATION.md
+
+# Proje içi iletişim — asla commit edilmez
+PROJE_İLETİŞİM/
+PD_TALİMAT_*/
+MM_PROJE_SON_DURUM.md
+YZ_Bunu_Oku.md
+MM_LOG.md
+MM_DEVIR_TESLIM*.md
+
+
+# Proje ici iletisim - asla commit edilmez
+PROJE_ILETISIM/
+PROJE_İLETİŞİM/
+PD_TAL*
+MM_PROJE_SON_DURUM.md
+YZ_Bunu_Oku.md
+MM_LOG.md
+MM_DEVIR_TESLIM*
+
+# Proje ici iletisim - asla commit edilmez
+PROJE_ILETISIM/
+PD_TAL*/
+MM_PROJE_SON_DURUM.md
+YZ_Bunu_Oku.md
+MM_LOG.md
+MM_DEVIR_TESLIM*
+
+
+# Proje ici iletisim - asla commit edilmez
+PROJE_ILETISIM/
+PD_TAL*
+MM_PROJE_SON_DURUM.md
+YZ_Bunu_Oku.md
+MM_LOG.md
+MM_DEVIR_TESLIM*

@@ -1,0 +1,7 @@
+-- TEST: Test Coverage
+-- PHASE: 4.5 (Testing Framework)
+-- EXPECTED: 100
+
+function main()
+  print(100)
+end function

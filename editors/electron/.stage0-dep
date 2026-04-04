@@ -1,0 +1,9 @@
+{
+  "stage0_version": "1.0.0",
+  "stage0_root": "/home/pardus/PROJELER/MELP/LLVM/STAGE0",
+  "melp_compiler": "/home/pardus/PROJELER/MELP/LLVM/STAGE0/build/compiler/stage1/modules/orchestrator/melp_compiler",
+  "last_synced": "2026-03-13",
+  "invocation": "settings.json → compilerPath alanı",
+  "settings_file": "settings.json",
+  "notes": "MELP editörü compilerPath'i settings.json'dan okur. Path fix: 2026-03-13."
+}

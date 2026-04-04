@@ -1,0 +1,18 @@
+#lang turkish
+-- ÖZELLİK: KANALLAR - Üretici-tüketici mesaj geçişi
+-- NOT: Channel{T} sözdizimi Stage0'da parse error (Faz 4+ runtime)
+-- Geçici çözüm: dizi ile mesaj kuyruğu simülasyonu
+
+-- Kanal runtime Faz 4'te — şimdilik dizi tabanlı kuyruk
+fonksiyon giriş()
+    -- Dizi ile basit mesaj kuyruğu simülasyonu
+    sayısal[] queue = [10; 20; 30; 40; 50]
+
+    -- "Üretici" — değerleri işle
+    sayısal i = 0
+    döngü i < 5
+        sayısal msg = queue[i]
+        yazdır(msg)
+        i = i + 1
+    döngü sonu
+fonksiyon sonu

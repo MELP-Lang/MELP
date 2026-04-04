@@ -1,0 +1,39 @@
+-- FEATURE: OPERATOR_OVERLOAD - Struct için operator tanımı
+-- NOT: function Struct.operator+(other) syntax Stage0'da parse error
+-- Workaround: named method kullan
+
+struct Vector
+    numeric x
+    numeric y
+end struct
+
+-- operator+ desteklenmiyor (B6: parse error "Expected method name after '.'")
+-- Workaround: named method
+numeric function Vector.add(Vector other)
+    numeric rx = this.x + other.x
+    return rx
+end function
+
+numeric function Vector.length_sq()
+    numeric x = this.x
+    numeric y = this.y
+    return x * x + y * y
+end function
+
+function main()
+    Vector a
+    a.x = 3
+    a.y = 4
+
+    Vector b
+    b.x = 1
+    b.y = 2
+
+    -- Named method (operator+ workaround)
+    numeric rx = a.add(b)
+    print(rx)
+
+    -- length squared
+    numeric lsq = a.length_sq()
+    print(lsq)
+end function

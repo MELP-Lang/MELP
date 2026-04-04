@@ -1,0 +1,52 @@
+-- GÖREV 17: null işlemleri (nullable? syntax henüz çalışmıyor)
+-- Null kontrol simülasyonu
+
+numeric function check_value(numeric key)
+    if key == 1 then
+        return 100
+    else
+        if key == 2 then
+            return 200
+        else
+            return 0  -- "null" yerine 0 kullan
+        end if
+    end if
+end function
+
+function main()
+    -- Numeric değişkenler
+    numeric x = 0     -- null simülasyonu
+    numeric y = 42
+
+    -- Null kontrol (if x == 0)
+    if not (y == 0) then
+        print(y)
+    end if
+
+    if x == 0 then
+        print(0)
+    end if
+
+    -- Fonksiyon sonucu
+    numeric result1 = check_value(1)
+    numeric result2 = check_value(3)
+
+    if not (result1 == 0) then
+        print(result1)
+    end if
+
+    if result2 == 0 then
+        print(0)
+    end if
+
+    -- Kontrol öncesi
+    numeric a = 0
+    numeric b = 50
+
+    if not (a == 0) then
+        numeric val = a + b
+        print(val)
+    else
+        print(0)
+    end if
+end function

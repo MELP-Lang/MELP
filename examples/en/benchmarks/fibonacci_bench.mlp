@@ -1,0 +1,15 @@
+-- Simple Fibonacci Benchmark for Stage 2
+
+function fib(n)
+    if n <= 1 then
+        return n
+    end_if
+    return fib(n - 1) + fib(n - 2)
+end_function
+
+function main()
+    let result = fib(35)
+    print(result)
+end_function
+
+main()

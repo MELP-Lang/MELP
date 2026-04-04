@@ -1,0 +1,17 @@
+#lang turkish
+-- GÖREV 04: metin_islemleri
+-- Metin birleştirme ve işlemleri
+
+fonksiyon giriş()
+    metin a = "foo"
+    metin b = "bar"
+    metin c = a + b
+    yazdır(c)
+
+    metin greeting = "Merhaba"
+    metin name = "MELP"
+    yazdır(greeting)
+    yazdır(name)
+
+    yazdır("Hello" + " " + "World")
+fonksiyon sonu

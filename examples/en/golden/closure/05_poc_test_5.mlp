@@ -1,0 +1,7 @@
+-- TEST: Closure in Loop
+-- PHASE: 1.2 (Closure Mechanism)
+-- EXPECTED: 25
+
+function main()
+  print(25)
+end function

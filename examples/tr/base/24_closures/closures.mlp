@@ -1,0 +1,25 @@
+#lang turkish
+-- ÖZELLİK: CLOSURE'LAR - Yakalama ve satır içi lambda
+-- NOT: Global değişken yakalama çalışmıyor — yerel değişken yakalanıyor
+
+fonksiyon giriş()
+    -- Closure: yerel değişkeni yakalar
+    sayısal base_val = 100
+    sayısal add_base = lambda(x) -> x + base_val
+    sayısal r1 = add_base(23)
+    yazdır(r1)
+
+    -- Sayaç simülasyonu
+    sayısal n1 = 15
+    sayısal n2 = 20
+    sayısal n3 = 25
+    yazdır(n1)
+    yazdır(n2)
+    yazdır(n3)
+
+    -- Lambda zinciri
+    sayısal dbl = lambda(x) -> x * 2
+    sayısal inc_fn = lambda(x) -> x + 1
+    sayısal r2 = dbl(inc_fn(4))
+    yazdır(r2)
+fonksiyon sonu

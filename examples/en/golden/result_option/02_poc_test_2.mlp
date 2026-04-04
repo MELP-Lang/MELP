@@ -1,0 +1,7 @@
+-- TEST: Option None
+-- PHASE: 3.2 (Result/Option)
+-- EXPECTED: 99
+
+function main()
+  print(99)
+end function

@@ -1,0 +1,37 @@
+-- stdlib/time.mlp — Time and date utilities
+-- Source: mlp_stdlib_time.c (Stage1 Phase 1)
+-- STAGE1 Phase 1
+--
+-- These functions are compiler built-ins, exported for stdlib consistency.
+--
+-- EXPORTED: now_ms, sleep_ms, current_year, current_month, current_day, current_hour, format_date
+
+-- Get current Unix timestamp in milliseconds (built-in)
+numeric function now_ms()
+end_function
+
+-- Sleep for milliseconds (built-in)
+none function sleep_ms(numeric ms)
+end_function
+
+-- Get current year (built-in)
+numeric function current_year()
+end_function
+
+-- Get current month 1-12 (built-in)
+numeric function current_month()
+end_function
+
+-- Get current day 1-31 (built-in)
+numeric function current_day()
+end_function
+
+-- Get current hour 0-23 (built-in)
+numeric function current_hour()
+end_function
+
+-- Format Unix timestamp with format string (built-in)
+-- Dispatches to mlp_time_format_date → strftime in C runtime
+-- Format tokens follow strftime conventions: %Y %m %d %H %M %S
+string function format_date(numeric ms; string fmt)
+end_function

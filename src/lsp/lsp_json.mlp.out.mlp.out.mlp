@@ -1,0 +1,335 @@
+-- lsp_json.mlp — Minimal JSON builder & parser utilities for MLP LSP
+--
+-- Stage 0 kısıtlamaları: no arrays, no generics, no map type
+-- Bu nedenle JSON parse etmek için basit string scanning kullanılıyor.
+--
+-- Fonksiyonlar:
+--   json_escape(s)              → JSON string escape (\" \\ \n \r \t)
+--   json_string(s)              → "escaped"
+--   json_kv_str(k; v)           → "k": "v"
+--   json_kv_num(k; v)           → "k": 42
+--   json_kv_bool(k; v)          → "k": true/false
+--   json_object(body)           → { body }
+--   json_array(body)            → [ body ]
+--   json_null_val()             → null
+--
+--   json_get_str(jsrc; key)     → string value (or "")
+--   json_get_num(jsrc; key)     → numeric value (or 0)
+--   json_get_bool(jsrc; key)    → boolean value (or false)
+--   json_get_nested(jsrc; key)  → nested object as string (or "")
+
+-- ============================================================================
+-- JSON Builder
+-- ============================================================================
+
+string function json_escape(string s)
+    string result =""
+    numeric i = 0
+    numeric n = len(s)
+    loop i < n
+        string ch = substring(s; i; 1)
+        if ch =="\"" then
+            result = result +"\\\""
+        else
+            if ch =="\\" then
+                result = result +"\\\\"
+            else
+                if ch =="\n" then
+                    result = result +"\\n"
+                else
+                    if ch =="\r" then
+                        result = result +"\\r"
+                    else
+                        if ch =="\t" then
+                            result = result +"\\t"
+                        else
+                            result = result + ch
+                        end_if
+                    end_if
+                end_if
+            end_if
+        end_if
+        i = i + 1
+    end_loop
+    return result
+end_function
+
+string function json_string(string s)
+    -- B6 workaround: multi-concat tek satırda çalışmıyor
+    string escaped = json_escape(s)
+    string r ="\""
+    r = r + escaped
+    r = r +"\""
+    return r
+end_function
+
+string function json_kv_str(string key; string value)
+    -- B6 workaround: ara değişken kullan
+    string ks = json_string(key)
+    string vs = json_string(value)
+    string r = ks
+    r = r +": "
+    r = r + vs
+    return r
+end_function
+
+string function json_kv_num(string key; numeric value)
+    -- B6 workaround: str() çağrısı için ara değişken
+    string ks = json_string(key)
+    string vs = str(value)
+    string r = ks
+    r = r +": "
+    r = r + vs
+    return r
+end_function
+
+string function json_kv_bool(string key; boolean value)
+    string ks = json_string(key)
+    string r = ks
+    r = r +": "
+    if value then
+        r = r +"true"
+    end_if
+    if not value then
+        r = r +"false"
+    end_if
+    return r
+end_function
+
+string function json_object(string body)
+    string r ="{"
+    r = r + body
+    r = r +"}"
+    return r
+end_function
+
+string function json_array(string body)
+    string r ="["
+    r = r + body
+    r = r +"]"
+    return r
+end_function
+
+string function json_null_val()
+    return"null"
+end_function
+
+-- ============================================================================
+-- JSON Parser — simple key lookup (flat objects only)
+-- ============================================================================
+
+-- Skip whitespace starting at position i in s, return new position
+numeric function json_skip_ws(string s; numeric i)
+    numeric n = len(s)
+    loop i < n
+        string ch = substring(s; i; 1)
+        if ch ==" " or ch =="\t" or ch =="\n" or ch =="\r" then
+            i = i + 1
+        else
+            return i
+        end_if
+    end_loop
+    return i
+end_function
+
+-- Find the value start position for key in a flat JSON object.
+-- Returns -1 if not found.
+-- key must be given without quotes.
+numeric function json_find_key(string jsrc; string key)
+    string needle ="\"" + key +"\""
+    numeric nlen = len(needle)
+    numeric jlen = len(jsrc)
+    numeric i = 0
+    loop i < jlen - nlen
+        string candidate = substring(jsrc; i; nlen)
+        if candidate == needle then
+            -- Check next non-ws char is ':'
+            numeric j = i + nlen
+            j = json_skip_ws(jsrc; j)
+            if j < jlen then
+                string colon = substring(jsrc; j; 1)
+                if colon ==":" then
+                    j = j + 1
+                    j = json_skip_ws(jsrc; j)
+                    return j
+                end_if
+            end_if
+        end_if
+        i = i + 1
+    end_loop
+    return -1
+end_function
+
+-- Extract string value at position i (i points to opening '"')
+-- Returns the unescaped string content
+string function json_read_string(string jsrc; numeric i)
+    numeric jlen = len(jsrc)
+    -- skip opening quote
+    if i >= jlen then
+        return""
+    end_if
+    string first = substring(jsrc; i; 1)
+    if not (first =="\"") then
+        return""
+    end_if
+    i = i + 1
+    string result =""
+    loop i < jlen
+        string ch = substring(jsrc; i; 1)
+        if ch =="\\" then
+            i = i + 1
+            if i < jlen then
+                string esc = substring(jsrc; i; 1)
+                if esc =="n" then
+                    result = result +"\n"
+                else
+                    if esc =="r" then
+                        result = result +"\r"
+                    else
+                        if esc =="t" then
+                            result = result +"\t"
+                        else
+                            result = result + esc
+                        end_if
+                    end_if
+                end_if
+                i = i + 1
+            end_if
+        else
+            if ch =="\"" then
+                return result
+            else
+                result = result + ch
+                i = i + 1
+            end_if
+        end_if
+    end_loop
+    return result
+end_function
+
+-- Extract numeric value at position i (digits, optional minus)
+numeric function json_read_num(string jsrc; numeric i)
+    numeric jlen = len(jsrc)
+    string numstr =""
+    loop i < jlen
+        string ch = substring(jsrc; i; 1)
+        numeric code = char_code(jsrc; i)
+        -- digits 0-9, minus, dot
+        boolean is_digit = code >= 48 and code <= 57
+        boolean is_minus = ch =="-"
+        boolean is_dot   = ch =="."
+        if is_digit or is_minus or is_dot then
+            numstr = numstr + ch
+            i = i + 1
+        else
+            return to_int(numstr)
+        end_if
+    end_loop
+    return to_int(numstr)
+end_function
+
+-- Extract boolean value at position i
+boolean function json_read_bool(string jsrc; numeric i)
+    numeric jlen = len(jsrc)
+    if i + 3 < jlen then
+        string word4 = substring(jsrc; i; 4)
+        if word4 =="true" then
+            return true
+        end_if
+    end_if
+    return false
+end_function
+
+-- Extract nested object or array at position i (returns the raw {...} or [...] substring)
+string function json_read_nested(string jsrc; numeric i)
+    numeric jlen = len(jsrc)
+    if i >= jlen then
+        return""
+    end_if
+    string open_ch = substring(jsrc; i; 1)
+    string close_ch ="}"
+    if open_ch =="[" then
+        close_ch ="]"
+    else
+        if not (open_ch =="{") then
+            return""
+        end_if
+    end_if
+    numeric depth = 0
+    numeric start = i
+    boolean in_str = false
+    loop i < jlen
+        string ch = substring(jsrc; i; 1)
+        if in_str then
+            if ch =="\\" then
+                i = i + 2
+            else
+                if ch =="\"" then
+                    in_str = false
+                    i = i + 1
+                else
+                    i = i + 1
+                end_if
+            end_if
+        else
+            if ch =="\"" then
+                in_str = true
+                i = i + 1
+            else
+                if ch == open_ch then
+                    depth = depth + 1
+                    i = i + 1
+                else
+                    if ch == close_ch then
+                        depth = depth - 1
+                        i = i + 1
+                        if depth == 0 then
+                            return substring(jsrc; start; i - start)
+                        end_if
+                    else
+                        i = i + 1
+                    end_if
+                end_if
+            end_if
+        end_if
+    end_loop
+    return""
+end_function
+
+-- Public API: get string value for key
+string function json_get_str(string jsrc; string key)
+    numeric pos = json_find_key(jsrc; key)
+    if pos < 0 then
+        return""
+    end_if
+    return json_read_string(jsrc; pos)
+end_function
+
+-- Public API: get numeric value for key
+numeric function json_get_num(string jsrc; string key)
+    numeric pos = json_find_key(jsrc; key)
+    if pos < 0 then
+        return 0
+    end_if
+    return json_read_num(jsrc; pos)
+end_function
+
+-- Public API: get boolean value for key
+boolean function json_get_bool(string jsrc; string key)
+    numeric pos = json_find_key(jsrc; key)
+    if pos < 0 then
+        return false
+    end_if
+    return json_read_bool(jsrc; pos)
+end_function
+
+-- Public API: get nested object/array for key (raw JSON string)
+string function json_get_nested(string jsrc; string key)
+    numeric pos = json_find_key(jsrc; key)
+    if pos < 0 then
+        return""
+    end_if
+    return json_read_nested(jsrc; pos)
+end_function
+
+

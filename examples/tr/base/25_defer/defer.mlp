@@ -1,0 +1,19 @@
+#lang turkish
+-- ÖZELLİK: DEFER - Geciktirilen işlem (fonksiyon bitiminde çalışır)
+-- NOT: Stage0 defer parse ediliyor ama LIFO semantiği yok — sadece kod üretiliyor
+
+sayısal fonksiyon kaynak_ac()
+    yazdır("kaynak acildi")
+    döndür 1
+fonksiyon sonu
+
+fonksiyon giriş()
+    -- defer: blok sonunda çalışır
+    defer yazdır("defer-2: son temizlik")
+    defer yazdır("defer-1: kaynak kapatildi")
+
+    sayısal r = kaynak_ac()
+    yazdır("islem yapiliyor")
+    yazdır("islem tamam")
+    -- defer'lar burada çalışır (sıra Stage0'da garantili değil)
+fonksiyon sonu

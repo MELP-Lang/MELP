@@ -1,0 +1,7 @@
+-- TEST: IDE Advanced POC 5
+-- PHASE: 3 (Electron IDE Advanced)
+-- EXPECTED: 1
+
+function main()
+  print(1)
+end function

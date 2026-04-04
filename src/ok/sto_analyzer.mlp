@@ -1,0 +1,209 @@
+-- sto_analyzer.mlp
+-- STO (Static Type Optimizer) — kaynak düzey tip analizi.
+--
+-- Görev: .mlp kaynak dosyasını okur,
+--   - numeric/string/boolean atamalarını sayar
+--   - Açık tip uyumsuzluklarını tespit eder:
+--       numeric x = "hello"  → D-02 güvenlik açığı
+--       string  y = 42       → D-02 güvenlik açığı
+--   - Bulguları stdout'a yazar
+--
+-- Protokol:  /tmp/.melp_sto_in  (analiz edilecek .mlp kaynak)
+-- Çıktı  :  stdout — her sorun için bir satır:
+--             D-02:satir_no: tip uyumsuzluğu açıklaması
+--           Son satır: özet (counts)
+--
+-- Derleme: bin/run_melp src/ok/sto_analyzer.mlp
+
+-- ─── Helpers ─────────────────────────────────────────────────────────────────
+
+-- Trim leading spaces and return trimmed substring start index
+numeric function skip_ws(line as string) -> numeric
+    numeric n = len(line)
+    numeric i = 0
+    while i < n and char_code(line; i) == 32
+        i = i + 1
+    end while
+    return i
+end function
+
+-- Check if line starts with a keyword at position i
+numeric function line_starts_with(line as string; i as numeric; kw as string) -> numeric
+    numeric kw_len = len(kw)
+    numeric ln = len(line)
+    if ln - i < kw_len then
+        return 0
+    end if
+    if substring(line; i; kw_len) == kw then
+        -- must be followed by space or = or '(' (not part of longer identifier)
+        if ln - i == kw_len then
+            return 1
+        end if
+        numeric next_c = char_code(line; i + kw_len)
+        if next_c == 32 or next_c == 61 or next_c == 40 then
+            return 1
+        end if
+    end if
+    return 0
+end function
+
+-- Find first occurrence of a char in string starting at offset
+numeric function find_char(s as string; start as numeric; ch as numeric) -> numeric
+    numeric n = len(s)
+    numeric i = start
+    while i < n
+        if char_code(s; i) == ch then
+            return i
+        end if
+        i = i + 1
+    end while
+    return -1
+end function
+
+-- Determine declared type from type keyword on the line
+-- Returns: 1=numeric, 2=string, 3=boolean, 0=unknown
+numeric function get_declared_type(line as string; i as numeric) -> numeric
+    if line_starts_with(line; i; "numeric") == 1 then
+        return 1
+    end if
+    if line_starts_with(line; i; "string") == 1 then
+        return 2
+    end if
+    if line_starts_with(line; i; "boolean") == 1 then
+        return 3
+    end if
+    return 0
+end function
+
+-- Determine RHS type from value after '='
+-- Returns: 1=numeric literal, 2=string literal, 3=boolean literal, 0=unknown/expr
+numeric function get_rhs_type(line as string; eq_pos as numeric) -> numeric
+    numeric ln = len(line)
+    numeric i = eq_pos + 1
+    -- skip spaces after '='
+    while i < ln and char_code(line; i) == 32
+        i = i + 1
+    end while
+    if i >= ln then
+        return 0
+    end if
+    numeric c = char_code(line; i)
+    -- string literal starts with "
+    if c == 34 then
+        return 2
+    end if
+    -- numeric literal: digit or - followed by digit
+    if c >= 48 and c <= 57 then
+        return 1
+    end if
+    if c == 45 and i + 1 < ln then
+        numeric nc = char_code(line; i + 1)
+        if nc >= 48 and nc <= 57 then
+            return 1
+        end if
+    end if
+    -- boolean literals
+    if line_starts_with(line; i; "true") == 1 then
+        return 3
+    end if
+    if line_starts_with(line; i; "false") == 1 then
+        return 3
+    end if
+    return 0
+end function
+
+-- ─── Main ────────────────────────────────────────────────────────────────────
+
+numeric function main() -> numeric
+    string INPUT_FILE = "/tmp/.melp_sto_in"
+
+    string source = __builtin_fs_read_to_string(INPUT_FILE)
+    numeric src_len = len(source)
+
+    numeric line_no = 1
+    numeric line_start = 0
+    numeric i = 0
+
+    -- counters
+    numeric cnt_numeric = 0
+    numeric cnt_string = 0
+    numeric cnt_boolean = 0
+    numeric cnt_mismatch = 0
+
+    while i <= src_len
+        numeric c = 0
+        if i < src_len then
+            c = char_code(source; i)
+        else
+            c = 10
+        end if
+
+        if c == 10 then
+            string line = substring(source; line_start; i - line_start)
+            numeric li = skip_ws(line)
+
+            numeric dtype = get_declared_type(line; li)
+
+            if dtype > 0 then
+                -- count by type
+                if dtype == 1 then
+                    cnt_numeric = cnt_numeric + 1
+                end if
+                if dtype == 2 then
+                    cnt_string = cnt_string + 1
+                end if
+                if dtype == 3 then
+                    cnt_boolean = cnt_boolean + 1
+                end if
+
+                -- find '=' sign (skip '==' by checking next char isn't '=')
+                numeric eq = find_char(line; li; 61)
+                if eq > 0 then
+                    -- confirm not '==' or '<=' or '>='
+                    numeric prev_c = char_code(line; eq - 1)
+                    numeric nxt_eq = 0
+                    if eq + 1 < len(line) then
+                        if char_code(line; eq + 1) == 61 then
+                            nxt_eq = 1
+                        end if
+                    end if
+                    if nxt_eq == 0 and prev_c != 60 and prev_c != 62 and prev_c != 33 then
+                        numeric rtype = get_rhs_type(line; eq)
+                        if rtype > 0 and rtype != dtype then
+                            -- mismatch!
+                            cnt_mismatch = cnt_mismatch + 1
+                            if dtype == 1 and rtype == 2 then
+                                print("D-02:" + str(line_no) + ": numeric değişkene string atandı: " + line)
+                            end if
+                            if dtype == 2 and rtype == 1 then
+                                print("D-02:" + str(line_no) + ": string değişkene numeric atandı: " + line)
+                            end if
+                            if dtype == 1 and rtype == 3 then
+                                print("D-02:" + str(line_no) + ": numeric değişkene boolean atandı: " + line)
+                            end if
+                            if dtype == 2 and rtype == 3 then
+                                print("D-02:" + str(line_no) + ": string değişkene boolean atandı: " + line)
+                            end if
+                            if dtype == 3 and rtype == 1 then
+                                print("D-02:" + str(line_no) + ": boolean değişkene numeric atandı: " + line)
+                            end if
+                            if dtype == 3 and rtype == 2 then
+                                print("D-02:" + str(line_no) + ": boolean değişkene string atandı: " + line)
+                            end if
+                        end if
+                    end if
+                end if
+            end if
+
+            line_no = line_no + 1
+            i = i + 1
+            line_start = i
+        else
+            i = i + 1
+        end if
+    end while
+
+    -- summary
+    print("STO: numeric=" + str(cnt_numeric) + " string=" + str(cnt_string) + " boolean=" + str(cnt_boolean) + " mismatch=" + str(cnt_mismatch))
+    return 0
+end function

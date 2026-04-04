@@ -1,0 +1,7 @@
+-- TEST: Parse Variable
+-- PHASE: 4.4 (Tree-sitter)
+-- EXPECTED: 42
+
+function main()
+  print(42)
+end function

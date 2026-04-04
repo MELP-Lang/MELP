@@ -1,0 +1,74 @@
+-- EXPORTED: array_create, array_length, array_is_empty, array_get, array_set, array_first, array_last, array_push, array_pop, array_slice, array_concat, array_reverse, array_contains, array_index_of, array_clear, array_free, array_print
+-- ═══════════════════════════════════════════════════════════════
+-- MELP Standard Library - Array Utilities
+-- STAGE0 builtins: array handle numeric olarak taşınır
+-- ═══════════════════════════════════════════════════════════════
+
+numeric function array_create()
+    return __builtin_array_create()
+end_function
+
+numeric function array_length(numeric arr)
+    return __builtin_array_length(arr)
+end_function
+
+numeric function array_is_empty(numeric arr)
+    return __builtin_array_is_empty(arr)
+end_function
+
+numeric function array_get(numeric arr; numeric index)
+    return __builtin_array_get(arr; index)
+end_function
+
+numeric function array_set(numeric arr; numeric index; numeric value)
+    return __builtin_array_set(arr; index; value)
+end_function
+
+numeric function array_first(numeric arr)
+    return __builtin_array_first(arr)
+end_function
+
+numeric function array_last(numeric arr)
+    return __builtin_array_last(arr)
+end_function
+
+numeric function array_push(numeric arr; numeric value)
+    return __builtin_array_push(arr; value)
+end_function
+
+numeric function array_pop(numeric arr)
+    return __builtin_array_pop(arr)
+end_function
+
+numeric function array_slice(numeric arr; numeric start_idx; numeric stop_idx)
+    return __builtin_array_slice(arr; start_idx; stop_idx)
+end_function
+
+numeric function array_concat(numeric arr1; numeric arr2)
+    return __builtin_array_concat(arr1; arr2)
+end_function
+
+numeric function array_reverse(numeric arr)
+    return __builtin_array_reverse(arr)
+end_function
+
+numeric function array_contains(numeric arr; numeric value)
+    return __builtin_array_contains(arr; value)
+end_function
+
+numeric function array_index_of(numeric arr; numeric value)
+    return __builtin_array_index_of(arr; value)
+end_function
+
+numeric function array_clear(numeric arr)
+    return __builtin_array_clear(arr)
+end_function
+
+numeric function array_free(numeric arr)
+    return __builtin_array_free(arr)
+end_function
+
+numeric function array_print(numeric arr)
+    return __builtin_array_print(arr)
+end_function
+

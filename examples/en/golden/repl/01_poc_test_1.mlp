@@ -1,0 +1,9 @@
+-- TEST: Simple Expression
+-- PHASE: 4.3 (REPL)
+-- EXPECTED: 15
+
+function main()
+  numeric x = 5
+  numeric y = 10
+  print(x + y)
+end function

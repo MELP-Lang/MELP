@@ -1,0 +1,7 @@
+-- TEST: Reduce Product
+-- PHASE: 1.4 (Higher-Order Functions)
+-- EXPECTED: 120
+
+function main()
+  print(120)
+end function

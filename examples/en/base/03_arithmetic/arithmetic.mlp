@@ -1,0 +1,15 @@
+-- GÖREV 03: arithmetic
+-- Dört işlem, mod, üs işlemleri
+
+function main()
+    numeric a = 10
+    numeric b = 5
+    print(a + b)
+    print(a - b)
+    print(a * b)
+    print(a / b)
+    numeric mod_result = 17 mod 5
+    print(mod_result)
+    numeric power = 2 ** 10
+    print(power)
+end function

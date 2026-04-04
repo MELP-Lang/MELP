@@ -1,0 +1,273 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   MELP — Ek Tema Tanımları
+   Dark ve Light temalar main.css içinde tanımlıdır.
+   Bu dosya: Dracula, One Dark Pro, Solarized Dark, High Contrast
+───────────────────────────────────────────────────────────────────────────── */
+
+/* ══════════════════════════════════════════
+   DRACULA
+══════════════════════════════════════════ */
+body.theme-dracula {
+  --bg-primary:    #282a36;
+  --bg-secondary:  #21222c;
+  --bg-tertiary:   #44475a;
+  --bg-quaternary: #3d3f4e;
+  --border-color:  #6272a4;
+  --text-primary:  #f8f8f2;
+  --text-secondary:#cdd6f4;
+  --text-tertiary: #6272a4;
+  --text-active:   #ffffff;
+  --accent-color:  #bd93f9;
+  --accent-hover:  #c9a8ff;
+  --accent-active: #7c53cc;
+  --button-bg:     #6272a4;
+  --shadow-color:  rgba(0, 0, 0, 0.55);
+  --grid-color:    rgba(248, 248, 242, 0.04);
+}
+body.theme-dracula .ac-dropdown            { background:#282a36; border-color:#bd93f9; }
+body.theme-dracula .ac-item                { color:#f8f8f2; }
+body.theme-dracula .ac-item:hover,
+body.theme-dracula .ac-item.ac-active      { background:#44475a; color:#ff79c6; }
+body.theme-dracula .ac-item-icon           { color:#50fa7b; }
+body.theme-dracula .ac-item-type           { color:#6272a4; }
+body.theme-dracula .bottom-terminal        { background:#21222c; }
+body.theme-dracula .terminal-panel-bar     { background:#282a36; border-bottom-color:#6272a4; }
+body.theme-dracula .terminal-output-area   { color:#f8f8f2; background:#181920; }
+body.theme-dracula .terminal-input-row     { background:#21222c; border-top-color:#6272a4; }
+body.theme-dracula .terminal-input-field   { color:#f8f8f2; }
+body.theme-dracula .intellisense-popup     { background:#282a36; border-color:#bd93f9; }
+body.theme-dracula .intellisense-item:hover{ background:#44475a; }
+body.theme-dracula .code-panel-header      { background:#21222c; border-bottom-color:#6272a4; color:#cdd6f4; }
+body.theme-dracula .line-numbers           { background:#21222c; color:#6272a4; border-right-color:#44475a; }
+body.theme-dracula .error-panel            { background:#282a36; border-top-color:#ff5555; }
+body.theme-dracula .terminal-panel-tab.active { border-bottom-color:#bd93f9; }
+
+/* ══════════════════════════════════════════
+   ONE DARK PRO
+══════════════════════════════════════════ */
+body.theme-one-dark {
+  --bg-primary:    #282c34;
+  --bg-secondary:  #21252b;
+  --bg-tertiary:   #2c313c;
+  --bg-quaternary: #353b45;
+  --border-color:  #3e4451;
+  --text-primary:  #abb2bf;
+  --text-secondary:#c8ccd4;
+  --text-tertiary: #5c6370;
+  --text-active:   #e6e6e6;
+  --accent-color:  #61afef;
+  --accent-hover:  #528bff;
+  --accent-active: #3d78cf;
+  --button-bg:     #4d78cc;
+  --shadow-color:  rgba(0, 0, 0, 0.45);
+  --grid-color:    rgba(255, 255, 255, 0.04);
+}
+body.theme-one-dark .ac-dropdown            { background:#21252b; border-color:#61afef; }
+body.theme-one-dark .ac-item                { color:#abb2bf; }
+body.theme-one-dark .ac-item:hover,
+body.theme-one-dark .ac-item.ac-active      { background:#2c313c; color:#98c379; }
+body.theme-one-dark .ac-item-icon           { color:#61afef; }
+body.theme-one-dark .ac-item-type           { color:#5c6370; }
+body.theme-one-dark .bottom-terminal        { background:#21252b; }
+body.theme-one-dark .terminal-panel-bar     { background:#282c34; border-bottom-color:#3e4451; }
+body.theme-one-dark .terminal-output-area   { color:#abb2bf; background:#1b1f27; }
+body.theme-one-dark .terminal-input-row     { background:#21252b; border-top-color:#3e4451; }
+body.theme-one-dark .terminal-input-field   { color:#abb2bf; }
+body.theme-one-dark .intellisense-popup     { background:#21252b; border-color:#61afef; }
+body.theme-one-dark .intellisense-item:hover{ background:#2c313c; }
+body.theme-one-dark .code-panel-header      { background:#21252b; border-bottom-color:#3e4451; color:#c8ccd4; }
+body.theme-one-dark .line-numbers           { background:#21252b; color:#5c6370; border-right-color:#3e4451; }
+body.theme-one-dark .error-panel            { background:#21252b; border-top-color:#e06c75; }
+body.theme-one-dark .terminal-panel-tab.active { border-bottom-color:#61afef; }
+
+/* ══════════════════════════════════════════
+   SOLARIZED DARK
+══════════════════════════════════════════ */
+body.theme-solarized {
+  --bg-primary:    #002b36;
+  --bg-secondary:  #073642;
+  --bg-tertiary:   #094552;
+  --bg-quaternary: #0a4f5e;
+  --border-color:  #2d5a68;
+  --text-primary:  #839496;
+  --text-secondary:#93a1a1;
+  --text-tertiary: #586e75;
+  --text-active:   #eee8d5;
+  --accent-color:  #268bd2;
+  --accent-hover:  #2ea0e8;
+  --accent-active: #1a6faa;
+  --button-bg:     #1c6b8a;
+  --shadow-color:  rgba(0, 0, 0, 0.45);
+  --grid-color:    rgba(131, 148, 150, 0.07);
+}
+body.theme-solarized .ac-dropdown            { background:#073642; border-color:#268bd2; }
+body.theme-solarized .ac-item                { color:#93a1a1; }
+body.theme-solarized .ac-item:hover,
+body.theme-solarized .ac-item.ac-active      { background:#094552; color:#2aa198; }
+body.theme-solarized .ac-item-icon           { color:#268bd2; }
+body.theme-solarized .ac-item-type           { color:#586e75; }
+body.theme-solarized .bottom-terminal        { background:#073642; }
+body.theme-solarized .terminal-panel-bar     { background:#002b36; border-bottom-color:#2d5a68; }
+body.theme-solarized .terminal-output-area   { color:#839496; background:#00212b; }
+body.theme-solarized .terminal-input-row     { background:#073642; border-top-color:#2d5a68; }
+body.theme-solarized .terminal-input-field   { color:#93a1a1; }
+body.theme-solarized .intellisense-popup     { background:#073642; border-color:#268bd2; }
+body.theme-solarized .intellisense-item:hover{ background:#094552; }
+body.theme-solarized .code-panel-header      { background:#073642; border-bottom-color:#2d5a68; color:#93a1a1; }
+body.theme-solarized .line-numbers           { background:#073642; color:#586e75; border-right-color:#2d5a68; }
+body.theme-solarized .error-panel            { background:#073642; border-top-color:#dc322f; }
+body.theme-solarized .terminal-panel-tab.active { border-bottom-color:#268bd2; }
+
+/* ══════════════════════════════════════════
+   HIGH CONTRAST
+══════════════════════════════════════════ */
+body.theme-contrast {
+  --bg-primary:    #000000;
+  --bg-secondary:  #0a0a0a;
+  --bg-tertiary:   #111111;
+  --bg-quaternary: #1a1a1a;
+  --border-color:  #ffffff;
+  --text-primary:  #ffffff;
+  --text-secondary:#ffffff;
+  --text-tertiary: #ffff00;
+  --text-active:   #ffffff;
+  --accent-color:  #ffff00;
+  --accent-hover:  #ffff80;
+  --accent-active: #cccc00;
+  --button-bg:     #1a1a1a;
+  --shadow-color:  rgba(255, 255, 255, 0.15);
+  --grid-color:    rgba(255, 255, 255, 0.10);
+}
+body.theme-contrast .ac-dropdown            { background:#000; border-color:#ffff00; border-width:2px; }
+body.theme-contrast .ac-item                { color:#fff; }
+body.theme-contrast .ac-item:hover,
+body.theme-contrast .ac-item.ac-active      { background:#333; color:#ffff00; }
+body.theme-contrast .ac-item-icon           { color:#ffff00; }
+body.theme-contrast .ac-item-type           { color:#aaa; }
+body.theme-contrast .bottom-terminal        { background:#000; border-top:2px solid #fff; }
+body.theme-contrast .terminal-panel-bar     { background:#111; border-bottom:2px solid #fff; }
+body.theme-contrast .terminal-output-area   { color:#fff; background:#000; }
+body.theme-contrast .terminal-input-row     { background:#0a0a0a; border-top:2px solid #fff; }
+body.theme-contrast .terminal-input-field   { color:#fff; }
+body.theme-contrast .intellisense-popup     { background:#000; border:2px solid #ffff00; }
+body.theme-contrast .intellisense-item:hover{ background:#333; }
+body.theme-contrast .code-panel-header      { background:#111; border-bottom:2px solid #fff; color:#fff; }
+body.theme-contrast .line-numbers           { background:#0a0a0a; color:#ffff00; border-right:2px solid #fff; }
+body.theme-contrast .error-panel            { background:#000; border-top:3px solid #ff0000; }
+body.theme-contrast .terminal-panel-tab.active { border-bottom:3px solid #ffff00; color:#fff; }
+body.theme-contrast .canvas-widget          { outline:2px solid #ffff00 !important; }
+body.theme-contrast .canvas-widget.selected { outline:3px solid #00ffff !important; }
+
+/* ══════════════════════════════════════════
+   TEMA SEÇİM DIALOGO CSS
+══════════════════════════════════════════ */
+.theme-picker-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.70);
+  z-index: 99990;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.theme-picker-overlay.hidden {
+  display: none;
+  pointer-events: none;
+}
+
+.theme-picker-dialog {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  width: 360px;
+  max-width: 95vw;
+  padding: 0;
+  overflow: hidden;
+}
+.theme-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-active);
+}
+.theme-picker-close {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 3px;
+  line-height: 1;
+}
+.theme-picker-close:hover { background: var(--bg-quaternary); color: var(--text-primary); }
+
+/* Hafif liste düzeni — eski 3 sütun grid + position:absolute preview kaldırıldı */
+.theme-picker-grid {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  gap: 2px;
+}
+.theme-card {
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--bg-primary);
+}
+.theme-card:hover { border-color: var(--accent-color); background: var(--bg-tertiary); }
+.theme-card.active { border-color: var(--accent-color); }
+
+/* Renk swatchi — position:absolute'lu mini IDE önizlemesi kaldırıldı */
+.theme-card-preview {
+  width: 32px;
+  height: 20px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.tc-dark     .theme-card-preview { background: #1e1e1e; border: 2px solid #3e3e42; }
+.tc-light    .theme-card-preview { background: #f3f3f3; border: 2px solid #d0d0d0; }
+.tc-dracula  .theme-card-preview { background: #282a36; border: 2px solid #bd93f9; }
+.tc-one-dark .theme-card-preview { background: #282c34; border: 2px solid #61afef; }
+.tc-solar    .theme-card-preview { background: #002b36; border: 2px solid #268bd2; }
+.tc-contrast     .theme-card-preview { background: #000000; border: 2px solid #ffff00; }
+.tc-melp-premium .theme-card-preview { background: #11111b; border: 2px solid #7c3aed; }
+
+/* Eski absolute-positioned alt elementler artık kullanılmıyor */
+.theme-card-preview .tc-titlebar,
+.theme-card-preview .tc-toolbar,
+.theme-card-preview .tc-left,
+.theme-card-preview .tc-center,
+.theme-card-preview .tc-right,
+.theme-card-preview .tc-widget1,
+.theme-card-preview .tc-widget2,
+.theme-card-preview .tc-widget3 { display: none; }
+
+.theme-card-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+}
+.theme-card-name {
+  font-size: 13px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+.theme-card-check {
+  font-size: 14px;
+  color: var(--accent-color);
+  opacity: 0;
+  font-weight: bold;
+}
+.theme-card.active .theme-card-check { opacity: 1; }

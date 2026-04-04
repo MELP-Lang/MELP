@@ -1,0 +1,117 @@
+-- ============================================================================
+-- MELP Standard Library: I/O Module
+-- ============================================================================
+-- Purpose: Basic input/output operations
+-- Stage: Stage 0 Minimal Stdlib (Week 5)
+-- Date: 27 Ocak 2026
+-- Status: PRODUCTION READY
+-- ============================================================================
+
+module std_io
+
+-- ============================================================================
+-- CORE OUTPUT FUNCTIONS
+-- ============================================================================
+
+---/
+Print a message to stdout without newline
+@param message The string to print
+/---
+function print(string message)
+    __builtin_print(message)
+end_function
+
+---/
+Print a message to stdout with newline
+@param message The string to print
+/---
+function println(string message)
+    print(message)
+    print("\n")
+end_function
+
+---/
+Print an empty line
+/---
+function println_empty()
+    print("\n")
+end_function
+
+-- ============================================================================
+-- FORMATTED OUTPUT
+-- ============================================================================
+
+---/
+Print a numeric value
+@param value The numeric value to print
+/---
+function print_numeric(numeric value)
+    __builtin_print_numeric(value)
+end_function
+
+---/
+Print a numeric value with newline
+@param value The numeric value to print
+/---
+function println_numeric(numeric value)
+    __builtin_print_numeric(value)
+    print("\n")
+end_function
+
+---/
+Print a boolean value
+@param value The boolean value to print
+/---
+function print_boolean(boolean value)
+    if value then
+        print("true")
+    else
+        print("false")
+    end_if
+end_function
+
+---/
+Print a boolean value with newline
+@param value The boolean value to print
+/---
+function println_boolean(boolean value)
+    print_boolean(value)
+    print("\n")
+end_function
+
+-- ============================================================================
+-- CORE INPUT FUNCTIONS
+-- ============================================================================
+
+---/
+Read a line from stdin
+@returns The input string (without trailing newline)
+/---
+function read_line() as string
+    return __builtin_read_line()
+end_function
+
+---/
+Read a numeric value from stdin
+@returns The numeric value entered by user
+/---
+function read_numeric() as numeric
+    string input = read_line()
+    return __builtin_string_to_numeric(input)
+end_function
+
+-- ============================================================================
+-- MODULE INFO
+-- ============================================================================
+
+---/
+Get module version
+@returns Version string
+/---
+function version() as string
+    return "0.1.0"
+end_function
+
+-- ============================================================================
+-- END OF std.io MODULE
+-- ============================================================================

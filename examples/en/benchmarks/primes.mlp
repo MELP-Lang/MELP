@@ -1,0 +1,73 @@
+-- MLP Prime Numbers Benchmark
+-- İlk N asal sayıyı bulma
+
+import std.time
+import std.collections
+
+-- Asal kontrolü
+function is_prime(n: numeric) -> boolean
+    if n < 2 then
+        return false
+    end_if
+    
+    if n == 2 then
+        return true
+    end_if
+    
+    if n % 2 == 0 then
+        return false
+    end_if
+    
+    let i: numeric = 3
+    while i * i <= n do
+        if n % i == 0 then
+            return false
+        end_if
+        i = i + 2
+    end_while
+    
+    return true
+end_function
+
+-- İlk N asal sayıyı bul
+function find_primes(count: numeric) -> Array<numeric>
+    let primes: Array<numeric> = Array_new()
+    let candidate: numeric = 2
+    
+    while Array_length(primes) < count do
+        if is_prime(candidate) then
+            Array_push(primes, candidate)
+        end_if
+        candidate = candidate + 1
+    end_while
+    
+    return primes
+end_function
+
+-- Main benchmark
+function main()
+    print("=== MLP Prime Numbers Benchmark ===")
+    print("")
+    
+    -- Test 1: İlk 1000 asal
+    print("[TEST 1] First 1000 primes")
+    let start1: numeric = time_now()
+    let primes1: Array<numeric> = find_primes(1000)
+    let elapsed1: numeric = time_now() - start1
+    print("Last prime: " + string(Array_get(primes1, 999)))
+    print("Time: " + string(elapsed1) + "ms")
+    print("")
+    
+    -- Test 2: İlk 10000 asal
+    print("[TEST 2] First 10000 primes")
+    let start2: numeric = time_now()
+    let primes2: Array<numeric> = find_primes(10000)
+    let elapsed2: numeric = time_now() - start2
+    print("Last prime: " + string(Array_get(primes2, 9999)))
+    print("Time: " + string(elapsed2) + "ms")
+    print("")
+    
+    print("=== Benchmark Complete ===")
+end_function
+
+main()

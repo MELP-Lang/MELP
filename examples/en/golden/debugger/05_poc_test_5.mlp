@@ -1,0 +1,9 @@
+-- TEST: Watch Expression
+-- PHASE: 4.3 (Debugger)
+-- EXPECTED: 42
+
+function main()
+  numeric x = 10
+  numeric y = 32
+  print(x + y)
+end function

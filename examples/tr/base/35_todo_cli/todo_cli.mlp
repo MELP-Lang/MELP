@@ -1,0 +1,17 @@
+#lang turkish
+yapı Gorev
+    sayısal id
+    sayısal tamamlandi
+yapı sonu
+
+fonksiyon giriş()
+    Gorev t1
+    t1.id = 1
+    t1.tamamlandi = 0
+    yazdır(t1.id)
+
+    Gorev t2
+    t2.id = 2
+    t2.tamamlandi = 1
+    yazdır(t2.id)
+fonksiyon sonu

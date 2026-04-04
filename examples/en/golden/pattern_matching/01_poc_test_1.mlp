@@ -1,0 +1,14 @@
+-- TEST: Simple Match Literal
+-- PHASE: 3.2 (Pattern Matching)
+-- EXPECTED: 10
+
+function main()
+  numeric x = 2
+  numeric result = 0
+  match x
+    case 1 then result = 5
+    case 2 then result = 10
+    case _ then result = 0
+  end match
+  print(result)
+end function

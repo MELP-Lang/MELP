@@ -1,0 +1,44 @@
+-- GÖREV 06: if_else
+-- if / else if / else zincirleri ve nested if
+
+function main()
+    numeric x = 15
+
+    -- Basit if
+    if x > 10 then
+        print("Greater than 10")
+    end if
+
+    -- if else
+    numeric y = 5
+    if y > 10 then
+        print("y > 10")
+    else
+        print("y <= 10")
+    end if
+
+    -- if else if else
+    numeric score = 75
+    if score >= 90 then
+        print("Grade: A")
+    else
+        if score >= 80 then
+            print("Grade: B")
+        else
+            if score >= 70 then
+                print("Grade: C")
+            else
+                print("Grade: F")
+            end if
+        end if
+    end if
+
+    -- Nested if
+    numeric a = 20
+    numeric b = 30
+    if a > 10 then
+        if b > 25 then
+            print("Both conditions true")
+        end if
+    end if
+end function

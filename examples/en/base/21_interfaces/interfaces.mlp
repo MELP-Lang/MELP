@@ -1,0 +1,43 @@
+-- FEATURE: INTERFACES - Arayüz tanımı ve implementasyon
+-- NOT: Dinamik dispatch Stage0'da TODO — statik method call çalışıyor
+
+interface Drawable
+    numeric function draw()
+end interface
+
+struct Circle implements Drawable
+    numeric radius
+end struct
+
+struct Rectangle implements Drawable
+    numeric width
+    numeric height
+end struct
+
+numeric function Circle.draw()
+    numeric r = this.radius
+    return r
+end function
+
+numeric function Rectangle.draw()
+    numeric w = this.width
+    return w
+end function
+
+numeric function Rectangle.area()
+    numeric w = this.width
+    numeric h = this.height
+    return w * h
+end function
+
+function main()
+    Circle c
+    c.radius = 5
+    print(c.draw())
+
+    Rectangle r
+    r.width = 10
+    r.height = 4
+    print(r.draw())
+    print(r.area())
+end function

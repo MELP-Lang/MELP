@@ -1,0 +1,14 @@
+-- TEST: Simple Enum
+-- PHASE: 3.2 (Enum)
+-- EXPECTED: 1
+
+enum Color
+  Red
+  Green
+  Blue
+end enum
+
+function main()
+  numeric c = Color.Green
+  print(1)
+end function

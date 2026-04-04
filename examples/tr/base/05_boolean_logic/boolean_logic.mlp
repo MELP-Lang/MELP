@@ -1,0 +1,41 @@
+#lang turkish
+-- GÖREV 05: mantiksal_islemler
+-- Boolean operatörleri: ve, veya, değil (postfix)
+
+fonksiyon giriş()
+    mantıksal t = doğru
+    mantıksal f = yanlış
+
+    -- VE
+    mantıksal and_tt = t ve t
+    yazdır(and_tt)
+
+    mantıksal and_tf = t ve f
+    yazdır(and_tf)
+
+    -- VEYA
+    mantıksal or_tf = t veya f
+    yazdır(or_tf)
+
+    mantıksal or_ff = f veya f
+    yazdır(or_ff)
+
+    -- DEĞİL (postfix)
+    mantıksal not_t = t değil
+    yazdır(not_t)
+
+    mantıksal not_f = f değil
+    yazdır(not_f)
+
+    -- Karşılaştırma
+    sayısal x = 10
+    sayısal y = 5
+    mantıksal cmp_eq = x == y
+    yazdır(cmp_eq)
+
+    mantıksal cmp_gt = x > y
+    yazdır(cmp_gt)
+
+    mantıksal cmp_le = x <= y
+    yazdır(cmp_le)
+fonksiyon sonu

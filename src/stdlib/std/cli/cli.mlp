@@ -1,0 +1,270 @@
+// ============================================================================
+// MELP Standard Library: CLI Module
+// ============================================================================
+// Purpose: Command-line interface utilities for building CLI applications
+// Stage: Stage 1 Production Stdlib (Week 10)
+// Date: 27 Ocak 2026
+// Status: IN DEVELOPMENT
+// YZ: YZ_STAGE1_04
+// ============================================================================
+
+module std.cli
+
+// ============================================================================
+// ARGUMENT PARSING
+// ============================================================================
+// Parse command-line arguments and extract flags and options
+// ----------------------------------------------------------------------------
+
+/**
+ * Parse command-line arguments into a structured format
+ * @param argc Number of arguments (passed from main)
+ * @param argv Array of argument strings
+ * @returns Number of parsed arguments (for error checking)
+ */
+function parse_args(argc: numeric; argv: Array) -> numeric
+    return __builtin_cli_parse_args(argc; argv)
+end_function
+
+/**
+ * Check if a flag is present in parsed arguments
+ * @param name Flag name (without leading dashes; e.g., "help" for --help)
+ * @returns 1 if flag exists, 0 otherwise
+ */
+function get_flag(name: string) -> numeric
+    return __builtin_cli_get_flag(name)
+end_function
+
+/**
+ * Get value of an option argument
+ * @param name Option name (e.g., "output" for --output=file.txt)
+ * @param default_val Default value if option not found
+ * @returns Option value or default
+ */
+function get_option(name: string; default_val: string) -> string
+    return __builtin_cli_get_option(name; default_val)
+end_function
+
+/**
+ * Get positional argument by index
+ * @param index Position index (0-based, after flags/options)
+ * @returns Argument value or empty string if not found
+ */
+function get_positional(index: numeric) -> string
+    return __builtin_cli_get_positional(index)
+end_function
+
+/**
+ * Get count of positional arguments
+ * @returns Number of positional arguments parsed
+ */
+function positional_count() -> numeric
+    return __builtin_cli_positional_count()
+end_function
+
+// ============================================================================
+// USER INPUT
+// ============================================================================
+// Interactive input from user during program execution
+// ----------------------------------------------------------------------------
+
+/**
+ * Read a line of text from standard input
+ * @returns String containing the input line (without newline)
+ */
+function read_line() -> string
+    return __builtin_cli_read_line()
+end_function
+
+/**
+ * Display a prompt and read user input
+ * @param message Prompt message to display
+ * @returns User's input as string
+ */
+function prompt(message: string) -> string
+    return __builtin_cli_prompt(message)
+end_function
+
+/**
+ * Ask a yes/no confirmation question
+ * @param message Question to ask user
+ * @returns 1 for yes/y/Y, 0 for no/n/N or other input
+ */
+function confirm(message: string) -> numeric
+    return __builtin_cli_confirm(message)
+end_function
+
+/**
+ * Read a password (input hidden)
+ * @param message Prompt message
+ * @returns Password string
+ */
+function read_password(message: string) -> string
+    return __builtin_cli_read_password(message)
+end_function
+
+// ============================================================================
+// OUTPUT FORMATTING
+// ============================================================================
+// Format output for better CLI presentation
+// ----------------------------------------------------------------------------
+
+/**
+ * Print text with ANSI color
+ * @param text Text to print
+ * @param color Color name: "red", "green", "yellow", "blue", "magenta", "cyan", "white"
+ */
+function print_colored(text: string; color: string) -> numeric
+    return __builtin_cli_print_colored(text; color)
+end_function
+
+/**
+ * Print a simple table
+ * @param headers Array of header strings
+ * @param rows 2D array representation (flattened)
+ * @param num_rows Number of rows
+ * @param num_cols Number of columns
+ */
+function print_table(headers: Array; rows: Array; num_rows: numeric; num_cols: numeric) -> numeric
+    return __builtin_cli_print_table(headers; rows; num_rows; num_cols)
+end_function
+
+/**
+ * Display a progress bar
+ * @param current Current progress value
+ * @param total Total value
+ * @param width Bar width in characters
+ */
+function progress_bar(current: numeric; total: numeric; width: numeric) -> numeric
+    return __builtin_cli_progress_bar(current; total; width)
+end_function
+
+/**
+ * Print a horizontal separator line
+ * @param char Character to use (default: "-")
+ * @param width Width of line
+ */
+function print_separator(char: string; width: numeric) -> numeric
+    return __builtin_cli_print_separator(char; width)
+end_function
+
+/**
+ * Clear the terminal screen
+ */
+function clear_screen() -> numeric
+    return __builtin_cli_clear_screen()
+end_function
+
+// ============================================================================
+// PROCESS CONTROL
+// ============================================================================
+// Control program execution and environment
+// ----------------------------------------------------------------------------
+
+/**
+ * Exit program with a specific exit code
+ * @param code Exit code (0 for success; non-zero for error)
+ */
+function exit_with_code(code: numeric) -> numeric
+    return __builtin_cli_exit_with_code(code)
+end_function
+
+/**
+ * Get environment variable value
+ * @param key Environment variable name
+ * @returns Value of variable or empty string if not found
+ */
+function get_env(key: string) -> string
+    return __builtin_cli_get_env(key)
+end_function
+
+/**
+ * Set environment variable
+ * @param key Variable name
+ * @param value Variable value
+ * @returns 1 on success; 0 on failure
+ */
+function set_env(key: string; value: string) -> numeric
+    return __builtin_cli_set_env(key; value)
+end_function
+
+/**
+ * Get current working directory
+ * @returns Path to current working directory
+ */
+function get_cwd() -> string
+    return __builtin_cli_get_cwd()
+end_function
+
+/**
+ * Check if running in a terminal (TTY)
+ * @returns 1 if TTY; 0 if piped or redirected
+ */
+function is_tty() -> numeric
+    return __builtin_cli_is_tty()
+end_function
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+// High-level convenience wrappers
+// ----------------------------------------------------------------------------
+
+/**
+ * Show help message and exit
+ * @param program_name Name of the program
+ * @param description Program description
+ * @param usage Usage string
+ */
+function show_help(program_name: string; description: string; usage: string) -> numeric
+    print("Usage: ")
+    print(program_name)
+    print(" ")
+    println(usage)
+    println("")
+    println(description)
+    return 0
+end_function
+
+/**
+ * Print error message in red and exit with code 1
+ * @param message Error message
+ */
+function error_exit(message: string) -> numeric
+    print_colored("ERROR: "; "red")
+    println(message)
+    exit_with_code(1)
+    return 0
+end_function
+
+/**
+ * Print success message in green
+ * @param message Success message
+ */
+function success(message: string) -> numeric
+    print_colored("✓ "; "green")
+    println(message)
+    return 0
+end_function
+
+/**
+ * Print warning message in yellow
+ * @param message Warning message
+ */
+function warning(message: string) -> numeric
+    print_colored("⚠ "; "yellow")
+    println(message)
+    return 0
+end_function
+
+/**
+ * Print info message in blue
+ * @param message Info message
+ */
+function info(message: string) -> numeric
+    print_colored("ℹ "; "blue")
+    println(message)
+    return 0
+end_function
+
+end_module

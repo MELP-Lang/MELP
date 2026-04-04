@@ -1,0 +1,7 @@
+-- Türkçe keyword desteği ile MeLP örneği
+-- VB.NET benzeri sözdizimi (end function, end if, end while)
+
+fonksiyon ana()
+    yaz("Merhaba, MeLP Dünyası! 🚀")
+    yaz("Türkçe keyword desteği çalışıyor!")
+end_fonksiyon

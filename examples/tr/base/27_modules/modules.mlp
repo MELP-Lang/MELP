@@ -1,0 +1,26 @@
+#lang turkish
+-- ÖZELLİK: MODÜLLER - dışa_aktar fonksiyon
+-- NOT: içe_aktar ./modul Stage0'da tek dosya kapsamında çalışıyor
+-- Çoklu dosya içe aktarma Faz 2'de — şimdilik dışa_aktar keyword test ediliyor
+
+dışa_aktar sayısal fonksiyon topla(sayısal a; sayısal b)
+    döndür a + b
+fonksiyon sonu
+
+dışa_aktar sayısal fonksiyon carp(sayısal a; sayısal b)
+    döndür a * b
+fonksiyon sonu
+
+dışa_aktar sayısal fonksiyon max_deger(sayısal a; sayısal b)
+    koşul a > b ise
+        döndür a
+    koşul sonu
+    döndür b
+fonksiyon sonu
+
+fonksiyon giriş()
+    yazdır(topla(3; 4))
+    yazdır(carp(6; 7))
+    yazdır(max_deger(10; 25))
+    yazdır(max_deger(99; 3))
+fonksiyon sonu

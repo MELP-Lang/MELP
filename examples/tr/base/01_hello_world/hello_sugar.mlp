@@ -1,0 +1,22 @@
+#lang turkish
+-- SUGAR REFERANS (normalizer gerektirir, henüz derlenemez)
+
+sayısal fonksiyon giriş()
+    yazdır("Merhaba, MELP!")
+fonksiyon sonu
+
+fonksiyon   birx() 
+end_deneme
+
+programc test
+
+end_programc
+
+kapsam xxx
+
+kapsam sonu
+
+deneme xxx
+sss = 3 -- bu neden bir hata vermiyor? tipi tanımlanmamış.
+rrr = "test" -- bu da neden hata vermiyor? tipi tanımlanmamış.
+sss = "df"

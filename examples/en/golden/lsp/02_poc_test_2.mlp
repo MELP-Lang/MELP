@@ -1,0 +1,7 @@
+-- TEST: Go to Definition
+-- PHASE: 4.2 (LSP)
+-- EXPECTED: 10
+
+function main()
+  print(10)
+end function

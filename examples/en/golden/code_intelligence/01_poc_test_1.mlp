@@ -1,0 +1,20 @@
+-- TEST: Symbol Count
+-- PHASE: 4.2 (Code Intelligence)
+-- EXPECTED: 4
+
+function a() -> numeric
+  print(1)
+  return 0
+end function
+
+function b() -> numeric
+  print(2)
+  return 0
+end function
+
+numeric x = 10
+numeric y = 20
+
+function main()
+  print(4)
+end function

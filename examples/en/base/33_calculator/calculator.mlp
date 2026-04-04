@@ -1,0 +1,26 @@
+numeric function add(numeric a; numeric b)
+    return a + b
+end function
+
+numeric function subtract(numeric a; numeric b)
+    return a - b
+end function
+
+numeric function multiply(numeric a; numeric b)
+    return a * b
+end function
+
+numeric function divide(numeric a; numeric b)
+    if b == 0 then
+        return 0
+    else
+        return a / b
+    end if
+end function
+
+function main()
+    print(add(10; 5))
+    print(subtract(10; 3))
+    print(multiply(6; 7))
+    print(divide(20; 4))
+end function

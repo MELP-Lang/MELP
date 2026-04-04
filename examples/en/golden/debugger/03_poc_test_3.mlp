@@ -1,0 +1,7 @@
+-- TEST: Call Stack Depth
+-- PHASE: 4.3 (Debugger)
+-- EXPECTED: 3
+
+function main()
+  print(3)
+end function

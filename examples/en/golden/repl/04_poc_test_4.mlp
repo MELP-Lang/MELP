@@ -1,0 +1,9 @@
+-- TEST: Print Expression
+-- PHASE: 4.3 (REPL)
+-- EXPECTED: 42
+
+function main()
+  numeric result = 42
+  print(result)
+  return result
+end function

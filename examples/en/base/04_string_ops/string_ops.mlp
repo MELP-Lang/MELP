@@ -1,0 +1,16 @@
+-- GÖREV 04: string_ops
+-- String concatenation ve işlemleri
+
+function main()
+    string a = "foo"
+    string b = "bar"
+    string c = a + b
+    print(c)
+
+    string greeting = "Merhaba"
+    string name = "MELP"
+    print(greeting)
+    print(name)
+
+    print("Hello" + " " + "World")
+end function

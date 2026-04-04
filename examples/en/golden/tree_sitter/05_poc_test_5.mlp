@@ -1,0 +1,8 @@
+-- TEST: Parse Complex Expression
+-- PHASE: 4.4 (Tree-sitter)
+-- EXPECTED: 42
+
+function main()
+  numeric x = (10 + 20) + (5 * 2) + 2
+  print(x)
+end function

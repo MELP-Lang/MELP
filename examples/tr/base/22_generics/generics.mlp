@@ -1,0 +1,22 @@
+#lang turkish
+-- ÖZELLİK: JENERİKLER - Jenerik fonksiyon
+-- NOT: Monomorphization Stage0'da TODO — tip silinmiş çalışıyor
+
+fonksiyon ayni_deger<T>(T value) as T
+    döndür value
+fonksiyon sonu
+
+fonksiyon iki_katina_cikart<T>(T value) as T
+    döndür value * 2
+fonksiyon sonu
+
+fonksiyon giriş()
+    sayısal x = ayni_deger<sayısal>(42)
+    yazdır(x)
+
+    sayısal y = iki_katina_cikart<sayısal>(21)
+    yazdır(y)
+
+    sayısal z = ayni_deger<sayısal>(100)
+    yazdır(z)
+fonksiyon sonu

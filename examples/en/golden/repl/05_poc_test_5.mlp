@@ -1,0 +1,8 @@
+-- TEST: Lambda in REPL
+-- PHASE: 4.3 (REPL)
+-- EXPECTED: 10
+
+function main()
+  numeric double = lambda(x) -> x * 2
+  print(double(5))
+end function

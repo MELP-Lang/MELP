@@ -1,0 +1,11 @@
+-- TEST: Auto-indent
+-- PHASE: 4.5 (Electron IDE)
+-- EXPECTED: 10
+
+function main()
+  if true then
+    numeric x = 10
+    print(x)
+    return 0
+  end if
+end function

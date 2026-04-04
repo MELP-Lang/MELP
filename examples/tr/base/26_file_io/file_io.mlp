@@ -1,0 +1,24 @@
+#lang turkish
+-- ÖZELLİK: DOSYA_IO - Dosya okuma ve yazma
+-- GÖREV: write_file(), read_file(), append_file() builtin'lerini göster
+
+fonksiyon giriş()
+    -- Test 1: Dosya yaz
+    sayısal ok = write_file("/tmp/melp_test.txt"; "Merhaba dosya!")
+    yazdır(ok)
+
+    -- Test 2: Dosya oku
+    metin content = read_file("/tmp/melp_test.txt")
+    yazdır(content)
+
+    -- Test 3: Dosyaya ekle
+    sayısal ok2 = append_file("/tmp/melp_test.txt"; " Eklendi.")
+    yazdır(ok2)
+
+    -- Test 4: Tekrar oku
+    metin content2 = read_file("/tmp/melp_test.txt")
+    yazdır(content2)
+
+    -- Test 5: Olmayan dosya → read_file() null döndürür, == "" karşılaştırması
+    -- segfault (B5 bug) — bu test atlandı
+fonksiyon sonu
