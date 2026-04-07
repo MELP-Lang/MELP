@@ -1,0 +1,147 @@
+-- ============================================================================
+-- MELP Standard Library: Core Module
+-- ============================================================================
+-- Purpose: Core types and utilities (Option, Result, panic, assert)
+-- Stage: Stage 0 Minimal Stdlib (Week 5)
+-- Date: 27 Ocak 2026
+-- Dependencies: Generic Types (Week 1), Enums (IDEAL)
+-- Status: CONDITIONAL (if Generic Types stable)
+-- ============================================================================
+
+module std.core
+
+-- ============================================================================
+-- OPTION TYPE (Maybe monad)
+-- ============================================================================
+
+---/
+Optional value type - represents a value that may or may not exist
+@type T The wrapped value type
+/---
+enum Option{T}
+    Some{T}
+    None
+end_enum
+
+---/
+Check if Option contains a value
+@param opt The option to check
+@returns true if Some; false if None
+/---
+function Option_is_some{T}(Option{T} opt) as boolean
+    -- TODO: Pattern matching in Week 2
+    return false  -- Placeholder
+end_function
+
+---/
+Get value from Some; panic if None
+@param opt The option to unwrap
+@returns The wrapped value
+/---
+function Option_unwrap{T}(Option{T} opt) as T
+    -- TODO: Pattern matching in Week 2
+    __builtin_panic("Option unwrap not yet implemented - needs Pattern Match")
+end_function
+
+-- ============================================================================
+-- RESULT TYPE (Error handling)
+-- ============================================================================
+
+---/
+Result type for operations that may fail
+@type T Success value type
+@type E Error type
+/---
+enum Result{T; E}
+    Ok{T}
+    Err{E}
+end_enum
+
+---/
+Check if Result is success
+@param res The result to check
+@returns true if Ok; false if Err
+/---
+function Result_is_ok{T; E}(Result{T; E} res) as boolean
+    -- TODO: Pattern matching in Week 2
+    return false  -- Placeholder
+end_function
+
+-- ============================================================================
+-- PANIC & ASSERTIONS
+-- ============================================================================
+
+---/
+Panic with error message and abort program
+@param message Error message to display
+/---
+function panic(string message)
+    __builtin_panic(message)
+end_function
+
+---/
+Assert condition is true; panic if false
+@param condition Condition to check
+@param message Error message if assertion fails
+/---
+function assert(boolean condition; string message)
+    if condition then
+        -- Assertion passed
+    else
+        panic(message)
+    end_if
+end_function
+
+---/
+Assert with default message
+@param condition Condition to check
+/---
+function assert_default(boolean condition)
+    assert(condition; "Assertion failed")
+end_function
+
+-- ============================================================================
+-- UNREACHABLE CODE MARKER
+-- ============================================================================
+
+---/
+Mark code path as unreachable (optimization hint + safety check)
+@param message Context message
+/---
+function unreachable(string message)
+    panic("UNREACHABLE CODE: " + message)
+end_function
+
+-- ============================================================================
+-- MODULE INFO
+-- ============================================================================
+
+---/
+Get module version
+@returns Version string
+/---
+function version() as string
+    return "0.1.0"
+end_function
+
+---/
+Get module name
+@returns Module name
+/---
+function module_name() as string
+    return "std.core"
+end_function
+
+-- ============================================================================
+-- NOTES FOR STAGE 1
+-- ============================================================================
+
+-- TODO Week 6-7 (Pattern Matching):
+-- - Option_unwrap with pattern match
+-- - Result_unwrap with pattern match
+-- - Option_map, Option_and_then
+-- - Result_map, Result_and_then
+
+-- ============================================================================
+-- END OF std.core MODULE
+-- ============================================================================

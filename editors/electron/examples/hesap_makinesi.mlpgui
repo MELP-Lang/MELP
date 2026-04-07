@@ -1,0 +1,194 @@
+{
+  "version": "1.0",
+  "projectName": "HesapMakinesi",
+  "windowTitle": "Basit Hesap Makinesi",
+  "windowWidth": 320,
+  "windowHeight": 240,
+  "widgets": [
+    {
+      "id": "lbl1",
+      "type": "label",
+      "name": "lblSayi1",
+      "text": "Sayı 1:",
+      "x": 10,
+      "y": 15,
+      "width": 60,
+      "height": 20,
+      "fontSize": 12,
+      "font": "Arial",
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "id": "txt1",
+      "type": "textbox",
+      "name": "txtSayi1",
+      "text": "",
+      "placeholder": "0",
+      "x": 80,
+      "y": 12,
+      "width": 80,
+      "height": 24,
+      "fontSize": 12,
+      "font": "Arial",
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "id": "lbl2",
+      "type": "label",
+      "name": "lblSayi2",
+      "text": "Sayı 2:",
+      "x": 10,
+      "y": 50,
+      "width": 60,
+      "height": 20,
+      "fontSize": 12,
+      "font": "Arial",
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "id": "txt2",
+      "type": "textbox",
+      "name": "txtSayi2",
+      "text": "",
+      "placeholder": "0",
+      "x": 80,
+      "y": 47,
+      "width": 80,
+      "height": 24,
+      "fontSize": 12,
+      "font": "Arial",
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "id": "btn1",
+      "type": "button",
+      "name": "btnTopla",
+      "text": "+",
+      "x": 10,
+      "y": 90,
+      "width": 50,
+      "height": 32,
+      "fontSize": 16,
+      "font": "Arial",
+      "visible": true,
+      "enabled": true,
+      "onClick": "hesaplaTopla"
+    },
+    {
+      "id": "btn2",
+      "type": "button",
+      "name": "btnCikar",
+      "text": "−",
+      "x": 70,
+      "y": 90,
+      "width": 50,
+      "height": 32,
+      "fontSize": 16,
+      "font": "Arial",
+      "visible": true,
+      "enabled": true,
+      "onClick": "hesaplaCikar"
+    },
+    {
+      "id": "btn3",
+      "type": "button",
+      "name": "btnCarp",
+      "text": "×",
+      "x": 130,
+      "y": 90,
+      "width": 50,
+      "height": 32,
+      "fontSize": 16,
+      "font": "Arial",
+      "visible": true,
+      "enabled": true,
+      "onClick": "hesaplaCarp"
+    },
+    {
+      "id": "btn4",
+      "type": "button",
+      "name": "btnBol",
+      "text": "÷",
+      "x": 190,
+      "y": 90,
+      "width": 50,
+      "height": 32,
+      "fontSize": 16,
+      "font": "Arial",
+      "visible": true,
+      "enabled": true,
+      "onClick": "hesaplaBol"
+    },
+    {
+      "id": "lbl3",
+      "type": "label",
+      "name": "lblSonucBaslik",
+      "text": "Sonuç:",
+      "x": 10,
+      "y": 145,
+      "width": 60,
+      "height": 20,
+      "fontSize": 12,
+      "font": "Arial",
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "id": "lbl4",
+      "type": "label",
+      "name": "lblSonuc",
+      "text": "—",
+      "x": 80,
+      "y": 142,
+      "width": 200,
+      "height": 26,
+      "fontSize": 16,
+      "font": "Arial",
+      "foreColor": "#DC2626",
+      "visible": true,
+      "enabled": true
+    },
+    {
+      "id": "lbl5",
+      "type": "label",
+      "name": "lblHata",
+      "text": "",
+      "x": 10,
+      "y": 178,
+      "width": 280,
+      "height": 20,
+      "fontSize": 11,
+      "font": "Arial",
+      "foreColor": "#DC2626",
+      "visible": false,
+      "enabled": true
+    }
+  ],
+  "eventHandlers": [
+    {
+      "name": "hesaplaTopla",
+      "body": "    degisken a = sayiye_cevir(GUI_TEXTBOX_GET_TEXT(txtSayi1))\n    degisken b = sayiye_cevir(GUI_TEXTBOX_GET_TEXT(txtSayi2))\n    GUI_LABEL_SET_TEXT(lblSonuc, sayiden_yazi(a + b))\n    GUI_WIDGET_SET_VISIBLE(lblHata, 0)"
+    },
+    {
+      "name": "hesaplaCikar",
+      "body": "    degisken a = sayiye_cevir(GUI_TEXTBOX_GET_TEXT(txtSayi1))\n    degisken b = sayiye_cevir(GUI_TEXTBOX_GET_TEXT(txtSayi2))\n    GUI_LABEL_SET_TEXT(lblSonuc, sayiden_yazi(a - b))\n    GUI_WIDGET_SET_VISIBLE(lblHata, 0)"
+    },
+    {
+      "name": "hesaplaCarp",
+      "body": "    degisken a = sayiye_cevir(GUI_TEXTBOX_GET_TEXT(txtSayi1))\n    degisken b = sayiye_cevir(GUI_TEXTBOX_GET_TEXT(txtSayi2))\n    GUI_LABEL_SET_TEXT(lblSonuc, sayiden_yazi(a * b))\n    GUI_WIDGET_SET_VISIBLE(lblHata, 0)"
+    },
+    {
+      "name": "hesaplaBol",
+      "body": "    degisken a = sayiye_cevir(GUI_TEXTBOX_GET_TEXT(txtSayi1))\n    degisken b = sayiye_cevir(GUI_TEXTBOX_GET_TEXT(txtSayi2))\n    eger b = 0 ise\n        GUI_LABEL_SET_TEXT(lblHata, \"Hata: Sıfıra bölme!\")\n        GUI_WIDGET_SET_VISIBLE(lblHata, 1)\n        dondur\n    biteger\n    GUI_LABEL_SET_TEXT(lblSonuc, sayiden_yazi(a / b))\n    GUI_WIDGET_SET_VISIBLE(lblHata, 0)"
+    }
+  ],
+  "metadata": {
+    "created": "2026-02-25",
+    "author": "MELP Designer",
+    "description": "4 işlemli basit hesap makinesi. Toplama, çıkarma, çarpma ve bölme işlemleri yapar. Sıfıra bölme hatası kontrol edilir."
+  }
+}

@@ -1,0 +1,166 @@
+-- ============================================================================
+-- MELP Standard Library: String Module
+-- ============================================================================
+-- Purpose: Comprehensive string manipulation operations
+-- Stage: Stage 1 Production Stdlib (Week 6)
+-- Date: 27 Ocak 2026
+-- Status: IN DEVELOPMENT
+-- YZ: YZ_STAGE1_01
+-- ============================================================================
+
+module std_string
+
+-- ============================================================================
+-- BASIC STRING OPERATIONS
+-- ============================================================================
+
+---/
+Get the length of a string
+@param s The string to measure
+@returns The number of characters in the string
+/---
+function length(string s) as numeric
+    return __builtin_string_length(s)
+end_function
+
+---/
+Concatenate two strings
+@param a The first string
+@param b The second string
+@returns A new string containing a followed by b
+/---
+function concat(string a; string b) as string
+    return __builtin_string_concat(a; b)
+end_function
+
+---/
+Extract a substring from a string
+@param s The source string
+@param start The starting index (0-based)
+@param end_idx The ending index (exclusive)
+@returns A new string containing characters from start to end-1
+/---
+function substring(string s; numeric start; numeric end_idx) as string
+    return __builtin_string_substring(s; start; end_idx)
+end_function
+
+-- ============================================================================
+-- ADVANCED STRING OPERATIONS (STAGE 1)
+-- ============================================================================
+
+---/
+Split a string by delimiter
+@param s The string to split
+@param delimiter The delimiter to split on
+@returns An array of substrings
+/---
+function split(string s; string delimiter) as Array<string>
+    -- Implementation will be added in Day 2
+    Array<string> result = Array<string>()
+    return result
+end_function
+
+---/
+Join an array of strings with a separator
+@param arr The array of strings to join
+@param separator The separator to insert between elements
+@returns A single string with all elements joined
+/---
+function join(Array<string> arr; string separator) as string
+    -- Implementation will be added in Day 2
+    return ""
+end_function
+
+---/
+Replace all occurrences of a substring
+@param s The source string
+@param old_str The substring to replace
+@param new_str The replacement string
+@returns A new string with all replacements made
+/---
+function replace(string s; string old_str; string new_str) as string
+    return __builtin_string_replace(s; old_str; new_str)
+end_function
+
+---/
+Remove leading and trailing whitespace
+@param s The string to trim
+@returns A new string with whitespace removed
+/---
+function trim(string s) as string
+    return __builtin_string_trim(s)
+end_function
+
+---/
+Convert string to uppercase
+@param s The string to convert
+@returns A new string in uppercase
+/---
+function to_upper(string s) as string
+    return __builtin_string_to_upper(s)
+end_function
+
+---/
+Convert string to lowercase
+@param s The string to convert
+@returns A new string in lowercase
+/---
+function to_lower(string s) as string
+    return __builtin_string_to_lower(s)
+end_function
+
+-- ============================================================================
+-- STRING SEARCH OPERATIONS
+-- ============================================================================
+
+---/
+Check if string starts with a prefix
+@param s The string to check
+@param prefix The prefix to look for
+@returns true if s starts with prefix, false otherwise
+/---
+function starts_with(string s; string prefix) as boolean
+    return __builtin_string_starts_with(s; prefix)
+end_function
+
+---/
+Check if string ends with a suffix
+@param s The string to check
+@param suffix The suffix to look for
+@returns true if s ends with suffix, false otherwise
+/---
+function ends_with(string s; string suffix) as boolean
+    return __builtin_string_ends_with(s; suffix)
+end_function
+
+---/
+Check if string contains a substring
+@param s The string to search in
+@param needle The substring to search for
+@returns true if needle is found in s; false otherwise
+/---
+function contains(string s; string needle) as boolean
+    return __builtin_string_contains(s; needle)
+end_function
+
+---/
+Find the index of first occurrence of a substring
+@param s The string to search in
+@param needle The substring to search for
+@returns The index of first occurrence; or -1 if not found
+/---
+function index_of(string s; string needle) as numeric
+    return __builtin_string_index_of(s; needle)
+end_function
+
+-- ============================================================================
+-- MODULE METADATA
+-- ============================================================================
+
+---/
+Get the module version
+@returns Version string
+/---
+function version() as string
+    return "1.0.0-stage1-week6"
+end_function

@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0.0",
+  "meta": {
+    "name": "日本語",
+    "lang_id": "japanese",
+    "code": "ja",
+    "enabled": true
+  },
+  "keywords": {
+    "if": "もし",
+    "then": "ならば",
+    "else": "そうでなければ",
+    "else if": "そうでなければもし",
+    "end if": "もし終わり",
+    "loop": "繰り返し",
+    "end loop": "繰り返し終わり",
+    "to": "まで",
+    "function": "関数",
+    "end function": "関数終わり",
+    "return": "返す",
+    "numeric": "数値",
+    "string": "文字列",
+    "boolean": "論理",
+    "true": "真",
+    "false": "偽",
+    "null": "空",
+    "print": "表示",
+    "and": "かつ",
+    "or": "または",
+    "not": "でない",
+    "struct": "構造体",
+    "end struct": "構造体終わり",
+    "main": "メイン"
+  }
+}

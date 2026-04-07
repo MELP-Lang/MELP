@@ -1,0 +1,97 @@
+-- EXPORTED: fs_exists, fs_is_file, fs_is_directory, fs_file_size,
+--           fs_read, fs_write, fs_append, fs_copy, fs_rename, fs_remove,
+--           fs_mkdir, fs_mkdir_all, fs_rmdir, fs_rmdir_all,
+--           fs_dirname, fs_basename, fs_extension, fs_join_path
+-- stdlib/filesystem.mlp — Filesystem operations
+-- Primitifler: __builtin_fs_* (fs_builtins.cpp satır 101-118)
+-- STAGE1 Phase 3
+
+-- Returns 1 if path exists, 0 otherwise
+numeric function fs_exists(string path)
+    return __builtin_fs_exists(path)
+end_function
+
+-- Returns 1 if path is a regular file
+numeric function fs_is_file(string path)
+    return __builtin_fs_is_file(path)
+end_function
+
+-- Returns 1 if path is a directory
+numeric function fs_is_directory(string path)
+    return __builtin_fs_is_directory(path)
+end_function
+
+-- Returns file size in bytes; -1 on error
+numeric function fs_file_size(string path)
+    return __builtin_fs_file_size(path)
+end_function
+
+-- Read entire file to string
+string function fs_read(string path)
+    return __builtin_fs_read_to_string(path)
+end_function
+
+-- Write string to file (create or overwrite); returns 1 on success
+numeric function fs_write(string path; string content)
+    return __builtin_fs_write_string(path; content)
+end_function
+
+-- Append string to file; returns 1 on success
+numeric function fs_append(string path; string content)
+    return __builtin_fs_append_string(path; content)
+end_function
+
+-- Copy file from src to dst; returns 1 on success
+numeric function fs_copy(string src; string dst)
+    return __builtin_fs_copy(src; dst)
+end_function
+
+-- Rename/move file; returns 1 on success
+numeric function fs_rename(string src; string dst)
+    return __builtin_fs_rename(src; dst)
+end_function
+
+-- Remove file; returns 1 on success
+numeric function fs_remove(string path)
+    return __builtin_fs_remove(path)
+end_function
+
+-- Create directory; returns 1 on success
+numeric function fs_mkdir(string path)
+    return __builtin_fs_mkdir(path)
+end_function
+
+-- Create directory and all parents; returns 1 on success
+numeric function fs_mkdir_all(string path)
+    return __builtin_fs_mkdir_all(path)
+end_function
+
+-- Remove empty directory; returns 1 on success
+numeric function fs_rmdir(string path)
+    return __builtin_fs_rmdir(path)
+end_function
+
+-- Remove directory and all contents; returns 1 on success
+numeric function fs_rmdir_all(string path)
+    return __builtin_fs_rmdir_all(path)
+end_function
+
+-- Return parent directory part of path
+string function fs_dirname(string path)
+    return __builtin_fs_dirname(path)
+end_function
+
+-- Return filename part of path
+string function fs_basename(string path)
+    return __builtin_fs_basename(path)
+end_function
+
+-- Return file extension (including dot)
+string function fs_extension(string path)
+    return __builtin_fs_extension(path)
+end_function
+
+-- Join two path segments
+string function fs_join_path(string a; string b)
+    return __builtin_fs_join_path(a; b)
+end_function

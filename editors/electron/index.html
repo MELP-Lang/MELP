@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self';">
+  <title>MLP GUI Designer</title>
+  <link rel="stylesheet" href="assets/styles/main.css">
+  <link rel="stylesheet" href="assets/themes/themes.css">
+  <link rel="stylesheet" href="assets/themes/melp-premium-theme.css">
+</head>
+<body class="theme-melp-premium">
+  <div id="app">
+    <!-- Üst Menü ve Toolbar -->
+    <div class="top-bar">
+      <div class="menu-bar">
+        <div class="menu-item" id="menu-file">
+          <span>Dosya</span>
+          <div class="menu-dropdown">
+            <div class="menu-option" id="menu-new">Yeni Proje</div>
+            <div class="menu-option" id="menu-open">Proje Aç...</div>
+            <div class="menu-option" id="menu-save">Kaydet</div>
+            <div class="menu-divider"></div>
+            <div class="menu-option" id="menu-export">MLP Kodu Dışa Aktar...</div>
+            <div class="menu-option" id="menu-export-app">📦 Uygulamayı Dışa Aktar... <span style="font-size:10px;opacity:0.6;">(Electron)</span></div>
+            <div class="menu-divider"></div>
+            <div class="menu-option" style="opacity:0.55;font-size:11px;cursor:default;padding:4px 12px;">&#128193; Son Projeler</div>
+            <div id="recent-projects-list"><!-- JS tarafından doldurulur --></div>
+          </div>
+        </div>
+        <div class="menu-item" id="menu-edit">
+          <span>Düzenle</span>
+          <div class="menu-dropdown">
+            <div class="menu-option" id="menu-undo">Geri Al (Ctrl+Z)</div>
+            <div class="menu-option" id="menu-redo">Yinele (Ctrl+Y)</div>
+            <div class="menu-divider"></div>
+            <div class="menu-option" id="menu-cut">Kes (Ctrl+X)</div>
+            <div class="menu-option" id="menu-copy">Kopyala (Ctrl+C)</div>
+            <div class="menu-option" id="menu-paste">Yapıştır (Ctrl+V)</div>
+            <div class="menu-option" id="menu-delete">Sil (Delete)</div>
+            <div class="menu-divider"></div>
+            <div class="menu-option" id="menu-select-all">Tümünü Seç (Ctrl+A)</div>
+            <div class="menu-divider"></div>
+            <div class="menu-option" id="menu-group">Gruplandır (Ctrl+G)</div>
+            <div class="menu-option" id="menu-ungroup">Grubu Çöz (Ctrl+Shift+G)</div>
+          </div>
+        </div>
+        <div class="menu-item" id="menu-view">
+          <span>Görünüm</span>
+          <div class="menu-dropdown">
+            <div class="menu-option" id="menu-theme-select">🎨 Tema Seç...</div>
+            <div class="menu-divider"></div>
+            <div class="menu-option" id="menu-toggle-toolbox">Widget Araçlarını Gizle/Göster</div>
+            <div class="menu-option" id="menu-toggle-properties">Özellikleri Gizle/Göster</div>
+            <div class="menu-divider"></div>
+            <div class="menu-option" id="menu-zoom-in">Yakınlaştır (+)</div>
+            <div class="menu-option" id="menu-zoom-out">Uzaklaştır (-)</div>
+            <div class="menu-option" id="menu-zoom-reset">Zoom Sıfırla (100%)</div>
+            <div class="menu-divider"></div>
+            <div class="menu-option" id="menu-toggle-grid">Izgara Göster/Gizle</div>
+            <div class="menu-divider"></div>            <div class="menu-option" id="menu-snap-grid">Grid'e Yapış (Snap)</div>
+            <div class="menu-divider"></div>
+            <div class="menu-option" id="menu-align-left">◧ Sola Hizala</div>
+            <div class="menu-option" id="menu-align-right">◨ Sağa Hizala</div>
+            <div class="menu-option" id="menu-align-top">▤ Üste Hizala</div>
+            <div class="menu-option" id="menu-align-bottom">▥ Alta Hizala</div>
+            <div class="menu-option" id="menu-align-center-h">⬌ Yatayda Ortala</div>
+            <div class="menu-option" id="menu-align-center-v">⬍ Dikeyde Ortala</div>            <div class="menu-option" id="menu-distribute-h">↔ Yatay Eşit Dağıt</div>
+            <div class="menu-option" id="menu-distribute-v">↕ Dikey Eşit Dağıt</div>
+            <div class="menu-divider"></div>
+            <div class="menu-option" id="menu-arrange-flow">► Akış Düzeni (Flow)</div>
+            <div class="menu-option" id="menu-arrange-grid">▦ Izgara Düzeni (Grid)</div>
+            <div class="menu-option" id="menu-arrange-stack-v">≡ Dikey Yığın (Stack V)</div>
+            <div class="menu-option" id="menu-arrange-stack-h">‖ Yatay Yığın (Stack H)</div>            <div class="menu-divider"></div>            <div class="menu-option" id="menu-toggle-terminal">Terminal (Ctrl+`)</div>
+          </div>
+        </div>
+        <div class="menu-item" id="menu-tools">
+          <span>Araçlar</span>
+          <div class="menu-dropdown">
+            <div class="menu-option" id="menu-settings">⚙️ Ayarlar...</div>
+            <div class="menu-divider"></div>
+            <div class="menu-option" id="menu-templates">🧼 Şablonlar...</div>
+            <div class="menu-option" id="menu-save-template">💾 Seçimi Şablon Kaydet...</div>
+            <div class="menu-option" id="menu-import-template">📂 Şablon İçe Aktar...</div>
+            <div class="menu-divider"></div>
+            <div class="menu-option" id="menu-snippet-manager">✂️ Snippet Yöneticisi...</div>
+            <div class="menu-option" id="menu-autosave-toggle">⏱️ Otomatik Kaydet (60s)</div>
+            <div class="menu-divider"></div>
+            <div class="menu-option" id="menu-create-custom-widget">🧩 Özel Widget Oluştur...</div>
+            <div class="menu-option" id="menu-custom-widget-manager">🧩 Özel Widget Yöneticisi...</div>
+          </div>
+        </div>
+        <div class="menu-item" id="menu-help">
+          <span>Yardım</span>
+          <div class="menu-dropdown">
+            <div class="menu-option" id="menu-quickstart">Hızlı Başlangıç</div>
+            <div class="menu-option" id="menu-keyboard-shortcuts">Klavye Kısayolları</div>
+            <div class="menu-option" id="menu-mlp-functions">MLP Fonksiyonları</div>
+            <div class="menu-divider"></div>
+            <div class="menu-option" id="menu-documentation">Dokümantasyon</div>
+            <div class="menu-option" id="menu-mlp-docs">MLP Dili Dokümantasyonu</div>
+            <div class="menu-divider"></div>
+            <div class="menu-option" id="menu-about">Hakkında</div>
+          </div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <button class="toolbar-btn" id="btn-new" title="Yeni Proje">
+          <span>📄</span>
+        </button>
+        <button class="toolbar-btn" id="btn-open" title="Aç">
+          <span>📁</span>
+        </button>
+        <button class="toolbar-btn" id="btn-save" title="Kaydet">
+          <span>💾</span>
+        </button>
+        <div class="toolbar-separator"></div>
+        <button class="toolbar-btn" id="btn-run" title="Çalıştır">
+          <span>▶️</span>
+        </button>
+        <button class="toolbar-btn" id="btn-export" title="Dışa Aktar">
+          <span>📤</span>
+        </button>
+        <div class="toolbar-separator"></div>
+        <!-- Hizalama Araçları -->
+        <button class="toolbar-btn toolbar-btn-sm" id="btn-align-left"     title="Sola Hizala">◧</button>
+        <button class="toolbar-btn toolbar-btn-sm" id="btn-align-center-h" title="Yatayda Ortala">⬌</button>
+        <button class="toolbar-btn toolbar-btn-sm" id="btn-align-right"    title="Sağa Hizala">◨</button>
+        <button class="toolbar-btn toolbar-btn-sm" id="btn-align-top"      title="Üste Hizala">▤</button>
+        <button class="toolbar-btn toolbar-btn-sm" id="btn-align-center-v" title="Dikeyde Ortala">⬍</button>
+        <button class="toolbar-btn toolbar-btn-sm" id="btn-align-bottom"   title="Alta Hizala">▥</button>
+        <button class="toolbar-btn toolbar-btn-sm" id="btn-distribute-h" title="Yatay Eşit Dağıt (3+ widget)">↔</button>
+        <button class="toolbar-btn toolbar-btn-sm" id="btn-distribute-v" title="Dikey Eşit Dağıt (3+ widget)">↕</button>
+        <div class="toolbar-separator"></div>
+        <!-- Dil Seçici -->
+        <label for="language-selector" class="toolbar-label" style="margin-right:5px;">Dil:</label>
+        <select id="language-selector" class="toolbar-select" title="Kod Dili">
+          <option value="tr-TR">Türkçe</option>
+          <option value="en-US">English</option>
+        </select>
+        <!-- Syntax Seçici -->
+        <label for="syntax-selector" class="toolbar-label" style="margin-left:15px;margin-right:5px;">Syntax:</label>
+        <select id="syntax-selector" class="toolbar-select" title="Syntax Stili">
+          <option value="mlp-default">MLP Default</option>
+          <option value="c-style">C-Style</option>
+          <option value="python-style">Python-Style</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Ana Çalışma Alanı -->
+    <div class="main-content">
+      <!-- Sol Panel: Widget Toolbox -->
+      <div class="left-panel" id="left-panel">
+        <div class="panel-header">
+          <span class="panel-header-title">Widget Araçları</span>
+          <button class="panel-collapse-btn" id="left-collapse-btn" title="Paneli Gizle">‹</button>
+        </div>
+        <div class="toolbox">
+          <div class="toolbox-category">
+            <div class="category-title">Temel Bileşenler</div>
+            <div class="widget-item" draggable="true" data-widget-type="button">
+              <span class="widget-icon">🔘</span>
+              <span class="widget-name">Button</span>
+            </div>
+            <div class="widget-item" draggable="true" data-widget-type="label">
+              <span class="widget-icon">🏷️</span>
+              <span class="widget-name">Label</span>
+            </div>
+            <div class="widget-item" draggable="true" data-widget-type="textbox">
+              <span class="widget-icon">📝</span>
+              <span class="widget-name">TextBox</span>
+            </div>
+            <div class="widget-item" draggable="true" data-widget-type="checkbox">
+              <span class="widget-icon">☑️</span>
+              <span class="widget-name">CheckBox</span>
+            </div>
+            <div class="widget-item" draggable="true" data-widget-type="radio">
+              <span class="widget-icon">🔘</span>
+              <span class="widget-name">RadioButton</span>
+            </div>
+          </div>
+          <div class="toolbox-category">
+            <div class="category-title">Konteynerler</div>
+            <div class="widget-item" draggable="true" data-widget-type="panel">
+              <span class="widget-icon">📦</span>
+              <span class="widget-name">Panel</span>
+            </div>
+            <div class="widget-item" draggable="true" data-widget-type="groupbox">
+              <span class="widget-icon">🗂️</span>
+              <span class="widget-name">GroupBox</span>
+            </div>
+          </div>
+          <div class="toolbox-category">
+            <div class="category-title">Listeler</div>
+            <div class="widget-item" draggable="true" data-widget-type="listbox">
+              <span class="widget-icon">📋</span>
+              <span class="widget-name">ListBox</span>
+            </div>
+            <div class="widget-item" draggable="true" data-widget-type="combobox">
+              <span class="widget-icon">🔽</span>
+              <span class="widget-name">ComboBox</span>
+            </div>
+          </div>
+          <div class="toolbox-category" id="custom-widgets-category">
+            <div class="category-title" style="display:flex;align-items:center;justify-content:space-between;">
+              <span>Özel Bileşenler</span>
+              <button id="btn-add-custom-widget" title="Yeni özel widget oluştur"
+                style="background:none;border:none;color:#888;font-size:16px;cursor:pointer;padding:0 2px;line-height:1;">+</button>
+            </div>
+            <div id="custom-widgets-list"></div>
+            <div id="custom-widgets-empty" style="font-size:11px;color:#666;padding:4px 6px;">
+              Henüz özel widget yok.<br>Araçlar › Özel Widget Oluştur
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel-resizer" id="left-resizer"></div>
+
+      <!-- Orta Panel -->
+      <div class="center-panel">
+        <!-- Tab'lar -->
+        <div class="tabs">
+          <div class="tab active" id="tab-design">Tasarım</div>
+          <div class="tab" id="tab-code">Kod</div>
+          <div class="tab" id="tab-source">Kaynak</div>
+          <div class="tab" id="tab-preview">Görünüm</div>
+          <div class="tab" id="tab-logs">Log</div>
+        </div>
+
+        <!-- TASARIM: sadece canvas -->
+        <div class="view-container" id="view-design">
+          <div class="design-canvas" id="canvas">
+            <div class="canvas-info">Widget'ları buraya sürükleyin</div>
+          </div>
+        </div>
+
+        <!-- KOD: düzenlenebilir event handler'lar -->
+        <div class="view-container hidden" id="view-code">
+          <div class="code-panel-header">
+            <span class="code-panel-title">&#x2756; Olay İşleyicileri</span>
+            <span class="code-panel-hint">event ... end_event — düzenlenebilir</span>
+          </div>
+          <div class="code-editor-wrapper">
+            <div class="line-numbers" id="line-numbers"></div>
+            <pre class="code-editor" id="code-editor" contenteditable="true" spellcheck="false"></pre>
+            <div id="ac-dropdown" class="ac-dropdown hidden"></div>
+          </div>
+        </div>
+
+        <!-- GÖRÜNÜM: önizleme -->
+        <div class="view-container hidden" id="view-preview">
+          <!-- Önizleme Çubuğu -->
+          <div class="preview-toolbar">
+            <span class="preview-toolbar-label">Önizleme boyutu:</span>
+            <div class="preview-size-presets" id="preview-size-presets">
+              <button class="preview-preset-btn active" data-w="800"  data-h="600"  title="800×600">800×600</button>
+              <button class="preview-preset-btn" data-w="1024" data-h="768"  title="1024×768">1024×768</button>
+              <button class="preview-preset-btn" data-w="1280" data-h="720"  title="1280×720">1280×720</button>
+              <button class="preview-preset-btn" data-w="1920" data-h="1080" title="1920×1080">1920×1080</button>
+              <button class="preview-preset-btn" data-w="360"  data-h="640"  title="Mobil 360×640">📱 Mobil</button>
+              <button class="preview-preset-btn" data-w="canvas" data-h="canvas" title="Kanvas boyutu (tasarlınan boyut)">📐 Kanvas</button>
+            </div>
+            <span class="preview-toolbar-sep"></span>
+            <label class="preview-hotreload-label">
+              <input type="checkbox" id="preview-hotreload-toggle" checked />
+              ⚡ Canlı güncelleme
+            </label>
+            <button class="preview-refresh-btn" id="preview-refresh-btn" title="Önizlemeyi yenile">🔄 Yenile</button>
+            <span class="preview-size-info" id="preview-size-info">800×600</span>
+          </div>
+          <div class="preview-wrapper">
+            <div class="preview-window" id="preview-window">
+              <div class="preview-titlebar">
+                <div class="preview-titlebar-dots">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <span class="preview-titlebar-title" id="preview-title-text">Uygulama</span>
+                <div class="preview-titlebar-spacer"></div>
+              </div>
+              <div class="preview-window-body" id="preview-window-body">
+                <div class="preview-empty-msg">Tasarım sekmesine widget ekleyin</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- KAYNAK: terminal tarzı salt okunur app_start bloğu -->
+        <div class="view-container hidden" id="view-source">
+          <div class="terminal-bar">
+            <div class="terminal-dots">
+              <span class="dot dot-red"></span>
+              <span class="dot dot-yellow"></span>
+              <span class="dot dot-green"></span>
+            </div>
+            <span class="terminal-title">kaynak.mlp — salt okunur</span>
+          </div>
+          <div class="terminal-body">
+            <pre class="terminal-code" id="source-editor" spellcheck="false"></pre>
+          </div>
+        </div>
+
+        <!-- LOG: tanılama ve bellek örnekleri -->
+        <div class="view-container hidden" id="view-logs">
+          <div class="log-panel-header">
+            <span class="log-panel-title">🧾 Tanılama ve Bellek İzleme</span>
+            <span class="log-panel-hint">5 saniyede bir örnek, son 120 saniye FIFO</span>
+          </div>
+          <div class="log-summary-bar" id="log-summary-bar">
+            <div class="log-summary-card">
+              <span class="log-summary-label">Toplam</span>
+              <strong id="log-total-mb">—</strong>
+            </div>
+            <div class="log-summary-card">
+              <span class="log-summary-label">Main</span>
+              <strong id="log-main-mb">—</strong>
+            </div>
+            <div class="log-summary-card">
+              <span class="log-summary-label">Renderer</span>
+              <strong id="log-renderer-mb">—</strong>
+            </div>
+            <div class="log-summary-card">
+              <span class="log-summary-label">GPU</span>
+              <strong id="log-gpu-mb">—</strong>
+            </div>
+            <div class="log-summary-card">
+              <span class="log-summary-label">Renderer Sayısı</span>
+              <strong id="log-renderer-count">—</strong>
+            </div>
+          </div>
+          <div class="log-memory-panel" id="log-memory-panel">
+            <div class="log-empty-state" id="log-empty-state">Tanılama loglamasını ayarlardan açın. Açıkken burada son 120 saniyelik bellek örnekleri görünür.</div>
+            <div class="log-list hidden" id="log-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sağ Panel: Özellikler + Animasyon -->
+      <div class="panel-resizer" id="right-resizer"></div>
+      <div class="right-panel" id="right-panel">
+        <!-- Panel Sekme Çubuğu -->
+        <div class="right-panel-tabbar">
+          <button class="right-panel-tab active" id="right-tab-props">⚙ Özellikler</button>
+          <button class="right-panel-tab" id="right-tab-anim">🎬 Animasyon</button>
+          <button class="panel-collapse-btn" id="right-collapse-btn" title="Paneli Gizle" style="margin-left:auto;padding:0 6px;">›</button>
+        </div>
+        <!-- Özellik Arama (yalnızca Özellikler sekmesinde görünür) -->
+        <div id="props-search-wrap" class="props-search-wrap">
+          <input id="props-search" type="search" placeholder="Ara..." autocomplete="off"
+            style="width:100%;box-sizing:border-box;font-size:11px;padding:3px 7px;border-radius:3px;
+                   border:1px solid #555;background:#1e1e1e;color:#ccc;outline:none;"/>
+        </div>
+        <!-- Özellikler İçeriği -->
+        <div class="properties-container" id="properties">
+          <div class="no-selection">
+            Bir widget seçin
+          </div>
+        </div>
+        <!-- Animasyon İçeriği -->
+        <div id="anim-panel" class="properties-container hidden">
+          <div class="no-selection">Bir widget seçin</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alt Terminal Paneli -->
+    <div id="bottom-terminal" class="bottom-terminal hidden">
+      <!-- Sürükleme tutamacı -->
+      <div id="terminal-resize-handle" class="terminal-resize-handle"></div>
+      <!-- Başlık çubuğu -->
+      <div class="terminal-panel-bar">
+        <div class="terminal-panel-tabs">
+          <span class="terminal-panel-tab active" id="debug-tab-terminal">Terminal</span>
+          <span class="terminal-panel-tab" id="debug-tab-debug">🐞 Debug</span>
+        </div>
+        <div class="terminal-panel-actions">
+          <!-- Konum seçici ikonlar -->
+          <div class="term-pos-btns" title="Terminal konumu">
+            <button class="term-pos-btn active" data-pos="full" title="Tüm pencere">
+              <svg width="20" height="12" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="1" width="20" height="10" rx="1.5" fill="currentColor"/></svg>
+            </button>
+            <button class="term-pos-btn" data-pos="left-center" title="Araç kutusu + Kod altı">
+              <svg width="20" height="12" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="1" width="8" height="10" rx="1.5" fill="currentColor"/><rect x="10" y="1" width="7" height="10" rx="1.5" fill="currentColor"/><rect x="18" y="1" width="2" height="10" rx="1" fill="#555"/></svg>
+            </button>
+            <button class="term-pos-btn" data-pos="center" title="Sadece Kod sekmesi altı">
+              <svg width="20" height="12" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="1" width="4" height="10" rx="1" fill="#555"/><rect x="6" y="1" width="8" height="10" rx="1.5" fill="currentColor"/><rect x="16" y="1" width="4" height="10" rx="1" fill="#555"/></svg>
+            </button>
+            <button class="term-pos-btn" data-pos="center-right" title="Kod + Özellikler altı">
+              <svg width="20" height="12" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="1" width="2" height="10" rx="1" fill="#555"/><rect x="4" y="1" width="7" height="10" rx="1.5" fill="currentColor"/><rect x="13" y="1" width="7" height="10" rx="1.5" fill="currentColor"/></svg>
+            </button>
+          </div>
+          <div class="term-btn-sep"></div>
+          <button id="terminal-clear-btn" class="term-btn" title="Temizle">⌫ Temizle</button>
+          <button id="terminal-kill-btn"  class="term-btn" title="Durdur">■ Durdur</button>
+          <button id="terminal-close-btn" class="term-btn term-btn-close" title="Kapat">✕</button>
+        </div>
+      </div>
+      <!-- Çıktı alanı (Terminal ve Debug içın sarmalıyıcı) -->
+      <div id="terminal-content-area">
+        <div class="terminal-output-area" id="terminal-output"></div>
+      </div>
+
+      <!-- Debug İçeriği -->
+      <div id="debug-content-area" class="hidden">
+        <!-- Debug Toolbar -->
+        <div class="debug-toolbar">
+          <button id="dbg-btn-run"      class="dbg-btn" title="Debug Başlat (F5)">▶ Başlat</button>
+          <button id="dbg-btn-continue" class="dbg-btn" title="Devam Et (F5)" disabled>⏩ Devam</button>
+          <button id="dbg-btn-step"     class="dbg-btn" title="Adım Üstü (F10)" disabled>→ Step</button>
+          <button id="dbg-btn-into"     class="dbg-btn" title="İçeri Gir (F11)" disabled>↳ Into</button>
+          <button id="dbg-btn-stop"     class="dbg-btn dbg-btn-stop" title="Durdur (Shift+F5)" disabled>■ Durdur</button>
+          <span id="debug-active-badge" class="debug-active-badge" style="display:none;">⚡ DEBUG</span>
+        </div>
+        <!-- İki Sütun: Breakpoint Listesi + Watch Paneli -->
+        <div class="debug-panels">
+          <div class="debug-panel">
+            <div class="debug-panel-title">
+              <span>⏺ Breakpoint Listesi</span>
+              <button id="debug-clear-bp" class="debug-panel-action">Tümünü Kaldır</button>
+            </div>
+            <div id="debug-bp-list" class="debug-panel-body">
+              <div class="debug-empty">Breakpoint yok.<br><small>Satır numarasına tıklayın.</small></div>
+            </div>
+          </div>
+          <div class="debug-panel">
+            <div class="debug-panel-title">
+              <span>🔍 İzleme (Watch)</span>
+            </div>
+            <div id="debug-watch-list" class="debug-panel-body">
+              <div class="debug-empty">İzleme listesi boş.<br><small>Aşağıdaki alana değişken adı girin.</small></div>
+            </div>
+            <div class="debug-watch-input-row">
+              <input id="debug-watch-input" type="text" class="property-input" placeholder="değişken_adı" style="flex:1;font-size:12px;" />
+              <button id="debug-watch-add" class="dbg-btn">+ İzle</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Giriş satırı -->
+      <div class="terminal-input-row">
+        <span class="terminal-prompt" id="terminal-prompt">$</span>
+        <input type="text" id="terminal-input" class="terminal-input-field"
+               placeholder="komut girin..." autocomplete="off" spellcheck="false" />
+      </div>
+    </div>
+
+    <!-- Durum Çubuğu -->
+    <div class="status-bar">
+      <span id="status-text">Hazır</span>
+      <span id="widget-count">Widget Sayısı: 0</span>
+    </div>
+  </div>
+
+  <!-- Tema Seçim Dialogu -->
+  <div id="theme-picker-overlay" class="theme-picker-overlay hidden">
+    <div class="theme-picker-dialog">
+      <div class="theme-picker-header">
+        <span>🎨 Tema Seç</span>
+        <button id="theme-picker-close" class="theme-picker-close">&#x2715;</button>
+      </div>
+      <div class="theme-picker-grid">
+
+        <div class="theme-card tc-dark" data-theme="dark">
+          <div class="theme-card-preview"></div>
+          <div class="theme-card-info">
+            <span class="theme-card-name">VS Code Dark</span>
+            <span class="theme-card-check">&#x2713;</span>
+          </div>
+        </div>
+
+        <div class="theme-card tc-light" data-theme="light">
+          <div class="theme-card-preview"></div>
+          <div class="theme-card-info">
+            <span class="theme-card-name">VS Code Light</span>
+            <span class="theme-card-check">&#x2713;</span>
+          </div>
+        </div>
+
+        <div class="theme-card tc-dracula" data-theme="dracula">
+          <div class="theme-card-preview"></div>
+          <div class="theme-card-info">
+            <span class="theme-card-name">Dracula</span>
+            <span class="theme-card-check">&#x2713;</span>
+          </div>
+        </div>
+
+        <div class="theme-card tc-one-dark" data-theme="one-dark">
+          <div class="theme-card-preview"></div>
+          <div class="theme-card-info">
+            <span class="theme-card-name">One Dark Pro</span>
+            <span class="theme-card-check">&#x2713;</span>
+          </div>
+        </div>
+
+        <div class="theme-card tc-solar" data-theme="solarized">
+          <div class="theme-card-preview"></div>
+          <div class="theme-card-info">
+            <span class="theme-card-name">Solarized Dark</span>
+            <span class="theme-card-check">&#x2713;</span>
+          </div>
+        </div>
+
+        <div class="theme-card tc-contrast" data-theme="contrast">
+          <div class="theme-card-preview"></div>
+          <div class="theme-card-info">
+            <span class="theme-card-name">High Contrast</span>
+            <span class="theme-card-check">&#x2713;</span>
+          </div>
+        </div>
+
+        <div class="theme-card tc-melp-premium" data-theme="melp-premium">
+          <div class="theme-card-preview"></div>
+          <div class="theme-card-info">
+            <span class="theme-card-name">MELP Premium</span>
+            <span class="theme-card-check">&#x2713;</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Ayarlar Dialogu -->
+  <!-- Ayarlar dialogu -->
+  <div id="settings-overlay" class="theme-picker-overlay hidden" style="z-index:10000;">
+    <div class="theme-picker-dialog" style="width:520px;max-width:95vw;max-height:85vh;overflow-y:auto;">
+      <div class="dialog-header">
+        <h2 class="dialog-title">⚙️ Ayarlar</h2>
+        <button id="settings-close" class="dialog-close-btn">&#x2715;</button>
+      </div>
+
+      <!-- Derleyici -->
+      <div class="settings-section">
+        <div class="settings-section-title">MLP Derleyici</div>
+        <div class="settings-row">
+          <label class="settings-label">Derleyici Yolu</label>
+          <div style="display:flex;gap:4px;">
+            <input id="s-compiler-path" type="text" class="property-input" style="flex:1;font-size:12px;" />
+            <button class="settings-browse" id="s-compiler-browse">...</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <label class="settings-label">lli Yolu</label>
+          <div style="display:flex;gap:4px;">
+            <input id="s-lli-path" type="text" class="property-input" style="flex:1;font-size:12px;" />
+            <button class="settings-browse" id="s-lli-browse">...</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <label class="settings-label">Geçici Dosya</label>
+          <input id="s-tmp-file" type="text" class="property-input" style="flex:1;font-size:12px;" />
+        </div>
+      </div>
+
+      <!-- Otomatik Kaydetme -->
+      <div class="settings-section">
+        <div class="settings-section-title">Otomatik Kaydetme</div>
+        <div class="settings-row">
+          <label class="settings-label">Aktif</label>
+          <input id="s-autosave-enabled" type="checkbox" />
+        </div>
+        <div class="settings-row">
+          <label class="settings-label">Aralık (saniye)</label>
+          <input id="s-autosave-interval" type="number" min="10" max="600" step="10" class="property-input" style="width:80px;" />
+        </div>
+      </div>
+
+      <!-- Editor -->
+      <div class="settings-section">
+        <div class="settings-section-title">Editör</div>
+        <div class="settings-row">
+          <label class="settings-label">Başlangıçta son projeyi aç</label>
+          <input id="s-open-last" type="checkbox" />
+        </div>
+      </div>
+
+      <!-- Arayüz Dili -->
+      <div class="settings-section">
+        <div class="settings-section-title">Arayüz Dili</div>
+        <div class="settings-row">
+          <label class="settings-label">Dil</label>
+          <select id="s-ui-language" class="property-input" style="flex:1;padding:4px;">
+            <option value="tr">🇹🇷 Türkçe</option>
+            <option value="en">🇬🇧 English</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Tanılama -->
+      <div class="settings-section">
+        <div class="settings-section-title">Tanılama ve Loglar</div>
+        <div class="settings-row">
+          <label class="settings-label">Tanılama loglarını kaydet</label>
+          <input id="s-enable-diagnostic-logging" type="checkbox" />
+        </div>
+        <div class="settings-row" style="align-items:flex-start;">
+          <label class="settings-label">Log dosyası</label>
+          <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
+            <input id="s-log-path" type="text" class="property-input" style="flex:1;font-size:12px;" />
+            <div style="font-size:11px;opacity:.7;line-height:1.4;">Tanılama logları destek/debug için kullanıcı cihazında saklanır. İstenirse ayarlardan kapatılabilir.</div>
+          </div>
+        </div>
+        <div class="settings-row">
+          <label class="settings-label">Log klasörü</label>
+          <div style="display:flex;gap:6px;">
+            <button id="s-browse-log-folder" class="settings-browse">Klasör Seç</button>
+            <button id="s-open-log-folder" class="settings-browse">Klasörü Aç</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="dialog-actions">
+        <button id="settings-cancel" class="settings-browse" style="min-width:80px;">Vazgeç</button>
+        <button id="settings-save" class="btn-primary">Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Şablon seçici modalı -->
+  <div id="templates-overlay" class="theme-picker-overlay hidden" style="z-index:10001;">
+    <div class="theme-picker-dialog" style="width:680px;max-width:95vw;max-height:85vh;overflow-y:auto;">
+      <div class="dialog-header">
+        <h2 class="dialog-title">🦼 Widget şablonları</h2>
+        <button id="templates-close" class="dialog-close-btn">&#x2715;</button>
+      </div>
+      <div style="margin-bottom:12px;">
+        <span style="font-size:12px;color:#888;">Yerleşik şablonlar</span>
+      </div>
+      <div id="builtin-templates-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;"></div>
+      <div id="user-templates-section" style="display:none;">
+        <div style="border-top:1px solid #444;margin:16px 0 12px;"></div>
+        <span style="font-size:12px;color:#888;">Kaydedilmiş şablonlar</span>
+        <div id="user-templates-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Snippet Yöneticisi modalı -->
+  <div id="snippet-manager-overlay" class="theme-picker-overlay hidden" style="z-index:10002;">
+    <div class="theme-picker-dialog" style="width:700px;max-width:96vw;max-height:88vh;display:flex;flex-direction:column;">
+      <div class="dialog-header" style="margin-bottom:14px;">
+        <h2 class="dialog-title">✂️ Snippet Yöneticisi</h2>
+        <button id="snippet-manager-close" class="dialog-close-btn">&#x2715;</button>
+      </div>
+      <div style="display:flex;gap:16px;flex:1;overflow:hidden;">
+        <!-- Sol: Snippet listesi -->
+        <div style="width:220px;flex-shrink:0;display:flex;flex-direction:column;gap:6px;">
+          <div style="font-size:12px;color:#888;margin-bottom:4px;">Kullanıcı Snippet'leri</div>
+          <div id="snippet-list" style="flex:1;overflow-y:auto;border:1px solid #444;border-radius:3px;min-height:220px;background:#1e1e1e;"></div>
+          <div style="display:flex;gap:6px;margin-top:4px;">
+            <button id="snippet-add-btn" class="btn-primary" style="flex:1;padding:5px;font-size:12px;">+ Yeni</button>
+            <button id="snippet-delete-btn" style="flex:1;padding:5px;background:#6e3333;border:none;color:#fff;border-radius:3px;cursor:pointer;font-size:12px;">Sil</button>
+          </div>
+        </div>
+        <!-- Sağ: Düzenleyici -->
+        <div style="flex:1;display:flex;flex-direction:column;gap:10px;">
+          <div class="settings-row">
+            <label class="settings-label" style="width:140px;">Tetikleyici (! prefix)</label>
+            <input id="snip-trigger" type="text" class="property-input" placeholder="!benim-snippet" style="flex:1;font-family:monospace;" />
+          </div>
+          <div class="settings-row">
+            <label class="settings-label" style="width:140px;">Açıklama</label>
+            <input id="snip-desc" type="text" class="property-input" placeholder="Kısa açıklama..." style="flex:1;" />
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;flex:1;">
+            <label style="font-size:12px;color:#888;">Kod (⮡ Tab girintisi)</label>
+            <textarea id="snip-body" style="flex:1;min-height:160px;background:#1e1e1e;color:#d4d4d4;border:1px solid #444;border-radius:3px;padding:8px;font-family:monospace;font-size:13px;resize:vertical;" placeholder="-- MLP kodunuzu buraya yazın..."></textarea>
+          </div>
+          <div class="dialog-actions" style="margin-top:4px;">
+            <button id="snippet-save-btn" class="btn-primary">Kaydet</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Özel Widget Oluşturma Dialogu -->
+  <div id="custom-widget-overlay" class="theme-picker-overlay hidden" style="z-index:10003;">
+    <div class="theme-picker-dialog" style="width:500px;max-width:95vw;max-height:88vh;overflow-y:auto;">
+      <div class="dialog-header">
+        <h2 id="custom-widget-dialog-title" class="dialog-title">🧩 Özel Widget Oluştur</h2>
+        <button id="custom-widget-close" class="dialog-close-btn">&#x2715;</button>
+      </div>
+      <div class="settings-section">
+        <div class="settings-row">
+          <label class="settings-label">Widget Adı</label>
+          <input id="cw-name" type="text" class="property-input" placeholder="ör: Birincil Buton" style="flex:1;" />
+        </div>
+        <div class="settings-row">
+          <label class="settings-label">Simge (emoji)</label>
+          <input id="cw-icon" type="text" class="property-input" placeholder="🧩" style="width:60px;" maxlength="4" />
+        </div>
+        <div class="settings-row">
+          <label class="settings-label">Temel Tip</label>
+          <select id="cw-base-type" class="property-input" style="flex:1;padding:4px;">
+            <option value="button">🔘 Button</option>
+            <option value="label">🏷️ Label</option>
+            <option value="textbox">📝 TextBox</option>
+            <option value="checkbox">☑️ CheckBox</option>
+            <option value="radio">🔘 RadioButton</option>
+            <option value="panel">📦 Panel</option>
+            <option value="groupbox">🗂️ GroupBox</option>
+            <option value="listbox">📋 ListBox</option>
+            <option value="combobox">🔽 ComboBox</option>
+          </select>
+        </div>
+      </div>
+      <div class="settings-section" style="margin-top:12px;">
+        <div class="settings-section-title">Özellik Varsayılanları</div>
+        <div class="settings-row">
+          <label class="settings-label">Genişlik (px)</label>
+          <input id="cw-width" type="number" min="20" max="2000" class="property-input" style="width:80px;" />
+        </div>
+        <div class="settings-row">
+          <label class="settings-label">Yükseklik (px)</label>
+          <input id="cw-height" type="number" min="10" max="2000" class="property-input" style="width:80px;" />
+        </div>
+        <div class="settings-row" id="cw-row-text">
+          <label class="settings-label">Metin</label>
+          <input id="cw-text" type="text" class="property-input" style="flex:1;" />
+        </div>
+        <div class="settings-row" id="cw-row-bgcolor">
+          <label class="settings-label">Arkaplan Rengi</label>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input id="cw-bgcolor-hex" type="text" class="property-input" style="width:90px;" placeholder="#rrggbb" />
+            <input id="cw-bgcolor-picker" type="color" style="width:36px;height:28px;padding:2px;border:1px solid #555;border-radius:3px;cursor:pointer;background:none;" />
+          </div>
+        </div>
+        <div class="settings-row" id="cw-row-textcolor">
+          <label class="settings-label">Metin Rengi</label>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input id="cw-textcolor-hex" type="text" class="property-input" style="width:90px;" placeholder="#rrggbb" />
+            <input id="cw-textcolor-picker" type="color" style="width:36px;height:28px;padding:2px;border:1px solid #555;border-radius:3px;cursor:pointer;background:none;" />
+          </div>
+        </div>
+        <div class="settings-row" id="cw-row-fontsize">
+          <label class="settings-label">Yazı Boyutu (px)</label>
+          <input id="cw-fontsize" type="number" min="8" max="72" class="property-input" style="width:70px;" />
+        </div>
+      </div>
+      <div class="dialog-actions">
+        <button id="custom-widget-cancel" class="settings-browse" style="min-width:80px;">Vazgeç</button>
+        <button id="custom-widget-save" class="btn-primary">Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Özel Widget Yöneticisi Dialogu -->
+  <div id="custom-widget-manager-overlay" class="theme-picker-overlay hidden" style="z-index:10004;">
+    <div class="theme-picker-dialog" style="width:560px;max-width:95vw;max-height:80vh;display:flex;flex-direction:column;">
+      <div class="dialog-header">
+        <h2 class="dialog-title">🧩 Özel Widget Yöneticisi</h2>
+        <button id="cwm-close" class="dialog-close-btn">&#x2715;</button>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px;gap:8px;">
+        <button id="cwm-import" class="settings-browse">📥 İçe Aktar (.mlpwidget)</button>
+        <button id="cwm-new" class="btn-primary">+ Yeni Widget</button>
+      </div>
+      <div id="cwm-list" style="flex:1;overflow-y:auto;min-height:200px;"></div>
+    </div>
+  </div>
+
+  <!-- Otomatik kaydet rozeti -->
+  <div id="autosave-badge" style="display:none;position:fixed;bottom:28px;right:14px;background:#0e639c;color:#fff;font-size:12px;padding:4px 10px;border-radius:10px;z-index:9000;"></div>
+
+  <!-- Canvas widget sağ tık menüsü -->
+  <div id="canvas-context-menu" style="display:none;position:fixed;z-index:9999;background:#2d2d2d;border:1px solid #555;border-radius:4px;padding:4px 0;min-width:130px;box-shadow:2px 4px 12px rgba(0,0,0,0.5);font-size:13px;color:#ccc;">
+    <div class="cctx-item" data-action="cut"   style="padding:5px 16px;cursor:pointer;">Kes</div>
+    <div class="cctx-item" data-action="copy"  style="padding:5px 16px;cursor:pointer;">Kopyala</div>
+    <div class="cctx-item" data-action="paste" style="padding:5px 16px;cursor:pointer;">Yapıştır</div>
+  </div>
+
+  <!-- Kod editörü sağ tık menüsü -->
+  <div id="code-context-menu" style="display:none;position:fixed;z-index:9999;background:#2d2d2d;border:1px solid #555;border-radius:4px;padding:4px 0;min-width:140px;box-shadow:2px 4px 12px rgba(0,0,0,0.5);font-size:13px;color:#ccc;">
+    <div class="ctx-item" data-action="cut"  style="padding:5px 16px;cursor:pointer;">Kes &nbsp;<span style="float:right;opacity:.5">Ctrl+X</span></div>
+    <div class="ctx-item" data-action="copy" style="padding:5px 16px;cursor:pointer;">Kopyala<span style="float:right;opacity:.5">Ctrl+C</span></div>
+    <div class="ctx-item" data-action="paste" style="padding:5px 16px;cursor:pointer;">Yapıştır<span style="float:right;opacity:.5">Ctrl+V</span></div>
+    <div style="border-top:1px solid #555;margin:4px 0;"></div>
+    <div class="ctx-item" data-action="selectall" style="padding:5px 16px;cursor:pointer;">Tümünü Seç<span style="float:right;opacity:.5">Ctrl+A</span></div>
+  </div>
+
+  <script src="assets/melp_compiler.js"></script>
+  <script src="src/utils/i18n.js"></script>
+  <script src="src/utils/helpers.js"></script>
+  <script src="src/utils/config-loader.js"></script>
+  <script src="src/utils/syntax-validator.js"></script>
+  <script src="src/utils/intellisense.js"></script>
+  <script src="src/utils/diagnostics.js"></script>
+  <script src="src/utils/wasm-backend.js"></script>
+  <script src="src/components/widget.js"></script>
+  <script src="src/components/properties.js"></script>
+  <script src="src/components/code-generator.js"></script>
+  <script src="src/components/designer.js"></script>
+  <script src="src/core/edit-ops.js"></script>
+  <script src="src/ui/help.js"></script>
+  <script src="src/ui/editor.js"></script>
+  <script src="src/ui/dialogs.js"></script>
+  <script src="src/ui/custom-widgets.js"></script>
+  <script src="src/ui/debug.js"></script>
+  <script src="src/ui/animations.js"></script>
+  <script src="src/ui/menus.js"></script>
+  <script src="src/ui/toolbar.js"></script>
+  <script src="src/ui/panels.js"></script>
+  <script src="src/core/tab-manager.js"></script>
+  <script src="src/core/project-manager.js"></script>
+  <script src="src/core/compile-runner.js"></script>
+  <script src="src/app.js"></script>
+  <script src="src/ui/panel-resize.js"></script>
+</body>
+</html>

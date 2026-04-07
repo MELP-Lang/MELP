@@ -1,0 +1,666 @@
+/*
+ * MELP IDE — Premium Dark Theme
+ * Catppuccin Mocha + Zed Editor inspired
+ * Drop into: assets/themes/themes.css (append) veya ayrı dosya olarak link et
+ *
+ * Kullanım: <body class="theme-melp-premium"> veya themes.css'e ekle
+ */
+
+body.theme-melp-premium,
+body.theme-melp-premium :root {
+  /* ── Core Palette ─────────────────────────────────────────────── */
+  --bg-primary:      #11111b;   /* en koyu — base */
+  --bg-secondary:    #181825;   /* panel arka planları */
+  --bg-tertiary:     #1e1e2e;   /* toolbar, tab bar */
+  --bg-quaternary:   #252540;   /* hover state'ler */
+  --bg-canvas:       #0d0d17;   /* designer canvas */
+
+  --border-color:    #313244;
+  --border-subtle:   #1e1e2e;
+  --border-accent:   #7c3aed40;
+
+  --text-primary:    #cdd6f4;
+  --text-secondary:  #a6adc8;
+  --text-muted:      #585b70;
+  --text-accent:     #cba6f7;
+
+  --accent-color:    #7c3aed;   /* violet — MELP marka rengi */
+  --accent-bright:   #a78bfa;
+  --accent-glow:     #7c3aed33;
+  --accent-hover:    #8b5cf6;
+
+  --success:         #a6e3a1;
+  --warning:         #f9e2af;
+  --error:           #f38ba8;
+  --info:            #89dceb;
+
+  --button-bg:       #7c3aed;
+  --button-hover:    #8b5cf6;
+  --button-text:     #ffffff;
+
+  --shadow-color:    rgba(0, 0, 0, 0.6);
+  --shadow-sm:       0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md:       0 4px 16px rgba(0,0,0,0.5);
+  --shadow-lg:       0 8px 32px rgba(0,0,0,0.6);
+  --shadow-accent:   0 0 20px rgba(124,58,237,0.2);
+
+  --grid-color:      rgba(124, 58, 237, 0.04);
+  --selection-bg:    rgba(124, 58, 237, 0.25);
+
+  --radius-sm:       4px;
+  --radius-md:       8px;
+  --radius-lg:       12px;
+
+  --font-ui:         'Inter', 'Segoe UI', system-ui, sans-serif;
+  --font-mono:       'JetBrains Mono', 'Cascadia Code', 'Fira Code', monospace;
+  --font-size-sm:    11px;
+  --font-size-base:  13px;
+  --code-font-size:  14px;
+  --code-line-height: 1.6;
+
+  --code-token-keyword:  #cba6f7;
+  --code-token-string:   #a6e3a1;
+  --code-token-number:   #fab387;
+  --code-token-comment:  #585b70;
+  --code-token-function: #89b4fa;
+  --code-token-type:     #f9e2af;
+  --code-token-operator: #89dceb;
+  --code-token-variable: #cdd6f4;
+
+  --transition:      150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.theme-melp-premium.light-theme {
+  --code-token-keyword:  #7c3aed;
+  --code-token-string:   #15803d;
+  --code-token-number:   #2563eb;
+  --code-token-comment:  #7c7c8a;
+  --code-token-function: #92400e;
+  --code-token-type:     #0f766e;
+  --code-token-operator: #1d4ed8;
+  --code-token-variable: #1f2937;
+}
+
+body.theme-melp-premium.theme-dracula {
+  --code-token-keyword:  #ff79c6;
+  --code-token-string:   #f1fa8c;
+  --code-token-number:   #bd93f9;
+  --code-token-comment:  #6272a4;
+  --code-token-function: #50fa7b;
+  --code-token-type:     #8be9fd;
+  --code-token-operator: #ff5555;
+  --code-token-variable: #f8f8f2;
+}
+
+body.theme-melp-premium.theme-one-dark {
+  --code-token-keyword:  #c678dd;
+  --code-token-string:   #98c379;
+  --code-token-number:   #d19a66;
+  --code-token-comment:  #5c6370;
+  --code-token-function: #56b6c2;
+  --code-token-type:     #e5c07b;
+  --code-token-operator: #61afef;
+  --code-token-variable: #abb2bf;
+}
+
+body.theme-melp-premium.theme-solarized {
+  --code-token-keyword:  #859900;
+  --code-token-string:   #2aa198;
+  --code-token-number:   #d33682;
+  --code-token-comment:  #586e75;
+  --code-token-function: #268bd2;
+  --code-token-type:     #cb4b16;
+  --code-token-operator: #6c71c4;
+  --code-token-variable: #93a1a1;
+}
+
+body.theme-melp-premium.theme-contrast {
+  --code-token-keyword:  #ffff00;
+  --code-token-string:   #00ff00;
+  --code-token-number:   #00ffff;
+  --code-token-comment:  #bbbbbb;
+  --code-token-function: #ff00ff;
+  --code-token-type:     #ffa500;
+  --code-token-operator: #ffffff;
+  --code-token-variable: #ffffff;
+}
+
+/* ── Global Reset & Base ──────────────────────────────────────── */
+body.theme-melp-premium {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-base);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Title Bar ────────────────────────────────────────────────── */
+body.theme-melp-premium .title-bar,
+body.theme-melp-premium #title-bar {
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+  height: 32px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+/* ── Menu Bar ─────────────────────────────────────────────────── */
+body.theme-melp-premium .menu-bar,
+body.theme-melp-premium #menu-bar,
+body.theme-melp-premium .menubar {
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+  height: 28px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  gap: 2px;
+}
+
+body.theme-melp-premium .menu-bar .menu-item,
+body.theme-melp-premium .menu-item {
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+
+body.theme-melp-premium .menu-item:hover {
+  background: var(--bg-quaternary);
+  color: var(--text-primary);
+}
+
+/* ── Toolbar ──────────────────────────────────────────────────── */
+body.theme-melp-premium .toolbar,
+body.theme-melp-premium #toolbar {
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
+  height: 40px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 2px;
+}
+
+body.theme-melp-premium .toolbar-btn,
+body.theme-melp-premium .toolbar button,
+body.theme-melp-premium #toolbar button {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+  font-size: 14px;
+}
+
+body.theme-melp-premium .toolbar-btn:hover,
+body.theme-melp-premium .toolbar button:hover,
+body.theme-melp-premium #toolbar button:hover {
+  background: var(--bg-quaternary);
+  color: var(--text-primary);
+}
+
+body.theme-melp-premium .toolbar-btn.active,
+body.theme-melp-premium .toolbar button.active {
+  background: var(--accent-glow);
+  color: var(--accent-bright);
+}
+
+body.theme-melp-premium .toolbar-separator,
+body.theme-melp-premium .toolbar .separator {
+  width: 1px;
+  height: 18px;
+  background: var(--border-color);
+  margin: 0 6px;
+}
+
+/* Toolbar select (Dil, Syntax seçiciler) */
+body.theme-melp-premium .toolbar select,
+body.theme-melp-premium #toolbar select {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  padding: 3px 24px 3px 8px;
+  font-size: var(--font-size-sm);
+  font-family: var(--font-ui);
+  appearance: none;
+  cursor: pointer;
+  transition: border-color var(--transition);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23585b70'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+body.theme-melp-premium .toolbar select:hover {
+  border-color: var(--accent-color);
+  color: var(--text-primary);
+}
+
+/* ── Tab Bar ──────────────────────────────────────────────────── */
+body.theme-melp-premium .tab-bar,
+body.theme-melp-premium .tabs,
+body.theme-melp-premium #tab-bar {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: end;
+  padding: 0 12px;
+  gap: 2px;
+  height: 36px;
+}
+
+body.theme-melp-premium .tab,
+body.theme-melp-premium .tab-item {
+  padding: 6px 16px;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-bottom: none;
+  transition: all var(--transition);
+  white-space: nowrap;
+  position: relative;
+}
+
+body.theme-melp-premium .tab:hover {
+  color: var(--text-secondary);
+  background: var(--bg-quaternary);
+}
+
+body.theme-melp-premium .tab.active,
+body.theme-melp-premium .tab-item.active {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+body.theme-melp-premium .tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent-color);
+  border-radius: 2px 2px 0 0;
+}
+
+/* ── Main Layout ──────────────────────────────────────────────── */
+body.theme-melp-premium .main-layout,
+body.theme-melp-premium #main-layout,
+body.theme-melp-premium .editor-layout {
+  background: var(--bg-primary);
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Left Panel (Widget Araçları) ─────────────────────────────── */
+body.theme-melp-premium .left-panel,
+body.theme-melp-premium #left-panel,
+body.theme-melp-premium .widget-panel {
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+body.theme-melp-premium .panel-header,
+body.theme-melp-premium .left-panel h3,
+body.theme-melp-premium .panel-title {
+  padding: 10px 12px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* Widget kategorileri */
+body.theme-melp-premium .widget-category,
+body.theme-melp-premium .component-category {
+  padding: 8px 12px 4px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Widget öğeleri */
+body.theme-melp-premium .widget-item,
+body.theme-melp-premium .component-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  margin: 1px 6px;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  cursor: grab;
+  transition: all var(--transition);
+  border: 1px solid transparent;
+}
+
+body.theme-melp-premium .widget-item:hover {
+  background: var(--bg-quaternary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+body.theme-melp-premium .widget-item:active {
+  cursor: grabbing;
+  background: var(--accent-glow);
+  border-color: var(--accent-color);
+  color: var(--accent-bright);
+}
+
+body.theme-melp-premium .widget-item .icon,
+body.theme-melp-premium .widget-item img {
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
+  filter: brightness(0.8) saturate(0.5);
+}
+
+body.theme-melp-premium .widget-item:hover .icon,
+body.theme-melp-premium .widget-item:hover img {
+  opacity: 1;
+  filter: none;
+}
+
+/* ── Canvas / Designer Area ───────────────────────────────────── */
+body.theme-melp-premium .canvas-area,
+body.theme-melp-premium #canvas-area,
+body.theme-melp-premium .designer-canvas {
+  background: var(--bg-canvas);
+  flex: 1;
+  position: relative;
+  overflow: auto;
+  background-image:
+    radial-gradient(circle at 1px 1px, var(--grid-color) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+body.theme-melp-premium .canvas-placeholder,
+body.theme-melp-premium .drop-hint {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+
+/* Canvas drop zone aktif */
+body.theme-melp-premium .canvas-area.drag-over {
+  background-color: var(--bg-secondary);
+  outline: 2px dashed var(--accent-color);
+  outline-offset: -12px;
+}
+
+/* ── Right Panel (Özellikler) ─────────────────────────────────── */
+body.theme-melp-premium .right-panel,
+body.theme-melp-premium #right-panel,
+body.theme-melp-premium .properties-panel {
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border-color);
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+body.theme-melp-premium .properties-search,
+body.theme-melp-premium .right-panel input[type="text"],
+body.theme-melp-premium .right-panel input[type="search"] {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  font-family: var(--font-ui);
+  padding: 5px 10px;
+  margin: 8px;
+  width: calc(100% - 16px);
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+body.theme-melp-premium .properties-search:focus,
+body.theme-melp-premium .right-panel input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+body.theme-melp-premium .property-row {
+  display: flex;
+  align-items: center;
+  padding: 4px 12px;
+  gap: 8px;
+  font-size: var(--font-size-sm);
+}
+
+body.theme-melp-premium .property-label {
+  color: var(--text-muted);
+  flex: 0 0 80px;
+  font-size: 11px;
+}
+
+body.theme-melp-premium .property-value {
+  flex: 1;
+  color: var(--text-primary);
+}
+
+body.theme-melp-premium .property-input,
+body.theme-melp-premium .properties-panel input,
+body.theme-melp-premium .properties-panel select {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 11px;
+  font-family: var(--font-ui);
+  padding: 3px 6px;
+  width: 100%;
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+body.theme-melp-premium .property-input:focus,
+body.theme-melp-premium .properties-panel input:focus {
+  border-color: var(--accent-color);
+}
+
+body.theme-melp-premium .properties-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+  font-style: italic;
+}
+
+/* ── Status Bar ───────────────────────────────────────────────── */
+body.theme-melp-premium .status-bar,
+body.theme-melp-premium #status-bar {
+  background: var(--accent-color);
+  color: rgba(255,255,255,0.9);
+  height: 22px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  font-size: 11px;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+body.theme-melp-premium .status-bar .status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.9;
+  transition: opacity var(--transition);
+}
+
+body.theme-melp-premium .status-bar .status-item:hover {
+  opacity: 1;
+}
+
+/* ── Scrollbars ───────────────────────────────────────────────── */
+body.theme-melp-premium ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+body.theme-melp-premium ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+body.theme-melp-premium ::-webkit-scrollbar-thumb {
+  background: var(--bg-quaternary);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+body.theme-melp-premium ::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+  background-clip: padding-box;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────── */
+body.theme-melp-premium button.primary,
+body.theme-melp-premium .btn-primary {
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 6px 14px;
+  font-size: var(--font-size-sm);
+  font-family: var(--font-ui);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition), box-shadow var(--transition);
+}
+
+body.theme-melp-premium button.primary:hover,
+body.theme-melp-premium .btn-primary:hover {
+  background: var(--button-hover);
+  box-shadow: var(--shadow-accent);
+}
+
+/* ── Context Menu / Dropdown ──────────────────────────────────── */
+body.theme-melp-premium .context-menu,
+body.theme-melp-premium .dropdown-menu {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  box-shadow: var(--shadow-lg), var(--shadow-accent);
+  min-width: 160px;
+}
+
+body.theme-melp-premium .context-menu-item {
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+body.theme-melp-premium .context-menu-item:hover {
+  background: var(--accent-glow);
+  color: var(--text-primary);
+}
+
+body.theme-melp-premium .context-menu-separator {
+  height: 1px;
+  background: var(--border-color);
+  margin: 4px 0;
+}
+
+/* ── Selected widget on canvas ────────────────────────────────── */
+body.theme-melp-premium .widget-selected,
+body.theme-melp-premium .selected {
+  outline: 2px solid var(--accent-color) !important;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--accent-glow);
+}
+
+/* ── Resize handles ───────────────────────────────────────────── */
+body.theme-melp-premium .resize-handle {
+  background: var(--accent-color);
+  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+  opacity: 0.9;
+}
+
+/* ── Code editor area ─────────────────────────────────────────── */
+body.theme-melp-premium .code-editor,
+body.theme-melp-premium #code-editor,
+body.theme-melp-premium [contenteditable].code-area {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--code-font-size);
+  line-height: var(--code-line-height);
+  padding: 16px;
+  caret-color: var(--accent-bright);
+  outline: none;
+}
+
+/* Syntax tokens */
+body.theme-melp-premium .token-keyword  { color: var(--code-token-keyword); font-weight: 500; }
+body.theme-melp-premium .token-string   { color: var(--code-token-string); }
+body.theme-melp-premium .token-number   { color: var(--code-token-number); }
+body.theme-melp-premium .token-comment  { color: var(--code-token-comment); font-style: italic; }
+body.theme-melp-premium .token-function { color: var(--code-token-function); }
+body.theme-melp-premium .token-type     { color: var(--code-token-type); }
+body.theme-melp-premium .token-operator { color: var(--code-token-operator); }
+body.theme-melp-premium .token-variable { color: var(--code-token-variable); }
+
+/* ── Animations ───────────────────────────────────────────────── */
+@keyframes melp-fadein {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+body.theme-melp-premium .panel-section,
+body.theme-melp-premium .tab-content {
+  animation: melp-fadein 150ms ease;
+}
+
+/* ── Resizer / Splitter ───────────────────────────────────────── */
+body.theme-melp-premium .resizer,
+body.theme-melp-premium .splitter {
+  background: var(--border-color);
+  transition: background var(--transition);
+}
+
+body.theme-melp-premium .resizer:hover,
+body.theme-melp-premium .splitter:hover {
+  background: var(--accent-color);
+}

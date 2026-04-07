@@ -1,0 +1,233 @@
+// ============================================================================
+// MLP Standard Library - std.web Module
+// ============================================================================
+// Web Framework: HTTP Server; Routing, Request/Response handling
+// Author: YZ_STAGE1_05
+// Date: 27 Ocak 2026
+// Version: 1.0.0
+// ============================================================================
+
+module std.web
+start
+
+// ============================================================================
+// SERVER STRUCTURES
+// ============================================================================
+
+// HTTP Server handle
+struct Server
+    port: numeric           -- Server port (e.g., 8080)
+    daemon_ptr: numeric     -- Internal: MHD_Daemon pointer (as numeric)
+    is_running: numeric     -- 1 if server is running, 0 otherwise
+end_struct
+
+// HTTP Request structure
+struct Request
+    method: string          -- GET, POST, PUT, DELETE, etc.
+    path: string            -- URL path (e.g., /users/123)
+    query: string           -- Query string (e.g., id=123&name=test)
+    body: string            -- Request body content
+    headers_ptr: numeric    -- Internal: HashMap pointer for headers
+end_struct
+
+// HTTP Response structure
+struct Response
+    status_code: numeric    -- HTTP status code (200, 404, 500, etc.)
+    body: string            -- Response body content
+    content_type: string    -- Content-Type header (e.g., text/html, application/json)
+    headers_ptr: numeric    -- Internal: HashMap pointer for headers
+end_struct
+
+// Route handler function type (conceptual - MLP doesn't have function types yet)
+// Handler signature: function(req: Request) -> Response
+
+// ============================================================================
+// SERVER CREATION AND MANAGEMENT
+// ============================================================================
+
+// Create a new HTTP server on the specified port
+// Returns Server struct (check is_running to verify success)
+// Example: let server: Server = create_server(8080)
+function create_server(port: numeric) -> Server
+    let daemon_ptr: numeric = 0
+    let is_running: numeric = 0
+    
+    -- Call builtin to create MHD server
+    let success: numeric = __builtin_web_create_server(port; daemon_ptr; is_running)
+    
+    return Server{port; daemon_ptr; is_running}
+end_function
+
+// Start server and listen for incoming requests (blocking call)
+// This function blocks until server is stopped
+// Example: server_listen(server)
+function server_listen(server: Server) -> numeric
+    if server.is_running == 0 then
+        return 0  -- Server not initialized
+    end_if
+    
+    -- Call builtin to start listening (blocks)
+    let result: numeric = __builtin_web_server_listen(server.daemon_ptr)
+    return result
+end_function
+
+// Stop the server
+// Example: server_stop(server)
+function server_stop(server: Server) -> numeric
+    if server.is_running == 0 then
+        return 0
+    end_if
+    
+    let result: numeric = __builtin_web_server_stop(server.daemon_ptr)
+    return result
+end_function
+
+// ============================================================================
+// ROUTING
+// ============================================================================
+
+// Register a route handler for a specific method and path
+// method: HTTP method (GET, POST, PUT, DELETE, etc.)
+// path: URL path (supports static routes like /users)
+// handler_id: Unique identifier for the handler function
+// 
+// Example: route(server, "GET", "/hello", 1)
+// Then implement handler_1() to process requests
+function route(server: Server; method: string; path: string; handler_id: numeric) -> numeric
+    if server.is_running == 0 then
+        return 0
+    end_if
+    
+    -- Register route with builtin
+    let result: numeric = __builtin_web_register_route(server.daemon_ptr, method, path, handler_id)
+    return result
+end_function
+
+// ============================================================================
+// RESPONSE BUILDERS
+// ============================================================================
+
+// Create a simple text response
+// Example: let resp: Response = text_response(200, "Hello, World!")
+function text_response(status_code: numeric; body: string) -> Response
+    let headers_ptr: numeric = 0
+    return Response{status_code; body; "text/plain"; headers_ptr}
+end_function
+
+// Create an HTML response
+// Example: let resp: Response = html_response(200, "<h1>Hello!</h1>")
+function html_response(status_code: numeric; body: string) -> Response
+    let headers_ptr: numeric = 0
+    return Response{status_code; body; "text/html"; headers_ptr}
+end_function
+
+// Create a JSON response (body should be JSON string)
+// Example: let resp: Response = json_response(200, "{\"message\": \"success\"}")
+function json_response(status_code: numeric; body: string) -> Response
+    let headers_ptr: numeric = 0
+    return Response{status_code; body; "application/json"; headers_ptr}
+end_function
+
+// ============================================================================
+// REQUEST PARSING
+// ============================================================================
+
+// Get query parameter value from request
+// Returns empty string if parameter not found
+// Example: let id: string = get_query_param(req, "id")
+function get_query_param(req: Request; key: string) -> string
+    let value: string = ""
+    let found: numeric = __builtin_web_parse_query_param(req.query, key; value)
+    return value
+end_function
+
+// Parse path parameter from dynamic route
+// path_pattern: Route pattern (e.g., "/users/:id")
+// actual_path: Actual request path (e.g., "/users/123")
+// param_name: Parameter name (e.g., "id")
+// Returns parameter value or empty string
+// Example: let id: string = parse_path_param("/users/:id", "/users/123", "id")
+function parse_path_param(path_pattern: string; actual_path: string; param_name: string) -> string
+    let value: string = ""
+    let found: numeric = __builtin_web_parse_path_param(path_pattern, actual_path, param_name; value)
+    return value
+end_function
+
+// ============================================================================
+// MIDDLEWARE FUNCTIONS
+// ============================================================================
+
+// Logger middleware - logs incoming requests
+// Returns modified request (or original if no changes)
+// Example: let req2: Request = logger_middleware(req)
+function logger_middleware(req: Request) -> Request
+    -- Call builtin to log request
+    let result: numeric = __builtin_web_log_request(req.method, req.path, req.query)
+    
+    -- Return original request (middleware doesn't modify it)
+    return req
+end_function
+
+// CORS middleware - adds CORS headers to response
+// Returns modified response with CORS headers
+// Example: let resp2: Response = cors_middleware(resp)
+function cors_middleware(resp: Response) -> Response
+    -- Call builtin to add CORS headers
+    let result: numeric = __builtin_web_add_cors_headers(resp.headers_ptr)
+    
+    -- Return modified response
+    return resp
+end_function
+
+// Auth middleware - checks for authentication (simplified)
+// Returns 1 if authenticated, 0 if not
+// Example: let is_auth: numeric = auth_middleware(req)
+function auth_middleware(req: Request) -> numeric
+    -- Simple auth check: look for "Authorization" header
+    -- In production, this would validate JWT tokens; etc.
+    let auth_header: string = __builtin_web_get_header(req.headers_ptr, "Authorization")
+    
+    if length(auth_header) > 0 then
+        return 1  -- Authenticated
+    end_if
+    
+    return 0  -- Not authenticated
+end_function
+
+// Rate limiting middleware - checks request rate
+// Returns 1 if allowed; 0 if rate limited
+// Example: let allowed: numeric = rate_limit_middleware(req)
+function rate_limit_middleware(req: Request) -> numeric
+    -- Call builtin to check rate limit (simplified)
+    let allowed: numeric = __builtin_web_check_rate_limit(req.path)
+    return allowed
+end_function
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+// Check if server is running
+function is_server_running(server: Server) -> numeric
+    return server.is_running
+end_function
+
+// Get server port
+function get_server_port(server: Server) -> numeric
+    return server.port
+end_function
+
+// Set response header
+function set_response_header(resp: Response; key: string; value: string) -> numeric
+    let result: numeric = __builtin_web_set_response_header(resp.headers_ptr, key, value)
+    return result
+end_function
+
+// Get request header
+function get_request_header(req: Request; key: string) -> string
+    let value: string = __builtin_web_get_header(req.headers_ptr, key)
+    return value
+end_function
+
+module std.web
+end

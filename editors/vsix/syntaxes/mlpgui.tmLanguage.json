@@ -1,0 +1,51 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "MLPGUI",
+  "scopeName": "source.mlpgui",
+  "fileTypes": ["mlpgui"],
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#widget_keys" },
+    { "include": "#widget_types" },
+    { "include": "#event_keywords" },
+    { "include": "#numbers" },
+    { "include": "#booleans" },
+    { "include": "#identifiers" }
+  ],
+  "repository": {
+    "comments": {
+      "name": "comment.line.double-dash.mlpgui",
+      "match": "--.*$"
+    },
+    "strings": {
+      "name": "string.quoted.double.mlpgui",
+      "begin": "\"",
+      "end": "\""
+    },
+    "widget_keys": {
+      "name": "support.type.property-name.mlpgui",
+      "match": "\"(type|id|x|y|width|height|text|title|name|visible|enabled|backgroundColor|foregroundColor|fontSize|fontFamily|fontBold|fontItalic|placeholder|value|min|max|items|checked|multiline|readonly|layout|children|events|properties|canvasSettings|gridColor|gridSize|snapToGrid)\"\\s*:"
+    },
+    "widget_types": {
+      "name": "entity.name.type.widget.mlpgui",
+      "match": "\"(button|label|textbox|checkbox|radiobutton|combobox|listbox|slider|progressbar|image|panel|groupbox|tabcontrol|menubar|statusbar|canvas|datagrid|treeview|datepicker|colorpicker|spinbox|scrollbar|separator)\""
+    },
+    "event_keywords": {
+      "name": "keyword.other.event.mlpgui",
+      "match": "\"(onClick|onChange|onFocus|onBlur|onKeyPress|onKeyDown|onMouseEnter|onMouseLeave|onDoubleClick|onValueChange|onSelectionChange)\""
+    },
+    "numbers": {
+      "name": "constant.numeric.mlpgui",
+      "match": "\\b\\d+(\\.\\d+)?\\b"
+    },
+    "booleans": {
+      "name": "constant.language.mlpgui",
+      "match": "\\b(true|false|null)\\b"
+    },
+    "identifiers": {
+      "name": "variable.other.mlpgui",
+      "match": "\"[a-zA-ZçÇğĞıİöÖşŞüÜ_][a-zA-ZçÇğĞıİöÖşŞüÜ0-9_]*\""
+    }
+  }
+}

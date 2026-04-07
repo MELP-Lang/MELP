@@ -1,0 +1,117 @@
+{
+  "version": "1.0",
+  "widgets": [
+    {
+      "id": "widget_1",
+      "type": "label",
+      "properties": {
+        "x": 50,
+        "y": 30,
+        "width": 300,
+        "height": 40,
+        "text": "MLP GUI Designer - Örnek Uygulama",
+        "textColor": "#007acc",
+        "fontSize": 18,
+        "visible": true,
+        "backgroundColor": "transparent"
+      }
+    },
+    {
+      "id": "widget_2",
+      "type": "label",
+      "properties": {
+        "x": 50,
+        "y": 90,
+        "width": 100,
+        "height": 25,
+        "text": "Adınız:",
+        "textColor": "#d4d4d4",
+        "fontSize": 14,
+        "visible": true,
+        "backgroundColor": "transparent"
+      }
+    },
+    {
+      "id": "widget_3",
+      "type": "textbox",
+      "properties": {
+        "x": 160,
+        "y": 85,
+        "width": 250,
+        "height": 30,
+        "text": "",
+        "placeholder": "Adınızı girin...",
+        "backgroundColor": "#3c3c3c",
+        "textColor": "#d4d4d4",
+        "fontSize": 14,
+        "enabled": true,
+        "visible": true,
+        "onChange": ""
+      }
+    },
+    {
+      "id": "widget_4",
+      "type": "button",
+      "properties": {
+        "x": 160,
+        "y": 140,
+        "width": 120,
+        "height": 35,
+        "text": "Merhaba De",
+        "backgroundColor": "#0e639c",
+        "textColor": "#ffffff",
+        "fontSize": 14,
+        "enabled": true,
+        "visible": true,
+        "onClick": "merhaba_de"
+      }
+    },
+    {
+      "id": "widget_5",
+      "type": "button",
+      "properties": {
+        "x": 290,
+        "y": 140,
+        "width": 120,
+        "height": 35,
+        "text": "Temizle",
+        "backgroundColor": "#0e639c",
+        "textColor": "#ffffff",
+        "fontSize": 14,
+        "enabled": true,
+        "visible": true,
+        "onClick": "temizle"
+      }
+    },
+    {
+      "id": "widget_6",
+      "type": "groupbox",
+      "properties": {
+        "x": 50,
+        "y": 200,
+        "width": 360,
+        "height": 150,
+        "text": "Sonuç",
+        "borderColor": "#3e3e42",
+        "textColor": "#d4d4d4",
+        "fontSize": 12,
+        "visible": true
+      }
+    },
+    {
+      "id": "widget_7",
+      "type": "label",
+      "properties": {
+        "x": 70,
+        "y": 240,
+        "width": 320,
+        "height": 80,
+        "text": "Merhaba butonuna tıklayın...",
+        "textColor": "#cccccc",
+        "fontSize": 14,
+        "visible": true,
+        "backgroundColor": "transparent"
+      }
+    }
+  ]
+}

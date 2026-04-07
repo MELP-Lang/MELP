@@ -1,0 +1,36 @@
+
+-- MELP Alpha — "Hello World" örneği (İngilizce)
+-- Türkçe için: examples/merhaba_dünya.tr.mlp
+
+numeric function add(numeric a; numeric b)
+    return a + b
+end_function
+
+function main()
+    print("Hello, MELP!")
+
+    -- Koşul
+    numeric score = 85
+    if score >= 90 then
+        print("Excellent")
+    elif score >= 70 then
+        print("Good")
+    else
+        print("Pass")
+    end_if
+
+    -- Döngü
+    numeric i = 1
+    loop i <= 5
+        print("Step: " + str(i))
+        i = i + 1
+    end loop
+
+    -- Fonksiyon çağrısı
+    numeric result = add(3; 7)
+    print("3 + 7 = " + str(result))
+end_function
+
+
+
+

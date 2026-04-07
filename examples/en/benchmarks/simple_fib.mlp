@@ -1,0 +1,15 @@
+-- Simple Fibonacci Benchmark (Stage 0 compatible)
+-- Uses 'as' keyword for return type (Stage 1 transforms to ->)
+
+function fib(numeric n) as numeric
+    if n <= 1 then
+        return n
+    end_if
+    
+    return fib(n - 1) + fib(n - 2)
+end_function
+
+function main()
+    let result = fib(10)
+    print(result)
+end_function

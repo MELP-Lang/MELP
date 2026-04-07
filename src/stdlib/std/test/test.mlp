@@ -1,0 +1,279 @@
+// ============================================================================
+// MLP Standard Library - std.test Module
+// ============================================================================
+// Testing Framework: Unit testing, assertions, and test runners
+// Author: YZ_STAGE1_07
+// Date: 27 Ocak 2026
+// Version: 1.0.0
+// ============================================================================
+
+module std.test
+start
+
+// ============================================================================
+// TEST RESULT STRUCTURES
+// ============================================================================
+
+// Test result status
+struct TestResult
+    name: string            -- Test name
+    passed: numeric         -- 1 if passed; 0 if failed
+    message: string         -- Error message (empty if passed)
+    duration_ms: numeric    -- Test duration in milliseconds
+end_struct
+
+// Test suite statistics
+struct TestStats
+    total: numeric          -- Total number of tests
+    passed: numeric         -- Number of passed tests
+    failed: numeric         -- Number of failed tests
+    duration_ms: numeric    -- Total duration in milliseconds
+end_struct
+
+// Test suite structure
+struct TestSuite
+    name: string            -- Suite name
+    tests_count: numeric    -- Number of tests in suite
+    passed_count: numeric   -- Number of passed tests
+    failed_count: numeric   -- Number of failed tests
+end_struct
+
+// ============================================================================
+// BASIC ASSERTIONS
+// ============================================================================
+
+// Assert that two numeric values are equal
+// Returns 1 if equal; 0 if not equal
+// Example: assert_eq(add(2, 3), 5)
+function assert_eq_numeric(actual: numeric; expected: numeric) -> numeric
+    let result: numeric = __builtin_test_assert_eq_numeric(actual, expected)
+    return result
+end_function
+
+// Assert that two string values are equal
+// Returns 1 if equal; 0 if not equal
+// Example: assert_eq_string(concat("hello", " world"), "hello world")
+function assert_eq_string(actual: string; expected: string) -> numeric
+    let result: numeric = __builtin_test_assert_eq_string(actual, expected)
+    return result
+end_function
+
+// Assert that two numeric values are NOT equal
+// Returns 1 if not equal; 0 if equal
+// Example: assert_ne_numeric(add(2, 3), 6)
+function assert_ne_numeric(actual: numeric; expected: numeric) -> numeric
+    let result: numeric = __builtin_test_assert_ne_numeric(actual, expected)
+    return result
+end_function
+
+// Assert that two string values are NOT equal
+// Returns 1 if not equal; 0 if equal
+// Example: assert_ne_string("hello", "world")
+function assert_ne_string(actual: string; expected: string) -> numeric
+    let result: numeric = __builtin_test_assert_ne_string(actual, expected)
+    return result
+end_function
+
+// Assert that a condition is true
+// Returns 1 if condition is true; 0 if false
+// Example: assert_true(5 > 3)
+function assert_true(condition: numeric) -> numeric
+    let result: numeric = __builtin_test_assert_true(condition)
+    return result
+end_function
+
+// Assert that a condition is false
+// Returns 1 if condition is false; 0 if true
+// Example: assert_false(5 < 3)
+function assert_false(condition: numeric) -> numeric
+    let result: numeric = __builtin_test_assert_false(condition)
+    return result
+end_function
+
+// Generic assertion with custom message
+// Returns 1 if condition is true; 0 if false
+// Example: assert(x > 0, "x must be positive")
+function assert(condition: numeric; message: string) -> numeric
+    let result: numeric = __builtin_test_assert(condition, message)
+    return result
+end_function
+
+// ============================================================================
+// TEST EXECUTION
+// ============================================================================
+
+// Register a test
+// name: Test name
+// handler_id: Unique identifier for test function
+// Example: test("addition works", 1)
+function test(name: string; handler_id: numeric) -> numeric
+    let result: numeric = __builtin_test_register(name, handler_id)
+    return result
+end_function
+
+// Run all registered tests
+// Returns TestStats with results
+// Example: let stats: TestStats = run_tests()
+function run_tests() -> TestStats
+    let total: numeric = 0
+    let passed: numeric = 0
+    let failed: numeric = 0
+    let duration_ms: numeric = 0
+    
+    -- Run all tests and collect statistics
+    let success: numeric = __builtin_test_run_all(total, passed, failed, duration_ms)
+    
+    return TestStats{total, passed, failed, duration_ms}
+end_function
+
+// ============================================================================
+// TEST SUITES (Day 2)
+// ============================================================================
+
+// Begin a test suite
+// Groups related tests together for better organization
+// Example: describe("Math Operations")
+function describe(suite_name: string) -> numeric
+    let result: numeric = __builtin_test_describe(suite_name)
+    return result
+end_function
+
+// End the current test suite
+// Example: end_describe()
+function end_describe() -> numeric
+    let result: numeric = __builtin_test_end_describe()
+    return result
+end_function
+
+// ============================================================================
+// TEST HOOKS (Day 2)
+// ============================================================================
+
+// Register setup function to run before each test
+// handler_id: Unique identifier for setup function
+// Example: before_each(setup_handler)
+function before_each(handler_id: numeric) -> numeric
+    let result: numeric = __builtin_test_before_each(handler_id)
+    return result
+end_function
+
+// Register teardown function to run after each test
+// handler_id: Unique identifier for teardown function
+// Example: after_each(teardown_handler)
+function after_each(handler_id: numeric) -> numeric
+    let result: numeric = __builtin_test_after_each(handler_id)
+    return result
+end_function
+
+// Register setup function to run once before all tests in suite
+// handler_id: Unique identifier for setup function
+// Example: before_all(global_setup_handler)
+function before_all(handler_id: numeric) -> numeric
+    let result: numeric = __builtin_test_before_all(handler_id)
+    return result
+end_function
+
+// Register teardown function to run once after all tests in suite
+// handler_id: Unique identifier for teardown function
+// Example: after_all(global_teardown_handler)
+function after_all(handler_id: numeric) -> numeric
+    let result: numeric = __builtin_test_after_all(handler_id)
+    return result
+end_function
+
+// ============================================================================
+// TEST UTILITIES
+// ============================================================================
+
+// Print test statistics
+// Example: print_test_stats(stats)
+function print_test_stats(stats: TestStats) -> numeric
+    print("==============================================")
+    print("Test Results:")
+    print("  Total:  " + numeric_to_string(stats.total))
+    print("  Passed: " + numeric_to_string(stats.passed))
+    print("  Failed: " + numeric_to_string(stats.failed))
+    print("  Duration: " + numeric_to_string(stats.duration_ms) + " ms")
+    print("==============================================")
+    
+    if stats.failed == 0 then
+        print("✅ All tests passed!")
+        return 1
+    else
+        print("❌ Some tests failed!")
+        return 0
+    end_if
+end_function
+
+// Helper: Convert numeric to string (simplified)
+function numeric_to_string(value: numeric) -> string
+    -- Simplified conversion (would use proper conversion in production)
+    if value == 0 then
+        return "0"
+    else_if value == 1 then
+        return "1"
+    else_if value == 2 then
+        return "2"
+    else_if value == 3 then
+        return "3"
+    else_if value == 4 then
+        return "4"
+    else_if value == 5 then
+        return "5"
+    else_if value == 10 then
+        return "10"
+    else_if value == 15 then
+        return "15"
+    else_if value == 20 then
+        return "20"
+    else_if value == 25 then
+        return "25"
+    else_if value == 30 then
+        return "30"
+    else
+        return "N"
+    end_if
+end_function
+
+// ============================================================================
+// COMPARISON HELPERS
+// ============================================================================
+
+// Check if numeric is greater than
+function is_greater_than(a: numeric; b: numeric) -> numeric
+    if a > b then
+        return 1
+    else
+        return 0
+    end_if
+end_function
+
+// Check if numeric is less than
+function is_less_than(a: numeric; b: numeric) -> numeric
+    if a < b then
+        return 1
+    else
+        return 0
+    end_if
+end_function
+
+// Check if numeric is greater than or equal
+function is_gte(a: numeric; b: numeric) -> numeric
+    if a >= b then
+        return 1
+    else
+        return 0
+    end_if
+end_function
+
+// Check if numeric is less than or equal
+function is_lte(a: numeric; b: numeric) -> numeric
+    if a <= b then
+        return 1
+    else
+        return 0
+    end_if
+end_function
+
+module std.test
+end

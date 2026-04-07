@@ -1,0 +1,70 @@
+-- MLP Fibonacci Benchmark
+-- Recursive ve Iterative implementasyonlar
+
+import std.time
+import std.test
+
+-- Recursive Fibonacci
+function fib_recursive(n: numeric) -> numeric
+    if n <= 1 then
+        return n
+    end_if
+    return fib_recursive(n - 1) + fib_recursive(n - 2)
+end_function
+
+-- Iterative Fibonacci
+function fib_iterative(n: numeric) -> numeric
+    if n <= 1 then
+        return n
+    end_if
+    
+    let a: numeric = 0
+    let b: numeric = 1
+    let i: numeric = 2
+    
+    while i <= n do
+        let temp: numeric = a + b
+        a = b
+        b = temp
+        i = i + 1
+    end_while
+    
+    return b
+end_function
+
+-- Main benchmark
+function main()
+    print("=== MLP Fibonacci Benchmark ===")
+    print("")
+    
+    -- Test 1: Recursive (n=30)
+    print("[TEST 1] Recursive Fibonacci(30)")
+    let start1: numeric = time_now()
+    let result1: numeric = fib_recursive(30)
+    let elapsed1: numeric = time_now() - start1
+    print("Result: " + string(result1))
+    print("Time: " + string(elapsed1) + "ms")
+    print("")
+    
+    -- Test 2: Iterative (n=1000)
+    print("[TEST 2] Iterative Fibonacci(1000)")
+    let start2: numeric = time_now()
+    let result2: numeric = fib_iterative(1000)
+    let elapsed2: numeric = time_now() - start2
+    print("Result: " + string(result2))
+    print("Time: " + string(elapsed2) + "ms")
+    print("")
+    
+    -- Test 3: Recursive (n=35)
+    print("[TEST 3] Recursive Fibonacci(35)")
+    let start3: numeric = time_now()
+    let result3: numeric = fib_recursive(35)
+    let elapsed3: numeric = time_now() - start3
+    print("Result: " + string(result3))
+    print("Time: " + string(elapsed3) + "ms")
+    print("")
+    
+    print("=== Benchmark Complete ===")
+end_function
+
+main()

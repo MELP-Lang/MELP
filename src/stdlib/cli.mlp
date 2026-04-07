@@ -1,0 +1,158 @@
+-- EXPORTED: cli_init, cli_flag, cli_has_flag, cli_option, cli_has_option,
+--           cli_positional, cli_positional_count, cli_arg_count, cli_get_arg,
+--           cli_subcommand, cli_read_line, cli_read_char, cli_prompt,
+--           cli_confirm, cli_prompt_yn, cli_read_password,
+--           cli_print_colored, cli_print_bold, cli_progress_bar, cli_separator,
+--           cli_clear_screen, cli_is_tty, cli_terminal_width, cli_terminal_height,
+--           cli_get_env, cli_set_env, cli_get_cwd, cli_exit_with_code
+-- stdlib/cli.mlp — CLI argument parsing and terminal I/O
+-- Primitifler: __builtin_cli_* (cli_builtins.cpp satır 162-181)
+-- STAGE1 Phase 3
+
+-- ⚠️ MLP-GAP: cli_init — mlp_cli_init expects (i32, i8**) which MELP cannot express
+-- MELP main() has no argc/argv in its signature; OS args not accessible via MLP.
+-- All other cli_* functions work independently.
+
+-- Initialize CLI argument parser
+-- ⚠️ MLP-GAP: cli_init — mlp_cli_init expects (i32, i8**) but MELP uses i64 for all
+-- numerics; type mismatch causes LLVM verification error. Stub only — do not call.
+numeric function cli_init(numeric argc; string argv)
+end_function
+
+-- Returns 1 if flag --name is present
+numeric function cli_flag(string name)
+    return __builtin_cli_get_flag(name)
+end_function
+
+-- Returns 1 if flag --name is present (has_ prefix alias)
+numeric function cli_has_flag(string name)
+    return __builtin_cli_has_flag(name)
+end_function
+
+-- Returns value of option --name; default_val returned if absent
+string function cli_option(string name; string default_val)
+    return __builtin_cli_get_option(name; default_val)
+end_function
+
+-- Returns 1 if option --name is present
+numeric function cli_has_option(string name)
+    return __builtin_cli_has_option(name)
+end_function
+
+-- Returns positional argument at index (0-based)
+string function cli_positional(numeric index)
+    return __builtin_cli_get_positional(index)
+end_function
+
+-- Returns number of positional arguments
+numeric function cli_positional_count()
+    return __builtin_cli_positional_count()
+end_function
+
+-- Returns total argument count
+numeric function cli_arg_count()
+    return __builtin_cli_arg_count()
+end_function
+
+-- Returns raw argument string at index
+string function cli_get_arg(numeric index)
+    return __builtin_cli_get_arg(index)
+end_function
+
+-- Returns the subcommand name (first positional if it is a word)
+string function cli_subcommand()
+    return __builtin_cli_get_subcommand()
+end_function
+
+-- Read a line from stdin
+string function cli_read_line()
+    return __builtin_cli_read_line()
+end_function
+
+-- Read a single character from stdin; returns ASCII code
+numeric function cli_read_char()
+    return __builtin_cli_read_char()
+end_function
+
+-- Print message and read a line; returns input
+string function cli_prompt(string message)
+    return __builtin_cli_prompt(message)
+end_function
+
+-- Print message and wait for y/n; returns 1 for yes, 0 for no
+numeric function cli_confirm(string message)
+    return __builtin_cli_confirm(message)
+end_function
+
+-- Print yes/no prompt with default (1=yes, 0=no); returns 1 for yes, 0 for no
+numeric function cli_prompt_yn(string message; numeric default_yn)
+    return __builtin_cli_prompt_yn(message; default_yn)
+end_function
+
+-- Read password without echo; returns input string
+string function cli_read_password(string message)
+    return __builtin_cli_read_password(message)
+end_function
+
+-- Print text in given color; returns 1 on success
+-- color names: red, green, blue, yellow, cyan, magenta, white
+numeric function cli_print_colored(string text; string color)
+    return __builtin_cli_print_colored(text; color)
+end_function
+
+-- Print text in bold; returns 1 on success
+numeric function cli_print_bold(string text)
+    return __builtin_cli_print_bold(text)
+end_function
+
+-- Print progress bar; width = number of chars wide
+-- Returns 1 on success
+numeric function cli_progress_bar(numeric current; numeric total; numeric width)
+    return __builtin_cli_progress_bar(current; total; width)
+end_function
+
+-- Print horizontal separator line with given fill char and width
+-- Returns 1 on success
+numeric function cli_separator(string fill; numeric width)
+    return __builtin_cli_print_separator(fill; width)
+end_function
+
+-- Clear terminal screen
+numeric function cli_clear_screen()
+    return __builtin_cli_clear_screen()
+end_function
+
+-- Returns 1 if stdout is a TTY
+numeric function cli_is_tty()
+    return __builtin_cli_is_tty()
+end_function
+
+-- Returns terminal width in columns
+numeric function cli_terminal_width()
+    return __builtin_cli_terminal_width()
+end_function
+
+-- Returns terminal height in rows
+numeric function cli_terminal_height()
+    return __builtin_cli_terminal_height()
+end_function
+
+-- Get environment variable value
+string function cli_get_env(string name)
+    return __builtin_cli_get_env(name)
+end_function
+
+-- Set environment variable; returns 1 on success
+numeric function cli_set_env(string name; string value)
+    return __builtin_cli_set_env(name; value)
+end_function
+
+-- Get current working directory
+string function cli_get_cwd()
+    return __builtin_cli_get_cwd()
+end_function
+
+-- Exit process with given exit code
+none function cli_exit_with_code(numeric code)
+    __builtin_cli_exit_with_code(code)
+end_function

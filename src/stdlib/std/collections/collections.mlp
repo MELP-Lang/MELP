@@ -1,0 +1,199 @@
+// ============================================================================
+// MLP Standard Library - std.collections Module
+// ============================================================================
+// Comprehensive data structure and collection utilities
+// Author: YZ_STAGE1_01
+// Date: 28 Ocak 2026
+// Version: 1.0.0
+// ============================================================================
+
+module std.collections
+
+// ============================================================================
+// ARRAY UTILITIES
+// ============================================================================
+// Built on Stage 0's basic array support
+// Provides functional programming operations and utilities
+
+// ----------------------------------------------------------------------------
+// Array Size and Capacity
+// ----------------------------------------------------------------------------
+
+function array_length(arr: Array) -> numeric
+    return __builtin_array_length(arr)
+end_function
+
+function array_is_empty(arr: Array) -> numeric
+    let len: numeric = __builtin_array_length(arr)
+    return len == 0
+end_function
+
+// ----------------------------------------------------------------------------
+// Array Access and Modification
+// ----------------------------------------------------------------------------
+
+function array_get(arr: Array; index: numeric) -> numeric
+    return __builtin_array_get(arr; index)
+end_function
+
+function array_set(arr: Array; index: numeric; value: numeric) -> numeric
+    return __builtin_array_set(arr; index; value)
+end_function
+
+// ----------------------------------------------------------------------------
+// Array Creation and Cloning
+// ----------------------------------------------------------------------------
+
+function array_clone(arr: Array) -> Array
+    return __builtin_array_clone(arr)
+end_function
+
+function array_slice(arr: Array; start: numeric; end: numeric) -> Array
+    return __builtin_array_slice(arr; start; end)
+end_function
+
+// ----------------------------------------------------------------------------
+// Array Manipulation
+// ----------------------------------------------------------------------------
+
+function array_reverse(arr: Array) -> Array
+    return __builtin_array_reverse(arr)
+end_function
+
+function array_concat(arr1: Array; arr2: Array) -> Array
+    return __builtin_array_concat(arr1; arr2)
+end_function
+
+function array_push(arr: Array; value: numeric) -> Array
+    return __builtin_array_push(arr; value)
+end_function
+
+function array_pop(arr: Array) -> numeric
+    return __builtin_array_pop(arr)
+end_function
+
+// ----------------------------------------------------------------------------
+// Array Searching
+// ----------------------------------------------------------------------------
+
+function array_index_of(arr: Array; value: numeric) -> numeric
+    return __builtin_array_index_of(arr; value)
+end_function
+
+function array_contains(arr: Array; value: numeric) -> numeric
+    return __builtin_array_contains(arr; value)
+end_function
+
+function array_last_index_of(arr: Array; value: numeric) -> numeric
+    return __builtin_array_last_index_of(arr; value)
+end_function
+
+// ----------------------------------------------------------------------------
+// Array Sorting
+// ----------------------------------------------------------------------------
+
+function array_sort_ascending(arr: Array) -> Array
+    return __builtin_array_sort_ascending(arr)
+end_function
+
+function array_sort_descending(arr: Array) -> Array
+    return __builtin_array_sort_descending(arr)
+end_function
+
+// ----------------------------------------------------------------------------
+// Array Statistics (Utility)
+// ----------------------------------------------------------------------------
+
+function array_sum(arr: Array) -> numeric
+    return __builtin_array_sum(arr)
+end_function
+
+function array_min(arr: Array) -> numeric
+    return __builtin_array_min(arr)
+end_function
+
+function array_max(arr: Array) -> numeric
+    return __builtin_array_max(arr)
+end_function
+
+function array_average(arr: Array) -> numeric
+    return __builtin_array_average(arr)
+end_function
+
+// ============================================================================
+// ARRAY FUNCTIONAL OPERATIONS (Basic - No Generics Yet)
+// ============================================================================
+// Note: Full map/filter/reduce will come in Week 8 with lambda support
+// For now; we provide basic utility functions
+
+function array_count(arr: Array; target: numeric) -> numeric
+    return __builtin_array_count(arr; target)
+end_function
+
+function array_fill(arr: Array; value: numeric) -> Array
+    return __builtin_array_fill(arr; value)
+end_function
+
+// ============================================================================
+// HASHMAP UTILITIES (String Keys; Numeric Values)
+// ============================================================================
+// Simple HashMap implementation for Stage 1
+// Future: Generic HashMap<K, V> with full type support
+
+// ----------------------------------------------------------------------------
+// HashMap Creation and Management
+// ----------------------------------------------------------------------------
+
+function hashmap_create() -> HashMap
+    return __builtin_hashmap_create()
+end_function
+
+function hashmap_size(map: HashMap) -> numeric
+    return __builtin_hashmap_size(map)
+end_function
+
+function hashmap_is_empty(map: HashMap) -> numeric
+    return __builtin_hashmap_is_empty(map)
+end_function
+
+function hashmap_clear(map: HashMap) -> HashMap
+    return __builtin_hashmap_clear(map)
+end_function
+
+// ----------------------------------------------------------------------------
+// HashMap Operations
+// ----------------------------------------------------------------------------
+
+function hashmap_insert(map: HashMap; key: string; value: numeric) -> HashMap
+    return __builtin_hashmap_insert(map; key; value)
+end_function
+
+function hashmap_get(map: HashMap; key: string) -> numeric
+    return __builtin_hashmap_get(map; key)
+end_function
+
+function hashmap_contains(map: HashMap; key: string) -> numeric
+    return __builtin_hashmap_contains(map; key)
+end_function
+
+function hashmap_remove(map: HashMap; key: string) -> HashMap
+    return __builtin_hashmap_remove(map; key)
+end_function
+
+// ----------------------------------------------------------------------------
+// HashMap Introspection
+// ----------------------------------------------------------------------------
+
+function hashmap_keys(map: HashMap) -> Array
+    return __builtin_hashmap_keys(map)
+end_function
+
+function hashmap_values(map: HashMap) -> Array
+    return __builtin_hashmap_values(map)
+end_function
+
+// ============================================================================
+// MODULE END
+// ============================================================================
+
+end_module

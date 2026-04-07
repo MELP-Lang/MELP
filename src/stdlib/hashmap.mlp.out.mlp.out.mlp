@@ -1,0 +1,116 @@
+-- EXPORTED: hashmap_create, hashmap_size, hashmap_is_empty, hashmap_set, hashmap_get, hashmap_has, hashmap_delete, hashmap_free, hashmap_str_create, hashmap_str_set, hashmap_str_get, hashmap_str_has, hashmap_str_delete, hashmap_str_size, hashmap_str_free
+-- ═══════════════════════════════════════════════════════════════
+-- MELP Standard Library - Hashmap Module
+--
+-- STATUS: SYNTAX READY (PMLP compliant)
+-- COMPILE STATUS: ✅ Uses only registered Stage0 hashmap builtins
+--
+-- Two hashmap flavors:
+--   hashmap_*      — numeric keys, numeric values
+--   hashmap_str_*  — string keys (backed by __builtin_hashmap_str_*)
+--
+-- Note: these stdlib wrappers currently expose the Stage0 builtin handle directly.
+-- The handle type is numeric here, while user-facing MELP collection syntax is
+-- the generic lowercase form `hashmap<K; V>`.
+--
+-- Separated from array.mlp (was collections_utils.mlp)
+-- Moved: 2026-03-23 (MM-1 Stdlib task)
+-- ═══════════════════════════════════════════════════════════════
+
+-- ============================================================================
+-- NUMERIC-KEY HASHMAP (integer keys → integer values)
+-- ============================================================================
+
+-- Create a new numeric-key hashmap
+function hashmap_create() -> numeric
+    return __builtin_hashmap_create()
+end_function
+
+-- Get number of entries
+numeric) -> numeric function hashmap_size(hm
+    return __builtin_hashmap_size(hm)
+end_function
+
+-- Check if hashmap has no entries (pure MLP)
+numeric) -> numeric function hashmap_is_empty(hm
+    numeric s = __builtin_hashmap_size(hm)
+    if s == 0 then
+        return 1
+    end_if
+    return 0
+end_function
+
+-- Insert or update a key-value pair
+numeric; key as numeric; value as numeric) -> numeric function hashmap_set(hm
+    return __builtin_hashmap_set(hm; key; value)
+end_function
+
+-- Get value by numeric key
+numeric; key as numeric) -> numeric function hashmap_get(hm
+    return __builtin_hashmap_get(hm; key)
+end_function
+
+-- Check if numeric key exists
+numeric; key as numeric) -> numeric function hashmap_has(hm
+    return __builtin_hashmap_has(hm; key)
+end_function
+
+-- Delete a numeric key
+numeric; key as numeric) -> numeric function hashmap_delete(hm
+    return __builtin_hashmap_delete(hm; key)
+end_function
+
+-- Free hashmap memory
+numeric) -> numeric function hashmap_free(hm
+    return __builtin_hashmap_free(hm)
+end_function
+
+-- ============================================================================
+-- STRING-KEY HASHMAP (string keys → string values)
+-- ============================================================================
+
+-- Create a new string-key hashmap
+function hashmap_str_create() -> numeric
+    return __builtin_hashmap_str_create()
+end_function
+
+-- Insert or update a string key-value pair
+numeric; key as string; value as string) -> numeric function hashmap_str_set(hm
+    return __builtin_hashmap_str_set(hm; key; value)
+end_function
+
+-- Get value by string key
+numeric; key as string) -> string function hashmap_str_get(hm
+    return __builtin_hashmap_str_get(hm; key)
+end_function
+
+-- Check if string key exists
+numeric; key as string) -> numeric function hashmap_str_has(hm
+    return __builtin_hashmap_str_has(hm; key)
+end_function
+
+-- Delete a string key
+numeric; key as string) -> numeric function hashmap_str_delete(hm
+    return __builtin_hashmap_str_delete(hm; key)
+end_function
+
+-- Get number of string-key entries
+numeric) -> numeric function hashmap_str_size(hm
+    return __builtin_hashmap_str_size(hm)
+end_function
+
+-- Free string-key hashmap memory
+numeric) -> numeric function hashmap_str_free(hm
+    return __builtin_hashmap_str_free(hm)
+end_function
+
+-- Check if string-key hashmap is empty (pure MLP)
+numeric) -> numeric function hashmap_str_is_empty(hm
+    numeric s = __builtin_hashmap_str_size(hm)
+    if s == 0 then
+        return 1
+    end_if
+    return 0
+end_function
+
+

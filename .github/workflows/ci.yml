@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  build-and-test:
+    name: Build & Test (Ubuntu, LLVM 16)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install LLVM 16 and CMake
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y clang-16 llvm-16 cmake ninja-build
+
+      - name: Build
+        run: |
+          mkdir -p build
+          cd build
+          cmake .. -DCMAKE_C_COMPILER=clang-16 -DCMAKE_CXX_COMPILER=clang++-16
+          make -j$(nproc)
+
+      - name: Test
+        run: |
+          cd build
+          ctest --output-on-failure

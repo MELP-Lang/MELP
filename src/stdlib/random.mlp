@@ -1,0 +1,23 @@
+-- stdlib/random.mlp — Random number generation
+-- Source: mlp_stdlib_random.c (Stage1 Phase 1)
+-- STAGE1 Phase 1
+--
+-- These functions are compiler built-ins, exported for stdlib consistency.
+--
+-- EXPORTED: random_seed, random_auto_seed, random_int, random_bool
+
+-- Seed the random number generator
+none function random_seed(numeric n)
+end_function
+
+-- Seed from system time (non-deterministic)
+none function random_auto_seed()
+end_function
+
+-- Generate random integer in range [min, max] inclusive
+numeric function random_int(numeric min; numeric max)
+end_function
+
+-- Generate random boolean (50-50 chance)
+boolean function random_bool()
+end_function

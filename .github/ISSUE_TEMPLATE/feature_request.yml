@@ -1,0 +1,51 @@
+name: Özellik İsteği
+description: MELP için yeni bir özellik veya dil yapısı önerin
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Öneriniz için teşekkürler! Büyük özellikler için önce issue açıp tartışmayı beklemenizi öneririz.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Hangi Sorunu Çözüyor?
+      description: Bu özellik olmadan ne yapamıyorsunuz?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Önerilen Çözüm
+      description: İstediğiniz sözdizimini veya davranışı açıklayın
+      placeholder: |
+        Örnek kullanım:
+        ```mlp
+        var x = 42
+        print("değer: ${x}")  -- string interpolasyon
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatifler
+      description: Şu an bu eksikliği nasıl gidiriyorsunuz?
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Kategori
+      options:
+        - Dil sözdizimi
+        - Standart kütüphane
+        - Derleyici hata mesajları
+        - Performans
+        - Araçlar (LSP, debugger vb.)
+        - Belgeler
+        - Diğer
+    validations:
+      required: true

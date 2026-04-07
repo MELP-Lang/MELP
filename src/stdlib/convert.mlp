@@ -1,0 +1,7 @@
+-- stdlib/convert.mlp — Type conversion utilities
+-- Source: mlp_stdlib_convert.c (Stage1 Phase 1)
+-- STAGE1 Phase 1
+-- 
+-- These functions are compiler built-ins, exported for stdlib consistency.
+-- 
+-- EXPORTED: is_numeric, to_float, is_null

@@ -1,0 +1,16 @@
+-- fibonacci.mlp
+-- Fibonacci sayısı hesaplar (özyinelemeli)
+-- Beklenen: fibonacci(10) → 55
+
+numeric) -> numeric function fibonacci(n
+    if n <= 1 then
+        return n
+    end_if
+    return fibonacci(n - 1) + fibonacci(n - 2)
+end_function
+
+function main() -> numeric
+    print(fibonacci(10))
+    return 0
+end_function
+

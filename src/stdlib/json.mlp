@@ -1,0 +1,24 @@
+-- EXPORTED: json_new, json_get, json_set, json_stringify, json_parse
+-- stdlib/json.mlp — JSON utilities
+-- Primitifler: json_* dispatcher (stdlib_builtins.cpp STDLIB-7)
+-- STAGE1 Phase 3
+
+-- Create empty JSON object; returns handle
+numeric function json_new()
+end_function
+
+-- Get string value from JSON object by key
+string function json_get(numeric obj; string key)
+end_function
+
+-- Set string value in JSON object by key; returns updated handle
+numeric function json_set(numeric obj; string key; string value)
+end_function
+
+-- Serialize JSON object to string
+string function json_stringify(numeric obj)
+end_function
+
+-- Parse JSON string into object; returns handle
+numeric function json_parse(string s)
+end_function

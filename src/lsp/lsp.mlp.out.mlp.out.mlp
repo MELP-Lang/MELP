@@ -1,0 +1,199 @@
+-- lsp.mlp — MELP LSP Server ana giriş noktası
+--
+-- JSON-RPC 2.0 stdio transport.
+--
+-- Build:   bash src/lsp/build.sh
+-- Çalıştır: melp_lsp_bin   (stdin/stdout üzerinden editörle konuşur)
+--
+-- Desteklenen method'lar:
+--   initialize
+--   initialized (notification)
+--   shutdown
+--   exit
+--   textDocument/didOpen
+--   textDocument/didChange
+--   textDocument/completion
+--   textDocument/hover
+--
+-- Stage 0 kısıtlamaları:
+--   - Tek doküman state: global temp dosya /tmp/.melp_lsp_doc_src
+--   - Tek doküman URI: /tmp/.melp_lsp_doc_uri
+--   - Bu basit bir single-file LSP — multi-root workspace yok
+--
+-- import "lsp_json.mlp"     <- build.sh ile inject edilir
+-- import "lsp_keywords.mlp" <- build.sh ile inject edilir
+-- import "lsp_protocol.mlp" <- build.sh ile inject edilir
+-- import "lsp_handlers.mlp" <- build.sh ile inject edilir
+
+-- ============================================================================
+-- Document state (temp file protokolü)
+-- ============================================================================
+-- /tmp/.melp_lsp_doc_src  <- açık dokümanın kaynak kodu
+-- /tmp/.melp_lsp_doc_uri  <- açık dokümanın URI'si
+
+string function lsp_get_doc_src()
+    return read_file("/tmp/.melp_lsp_doc_src")
+end_function
+
+string function lsp_get_doc_uri()
+    return read_file("/tmp/.melp_lsp_doc_uri")
+end_function
+
+function lsp_set_doc(string uri; string src)
+    write_file("/tmp/.melp_lsp_doc_src"; src)
+    write_file("/tmp/.melp_lsp_doc_uri"; uri)
+end_function
+
+-- ============================================================================
+-- Message dispatcher
+-- ============================================================================
+
+-- Parse JSON-RPC id — can be numeric or string or null
+-- Returns numeric id (or -1 for notifications)
+numeric function parse_rpc_id(string rpc_msg)
+    -- Try to find "id" key
+    numeric pos = json_find_key(rpc_msg;"id")
+    if pos < 0 then
+        return -1
+    end_if
+    -- Check if value is null
+    if pos + 3 < len(rpc_msg) then
+        string word4 = substring(rpc_msg; pos; 4)
+        if word4 =="null" then
+            return -1
+        end_if
+    end_if
+    -- Check if value is a string
+    string id_ch = substring(rpc_msg; pos; 1)
+    if id_ch =="\"" then
+        -- string id → convert to numeric if possible
+        string id_str = json_read_string(rpc_msg; pos)
+        return to_int(id_str)
+    end_if
+    -- numeric id
+    return json_read_num(rpc_msg; pos)
+end_function
+
+numeric function do_dispatch(string rpc_msg)
+    string rpc_method = json_get_str(rpc_msg;"method")
+    numeric rpc_id = parse_rpc_id(rpc_msg)
+    string rpc_params = json_get_nested(rpc_msg;"params")
+    if len(rpc_params) == 0 then
+        rpc_params ="{}"
+    end_if
+
+    -- initialize
+    if rpc_method =="initialize" then
+        string response = handle_initialize(rpc_id; rpc_params)
+        lsp_send(response)
+        return 0
+    end_if
+
+    -- initialized (notification — no response)
+    if rpc_method =="initialized" then
+        return 0
+    end_if
+
+    -- shutdown
+    if rpc_method =="shutdown" then
+        handle_shutdown(rpc_id)
+        return 0
+    end_if
+
+    -- exit
+    if rpc_method =="exit" then
+        return 0
+    end_if
+
+    -- textDocument/didOpen
+    if rpc_method =="textDocument/didOpen" then
+        string tdoc1 = json_get_nested(rpc_params;"textDocument")
+        string uri1 = json_get_str(tdoc1;"uri")
+        string txt1 = json_get_str(tdoc1;"text")
+        lsp_set_doc(uri1; txt1)
+        handle_diagnostics(uri1; txt1)
+        return 0
+    end_if
+
+    -- textDocument/didChange
+    if rpc_method =="textDocument/didChange" then
+        string tdoc2 = json_get_nested(rpc_params;"textDocument")
+        string uri2 = json_get_str(tdoc2;"uri")
+        string changes = json_get_nested(rpc_params;"contentChanges")
+        numeric arr_start = 1
+        string first_change = json_read_nested(changes; arr_start)
+        string new_txt = json_get_str(first_change;"text")
+        lsp_set_doc(uri2; new_txt)
+        handle_diagnostics(uri2; new_txt)
+        return 0
+    end_if
+
+    -- textDocument/completion
+    if rpc_method =="textDocument/completion" then
+        string tdoc3 = json_get_nested(rpc_params;"textDocument")
+        string uri3 = json_get_str(tdoc3;"uri")
+        string src3 = lsp_get_doc_src()
+        string resp3 = handle_completion(rpc_id; rpc_params; src3; uri3)
+        lsp_send(resp3)
+        return 0
+    end_if
+
+    -- textDocument/hover
+    if rpc_method =="textDocument/hover" then
+        string src4 = lsp_get_doc_src()
+        string resp4 = handle_hover(rpc_id; rpc_params; src4)
+        lsp_send(resp4)
+        return 0
+    end_if
+
+    -- Unknown rpc_method with id → MethodNotFound error
+    if rpc_id >= 0 then
+        string err_method ="Method not found: "
+        err_method = err_method + rpc_method
+        lsp_send(make_rpc_error(rpc_id; -32601; err_method))
+    end_if
+    return 0
+end_function
+
+-- ============================================================================
+-- Main event loop
+-- ============================================================================
+
+function main()
+    -- LSP server başladı — stderr'e log yaz (stdout LSP için ayrılmış)
+    -- Not: Stage0'da stderr yok, log dosyasına yazıyoruz
+    write_file("/tmp/.melp_lsp.log";"melp-lsp 0.1.0 started\n")
+
+    -- State sıfırla
+    write_file("/tmp/.melp_lsp_doc_src";"")
+    write_file("/tmp/.melp_lsp_doc_uri";"")
+
+    -- Stage0 Bug B8: loop true içindeki if'te exit çalışmıyor → loop boolean
+    -- Stage0 Bug B9: nested if-else + void call yanlış IR üretiyor
+    -- Workaround: void dispatch yerine numeric wrapper kullan
+    boolean running = true
+    loop running
+        string rpc_msg = lsp_read_message()
+
+        -- EOF veya hata
+        if len(rpc_msg) == 0 then
+            running = false
+        end_if
+
+        -- exit notification kontrolü
+        if running then
+            if contains(rpc_msg;"\"exit\"") then
+                running = false
+            end_if
+        end_if
+
+        -- dispatch: her zaman çağır, fonksiyon içinde kontrol eder
+        -- Stage0 Bug B10: void fonksiyon if bloğu içinde düşürülüyor
+        -- Workaround: dispatch'i numeric dönen hale getir
+        if running then
+            numeric dispatch_dummy = do_dispatch(rpc_msg)
+        end_if
+    end_loop
+end_function
+
+

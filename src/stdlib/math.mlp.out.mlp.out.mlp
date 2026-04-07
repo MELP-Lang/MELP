@@ -1,0 +1,248 @@
+-- EXPORTED: abs, max, min, pow, factorial, gcd, lcm, clamp, sign, isEven, isOdd, sumRange, fib, sumOfDigits, countDigits, isPerfectSquare, isPrime, modPow, isqrt, reverseDigits, isPalindrome
+-- stdlib/math_utils.mlp - PMLP0 Standard Math Utilities
+
+numeric) -> numeric function abs(n
+  if n < 0 then
+    return 0 - n
+  end_if
+  return n
+end_function
+
+numeric; b as numeric) -> numeric function max(a
+  if a > b then
+    return a
+  end_if
+  return b
+end_function
+
+numeric; b as numeric) -> numeric function min(a
+  if a < b then
+    return a
+  end_if
+  return b
+end_function
+
+numeric; exp as numeric) -> numeric function pow(base
+  if exp == 0 then
+    return 1
+  end_if
+  numeric result = 1
+  numeric i = 0
+  while i < exp
+    result = result * base
+    i = i + 1
+  end_while
+  return result
+end_function
+
+numeric) -> numeric function factorial(n
+  if n <= 1 then
+    return 1
+  end_if
+  numeric result = 1
+  numeric i = 2
+  while i <= n
+    result = result * i
+    i = i + 1
+  end_while
+  return result
+end_function
+
+numeric; b as numeric) -> numeric function gcd(a
+  numeric p = a
+  numeric q = b
+  while q != 0
+    numeric temp = q
+    q = p mod q
+    p = temp
+  end_while
+  return p
+end_function
+
+numeric; b as numeric) -> numeric function lcm(a
+  numeric g = gcd(a; b)
+  return a * b / g
+end_function
+
+-- Clamp value between min and max
+numeric; minVal as numeric; maxVal as numeric) -> numeric function clamp(val
+  if val < minVal then
+    return minVal
+  end_if
+  if val > maxVal then
+    return maxVal
+  end_if
+  return val
+end_function
+
+-- Return sign of number: -1, 0, or 1
+numeric) -> numeric function sign(n
+  if n < 0 then
+    return 0 - 1
+  end_if
+  if n > 0 then
+    return 1
+  end_if
+  return 0
+end_function
+
+-- Check if number is even
+numeric) -> numeric function isEven(n
+  if n mod 2 == 0 then
+    return 1
+  end_if
+  return 0
+end_function
+
+-- Check if number is odd
+numeric) -> numeric function isOdd(n
+  if n mod 2 != 0 then
+    return 1
+  end_if
+  return 0
+end_function
+
+-- Sum of integers from 1 to n
+numeric) -> numeric function sumRange(n
+  return n * (n + 1) / 2
+end_function
+
+-- Nth Fibonacci number (iterative)
+numeric) -> numeric function fib(n
+  if n <= 1 then
+    return n
+  end_if
+  numeric a = 0
+  numeric b = 1
+  numeric i = 2
+  while i <= n
+    numeric temp = a + b
+    a = b
+    b = temp
+    i = i + 1
+  end_while
+  return b
+end_function
+
+-- Sum of digits
+numeric) -> numeric function sumOfDigits(n
+  numeric val = abs(n)
+  numeric total = 0
+  while val > 0
+    total = total + val mod 10
+    val = val / 10
+  end_while
+  return total
+end_function
+
+-- Count digits in number
+numeric) -> numeric function countDigits(n
+  if n == 0 then
+    return 1
+  end_if
+  numeric val = abs(n)
+  numeric cnt = 0
+  while val > 0
+    cnt = cnt + 1
+    val = val / 10
+  end_while
+  return cnt
+end_function
+
+-- Check if n is a perfect square
+numeric) -> numeric function isPerfectSquare(n
+  if n < 0 then
+    return 0
+  end_if
+  numeric i = 0
+  while i * i <= n
+    if i * i == n then
+      return 1
+    end_if
+    i = i + 1
+  end_while
+  return 0
+end_function
+
+-- Check if n is prime
+numeric) -> numeric function isPrime(n
+  if n <= 1 then
+    return 0
+  end_if
+  if n <= 3 then
+    return 1
+  end_if
+  if n mod 2 == 0 then
+    return 0
+  end_if
+  numeric i = 3
+  while i * i <= n
+    if n mod i == 0 then
+      return 0
+    end_if
+    i = i + 2
+  end_while
+  return 1
+end_function
+
+-- Modular exponentiation: (base^exp) mod m
+numeric; exp as numeric; m as numeric) -> numeric function modPow(base
+  numeric result = 1
+  numeric b = base mod m
+  numeric e = exp
+  while e > 0
+    if e mod 2 == 1 then
+      result = result * b mod m
+    end_if
+    e = e / 2
+    b = b * b mod m
+  end_while
+  return result
+end_function
+
+-- Integer square root (floor of sqrt) - simple search
+numeric) -> numeric function isqrt(n
+  if n < 0 then
+    return 0 - 1
+  end_if
+  if n < 2 then
+    return n
+  end_if
+  numeric i = 1
+  while i * i <= n
+    i = i + 1
+  end_while
+  return i - 1
+end_function
+
+-- Reverse digits of a number
+numeric) -> numeric function reverseDigits(n
+  numeric num = n
+  numeric neg = 0
+  if num < 0 then
+    neg = 1
+    num = abs(num)
+  end_if
+  numeric rev = 0
+  while num > 0
+    rev = rev * 10 + num mod 10
+    num = num / 10
+  end_while
+  if neg == 1 then
+    return 0 - rev
+  end_if
+  return rev
+end_function
+
+-- Check if palindrome number
+numeric) -> numeric function isPalindrome(n
+  if n < 0 then
+    return 0
+  end_if
+  if n == reverseDigits(n) then
+    return 1
+  end_if
+  return 0
+end_function
+
+
