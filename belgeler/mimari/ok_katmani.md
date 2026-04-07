@@ -4,7 +4,7 @@
 Aşağıdaki 11 orijinal belgeden konsolide edilmiştir:
 `OK_LAYER_ARCHITECTURE.md` · `STO_PRINCIPLES.md` · `SAO_PRINCIPLES.md` ·
 `STO_PERFORMANCE.md` · `FBO_COMPACT_ENCODING.md` · `STO_SAO_IMPLEMENTATION_ROADMAP.md` ·
-`language/STO.md` · `melp_felsefesi/FBO_FAST_BINARY_OBJECTS.md` ·
+`language/STO.md` · `melp_felsefesi/FBO_FRONTEND_BACKEND_OPTIMIZATION.md` ·
 `melp_felsefesi/FBO_FRONTEND_BACKEND_OPTIMIZATION.md` ·
 `melp_felsefesi/OK_AILESI_COK_POK_ROK.md` · `melp_felsefesi/OK_MIDDLEWARE_PATTERN.md`
 

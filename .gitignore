@@ -14,3 +14,18 @@ Thumbs.db
 .vscode/
 *.swp
 *~
+
+# Proje içi iletişim — asla commit edilmez
+PROJE_İLETİŞİM/
+PROJE_ILETISIM/
+PD_TAL*/
+MM_PROJE_SON_DURUM.md
+YZ_Bunu_Oku.md
+MM_LOG.md
+MM_DEVIR_TESLIM*
+*_RAPORU_*.md
+*TALIMAT*.md
+*YAPILACAKLAR*.md
+*PIPELINE*RAPOR*.md
+vsix/*.vsix
+vsix/
