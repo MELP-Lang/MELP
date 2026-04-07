@@ -184,7 +184,7 @@ Aynı program, aynı derleyici, farklı doğal dil.
 
 Tarayıcı tabanlı Web IDE ile MELP'i kurulum yapmadan deneyebilirsiniz:
 
-**[melp.dev/web-ide/](https://melp.dev/web-ide/)**
+**<a href="https://melp.dev/web-ide/" target="_blank">melp.dev/web-ide/</a>**
 
 ---
 
