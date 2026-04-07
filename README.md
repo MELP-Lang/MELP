@@ -147,10 +147,12 @@ end function
 
 **Yerel Sayı Notasyonu** — `a = 3,45` ve `b = 1.000.000,45` doğrudan yazılabilir. Türkçe virgüllü ondalik ve noktalı binlik ayracı sözdizimi düzeyinde desteklenir.
 
-**Sınırsız Hassasiyet — 3 Tip, Sıfır Tip Derdi** — MELP'te yalnızca üç tip vardır:
+**Sınırsız Hassasiyet — 3 Temel Tip, Sıfır Tip Derdi** — MELP'te üç **temel (primitif)** tip vardır:
 - `numeric` → BigDecimal — 1 bit'ten binlerce byte'a kadar her sayı
 - `string` → BigString — herhangi bir uzunlukta metin
 - `boolean` — doğru / yanlış
+
+`struct`, `enum`, `hashmap`, `list` ve generic `T` bu üç temel tip üzerine inşa edilen türetilmiş yapılardır.
 
 Kullanıcı "bu değişkene kaç byte ayırmalıyım?" derdine düşmez. STO (Smart Type Optimization) derleme zamanında değişkenin gerçek kullanımını analiz eder ve bellekte minimum yer kaplayacak şekilde temsil eder. IEEE 754 kısıtı yoktur; finansal ve akademik hesaplamalar RAM sınırına kadar %100 doğrulukla çalışır.
 
@@ -182,7 +184,7 @@ Aynı program, aynı derleyici, farklı doğal dil.
 
 Tarayıcı tabanlı Web IDE ile MELP'i kurulum yapmadan deneyebilirsiniz:
 
-**[melp-lang.github.io/melp-ide-web/](https://melp-lang.github.io/melp-ide-web/)**
+**[melp.dev/web-ide/](https://melp.dev/web-ide/)**
 
 ---
 
