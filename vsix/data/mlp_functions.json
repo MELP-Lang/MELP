@@ -13,9 +13,16 @@
           "signature": "print(value) as none",
           "description": "Prints a value to stdout followed by a newline.",
           "params": [
-            { "name": "value", "type": "numeric | string | boolean", "description": "Value to print" }
+            {
+              "name": "value",
+              "type": "numeric | string | boolean",
+              "description": "Value to print"
+            }
           ],
-          "returns": { "type": "none", "description": "No return value" },
+          "returns": {
+            "type": "none",
+            "description": "No return value"
+          },
           "example": "print(42)\nprint(\"Hello, World!\")\nprint(\"Count: \" + str(x))"
         },
         {
@@ -23,9 +30,16 @@
           "signature": "println(value) as none",
           "description": "Prints a value to stdout followed by a newline. Identical to print().",
           "params": [
-            { "name": "value", "type": "numeric | string | boolean", "description": "Value to print" }
+            {
+              "name": "value",
+              "type": "numeric | string | boolean",
+              "description": "Value to print"
+            }
           ],
-          "returns": { "type": "none", "description": "No return value" },
+          "returns": {
+            "type": "none",
+            "description": "No return value"
+          },
           "example": "println(\"Merhaba\")\nprintln(42)"
         },
         {
@@ -33,7 +47,10 @@
           "signature": "read_line() as string",
           "description": "Reads one line from stdin and returns it as a string.",
           "params": [],
-          "returns": { "type": "string", "description": "The input line (without trailing newline)" },
+          "returns": {
+            "type": "string",
+            "description": "The input line (without trailing newline)"
+          },
           "example": "string name = read_line()\nprint(\"Hello, \" + name)"
         },
         {
@@ -41,9 +58,16 @@
           "signature": "read_file(path) as string",
           "description": "Reads the entire contents of a file and returns it as a string.",
           "params": [
-            { "name": "path", "type": "string", "description": "Path to the file" }
+            {
+              "name": "path",
+              "type": "string",
+              "description": "Path to the file"
+            }
           ],
-          "returns": { "type": "string", "description": "File contents" },
+          "returns": {
+            "type": "string",
+            "description": "File contents"
+          },
           "example": "string contents = read_file(\"data.txt\")\nprint(contents)"
         },
         {
@@ -51,10 +75,21 @@
           "signature": "write_file(path; content) as numeric",
           "description": "Writes a string to a file, creating or overwriting it. Returns 1 on success, 0 on error.",
           "params": [
-            { "name": "path", "type": "string", "description": "Path to the file" },
-            { "name": "content", "type": "string", "description": "Content to write" }
+            {
+              "name": "path",
+              "type": "string",
+              "description": "Path to the file"
+            },
+            {
+              "name": "content",
+              "type": "string",
+              "description": "Content to write"
+            }
           ],
-          "returns": { "type": "numeric", "description": "1 on success, 0 on error" },
+          "returns": {
+            "type": "numeric",
+            "description": "1 on success, 0 on error"
+          },
           "example": "numeric ok = write_file(\"/tmp/out.txt\"; \"Merhaba\\n\")\nif ok == 1 then\n    print(\"Yazıldı\")\nend_if"
         },
         {
@@ -62,10 +97,21 @@
           "signature": "append_file(path; content) as numeric",
           "description": "Appends a string to the end of a file. Creates the file if it does not exist. Returns 1 on success, 0 on error.",
           "params": [
-            { "name": "path", "type": "string", "description": "Path to the file" },
-            { "name": "content", "type": "string", "description": "Content to append" }
+            {
+              "name": "path",
+              "type": "string",
+              "description": "Path to the file"
+            },
+            {
+              "name": "content",
+              "type": "string",
+              "description": "Content to append"
+            }
           ],
-          "returns": { "type": "numeric", "description": "1 on success, 0 on error" },
+          "returns": {
+            "type": "numeric",
+            "description": "1 on success, 0 on error"
+          },
           "example": "numeric ok = append_file(\"/tmp/log.txt\"; \"Yeni satır\\n\")"
         },
         {
@@ -73,9 +119,16 @@
           "signature": "read_arg(n) as string",
           "description": "Returns the n-th command line argument (1-based). Returns empty string if argument does not exist.",
           "params": [
-            { "name": "n", "type": "numeric", "description": "Argument index, 1-based" }
+            {
+              "name": "n",
+              "type": "numeric",
+              "description": "Argument index, 1-based"
+            }
           ],
-          "returns": { "type": "string", "description": "The argument string, or empty string if out of range" },
+          "returns": {
+            "type": "string",
+            "description": "The argument string, or empty string if out of range"
+          },
           "example": "string arg1 = read_arg(1)\nprint(\"İlk argüman: \" + arg1)"
         }
       ]
@@ -89,9 +142,16 @@
           "signature": "str(value) as string",
           "description": "Converts a numeric or boolean value to its string representation.",
           "params": [
-            { "name": "value", "type": "numeric | boolean", "description": "Value to convert" }
+            {
+              "name": "value",
+              "type": "numeric | boolean",
+              "description": "Value to convert"
+            }
           ],
-          "returns": { "type": "string", "description": "String representation" },
+          "returns": {
+            "type": "string",
+            "description": "String representation"
+          },
           "example": "numeric n = 42\nstring s = str(n)           -- \"42\"\nprint(\"Value: \" + str(n))\nprint(\"Flag: \" + str(true))  -- \"Flag: true\""
         },
         {
@@ -99,9 +159,16 @@
           "signature": "to_number(text) as numeric",
           "description": "Parses a string as a numeric value.",
           "params": [
-            { "name": "text", "type": "string", "description": "String to parse (e.g. \"42\" or \"3,14\")" }
+            {
+              "name": "text",
+              "type": "string",
+              "description": "String to parse (e.g. \"42\" or \"3,14\")"
+            }
           ],
-          "returns": { "type": "numeric", "description": "Parsed numeric value" },
+          "returns": {
+            "type": "numeric",
+            "description": "Parsed numeric value"
+          },
           "example": "numeric n = to_number(\"42\")\nnumeric pi = to_number(\"3,14\")"
         },
         {
@@ -109,9 +176,16 @@
           "signature": "to_boolean(value) as boolean",
           "description": "Converts a numeric value to boolean. Non-zero = true, zero = false.",
           "params": [
-            { "name": "value", "type": "numeric", "description": "Numeric value to convert" }
+            {
+              "name": "value",
+              "type": "numeric",
+              "description": "Numeric value to convert"
+            }
           ],
-          "returns": { "type": "boolean", "description": "true if value != 0, false otherwise" },
+          "returns": {
+            "type": "boolean",
+            "description": "true if value != 0, false otherwise"
+          },
           "example": "boolean b1 = to_boolean(1)   -- true\nboolean b2 = to_boolean(0)   -- false"
         }
       ]
@@ -125,9 +199,16 @@
           "signature": "abs(n) as numeric",
           "description": "Returns the absolute value of n.",
           "params": [
-            { "name": "n", "type": "numeric", "description": "Input number" }
+            {
+              "name": "n",
+              "type": "numeric",
+              "description": "Input number"
+            }
           ],
-          "returns": { "type": "numeric", "description": "Absolute value (always non-negative)" },
+          "returns": {
+            "type": "numeric",
+            "description": "Absolute value (always non-negative)"
+          },
           "example": "numeric a = abs(-7)   -- 7\nnumeric b = abs(5)    -- 5"
         },
         {
@@ -135,10 +216,21 @@
           "signature": "min(a; b) as numeric",
           "description": "Returns the smaller of two numeric values.",
           "params": [
-            { "name": "a", "type": "numeric", "description": "First value" },
-            { "name": "b", "type": "numeric", "description": "Second value" }
+            {
+              "name": "a",
+              "type": "numeric",
+              "description": "First value"
+            },
+            {
+              "name": "b",
+              "type": "numeric",
+              "description": "Second value"
+            }
           ],
-          "returns": { "type": "numeric", "description": "The smaller value" },
+          "returns": {
+            "type": "numeric",
+            "description": "The smaller value"
+          },
           "example": "numeric smallest = min(10; 3)  -- 3"
         },
         {
@@ -146,10 +238,21 @@
           "signature": "max(a; b) as numeric",
           "description": "Returns the larger of two numeric values.",
           "params": [
-            { "name": "a", "type": "numeric", "description": "First value" },
-            { "name": "b", "type": "numeric", "description": "Second value" }
+            {
+              "name": "a",
+              "type": "numeric",
+              "description": "First value"
+            },
+            {
+              "name": "b",
+              "type": "numeric",
+              "description": "Second value"
+            }
           ],
-          "returns": { "type": "numeric", "description": "The larger value" },
+          "returns": {
+            "type": "numeric",
+            "description": "The larger value"
+          },
           "example": "numeric largest = max(10; 3)  -- 10"
         },
         {
@@ -157,9 +260,16 @@
           "signature": "sqrt(n) as numeric",
           "description": "Returns the square root of n.",
           "params": [
-            { "name": "n", "type": "numeric", "description": "Non-negative input" }
+            {
+              "name": "n",
+              "type": "numeric",
+              "description": "Non-negative input"
+            }
           ],
-          "returns": { "type": "numeric", "description": "Square root (truncated to integer)" },
+          "returns": {
+            "type": "numeric",
+            "description": "Square root (truncated to integer)"
+          },
           "example": "numeric s = sqrt(25)  -- 5\nnumeric t = sqrt(2)   -- 1"
         },
         {
@@ -167,9 +277,16 @@
           "signature": "floor(n) as numeric",
           "description": "Returns the largest integer less than or equal to n.",
           "params": [
-            { "name": "n", "type": "numeric", "description": "Input number" }
+            {
+              "name": "n",
+              "type": "numeric",
+              "description": "Input number"
+            }
           ],
-          "returns": { "type": "numeric", "description": "Floor value" },
+          "returns": {
+            "type": "numeric",
+            "description": "Floor value"
+          },
           "example": "numeric f = floor(3)  -- 3"
         },
         {
@@ -177,9 +294,16 @@
           "signature": "ceil(n) as numeric",
           "description": "Returns the smallest integer greater than or equal to n.",
           "params": [
-            { "name": "n", "type": "numeric", "description": "Input number" }
+            {
+              "name": "n",
+              "type": "numeric",
+              "description": "Input number"
+            }
           ],
-          "returns": { "type": "numeric", "description": "Ceiling value" },
+          "returns": {
+            "type": "numeric",
+            "description": "Ceiling value"
+          },
           "example": "numeric c = ceil(3)  -- 3"
         }
       ]
@@ -193,9 +317,16 @@
           "signature": "len(s) as numeric",
           "description": "Returns the number of characters in a string.",
           "params": [
-            { "name": "s", "type": "string", "description": "Input string" }
+            {
+              "name": "s",
+              "type": "string",
+              "description": "Input string"
+            }
           ],
-          "returns": { "type": "numeric", "description": "Character count" },
+          "returns": {
+            "type": "numeric",
+            "description": "Character count"
+          },
           "example": "numeric n = len(\"hello\")  -- 5\nnumeric n = len(\"\")     -- 0"
         },
         {
@@ -203,9 +334,16 @@
           "signature": "upper(s) as string",
           "description": "Converts all characters to uppercase.",
           "params": [
-            { "name": "s", "type": "string", "description": "Input string" }
+            {
+              "name": "s",
+              "type": "string",
+              "description": "Input string"
+            }
           ],
-          "returns": { "type": "string", "description": "Uppercase string" },
+          "returns": {
+            "type": "string",
+            "description": "Uppercase string"
+          },
           "example": "string big = upper(\"hello\")  -- \"HELLO\""
         },
         {
@@ -213,9 +351,16 @@
           "signature": "lower(s) as string",
           "description": "Converts all characters to lowercase.",
           "params": [
-            { "name": "s", "type": "string", "description": "Input string" }
+            {
+              "name": "s",
+              "type": "string",
+              "description": "Input string"
+            }
           ],
-          "returns": { "type": "string", "description": "Lowercase string" },
+          "returns": {
+            "type": "string",
+            "description": "Lowercase string"
+          },
           "example": "string small = lower(\"HELLO\")  -- \"hello\""
         },
         {
@@ -223,9 +368,16 @@
           "signature": "trim(s) as string",
           "description": "Removes leading and trailing whitespace.",
           "params": [
-            { "name": "s", "type": "string", "description": "Input string" }
+            {
+              "name": "s",
+              "type": "string",
+              "description": "Input string"
+            }
           ],
-          "returns": { "type": "string", "description": "Trimmed string" },
+          "returns": {
+            "type": "string",
+            "description": "Trimmed string"
+          },
           "example": "string clean = trim(\"  hello  \")  -- \"hello\""
         },
         {
@@ -233,10 +385,21 @@
           "signature": "contains(s; sub) as boolean",
           "description": "Returns true if string s contains the substring sub.",
           "params": [
-            { "name": "s", "type": "string", "description": "String to search in" },
-            { "name": "sub", "type": "string", "description": "Substring to look for" }
+            {
+              "name": "s",
+              "type": "string",
+              "description": "String to search in"
+            },
+            {
+              "name": "sub",
+              "type": "string",
+              "description": "Substring to look for"
+            }
           ],
-          "returns": { "type": "boolean", "description": "true if sub is found in s" },
+          "returns": {
+            "type": "boolean",
+            "description": "true if sub is found in s"
+          },
           "example": "if contains(\"hello world\"; \"world\") then\n    print(\"found\")\nend_if"
         },
         {
@@ -244,10 +407,21 @@
           "signature": "starts_with(s; prefix) as boolean",
           "description": "Returns true if string s starts with prefix.",
           "params": [
-            { "name": "s", "type": "string", "description": "Input string" },
-            { "name": "prefix", "type": "string", "description": "Prefix to check" }
+            {
+              "name": "s",
+              "type": "string",
+              "description": "Input string"
+            },
+            {
+              "name": "prefix",
+              "type": "string",
+              "description": "Prefix to check"
+            }
           ],
-          "returns": { "type": "boolean", "description": "true if s starts with prefix" },
+          "returns": {
+            "type": "boolean",
+            "description": "true if s starts with prefix"
+          },
           "example": "if starts_with(\"hello\"; \"he\") then\n    print(\"yes\")\nend_if"
         },
         {
@@ -255,10 +429,21 @@
           "signature": "ends_with(s; suffix) as boolean",
           "description": "Returns true if string s ends with suffix.",
           "params": [
-            { "name": "s", "type": "string", "description": "Input string" },
-            { "name": "suffix", "type": "string", "description": "Suffix to check" }
+            {
+              "name": "s",
+              "type": "string",
+              "description": "Input string"
+            },
+            {
+              "name": "suffix",
+              "type": "string",
+              "description": "Suffix to check"
+            }
           ],
-          "returns": { "type": "boolean", "description": "true if s ends with suffix" },
+          "returns": {
+            "type": "boolean",
+            "description": "true if s ends with suffix"
+          },
           "example": "if ends_with(\"hello\"; \"lo\") then\n    print(\"yes\")\nend_if"
         },
         {
@@ -266,10 +451,21 @@
           "signature": "split(s; delimiter) as string[]",
           "description": "Splits string s by delimiter and returns an array of parts.",
           "params": [
-            { "name": "s", "type": "string", "description": "String to split" },
-            { "name": "delimiter", "type": "string", "description": "Delimiter string" }
+            {
+              "name": "s",
+              "type": "string",
+              "description": "String to split"
+            },
+            {
+              "name": "delimiter",
+              "type": "string",
+              "description": "Delimiter string"
+            }
           ],
-          "returns": { "type": "string[]", "description": "Array of string parts" },
+          "returns": {
+            "type": "string[]",
+            "description": "Array of string parts"
+          },
           "example": "string[] parts = split(\"a,b,c\"; \",\")\nprint(parts[0])  -- \"a\"\nprint(parts[1])  -- \"b\""
         },
         {
@@ -277,10 +473,21 @@
           "signature": "join(arr; delimiter) as string",
           "description": "Joins an array of strings with a delimiter.",
           "params": [
-            { "name": "arr", "type": "string[]", "description": "Array of strings to join" },
-            { "name": "delimiter", "type": "string", "description": "Delimiter to place between elements" }
+            {
+              "name": "arr",
+              "type": "string[]",
+              "description": "Array of strings to join"
+            },
+            {
+              "name": "delimiter",
+              "type": "string",
+              "description": "Delimiter to place between elements"
+            }
           ],
-          "returns": { "type": "string", "description": "Joined string" },
+          "returns": {
+            "type": "string",
+            "description": "Joined string"
+          },
           "example": "string[] parts = [\"a\"; \"b\"; \"c\"]\nstring result = join(parts; \", \")  -- \"a, b, c\""
         },
         {
@@ -288,11 +495,26 @@
           "signature": "replace(s; old_val; new_val) as string",
           "description": "Replaces all occurrences of old_val with new_val in string s.",
           "params": [
-            { "name": "s", "type": "string", "description": "Input string" },
-            { "name": "old_val", "type": "string", "description": "Substring to replace" },
-            { "name": "new_val", "type": "string", "description": "Replacement string" }
+            {
+              "name": "s",
+              "type": "string",
+              "description": "Input string"
+            },
+            {
+              "name": "old_val",
+              "type": "string",
+              "description": "Substring to replace"
+            },
+            {
+              "name": "new_val",
+              "type": "string",
+              "description": "Replacement string"
+            }
           ],
-          "returns": { "type": "string", "description": "String with replacements applied" },
+          "returns": {
+            "type": "string",
+            "description": "String with replacements applied"
+          },
           "example": "string result = replace(\"hello world\"; \"world\"; \"MLP\")  -- \"hello MLP\""
         },
         {
@@ -300,11 +522,26 @@
           "signature": "substring(s; start; length) as string",
           "description": "Returns a portion of string s starting at index start with given length.",
           "params": [
-            { "name": "s", "type": "string", "description": "Input string" },
-            { "name": "start", "type": "numeric", "description": "Start index (0-based)" },
-            { "name": "length", "type": "numeric", "description": "Number of characters to extract" }
+            {
+              "name": "s",
+              "type": "string",
+              "description": "Input string"
+            },
+            {
+              "name": "start",
+              "type": "numeric",
+              "description": "Start index (0-based)"
+            },
+            {
+              "name": "length",
+              "type": "numeric",
+              "description": "Number of characters to extract"
+            }
           ],
-          "returns": { "type": "string", "description": "Extracted substring" },
+          "returns": {
+            "type": "string",
+            "description": "Extracted substring"
+          },
           "example": "string sub = substring(\"hello\"; 1; 3)  -- \"ell\""
         },
         {
@@ -312,11 +549,66 @@
           "signature": "index_of(s; sub) as numeric",
           "description": "Returns the position of the first occurrence of sub in s, or -1 if not found.",
           "params": [
-            { "name": "s", "type": "string", "description": "String to search in" },
-            { "name": "sub", "type": "string", "description": "Substring to find" }
+            {
+              "name": "s",
+              "type": "string",
+              "description": "String to search in"
+            },
+            {
+              "name": "sub",
+              "type": "string",
+              "description": "Substring to find"
+            }
           ],
-          "returns": { "type": "numeric", "description": "0-based index, or -1 if not found" },
+          "returns": {
+            "type": "numeric",
+            "description": "0-based index, or -1 if not found"
+          },
           "example": "numeric pos = index_of(\"hello\"; \"ll\")  -- 2\nnumeric pos = index_of(\"hello\"; \"x\")   -- -1"
+        },
+        {
+          "name": "char_code",
+          "signature": "char_code(s; i) as numeric",
+          "description": "Returns the ASCII/Unicode code of the character at index i in string s. Returns 0 if index is out of bounds.",
+          "params": [
+            {
+              "name": "s",
+              "type": "string",
+              "description": "The source string"
+            },
+            {
+              "name": "i",
+              "type": "numeric",
+              "description": "Zero-based character index"
+            }
+          ],
+          "returns": {
+            "type": "numeric",
+            "description": "Character code at index i, or 0 if out of bounds"
+          },
+          "example": "numeric c = char_code(\"Hello\"; 0)  -- 72 (ASCII 'H')\nnumeric zero = char_code(\"Hi\"; 99) -- 0 (out of bounds)"
+        },
+        {
+          "name": "str_eq",
+          "signature": "str_eq(a; b) as numeric",
+          "description": "Compares two strings. Returns 1 if equal, 0 otherwise.",
+          "params": [
+            {
+              "name": "a",
+              "type": "string",
+              "description": "First string"
+            },
+            {
+              "name": "b",
+              "type": "string",
+              "description": "Second string"
+            }
+          ],
+          "returns": {
+            "type": "numeric",
+            "description": "1 if strings are equal, 0 otherwise"
+          },
+          "example": "if str_eq(op; \"==\") == 1 then\n    -- strings are equal\nend if"
         }
       ]
     },
@@ -329,9 +621,16 @@
           "signature": "array.push(value) as none",
           "description": "Appends a value to the end of an array.",
           "params": [
-            { "name": "value", "type": "T", "description": "Value to append (must match array element type)" }
+            {
+              "name": "value",
+              "type": "T",
+              "description": "Value to append (must match array element type)"
+            }
           ],
-          "returns": { "type": "none", "description": "Modifies array in place" },
+          "returns": {
+            "type": "none",
+            "description": "Modifies array in place"
+          },
           "example": "numeric[] nums = []\nnums.push(1)\nnums.push(2)\nprint(nums.length)  -- 2"
         },
         {
@@ -339,7 +638,10 @@
           "signature": "array.pop() as T",
           "description": "Removes and returns the last element of an array.",
           "params": [],
-          "returns": { "type": "T", "description": "The removed last element" },
+          "returns": {
+            "type": "T",
+            "description": "The removed last element"
+          },
           "example": "numeric[] nums = [1; 2; 3]\nnumeric last = nums.pop()  -- 3\nprint(nums.length)         -- 2"
         }
       ]
@@ -353,9 +655,16 @@
           "signature": "hashmap.has(key) as boolean",
           "description": "Returns true if the key exists in the hashmap.",
           "params": [
-            { "name": "key", "type": "string | numeric", "description": "Key to look up" }
+            {
+              "name": "key",
+              "type": "string | numeric",
+              "description": "Key to look up"
+            }
           ],
-          "returns": { "type": "boolean", "description": "true if key exists" },
+          "returns": {
+            "type": "boolean",
+            "description": "true if key exists"
+          },
           "example": "hashmap<string; numeric> m = {}\nm[\"x\"] = 1\nif m.has(\"x\") then\n    print(\"found\")\nend_if"
         },
         {
@@ -363,9 +672,16 @@
           "signature": "hashmap.delete(key) as none",
           "description": "Removes a key-value pair from the hashmap.",
           "params": [
-            { "name": "key", "type": "string | numeric", "description": "Key to remove" }
+            {
+              "name": "key",
+              "type": "string | numeric",
+              "description": "Key to remove"
+            }
           ],
-          "returns": { "type": "none", "description": "Modifies hashmap in place" },
+          "returns": {
+            "type": "none",
+            "description": "Modifies hashmap in place"
+          },
           "example": "hashmap<string; numeric> m = {}\nm[\"a\"] = 10\nm.delete(\"a\")\nprint(m.length)  -- 0"
         },
         {
@@ -373,7 +689,10 @@
           "signature": "hashmap.keys() as string[]",
           "description": "Returns an array of all keys in the hashmap.",
           "params": [],
-          "returns": { "type": "string[] | numeric[]", "description": "Array of keys" },
+          "returns": {
+            "type": "string[] | numeric[]",
+            "description": "Array of keys"
+          },
           "example": "hashmap<string; numeric> m = {}\nm[\"one\"] = 1\nm[\"two\"] = 2\nfor each k in m.keys()\n    print(k + \": \" + str(m[k]))\nend_for"
         }
       ]
@@ -387,10 +706,21 @@
           "signature": "test(name; body) as none",
           "description": "Defines a test case. Body is a lambda that contains assertions.",
           "params": [
-            { "name": "name", "type": "string", "description": "Test name / description" },
-            { "name": "body", "type": "lambda", "description": "Lambda containing assertions" }
+            {
+              "name": "name",
+              "type": "string",
+              "description": "Test name / description"
+            },
+            {
+              "name": "body",
+              "type": "lambda",
+              "description": "Lambda containing assertions"
+            }
           ],
-          "returns": { "type": "none", "description": "Runs the test and reports pass/fail" },
+          "returns": {
+            "type": "none",
+            "description": "Runs the test and reports pass/fail"
+          },
           "example": "test(\"addition works\"; lambda()\n    assert_eq(1 + 1; 2)\nend_lambda)"
         },
         {
@@ -398,10 +728,21 @@
           "signature": "describe(name; body) as none",
           "description": "Groups related tests under a shared description.",
           "params": [
-            { "name": "name", "type": "string", "description": "Group description" },
-            { "name": "body", "type": "lambda", "description": "Lambda containing test() calls" }
+            {
+              "name": "name",
+              "type": "string",
+              "description": "Group description"
+            },
+            {
+              "name": "body",
+              "type": "lambda",
+              "description": "Lambda containing test() calls"
+            }
           ],
-          "returns": { "type": "none", "description": "Runs all tests in the group" },
+          "returns": {
+            "type": "none",
+            "description": "Runs all tests in the group"
+          },
           "example": "describe(\"Math tests\"; lambda()\n    test(\"add\"; lambda()\n        assert_eq(1 + 1; 2)\n    end_lambda)\nend_lambda)"
         },
         {
@@ -409,10 +750,21 @@
           "signature": "assert_eq(actual; expected) as none",
           "description": "Asserts that actual equals expected. Fails the test if not.",
           "params": [
-            { "name": "actual", "type": "any", "description": "The actual value" },
-            { "name": "expected", "type": "any", "description": "The expected value" }
+            {
+              "name": "actual",
+              "type": "any",
+              "description": "The actual value"
+            },
+            {
+              "name": "expected",
+              "type": "any",
+              "description": "The expected value"
+            }
           ],
-          "returns": { "type": "none", "description": "Passes or fails the test" },
+          "returns": {
+            "type": "none",
+            "description": "Passes or fails the test"
+          },
           "example": "assert_eq(2 + 2; 4)\nassert_eq(\"hello\"; \"hello\")"
         },
         {
@@ -420,9 +772,16 @@
           "signature": "assert_true(condition) as none",
           "description": "Asserts that condition is true.",
           "params": [
-            { "name": "condition", "type": "boolean", "description": "Condition to check" }
+            {
+              "name": "condition",
+              "type": "boolean",
+              "description": "Condition to check"
+            }
           ],
-          "returns": { "type": "none", "description": "Passes or fails the test" },
+          "returns": {
+            "type": "none",
+            "description": "Passes or fails the test"
+          },
           "example": "assert_true(5 > 3)\nassert_true(x == 42)"
         },
         {
@@ -430,9 +789,16 @@
           "signature": "assert(condition) as none",
           "description": "Asserts that condition is true inside a test block. Fails the test and exits with code 1 if condition is false.",
           "params": [
-            { "name": "condition", "type": "boolean", "description": "Condition to verify" }
+            {
+              "name": "condition",
+              "type": "boolean",
+              "description": "Condition to verify"
+            }
           ],
-          "returns": { "type": "none", "description": "Passes or fails the test" },
+          "returns": {
+            "type": "none",
+            "description": "Passes or fails the test"
+          },
           "example": "test \"toplama doğru\" do\n    assert(2 + 2 == 4)\nend_test"
         },
         {
@@ -440,9 +806,16 @@
           "signature": "assert_false(condition) as none",
           "description": "Asserts that condition is false.",
           "params": [
-            { "name": "condition", "type": "boolean", "description": "Condition to check" }
+            {
+              "name": "condition",
+              "type": "boolean",
+              "description": "Condition to check"
+            }
           ],
-          "returns": { "type": "none", "description": "Passes or fails the test" },
+          "returns": {
+            "type": "none",
+            "description": "Passes or fails the test"
+          },
           "example": "assert_false(5 > 10)\nassert_false(x == 0)"
         }
       ]

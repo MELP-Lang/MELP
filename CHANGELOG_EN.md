@@ -7,6 +7,36 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.2.0-alpha] - 2026-04-11
+
+### Major Milestone
+
+**MELP is now self-hosting — the compiler can compile itself.**
+
+The MELP compiler is written in `.mlp` and is capable of compiling its own
+source code. This is the core milestone the project has been working toward
+since its inception.
+
+### Technical Details
+
+- **Gen2 = Gen3 differential test:** The `.mlp`-written compiler (Gen2) compiles
+  itself to produce Gen3; zero semantic difference observed except the source
+  comment line.
+- **Patch script removed:** The Python patch script (`fix_ir.py`) used during
+  bootstrap no longer plays any role in the pipeline — zero active passes.
+- **48/48 golden tests:** All pass without any patching.
+- **30+ compiler modules:** The entire compiler is written in `.mlp`.
+
+### Added (STAGE2 compiler modules)
+
+- `compiler/lexer.mlp` — full tokenizer
+- `compiler/dispatch_words.mlp` → split into 8 sub-modules
+- `compiler/control_parser.mlp` → split into 4 sub-modules
+- 30+ `.mlp` compiler modules, all self-hosted
+- 48 golden tests, all PASS
+
+---
+
 ## [0.1.0-alfa] - 2026-03-11
 
 ### First Alpha Release
