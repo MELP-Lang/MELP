@@ -12,6 +12,11 @@
 ![Platform](https://img.shields.io/badge/platform-Linux%20x86__64-lightgrey)
 ![Durum](https://img.shields.io/badge/durum-alfa-orange)
 ![LLVM](https://img.shields.io/badge/backend-LLVM-blueviolet)
+![Selfhosting](https://img.shields.io/badge/selfhosting-kanıtlandı-brightgreen)
+
+> 🎉 **11 Nisan 2026 — MELP artık kendini derleyebiliyor.**  
+> MELP derleyicisi `.mlp` ile yeniden yazıldı ve kendi kaynak kodunu başarıyla derledi.  
+> Gen2 → Gen3 differential test: sıfır semantik fark. [→ CHANGELOG](CHANGELOG.md)
 
 ---
 
@@ -137,7 +142,7 @@ end function
 
 **Modüler Mimari** — Her modül tek sorumluluğa sahiptir; merkezi orkestratör yasaktır. Derleme sırası otomatik dependency graph'tan belirlenir.
 
-**Öz-Derleme Hedefi** — MELP'in derleyicisi sonunda MELP ile yazılacak. v1.0'da derleyici kendini derleyecek.
+**Öz-Derleme ✅ Kanıtlandı** — MELP derleyicisi `.mlp` ile yeniden yazıldı ve kendi kendini derleyebiliyor. 11 Nisan 2026 itibarıyla Gen2 = Gen3 differential test PASS.
 
 **OK Katmanı — STO · SAO · FBO** — Üç aşamalı derleme zamanı optimizasyon sistemi. STO (Smart Type Optimization) tip çıkarımını, SAO (Semantic-Aware Optimization) erişim örnttilerini analiz eder; FBO semantii 4-byte indekse indirger. Agresif ve güvenli derleme zamanı optimizasyonu.
 
