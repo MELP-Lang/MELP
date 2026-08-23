@@ -7,13 +7,16 @@
 
 ## 🚧 Under construction
 
-This repository is **not current**. The code and documents here are a snapshot
-from April 2026 and describe an earlier design; several things they claim are no
-longer part of the language.
+This repository is intentionally empty. The source is not published yet.
 
 Work right now is focused on **custody** — the scope-bound resource-lifetime
-mechanism the whole model rests on. Until that lands and is proven, this
-repository is not a reliable description of MELP.
+mechanism the whole model rests on. Until that lands and is proven, there is
+nothing here worth reading as a description of the language, so nothing is
+published here.
+
+An earlier snapshot of the compiler existed publicly until August 2026. It
+described a design MELP has since moved away from, and it has been withdrawn
+rather than left standing as a stale account of the language.
 
 ### → For current information: **[melp.dev](https://melp.dev)**
 
